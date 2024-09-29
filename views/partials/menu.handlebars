@@ -1,0 +1,103 @@
+<header class="floating-menu">
+  <div class="menu-container">
+    <input type="checkbox" id="menu-toggle" />
+    <label for="menu-toggle" class="hamburger">&#9776;</label>
+    <nav class="menu-drawer">
+      <ul class="menu-items">
+        <li><a href="/"><strong>Austen Tucker</strong></a></li>
+        <li><a href="https://cdn.glitch.global/9d56f6a7-9813-4899-b879-cc8bdeaad695/AustenTuckerCSM.pdf?v=1690224612421">Resume</a></li>
+        <li><a href="https://www.linkedin.com/in/austen-tucker-0968a914/">LinkedIn</a></li>
+        <li><a href="/did">Why the Arcades?</a></li>
+        <li><a href="/books">Books</a></li>
+        <li><a href="/projects">Projects</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li><a href="/music">Music</a></li>
+        <li><a href="https://github.com/Arcadesys">Github</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<style>
+
+.floating-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--foreground-color);
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.menu-container {
+  display: flex;
+  align-items: center;
+}
+
+.hamburger {
+  font-size: 30px;
+  cursor: pointer;
+  padding: 10px;
+  color: var(--text-color);
+  position: fixed; /* Keep the hamburger icon in the same place */
+  top: 10px; /* Adjust as needed */
+  left: 10px; /* Adjust as needed */
+  z-index: 1001; /* Increase z-index to be above the menu drawer */
+}
+
+#menu-toggle {
+  display: none;
+}
+
+.menu-drawer {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100%;
+  background-color: rgba(190, 98, 0, 0.8);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: left 0.3s ease;
+  z-index: 999;
+}
+
+#menu-toggle:checked + .hamburger + .menu-drawer {
+  left: 0;
+}
+
+#menu-toggle:not(:checked) + .hamburger + .menu-drawer {
+  left: -250px;
+}
+
+.menu-drawer ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.menu-drawer li {
+  margin: 10px 0;
+}
+
+.menu-drawer a {
+  display: block;
+  padding: 10px 15px;
+  color: var(--text-color);
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.menu-drawer a:hover {
+  background-color: var(--accent-color);
+  color: var(--background-color);
+}
+
+body {
+  padding-top: 50px;
+} 
+
+</style>

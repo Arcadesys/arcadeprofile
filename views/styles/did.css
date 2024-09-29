@@ -1,0 +1,39 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url("https://cdn.glitch.com/20540af7-c942-4351-9a89-cd33ee5c95a8%2Farcade.jpg?v=1608837796992");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    display: block;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.intro-container {
+
+}
+
+.phone-box {
+    padding-top: 20px;
+    margin-top: 20px; /* Reduced margin to accommodate intro content */
+}
+
+.did-container {
+    padding-top: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+
+

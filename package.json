@@ -1,0 +1,21 @@
+{
+  "name": "glitch-mvp-node",
+  "version": "0.1.0",
+  "description": "A simple Node app built on fastify, instantly up and running.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "easymde": "^2.18.0",
+    "express": "^4.17.1",
+    "express-handlebars": "^8.0.1",
+    "node-fetch": "^2.7.0",
+    "openai": "^4.61.0"
+  },
+  "engines": {},
+  "license": "MIT",
+  "keywords": [
+    "node"
+  ]
+}
