@@ -1,39 +1,24 @@
-import Handlebars from 'handlebars';
-import fs from 'fs';
-import path from 'path';
+import { VercelRequest, VercelResponse } from '@vercel/node';
+import { renderMenu } from '../components/menu';
+import { renderIntro } from '../components/intro';
 
-// Register partials
-const partialsDir = path.join(process.cwd(), 'views', 'partials');
-const filenames = fs.readdirSync(partialsDir);
-
-filenames.forEach(filename => {
-    const matches = /^([^.]+).handlebars$/.exec(filename);
-    if (!matches) {
-        return;
-    }
-    const name = matches[1];
-    const filepath = path.join(partialsDir, filename);
-    const template = fs.readFileSync(filepath, 'utf8');
-    Handlebars.registerPartial(name, template);
-});
-
-// Read and pre-compile the template from views/index.handlebars
-const templateSource = fs.readFileSync(path.join(process.cwd(), 'views', 'index.handlebars'), 'utf-8');
-const template = Handlebars.compile(templateSource);
-
-export default async function handler(req, res) {
-    try {
-        // Render the template with data
-        const html = template({ 
-            title: 'My Page',
-            message: 'Welcome to my site!'
-        });
-        
-        // Send the response
-        res.setHeader('Content-Type', 'text/html');
-        res.status(200).send(html);
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).send(`Internal Server Error: ${error.message}`);
-    }
+export default function render(req: VercelRequest, res: VercelResponse) {
+  const menu = renderMenu();
+  const intro = renderIntro();
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../styles/style.css">
+        <title>Austen Tucker, CSM</title>
+      </head>
+      <body>
+      ${renderMenu()}
+      ${renderIntro()}
+      </body>
+    </html>
+  `;
+  res.send(html);
 }
