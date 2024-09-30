@@ -8,7 +8,7 @@ const html = `
     >
       <div class="intro-content">
         <img
-          src="https://cdn.glitch.global/9d56f6a7-9813-4899-b879-cc8bdeaad695/thearcades.jpg?v=1669768929578"
+          src="/images/avatars/twi.JPG"
           alt="Austen Tucker"
           class="avatar"
         />

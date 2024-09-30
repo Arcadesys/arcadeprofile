@@ -1,8 +1,14 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import render from './index';
 import { renderMenu } from '../components/menu';
-import { renderDidContent } from '../components/did-content';
+import { renderDidChat } from '../components/did-chat';
 
-export default function (req: VercelRequest, res: VercelResponse) {
-  res.status(200).send('Hello, World!');
+
+export default function handler(req: VercelRequest, res: VercelResponse) {
+  const html = `
+    ${renderMenu()}
+    ${renderDidChat()}
+  `;
+
+  res.status(200).send(html);
 }
