@@ -1,3 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
 * {
   margin: 0;
   padding: 0;
@@ -10,7 +32,7 @@
   --text-color: #e5e5e7;
   --accent-color: orange;
   --neonpink: #ff6ec7;
-  --button-background: #1a3b5f; /* A duller version of the accent blue */
+  --button-background: #6c3805; /* A duller version of the accent blue */
 }
 
 .button-link {
@@ -31,6 +53,7 @@
   border-color: var(--neonpink);
 }
 
+
 body {
   background: url("https://cdn.glitch.com/20540af7-c942-4351-9a89-cd33ee5c95a8%2Farcade.jpg?v=1608837796992");
   background-repeat: no-repeat;
@@ -49,9 +72,14 @@ h1 {
   margin-bottom: 0.5em;
 }
 
-h2, h3 {
+h2 {
   font-size: 1.5em;
   text-align: center;
+}
+
+h3 {
+  font-size: 1.4em;
+  text-align: left;
 }
 
 p, ul {
@@ -73,15 +101,26 @@ hr {
   margin: 0 auto;
   padding-bottom: 0.5rem;
 }
+.gaysparkles {
+  text-shadow: 0 0 10px #ff00de, 0 0 20px #ff00de, 0 0 30px #ff00de, 0 0 40px #ff00de;
+}
+
 
 div.intro, .austenbox, .arcadebox {
   background-color: var(--foreground-color);
   margin: 0 auto;
-  max-width: 80%;
   outline: solid 4px var(--accent-color);
   color: var(--text-color);
   padding: 20px;
   border-radius: 8px;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 800px) {
+  div.intro, .austenbox, .arcadebox {
+    max-width: 800px;
+  }
 }
 
 #title {
