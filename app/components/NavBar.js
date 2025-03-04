@@ -27,12 +27,11 @@ export default function NavBar() {
             <ul>
               <li><a className="text-link" href="/" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Home</a></li>
               <li><a className="text-link" href="/books" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Books</a></li>
-              <li><a className="text-link" href="https://cdn.glitch.global/9d56f6a7-9813-4899-b879-cc8bdeaad695/AustenTuckerCSM.pdf?v=1690224612421" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Resume</a></li>
+              <li><a className="text-link" href="/resume/Tucker Austen Scrum Master.pdf" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Resume</a></li>
               <li><a className="text-link" href="https://www.linkedin.com/in/austen-tucker-0968a914/" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>LinkedIn</a></li>
               <li><a className="text-link" href="/did" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Why the Arcades?</a></li>
               <li><a className="text-link" href="/projects" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Projects</a></li>
               <li><a className="text-link" href="/contact" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Contact</a></li>
-              <li><a className="text-link" href="/music" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Music</a></li>
               <li><a className="text-link" href="https://github.com/Arcadesys" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Github</a></li>
             </ul>
           </li>

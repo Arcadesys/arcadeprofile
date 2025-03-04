@@ -6,9 +6,7 @@ export default function() {
         <p>For all inquiries, please email me at <a href="mailto:austen@thearcades.me">austen@thearcades.me</a>.</p>
 
         <h2>Other Ways to Connect</h2>
-
         <ul>
-            <li>Substack: <a href="https://singleplayercoop.substack.com/">https://singleplayercoop.substack.com/</a></li>
             <li>Youtube: <a href="https://www.youtube.com/@momentarymom">https://www.youtube.com/@momentarymom</a></li>
         </ul>
 
