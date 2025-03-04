@@ -1,0 +1,65 @@
+/* File: app/components/NavBar.module.css */
+
+/* Basic navbar styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #333;
+    color: #fff;
+  }
+  
+  /* Hamburger icon styles */
+  .hamburger {
+    display: none; /* Hidden by default */
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  
+  /* Menu drawer styles */
+  .menu {
+    display: flex;
+    list-style: none;
+  }
+  
+  .menu ul {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .button-link {
+    color: #fff;
+    text-decoration: none;
+  }
+
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .hamburger {
+      display: block; /* Show hamburger on small screens */
+    }
+
+    .menu {
+      display: none; /* Hide menu by default */
+      flex-direction: column;
+      width: 100%;
+      background-color: #444;
+      position: absolute;
+      top: 60px; /* Adjust based on navbar height */
+      left: 0;
+    }
+
+    .menu.open {
+      display: flex; /* Show menu when open */
+    }
+
+    .menu ul {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .menu li {
+      padding: 1rem;
+      border-bottom: 1px solid #555;
+    }
+  }
