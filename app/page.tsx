@@ -38,7 +38,7 @@ const IntroContent = () => (
                   <h2>Professional Contacts</h2>
                 </td>
                 <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                  <p>In my dayjob I'm a scrum master and project manager. If you're looking for that professional persona, check out my <a href="/resume/Tucker Austen Scrum Master.pdf">Resume</a> or <a href="https://www.linkedin.com/in/austen-tucker-0968a914/">LinkedIn</a>.</p>
+                  <p>In my dayjob I'm a scrum master and project manager. If you're looking for that professional persona, check out my <a href="/resume/TuckerAustenScrumMaster.pdf">Resume</a> or <a href="https://www.linkedin.com/in/austen-tucker-0968a914/">LinkedIn</a>.</p>
                 </td>
               </tr>
             </tbody>
