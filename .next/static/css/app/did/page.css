@@ -1,0 +1,97 @@
+/*!*****************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/did/globals.css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************/
+.chat-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    background-color: #000000;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    outline: 4px solid orange;
+    /* Ensure all items default to left alignment */
+    align-items: flex-start;
+}
+
+.chat-box {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: flex-start;
+    /* Default alignment for chat boxes */
+    align-self: flex-start;
+}
+
+.message-wrapper {
+    display: flex;
+    flex-direction: column;
+    max-width: 70%;
+}
+
+p {
+    padding: 10px 15px;
+    border-radius: 18px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    margin: 2px 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.twilight-chat {
+    align-self: flex-end; /* Keeps twilight chats aligned to the right */
+}
+
+.twilight-chat .chat-box {
+    flex-direction: row-reverse;
+}
+
+.twilight-chat .message-wrapper {
+    align-items: flex-end;
+}
+
+.twilight-chat p {
+    background-color: #096598;
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+}
+
+.twilight-chat .avatar {
+    margin-left: 10px;
+    margin-right: 0;
+}
+
+.potts-chat p { background-color: #e57615; color: #ffffff; }
+.sam-chat p { background-color: #600261; color: #ffffff; }
+.addie-chat p { background-color: #e118b9; color: #ffffff; }
+.lucy-chat p { background-color: #e22b07; color: #ffffff; }
+.lilith-chat p { background-color: #070083; color: #ffffff; }
+.max-chat p { background-color: #024a03; color: #ffffff; }
+.vib-chat p { background-color: #261c1f; color: #ffffff; }
+.shepard-chat p { background-color: #042a3e; color: #ffffff; }
+.tally-chat p { background-color: #6a347b; color: #ffffff; }
+/* Ensure all other chat types align to the left */
+.potts-chat,
+.sam-chat,
+.addie-chat,
+.lucy-chat,
+.lilith-chat,
+.max-chat,
+.vib-chat,
+.shepard-chat,
+.tally-chat {
+    align-self: flex-start;
+}
+
+.avatar {
+    margin-right: 10px;
+    align-self: flex-end;
+}
+
+.avatar img {
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+}
