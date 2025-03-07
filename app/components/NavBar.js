@@ -3,7 +3,6 @@
 'use client'; // This ensures the component is rendered as a client component
 
 import { useState } from 'react';
-import Link from 'next/link';
 import styles from './NavBar.module.css';
 
 export default function NavBar() {
@@ -30,7 +29,7 @@ export default function NavBar() {
           <li><a className="text-link" href="/did" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Why the Arcades?</a></li>
           <li><a className="text-link" href="/projects" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Projects</a></li>
           <li><a className="text-link" href="/contact" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Contact</a></li>
-          <li><a className="text-link" href="https://toonpunk.thearcades.me" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Toonpunk Zine</a></li>
+          <li><a className="text-link" href="https://toonpunk.thearcades.me" target="_blank" rel="noopener noreferrer" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Toonpunk Zine</a></li>
           <li><a className="text-link" href="https://github.com/Arcadesys" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Github</a></li>
         </ul>
       </div>

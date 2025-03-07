@@ -1,10 +1,10 @@
-
-import type { Metadata } from "next";
 import "./globals.css";
-import React, { useState } from 'react';
 import NavBar from './components/NavBar.js';
 
-
+export const metadata = {
+  title: 'The Arcades',
+  description: 'The Arcades - Personal site of Austen Tucker',
+};
 
 export default function RootLayout({
   children,
