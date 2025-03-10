@@ -567,6 +567,9 @@ video {
 .collapse {
   visibility: collapse;
 }
+.flex {
+  display: flex;
+}
 .table {
   display: table;
 }
