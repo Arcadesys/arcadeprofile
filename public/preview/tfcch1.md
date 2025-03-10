@@ -96,18 +96,18 @@ I hesitated. It had been ages since I’d sat down just to play for fun, without
 "I'm working on a theme song for the two-flat," I said, lying. Then I let my fingers find the chords, making something up to _Benny and the Jets_ on the fly.
 
 > Hey kids, have you heard the news?  
-Benny’s back in town, and he’s payin’ his dues,
-With a white cat strut and a kitty girl prowl,  
-You’re gonna hear a lot of silly coming down…!
-Oh, Valerie’s got her claws out, and
-Janet’s painted up real proud,  
-B-b-b-Benny and the cats!
-Oh but they’re weird and they’re wonderful,
-And Benny he’s really keen  
-We’ve got Ink to spare…
-And no one cares…
-You know I read it on a Toontown train…
-Oh, Benny and the cats!
+> Benny’s back in town, and he’s payin’ his dues,
+> With a white cat strut and a kitty girl prowl,  
+> You’re gonna hear a lot of silly coming down…!
+> Oh, Valerie’s got her claws out, and
+> Janet’s painted up real proud,  
+> B-b-b-Benny and the cats!
+> Oh but they’re weird and they’re wonderful,
+> And Benny he’s really keen  
+> We’ve got Ink to spare…
+> And no one cares…
+> You know I read it on a Toontown train…
+> Oh, Benny and the cats!
 
 Valerie’s ears perked up. “You _dork_,” she said, but I caught the grin tugging at the corners of her mouth. She raised her wine glass in salute, swishing it like a conductor keeping time. “Sing it, piano bun!”
 

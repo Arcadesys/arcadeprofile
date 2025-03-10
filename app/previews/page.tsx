@@ -7,10 +7,27 @@ const bookInfo: Record<string, { title: string, description: string, coverImage?
   'tfcch1': {
     title: 'The Two-Flat Cats',
     description: 'A story about toons living in a world where cartoons are real.',
-    coverImage: '/images/tfcch1-cover.jpg' // Optional, add if you have cover images
+    coverImage: '/preview/covers/tfc.png'
   },
   // Add more books as needed
 };
+
+// Helper function to check if a cover image exists
+function getCoverImage(bookId: string): string | undefined {
+  const defaultCover = bookInfo[bookId]?.coverImage;
+  if (defaultCover) return defaultCover;
+  
+  // Try to find a cover with the same name as the book ID
+  const possibleCovers = [
+    `/preview/covers/${bookId}.png`,
+    `/preview/covers/${bookId}.jpg`,
+    `/preview/covers/${bookId}.jpeg`
+  ];
+  
+  // In a client component we can't check the file system directly,
+  // but we can return the first possible cover and let the browser handle missing files
+  return possibleCovers[0];
+}
 
 export default function PreviewsPage() {
   // Get all available previews
@@ -20,41 +37,45 @@ export default function PreviewsPage() {
     .map(file => file.replace('.md', ''));
   
   return (
-    <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8 text-center">Book Previews</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {files.map(bookId => {
-          const book = bookInfo[bookId] || { 
-            title: bookId.charAt(0).toUpperCase() + bookId.slice(1).replace(/-/g, ' '), 
-            description: 'Preview available' 
-          };
-          
-          return (
-            <div key={bookId} className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-              {book.coverImage && (
-                <div className="h-48 overflow-hidden">
-                  <img 
-                    src={book.coverImage} 
-                    alt={`Cover for ${book.title}`} 
-                    className="w-full h-full object-cover"
-                  />
+    <div className="w-full px-4 py-8">
+      <div className="austenbox" style={{ margin: "0 auto", marginTop: "5%", marginBottom: "5%" }}>
+        <h1 className="text-3xl font-bold mb-8 text-center gaysparkles">Book Previews</h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {files.map(bookId => {
+            const book = bookInfo[bookId] || { 
+              title: bookId.charAt(0).toUpperCase() + bookId.slice(1).replace(/-/g, ' '), 
+              description: 'Preview available' 
+            };
+            
+            const coverImage = getCoverImage(bookId);
+            
+            return (
+              <div key={bookId} className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                {coverImage && (
+                  <div className="h-64 overflow-hidden">
+                    <img 
+                      src={coverImage} 
+                      alt={`Cover for ${book.title}`} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                
+                <div className="p-4">
+                  <h2 className="text-xl font-semibold mb-2">{book.title}</h2>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">{book.description}</p>
+                  <Link 
+                    href={`/previews/${bookId}`}
+                    className="button-link"
+                  >
+                    Read Preview
+                  </Link>
                 </div>
-              )}
-              
-              <div className="p-4">
-                <h2 className="text-xl font-semibold mb-2">{book.title}</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">{book.description}</p>
-                <Link 
-                  href={`/previews/${bookId}`}
-                  className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-                >
-                  Read Preview
-                </Link>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
