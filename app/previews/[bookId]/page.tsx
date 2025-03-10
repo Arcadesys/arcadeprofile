@@ -44,7 +44,8 @@ export default function PreviewPage({ params }: { params: { bookId: string } }) 
     <div className="w-full">
       <BookPreview 
         content={markdownContent} 
-        bookId={bookId} 
+        bookId={bookId}
+        showCta={true}
       />
     </div>
   );

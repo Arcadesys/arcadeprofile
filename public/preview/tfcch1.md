@@ -1107,24 +1107,3 @@ The bed creaked as I sat on it, the stiffness of the mattress grounding me momen
 I took in as much of the quiet as I could, hoping the space would let my emotions fall. But every few minutes I'd hear him upstairs, all smiles and laughter, _getting off scot free for ruining Fenton's childhood_.
 
 I didn't say a word when I came back up the stairwell. Laughter and conversation echoed off the walls, but I trudged straight up the stairs to our bedroom, where, thank the heavens, Daniel couldn't chase me with his small talk and his annoyingly charming smile.
-
-----
-
-
-Hey there!
-
-I hope you've been enjoying this preview of _The Two-Flat Cats._ If you’ve made it this far, I have a feeling you might want more—and I’d love to send it your way.
-
-I’m currently looking for **beta readers**—people who want an early look at the full draft and are willing to share their thoughts. No pressure, no homework, just your honest reactions.
-
-If you’re interested, here’s how to get the next chapters:
-
-👉 **Fill out this quick form** _(it takes 1-2 minutes!)_  
-https://thearcades.me/betareader
-
-Spots are limited, so if you want in, don’t wait too long! I’d love to have you along for the ride.
-
-
-Keep it silly,
-
-Austen Tucker
