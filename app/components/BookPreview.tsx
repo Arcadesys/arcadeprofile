@@ -7,6 +7,7 @@ interface BookPreviewProps {
   content: string;
   bookId: string;
   showCta?: boolean; // Optional prop to control CTA visibility
+  summary?: string; // Optional summary/blurb for the book
 }
 
 // Helper function to get cover image path
@@ -27,7 +28,7 @@ function getCoverImage(bookId: string): string | undefined {
   return possibleCovers[0];
 }
 
-export default function BookPreview({ content, bookId, showCta = true }: BookPreviewProps) {
+export default function BookPreview({ content, bookId, showCta = true, summary }: BookPreviewProps) {
   const [mounted, setMounted] = useState(false);
   const [title, setTitle] = useState('');
   const coverImage = getCoverImage(bookId);
@@ -82,6 +83,19 @@ export default function BookPreview({ content, bookId, showCta = true }: BookPre
             alt={`Cover for ${title}`} 
             className="w-full h-auto rounded-lg shadow-lg"
           />
+        </div>
+      )}
+      
+      {/* Book Summary/Blurb Section */}
+      {summary && (
+        <div className="w-full max-w-4xl mx-auto mb-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">About this Book</h2>
+          <div className="prose dark:prose-invert prose-lg max-w-none">
+            <div 
+              dangerouslySetInnerHTML={{ __html: formatMarkdown(summary) }} 
+              className="text-gray-700 dark:text-gray-300"
+            />
+          </div>
         </div>
       )}
 
