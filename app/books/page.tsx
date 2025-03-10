@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import "../globals.css";
+import { redirect } from 'next/navigation';
 
 interface BookProps {
   title: string;
@@ -45,15 +46,6 @@ const books: BookProps[] = [
   }
 ];
 
-export default function Books() {
-  return (
-    <div className="austenbox">
-      <h1>Buy my books!</h1>
-      <div className="gallery">
-        {books.map((book, index) => (
-          <Book key={index} {...book} />
-        ))}
-      </div>
-    </div>
-  );
+export default function BooksPage() {
+  redirect('/previews');
 }

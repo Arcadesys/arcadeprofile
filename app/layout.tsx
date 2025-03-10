@@ -1,5 +1,7 @@
 import "./globals.css";
 import NavBar from './components/NavBar.js';
+import ThemeProvider from './components/ThemeProvider';
+import ThemeToggle from './components/ThemeToggle';
 
 export const metadata = {
   title: 'The Arcades',
@@ -12,10 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <NavBar />
-        {children}
+        <ThemeProvider>
+          <NavBar />
+          {children}
+          <ThemeToggle />
+        </ThemeProvider>
       </body>
     </html>
   );
