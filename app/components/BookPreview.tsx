@@ -32,6 +32,7 @@ function getCoverImage(bookId: string): string | undefined {
 export default function BookPreview({ content, bookId, showCta = true, summary }: BookPreviewProps) {
   const [mounted, setMounted] = useState(false);
   const [title, setTitle] = useState('');
+  const [isDownloading, setIsDownloading] = useState(false);
   const coverImage = getCoverImage(bookId);
 
   // Extract title from markdown content (assuming first line is a # heading)
@@ -47,13 +48,44 @@ export default function BookPreview({ content, bookId, showCta = true, summary }
 
   // Handle PDF download
   const handleDownload = () => {
-    // Create a link to the PDF file (assuming it exists at /preview/pdf/{bookId}.pdf)
-    const link = document.createElement('a');
-    link.href = `/preview/pdf/${bookId}.pdf`;
-    link.download = `${bookId}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      // Set downloading state
+      setIsDownloading(true);
+      
+      // Create a link to the PDF file
+      const pdfUrl = `/preview/pdf/${bookId}.pdf`;
+      
+      // First check if the file exists
+      fetch(pdfUrl, { method: 'HEAD' })
+        .then(response => {
+          if (response.ok) {
+            // File exists, proceed with download
+            const link = document.createElement('a');
+            link.href = pdfUrl;
+            link.download = `${bookId}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Reset downloading state after a short delay
+            setTimeout(() => setIsDownloading(false), 1000);
+          } else {
+            // File doesn't exist
+            console.error(`PDF file not found: ${pdfUrl}`);
+            alert(`Sorry, the PDF for "${title}" is not available yet.`);
+            setIsDownloading(false);
+          }
+        })
+        .catch(error => {
+          console.error('Error checking PDF file:', error);
+          alert('Sorry, there was an error downloading the PDF. Please try again later.');
+          setIsDownloading(false);
+        });
+    } catch (error) {
+      console.error('Error in download handler:', error);
+      alert('Sorry, there was an error downloading the PDF. Please try again later.');
+      setIsDownloading(false);
+    }
   };
 
   if (!mounted) {
@@ -71,9 +103,10 @@ export default function BookPreview({ content, bookId, showCta = true, summary }
         </div>
         <button
           onClick={handleDownload}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          disabled={isDownloading}
+          className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors ${isDownloading ? 'opacity-75 cursor-not-allowed' : ''}`}
         >
-          Download PDF
+          {isDownloading ? 'Downloading...' : 'Download PDF'}
         </button>
       </div>
 
