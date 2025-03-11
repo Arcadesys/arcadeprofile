@@ -93,7 +93,7 @@ export default function BooksAndPreviewsPage() {
       <div className="austenbox" style={{ margin: "0 auto", marginTop: "5%", marginBottom: "5%" }}>
         <h1 className="text-3xl font-bold mb-8 text-center gaysparkles">Books & Previews</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-6">
           {Array.from(allBooks).map(bookId => {
             // Get book info or create default
             const book = bookInfo[bookId] || { 
@@ -110,22 +110,22 @@ export default function BooksAndPreviewsPage() {
             const coverImage = book.coverImage || getCoverImage(bookId);
             
             return (
-              <div key={bookId} className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow bg-white dark:bg-gray-800">
+              <div key={bookId} className="flex flex-col md:flex-row gap-4 border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow bg-white dark:bg-gray-800 p-4">
                 {coverImage && (
-                  <div className="h-64 overflow-hidden">
+                  <div className="w-full md:w-1/4 lg:w-1/5 flex-shrink-0">
                     <img 
                       src={coverImage} 
                       alt={`Cover for ${book.title}`} 
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto rounded-lg object-cover max-h-64 md:max-h-48"
                     />
                   </div>
                 )}
                 
-                <div className="p-4">
+                <div className="flex-grow">
                   <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">{book.title}</h2>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">{book.description}</p>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3 md:line-clamp-none">{book.description}</p>
                   
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 mt-auto">
                     {book.hasPreview && (
                       <Link 
                         href={`/previews/${bookId}`}
