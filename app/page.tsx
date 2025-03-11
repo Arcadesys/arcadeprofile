@@ -31,7 +31,7 @@ const IntroContent = () => (
                   <h2>Web App Development</h2>
                 </td>
                 <td style={{ padding: "10px", borderBottom: "1px solid var(--accent-color)" }}>
-                  <p>I'm a full stack developer mostly working in Python, Javascript, and Next.js. My passion is building useful tools for the neurodivergent and blind communities. Check out my projects on my <a href="https://blog.thearcades.me" className="text-link" target="_blank" rel="noopener noreferrer">Eleventy blog</a>.</p>
+                  <p>I'm a full stack developer mostly working in Python, Javascript, and Next.js. My passion is building useful tools for the neurodivergent and blind communities. Check out my projects on my <a href="https://studio.thearcades.me" className="text-link" target="_blank" rel="noopener noreferrer">blog</a>.</p>
                 </td>
               </tr>
               <tr>
