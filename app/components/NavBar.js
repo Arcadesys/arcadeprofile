@@ -34,8 +34,6 @@ export default function NavBar() {
     { href: '/', label: 'Home' },
     { href: '/previews', label: 'Books & Previews' },
     { href: '/did', label: 'Why the Arcades?' },
-    { href: '/projects', label: 'Projects' },
-    { href: 'https://toonpunk.thearcades.me', label: 'Toonpunk Zine', external: true },
   ];
 
   return (
