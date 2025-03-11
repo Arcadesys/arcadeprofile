@@ -34,6 +34,7 @@ export default function NavBar() {
     { href: '/', label: 'Home' },
     { href: '/previews', label: 'Books & Previews' },
     { href: '/did', label: 'Why the Arcades?' },
+    { href: 'https://studio.thearcades.me', label: 'Blog', external: true },
   ];
 
   return (
