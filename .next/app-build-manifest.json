@@ -19,6 +19,7 @@
     "/previews/[bookId]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
+      "static/css/app/previews/[bookId]/page.css",
       "static/chunks/app/previews/[bookId]/page.js"
     ]
   }
