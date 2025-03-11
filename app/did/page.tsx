@@ -319,7 +319,7 @@ function generateMessageHTML(message: { alter: Alter; messages: string[] }, inde
         <div className={`chat-box ${chatClass}`} key={`${alter.name}-message-${index}`}>
             {alter.avatarFirst && avatarElement}
             <div className="message-wrapper">
-                <span>{alter.name} Arcade</span>
+                <span className="alter-name">{alter.name} Arcade</span>
                 {msgs.map((msg, msgIndex) => (
                     <p key={msgIndex}>{msg}</p>
                 ))}
