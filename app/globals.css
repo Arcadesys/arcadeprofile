@@ -5,17 +5,34 @@
 :root {
   --foreground: #000;
   --background: #fff;
+  --foreground-color: #f5f5f7;
+  --background-color: #ffffff;
+  --text-color: #333333;
+  --accent-color: orange;
+  --neonpink: #ff6ec7;
+  --button-background: #6c3805;
 }
 
 .dark {
   --foreground: #fff;
   --background: #1a1a1a;
+  --foreground-color: #2c2c2e;
+  --background-color: #1c1c1e;
+  --text-color: #e5e5e7;
+  --accent-color: orange;
+  --neonpink: #ff6ec7;
+  --button-background: #6c3805;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-color);
+  background: url("https://cdn.glitch.com/20540af7-c942-4351-9a89-cd33ee5c95a8%2Farcade.jpg?v=1608837796992");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
 }
 
 @layer utilities {
@@ -23,19 +40,11 @@ body {
     text-wrap: balance;
   }
 }
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-:root {
-  --background-color: #1c1c1e;
-  --foreground-color: #2c2c2e;
-  --text-color: #e5e5e7;
-  --accent-color: orange;
-  --neonpink: #ff6ec7;
-  --button-background: #6c3805; /* A duller version of the accent blue */
 }
 
 .button-link {
@@ -56,33 +65,22 @@ body {
   border-color: var(--neonpink);
 }
 
-
-body {
-  background: url("https://cdn.glitch.com/20540af7-c942-4351-9a89-cd33ee5c95a8%2Farcade.jpg?v=1608837796992");
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: center;
-  background-size: cover;
-  color: var(--text-color);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  line-height: 1.6;
-}
-
-
-
 h1 {
   font-size: 2em;
   margin-bottom: 0.5em;
+  color: var(--text-color);
 }
 
 h2 {
   font-size: 1.5em;
   text-align: center;
+  color: var(--text-color);
 }
 
 h3 {
   font-size: 1.4em;
   text-align: left;
+  color: var(--text-color);
 }
 
 p, ul {
@@ -99,15 +97,31 @@ hr {
 
 .avatar {
   display: block;
-  max-width: 40%;
+  max-width: 250px;
+  width: 100%;
+  height: auto;
   border-radius: 50%;
-  margin: 0 auto;
-  padding-bottom: 0.5rem;
+  margin: 0 auto 1.5rem auto;
+  border: 4px solid var(--accent-color);
+  box-shadow: 0 0 15px rgba(255, 165, 0, 0.5);
 }
+
+.intro-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+}
+
+.intro-text {
+  width: 100%;
+}
+
 .gaysparkles {
   text-shadow: 0 0 10px #ff00de, 0 0 20px #ff00de, 0 0 30px #ff00de, 0 0 40px #ff00de;
 }
-
 
 div.intro, .austenbox, .arcadebox {
   background-color: var(--foreground-color);
@@ -161,14 +175,12 @@ a:hover {
   text-decoration: underline;
 }
 
-
 .links {
   display: flex;
   justify-content: center;
   gap: 10px;
   margin-top: 20px;
 }
-
 
 .gallery {
   display: grid;
@@ -194,6 +206,7 @@ a:hover {
 .book-title {
   font-weight: bold;
   margin-bottom: 10px;
+  color: var(--text-color);
 }
 
 .buy-button {
@@ -235,4 +248,25 @@ a:hover {
   color: var(--neonpink);
   text-decoration: underline;
   border: none;
+}
+
+/* Add styles for tables to ensure they respect light/dark mode */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--text-color);
+}
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid var(--foreground-color);
+}
+
+/* Ensure all content boxes have proper light/dark mode styling */
+.contentBox {
+  background-color: var(--foreground-color);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+  margin-bottom: 1rem;
 }

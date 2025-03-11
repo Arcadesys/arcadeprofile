@@ -275,14 +275,91 @@ p {
     .chat-container {
         background-color: rgba(255, 255, 255, 0.9);
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        outline: 3px solid #ff8c1a; /* Use Potts' color for the outline in light mode */
     }
     
     .alter-name {
         color: #333;
+        text-shadow: 0px 0px 1px rgba(255,255,255,0.5);
+        font-weight: 800; /* Make names slightly bolder in light mode for better contrast */
     }
     
     .avatar img {
         background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Adjust message bubble colors for better contrast in light mode */
+    .twilight-chat p { 
+        background-color: #0a84cc; 
+        color: white;
+    }
+    
+    .potts-chat p { 
+        background-color: #ff8c1a; 
+        color: white;
+    }
+    
+    .sam-chat p { 
+        background-color: #9932cc; 
+        color: white;
+    }
+    
+    .addie-chat p { 
+        background-color: #ff47d1; 
+        color: white;
+    }
+    
+    .lucy-chat p { 
+        background-color: #ff4500; 
+        color: white;
+    }
+    
+    .lilith-chat p { 
+        background-color: #4169e1; 
+        color: white;
+    }
+    
+    .max-chat p { 
+        background-color: #32cd32; 
+        color: white;
+    }
+    
+    .vib-chat p { 
+        background-color: #cd853f; 
+        color: white;
+    }
+    
+    .shepard-chat p { 
+        background-color: #1e90ff; 
+        color: white;
+    }
+    
+    .tally-chat p { 
+        background-color: #da70d6; 
+        color: white;
+    }
+    
+    /* Ensure name colors are visible in light mode */
+    .twilight-chat .alter-name { color: #0a84cc; font-weight: 800; }
+    .potts-chat .alter-name { color: #e57615; font-weight: 800; }
+    .sam-chat .alter-name { color: #9932cc; font-weight: 800; }
+    .addie-chat .alter-name { color: #ff47d1; font-weight: 800; }
+    .lucy-chat .alter-name { color: #ff4500; font-weight: 800; }
+    .lilith-chat .alter-name { color: #4169e1; font-weight: 800; }
+    .max-chat .alter-name { color: #32cd32; font-weight: 800; }
+    .vib-chat .alter-name { color: #cd853f; font-weight: 800; }
+    .shepard-chat .alter-name { color: #1e90ff; font-weight: 800; }
+    .tally-chat .alter-name { color: #da70d6; font-weight: 800; }
+    
+    /* Add a subtle border to chat bubbles in light mode */
+    p {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Add a subtle background to the chat container's direct children */
+    .chat-container > div {
+        background-color: rgba(255, 255, 255, 0.5);
     }
 }
 
@@ -291,21 +368,40 @@ p {
     .chat-container {
         background-color: rgba(40, 40, 40, 0.9);
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        outline: 3px solid #0a84cc; /* Use Twilight's color for the outline in dark mode */
     }
     
     .alter-name {
         color: #eee;
         text-shadow: 0px 0px 2px rgba(0,0,0,0.4);
+        font-weight: 700;
     }
     
     .avatar img {
         background-color: #333;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     }
     
+    /* Specific dark mode color adjustments for names */
     .sam-chat .alter-name { color: #d8bfd8; }
     .vib-chat .alter-name { color: #deb887; }
     .lilith-chat .alter-name { color: #87cefa; }
     .shepard-chat .alter-name { color: #87cefa; }
+    
+    /* Add a subtle glow to chat bubbles in dark mode */
+    p {
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Add a subtle background to the chat container's direct children */
+    .chat-container > div {
+        background-color: rgba(30, 30, 30, 0.5);
+    }
+    
+    /* Add a subtle glow to avatars in dark mode */
+    .avatar img {
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+    }
 }
 
 /* Add a focus style for keyboard navigation accessibility */
