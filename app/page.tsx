@@ -41,9 +41,15 @@ const IntroContent = () => (
                 <td style={{ padding: "10px", borderBottom: "1px solid var(--accent-color)" }}>
                   <p>In my dayjob I'm a scrum master and project manager. If you're looking for that professional persona, check out my professional links below:</p>
                   
-                  <p className="mb-2">View my <a href="/resume/TuckerAustenScrumMaster.pdf" className="text-link font-medium underline hover:text-orange-400" target="_blank" rel="noopener noreferrer">resume</a>, or use the social links below:</p>
-                  
-                  <div className="flex flex-wrap gap-4 mt-4 justify-center">
+                  <p className="mb-2">View my <a href="/resume/TuckerAustenScrumMaster.pdf" className="text-link font-medium underline hover:text-orange-400" target="_blank" rel="noopener noreferrer">resume</a>.</p>
+                </td>
+              </tr>
+              <tr>
+                <td style={{ padding: "10px" }}>
+                  {/* Empty cell for alignment */}
+                </td>
+                <td style={{ padding: "10px" }}>
+                  <div className="flex flex-wrap gap-4 mt-2 justify-center">
                     <a 
                       href="/resume/TuckerAustenScrumMaster.pdf" 
                       className="flex items-center justify-center w-12 h-12 rounded-full hover:scale-110 transition-transform bg-[#6c3805] border-2 border-orange-500"
@@ -102,6 +108,39 @@ const IntroContent = () => (
         </div>
       </div>
     </div>
+    
+    {/* Footer with attribution */}
+    <footer style={{ 
+      marginTop: "3rem", 
+      textAlign: "center", 
+      fontSize: "0.9rem", 
+      color: "var(--text-color)",
+      opacity: 0.8,
+      padding: "1rem",
+      borderTop: "1px solid var(--accent-color)"
+    }}>
+      <p>
+        © 2025 Austen Tucker. Licensed under <a 
+          href="https://creativecommons.org/licenses/by/4.0/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-link"
+          style={{ textDecoration: "underline" }}
+        >
+          Creative Commons Attribution 4.0
+        </a>
+        {" | "}
+        <a 
+          href="https://github.com/Arcadesys/arcadeprofile" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-link"
+          style={{ textDecoration: "underline" }}
+        >
+          Source Code
+        </a>
+      </p>
+    </footer>
   </div>
 );
 
