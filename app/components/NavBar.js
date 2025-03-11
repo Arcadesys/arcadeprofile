@@ -2,15 +2,46 @@
 
 'use client'; // This ensures the component is rendered as a client component
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import styles from './NavBar.module.css';
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+
+  // Close menu when route changes
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  // Handle mounting to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
+
+  if (!mounted) {
+    return null;
+  }
+
+  const navLinks = [
+    { href: '/', label: 'Home' },
+    { href: '/books', label: 'Books' },
+    { href: '/previews', label: 'Book Previews' },
+    { href: '/resume/TuckerAustenScrumMaster.pdf', label: 'Resume' },
+    { href: 'https://www.linkedin.com/in/austen-tucker-0968a914/', label: 'LinkedIn' },
+    { href: '/did', label: 'Why the Arcades?' },
+    { href: '/projects', label: 'Projects' },
+    { href: '/contact', label: 'Contact' },
+    { href: 'https://toonpunk.thearcades.me', label: 'Toonpunk Zine', external: true },
+    { href: 'https://github.com/Arcadesys', label: 'Github', external: true },
+  ];
 
   return (
     <nav className={styles.navbar}>
@@ -19,19 +50,34 @@ export default function NavBar() {
         ☰
       </div>
 
-      {/* Slide-out menu drawer */}
+      {/* Navigation menu */}
       <div className={`${styles.menu} ${isOpen ? styles.open : ''}`}>
-        <ul className="button-grid">
-          <li><a className="text-link" href="/" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Home</a></li>
-          <li><a className="text-link" href="/books" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Books</a></li>
-          <li><a className="text-link" href="/previews" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Book Previews</a></li>
-          <li><a className="text-link" href="/resume/TuckerAustenScrumMaster.pdf" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Resume</a></li>
-          <li><a className="text-link" href="https://www.linkedin.com/in/austen-tucker-0968a914/" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>LinkedIn</a></li>
-          <li><a className="text-link" href="/did" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Why the Arcades?</a></li>
-          <li><a className="text-link" href="/projects" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Projects</a></li>
-          <li><a className="text-link" href="/contact" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Contact</a></li>
-          <li><a className="text-link" href="https://toonpunk.thearcades.me" target="_blank" rel="noopener noreferrer" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Toonpunk Zine</a></li>
-          <li><a className="text-link" href="https://github.com/Arcadesys" onMouseEnter={(e) => e.target.classList.add('gaysparkles')} onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}>Github</a></li>
+        <ul>
+          {navLinks.map((link, index) => (
+            <li key={index}>
+              {link.external ? (
+                <a 
+                  href={link.href} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={pathname === link.href ? styles.active : ''}
+                  onMouseEnter={(e) => e.target.classList.add('gaysparkles')} 
+                  onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link 
+                  href={link.href}
+                  className={pathname === link.href ? styles.active : ''}
+                  onMouseEnter={(e) => e.target.classList.add('gaysparkles')} 
+                  onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}
+                >
+                  {link.label}
+                </Link>
+              )}
+            </li>
+          ))}
         </ul>
       </div>
     </nav>
