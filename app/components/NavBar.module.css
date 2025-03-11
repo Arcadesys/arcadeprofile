@@ -6,60 +6,128 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
-    background-color: #333;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode styles */
+:global(.dark) .navbar {
+    background-color: rgba(51, 51, 51, 0.9);
     color: #fff;
-  }
-  
-  /* Hamburger icon styles */
-  .hamburger {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Hamburger icon styles */
+.hamburger {
     display: none; /* Hidden by default */
     font-size: 1.5rem;
     cursor: pointer;
-  }
-  
-  /* Menu drawer styles */
-  .menu {
+    color: #333;
+}
+
+:global(.dark) .hamburger {
+    color: #fff;
+}
+
+/* Menu drawer styles */
+.menu {
     display: flex;
     list-style: none;
-  }
-  
-  .menu ul {
+}
+
+.menu ul {
     display: flex;
     gap: 1rem;
-  }
-  
-  .button-link {
-    color: #fff;
-    text-decoration: none;
-  }
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
 
-  /* Responsive Styles */
-  @media (max-width: 768px) {
+.menu a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.menu a:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--accent-color);
+}
+
+/* Active link styles */
+.menu a.active {
+    color: var(--accent-color);
+    font-weight: 600;
+    background-color: rgba(255, 165, 0, 0.1); /* Light orange background */
+}
+
+:global(.dark) .menu a {
+    color: #fff;
+}
+
+:global(.dark) .menu a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+:global(.dark) .menu a.active {
+    color: var(--accent-color);
+    background-color: rgba(255, 165, 0, 0.2); /* Darker orange background for dark mode */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
     .hamburger {
-      display: block; /* Show hamburger on small screens */
+        display: block; /* Show hamburger on small screens */
     }
 
     .menu {
-      display: none; /* Hide menu by default */
-      flex-direction: column;
-      width: 100%;
-      background-color: #444;
-      position: absolute;
-      top: 60px; /* Adjust based on navbar height */
-      left: 0;
+        display: none; /* Hide menu by default */
+        flex-direction: column;
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.95);
+        position: absolute;
+        top: 60px; /* Adjust based on navbar height */
+        left: 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    :global(.dark) .menu {
+        background-color: rgba(51, 51, 51, 0.95);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     }
 
     .menu.open {
-      display: flex; /* Show menu when open */
+        display: flex; /* Show menu when open */
     }
 
     .menu ul {
-      flex-direction: column;
-      gap: 0;
+        flex-direction: column;
+        width: 100%;
     }
 
     .menu li {
-      padding: 1rem;
-      border-bottom: 1px solid #555;
+        padding: 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        width: 100%;
     }
-  }
+
+    :global(.dark) .menu li {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .menu a {
+        display: block;
+        padding: 1rem;
+        width: 100%;
+    }
+}
