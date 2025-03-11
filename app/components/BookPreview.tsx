@@ -103,8 +103,11 @@ export default function BookPreview({ content, bookId, showCta = true, summary }
         className="flex-grow bg-white dark:bg-gray-900 shadow-md rounded-lg p-8 w-full"
         style={{ minHeight: '70vh' }}
       >
-        <article className="prose dark:prose-invert prose-lg max-w-4xl mx-auto">
-          <div dangerouslySetInnerHTML={{ __html: formatMarkdown(content) }} />
+        <article className="prose dark:prose-invert prose-lg max-w-4xl mx-auto text-gray-800 dark:text-gray-200">
+          <div 
+            dangerouslySetInnerHTML={{ __html: formatMarkdown(content) }}
+            className="text-gray-800 dark:text-gray-200" 
+          />
         </article>
       </div>
       
@@ -159,29 +162,31 @@ export default function BookPreview({ content, bookId, showCta = true, summary }
 
 // Simple markdown formatter (for a more robust solution, use a proper markdown library)
 function formatMarkdown(markdown: string): string {
+  if (!markdown) return '';
+  
   // First, handle horizontal rules - they need special treatment
   let html = markdown.replace(/^---+$/gm, '<div class="border-t border-gray-300 dark:border-gray-600 my-8 w-full"></div>');
   
   // Replace headings with better styling
   html = html
-    .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold my-6 pb-2 border-b border-gray-300 dark:border-gray-600 w-full">$1</h1>')
-    .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold mt-8 mb-4">$1</h2>')
-    .replace(/^### (.*$)/gm, '<h3 class="text-xl font-bold mt-6 mb-3">$1</h3>')
-    .replace(/^#### (.*$)/gm, '<h4 class="text-lg font-bold mt-5 mb-2">$1</h4>')
-    .replace(/^##### (.*$)/gm, '<h5 class="text-base font-bold mt-4 mb-2">$1</h5>')
-    .replace(/^###### (.*$)/gm, '<h6 class="text-sm font-bold mt-4 mb-2">$1</h6>');
+    .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold my-6 pb-2 border-b border-gray-300 dark:border-gray-600 w-full text-gray-800 dark:text-gray-200">$1</h1>')
+    .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold mt-8 mb-4 text-gray-800 dark:text-gray-200">$1</h2>')
+    .replace(/^### (.*$)/gm, '<h3 class="text-xl font-bold mt-6 mb-3 text-gray-800 dark:text-gray-200">$1</h3>')
+    .replace(/^#### (.*$)/gm, '<h4 class="text-lg font-bold mt-5 mb-2 text-gray-800 dark:text-gray-200">$1</h4>')
+    .replace(/^##### (.*$)/gm, '<h5 class="text-base font-bold mt-4 mb-2 text-gray-800 dark:text-gray-200">$1</h5>')
+    .replace(/^###### (.*$)/gm, '<h6 class="text-sm font-bold mt-4 mb-2 text-gray-800 dark:text-gray-200">$1</h6>');
 
   // Replace bold and italic
   html = html
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/_(.*?)_/g, '<em>$1</em>');
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-gray-900 dark:text-gray-100">$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em class="text-gray-800 dark:text-gray-200">$1</em>')
+    .replace(/_(.*?)_/g, '<em class="text-gray-800 dark:text-gray-200">$1</em>');
 
   // Replace links
   html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-blue-600 dark:text-blue-400 hover:underline">$1</a>');
 
   // Replace blockquotes
-  html = html.replace(/^\> (.*$)/gm, '<blockquote class="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic my-4">$1</blockquote>');
+  html = html.replace(/^\> (.*$)/gm, '<blockquote class="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic my-4 text-gray-700 dark:text-gray-300">$1</blockquote>');
 
   // Replace paragraphs (must be done last)
   html = html.split('\n\n').map(paragraph => {
@@ -197,7 +202,7 @@ function formatMarkdown(markdown: string): string {
     ) {
       return paragraph;
     }
-    return `<p class="mb-6 leading-relaxed text-lg">${paragraph}</p>`;
+    return `<p class="mb-6 leading-relaxed text-lg text-gray-800 dark:text-gray-200">${paragraph}</p>`;
   }).join('\n\n');
 
   return html;
