@@ -32,8 +32,7 @@ export default function NavBar() {
 
   const navLinks = [
     { href: '/', label: 'Home' },
-    { href: '/books', label: 'Books' },
-    { href: '/previews', label: 'Book Previews' },
+    { href: '/previews', label: 'Books & Previews' },
     { href: '/resume/TuckerAustenScrumMaster.pdf', label: 'Resume' },
     { href: 'https://www.linkedin.com/in/austen-tucker-0968a914/', label: 'LinkedIn' },
     { href: '/did', label: 'Why the Arcades?' },
