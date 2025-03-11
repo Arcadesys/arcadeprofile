@@ -33,13 +33,10 @@ export default function NavBar() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/previews', label: 'Books & Previews' },
-    { href: '/resume/TuckerAustenScrumMaster.pdf', label: 'Resume' },
-    { href: 'https://www.linkedin.com/in/austen-tucker-0968a914/', label: 'LinkedIn' },
     { href: '/did', label: 'Why the Arcades?' },
     { href: '/projects', label: 'Projects' },
     { href: '/contact', label: 'Contact' },
     { href: 'https://toonpunk.thearcades.me', label: 'Toonpunk Zine', external: true },
-    { href: 'https://github.com/Arcadesys', label: 'Github', external: true },
   ];
 
   return (
