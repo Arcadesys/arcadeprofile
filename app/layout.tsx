@@ -2,6 +2,7 @@ import "./globals.css";
 import NavBar from './components/NavBar.js';
 import ThemeProvider from './components/ThemeProvider';
 import ThemeToggle from './components/ThemeToggle';
+import { Analytics } from '@vercel/analytics/react';
 
 export const metadata = {
   title: 'The Arcades',
@@ -20,6 +21,7 @@ export default function RootLayout({
           <NavBar />
           {children}
           <ThemeToggle />
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>
