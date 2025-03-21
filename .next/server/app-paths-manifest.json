@@ -1,12 +1,1 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/betareader/page": "app/betareader/page.js",
-  "/books/page": "app/books/page.js",
-  "/analytics-test/page": "app/analytics-test/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/did/page": "app/did/page.js",
-  "/mealplan/page": "app/mealplan/page.js",
-  "/page": "app/page.js",
-  "/previews/page": "app/previews/page.js",
-  "/previews/[bookId]/page": "app/previews/[bookId]/page.js"
-}
+{}
