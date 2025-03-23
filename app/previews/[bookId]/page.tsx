@@ -21,7 +21,7 @@ function coverImageExists(bookId: string): boolean {
     path.join(process.cwd(), 'public', 'preview', 'covers', `${bookId}.png`),
     path.join(process.cwd(), 'public', 'preview', 'covers', `${bookId}.jpg`),
     path.join(process.cwd(), 'public', 'preview', 'covers', `${bookId.replace('ch1', '')}.png`),
-    path.join(process.cwd(), 'public', 'preview', 'covers', 'tfc.png')
+    path.join(process.cwd(), 'public', 'preview', 'covers', 'book.svg')
   ];
   
   return possiblePaths.some(p => fs.existsSync(p));
