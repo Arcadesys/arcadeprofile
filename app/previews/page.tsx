@@ -17,7 +17,7 @@ const bookInfo: Record<string, BookInfo> = {
   'tfcch1': {
     title: 'The Two-Flat Cats',
     description: 'A story about toons living in a world where cartoons are real.',
-    coverImage: '/preview/covers/tfc.png',
+    coverImage: '/preview/covers/book.svg',
     hasBuyButton: false,
     hasPreview: true
   },

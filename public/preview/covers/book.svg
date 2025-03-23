@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="384" height="512">
+  <!-- Book SVG icon -->
+  <defs>
+    <linearGradient id="bookGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6a347b" />
+      <stop offset="100%" stop-color="#0a84cc" />
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="384" height="512" fill="#f8f9fa" rx="20" ry="20" />
+  <path fill="url(#bookGradient)" d="M256 0v128h128L256 0zM224 128L224 0H48C21.49 0 0 21.49 0 48v416C0 490.5 21.49 512 48 512h288c26.51 0 48-21.49 48-48V160h-127.1C238.3 160 224 145.7 224 128z"/>
+  <!-- Simple decoration lines for pages -->
+  <path fill="#ffffff" opacity="0.4" d="M80 96h80c4.4 0 8 3.6 8 8v16c0 4.4-3.6 8-8 8H80c-4.4 0-8-3.6-8-8v-16c0-4.4 3.6-8 8-8z"/>
+  <path fill="#ffffff" opacity="0.4" d="M80 160h160c4.4 0 8 3.6 8 8v16c0 4.4-3.6 8-8 8H80c-4.4 0-8-3.6-8-8v-16c0-4.4 3.6-8 8-8z"/>
+  <path fill="#ffffff" opacity="0.4" d="M80 224h160c4.4 0 8 3.6 8 8v16c0 4.4-3.6 8-8 8H80c-4.4 0-8-3.6-8-8v-16c0-4.4 3.6-8 8-8z"/>
+  <path fill="#ffffff" opacity="0.4" d="M80 288h160c4.4 0 8 3.6 8 8v16c0 4.4-3.6 8-8 8H80c-4.4 0-8-3.6-8-8v-16c0-4.4 3.6-8 8-8z"/>
+  
+  <!-- Book title text -->
+  <text x="192" y="400" font-family="Arial, sans-serif" font-size="40" font-weight="bold" text-anchor="middle" fill="#ffffff">The</text>
+  <text x="192" y="440" font-family="Arial, sans-serif" font-size="40" font-weight="bold" text-anchor="middle" fill="#ffffff">Two-Flat</text>
+  <text x="192" y="480" font-family="Arial, sans-serif" font-size="40" font-weight="bold" text-anchor="middle" fill="#ffffff">Cats</text>
+</svg> 
