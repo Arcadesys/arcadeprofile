@@ -17,7 +17,7 @@ function getCoverImage(bookId: string): string | undefined {
   const possibleCovers = [
     `/preview/covers/${bookId}.png`,
     `/preview/covers/${bookId.replace('ch1', '')}.png`, // For chapter-specific files
-    `/preview/covers/tfc.png` // Fallback for The Two-Flat Cats
+    `/preview/covers/book.svg` // Fallback for The Two-Flat Cats
   ];
   
   // For tfcch1, we know the cover exists
