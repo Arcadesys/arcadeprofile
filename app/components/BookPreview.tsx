@@ -22,7 +22,7 @@ function getCoverImage(bookId: string): string | undefined {
   
   // For tfcch1, we know the cover exists
   if (bookId === 'tfcch1') {
-    return '/preview/covers/tfc.png';
+    return '/preview/covers/book.svg';
   }
   
   // Return the first possible cover
