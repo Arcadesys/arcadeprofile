@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getAllPosts } from '@/lib/blog';
+import SubscribeForm from '@/app/components/SubscribeForm';
 
 export default function BlogPage() {
   const posts = getAllPosts();
@@ -8,6 +9,8 @@ export default function BlogPage() {
     <div className="w-full px-4 py-8">
       <div className="austenbox" style={{ margin: "0 auto", marginTop: "5%", marginBottom: "5%" }}>
         <h1 className="text-3xl font-bold mb-8 text-center gaysparkles">Blog</h1>
+
+        <SubscribeForm />
 
         {posts.length === 0 ? (
           <p className="text-center text-gray-500">No posts yet. Check back soon!</p>
