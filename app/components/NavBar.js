@@ -33,7 +33,7 @@ export default function NavBar() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/previews', label: 'Books & Previews' },
-    { href: 'https://studio.thearcades.me', label: 'Blog', external: true },
+    { href: '/blog', label: 'Blog' },
   ];
 
   return (
