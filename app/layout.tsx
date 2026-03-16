@@ -1,5 +1,5 @@
 import "./globals.css";
-import NavBar from './components/NavBar.js';
+import NavBar from './components/NavBar';
 import ThemeProvider from './components/ThemeProvider';
 import ThemeToggle from './components/ThemeToggle';
 import SimpleAnalytics from './components/SimpleAnalytics';

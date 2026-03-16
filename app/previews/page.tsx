@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import Link from 'next/link';
-import Image from 'next/image';
 
 // Combined book metadata - in a real app, this could come from a database or JSON file
 interface BookInfo {

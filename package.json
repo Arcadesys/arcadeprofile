@@ -15,9 +15,9 @@
     "next-themes": "^0.2.1",
     "react": "^18",
     "react-dom": "^18",
+    "react-markdown": "^10.1.0",
     "sharp": "^0.33.5",
-    "vercel": "^41.3.2",
-    "yarn": "^1.22.22"
+    "vercel": "^41.3.2"
   },
   "devDependencies": {
     "@types/node": "^20",
