@@ -7,6 +7,11 @@ import SimpleAnalytics from './components/SimpleAnalytics';
 export const metadata = {
   title: 'The Arcades',
   description: 'The Arcades - Personal site of Austen Tucker',
+  alternates: {
+    types: {
+      'application/rss+xml': '/feed.xml',
+    },
+  },
 };
 
 export default function RootLayout({
