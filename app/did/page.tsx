@@ -191,7 +191,7 @@ const messages: { alter: Alter; messages: string[] }[] = [
   {
     alter: alters.shepard,
     messages: [
-      "I'm Shepard. I'm the one who got us sober. Bike rides, piano, cutting straight to the point. Sunday afternoon on two wheels — that's where I live.",
+      "I'm Shepard. I'm the one who keeps us honest about our relationship with alcohol. Bike rides, piano, cutting straight to the point. Sunday afternoon on two wheels — that's where I live.",
       "That's it",
       "That's us.",
       "Twi?",
