@@ -34,6 +34,7 @@ export default function NavBar() {
     { href: '/', label: 'Home' },
     { href: '/previews', label: 'Books & Previews' },
     { href: '/portfolio', label: 'Portfolio' },
+    { href: '/demos', label: 'Demos' },
     { href: '/blog', label: 'Blog' },
   ];
 
