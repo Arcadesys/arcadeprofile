@@ -77,7 +77,7 @@ const messages: { alter: Alter; messages: string[] }[] = [
     messages: [
       "Can we focus, please?",
       "...OK. Let's try again.",
-      "We have DID. It's a dissociative disorder - that means sometimes I involuntarily disconnect from reality - that just so happens to manifest inside as voices in my head.",
+      "We have DID. It's a dissociative disorder — sometimes I involuntarily disconnect from reality, and it manifests as voices in my head.",
     ],
   },
   {
@@ -94,12 +94,14 @@ const messages: { alter: Alter; messages: string[] }[] = [
     ],
   },
   { alter: alters.potts, messages: ["And we're super different!", "...right sorry, just excited"] },
+  { alter: alters.twi, messages: ["Potts."] },
+  { alter: alters.potts, messages: ["Shutting up."] },
   {
     alter: alters.twi,
     messages: [
-      "Yes, our brain is like a neighborhood where these alters coexist. They all have separate internal experiences, identities, preferences, fashion choices, genders, and even memories change depending on which alter is \"fronting,\" or controlling the body.",
-      "Because we're all different alters we struggle to form a consistent identity or life story. Every morning we wake up, it feels like a sequel to \"The Hangover\" - we'll have no clue what day it is, what our schedule looks like, or what skills we'll forget how to use that day.",
-      "(and PS, there are studies about this that can map out which alter lives in which part of the brain, no joke!)",
+      "Our brain is like a neighborhood where these alters coexist. They all have separate internal experiences, identities, preferences, fashion choices, genders — and even memories shift depending on which alter is \"fronting,\" or controlling the body.",
+      "Because of that, we struggle to form a consistent identity or life story. Every morning we wake up, it feels like a sequel to \"The Hangover\" — no clue what day it is, what our schedule looks like, or what skills we'll forget how to use that day.",
+      "(there are studies that can map out which alter lives in which part of the brain, by the way — not making that up)",
       "...OK, y'all can talk now.",
     ],
   },
@@ -107,7 +109,7 @@ const messages: { alter: Alter; messages: string[] }[] = [
     alter: alters.addie,
     messages: [
       "Hello! Let me read up in the chat and jog my memory.",
-      "We talked about dissociation, and partitioned memory, and that each of us have different identities. Check, check, check.",
+      "OK — dissociation, partitioned memory, separate identities. Got it.",
       "Potts, wanna talk about the nice parts?",
     ],
   },
@@ -122,53 +124,56 @@ const messages: { alter: Alter; messages: string[] }[] = [
       "Seriously, we should have a studio name. I propose \"...It came from the Arcade!\"",
       "Anyone?",
       "No?",
-      "...fine. Good things about being a system",
-      "(That's what we call the collection of alters inside the brain)",
-      "We have an insane stress tolerance and endless energy. If one of us ever gets stuck or frustrated, we switch in a fresh face that won't remember any of the frustration.",
-      "And... uh, this is just personal opinion but systems have a TON of hobbies and tend to know how to do a lot of things pretty well. Perk of having roommates in your brain.",
-      "Other than that, yeah. Good days and bad days. Back to you, Twi!",
+      "...fine. Good things about being a system.",
+      "(That's what we call the collection of alters inside the brain.)",
+      "We can take a LOT of stress. If one of us gets stuck or frustrated, we switch in a fresh face who won't remember any of it.",
+      "Also — systems tend to have a million hobbies. Perk of having roommates in your brain.",
+      "Good days and bad days. But mostly good. Twi?",
     ],
   },
-  { alter: alters.twi, messages: ["This is a chat, not a game show"] },
+  { alter: alters.twi, messages: ["This is a chat, not a game show."] },
   { alter: alters.potts, messages: ["Wet blanket over here.", "We doing intros?"] },
+  { alter: alters.twi, messages: ["I will smother you with that wet blanket."] },
+  { alter: alters.potts, messages: ["😂"] },
   {
     alter: alters.twi,
     messages: [
-      "Yes",
-      "I'll start",
-      "Hi, I'm Twilight! I'm the quiet and withdrawn one in the system. I organize the writing duties for the system. I love playing piano, making electronic music, staying up alone on late nights, and the peace of solitude. Nothing is better to me than a rainstorm at 1 o'clock in the morning, especially if I've got some herbal tea and my latest manuscript up on screen.",
+      "Yes. Intros.",
+      "I'll start.",
+      "Hi, I'm Twilight. I'm the quiet one. I handle writing duties for the system — piano, electronic music, late nights alone. My perfect evening is a rainstorm at 1 AM, herbal tea, and a manuscript on screen.",
     ],
   },
   {
     alter: alters.potts,
     messages: [
-      "I'm Potts! I'm a fun-loving guy who loves being the center of attention. I cook for the system, and I'm the one alter in here with a good sense of humor. I love cooking for friends, throwing parties, and making people laugh. Nothing is better to me than a late Summer day on the lake, when the city noise gives way to the sound of gentle waves and the feeling that things are gonna be okay.",
+      "I'm Potts! I cook for the system, I throw the parties, and I'm the only one in here who's actually funny.",
+      "Picture a late summer day on the lake — city noise fading out, gentle waves, that feeling that things are gonna be okay. That's me.",
     ],
   },
   {
     alter: alters.addie,
     messages: [
-      "Addie here. I do project management for the system. I keep the system organized, and it's my job to make sure our professional life stays on track. I love understanding complex systems, playing fighting games, and making the perfect project plan. Nothing is better to me than a free morning to organize all the creative projects we have in the hopper.",
+      "Addie here. Project management. I keep our professional life from catching fire. Fighting games, complex systems, the perfect project plan — give me a free morning and a full creative backlog and I'm happy.",
     ],
   },
   {
     alter: alters.max,
     messages: [
-      "I'm Max. I handle IT for the system. I make tools to help the system navigate life as a disabled person. I love inventing things that didn't exist before, playing Factorio, and learning new tech tools. (Right now I'm suuuper heavy into AI dev work and—",
-      "Right, keep on topic, sorry Twi)",
-      "Nothing is better to me than sitting at my desk with a problem to solve and an IDE ready for me to sling code.",
+      "I'm Max. IT department. I build tools to help us navigate life as a disabled person. Inventing stuff, Factorio, new tech — I'm deep into AI dev work right now and—",
+      "...right, staying on topic.",
+      "Give me a problem and an IDE and I'm gone for hours.",
     ],
   },
   {
     alter: alters.lucy,
     messages: [
-      "Hello! I'm Lucy. I do chores and home improvement for the system. I love knocking out long task lists and working out. Nothing is better to me than waking up early and taking my morning tea in a clean, tidy home.",
+      "Hello! I'm Lucy. Chores and home improvement — I'm the one who actually keeps our life running. Long task lists, working out, early mornings. Tea in a clean house is my religion.",
     ],
   },
   {
     alter: alters.tally,
     messages: [
-      "Tally here. I'm the alter that holds our spirituality. I help the system see the bright side in everything. I love getting to know what makes other people awesome, accompanying myself on the piano, and helping others. Nothing is better to me than a quiet chat with friends around a campfire.",
+      "Tally here. I hold the spirituality for the system — helping us see the bright side. Piano, getting to know people, campfire conversations. That's my whole thing.",
     ],
   },
   {
@@ -178,15 +183,15 @@ const messages: { alter: Alter; messages: string[] }[] = [
   {
     alter: alters.lilith,
     messages: [
-      "I'm Lilith. I'm the alter that handles anger for the system. I...",
-      "...do I really have to say 'love'? ugh.",
-      "I love singing rock songs, getting things done, and playing piano. Nothing is better to me than a karaoke bar and a beer, right when I get called up to the stage.",
+      "I'm Lilith. I handle anger for the system. I...",
+      "...do I really have to say 'love'? Ugh.",
+      "Fine. Rock vocals, getting things done, piano. A karaoke bar, a beer, my name on the list. That's it.",
     ],
   },
   {
     alter: alters.shepard,
     messages: [
-      "I'm Shepard. I'm the alter that pushed us to overcome our alcoholism. I love bike rides, playing piano, and cutting straight to the heart of any matter. Nothing is better to me than a Sunday afternoon bike ride.",
+      "I'm Shepard. I'm the one who got us sober. Bike rides, piano, cutting straight to the point. Sunday afternoon on two wheels — that's where I live.",
       "That's it",
       "That's us.",
       "Twi?",
@@ -196,7 +201,7 @@ const messages: { alter: Alter; messages: string[] }[] = [
     alter: alters.twi,
     messages: [
       "Thanks everyone.",
-      "So that's why we go by the Arcades. Like we said before, all of this is _totally optional information to know_. You're not gonna be quizzed on it, or be expected to know about it at all.",
+      "So that's why we go by the Arcades. None of this is required reading — you're not gonna be quizzed on it.",
     ],
   },
   {
