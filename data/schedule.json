@@ -1,0 +1,29 @@
+{
+  "posts": [
+    {
+      "slug": "hello-world",
+      "status": "published",
+      "scheduledDate": "2026-03-15",
+      "tags": ["meta"],
+      "series": null
+    },
+    {
+      "slug": "week-in-review-2026-03-17",
+      "status": "published",
+      "scheduledDate": "2026-03-17",
+      "tags": ["week-in-review"],
+      "series": "week-in-review"
+    }
+  ],
+  "series": [
+    {
+      "id": "week-in-review",
+      "name": "Week in Review",
+      "description": "Weekly recap of what was built, broken, and learned."
+    }
+  ],
+  "settings": {
+    "publishDays": ["monday", "tuesday", "wednesday", "thursday"],
+    "timezone": "America/Chicago"
+  }
+}
