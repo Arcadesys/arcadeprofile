@@ -3,35 +3,45 @@
 @tailwind utilities;
 
 :root {
-  --foreground: #000;
-  --background: #fff;
-  --foreground-color: #f5f5f7;
-  --background-color: #ffffff;
-  --text-color: #333333;
-  --accent-color: orange;
-  --neonpink: #ff6ec7;
-  --button-background: #6c3805;
+  --bg:            #0a0a14;
+  --surface:       #14142a;
+  --surface-hover: #1e1e3a;
+  --fg:            #e8e8ec;
+  --fg-muted:      #9a9ab0;
+  --accent:        #ff8a00;
+  --neon-pink:     #ff3cac;
+  --magenta:       #ff6b9d;
+  --gold:          #ffaa00;
+  --btn-bg:        #1a1a30;
+  --glow-pink:     rgba(255, 60, 172, 0.4);
+  --glow-orange:   rgba(255, 138, 0, 0.3);
+  --border:        rgba(255, 138, 0, 0.2);
 }
 
-.dark {
-  --foreground: #fff;
-  --background: #1a1a1a;
-  --foreground-color: #2c2c2e;
-  --background-color: #1c1c1e;
-  --text-color: #e5e5e7;
-  --accent-color: orange;
-  --neonpink: #ff6ec7;
-  --button-background: #6c3805;
+.light {
+  --bg:            #faf9f7;
+  --surface:       #ffffff;
+  --surface-hover: #f0eeeb;
+  --fg:            #1a1a2e;
+  --fg-muted:      #6b6b80;
+  --accent:        #e07800;
+  --neon-pink:     #d42e90;
+  --magenta:       #c44f7a;
+  --gold:          #cc8800;
+  --btn-bg:        #f0eeeb;
+  --glow-pink:     rgba(212, 46, 144, 0.15);
+  --glow-orange:   rgba(224, 120, 0, 0.1);
+  --border:        rgba(0, 0, 0, 0.1);
 }
 
 body {
-  color: var(--text-color);
-  background: url("https://cdn.glitch.com/20540af7-c942-4351-9a89-cd33ee5c95a8%2Farcade.jpg?v=1608837796992");
-  background-repeat: no-repeat;
+  color: var(--fg);
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 20% 50%, var(--glow-orange) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, var(--glow-pink) 0%, transparent 50%);
   background-attachment: fixed;
-  background-position: center;
-  background-size: cover;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;
 }
 
@@ -49,50 +59,51 @@ body {
 
 .button-link {
   display: inline-block;
-  padding: 10px 15px;
-  color: var(--text-color);
-  background-color: var(--button-background);
+  padding: 10px 20px;
+  color: var(--fg);
+  background: var(--btn-bg);
   text-decoration: none;
-  border-radius: 20px; /* Lozenge shape */
-  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  transition: all 0.2s;
+  border: 1px solid var(--neon-pink);
 }
 
 .button-link:hover {
-  background-color: var(--accent-color);
-  color: var(--background-color);
+  background: var(--neon-pink);
+  color: #fff;
+  box-shadow: 0 0 16px var(--glow-pink);
+  border-color: var(--neon-pink);
   text-decoration: none;
-  border-color: var(--neonpink);
 }
 
 h1 {
   font-size: 2em;
   margin-bottom: 0.5em;
-  color: var(--text-color);
+  color: var(--fg);
 }
 
 h2 {
   font-size: 1.5em;
   text-align: center;
-  color: var(--text-color);
+  color: var(--fg);
 }
 
 h3 {
   font-size: 1.4em;
   text-align: left;
-  color: var(--text-color);
+  color: var(--fg-muted);
 }
 
 p, ul {
   margin: 1.5em;
-  color: var(--text-color);
+  color: var(--fg);
 }
 
 hr {
-  height: 3px;
+  height: 1px;
   margin: 5% 20%;
-  border-radius: 30%;
-  background-color: var(--accent-color);
+  border: none;
+  background: linear-gradient(90deg, transparent, var(--neon-pink), var(--accent), transparent);
 }
 
 .avatar {
@@ -102,8 +113,8 @@ hr {
   height: auto;
   border-radius: 50%;
   margin: 0 auto 1.5rem auto;
-  border: 4px solid var(--accent-color);
-  box-shadow: 0 0 15px rgba(255, 165, 0, 0.5);
+  border: 3px solid var(--neon-pink);
+  box-shadow: 0 0 20px var(--glow-pink), 0 0 40px var(--glow-orange);
 }
 
 .intro-content {
@@ -120,16 +131,21 @@ hr {
 }
 
 .gaysparkles {
-  text-shadow: 0 0 10px #ff00de, 0 0 20px #ff00de, 0 0 30px #ff00de, 0 0 40px #ff00de;
+  text-shadow:
+    0 0 10px var(--neon-pink),
+    0 0 20px var(--neon-pink),
+    0 0 40px var(--magenta);
 }
 
 div.intro, .austenbox, .arcadebox {
-  background-color: var(--foreground-color);
+  background-color: var(--surface);
   margin: 0 auto;
-  outline: solid 4px var(--accent-color);
-  color: var(--text-color);
-  padding: 20px;
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+  box-shadow: 0 0 30px var(--glow-pink);
+  color: var(--fg);
+  padding: 2rem;
   width: 100%;
   max-width: 100%;
 }
@@ -167,12 +183,14 @@ div.intro, .austenbox, .arcadebox {
 }
 
 a {
-  color: var(--accent-color);
+  color: var(--neon-pink);
   text-decoration: none;
 }
 
 a:hover {
-  text-decoration: underline;
+  color: var(--accent);
+  text-shadow: 0 0 6px var(--glow-pink);
+  text-decoration: none;
 }
 
 .links {
@@ -192,7 +210,7 @@ a:hover {
 .book {
   padding: 10px;
   border-radius: 8px;
-  background-color: var(--foreground-color);
+  background-color: var(--surface);
 }
 
 .book img {
@@ -206,67 +224,62 @@ a:hover {
 .book-title {
   font-weight: bold;
   margin-bottom: 10px;
-  color: var(--text-color);
+  color: var(--fg);
 }
 
 .buy-button {
-  background-color: var(--accent-color);
-  color: var(--background-color);
+  background: linear-gradient(135deg, var(--accent), var(--neon-pink));
+  color: #fff;
   margin-top: 10px;
-  border-color: var(--neonpink);
+  border: none;
 }
 
 .buy-button:hover {
-  background-color: var(--neonpink);
-  border-color: var(--accent-color);
+  box-shadow: 0 0 20px var(--glow-pink);
+  filter: brightness(1.1);
 }
 
-.item1 {
-  grid-area: header;
-}
-.item2 {
-  grid-area: menu;
-}
-.item3 {
-  grid-area: front;
-}
-.item4 {
-  grid-area: faq;
-}
+.item1 { grid-area: header; }
+.item2 { grid-area: menu; }
+.item3 { grid-area: front; }
+.item4 { grid-area: faq; }
 
-/* Add a new class for text links that shouldn't look like buttons */
 .text-link {
   display: inline;
   padding: 0;
   background-color: transparent;
-  color: var(--accent-color);
+  color: var(--neon-pink);
   border: none;
 }
 
 .text-link:hover {
   background-color: transparent;
-  color: var(--neonpink);
+  color: var(--accent);
+  text-shadow: 0 0 6px var(--glow-pink);
   text-decoration: underline;
   border: none;
 }
 
-/* Add styles for tables to ensure they respect light/dark mode */
 table {
   width: 100%;
   border-collapse: collapse;
-  color: var(--text-color);
+  color: var(--fg);
 }
 
 td {
   padding: 10px;
-  border-bottom: 1px solid var(--foreground-color);
+  border-bottom: 1px solid var(--border);
 }
 
-/* Ensure all content boxes have proper light/dark mode styling */
 .contentBox {
-  background-color: var(--foreground-color);
+  background-color: var(--surface);
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   padding: 1rem;
   margin-bottom: 1rem;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--neon-pink);
+  outline-offset: 2px;
 }

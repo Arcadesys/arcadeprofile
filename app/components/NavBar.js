@@ -1,6 +1,6 @@
 // File: app/components/NavBar.js
 
-'use client'; // This ensures the component is rendered as a client component
+'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -12,12 +12,10 @@ export default function NavBar() {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
-  // Close menu when route changes
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
 
-  // Handle mounting to avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -31,15 +29,19 @@ export default function NavBar() {
   }
 
   const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/previews', label: 'Books & Previews' },
-    { href: '/portfolio', label: 'Portfolio' },
-    { href: '/demos', label: 'Demos' },
-    { href: '/blog', label: 'Blog' },
+    { href: '/',          label: 'Home' },
+    { href: '/previews',  label: 'Books' },
+    { href: '/blog',      label: 'Blog' },
+    { href: '/portfolio', label: 'Tools' },
   ];
 
   return (
     <nav className={styles.navbar}>
+      {/* Logo */}
+      <Link href="/" className={styles.logo}>
+        <img src="/the-arcades-logo.svg" alt="The Arcades" height={36} />
+      </Link>
+
       {/* Hamburger icon */}
       <div className={styles.hamburger} onClick={toggleMenu}>
         ☰
@@ -51,22 +53,18 @@ export default function NavBar() {
           {navLinks.map((link, index) => (
             <li key={index}>
               {link.external ? (
-                <a 
-                  href={link.href} 
-                  target="_blank" 
+                <a
+                  href={link.href}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className={pathname === link.href ? styles.active : ''}
-                  onMouseEnter={(e) => e.target.classList.add('gaysparkles')} 
-                  onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}
                 >
                   {link.label}
                 </a>
               ) : (
-                <Link 
+                <Link
                   href={link.href}
                   className={pathname === link.href ? styles.active : ''}
-                  onMouseEnter={(e) => e.target.classList.add('gaysparkles')} 
-                  onMouseLeave={(e) => e.target.classList.remove('gaysparkles')}
                 >
                   {link.label}
                 </Link>

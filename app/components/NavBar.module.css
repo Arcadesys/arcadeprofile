@@ -1,39 +1,44 @@
 /* File: app/components/NavBar.module.css */
 
-/* Basic navbar styles */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
-    background-color: rgba(255, 255, 255, 0.9);
-    color: #333;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: rgba(10, 10, 20, 0.85);
+    color: var(--fg);
+    border-bottom: 1px solid var(--border);
+    box-shadow: none;
     position: sticky;
     top: 0;
     z-index: 100;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Dark mode styles */
-:global(.dark) .navbar {
-    background-color: rgba(51, 51, 51, 0.9);
-    color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+:global(.light) .navbar {
+    background-color: rgba(250, 249, 247, 0.9);
+    border-bottom: 1px solid var(--border);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.logo img {
+    height: 36px;
+    width: auto;
 }
 
 /* Hamburger icon styles */
 .hamburger {
-    display: none; /* Hidden by default */
+    display: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: #333;
-}
-
-:global(.dark) .hamburger {
-    color: #fff;
+    color: var(--fg);
 }
 
 /* Menu drawer styles */
@@ -51,63 +56,65 @@
 }
 
 .menu a {
-    color: #333;
+    color: var(--fg-muted);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 400;
+    letter-spacing: 0.03em;
     padding: 0.5rem 0.75rem;
     border-radius: 0.25rem;
-    transition: all 0.2s ease;
+    transition: color 0.2s;
 }
 
 .menu a:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    color: var(--accent-color);
+    color: var(--neon-pink);
+    background: none;
+    text-shadow: 0 0 8px var(--glow-pink);
 }
 
-/* Active link styles */
 .menu a.active {
-    color: var(--accent-color);
-    font-weight: 600;
-    background-color: rgba(255, 165, 0, 0.1); /* Light orange background */
+    color: var(--neon-pink);
+    font-weight: 500;
+    background: none;
+    text-shadow: 0 0 12px var(--glow-pink);
 }
 
-:global(.dark) .menu a {
-    color: #fff;
+:global(.light) .menu a {
+    color: var(--fg-muted);
 }
 
-:global(.dark) .menu a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+:global(.light) .menu a:hover {
+    color: var(--neon-pink);
 }
 
-:global(.dark) .menu a.active {
-    color: var(--accent-color);
-    background-color: rgba(255, 165, 0, 0.2); /* Darker orange background for dark mode */
+:global(.light) .menu a.active {
+    color: var(--neon-pink);
 }
 
 /* Responsive Styles */
 @media (max-width: 768px) {
     .hamburger {
-        display: block; /* Show hamburger on small screens */
+        display: block;
     }
 
     .menu {
-        display: none; /* Hide menu by default */
+        display: none;
         flex-direction: column;
         width: 100%;
-        background-color: rgba(255, 255, 255, 0.95);
+        background-color: rgba(10, 10, 20, 0.95);
+        border: 1px solid var(--border);
         position: absolute;
-        top: 60px; /* Adjust based on navbar height */
+        top: 60px;
         left: 0;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: none;
     }
 
-    :global(.dark) .menu {
-        background-color: rgba(51, 51, 51, 0.95);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    :global(.light) .menu {
+        background-color: rgba(250, 249, 247, 0.95);
+        border: 1px solid var(--border);
     }
 
     .menu.open {
-        display: flex; /* Show menu when open */
+        display: flex;
     }
 
     .menu ul {
@@ -117,12 +124,8 @@
 
     .menu li {
         padding: 0;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        border-bottom: 1px solid var(--border);
         width: 100%;
-    }
-
-    :global(.dark) .menu li {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .menu a {
