@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_URL = process.env.ACTIVECAMPAIGN_API_URL;
-const API_KEY = process.env.ACTIVECAMPAIGN_API_KEY;
-const LIST_ID = process.env.ACTIVECAMPAIGN_LIST_ID || '1';
+const API_KEY = process.env.BUTTONDOWN_API_KEY;
 
 export async function POST(request: NextRequest) {
-  if (!API_URL || !API_KEY) {
+  if (!API_KEY) {
     return NextResponse.json(
       { error: 'Email subscription is not configured.' },
       { status: 503 }
@@ -19,55 +17,29 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Create or update the contact
-    const contactRes = await fetch(`${API_URL}/api/3/contact/sync`, {
+    const res = await fetch('https://api.buttondown.com/v1/subscribers', {
       method: 'POST',
       headers: {
-        'Api-Token': API_KEY,
+        Authorization: `Token ${API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        contact: { email },
-      }),
+      body: JSON.stringify({ email }),
     });
 
-    if (!contactRes.ok) {
-      const err = await contactRes.text();
-      console.error('ActiveCampaign contact sync failed:', err);
-      return NextResponse.json(
-        { error: 'Failed to subscribe. Please try again.' },
-        { status: 502 }
-      );
+    if (res.status === 201) {
+      return NextResponse.json({ ok: true });
     }
 
-    const { contact } = await contactRes.json();
-
-    // Add the contact to the list
-    const listRes = await fetch(`${API_URL}/api/3/contactLists`, {
-      method: 'POST',
-      headers: {
-        'Api-Token': API_KEY,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contactList: {
-          list: LIST_ID,
-          contact: contact.id,
-          status: 1, // 1 = subscribed
-        },
-      }),
-    });
-
-    if (!listRes.ok) {
-      const err = await listRes.text();
-      console.error('ActiveCampaign list add failed:', err);
-      return NextResponse.json(
-        { error: 'Failed to subscribe. Please try again.' },
-        { status: 502 }
-      );
+    if (res.status === 409) {
+      return NextResponse.json({ ok: true });
     }
 
-    return NextResponse.json({ ok: true });
+    const err = await res.text();
+    console.error('Buttondown subscribe failed:', res.status, err);
+    return NextResponse.json(
+      { error: 'Failed to subscribe. Please try again.' },
+      { status: 502 }
+    );
   } catch (err) {
     console.error('Subscribe error:', err);
     return NextResponse.json(
