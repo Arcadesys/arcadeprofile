@@ -16,13 +16,10 @@ const IntroContent = () => (
           Hi. I'm Austen Tucker.
         </h1>
         <h2 style={{ textAlign: "center" }}>
-          You may know me as <span className="gaysparkles">the Arcades.</span>
+          ...but here, I'm <span className="gaysparkles">the Arcades</span> — an agentic studio that writes, builds, and ships.
         </h2>
-        <p className="arcadetext" style={{ textAlign: "center", marginTop: "0.5rem" }}>
-          We're a system — more than one of us shares this body. If that's new to you, we put together a <Link href="/did" className="text-link">short explainer</Link>. No quiz at the end.
-        </p>
         <p className="arcadetext" style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-          We make a lot of things.
+          A writer who builds their own tools. Many voices, one output.
         </p>
 
         <div className="arcadetext" style={{ textAlign: "left" }}>
