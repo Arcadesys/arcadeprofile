@@ -47,10 +47,7 @@ body {
 }
 
 .light body {
-  background-image:
-    radial-gradient(ellipse at 20% 50%, var(--glow-orange) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, var(--glow-pink) 0%, transparent 50%);
-  background-size: auto;
+  background-image: url('/images/bg-comps/comp1-minimal-light.svg');
 }
 
 @layer utilities {
