@@ -24,15 +24,16 @@ export default function Home() {
           maxWidth: "640px",
           margin: "0 auto 1rem",
         }}>
-          I write queer fantasy novels, build tools for the people traditional tech forgets, and run a ten-agent editorial team out of my laptop so that being blind never has to mean being stuck on a rough draft.
+          Product owner by trade. Novelist by compulsion. Blind, queer, and building things I can&rsquo;t find anywhere else.
         </p>
         <p style={{
-          fontSize: "1.05rem",
+          fontSize: "1.1rem",
           color: "var(--fg-muted)",
-          maxWidth: "560px",
+          lineHeight: 1.6,
+          maxWidth: "580px",
           margin: "0 auto",
         }}>
-          Here, I go by <span className="gaysparkles" style={{ fontWeight: 600 }}>the Arcades</span> &mdash; many voices, one output.
+          In this new world of AI and shifting ground rules, I&rsquo;m not sure what I am yet. This site is where I figure that out &mdash; in public, under the name <span className="gaysparkles" style={{ fontWeight: 600 }}>the Arcades</span>.
         </p>
       </section>
 
