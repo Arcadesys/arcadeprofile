@@ -37,6 +37,39 @@ export default function Home() {
         </p>
       </section>
 
+      {/* Strange But True */}
+      <section style={{
+        marginBottom: "2.5rem",
+        padding: "1.5rem",
+        borderLeft: "3px solid var(--accent, #c084fc)",
+        background: "var(--bg-card, transparent)",
+        borderRadius: "0.5rem",
+      }}>
+        <h2 style={{ fontSize: "1.4rem", marginBottom: "1rem", textAlign: "left" }}>
+          Strange but true
+        </h2>
+        <ul style={{
+          listStyle: "none",
+          padding: 0,
+          margin: 0,
+          display: "grid",
+          gap: "0.75rem",
+        }}>
+          <li style={{ lineHeight: 1.5 }}>
+            I published some of the earliest &ldquo;furry&rdquo; fiction to reach print &mdash; before the genre had a shelf to sit on.
+          </li>
+          <li style={{ lineHeight: 1.5 }}>
+            I helped define what people now call &ldquo;eggfic&rdquo; years before the term existed.
+          </li>
+          <li style={{ lineHeight: 1.5 }}>
+            Nominated for an Ursa Major Award while still in high school.
+          </li>
+          <li style={{ lineHeight: 1.5 }}>
+            My writing is archived in the <strong>Strong National Museum of Play</strong>.
+          </li>
+        </ul>
+      </section>
+
       {/* Cards */}
       <div style={{
         display: "grid",
