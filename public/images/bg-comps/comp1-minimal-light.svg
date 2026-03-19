@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Warm cream base with subtle warmth -->
+    <linearGradient id="skyLight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#faf9f7" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#faf9f7" stop-opacity="1"/>
+      <stop offset="85%" stop-color="#f5f0ea" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#f0e8df" stop-opacity="1"/>
+    </linearGradient>
+    <!-- Sun-like halo glows — very faint warm spots -->
+    <radialGradient id="glowWarm1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e07800" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#e07800" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowWarm2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#d42e90" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#d42e90" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowWarm3" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#cc8800" stop-opacity="0.035"/>
+      <stop offset="100%" stop-color="#cc8800" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Horizon warmth -->
+    <linearGradient id="horizonWarm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e07800" stop-opacity="0.03"/>
+      <stop offset="50%" stop-color="#d42e90" stop-opacity="0.02"/>
+      <stop offset="100%" stop-color="#faf9f7" stop-opacity="0"/>
+    </linearGradient>
+    <!-- Filters -->
+    <filter id="softglowL">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8"/>
+    </filter>
+    <filter id="coronaL">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4"/>
+    </filter>
+    <filter id="moteGlow">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
+    </filter>
+  </defs>
+
+  <!-- Warm cream sky -->
+  <rect width="1920" height="1080" fill="url(#skyLight)"/>
+
+  <!-- Horizon warmth band -->
+  <rect x="0" y="680" width="1920" height="400" fill="url(#horizonWarm)"/>
+
+  <!-- Ambient warm spots — like light catching dust -->
+  <ellipse cx="380" cy="400" rx="500" ry="400" fill="url(#glowWarm1)"/>
+  <ellipse cx="1500" cy="250" rx="600" ry="450" fill="url(#glowWarm2)"/>
+  <ellipse cx="960" cy="800" rx="700" ry="350" fill="url(#glowWarm3)"/>
+
+  <!-- ==================== SOLAR ECLIPSES (halos instead of voids) ==================== -->
+
+  <!-- Primary — large sun-halo, upper right -->
+  <!-- Outer corona glow -->
+  <circle cx="1340" cy="280" r="135" fill="none" stroke="#e07800" stroke-width="6" opacity="0.06" filter="url(#softglowL)"/>
+  <!-- Visible ring -->
+  <circle cx="1340" cy="280" r="120" fill="none" stroke="#e07800" stroke-width="1" opacity="0.15"/>
+  <!-- Inner disc — slightly warmer than background, like looking at the sun through cloud -->
+  <circle cx="1340" cy="280" r="105" fill="#f5f0ea" opacity="0.6"/>
+  <!-- Corona wisps — golden light leaking around -->
+  <path d="M 1225 250 Q 1200 280 1220 310" fill="none" stroke="#e07800" stroke-width="0.6" opacity="0.12"/>
+  <path d="M 1240 200 Q 1220 230 1235 260" fill="none" stroke="#cc8800" stroke-width="0.5" opacity="0.1"/>
+
+  <!-- Secondary — medium, left -->
+  <circle cx="350" cy="450" r="95" fill="none" stroke="#d42e90" stroke-width="4" opacity="0.04" filter="url(#softglowL)"/>
+  <circle cx="350" cy="450" r="80" fill="none" stroke="#d42e90" stroke-width="0.8" opacity="0.12"/>
+  <circle cx="350" cy="450" r="70" fill="#f5f0ea" opacity="0.5"/>
+  <path d="M 275 430 Q 260 450 270 475" fill="none" stroke="#d42e90" stroke-width="0.5" opacity="0.1"/>
+
+  <!-- Tertiary — small, lower center -->
+  <circle cx="880" cy="620" r="60" fill="none" stroke="#c44f7a" stroke-width="3" opacity="0.03" filter="url(#softglowL)"/>
+  <circle cx="880" cy="620" r="50" fill="none" stroke="#c44f7a" stroke-width="0.6" opacity="0.1"/>
+  <circle cx="880" cy="620" r="43" fill="#f5f0ea" opacity="0.4"/>
+
+  <!-- Fourth — tiny accent -->
+  <circle cx="1600" cy="550" r="38" fill="none" stroke="#cc8800" stroke-width="2.5" opacity="0.03" filter="url(#softglowL)"/>
+  <circle cx="1600" cy="550" r="30" fill="none" stroke="#cc8800" stroke-width="0.5" opacity="0.1"/>
+  <circle cx="1600" cy="550" r="26" fill="#f5f0ea" opacity="0.35"/>
+
+  <!-- ==================== RITUAL GEOMETRY (etched/embossed) ==================== -->
+
+  <!-- Concentric rings — like faint watermarks -->
+  <circle cx="960" cy="440" r="400" fill="none" stroke="#e07800" stroke-width="0.3" opacity="0.06"/>
+  <circle cx="960" cy="440" r="500" fill="none" stroke="#d42e90" stroke-width="0.25" opacity="0.04"/>
+  <circle cx="960" cy="440" r="320" fill="none" stroke="#cc8800" stroke-width="0.2" opacity="0.05"/>
+
+  <!-- Connecting lines — ritual paths, barely visible -->
+  <line x1="350" y1="450" x2="880" y2="620" stroke="#d42e90" stroke-width="0.3" opacity="0.04"/>
+  <line x1="880" y1="620" x2="1340" y2="280" stroke="#e07800" stroke-width="0.3" opacity="0.04"/>
+  <line x1="1340" y1="280" x2="350" y2="450" stroke="#c44f7a" stroke-width="0.3" opacity="0.04"/>
+  <line x1="1600" y1="550" x2="880" y2="620" stroke="#cc8800" stroke-width="0.2" opacity="0.03"/>
+
+  <!-- ==================== WIREFRAME LINES (warm, etched) ==================== -->
+
+  <!-- Perspective grid — like pencil marks on parchment -->
+  <line x1="960" y1="750" x2="0" y2="1080" stroke="#e07800" stroke-width="0.25" opacity="0.04"/>
+  <line x1="960" y1="750" x2="192" y2="1080" stroke="#e07800" stroke-width="0.25" opacity="0.03"/>
+  <line x1="960" y1="750" x2="384" y2="1080" stroke="#e07800" stroke-width="0.25" opacity="0.04"/>
+  <line x1="960" y1="750" x2="576" y2="1080" stroke="#e07800" stroke-width="0.25" opacity="0.03"/>
+  <line x1="960" y1="750" x2="768" y2="1080" stroke="#e07800" stroke-width="0.25" opacity="0.04"/>
+  <line x1="960" y1="750" x2="960" y2="1080" stroke="#e07800" stroke-width="0.3" opacity="0.05"/>
+  <line x1="960" y1="750" x2="1152" y2="1080" stroke="#e07800" stroke-width="0.25" opacity="0.04"/>
+  <line x1="960" y1="750" x2="1344" y2="1080" stroke="#e07800" stroke-width="0.25" opacity="0.03"/>
+  <line x1="960" y1="750" x2="1536" y2="1080" stroke="#e07800" stroke-width="0.25" opacity="0.04"/>
+  <line x1="960" y1="750" x2="1728" y2="1080" stroke="#e07800" stroke-width="0.25" opacity="0.03"/>
+  <line x1="960" y1="750" x2="1920" y2="1080" stroke="#e07800" stroke-width="0.25" opacity="0.04"/>
+
+  <!-- Horizontal wireframe lines -->
+  <line x1="0" y1="780" x2="1920" y2="780" stroke="#e07800" stroke-width="0.2" opacity="0.025"/>
+  <line x1="0" y1="815" x2="1920" y2="815" stroke="#e07800" stroke-width="0.2" opacity="0.03"/>
+  <line x1="0" y1="855" x2="1920" y2="855" stroke="#e07800" stroke-width="0.2" opacity="0.03"/>
+  <line x1="0" y1="900" x2="1920" y2="900" stroke="#e07800" stroke-width="0.2" opacity="0.035"/>
+  <line x1="0" y1="950" x2="1920" y2="950" stroke="#e07800" stroke-width="0.25" opacity="0.035"/>
+  <line x1="0" y1="1010" x2="1920" y2="1010" stroke="#e07800" stroke-width="0.25" opacity="0.04"/>
+
+  <!-- ==================== STYLIZED HORIZON ==================== -->
+
+  <!-- Horizon glow — warm golden line -->
+  <line x1="0" y1="750" x2="1920" y2="750" stroke="#e07800" stroke-width="1.5" opacity="0.04" filter="url(#softglowL)"/>
+  <line x1="0" y1="750" x2="1920" y2="750" stroke="#e07800" stroke-width="0.4" opacity="0.08"/>
+
+  <!-- Terrain silhouette — very faint, like a watermark -->
+  <path d="M 0 755 Q 120 740 240 750 Q 360 730 480 745 Q 550 738 620 748 Q 720 725 820 740 Q 900 732 960 742 Q 1040 728 1120 738 Q 1200 730 1280 745 Q 1380 720 1480 735 Q 1560 728 1640 740 Q 1740 732 1820 745 Q 1870 738 1920 748 L 1920 755 L 0 755 Z" fill="#f0e8df" opacity="0.5"/>
+
+  <!-- Horizon wireframe outline -->
+  <path d="M 0 755 Q 120 740 240 750 Q 360 730 480 745 Q 550 738 620 748 Q 720 725 820 740 Q 900 732 960 742 Q 1040 728 1120 738 Q 1200 730 1280 745 Q 1380 720 1480 735 Q 1560 728 1640 740 Q 1740 732 1820 745 Q 1870 738 1920 748" fill="none" stroke="#d42e90" stroke-width="0.4" opacity="0.08"/>
+
+  <!-- Second terrain layer -->
+  <path d="M 0 760 Q 100 752 200 758 Q 340 745 480 755 Q 580 750 680 758 Q 800 740 920 752 Q 1000 748 1080 755 Q 1200 742 1320 752 Q 1440 746 1560 755 Q 1680 748 1800 758 Q 1860 752 1920 760" fill="none" stroke="#e07800" stroke-width="0.3" opacity="0.05"/>
+
+  <!-- Waypoint markers -->
+  <circle cx="720" cy="725" r="2" fill="none" stroke="#d42e90" stroke-width="0.4" opacity="0.08"/>
+  <circle cx="1380" cy="720" r="2" fill="none" stroke="#e07800" stroke-width="0.4" opacity="0.07"/>
+
+  <!-- ==================== DUST MOTES (light-mode stars) ==================== -->
+  <!-- Golden/amber floating particles, like dust in a sunbeam -->
+  <circle cx="120" cy="45" r="1" fill="#e07800" opacity="0.08"/>
+  <circle cx="285" cy="92" r="1.2" fill="#cc8800" opacity="0.07"/>
+  <circle cx="430" cy="30" r="0.8" fill="#e07800" opacity="0.06"/>
+  <circle cx="580" cy="115" r="1" fill="#d42e90" opacity="0.05"/>
+  <circle cx="710" cy="55" r="1.3" fill="#cc8800" opacity="0.08"/>
+  <circle cx="870" cy="40" r="0.9" fill="#e07800" opacity="0.06"/>
+  <circle cx="1020" cy="88" r="1.1" fill="#cc8800" opacity="0.07"/>
+  <circle cx="1180" cy="35" r="0.8" fill="#e07800" opacity="0.06"/>
+  <circle cx="1350" cy="72" r="1.2" fill="#d42e90" opacity="0.05"/>
+  <circle cx="1520" cy="50" r="1" fill="#cc8800" opacity="0.08"/>
+  <circle cx="1680" cy="95" r="0.9" fill="#e07800" opacity="0.05"/>
+  <circle cx="1830" cy="38" r="1.1" fill="#cc8800" opacity="0.06"/>
+
+  <!-- A few motes with soft glow — like light catching a dust particle -->
+  <circle cx="710" cy="55" r="3.5" fill="#cc8800" opacity="0.03" filter="url(#moteGlow)"/>
+  <circle cx="285" cy="92" r="3" fill="#e07800" opacity="0.025" filter="url(#moteGlow)"/>
+  <circle cx="1520" cy="50" r="3.5" fill="#cc8800" opacity="0.03" filter="url(#moteGlow)"/>
+</svg>
