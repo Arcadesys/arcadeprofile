@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BUTTONDOWN_API_KEY = process.env.BUTTONDOWN_API_KEY;
+const API_KEY = process.env.BUTTONDOWN_API_KEY;
 
 export async function POST(request: NextRequest) {
-  if (!BUTTONDOWN_API_KEY) {
+  if (!API_KEY) {
     return NextResponse.json(
       { error: 'Email subscription is not configured.' },
       { status: 503 }
@@ -20,10 +20,11 @@ export async function POST(request: NextRequest) {
     const res = await fetch('https://api.buttondown.com/v1/subscribers', {
       method: 'POST',
       headers: {
-        Authorization: `Token ${BUTTONDOWN_API_KEY}`,
+        Authorization: `Token ${API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, type: 'regular' }),
+      body: JSON.stringify({ email }),
+
     });
 
     if (res.status === 201) {
@@ -31,6 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (res.status === 409) {
+
       return NextResponse.json({ ok: true, message: 'Already subscribed!' });
     }
 

@@ -1,18 +1,85 @@
 {
   "posts": [
     {
-      "slug": "hello-world",
-      "status": "published",
-      "scheduledDate": "2026-03-15",
-      "tags": ["meta"],
-      "series": null
-    },
-    {
       "slug": "week-in-review-2026-03-17",
       "status": "published",
       "scheduledDate": "2026-03-17",
-      "tags": ["week-in-review"],
+      "tags": [
+        "week-in-review"
+      ],
       "series": "week-in-review"
+    },
+    {
+      "slug": "hello-world",
+      "status": "published",
+      "scheduledDate": "2026-03-15",
+      "tags": [
+        "meta"
+      ],
+      "series": null
+    },
+    {
+      "slug": "the-social-singularity",
+      "status": "draft",
+      "scheduledDate": null,
+      "tags": [],
+      "series": null
+    },
+    {
+      "slug": "disposable-art",
+      "status": "published",
+      "scheduledDate": "2026-03-17",
+      "tags": [
+        "art",
+        "ai",
+        "furry",
+        "culture"
+      ],
+      "series": "disposable-art-manifestos"
+    },
+    {
+      "slug": "the-preciousness-problem",
+      "status": "published",
+      "scheduledDate": "2026-03-17",
+      "tags": [
+        "art",
+        "history",
+        "culture"
+      ],
+      "series": "disposable-art-manifestos"
+    },
+    {
+      "slug": "campfire-logic",
+      "status": "published",
+      "scheduledDate": "2026-03-17",
+      "tags": [
+        "art",
+        "music",
+        "culture"
+      ],
+      "series": "disposable-art-manifestos"
+    },
+    {
+      "slug": "after-scarcity",
+      "status": "published",
+      "scheduledDate": "2026-03-17",
+      "tags": [
+        "art",
+        "economics",
+        "culture"
+      ],
+      "series": "disposable-art-manifestos"
+    },
+    {
+      "slug": "i-revised-three-novels-last-week",
+      "status": "published",
+      "scheduledDate": "2026-03-17",
+      "tags": [
+        "writing",
+        "ai",
+        "accessibility"
+      ],
+      "series": null
     }
   ],
   "series": [
@@ -20,10 +87,20 @@
       "id": "week-in-review",
       "name": "Week in Review",
       "description": "Weekly recap of what was built, broken, and learned."
+    },
+    {
+      "id": "disposable-art-manifestos",
+      "name": "The Disposable Art Manifestos",
+      "description": "A four-part series on art, scarcity, and culture."
     }
   ],
   "settings": {
-    "publishDays": ["monday", "tuesday", "wednesday", "thursday"],
+    "publishDays": [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday"
+    ],
     "timezone": "America/Chicago"
   }
 }
