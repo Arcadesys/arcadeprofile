@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div style={{ maxWidth: "860px", margin: "0 auto", padding: "2rem 1rem" }}>
       {/* Hero */}
-      <section style={{ textAlign: "center", marginBottom: "3rem", marginTop: "2rem" }}>
+      <section style={{ textAlign: "center", marginBottom: "2rem", marginTop: "2rem" }}>
         <Image
           src="/images/avatars/twi.JPG"
           alt="Austen Tucker"
@@ -31,21 +31,148 @@ export default function Home() {
           color: "var(--fg-muted)",
           lineHeight: 1.6,
           maxWidth: "580px",
-          margin: "0 auto",
+          margin: "0 auto 1.5rem",
         }}>
           In this new world of AI and shifting ground rules, I&rsquo;m not sure what I am yet. This site is where I figure that out &mdash; in public, under the name <span className="gaysparkles" style={{ fontWeight: 600 }}>the Arcades</span>.
         </p>
+        <p style={{
+          fontSize: "1rem",
+          fontStyle: "italic",
+          color: "var(--neon-pink)",
+          textShadow: "0 0 8px var(--glow-pink)",
+          maxWidth: "500px",
+          margin: "0 auto",
+        }}>
+          I use AI like a bandmate, not a crutch. This is what happens when you stop asking permission.
+        </p>
       </section>
+
+      {/* What I'm doing right now */}
+      <section style={{
+        marginBottom: "2rem",
+        padding: "1.5rem",
+        background: "linear-gradient(135deg, var(--surface) 0%, rgba(255, 60, 172, 0.05) 100%)",
+        border: "1px solid var(--border)",
+        borderRadius: "12px",
+      }}>
+        <h2 style={{ fontSize: "1.3rem", marginBottom: "1rem", textAlign: "left", color: "var(--accent)" }}>
+          What I&rsquo;m doing right now
+        </h2>
+        <ul style={{
+          listStyle: "none",
+          padding: 0,
+          margin: 0,
+          display: "grid",
+          gap: "0.6rem",
+        }}>
+          <li style={{ lineHeight: 1.5 }}>
+            &rarr; Building this site in public with a ten-agent editorial team
+          </li>
+          <li style={{ lineHeight: 1.5 }}>
+            &rarr; Writing a wild memoir about blindness, identity, and the internet
+          </li>
+          <li style={{ lineHeight: 1.5 }}>
+            &rarr; Making tools for people traditional tech forgot
+          </li>
+          <li style={{ lineHeight: 1.5 }}>
+            &rarr; Teaching myself what &ldquo;product owner&rdquo; means when the product is your own life
+          </li>
+        </ul>
+      </section>
+
+      {/* Explore tiles */}
+      <div style={{
+        display: "grid",
+        gap: "1rem",
+        gridTemplateColumns: "repeat(2, 1fr)",
+        marginBottom: "2rem",
+      }}>
+        <Link href="/previews" className="tile-link" style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1.5rem 1rem",
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: "12px",
+          textDecoration: "none",
+          color: "var(--fg)",
+          transition: "all 0.2s",
+          textAlign: "center",
+        }}>
+          <span style={{ fontSize: "2rem", marginBottom: "0.5rem" }} role="img" aria-label="Books">&#x1F4DA;</span>
+          <span style={{ fontWeight: 600 }}>Writing Lab</span>
+          <span style={{ fontSize: "0.85rem", color: "var(--fg-muted)", marginTop: "0.25rem" }}>Novels &amp; previews</span>
+        </Link>
+
+        <Link href="/blog" className="tile-link" style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1.5rem 1rem",
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: "12px",
+          textDecoration: "none",
+          color: "var(--fg)",
+          transition: "all 0.2s",
+          textAlign: "center",
+        }}>
+          <span style={{ fontSize: "2rem", marginBottom: "0.5rem" }} role="img" aria-label="Blog">&#x1F4D3;</span>
+          <span style={{ fontWeight: 600 }}>Field Notes</span>
+          <span style={{ fontSize: "0.85rem", color: "var(--fg-muted)", marginTop: "0.25rem" }}>Blog &amp; dispatches</span>
+        </Link>
+
+        <Link href="/demos" className="tile-link" style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1.5rem 1rem",
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: "12px",
+          textDecoration: "none",
+          color: "var(--fg)",
+          transition: "all 0.2s",
+          textAlign: "center",
+        }}>
+          <span style={{ fontSize: "2rem", marginBottom: "0.5rem" }} role="img" aria-label="Demos">&#x1F3AE;</span>
+          <span style={{ fontWeight: 600 }}>Playground</span>
+          <span style={{ fontSize: "0.85rem", color: "var(--fg-muted)", marginTop: "0.25rem" }}>Demos &amp; experiments</span>
+        </Link>
+
+        <Link href="/portfolio" className="tile-link" style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1.5rem 1rem",
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: "12px",
+          textDecoration: "none",
+          color: "var(--fg)",
+          transition: "all 0.2s",
+          textAlign: "center",
+        }}>
+          <span style={{ fontSize: "2rem", marginBottom: "0.5rem" }} role="img" aria-label="Tools">&#x1F6E0;&#xFE0F;</span>
+          <span style={{ fontWeight: 600 }}>Tools</span>
+          <span style={{ fontSize: "0.85rem", color: "var(--fg-muted)", marginTop: "0.25rem" }}>Things I&rsquo;ve built</span>
+        </Link>
+      </div>
 
       {/* Strange But True */}
       <section style={{
-        marginBottom: "2.5rem",
+        marginBottom: "2rem",
         padding: "1.5rem",
         borderLeft: "3px solid var(--accent, #c084fc)",
         background: "var(--bg-card, transparent)",
         borderRadius: "0.5rem",
       }}>
-        <h2 style={{ fontSize: "1.4rem", marginBottom: "1rem", textAlign: "left" }}>
+        <h2 style={{ fontSize: "1.3rem", marginBottom: "1rem", textAlign: "left" }}>
           Strange but true
         </h2>
         <ul style={{
@@ -70,13 +197,12 @@ export default function Home() {
         </ul>
       </section>
 
-      {/* Cards */}
+      {/* Books detail */}
       <div style={{
         display: "grid",
         gap: "1.5rem",
         gridTemplateColumns: "1fr",
       }}>
-        {/* Books */}
         <div className="austenbox" style={{ margin: 0 }}>
           <h2 style={{ marginBottom: "0.5rem", textAlign: "left" }}>Books</h2>
           <p style={{ margin: "0 0 1rem" }}>
