@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ email }),
+
     });
 
     if (res.status === 201) {
@@ -31,7 +32,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (res.status === 409) {
-      return NextResponse.json({ ok: true });
+
+      return NextResponse.json({ ok: true, message: 'Already subscribed!' });
     }
 
     const err = await res.text();
