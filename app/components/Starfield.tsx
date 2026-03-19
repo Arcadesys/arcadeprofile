@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTheme } from 'next-themes';
 
 interface Star {
   x: number;
@@ -14,19 +15,33 @@ interface Star {
 
 export default function Starfield() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isDark, setIsDark] = useState(true);
+  const { resolvedTheme, theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const [isDark, setIsDark] = useState(false);
 
-  // Watch for theme class changes on <html>
   useEffect(() => {
-    const el = document.documentElement;
-    setIsDark(!el.classList.contains('light'));
-
-    const observer = new MutationObserver(() => {
-      setIsDark(!el.classList.contains('light'));
-    });
-    observer.observe(el, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
+    setMounted(true);
   }, []);
+
+  // Keep dark-mode state in sync across hydration and class/theme changes.
+  useEffect(() => {
+    if (!mounted) return;
+
+    const el = document.documentElement;
+    const updateIsDark = () => {
+      const themeFromHook = resolvedTheme ?? theme;
+      const darkFromHook = themeFromHook === 'dark';
+      const darkFromClass = el.classList.contains('dark') && !el.classList.contains('light');
+      setIsDark(darkFromHook || darkFromClass);
+    };
+
+    updateIsDark();
+
+    const observer = new MutationObserver(updateIsDark);
+    observer.observe(el, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
+  }, [mounted, resolvedTheme, theme]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -46,14 +61,14 @@ export default function Starfield() {
     }
 
     function initStars() {
-      const count = Math.floor((canvas!.width * canvas!.height) / 12000);
+      const count = Math.floor((canvas!.width * canvas!.height) / 7000);
       stars = [];
       for (let i = 0; i < count; i++) {
         stars.push({
           x: Math.random() * canvas!.width,
           y: Math.random() * canvas!.height,
-          r: Math.random() * 1.2 + 0.3,
-          baseAlpha: Math.random() * 0.4 + 0.1,
+          r: Math.random() * 1.6 + 0.4,
+          baseAlpha: Math.random() * 0.45 + 0.3,
           phase: Math.random() * Math.PI * 2,
           speed: Math.random() * 0.3 + 0.1,
           drift: (Math.random() - 0.5) * 0.08,
@@ -75,7 +90,7 @@ export default function Starfield() {
 
         ctx!.beginPath();
         ctx!.arc(star.x, star.y, star.r, 0, Math.PI * 2);
-        ctx!.fillStyle = `rgba(232, 232, 236, ${alpha})`;
+        ctx!.fillStyle = `rgba(245, 247, 255, ${alpha})`;
         ctx!.fill();
       }
 
@@ -92,7 +107,7 @@ export default function Starfield() {
     };
   }, [isDark]);
 
-  if (!isDark) return null;
+  if (!mounted || !isDark) return null;
 
   return (
     <canvas
@@ -101,7 +116,8 @@ export default function Starfield() {
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 0,
+        zIndex: 5,
+        mixBlendMode: 'screen',
         pointerEvents: 'none',
       }}
     />
