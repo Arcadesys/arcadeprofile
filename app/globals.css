@@ -40,10 +40,19 @@ body {
   background-image: url('/images/bg-comps/comp1-minimal.svg');
   background-attachment: fixed;
   background-size: cover;
-  background-position: center;
+  background-position: center center;
   background-repeat: no-repeat;
+  min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;
+}
+
+/* Mobile Safari ignores background-attachment: fixed on body;
+   fall back to scroll so the image still fills correctly. */
+@supports (-webkit-touch-callout: none) {
+  body {
+    background-attachment: scroll;
+  }
 }
 
 .light body {
