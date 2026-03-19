@@ -12,6 +12,11 @@ const nextConfig = {
         destination: 'https://docs.google.com/forms/d/e/1FAIpQLSeOpGMaOMJwCqu9WHUpJvjlYvRIgV6vC3BqdstVJvssPlWeqg/viewform?usp=dialog',
         permanent: false,
       },
+      {
+        source: '/DID',
+        destination: '/did',
+        permanent: false,
+      },
     ];
   },
 };

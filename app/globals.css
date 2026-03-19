@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --bg:            #0a0a14;
+  --bg:            #000000;
   --surface:       #14142a;
   --surface-hover: #1e1e3a;
   --fg:            #e8e8ec;
@@ -34,15 +34,20 @@
   --border:        rgba(0, 0, 0, 0.1);
 }
 
-html,
-body {
+html {
   color: var(--fg);
+  /* Solid base so the SVG reads like a horizon, not a translucent overlay. */
   background: var(--bg);
   background-image: url('/images/bg-comps/comp1-minimal.svg');
   background-attachment: fixed;
   background-size: cover;
-  background-position: center;
+  background-position: center bottom;
   background-repeat: no-repeat;
+}
+
+body {
+  /* Avoid double-painting the SVG background (html + body). */
+  background: transparent;
 }
 
 body {
