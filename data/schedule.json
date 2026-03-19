@@ -1,15 +1,6 @@
 {
   "posts": [
     {
-      "slug": "week-in-review-2026-03-17",
-      "status": "published",
-      "scheduledDate": "2026-03-17",
-      "tags": [
-        "week-in-review"
-      ],
-      "series": "week-in-review"
-    },
-    {
       "slug": "hello-world",
       "status": "published",
       "scheduledDate": "2026-03-15",
@@ -19,11 +10,13 @@
       "series": null
     },
     {
-      "slug": "the-social-singularity",
-      "status": "draft",
-      "scheduledDate": null,
-      "tags": [],
-      "series": null
+      "slug": "week-in-review-2026-03-17",
+      "status": "published",
+      "scheduledDate": "2026-03-17",
+      "tags": [
+        "week-in-review"
+      ],
+      "series": "week-in-review"
     },
     {
       "slug": "disposable-art",
@@ -36,6 +29,13 @@
         "culture"
       ],
       "series": "disposable-art-manifestos"
+    },
+    {
+      "slug": "the-social-singularity",
+      "status": "scheduled",
+      "scheduledDate": "2026-03-17",
+      "tags": [],
+      "series": null
     },
     {
       "slug": "the-preciousness-problem",
@@ -80,6 +80,13 @@
         "accessibility"
       ],
       "series": null
+    },
+    {
+      "slug": "paperclip-keeps-the-agents-together-2026-03-18",
+      "status": "scheduled",
+      "scheduledDate": "2026-03-18",
+      "tags": [],
+      "series": null
     }
   ],
   "series": [
@@ -92,14 +99,18 @@
       "id": "disposable-art-manifestos",
       "name": "The Disposable Art Manifestos",
       "description": "A four-part series on art, scarcity, and culture."
+    },
+    {
+      "id": "carl",
+      "name": "Carl",
+      "description": "Welcome to Floor-Mart."
     }
   ],
   "settings": {
     "publishDays": [
       "monday",
-      "tuesday",
       "wednesday",
-      "thursday"
+      "friday"
     ],
     "timezone": "America/Chicago"
   }
