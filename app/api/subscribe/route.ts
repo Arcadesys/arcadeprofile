@@ -10,11 +10,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { email } = await request.json();
+  const { email, tags } = await request.json();
 
   if (!email || typeof email !== 'string') {
     return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
   }
+
+  const VALID_TAGS = ['fiction', 'tech', 'updates'];
+  const selectedTags: string[] = Array.isArray(tags)
+    ? tags.filter((t: unknown) => typeof t === 'string' && VALID_TAGS.includes(t))
+    : VALID_TAGS;
 
   try {
     const res = await fetch('https://api.buttondown.com/v1/subscribers', {
@@ -23,8 +28,7 @@ export async function POST(request: NextRequest) {
         Authorization: `Token ${API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email }),
-
+      body: JSON.stringify({ email, tags: selectedTags }),
     });
 
     if (res.status === 201) {

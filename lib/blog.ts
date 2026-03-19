@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { getAllStories, type StoryMeta } from './stories';
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
 
@@ -10,6 +11,21 @@ export interface BlogPost {
   date: string;
   excerpt: string;
   content: string;
+}
+
+export type FeedItem =
+  | { type: 'post'; data: BlogPost }
+  | { type: 'story'; data: StoryMeta };
+
+export function getFeed(): FeedItem[] {
+  const posts: FeedItem[] = getAllPosts().map(p => ({ type: 'post', data: p }));
+  const stories: FeedItem[] = getAllStories().map(s => ({ type: 'story', data: s }));
+
+  return [...posts, ...stories].sort((a, b) => {
+    const dateA = a.type === 'post' ? a.data.date : a.data.latestChapterDate;
+    const dateB = b.type === 'post' ? b.data.date : b.data.latestChapterDate;
+    return new Date(dateB).getTime() - new Date(dateA).getTime();
+  });
 }
 
 export function getAllPosts(): BlogPost[] {
