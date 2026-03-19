@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <radialGradient id="glow1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff8a00" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#ff8a00" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff3cac" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ff3cac" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow3" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffaa00" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#ffaa00" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Eclipse corona effect -->
+    <filter id="corona">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3"/>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8"/>
+    </filter>
+  </defs>
+
+  <!-- Deep dark background -->
+  <rect width="1920" height="1080" fill="#0a0a14"/>
+
+  <!-- Subtle ambient glows -->
+  <ellipse cx="380" cy="400" rx="500" ry="400" fill="url(#glow1)"/>
+  <ellipse cx="1500" cy="250" rx="600" ry="450" fill="url(#glow2)"/>
+  <ellipse cx="960" cy="800" rx="700" ry="350" fill="url(#glow3)"/>
+
+  <!-- Primary eclipse — large, upper right -->
+  <circle cx="1340" cy="280" r="120" fill="none" stroke="#ff8a00" stroke-width="1.5" opacity="0.6"/>
+  <circle cx="1340" cy="280" r="120" fill="none" stroke="#ff8a00" stroke-width="4" opacity="0.15" filter="url(#softglow)"/>
+  <!-- Occluding body -->
+  <circle cx="1365" cy="265" r="105" fill="#0a0a14"/>
+  <!-- Corona wisps -->
+  <path d="M 1225 250 Q 1200 280 1220 310" fill="none" stroke="#ff8a00" stroke-width="0.8" opacity="0.4"/>
+  <path d="M 1240 200 Q 1220 230 1235 260" fill="none" stroke="#ffaa00" stroke-width="0.6" opacity="0.3"/>
+
+  <!-- Secondary eclipse — medium, left -->
+  <circle cx="350" cy="450" r="80" fill="none" stroke="#ff3cac" stroke-width="1.2" opacity="0.5"/>
+  <circle cx="350" cy="450" r="80" fill="none" stroke="#ff3cac" stroke-width="3" opacity="0.12" filter="url(#softglow)"/>
+  <circle cx="370" cy="438" r="70" fill="#0a0a14"/>
+  <path d="M 275 430 Q 260 450 270 475" fill="none" stroke="#ff3cac" stroke-width="0.6" opacity="0.35"/>
+
+  <!-- Tertiary eclipse — small, lower center -->
+  <circle cx="880" cy="720" r="50" fill="none" stroke="#ff6b9d" stroke-width="1" opacity="0.4"/>
+  <circle cx="880" cy="720" r="50" fill="none" stroke="#ff6b9d" stroke-width="2.5" opacity="0.1" filter="url(#softglow)"/>
+  <circle cx="893" cy="712" r="43" fill="#0a0a14"/>
+
+  <!-- Fourth eclipse — tiny, accent -->
+  <circle cx="1600" cy="650" r="30" fill="none" stroke="#ffaa00" stroke-width="0.8" opacity="0.35"/>
+  <circle cx="1600" cy="650" r="30" fill="none" stroke="#ffaa00" stroke-width="2" opacity="0.08" filter="url(#softglow)"/>
+  <circle cx="1610" cy="644" r="26" fill="#0a0a14"/>
+
+  <!-- Ritual geometry — thin concentric rings connecting eclipses -->
+  <circle cx="960" cy="540" r="400" fill="none" stroke="#ff8a00" stroke-width="0.3" opacity="0.12"/>
+  <circle cx="960" cy="540" r="500" fill="none" stroke="#ff3cac" stroke-width="0.25" opacity="0.08"/>
+  <circle cx="960" cy="540" r="320" fill="none" stroke="#ffaa00" stroke-width="0.2" opacity="0.1"/>
+
+  <!-- Subtle connecting lines — ritual paths -->
+  <line x1="350" y1="450" x2="880" y2="720" stroke="#ff3cac" stroke-width="0.3" opacity="0.08"/>
+  <line x1="880" y1="720" x2="1340" y2="280" stroke="#ff8a00" stroke-width="0.3" opacity="0.08"/>
+  <line x1="1340" y1="280" x2="350" y2="450" stroke="#ff6b9d" stroke-width="0.3" opacity="0.08"/>
+  <line x1="1600" y1="650" x2="880" y2="720" stroke="#ffaa00" stroke-width="0.2" opacity="0.06"/>
+
+  <!-- Scattered stars -->
+  <circle cx="200" cy="100" r="1" fill="#e8e8ec" opacity="0.3"/>
+  <circle cx="500" cy="150" r="0.8" fill="#e8e8ec" opacity="0.25"/>
+  <circle cx="750" cy="80" r="1.2" fill="#e8e8ec" opacity="0.2"/>
+  <circle cx="1100" cy="120" r="0.8" fill="#e8e8ec" opacity="0.3"/>
+  <circle cx="1700" cy="180" r="1" fill="#e8e8ec" opacity="0.25"/>
+  <circle cx="300" cy="800" r="0.8" fill="#e8e8ec" opacity="0.2"/>
+  <circle cx="600" cy="950" r="1" fill="#e8e8ec" opacity="0.15"/>
+  <circle cx="1200" cy="900" r="0.8" fill="#e8e8ec" opacity="0.2"/>
+  <circle cx="1500" cy="850" r="1.2" fill="#e8e8ec" opacity="0.15"/>
+  <circle cx="1800" cy="400" r="0.8" fill="#e8e8ec" opacity="0.25"/>
+  <circle cx="100" cy="600" r="1" fill="#e8e8ec" opacity="0.2"/>
+  <circle cx="1650" cy="100" r="0.6" fill="#e8e8ec" opacity="0.35"/>
+  <circle cx="420" cy="680" r="0.7" fill="#e8e8ec" opacity="0.18"/>
+  <circle cx="1050" cy="500" r="0.9" fill="#e8e8ec" opacity="0.22"/>
+</svg>
