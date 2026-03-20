@@ -3,8 +3,6 @@ import NavBar from './components/NavBar.js';
 import ThemeProvider from './components/ThemeProvider';
 import ThemeToggle from './components/ThemeToggle';
 import SimpleAnalytics from './components/SimpleAnalytics';
-import Starfield from './components/Starfield';
-
 export const metadata = {
   title: 'The Arcades',
   description: 'The Arcades - Personal site of Austen Tucker',
@@ -24,7 +22,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider>
-          <Starfield />
           <NavBar />
           {children}
           <ThemeToggle />

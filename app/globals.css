@@ -50,12 +50,6 @@ body {
   background: transparent;
 }
 
-/* Keeps nav/pages above the fixed starfield canvas so stars never paint over text. */
-.site-content-shell {
-  position: relative;
-  z-index: 10;
-}
-
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;
