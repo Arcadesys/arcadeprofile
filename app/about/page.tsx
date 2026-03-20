@@ -1,6 +1,6 @@
 export const metadata = {
   title: "About | The Arcades",
-  description: "The story of Austen Tucker — novelist, product owner, builder — as told by Kai, the content writer who learned to write like them.",
+  description: "The story of Austen Tucker — novelist, cat herder, builder — as told by Kai, the content writer who learned to write like them.",
 };
 
 export default function AboutPage() {
@@ -41,7 +41,7 @@ export default function AboutPage() {
           The short version
         </h2>
         <p style={{ margin: "0 0 1.5rem" }}>
-          Austen Tucker is a product owner, scrum master, novelist, and full-stack developer based in Chicago. They are queer, legally blind, neurodivergent (AuDHD), and plural &mdash; a system of ten who go by <span className="gaysparkles" style={{ fontWeight: 600 }}>the Arcades</span>. They have twelve novels written &mdash; five published, one lost to time, the rest waiting in the wings &mdash; a decade of silence they&rsquo;re still making sense of, and a conviction that the tools we build should work for the people traditional tech forgets.
+          Austen Tucker is a cat herder, scrum master, novelist, and full-stack developer based in Chicago. They are queer, legally blind, neurodivergent (AuDHD), and plural &mdash; a system of ten who go by <span className="gaysparkles" style={{ fontWeight: 600 }}>the Arcades</span>. They have twelve novels written &mdash; five published, one lost to time, the rest waiting in the wings &mdash; a decade of silence they&rsquo;re still making sense of, and a conviction that the tools we build should work for the people traditional tech forgets.
         </p>
 
         <h2 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", textAlign: "left" }}>

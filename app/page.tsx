@@ -24,7 +24,7 @@ export default function Home() {
           maxWidth: "640px",
           margin: "0 auto 1rem",
         }}>
-          Product owner by trade. Novelist by compulsion. Blind, queer, and building things I can&rsquo;t find anywhere else.
+          Cat herder by trade. Novelist by compulsion. Blind, queer, and building things I can&rsquo;t find anywhere else.
         </p>
         <p style={{
           fontSize: "1.1rem",
@@ -75,7 +75,7 @@ export default function Home() {
             &rarr; Making tools for people traditional tech forgot
           </li>
           <li style={{ lineHeight: 1.5 }}>
-            &rarr; Teaching myself what &ldquo;product owner&rdquo; means when the product is your own life
+            &rarr; Teaching myself what &ldquo;cat herder&rdquo; means when the cats are your own projects
           </li>
         </ul>
       </section>
