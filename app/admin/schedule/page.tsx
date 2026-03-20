@@ -106,6 +106,10 @@ function ScheduleDashboard() {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [dragOverDay, setDragOverDay] = useState<string | null>(null);
 
+  // List drag-and-drop reorder state
+  const [listDragSlug, setListDragSlug] = useState<string | null>(null);
+  const [listDropTarget, setListDropTarget] = useState<number | null>(null);
+
   // Multi-select state
   const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
   const lastClickedSlug = useRef<string | null>(null);
@@ -315,15 +319,44 @@ function ScheduleDashboard() {
     setSaving(false);
   };
 
-  const movePost = (index: number, direction: -1 | 1) => {
-    if (!data) return;
-    const newIndex = index + direction;
-    if (newIndex < 0 || newIndex >= data.posts.length) return;
+  const isFilterActive = filter !== 'all' || searchText !== '' || filterSeries !== '' || filterTags.length > 0;
+
+  const handleListDragStart = (e: DragEvent<HTMLDivElement>, slug: string) => {
+    setListDragSlug(slug);
+    e.dataTransfer.setData('text/plain', slug);
+    e.dataTransfer.effectAllowed = 'move';
+    if (e.currentTarget.parentElement) {
+      e.dataTransfer.setDragImage(e.currentTarget.parentElement, 0, 0);
+    }
+  };
+
+  const handleListDragOver = (e: DragEvent<HTMLDivElement>, index: number) => {
+    if (!listDragSlug) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setListDropTarget(index);
+  };
+
+  const handleListDragEnd = () => {
+    setListDragSlug(null);
+    setListDropTarget(null);
+  };
+
+  const handleListDrop = (e: DragEvent<HTMLDivElement>, targetIndex: number) => {
+    e.preventDefault();
+    if (!data || !listDragSlug) return;
+    const sourceIndex = data.posts.findIndex(p => p.slug === listDragSlug);
+    if (sourceIndex === -1 || sourceIndex === targetIndex) {
+      handleListDragEnd();
+      return;
+    }
     const posts = [...data.posts];
-    [posts[index], posts[newIndex]] = [posts[newIndex], posts[index]];
+    const [moved] = posts.splice(sourceIndex, 1);
+    posts.splice(targetIndex, 0, moved);
     const updated = { ...data, posts };
     setData(updated);
     save(updated);
+    handleListDragEnd();
   };
 
   const updatePostStatus = (slug: string, status: ScheduledPost['status']) => {
@@ -940,15 +973,22 @@ function ScheduleDashboard() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {filteredPosts.map((post) => {
               const globalIndex = data.posts.indexOf(post);
+              const isDragging = listDragSlug === post.slug;
+              const isDropTarget = listDropTarget === globalIndex;
               return (
                 <div
                   key={post.slug}
+                  onDragOver={!isFilterActive ? (e) => handleListDragOver(e, globalIndex) : undefined}
+                  onDrop={!isFilterActive ? (e) => handleListDrop(e, globalIndex) : undefined}
                   style={{
                     background: selectedSlugs.has(post.slug) ? 'var(--surface-hover)' : 'var(--surface)',
                     border: selectedSlugs.has(post.slug) ? '1px solid var(--accent)' : '1px solid var(--border)',
                     borderRadius: 12,
                     padding: '1rem 1.25rem',
                     borderLeft: `4px solid ${STATUS_COLORS[post.status] || 'var(--border)'}`,
+                    opacity: isDragging ? 0.4 : 1,
+                    borderTop: isDropTarget && !isDragging ? '3px solid var(--accent)' : undefined,
+                    transition: 'opacity 0.15s, border-top 0.15s',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
@@ -960,33 +1000,23 @@ function ScheduleDashboard() {
                       onChange={() => {}}
                       style={{ accentColor: 'var(--accent)', width: 16, height: 16, marginTop: 4, cursor: 'pointer', flexShrink: 0 }}
                     />
-                    {/* Reorder buttons */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2, paddingTop: 2 }}>
-                      <button
-                        onClick={() => movePost(globalIndex, -1)}
-                        disabled={globalIndex === 0}
-                        style={{
-                          background: 'none', border: 'none', cursor: globalIndex === 0 ? 'default' : 'pointer',
-                          color: globalIndex === 0 ? 'var(--border)' : 'var(--fg-muted)',
-                          fontSize: '1rem', lineHeight: 1, padding: '2px 4px',
-                        }}
-                        title="Move up"
-                      >
-                        ▲
-                      </button>
-                      <button
-                        onClick={() => movePost(globalIndex, 1)}
-                        disabled={globalIndex === data.posts.length - 1}
-                        style={{
-                          background: 'none', border: 'none',
-                          cursor: globalIndex === data.posts.length - 1 ? 'default' : 'pointer',
-                          color: globalIndex === data.posts.length - 1 ? 'var(--border)' : 'var(--fg-muted)',
-                          fontSize: '1rem', lineHeight: 1, padding: '2px 4px',
-                        }}
-                        title="Move down"
-                      >
-                        ▼
-                      </button>
+                    {/* Drag handle */}
+                    <div
+                      draggable={!isFilterActive}
+                      onDragStart={!isFilterActive ? (e) => handleListDragStart(e, post.slug) : undefined}
+                      onDragEnd={handleListDragEnd}
+                      style={{
+                        cursor: isFilterActive ? 'default' : 'grab',
+                        color: isFilterActive ? 'var(--border)' : 'var(--fg-muted)',
+                        fontSize: '1rem',
+                        lineHeight: 1,
+                        padding: '4px 2px',
+                        userSelect: 'none',
+                        flexShrink: 0,
+                      }}
+                      title={isFilterActive ? 'Clear filters to reorder' : 'Drag to reorder'}
+                    >
+                      ⠿
                     </div>
 
                     {/* Post content */}
