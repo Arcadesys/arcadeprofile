@@ -251,6 +251,13 @@ function ScheduleDashboard() {
     setPreviewExcluded(new Set());
   };
 
+  const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
+  const [toast, setToast] = useState<{ message: string; onUndo: () => void; timer: ReturnType<typeof setTimeout> } | null>(null);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const isDirty = useRef(false);
+  const postRefs = useRef<(HTMLDivElement | null)[]>([]);
+
   const fetchData = useCallback(async () => {
     const res = await fetch('/api/schedule');
     if (!res.ok) {
@@ -299,6 +306,7 @@ function ScheduleDashboard() {
 
   const save = async (updated: ScheduleData) => {
     setSaving(true);
+    isDirty.current = true;
     setError(null);
     const res = await fetch('/api/schedule', {
       method: 'PUT',
@@ -316,6 +324,7 @@ function ScheduleDashboard() {
       }),
     });
     if (!res.ok) setError('Failed to save');
+    else isDirty.current = false;
     setSaving(false);
   };
 
@@ -359,6 +368,17 @@ function ScheduleDashboard() {
     handleListDragEnd();
   };
 
+  // Warn on navigate away with unsaved changes
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDirty.current || saving) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [saving]);
+
   const updatePostStatus = (slug: string, status: ScheduledPost['status']) => {
     if (!data) return;
     const posts = data.posts.map(p => p.slug === slug ? { ...p, status } : p);
@@ -400,12 +420,28 @@ function ScheduleDashboard() {
 
   const removeTag = (slug: string, tag: string) => {
     if (!data) return;
+    const previous = data;
     const posts = data.posts.map(p =>
       p.slug === slug ? { ...p, tags: p.tags.filter(t => t !== tag) } : p
     );
     const updated = { ...data, posts };
     setData(updated);
     save(updated);
+    showToast(`Removed tag "${tag}"`, () => {
+      setData(previous);
+      save(previous);
+    });
+  };
+
+  const showToast = (message: string, onUndo: () => void) => {
+    if (toast) clearTimeout(toast.timer);
+    const timer = setTimeout(() => setToast(null), 5000);
+    setToast({ message, onUndo, timer });
+  };
+
+  const dismissToast = () => {
+    if (toast) clearTimeout(toast.timer);
+    setToast(null);
   };
 
   const addSeries = () => {
@@ -427,11 +463,21 @@ function ScheduleDashboard() {
 
   const removeSeries = (id: string) => {
     if (!data) return;
-    const posts = data.posts.map(p => p.series === id ? { ...p, series: null } : p);
-    const series = data.series.filter(s => s.id !== id);
-    const updated = { ...data, posts, series };
-    setData(updated);
-    save(updated);
+    const affectedCount = data.posts.filter(p => p.series === id).length;
+    const seriesName = data.series.find(s => s.id === id)?.name || id;
+    setConfirmDialog({
+      message: affectedCount > 0
+        ? `Remove "${seriesName}"? This will unlink ${affectedCount} post${affectedCount !== 1 ? 's' : ''} from the series.`
+        : `Remove "${seriesName}"?`,
+      onConfirm: () => {
+        const posts = data.posts.map(p => p.series === id ? { ...p, series: null } : p);
+        const series = data.series.filter(s => s.id !== id);
+        const updated = { ...data, posts, series };
+        setData(updated);
+        save(updated);
+        setConfirmDialog(null);
+      },
+    });
   };
 
   const autoSchedule = () => {
@@ -477,6 +523,130 @@ function ScheduleDashboard() {
     setData(updated);
     save(updated);
   };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const inInput = target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA';
+
+      // ? — show shortcuts (works everywhere)
+      if (e.key === '?' && !e.metaKey && !e.ctrlKey) {
+        if (inInput) return;
+        e.preventDefault();
+        setShowShortcuts(s => !s);
+        return;
+      }
+
+      // Escape — close any overlay
+      if (e.key === 'Escape') {
+        if (showShortcuts) { setShowShortcuts(false); return; }
+        if (confirmDialog) { setConfirmDialog(null); return; }
+        if (toast) { dismissToast(); return; }
+        setFocusedIndex(-1);
+        setSelectedSlugs(new Set());
+        return;
+      }
+
+      // Enter — confirm dialog
+      if (e.key === 'Enter' && confirmDialog) {
+        e.preventDefault();
+        confirmDialog.onConfirm();
+        return;
+      }
+
+      if (inInput || showShortcuts || confirmDialog) return;
+      if (!data) return;
+
+      let posts = data.posts;
+      if (filter !== 'all') posts = posts.filter(p => p.status === filter);
+      if (searchText) {
+        const q = searchText.toLowerCase();
+        posts = posts.filter(p =>
+          p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q)
+        );
+      }
+      if (filterSeries) {
+        posts = filterSeries === '__none__'
+          ? posts.filter(p => !p.series)
+          : posts.filter(p => p.series === filterSeries);
+      }
+      if (filterTags.length > 0) {
+        posts = posts.filter(p => filterTags.every(t => p.tags.includes(t)));
+      }
+
+      // Cmd/Ctrl+S — save (force re-save)
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        save(data);
+        return;
+      }
+
+      // Cmd/Ctrl+A — select all visible posts
+      if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
+        e.preventDefault();
+        setSelectedSlugs(new Set(posts.map(p => p.slug)));
+        return;
+      }
+
+      // j/k or arrow keys — navigate posts
+      if (e.key === 'j' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        setFocusedIndex(i => {
+          const next = Math.min(i + 1, posts.length - 1);
+          postRefs.current[next]?.scrollIntoView({ block: 'nearest' });
+          return next;
+        });
+        return;
+      }
+      if (e.key === 'k' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        setFocusedIndex(i => {
+          const next = Math.max(i - 1, 0);
+          postRefs.current[next]?.scrollIntoView({ block: 'nearest' });
+          return next;
+        });
+        return;
+      }
+
+      if (focusedIndex < 0 || focusedIndex >= posts.length) return;
+      const focused = posts[focusedIndex];
+
+      // space — toggle select
+      if (e.key === ' ') {
+        e.preventDefault();
+        setSelectedSlugs(prev => {
+          const next = new Set(prev);
+          if (next.has(focused.slug)) next.delete(focused.slug);
+          else next.add(focused.slug);
+          return next;
+        });
+        return;
+      }
+
+      // s — cycle status
+      if (e.key === 's') {
+        const cycle: ScheduledPost['status'][] = ['draft', 'scheduled', 'published'];
+        const nextStatus = cycle[(cycle.indexOf(focused.status) + 1) % cycle.length];
+        updatePostStatus(focused.slug, nextStatus);
+        return;
+      }
+
+      // d — focus date picker
+      if (e.key === 'd') {
+        const row = postRefs.current[focusedIndex];
+        const dateInput = row?.querySelector('input[type="date"]') as HTMLInputElement | null;
+        if (dateInput) {
+          dateInput.focus();
+          dateInput.showPicker?.();
+        }
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [data, filter, searchText, filterSeries, filterTags, focusedIndex, showShortcuts, confirmDialog, toast, saving]);
 
   if (!data) {
     return (
@@ -971,24 +1141,29 @@ function ScheduleDashboard() {
 
           {/* Post list */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {filteredPosts.map((post) => {
+            {filteredPosts.map((post, index) => {
               const globalIndex = data.posts.indexOf(post);
               const isDragging = listDragSlug === post.slug;
               const isDropTarget = listDropTarget === globalIndex;
+              const isFocused = index === focusedIndex;
               return (
                 <div
                   key={post.slug}
+                  ref={el => { postRefs.current[index] = el; }}
+                  onClick={() => setFocusedIndex(index)}
                   onDragOver={!isFilterActive ? (e) => handleListDragOver(e, globalIndex) : undefined}
                   onDrop={!isFilterActive ? (e) => handleListDrop(e, globalIndex) : undefined}
                   style={{
                     background: selectedSlugs.has(post.slug) ? 'var(--surface-hover)' : 'var(--surface)',
-                    border: selectedSlugs.has(post.slug) ? '1px solid var(--accent)' : '1px solid var(--border)',
+                    border: isFocused || selectedSlugs.has(post.slug) ? '1px solid var(--accent)' : '1px solid var(--border)',
                     borderRadius: 12,
                     padding: '1rem 1.25rem',
                     borderLeft: `4px solid ${STATUS_COLORS[post.status] || 'var(--border)'}`,
                     opacity: isDragging ? 0.4 : 1,
                     borderTop: isDropTarget && !isDragging ? '3px solid var(--accent)' : undefined,
-                    transition: 'opacity 0.15s, border-top 0.15s',
+                    outline: isFocused ? '1px solid var(--accent)' : 'none',
+                    outlineOffset: -1,
+                    transition: 'opacity 0.15s, border-top 0.15s, outline 0.1s, background 0.1s',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
@@ -1510,6 +1685,117 @@ function ScheduleDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Toast notification */}
+      {toast && (
+        <div style={{
+          position: 'fixed', bottom: '2rem', left: '50%', transform: 'translateX(-50%)',
+          background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8,
+          padding: '0.75rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.4)', zIndex: 1000, color: 'var(--fg)', fontSize: '0.875rem',
+        }}>
+          <span>{toast.message}</span>
+          <button
+            onClick={() => { toast.onUndo(); dismissToast(); }}
+            style={{
+              background: 'none', border: '1px solid var(--accent)', borderRadius: 4,
+              color: 'var(--accent)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
+              padding: '2px 10px',
+            }}
+          >
+            Undo
+          </button>
+          <button
+            onClick={dismissToast}
+            style={{ background: 'none', border: 'none', color: 'var(--fg-muted)', cursor: 'pointer', fontSize: '0.9rem', padding: 0 }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {/* Confirm dialog */}
+      {confirmDialog && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex',
+          alignItems: 'center', justifyContent: 'center', zIndex: 1001,
+        }} onClick={() => setConfirmDialog(null)}>
+          <div
+            style={{
+              background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12,
+              padding: '1.5rem 2rem', maxWidth: 420, width: '90%',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <p style={{ color: 'var(--fg)', fontSize: '0.95rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
+              {confirmDialog.message}
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setConfirmDialog(null)}
+                style={{
+                  padding: '6px 16px', borderRadius: 6, border: '1px solid var(--border)',
+                  background: 'transparent', color: 'var(--fg-muted)', cursor: 'pointer', fontSize: '0.875rem',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDialog.onConfirm}
+                autoFocus
+                style={{
+                  padding: '6px 16px', borderRadius: 6, border: 'none',
+                  background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600,
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Keyboard shortcuts cheat sheet */}
+      {showShortcuts && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex',
+          alignItems: 'center', justifyContent: 'center', zIndex: 1001,
+        }} onClick={() => setShowShortcuts(false)}>
+          <div
+            style={{
+              background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12,
+              padding: '1.5rem 2rem', maxWidth: 400, width: '90%',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 style={{ color: 'var(--fg)', fontSize: '1rem', fontWeight: 600, marginBottom: '1rem' }}>
+              Keyboard Shortcuts
+            </h3>
+            {[
+              ['j / ↓', 'Next post'],
+              ['k / ↑', 'Previous post'],
+              ['s', 'Cycle status'],
+              ['d', 'Open date picker'],
+              ['Space', 'Select / deselect post'],
+              ['⌘A', 'Select all visible posts'],
+              ['⌘S', 'Save'],
+              ['Esc', 'Clear selection / close overlay'],
+              ['?', 'Toggle this cheat sheet'],
+            ].map(([key, desc]) => (
+              <div key={key} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
+                <kbd style={{
+                  background: 'var(--surface-hover)', border: '1px solid var(--border)', borderRadius: 4,
+                  padding: '1px 8px', fontSize: '0.8rem', color: 'var(--accent)', fontFamily: 'inherit',
+                  minWidth: 60, textAlign: 'center',
+                }}>{key}</kbd>
+                <span style={{ color: 'var(--fg-muted)', fontSize: '0.85rem' }}>{desc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
