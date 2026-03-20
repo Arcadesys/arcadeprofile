@@ -38,16 +38,22 @@ html {
   color: var(--fg);
   /* Solid base so the SVG reads like a horizon, not a translucent overlay. */
   background: var(--bg);
-  background-image: url('/images/bg-comps/comp1-minimal.svg');
+  background-image: url('/images/bg-comps/midnightmoon.svg');
   background-attachment: fixed;
   background-size: cover;
-  background-position: center bottom;
+  background-position: center center;
   background-repeat: no-repeat;
 }
 
 body {
   /* Avoid double-painting the SVG background (html + body). */
   background: transparent;
+}
+
+/* Keeps nav/pages above the fixed starfield canvas so stars never paint over text. */
+.site-content-shell {
+  position: relative;
+  z-index: 10;
 }
 
 body {

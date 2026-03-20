@@ -17,7 +17,8 @@
       <stop offset="0%" stop-color="#0a0a14" stop-opacity="1"/>
       <stop offset="60%" stop-color="#0a0a14" stop-opacity="1"/>
       <stop offset="85%" stop-color="#1a1028" stop-opacity="1"/>
-      <stop offset="100%" stop-color="#2a1830" stop-opacity="1"/>
+      <stop offset="95%" stop-color="#120e22" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#0e0a1e" stop-opacity="1"/>
     </linearGradient>
     <!-- Horizon glow -->
     <linearGradient id="horizonGlow" x1="0" y1="0" x2="0" y2="1">
@@ -39,9 +40,6 @@
 
   <!-- Deep sky background with milky warmth near horizon -->
   <rect width="1920" height="1080" fill="url(#skyGrad)"/>
-
-  <!-- Horizon glow band -->
-  <rect x="0" y="680" width="1920" height="400" fill="url(#horizonGlow)"/>
 
   <!-- Subtle ambient glows -->
   <ellipse cx="380" cy="400" rx="500" ry="400" fill="url(#glow1)"/>
@@ -168,27 +166,66 @@
   <line x1="0" y1="750" x2="1920" y2="750" stroke="#ff8a00" stroke-width="1.5" opacity="0.08" filter="url(#softglow)"/>
   <line x1="0" y1="750" x2="1920" y2="750" stroke="#ff8a00" stroke-width="0.5" opacity="0.15"/>
 
-  <!-- Stylized horizon silhouette — gentle rolling terrain -->
-  <path d="M 0 755 Q 120 740 240 750 Q 360 730 480 745 Q 550 738 620 748 Q 720 725 820 740 Q 900 732 960 742 Q 1040 728 1120 738 Q 1200 730 1280 745 Q 1380 720 1480 735 Q 1560 728 1640 740 Q 1740 732 1820 745 Q 1870 738 1920 748 L 1920 755 L 0 755 Z" fill="#0a0a14" opacity="0.9"/>
+  <!-- Stylized horizon silhouette — flat, deep teal complement to warm nebula -->
+  <rect x="0" y="750" width="1920" height="330" fill="#0e0a1e"/>
 
-  <!-- Horizon wireframe detail — subtle terrain wireframe above silhouette -->
-  <path d="M 0 755 Q 120 740 240 750 Q 360 730 480 745 Q 550 738 620 748 Q 720 725 820 740 Q 900 732 960 742 Q 1040 728 1120 738 Q 1200 730 1280 745 Q 1380 720 1480 735 Q 1560 728 1640 740 Q 1740 732 1820 745 Q 1870 738 1920 748" fill="none" stroke="#ff3cac" stroke-width="0.5" opacity="0.2"/>
+  <!-- Horizon wireframe detail — flat line accent -->
+  <line x1="0" y1="750" x2="1920" y2="750" stroke="#ff3cac" stroke-width="0.5" opacity="0.2"/>
 
-  <!-- Second layer terrain — slightly lower, dimmer -->
-  <path d="M 0 760 Q 100 752 200 758 Q 340 745 480 755 Q 580 750 680 758 Q 800 740 920 752 Q 1000 748 1080 755 Q 1200 742 1320 752 Q 1440 746 1560 755 Q 1680 748 1800 758 Q 1860 752 1920 760" fill="none" stroke="#ff8a00" stroke-width="0.35" opacity="0.12"/>
+  <!-- ==================== TERRAIN CHEVRONS ==================== -->
+  <!-- Layered dark gray chevrons suggesting rolling hills receding to horizon -->
 
-  <!-- Small wireframe cross-struts on horizon for structure feel -->
-  <line x1="240" y1="750" x2="240" y2="760" stroke="#ff3cac" stroke-width="0.25" opacity="0.1"/>
-  <line x1="480" y1="745" x2="480" y2="758" stroke="#ff3cac" stroke-width="0.25" opacity="0.1"/>
-  <line x1="720" y1="725" x2="720" y2="750" stroke="#ff3cac" stroke-width="0.25" opacity="0.12"/>
-  <line x1="960" y1="742" x2="960" y2="755" stroke="#ff3cac" stroke-width="0.25" opacity="0.1"/>
-  <line x1="1200" y1="730" x2="1200" y2="752" stroke="#ff3cac" stroke-width="0.25" opacity="0.1"/>
-  <line x1="1480" y1="735" x2="1480" y2="755" stroke="#ff3cac" stroke-width="0.25" opacity="0.12"/>
-  <line x1="1740" y1="732" x2="1740" y2="758" stroke="#ff3cac" stroke-width="0.25" opacity="0.1"/>
+  <!-- Row 1 — closest to horizon, smallest, most subtle -->
+  <g opacity="0.08">
+    <polyline points="60,762 120,756 180,762" fill="none" stroke="#888" stroke-width="0.6"/>
+    <polyline points="220,764 300,757 380,764" fill="none" stroke="#888" stroke-width="0.6"/>
+    <polyline points="440,761 510,755 580,761" fill="none" stroke="#777" stroke-width="0.5"/>
+    <polyline points="650,763 740,756 830,763" fill="none" stroke="#888" stroke-width="0.6"/>
+    <polyline points="900,762 970,756 1040,762" fill="none" stroke="#777" stroke-width="0.5"/>
+    <polyline points="1110,764 1200,757 1290,764" fill="none" stroke="#888" stroke-width="0.6"/>
+    <polyline points="1350,761 1430,755 1510,761" fill="none" stroke="#777" stroke-width="0.5"/>
+    <polyline points="1580,763 1660,757 1740,763" fill="none" stroke="#888" stroke-width="0.6"/>
+    <polyline points="1800,762 1860,756 1920,762" fill="none" stroke="#777" stroke-width="0.5"/>
+  </g>
 
-  <!-- Waypoint markers on horizon peaks -->
-  <circle cx="720" cy="725" r="2" fill="none" stroke="#ff3cac" stroke-width="0.5" opacity="0.2"/>
-  <circle cx="1380" cy="720" r="2" fill="none" stroke="#ff8a00" stroke-width="0.5" opacity="0.18"/>
-  <line x1="720" y1="718" x2="720" y2="722" stroke="#ff3cac" stroke-width="0.4" opacity="0.2"/>
-  <line x1="1380" y1="713" x2="1380" y2="717" stroke="#ff8a00" stroke-width="0.4" opacity="0.18"/>
+  <!-- Row 2 — slightly larger chevrons -->
+  <g opacity="0.07">
+    <polyline points="0,785 100,774 200,785" fill="none" stroke="#666" stroke-width="0.7"/>
+    <polyline points="180,788 310,776 440,788" fill="none" stroke="#777" stroke-width="0.6"/>
+    <polyline points="500,784 620,773 740,784" fill="none" stroke="#666" stroke-width="0.7"/>
+    <polyline points="780,787 920,775 1060,787" fill="none" stroke="#777" stroke-width="0.6"/>
+    <polyline points="1100,785 1230,774 1360,785" fill="none" stroke="#666" stroke-width="0.7"/>
+    <polyline points="1400,787 1540,775 1680,787" fill="none" stroke="#777" stroke-width="0.6"/>
+    <polyline points="1720,784 1820,774 1920,784" fill="none" stroke="#666" stroke-width="0.7"/>
+  </g>
+
+  <!-- Row 3 — medium chevrons, wider spacing -->
+  <g opacity="0.06">
+    <polyline points="40,820 200,804 360,820" fill="none" stroke="#555" stroke-width="0.8"/>
+    <polyline points="320,824 520,806 720,824" fill="none" stroke="#666" stroke-width="0.7"/>
+    <polyline points="680,818 880,802 1080,818" fill="none" stroke="#555" stroke-width="0.8"/>
+    <polyline points="1040,822 1240,806 1440,822" fill="none" stroke="#666" stroke-width="0.7"/>
+    <polyline points="1400,820 1600,804 1800,820" fill="none" stroke="#555" stroke-width="0.8"/>
+  </g>
+
+  <!-- Row 4 — broader, bolder chevrons -->
+  <g opacity="0.05">
+    <polyline points="0,860 240,838 480,860" fill="none" stroke="#555" stroke-width="0.9"/>
+    <polyline points="400,865 700,840 1000,865" fill="none" stroke="#4a4a4a" stroke-width="0.8"/>
+    <polyline points="900,858 1200,836 1500,858" fill="none" stroke="#555" stroke-width="0.9"/>
+    <polyline points="1420,862 1670,840 1920,862" fill="none" stroke="#4a4a4a" stroke-width="0.8"/>
+  </g>
+
+  <!-- Row 5 — wide sweeping chevrons, barely visible -->
+  <g opacity="0.04">
+    <polyline points="0,910 380,880 760,910" fill="none" stroke="#444" stroke-width="1"/>
+    <polyline points="600,915 960,882 1320,915" fill="none" stroke="#4a4a4a" stroke-width="0.9"/>
+    <polyline points="1200,908 1560,878 1920,908" fill="none" stroke="#444" stroke-width="1"/>
+  </g>
+
+  <!-- Row 6 — deepest, widest chevrons -->
+  <g opacity="0.03">
+    <polyline points="0,970 480,930 960,970" fill="none" stroke="#3a3a3a" stroke-width="1.2"/>
+    <polyline points="960,975 1440,932 1920,975" fill="none" stroke="#3a3a3a" stroke-width="1.2"/>
+  </g>
 </svg>
