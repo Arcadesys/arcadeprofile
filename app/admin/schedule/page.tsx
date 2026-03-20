@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, DragEvent } from 'react';
+import { useEffect, useState, useCallback, useRef, DragEvent, MouseEvent } from 'react';
 
 interface ScheduledPost {
   slug: string;
@@ -84,6 +84,147 @@ export default function ScheduleDashboard() {
   });
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [dragOverDay, setDragOverDay] = useState<string | null>(null);
+
+  // Multi-select state
+  const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
+  const lastClickedSlug = useRef<string | null>(null);
+  const [bulkDate, setBulkDate] = useState('');
+  const [bulkStatus, setBulkStatus] = useState('');
+  const [bulkSeries, setBulkSeries] = useState('');
+  const [bulkTag, setBulkTag] = useState('');
+  const [autoSchedulePreview, setAutoSchedulePreview] = useState<{ slug: string; title: string; date: string }[] | null>(null);
+  const [previewExcluded, setPreviewExcluded] = useState<Set<string>>(new Set());
+
+  const toggleSelect = (slug: string, e: MouseEvent) => {
+    if (!data) return;
+    const posts = filteredPostsRef.current;
+    if (e.shiftKey && lastClickedSlug.current) {
+      const lastIdx = posts.findIndex(p => p.slug === lastClickedSlug.current);
+      const curIdx = posts.findIndex(p => p.slug === slug);
+      if (lastIdx !== -1 && curIdx !== -1) {
+        const [start, end] = lastIdx < curIdx ? [lastIdx, curIdx] : [curIdx, lastIdx];
+        const next = new Set(selectedSlugs);
+        for (let i = start; i <= end; i++) next.add(posts[i].slug);
+        setSelectedSlugs(next);
+        lastClickedSlug.current = slug;
+        return;
+      }
+    }
+    const next = new Set(selectedSlugs);
+    if (next.has(slug)) next.delete(slug);
+    else next.add(slug);
+    setSelectedSlugs(next);
+    lastClickedSlug.current = slug;
+  };
+
+  const selectAll = (posts: ScheduledPost[]) => {
+    const allSelected = posts.every(p => selectedSlugs.has(p.slug));
+    if (allSelected) {
+      setSelectedSlugs(new Set());
+    } else {
+      setSelectedSlugs(new Set(posts.map(p => p.slug)));
+    }
+  };
+
+  const applyBulkDate = () => {
+    if (!data || !bulkDate || selectedSlugs.size === 0) return;
+    const posts = data.posts.map(p =>
+      selectedSlugs.has(p.slug) ? { ...p, scheduledDate: bulkDate, status: 'scheduled' as const } : p
+    );
+    const updated = { ...data, posts };
+    setData(updated);
+    save(updated);
+    setBulkDate('');
+  };
+
+  const applyBulkStatus = () => {
+    if (!data || !bulkStatus || selectedSlugs.size === 0) return;
+    const posts = data.posts.map(p =>
+      selectedSlugs.has(p.slug) ? { ...p, status: bulkStatus as ScheduledPost['status'] } : p
+    );
+    const updated = { ...data, posts };
+    setData(updated);
+    save(updated);
+    setBulkStatus('');
+  };
+
+  const applyBulkSeries = () => {
+    if (!data || selectedSlugs.size === 0) return;
+    const seriesVal = bulkSeries === '__none__' ? null : bulkSeries;
+    if (!bulkSeries) return;
+    const posts = data.posts.map(p =>
+      selectedSlugs.has(p.slug) ? { ...p, series: seriesVal } : p
+    );
+    const updated = { ...data, posts };
+    setData(updated);
+    save(updated);
+    setBulkSeries('');
+  };
+
+  const applyBulkTag = () => {
+    if (!data || !bulkTag.trim() || selectedSlugs.size === 0) return;
+    const normalized = bulkTag.trim().toLowerCase().replace(/\s+/g, '-');
+    const posts = data.posts.map(p =>
+      selectedSlugs.has(p.slug) && !p.tags.includes(normalized)
+        ? { ...p, tags: [...p.tags, normalized] }
+        : p
+    );
+    const updated = { ...data, posts };
+    setData(updated);
+    save(updated);
+    setBulkTag('');
+  };
+
+  const openAutoSchedulePreview = () => {
+    if (!data) return;
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const allowedDays = new Set(data.settings.publishDays.map(d => d.toLowerCase()));
+
+    const unscheduled = data.posts.filter(p => p.status === 'draft' && !p.scheduledDate);
+    if (unscheduled.length === 0) return;
+
+    const scheduledDates = data.posts
+      .filter(p => p.scheduledDate)
+      .map(p => new Date(p.scheduledDate!))
+      .sort((a, b) => b.getTime() - a.getTime());
+
+    const startFrom = scheduledDates.length > 0
+      ? new Date(scheduledDates[0].getTime() + 86400000)
+      : new Date(Date.now() + 86400000);
+
+    const dates: string[] = [];
+    const current = new Date(startFrom);
+    current.setHours(0, 0, 0, 0);
+
+    while (dates.length < unscheduled.length) {
+      if (allowedDays.has(dayNames[current.getDay()])) {
+        dates.push(current.toISOString().split('T')[0]);
+      }
+      current.setDate(current.getDate() + 1);
+    }
+
+    setAutoSchedulePreview(unscheduled.map((p, i) => ({ slug: p.slug, title: p.title, date: dates[i] })));
+    setPreviewExcluded(new Set());
+  };
+
+  const confirmAutoSchedule = () => {
+    if (!data || !autoSchedulePreview) return;
+    const assignments = new Map(
+      autoSchedulePreview
+        .filter(p => !previewExcluded.has(p.slug))
+        .map(p => [p.slug, p.date])
+    );
+    const posts = data.posts.map(p =>
+      assignments.has(p.slug)
+        ? { ...p, scheduledDate: assignments.get(p.slug)!, status: 'scheduled' as const }
+        : p
+    );
+    const updated = { ...data, posts };
+    setData(updated);
+    save(updated);
+    setAutoSchedulePreview(null);
+    setPreviewExcluded(new Set());
+  };
 
   const fetchData = useCallback(async () => {
     const res = await fetch('/api/schedule');
@@ -258,6 +399,9 @@ export default function ScheduleDashboard() {
   }
 
   const filteredPosts = filter === 'all' ? data.posts : data.posts.filter(p => p.status === filter);
+  const filteredPostsRef = useRef(filteredPosts);
+  filteredPostsRef.current = filteredPosts;
+  const allFilteredSelected = filteredPosts.length > 0 && filteredPosts.every(p => selectedSlugs.has(p.slug));
   const draftCount = data.posts.filter(p => p.status === 'draft').length;
   const scheduledCount = data.posts.filter(p => p.status === 'scheduled').length;
   const publishedCount = data.posts.filter(p => p.status === 'published').length;
@@ -378,7 +522,7 @@ export default function ScheduleDashboard() {
         <div style={{ flex: 1 }} />
         {draftCount > 0 && (
           <button
-            onClick={autoSchedule}
+            onClick={openAutoSchedulePreview}
             style={{
               padding: '0.5rem 1rem',
               borderRadius: 8,
@@ -395,8 +539,242 @@ export default function ScheduleDashboard() {
         )}
       </div>
 
+      {/* Bulk actions bar */}
+      {selectedSlugs.size > 0 && (
+        <div style={{
+          background: 'var(--surface)', border: '1px solid var(--accent)', borderRadius: 10,
+          padding: '0.75rem 1rem', marginBottom: '1rem',
+          display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap',
+        }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--accent)', whiteSpace: 'nowrap' }}>
+            {selectedSlugs.size} selected
+          </span>
+          <button
+            onClick={() => setSelectedSlugs(new Set())}
+            style={{
+              background: 'none', border: 'none', color: 'var(--fg-muted)', cursor: 'pointer',
+              fontSize: '0.75rem', textDecoration: 'underline',
+            }}
+          >
+            Clear
+          </button>
+          <div style={{ width: 1, height: 20, background: 'var(--border)' }} />
+
+          {/* Bulk set date */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <input
+              type="date"
+              value={bulkDate}
+              onChange={e => setBulkDate(e.target.value)}
+              style={{
+                fontSize: '0.75rem', padding: '3px 6px', borderRadius: 4,
+                border: '1px solid var(--border)', background: 'var(--surface-hover)',
+                color: 'var(--fg)', outline: 'none',
+              }}
+            />
+            <button
+              onClick={applyBulkDate}
+              disabled={!bulkDate}
+              style={{
+                fontSize: '0.7rem', padding: '3px 8px', borderRadius: 4, border: 'none',
+                background: bulkDate ? 'var(--accent)' : 'var(--surface-hover)',
+                color: bulkDate ? '#fff' : 'var(--fg-muted)', cursor: bulkDate ? 'pointer' : 'default',
+                fontWeight: 600,
+              }}
+            >
+              Set date
+            </button>
+          </div>
+
+          {/* Bulk set status */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <select
+              value={bulkStatus}
+              onChange={e => setBulkStatus(e.target.value)}
+              style={{
+                fontSize: '0.75rem', padding: '3px 6px', borderRadius: 4,
+                border: '1px solid var(--border)', background: 'var(--surface-hover)',
+                color: 'var(--fg)', outline: 'none',
+              }}
+            >
+              <option value="">Status...</option>
+              <option value="draft">Draft</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="published">Published</option>
+            </select>
+            <button
+              onClick={applyBulkStatus}
+              disabled={!bulkStatus}
+              style={{
+                fontSize: '0.7rem', padding: '3px 8px', borderRadius: 4, border: 'none',
+                background: bulkStatus ? 'var(--accent)' : 'var(--surface-hover)',
+                color: bulkStatus ? '#fff' : 'var(--fg-muted)', cursor: bulkStatus ? 'pointer' : 'default',
+                fontWeight: 600,
+              }}
+            >
+              Set status
+            </button>
+          </div>
+
+          {/* Bulk assign series */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <select
+              value={bulkSeries}
+              onChange={e => setBulkSeries(e.target.value)}
+              style={{
+                fontSize: '0.75rem', padding: '3px 6px', borderRadius: 4,
+                border: '1px solid var(--border)', background: 'var(--surface-hover)',
+                color: 'var(--fg)', outline: 'none',
+              }}
+            >
+              <option value="">Series...</option>
+              <option value="__none__">No series</option>
+              {data.series.map(s => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+            <button
+              onClick={applyBulkSeries}
+              disabled={!bulkSeries}
+              style={{
+                fontSize: '0.7rem', padding: '3px 8px', borderRadius: 4, border: 'none',
+                background: bulkSeries ? 'var(--accent)' : 'var(--surface-hover)',
+                color: bulkSeries ? '#fff' : 'var(--fg-muted)', cursor: bulkSeries ? 'pointer' : 'default',
+                fontWeight: 600,
+              }}
+            >
+              Assign
+            </button>
+          </div>
+
+          {/* Bulk add tag */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <input
+              value={bulkTag}
+              onChange={e => setBulkTag(e.target.value)}
+              placeholder="tag"
+              onKeyDown={e => { if (e.key === 'Enter') applyBulkTag(); }}
+              style={{
+                fontSize: '0.75rem', padding: '3px 6px', borderRadius: 4, width: 80,
+                border: '1px solid var(--border)', background: 'var(--surface-hover)',
+                color: 'var(--fg)', outline: 'none',
+              }}
+            />
+            <button
+              onClick={applyBulkTag}
+              disabled={!bulkTag.trim()}
+              style={{
+                fontSize: '0.7rem', padding: '3px 8px', borderRadius: 4, border: 'none',
+                background: bulkTag.trim() ? 'var(--accent)' : 'var(--surface-hover)',
+                color: bulkTag.trim() ? '#fff' : 'var(--fg-muted)', cursor: bulkTag.trim() ? 'pointer' : 'default',
+                fontWeight: 600,
+              }}
+            >
+              Add tag
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Auto-schedule preview modal */}
+      {autoSchedulePreview && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex',
+          alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+        }} onClick={() => setAutoSchedulePreview(null)}>
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16,
+              padding: '1.5rem', maxWidth: 520, width: '90%', maxHeight: '80vh', overflow: 'auto',
+            }}
+          >
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--fg)', margin: '0 0 0.25rem' }}>
+              Auto-schedule Preview
+            </h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--fg-muted)', margin: '0 0 1rem' }}>
+              {autoSchedulePreview.length - previewExcluded.size} of {autoSchedulePreview.length} drafts will be scheduled. Uncheck any you want to skip.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+              {autoSchedulePreview.map(p => {
+                const excluded = previewExcluded.has(p.slug);
+                return (
+                  <label
+                    key={p.slug}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem',
+                      borderRadius: 8, background: excluded ? 'transparent' : `${STATUS_COLORS.scheduled}0a`,
+                      border: `1px solid ${excluded ? 'var(--border)' : STATUS_COLORS.scheduled + '44'}`,
+                      cursor: 'pointer', opacity: excluded ? 0.5 : 1,
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={!excluded}
+                      onChange={() => {
+                        const next = new Set(previewExcluded);
+                        if (excluded) next.delete(p.slug);
+                        else next.add(p.slug);
+                        setPreviewExcluded(next);
+                      }}
+                      style={{ accentColor: 'var(--neon-pink)' }}
+                    />
+                    <span style={{ flex: 1, fontSize: '0.85rem', color: 'var(--fg)', fontWeight: 500 }}>
+                      {p.title}
+                    </span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--neon-pink)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                      {new Date(p.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setAutoSchedulePreview(null)}
+                style={{
+                  padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid var(--border)',
+                  background: 'transparent', color: 'var(--fg-muted)', cursor: 'pointer', fontSize: '0.85rem',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmAutoSchedule}
+                disabled={previewExcluded.size === autoSchedulePreview.length}
+                style={{
+                  padding: '0.5rem 1rem', borderRadius: 8, border: 'none',
+                  background: previewExcluded.size === autoSchedulePreview.length ? 'var(--surface-hover)' : 'var(--neon-pink)',
+                  color: '#fff', cursor: previewExcluded.size === autoSchedulePreview.length ? 'default' : 'pointer',
+                  fontSize: '0.85rem', fontWeight: 600,
+                }}
+              >
+                Schedule {autoSchedulePreview.length - previewExcluded.size} post{autoSchedulePreview.length - previewExcluded.size !== 1 ? 's' : ''}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {view === 'list' && (
         <>
+          {/* Select all header */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', padding: '0 0.25rem',
+          }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={allFilteredSelected}
+                onChange={() => selectAll(filteredPosts)}
+                style={{ accentColor: 'var(--accent)', width: 16, height: 16 }}
+              />
+              <span style={{ fontSize: '0.8rem', color: 'var(--fg-muted)', fontWeight: 500 }}>
+                Select all ({filteredPosts.length})
+              </span>
+            </label>
+          </div>
+
           {/* Post list */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {filteredPosts.map((post) => {
@@ -405,14 +783,22 @@ export default function ScheduleDashboard() {
                 <div
                   key={post.slug}
                   style={{
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
+                    background: selectedSlugs.has(post.slug) ? 'var(--surface-hover)' : 'var(--surface)',
+                    border: selectedSlugs.has(post.slug) ? '1px solid var(--accent)' : '1px solid var(--border)',
                     borderRadius: 12,
                     padding: '1rem 1.25rem',
                     borderLeft: `4px solid ${STATUS_COLORS[post.status] || 'var(--border)'}`,
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                    {/* Selection checkbox */}
+                    <input
+                      type="checkbox"
+                      checked={selectedSlugs.has(post.slug)}
+                      onClick={e => toggleSelect(post.slug, e as unknown as MouseEvent)}
+                      onChange={() => {}}
+                      style={{ accentColor: 'var(--accent)', width: 16, height: 16, marginTop: 4, cursor: 'pointer', flexShrink: 0 }}
+                    />
                     {/* Reorder buttons */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 2, paddingTop: 2 }}>
                       <button
