@@ -62,7 +62,7 @@ export default function AboutPage() {
           The names
         </h3>
         <p style={{ margin: "0 0 1.5rem" }}>
-          For fifteen years, Austen wrote under different names: Sly Squirrel, Slyford T. Rabbit, Carl, Austen Crowder. Each one was a mask &mdash; not dishonest, exactly, but protective. Compartments that kept the writing safe from the parts of life that weren&rsquo;t ready for it. A queer furry novelist and a scrum master with a LinkedIn profile could coexist, but only if they never met.
+          For fifteen years, Austen wrote under different names: Sly Squirrel, Slyford T. Rabbit, Austen Crowder. Each one was a mask &mdash; not dishonest, exactly, but protective. Compartments that kept the writing safe from the parts of life that weren&rsquo;t ready for it. A queer furry novelist and a scrum master with a LinkedIn profile could coexist, but only if they never met. (<em>Carl</em>, for the record, was Austen&rsquo;s first audiobook &mdash; a title, not a name.)
         </p>
         <p style={{ margin: "0 0 1.5rem" }}>
           That&rsquo;s over now. Masks off. One voice. The real one.
