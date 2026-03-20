@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState, useCallback, useRef, useMemo, DragEvent, MouseEvent } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 interface ScheduledPost {
   slug: string;
@@ -69,6 +69,36 @@ function dateToString(d: Date): string {
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const WEEKDAY_HEADERS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+const SCHEDULE_URL_KEYS = ['status', 'q', 'series', 'tags'] as const;
+
+function buildScheduleSearchParams(
+  filter: 'all' | 'draft' | 'scheduled' | 'published',
+  searchText: string,
+  filterSeries: string,
+  filterTags: string[]
+): URLSearchParams {
+  const params = new URLSearchParams();
+  if (filter !== 'all') params.set('status', filter);
+  if (searchText) params.set('q', searchText);
+  if (filterSeries) params.set('series', filterSeries);
+  if (filterTags.length > 0) params.set('tags', filterTags.join(','));
+  return params;
+}
+
+function scheduleUrlMatchesFilters(
+  sp: { get: (key: string) => string | null },
+  filter: 'all' | 'draft' | 'scheduled' | 'published',
+  searchText: string,
+  filterSeries: string,
+  filterTags: string[]
+): boolean {
+  const want = buildScheduleSearchParams(filter, searchText, filterSeries, filterTags);
+  for (const k of SCHEDULE_URL_KEYS) {
+    if (want.get(k) !== sp.get(k)) return false;
+  }
+  return true;
+}
+
 export default function SchedulePage() {
   return (
     <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', color: 'var(--fg-muted)' }}>Loading schedule...</div>}>
@@ -87,6 +117,7 @@ function ScheduleDashboard() {
   const [newSeries, setNewSeries] = useState({ name: '', description: '' });
   const searchParams = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
 
   const [filter, setFilter] = useState<'all' | 'draft' | 'scheduled' | 'published'>(() => {
     const s = searchParams.get('status');
@@ -259,27 +290,30 @@ function ScheduleDashboard() {
   const postRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const fetchData = useCallback(async () => {
-    const res = await fetch('/api/schedule');
-    if (!res.ok) {
-      setError('Failed to load schedule');
-      return;
+    setError(null);
+    try {
+      const res = await fetch('/api/schedule');
+      if (!res.ok) {
+        setError(`Failed to load schedule (${res.status})`);
+        return;
+      }
+      const json = await res.json();
+      setData(json);
+    } catch {
+      setError('Failed to load schedule (network error)');
     }
-    const json = await res.json();
-    setData(json);
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Sync filter state to URL params
+  // Sync filter state to URL params (only when different — avoids replace loops with useRouter)
   useEffect(() => {
-    const params = new URLSearchParams();
-    if (filter !== 'all') params.set('status', filter);
-    if (searchText) params.set('q', searchText);
-    if (filterSeries) params.set('series', filterSeries);
-    if (filterTags.length > 0) params.set('tags', filterTags.join(','));
-    const qs = params.toString();
-    router.replace(qs ? `?${qs}` : '?', { scroll: false });
-  }, [filter, searchText, filterSeries, filterTags, router]);
+    if (scheduleUrlMatchesFilters(searchParams, filter, searchText, filterSeries, filterTags)) {
+      return;
+    }
+    const qs = buildScheduleSearchParams(filter, searchText, filterSeries, filterTags).toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [filter, searchText, filterSeries, filterTags, router, pathname, searchParams]);
 
   const hasActiveFilters = filter !== 'all' || searchText !== '' || filterSeries !== '' || filterTags.length > 0;
 
@@ -648,15 +682,8 @@ function ScheduleDashboard() {
     return () => window.removeEventListener('keydown', handler);
   }, [data, filter, searchText, filterSeries, filterTags, focusedIndex, showShortcuts, confirmDialog, toast, saving]);
 
-  if (!data) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', color: 'var(--fg-muted)' }}>
-        Loading schedule...
-      </div>
-    );
-  }
-
-  const filteredPosts = useMemo(() => {
+  const filteredPosts = useMemo((): ScheduledPost[] => {
+    if (!data) return [];
     let posts = data.posts;
     if (filter !== 'all') posts = posts.filter(p => p.status === filter);
     if (searchText) {
@@ -674,9 +701,48 @@ function ScheduleDashboard() {
       posts = posts.filter(p => filterTags.every(t => p.tags.includes(t)));
     }
     return posts;
-  }, [data.posts, filter, searchText, filterSeries, filterTags]);
-  const filteredPostsRef = useRef(filteredPosts);
+  }, [data, filter, searchText, filterSeries, filterTags]);
+  const filteredPostsRef = useRef<ScheduledPost[]>([]);
   filteredPostsRef.current = filteredPosts;
+
+  if (!data) {
+    if (error) {
+      return (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '60vh',
+            color: 'var(--fg-muted)',
+          }}
+        >
+          <p style={{ color: 'var(--fg)' }}>{error}</p>
+          <button
+            type="button"
+            onClick={() => fetchData()}
+            style={{
+              padding: '0.5rem 1rem',
+              borderRadius: 8,
+              border: '1px solid var(--border)',
+              background: 'var(--surface)',
+              color: 'var(--fg)',
+              cursor: 'pointer',
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      );
+    }
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', color: 'var(--fg-muted)' }}>
+        Loading schedule...
+      </div>
+    );
+  }
   const allFilteredSelected = filteredPosts.length > 0 && filteredPosts.every(p => selectedSlugs.has(p.slug));
   const draftCount = data.posts.filter(p => p.status === 'draft').length;
   const scheduledCount = data.posts.filter(p => p.status === 'scheduled').length;

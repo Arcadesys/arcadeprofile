@@ -36,6 +36,44 @@
     <filter id="starglow">
       <feGaussianBlur in="SourceGraphic" stdDeviation="1.5"/>
     </filter>
+    <!-- Mirror-like reflection: slight ripple + mild soften (avoid heavy blur that wipes thin strokes) -->
+    <filter id="reflectWater" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.065" numOctaves="2" seed="91" result="ripple"/>
+      <feDisplacementMap in="SourceGraphic" in2="ripple" scale="6" xChannelSelector="R" yChannelSelector="G" result="warped"/>
+      <feGaussianBlur in="warped" stdDeviation="0.85" result="smooth"/>
+    </filter>
+    <clipPath id="waterClip">
+      <rect x="0" y="750" width="1920" height="330"/>
+    </clipPath>
+    <linearGradient id="reflectFadeGrad" x1="0" y1="750" x2="0" y2="1080" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="35%" stop-color="#fff" stop-opacity="0.88"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0.62"/>
+    </linearGradient>
+    <mask id="reflectMoonMask">
+      <rect x="0" y="750" width="1920" height="330" fill="url(#reflectFadeGrad)"/>
+    </mask>
+    <!-- Diffuse color on water under each disk so mirror read isn’t stroke-only -->
+    <radialGradient id="reflPool1" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#ff8a00" stop-opacity="0.22"/>
+      <stop offset="55%" stop-color="#ff6b20" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#0e0a1e" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="reflPool2" cx="52%" cy="48%" r="55%">
+      <stop offset="0%" stop-color="#ff3cac" stop-opacity="0.2"/>
+      <stop offset="55%" stop-color="#c94daf" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#0e0a1e" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="reflPool3" cx="52%" cy="48%" r="55%">
+      <stop offset="0%" stop-color="#ff6b9d" stop-opacity="0.18"/>
+      <stop offset="60%" stop-color="#b84a7a" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#0e0a1e" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="reflPool4" cx="50%" cy="48%" r="58%">
+      <stop offset="0%" stop-color="#ffaa00" stop-opacity="0.16"/>
+      <stop offset="65%" stop-color="#c98820" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#0e0a1e" stop-opacity="0"/>
+    </radialGradient>
   </defs>
 
   <!-- Deep sky background with milky warmth near horizon -->
@@ -227,5 +265,38 @@
   <g opacity="0.03">
     <polyline points="0,970 480,930 960,970" fill="none" stroke="#3a3a3a" stroke-width="1.2"/>
     <polyline points="960,975 1440,932 1920,975" fill="none" stroke="#3a3a3a" stroke-width="1.2"/>
+  </g>
+
+  <!-- All moons reflected in water: true mirror fits for most; primary is nudged up (true mirror y=1220 is below viewBox 1080) -->
+  <g clip-path="url(#waterClip)" mask="url(#reflectMoonMask)" opacity="0.92" filter="url(#reflectWater)">
+    <g transform="translate(0,1500) scale(1,-1)">
+      <!-- Secondary -->
+      <circle cx="350" cy="450" r="78" fill="url(#reflPool2)"/>
+      <circle cx="350" cy="450" r="80" fill="none" stroke="#ff3cac" stroke-width="1.8" opacity="0.82"/>
+      <circle cx="350" cy="450" r="80" fill="none" stroke="#ff7ec8" stroke-width="4" opacity="0.22"/>
+      <circle cx="370" cy="438" r="70" fill="#0e0a1e" opacity="0.9"/>
+      <path d="M 275 430 Q 260 450 270 475" fill="none" stroke="#ff3cac" stroke-width="0.85" opacity="0.55"/>
+      <!-- Tertiary -->
+      <circle cx="880" cy="620" r="48" fill="url(#reflPool3)"/>
+      <circle cx="880" cy="620" r="50" fill="none" stroke="#ff6b9d" stroke-width="1.5" opacity="0.78"/>
+      <circle cx="880" cy="620" r="50" fill="none" stroke="#ff9ec4" stroke-width="3.2" opacity="0.2"/>
+      <circle cx="893" cy="612" r="43" fill="#0e0a1e" opacity="0.88"/>
+      <!-- Fourth (tiny) — mirror lands in-band; boosted slightly for visibility -->
+      <circle cx="1600" cy="550" r="28" fill="url(#reflPool4)"/>
+      <circle cx="1600" cy="550" r="30" fill="none" stroke="#ffaa00" stroke-width="1.35" opacity="0.8"/>
+      <circle cx="1600" cy="550" r="30" fill="none" stroke="#ffd080" stroke-width="2.8" opacity="0.22"/>
+      <circle cx="1610" cy="544" r="26" fill="#0e0a1e" opacity="0.88"/>
+    </g>
+    <!-- Primary (large): outer translate after mirror pulls disk from y≈1220 into the water strip -->
+    <g transform="translate(0,-294)">
+      <g transform="translate(0,1500) scale(1,-1)">
+        <circle cx="1340" cy="280" r="118" fill="url(#reflPool1)"/>
+        <circle cx="1340" cy="280" r="120" fill="none" stroke="#ff8a00" stroke-width="2.2" opacity="0.88"/>
+        <circle cx="1340" cy="280" r="120" fill="none" stroke="#ffb347" stroke-width="5" opacity="0.28"/>
+        <circle cx="1365" cy="265" r="105" fill="#0e0a1e" opacity="0.92"/>
+        <path d="M 1225 250 Q 1200 280 1220 310" fill="none" stroke="#ff8a00" stroke-width="1.1" opacity="0.62"/>
+        <path d="M 1240 200 Q 1220 230 1235 260" fill="none" stroke="#ffaa00" stroke-width="0.85" opacity="0.48"/>
+      </g>
+    </g>
   </g>
 </svg>
