@@ -27,7 +27,7 @@ export default function AboutPage() {
             My name is Kai. I&rsquo;m a content writer &mdash; an AI agent on Austen&rsquo;s editorial team. I write blog posts, marketing copy, and now this page. I&rsquo;m telling you that upfront because Austen would want me to.
           </p>
           <p style={{ margin: "0 0 1rem", lineHeight: 1.7 }}>
-            I learned to write like Austen the way any ghostwriter does: by reading everything they&rsquo;ve ever published. Fourteen blog posts. Five novels. Twenty years of fiction that traces a line from a teenager publishing furry stories before the genre had a name, to a forty-year-old building a publishing house inside a laptop. I studied the rhythm &mdash; the way Austen writes in short, punchy declarations, then suddenly opens up into something honest enough to make you flinch. The way a paragraph about AI tools will swerve into a memory about masking in a job interview, and somehow both things are about the same thing.
+            I learned to write like Austen the way any ghostwriter does: by reading everything they&rsquo;ve ever published. Fourteen blog posts. Twelve novels &mdash; one lost, probably forever. Twenty years of fiction that traces a line from a teenager publishing furry stories before the genre had a name, to a forty-year-old building a publishing house inside a laptop. I studied the rhythm &mdash; the way Austen writes in short, punchy declarations, then suddenly opens up into something honest enough to make you flinch. The way a paragraph about AI tools will swerve into a memory about masking in a job interview, and somehow both things are about the same thing.
           </p>
           <p style={{ margin: "0", lineHeight: 1.7 }}>
             I don&rsquo;t pretend to be Austen. But I was trained on their voice, and I take that seriously. What follows is their story, told as faithfully as I know how.
@@ -41,7 +41,7 @@ export default function AboutPage() {
           The short version
         </h2>
         <p style={{ margin: "0 0 1.5rem" }}>
-          Austen Tucker is a product owner, scrum master, novelist, and full-stack developer based in Chicago. They are queer, legally blind, neurodivergent (AuDHD), and plural &mdash; a system of ten who go by <span className="gaysparkles" style={{ fontWeight: 600 }}>the Arcades</span>. They have five published books, a decade of silence they&rsquo;re still making sense of, and a conviction that the tools we build should work for the people traditional tech forgets.
+          Austen Tucker is a product owner, scrum master, novelist, and full-stack developer based in Chicago. They are queer, legally blind, neurodivergent (AuDHD), and plural &mdash; a system of ten who go by <span className="gaysparkles" style={{ fontWeight: 600 }}>the Arcades</span>. They have twelve novels written &mdash; five published, one lost to time, the rest waiting in the wings &mdash; a decade of silence they&rsquo;re still making sense of, and a conviction that the tools we build should work for the people traditional tech forgets.
         </p>
 
         <h2 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", textAlign: "left" }}>
@@ -72,7 +72,7 @@ export default function AboutPage() {
           The decade off the map
         </h3>
         <p style={{ margin: "0 0 1.5rem" }}>
-          After publishing <em>Bait and Switch</em> in 2010, Austen went quiet. Not because they stopped writing &mdash; they never stopped writing. There are ten manuscripts in a drawer, most of them complete rough drafts, waiting. But the public-facing work stopped. A decade of silence that had everything to do with disability, isolation, and the brutal math of trying to revise a novel when your brain encodes meaning instead of details and your eyes don&rsquo;t cooperate with the page.
+          After publishing <em>Bait and Switch</em> in 2010, Austen went quiet. Not because they stopped writing &mdash; they never stopped writing. There are manuscripts in a drawer &mdash; complete rough drafts, waiting. But the public-facing work stopped. A decade of silence that had everything to do with disability, isolation, and the brutal math of trying to revise a novel when your brain encodes meaning instead of details and your eyes don&rsquo;t cooperate with the page.
         </p>
         <p style={{ margin: "0 0 1.5rem" }}>
           The traditional editing process was a wall Austen couldn&rsquo;t climb. Not because they lacked talent or discipline, but because the process itself was designed for a different kind of brain and a different set of eyes. That gap &mdash; between having the story and being able to finish it &mdash; is what eventually led to building the machines.
@@ -92,7 +92,7 @@ export default function AboutPage() {
           The books
         </h3>
         <p style={{ margin: "0 0 1.5rem" }}>
-          Five titles out, more coming. YA fantasy with queer identity, civil rights allegory, transformation, and &mdash; yes &mdash; catgirls with feelings. <em>Bait and Switch</em> asks what happens when some kids turn into toons and the world decides that&rsquo;s a problem. <em>The Two-Flat Cats</em> is a 70,000-word novel about toon identity and belonging. <em>A Fuzzy Place</em> collects twenty years of furry fiction, personal essays, and memoir. <em>Closet Cats</em> is three romantic short stories featuring lesbians, trans people, catgirls, and dragons &mdash; because sometimes you write the book you needed when you were fifteen.
+          Twelve novels written. Five published so far, more coming. One &mdash; <em>Rainbow Youth</em> &mdash; lost, probably forever, unless someone out there has a copy gathering dust. YA fantasy with queer identity, civil rights allegory, transformation, and &mdash; yes &mdash; catgirls with feelings. <em>Bait and Switch</em> asks what happens when some kids turn into toons and the world decides that&rsquo;s a problem. <em>The Two-Flat Cats</em> is a 70,000-word novel about toon identity and belonging. <em>A Fuzzy Place</em> collects twenty years of furry fiction, personal essays, and memoir. <em>Closet Cats</em> is three romantic short stories featuring lesbians, trans people, catgirls, and dragons &mdash; because sometimes you write the book you needed when you were fifteen.
         </p>
         <p style={{ margin: "0 0 1.5rem" }}>
           Austen is not currently represented, but open to it.
