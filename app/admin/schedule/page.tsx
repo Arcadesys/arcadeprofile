@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef, DragEvent, MouseEvent } from 'react';
+import { Suspense, useEffect, useState, useCallback, useRef, useMemo, DragEvent, MouseEvent } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 interface ScheduledPost {
   slug: string;
@@ -68,7 +69,15 @@ function dateToString(d: Date): string {
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const WEEKDAY_HEADERS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-export default function ScheduleDashboard() {
+export default function SchedulePage() {
+  return (
+    <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', color: 'var(--fg-muted)' }}>Loading schedule...</div>}>
+      <ScheduleDashboard />
+    </Suspense>
+  );
+}
+
+function ScheduleDashboard() {
   const [data, setData] = useState<ScheduleData | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,7 +85,19 @@ export default function ScheduleDashboard() {
   const [tagInput, setTagInput] = useState('');
   const [showNewSeries, setShowNewSeries] = useState(false);
   const [newSeries, setNewSeries] = useState({ name: '', description: '' });
-  const [filter, setFilter] = useState<'all' | 'draft' | 'scheduled' | 'published'>('all');
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const [filter, setFilter] = useState<'all' | 'draft' | 'scheduled' | 'published'>(() => {
+    const s = searchParams.get('status');
+    return s === 'draft' || s === 'scheduled' || s === 'published' ? s : 'all';
+  });
+  const [searchText, setSearchText] = useState(() => searchParams.get('q') || '');
+  const [filterSeries, setFilterSeries] = useState(() => searchParams.get('series') || '');
+  const [filterTags, setFilterTags] = useState<string[]>(() => {
+    const t = searchParams.get('tags');
+    return t ? t.split(',').filter(Boolean) : [];
+  });
   const [view, setView] = useState<'list' | 'calendar'>('list');
   const [calendarMonth, setCalendarMonth] = useState(() => {
     const now = new Date();
@@ -238,6 +259,40 @@ export default function ScheduleDashboard() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Sync filter state to URL params
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (filter !== 'all') params.set('status', filter);
+    if (searchText) params.set('q', searchText);
+    if (filterSeries) params.set('series', filterSeries);
+    if (filterTags.length > 0) params.set('tags', filterTags.join(','));
+    const qs = params.toString();
+    router.replace(qs ? `?${qs}` : '?', { scroll: false });
+  }, [filter, searchText, filterSeries, filterTags, router]);
+
+  const hasActiveFilters = filter !== 'all' || searchText !== '' || filterSeries !== '' || filterTags.length > 0;
+
+  const clearAllFilters = () => {
+    setFilter('all');
+    setSearchText('');
+    setFilterSeries('');
+    setFilterTags([]);
+  };
+
+  const toggleFilterTag = (tag: string) => {
+    setFilterTags(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  };
+
+  // Collect all unique tags and series from posts
+  const allTags = useMemo(() => {
+    if (!data) return [];
+    const tags = new Set<string>();
+    for (const p of data.posts) for (const t of p.tags) tags.add(t);
+    return Array.from(tags).sort();
+  }, [data]);
+
   const save = async (updated: ScheduleData) => {
     setSaving(true);
     setError(null);
@@ -398,7 +453,25 @@ export default function ScheduleDashboard() {
     );
   }
 
-  const filteredPosts = filter === 'all' ? data.posts : data.posts.filter(p => p.status === filter);
+  const filteredPosts = useMemo(() => {
+    let posts = data.posts;
+    if (filter !== 'all') posts = posts.filter(p => p.status === filter);
+    if (searchText) {
+      const q = searchText.toLowerCase();
+      posts = posts.filter(p =>
+        p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q)
+      );
+    }
+    if (filterSeries) {
+      posts = filterSeries === '__none__'
+        ? posts.filter(p => !p.series)
+        : posts.filter(p => p.series === filterSeries);
+    }
+    if (filterTags.length > 0) {
+      posts = posts.filter(p => filterTags.every(t => p.tags.includes(t)));
+    }
+    return posts;
+  }, [data.posts, filter, searchText, filterSeries, filterTags]);
   const filteredPostsRef = useRef(filteredPosts);
   filteredPostsRef.current = filteredPosts;
   const allFilteredSelected = filteredPosts.length > 0 && filteredPosts.every(p => selectedSlugs.has(p.slug));
@@ -494,48 +567,136 @@ export default function ScheduleDashboard() {
         ))}
       </div>
 
-      {/* Stats bar */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-        {[
-          { label: 'All', value: 'all', count: data.posts.length },
-          { label: 'Drafts', value: 'draft', count: draftCount },
-          { label: 'Scheduled', value: 'scheduled', count: scheduledCount },
-          { label: 'Published', value: 'published', count: publishedCount },
-        ].map(f => (
-          <button
-            key={f.value}
-            onClick={() => setFilter(f.value as typeof filter)}
+      {/* Filter bar */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+        {/* Row 1: Status buttons + auto-schedule */}
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          {[
+            { label: 'All', value: 'all', count: data.posts.length },
+            { label: 'Drafts', value: 'draft', count: draftCount },
+            { label: 'Scheduled', value: 'scheduled', count: scheduledCount },
+            { label: 'Published', value: 'published', count: publishedCount },
+          ].map(f => (
+            <button
+              key={f.value}
+              onClick={() => setFilter(f.value as typeof filter)}
+              style={{
+                padding: '0.375rem 0.75rem',
+                borderRadius: 8,
+                border: filter === f.value ? '1px solid var(--accent)' : '1px solid var(--border)',
+                background: filter === f.value ? 'var(--surface-hover)' : 'var(--surface)',
+                color: filter === f.value ? 'var(--accent)' : 'var(--fg-muted)',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+                fontWeight: 500,
+              }}
+            >
+              {f.label} ({f.count})
+            </button>
+          ))}
+          <div style={{ flex: 1 }} />
+          {hasActiveFilters && (
+            <button
+              onClick={clearAllFilters}
+              style={{
+                padding: '0.375rem 0.75rem',
+                borderRadius: 8,
+                border: '1px solid var(--border)',
+                background: 'transparent',
+                color: 'var(--fg-muted)',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+              }}
+            >
+              Clear filters
+            </button>
+          )}
+          {draftCount > 0 && (
+            <button
+              onClick={openAutoSchedulePreview}
+              style={{
+                padding: '0.375rem 0.75rem',
+                borderRadius: 8,
+                border: '1px solid var(--neon-pink)',
+                background: 'transparent',
+                color: 'var(--neon-pink)',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+              }}
+            >
+              Auto-schedule drafts
+            </button>
+          )}
+        </div>
+        {/* Row 2: Search + Series + Tags */}
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <input
+            type="text"
+            placeholder="Search title or excerpt…"
+            value={searchText}
+            onChange={e => setSearchText(e.target.value)}
             style={{
-              padding: '0.5rem 1rem',
-              borderRadius: 8,
-              border: filter === f.value ? '1px solid var(--accent)' : '1px solid var(--border)',
-              background: filter === f.value ? 'var(--surface-hover)' : 'var(--surface)',
-              color: filter === f.value ? 'var(--accent)' : 'var(--fg-muted)',
+              padding: '0.375rem 0.625rem',
+              borderRadius: 6,
+              border: '1px solid var(--border)',
+              background: 'var(--surface)',
+              color: 'var(--fg)',
+              fontSize: '0.8rem',
+              minWidth: 180,
+              flex: '1 1 180px',
+              maxWidth: 300,
+            }}
+          />
+          <select
+            value={filterSeries}
+            onChange={e => setFilterSeries(e.target.value)}
+            style={{
+              padding: '0.375rem 0.625rem',
+              borderRadius: 6,
+              border: filterSeries ? '1px solid var(--accent)' : '1px solid var(--border)',
+              background: 'var(--surface)',
+              color: filterSeries ? 'var(--accent)' : 'var(--fg-muted)',
+              fontSize: '0.8rem',
               cursor: 'pointer',
-              fontSize: '0.875rem',
-              fontWeight: 500,
             }}
           >
-            {f.label} ({f.count})
-          </button>
-        ))}
-        <div style={{ flex: 1 }} />
-        {draftCount > 0 && (
-          <button
-            onClick={openAutoSchedulePreview}
-            style={{
-              padding: '0.5rem 1rem',
-              borderRadius: 8,
-              border: '1px solid var(--neon-pink)',
-              background: 'transparent',
-              color: 'var(--neon-pink)',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-            }}
-          >
-            Auto-schedule drafts
-          </button>
+            <option value="">All series</option>
+            <option value="__none__">No series</option>
+            {data.series.map(s => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+          {allTags.length > 0 && (
+            <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              {allTags.map(tag => {
+                const active = filterTags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    onClick={() => toggleFilterTag(tag)}
+                    style={{
+                      padding: '0.2rem 0.5rem',
+                      borderRadius: 999,
+                      border: active ? '1px solid var(--accent)' : '1px solid var(--border)',
+                      background: active ? 'var(--surface-hover)' : 'transparent',
+                      color: active ? 'var(--accent)' : 'var(--fg-muted)',
+                      cursor: 'pointer',
+                      fontSize: '0.7rem',
+                      fontWeight: active ? 600 : 400,
+                    }}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+        {hasActiveFilters && (
+          <div style={{ fontSize: '0.75rem', color: 'var(--fg-muted)' }}>
+            Showing {filteredPosts.length} of {data.posts.length} posts
+          </div>
         )}
       </div>
 
@@ -856,11 +1017,18 @@ export default function ScheduleDashboard() {
                             style={{
                               display: 'inline-flex', alignItems: 'center', gap: 4,
                               fontSize: '0.7rem', padding: '2px 8px', borderRadius: 12,
-                              background: 'var(--surface-hover)', color: 'var(--fg-muted)',
-                              border: '1px solid var(--border)',
+                              background: filterTags.includes(tag) ? 'var(--surface-hover)' : 'var(--surface-hover)',
+                              color: filterTags.includes(tag) ? 'var(--accent)' : 'var(--fg-muted)',
+                              border: filterTags.includes(tag) ? '1px solid var(--accent)' : '1px solid var(--border)',
                             }}
                           >
-                            {tag}
+                            <span
+                              onClick={() => toggleFilterTag(tag)}
+                              style={{ cursor: 'pointer' }}
+                              title="Click to filter by this tag"
+                            >
+                              {tag}
+                            </span>
                             <button
                               onClick={() => removeTag(post.slug, tag)}
                               style={{ background: 'none', border: 'none', color: 'var(--fg-muted)', cursor: 'pointer', fontSize: '0.7rem', padding: 0, lineHeight: 1 }}
