@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, DragEvent } from 'react';
 
 interface ScheduledPost {
   slug: string;
@@ -38,6 +38,36 @@ const STATUS_COLORS: Record<string, string> = {
 
 const DAY_OPTIONS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
+function getCalendarDays(year: number, month: number): { date: Date; inMonth: boolean }[] {
+  const first = new Date(year, month, 1);
+  const last = new Date(year, month + 1, 0);
+  const startDay = first.getDay(); // 0=Sun
+  const days: { date: Date; inMonth: boolean }[] = [];
+
+  // Fill leading days from previous month
+  for (let i = startDay - 1; i >= 0; i--) {
+    const d = new Date(year, month, -i);
+    days.push({ date: d, inMonth: false });
+  }
+  // Days in month
+  for (let d = 1; d <= last.getDate(); d++) {
+    days.push({ date: new Date(year, month, d), inMonth: true });
+  }
+  // Fill trailing days to complete the grid (6 rows max)
+  while (days.length % 7 !== 0) {
+    const d = new Date(year, month + 1, days.length - last.getDate() - startDay + 1);
+    days.push({ date: d, inMonth: false });
+  }
+  return days;
+}
+
+function dateToString(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const WEEKDAY_HEADERS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
 export default function ScheduleDashboard() {
   const [data, setData] = useState<ScheduleData | null>(null);
   const [saving, setSaving] = useState(false);
@@ -47,6 +77,13 @@ export default function ScheduleDashboard() {
   const [showNewSeries, setShowNewSeries] = useState(false);
   const [newSeries, setNewSeries] = useState({ name: '', description: '' });
   const [filter, setFilter] = useState<'all' | 'draft' | 'scheduled' | 'published'>('all');
+  const [view, setView] = useState<'list' | 'calendar'>('list');
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const now = new Date();
+    return { year: now.getFullYear(), month: now.getMonth() };
+  });
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [dragOverDay, setDragOverDay] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     const res = await fetch('/api/schedule');
@@ -225,6 +262,60 @@ export default function ScheduleDashboard() {
   const scheduledCount = data.posts.filter(p => p.status === 'scheduled').length;
   const publishedCount = data.posts.filter(p => p.status === 'published').length;
 
+  // Calendar helpers
+  const calendarDays = getCalendarDays(calendarMonth.year, calendarMonth.month);
+  const postsByDate: Record<string, ScheduledPost[]> = {};
+  for (const post of data.posts) {
+    if (post.scheduledDate) {
+      if (!postsByDate[post.scheduledDate]) postsByDate[post.scheduledDate] = [];
+      postsByDate[post.scheduledDate].push(post);
+    }
+  }
+  const publishDaySet = new Set(data.settings.publishDays.map(d => d.toLowerCase()));
+  const dayNameMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const todayStr = dateToString(new Date());
+
+  const handleDragStart = (e: DragEvent<HTMLDivElement>, slug: string) => {
+    e.dataTransfer.setData('text/plain', slug);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>, dateStr: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverDay(dateStr);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverDay(null);
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>, dateStr: string) => {
+    e.preventDefault();
+    setDragOverDay(null);
+    const slug = e.dataTransfer.getData('text/plain');
+    if (slug) {
+      updatePostDate(slug, dateStr);
+    }
+  };
+
+  const goToMonth = (delta: number) => {
+    setCalendarMonth(prev => {
+      let m = prev.month + delta;
+      let y = prev.year;
+      if (m < 0) { m = 11; y--; }
+      if (m > 11) { m = 0; y++; }
+      return { year: y, month: m };
+    });
+    setSelectedDay(null);
+  };
+
+  const goToToday = () => {
+    const now = new Date();
+    setCalendarMonth({ year: now.getFullYear(), month: now.getMonth() });
+    setSelectedDay(todayStr);
+  };
+
   return (
     <div style={{ maxWidth: 960, margin: '0 auto', padding: '2rem 1rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -235,6 +326,28 @@ export default function ScheduleDashboard() {
           {saving && <span style={{ color: 'var(--fg-muted)', fontSize: '0.875rem' }}>Saving...</span>}
           {error && <span style={{ color: '#ef4444', fontSize: '0.875rem' }}>{error}</span>}
         </div>
+      </div>
+
+      {/* View toggle */}
+      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1.5rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: 3, width: 'fit-content' }}>
+        {([['list', 'List'], ['calendar', 'Calendar']] as const).map(([v, label]) => (
+          <button
+            key={v}
+            onClick={() => setView(v)}
+            style={{
+              padding: '0.375rem 1rem',
+              borderRadius: 6,
+              border: 'none',
+              background: view === v ? 'var(--accent)' : 'transparent',
+              color: view === v ? '#fff' : 'var(--fg-muted)',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+            }}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* Stats bar */}
@@ -282,175 +395,396 @@ export default function ScheduleDashboard() {
         )}
       </div>
 
-      {/* Post list */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {filteredPosts.map((post, index) => {
-          const globalIndex = data.posts.indexOf(post);
-          return (
-            <div
-              key={post.slug}
-              style={{
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                borderRadius: 12,
-                padding: '1rem 1.25rem',
-                borderLeft: `4px solid ${STATUS_COLORS[post.status] || 'var(--border)'}`,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                {/* Reorder buttons */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, paddingTop: 2 }}>
-                  <button
-                    onClick={() => movePost(globalIndex, -1)}
-                    disabled={globalIndex === 0}
-                    style={{
-                      background: 'none', border: 'none', cursor: globalIndex === 0 ? 'default' : 'pointer',
-                      color: globalIndex === 0 ? 'var(--border)' : 'var(--fg-muted)',
-                      fontSize: '1rem', lineHeight: 1, padding: '2px 4px',
-                    }}
-                    title="Move up"
-                  >
-                    ▲
-                  </button>
-                  <button
-                    onClick={() => movePost(globalIndex, 1)}
-                    disabled={globalIndex === data.posts.length - 1}
-                    style={{
-                      background: 'none', border: 'none',
-                      cursor: globalIndex === data.posts.length - 1 ? 'default' : 'pointer',
-                      color: globalIndex === data.posts.length - 1 ? 'var(--border)' : 'var(--fg-muted)',
-                      fontSize: '1rem', lineHeight: 1, padding: '2px 4px',
-                    }}
-                    title="Move down"
-                  >
-                    ▼
-                  </button>
-                </div>
-
-                {/* Post content */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--fg)', margin: 0 }}>
-                      {post.title}
-                    </h3>
-                    <span style={{
-                      fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em',
-                      padding: '2px 8px', borderRadius: 4,
-                      background: `${STATUS_COLORS[post.status]}22`,
-                      color: STATUS_COLORS[post.status],
-                    }}>
-                      {post.status}
-                    </span>
-                  </div>
-
-                  <p style={{ fontSize: '0.8rem', color: 'var(--fg-muted)', margin: '0.25rem 0 0.5rem', lineHeight: 1.4 }}>
-                    {post.excerpt}
-                  </p>
-
-                  {/* Tags */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
-                    {post.tags.map(tag => (
-                      <span
-                        key={tag}
-                        style={{
-                          display: 'inline-flex', alignItems: 'center', gap: 4,
-                          fontSize: '0.7rem', padding: '2px 8px', borderRadius: 12,
-                          background: 'var(--surface-hover)', color: 'var(--fg-muted)',
-                          border: '1px solid var(--border)',
-                        }}
-                      >
-                        {tag}
-                        <button
-                          onClick={() => removeTag(post.slug, tag)}
-                          style={{ background: 'none', border: 'none', color: 'var(--fg-muted)', cursor: 'pointer', fontSize: '0.7rem', padding: 0, lineHeight: 1 }}
-                        >
-                          x
-                        </button>
-                      </span>
-                    ))}
-                    {editingTags === post.slug ? (
-                      <form
-                        onSubmit={e => { e.preventDefault(); addTag(post.slug, tagInput); setTagInput(''); }}
-                        style={{ display: 'inline-flex', gap: 4 }}
-                      >
-                        <input
-                          value={tagInput}
-                          onChange={e => setTagInput(e.target.value)}
-                          placeholder="tag name"
-                          autoFocus
-                          onBlur={() => { if (!tagInput) setEditingTags(null); }}
-                          style={{
-                            fontSize: '0.7rem', padding: '2px 6px', borderRadius: 4,
-                            border: '1px solid var(--border)', background: 'var(--surface)',
-                            color: 'var(--fg)', outline: 'none', width: 90,
-                          }}
-                        />
-                      </form>
-                    ) : (
+      {view === 'list' && (
+        <>
+          {/* Post list */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {filteredPosts.map((post) => {
+              const globalIndex = data.posts.indexOf(post);
+              return (
+                <div
+                  key={post.slug}
+                  style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 12,
+                    padding: '1rem 1.25rem',
+                    borderLeft: `4px solid ${STATUS_COLORS[post.status] || 'var(--border)'}`,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                    {/* Reorder buttons */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2, paddingTop: 2 }}>
                       <button
-                        onClick={() => { setEditingTags(post.slug); setTagInput(''); }}
+                        onClick={() => movePost(globalIndex, -1)}
+                        disabled={globalIndex === 0}
                         style={{
-                          fontSize: '0.7rem', padding: '2px 8px', borderRadius: 12,
-                          background: 'none', color: 'var(--accent)', cursor: 'pointer',
-                          border: '1px dashed var(--accent)',
+                          background: 'none', border: 'none', cursor: globalIndex === 0 ? 'default' : 'pointer',
+                          color: globalIndex === 0 ? 'var(--border)' : 'var(--fg-muted)',
+                          fontSize: '1rem', lineHeight: 1, padding: '2px 4px',
+                        }}
+                        title="Move up"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        onClick={() => movePost(globalIndex, 1)}
+                        disabled={globalIndex === data.posts.length - 1}
+                        style={{
+                          background: 'none', border: 'none',
+                          cursor: globalIndex === data.posts.length - 1 ? 'default' : 'pointer',
+                          color: globalIndex === data.posts.length - 1 ? 'var(--border)' : 'var(--fg-muted)',
+                          fontSize: '1rem', lineHeight: 1, padding: '2px 4px',
+                        }}
+                        title="Move down"
+                      >
+                        ▼
+                      </button>
+                    </div>
+
+                    {/* Post content */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--fg)', margin: 0 }}>
+                          {post.title}
+                        </h3>
+                        <span style={{
+                          fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em',
+                          padding: '2px 8px', borderRadius: 4,
+                          background: `${STATUS_COLORS[post.status]}22`,
+                          color: STATUS_COLORS[post.status],
+                        }}>
+                          {post.status}
+                        </span>
+                      </div>
+
+                      <p style={{ fontSize: '0.8rem', color: 'var(--fg-muted)', margin: '0.25rem 0 0.5rem', lineHeight: 1.4 }}>
+                        {post.excerpt}
+                      </p>
+
+                      {/* Tags */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                        {post.tags.map(tag => (
+                          <span
+                            key={tag}
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 4,
+                              fontSize: '0.7rem', padding: '2px 8px', borderRadius: 12,
+                              background: 'var(--surface-hover)', color: 'var(--fg-muted)',
+                              border: '1px solid var(--border)',
+                            }}
+                          >
+                            {tag}
+                            <button
+                              onClick={() => removeTag(post.slug, tag)}
+                              style={{ background: 'none', border: 'none', color: 'var(--fg-muted)', cursor: 'pointer', fontSize: '0.7rem', padding: 0, lineHeight: 1 }}
+                            >
+                              x
+                            </button>
+                          </span>
+                        ))}
+                        {editingTags === post.slug ? (
+                          <form
+                            onSubmit={e => { e.preventDefault(); addTag(post.slug, tagInput); setTagInput(''); }}
+                            style={{ display: 'inline-flex', gap: 4 }}
+                          >
+                            <input
+                              value={tagInput}
+                              onChange={e => setTagInput(e.target.value)}
+                              placeholder="tag name"
+                              autoFocus
+                              onBlur={() => { if (!tagInput) setEditingTags(null); }}
+                              style={{
+                                fontSize: '0.7rem', padding: '2px 6px', borderRadius: 4,
+                                border: '1px solid var(--border)', background: 'var(--surface)',
+                                color: 'var(--fg)', outline: 'none', width: 90,
+                              }}
+                            />
+                          </form>
+                        ) : (
+                          <button
+                            onClick={() => { setEditingTags(post.slug); setTagInput(''); }}
+                            style={{
+                              fontSize: '0.7rem', padding: '2px 8px', borderRadius: 12,
+                              background: 'none', color: 'var(--accent)', cursor: 'pointer',
+                              border: '1px dashed var(--accent)',
+                            }}
+                          >
+                            + tag
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Right controls: date, series, status */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end', minWidth: 160 }}>
+                      <input
+                        type="date"
+                        value={post.scheduledDate || ''}
+                        onChange={e => updatePostDate(post.slug, e.target.value)}
+                        style={{
+                          fontSize: '0.8rem', padding: '4px 8px', borderRadius: 6,
+                          border: '1px solid var(--border)', background: 'var(--surface)',
+                          color: 'var(--fg)', outline: 'none',
+                        }}
+                      />
+                      <select
+                        value={post.series || ''}
+                        onChange={e => updatePostSeries(post.slug, e.target.value || null)}
+                        style={{
+                          fontSize: '0.8rem', padding: '4px 8px', borderRadius: 6,
+                          border: '1px solid var(--border)', background: 'var(--surface)',
+                          color: 'var(--fg)', outline: 'none', width: '100%',
                         }}
                       >
-                        + tag
-                      </button>
+                        <option value="">No series</option>
+                        {data.series.map(s => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={post.status}
+                        onChange={e => updatePostStatus(post.slug, e.target.value as ScheduledPost['status'])}
+                        style={{
+                          fontSize: '0.8rem', padding: '4px 8px', borderRadius: 6,
+                          border: '1px solid var(--border)', background: 'var(--surface)',
+                          color: STATUS_COLORS[post.status], outline: 'none', width: '100%',
+                          fontWeight: 600,
+                        }}
+                      >
+                        <option value="draft">Draft</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="published">Published</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {filteredPosts.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--fg-muted)' }}>
+              No posts match this filter.
+            </div>
+          )}
+        </>
+      )}
+
+      {view === 'calendar' && (
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          {/* Calendar grid */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {/* Month navigation */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <button
+                onClick={() => goToMonth(-1)}
+                style={{
+                  background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 6,
+                  color: 'var(--fg-muted)', cursor: 'pointer', padding: '4px 10px', fontSize: '1rem',
+                }}
+              >
+                &larr;
+              </button>
+              <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--fg)', margin: 0, minWidth: 180, textAlign: 'center' }}>
+                {MONTH_NAMES[calendarMonth.month]} {calendarMonth.year}
+              </h2>
+              <button
+                onClick={() => goToMonth(1)}
+                style={{
+                  background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 6,
+                  color: 'var(--fg-muted)', cursor: 'pointer', padding: '4px 10px', fontSize: '1rem',
+                }}
+              >
+                &rarr;
+              </button>
+              <button
+                onClick={goToToday}
+                style={{
+                  background: 'transparent', border: '1px solid var(--accent)', borderRadius: 6,
+                  color: 'var(--accent)', cursor: 'pointer', padding: '4px 12px', fontSize: '0.8rem', fontWeight: 600,
+                }}
+              >
+                Today
+              </button>
+            </div>
+
+            {/* Weekday headers */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1 }}>
+              {WEEKDAY_HEADERS.map(d => (
+                <div key={d} style={{ textAlign: 'center', fontSize: '0.7rem', fontWeight: 600, color: 'var(--fg-muted)', padding: '0.25rem 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  {d}
+                </div>
+              ))}
+            </div>
+
+            {/* Day cells */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1 }}>
+              {calendarDays.map(({ date, inMonth }) => {
+                const ds = dateToString(date);
+                const dayPosts = postsByDate[ds] || [];
+                const isPublishDay = publishDaySet.has(dayNameMap[date.getDay()]);
+                const isToday = ds === todayStr;
+                const isSelected = ds === selectedDay;
+                const hasConflict = dayPosts.length > 1;
+                const isDragOver = ds === dragOverDay;
+
+                return (
+                  <div
+                    key={ds}
+                    onClick={() => setSelectedDay(isSelected ? null : ds)}
+                    onDragOver={e => handleDragOver(e, ds)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={e => handleDrop(e, ds)}
+                    style={{
+                      minHeight: 80,
+                      padding: '4px 6px',
+                      background: isDragOver ? 'var(--surface-hover)' : isSelected ? 'var(--surface-hover)' : 'var(--surface)',
+                      border: isToday
+                        ? '2px solid var(--accent)'
+                        : isSelected
+                          ? '2px solid var(--fg-muted)'
+                          : isPublishDay && dayPosts.length === 0
+                            ? '1px dashed var(--accent)'
+                            : '1px solid var(--border)',
+                      borderRadius: 6,
+                      opacity: inMonth ? 1 : 0.35,
+                      cursor: 'pointer',
+                      transition: 'background 0.1s',
+                      position: 'relative',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                      <span style={{
+                        fontSize: '0.7rem', fontWeight: isToday ? 700 : 500,
+                        color: isToday ? 'var(--accent)' : 'var(--fg-muted)',
+                      }}>
+                        {date.getDate()}
+                      </span>
+                      {hasConflict && (
+                        <span style={{
+                          fontSize: '0.6rem', fontWeight: 700, background: '#ef4444', color: '#fff',
+                          borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', lineHeight: 1,
+                        }}>
+                          {dayPosts.length}
+                        </span>
+                      )}
+                    </div>
+                    {dayPosts.slice(0, 3).map(post => (
+                      <div
+                        key={post.slug}
+                        draggable
+                        onDragStart={e => handleDragStart(e, post.slug)}
+                        style={{
+                          fontSize: '0.65rem',
+                          padding: '1px 4px',
+                          marginBottom: 1,
+                          borderRadius: 3,
+                          background: `${STATUS_COLORS[post.status]}22`,
+                          borderLeft: `2px solid ${STATUS_COLORS[post.status]}`,
+                          color: 'var(--fg)',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          cursor: 'grab',
+                        }}
+                        title={post.title}
+                        onClick={e => e.stopPropagation()}
+                      >
+                        {post.title}
+                      </div>
+                    ))}
+                    {dayPosts.length > 3 && (
+                      <span style={{ fontSize: '0.6rem', color: 'var(--fg-muted)' }}>
+                        +{dayPosts.length - 3} more
+                      </span>
                     )}
                   </div>
-                </div>
-
-                {/* Right controls: date, series, status */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end', minWidth: 160 }}>
-                  <input
-                    type="date"
-                    value={post.scheduledDate || ''}
-                    onChange={e => updatePostDate(post.slug, e.target.value)}
-                    style={{
-                      fontSize: '0.8rem', padding: '4px 8px', borderRadius: 6,
-                      border: '1px solid var(--border)', background: 'var(--surface)',
-                      color: 'var(--fg)', outline: 'none',
-                    }}
-                  />
-                  <select
-                    value={post.series || ''}
-                    onChange={e => updatePostSeries(post.slug, e.target.value || null)}
-                    style={{
-                      fontSize: '0.8rem', padding: '4px 8px', borderRadius: 6,
-                      border: '1px solid var(--border)', background: 'var(--surface)',
-                      color: 'var(--fg)', outline: 'none', width: '100%',
-                    }}
-                  >
-                    <option value="">No series</option>
-                    {data.series.map(s => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
-                  <select
-                    value={post.status}
-                    onChange={e => updatePostStatus(post.slug, e.target.value as ScheduledPost['status'])}
-                    style={{
-                      fontSize: '0.8rem', padding: '4px 8px', borderRadius: 6,
-                      border: '1px solid var(--border)', background: 'var(--surface)',
-                      color: STATUS_COLORS[post.status], outline: 'none', width: '100%',
-                      fontWeight: 600,
-                    }}
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="scheduled">Scheduled</option>
-                    <option value="published">Published</option>
-                  </select>
-                </div>
-              </div>
+                );
+              })}
             </div>
-          );
-        })}
-      </div>
+          </div>
 
-      {filteredPosts.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--fg-muted)' }}>
-          No posts match this filter.
+          {/* Day sidebar */}
+          {selectedDay && (
+            <div style={{
+              width: 280, flexShrink: 0, background: 'var(--surface)', border: '1px solid var(--border)',
+              borderRadius: 12, padding: '1rem', alignSelf: 'flex-start', position: 'sticky', top: '1rem',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--fg)', margin: 0 }}>
+                  {new Date(selectedDay + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                </h3>
+                <button
+                  onClick={() => setSelectedDay(null)}
+                  style={{ background: 'none', border: 'none', color: 'var(--fg-muted)', cursor: 'pointer', fontSize: '1rem' }}
+                >
+                  x
+                </button>
+              </div>
+              {(postsByDate[selectedDay] || []).length === 0 ? (
+                <p style={{ fontSize: '0.8rem', color: 'var(--fg-muted)' }}>No posts scheduled.</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {(postsByDate[selectedDay] || []).map(post => (
+                    <div
+                      key={post.slug}
+                      style={{
+                        padding: '0.5rem 0.75rem',
+                        borderRadius: 8,
+                        borderLeft: `3px solid ${STATUS_COLORS[post.status]}`,
+                        background: `${STATUS_COLORS[post.status]}0a`,
+                      }}
+                    >
+                      <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--fg)', marginBottom: 2 }}>
+                        {post.title}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{
+                          fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase',
+                          color: STATUS_COLORS[post.status],
+                        }}>
+                          {post.status}
+                        </span>
+                        {post.series && (
+                          <span style={{ fontSize: '0.65rem', color: 'var(--fg-muted)' }}>
+                            {data.series.find(s => s.id === post.series)?.name}
+                          </span>
+                        )}
+                      </div>
+                      {post.tags.length > 0 && (
+                        <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', marginTop: 4 }}>
+                          {post.tags.map(tag => (
+                            <span key={tag} style={{
+                              fontSize: '0.6rem', padding: '1px 5px', borderRadius: 8,
+                              background: 'var(--surface-hover)', color: 'var(--fg-muted)',
+                              border: '1px solid var(--border)',
+                            }}>
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <select
+                        value={post.status}
+                        onChange={e => updatePostStatus(post.slug, e.target.value as ScheduledPost['status'])}
+                        style={{
+                          marginTop: 6, fontSize: '0.7rem', padding: '2px 6px', borderRadius: 4,
+                          border: '1px solid var(--border)', background: 'var(--surface)',
+                          color: STATUS_COLORS[post.status], outline: 'none', width: '100%', fontWeight: 600,
+                        }}
+                      >
+                        <option value="draft">Draft</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="published">Published</option>
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
