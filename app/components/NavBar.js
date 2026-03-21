@@ -32,10 +32,18 @@ export default function NavBar() {
     { href: '/',          label: 'Home' },
     { href: '/previews',  label: 'Books' },
     { href: '/stories',   label: 'Stories' },
+    { href: '/series',    label: 'Series', prefixMatch: true },
     { href: '/blog',      label: 'Blog' },
     { href: '/portfolio', label: 'Tools' },
     { href: '/about',     label: 'About' },
   ];
+
+  const linkIsActive = (link) => {
+    if (link.prefixMatch) {
+      return pathname === link.href || pathname.startsWith(`${link.href}/`);
+    }
+    return pathname === link.href;
+  };
 
   return (
     <nav className={styles.navbar}>
@@ -59,14 +67,14 @@ export default function NavBar() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={pathname === link.href ? styles.active : ''}
+                  className={linkIsActive(link) ? styles.active : ''}
                 >
                   {link.label}
                 </a>
               ) : (
                 <Link
                   href={link.href}
-                  className={pathname === link.href ? styles.active : ''}
+                  className={linkIsActive(link) ? styles.active : ''}
                 >
                   {link.label}
                 </Link>
