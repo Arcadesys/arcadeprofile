@@ -20,7 +20,7 @@
     },
     {
       "slug": "disposable-art",
-      "status": "published",
+      "status": "draft",
       "scheduledDate": "2026-03-17",
       "tags": [
         "art",
@@ -39,7 +39,7 @@
     },
     {
       "slug": "the-preciousness-problem",
-      "status": "published",
+      "status": "draft",
       "scheduledDate": "2026-03-17",
       "tags": [
         "art",
@@ -50,7 +50,7 @@
     },
     {
       "slug": "campfire-logic",
-      "status": "published",
+      "status": "draft",
       "scheduledDate": "2026-03-17",
       "tags": [
         "art",
@@ -61,7 +61,7 @@
     },
     {
       "slug": "after-scarcity",
-      "status": "published",
+      "status": "draft",
       "scheduledDate": "2026-03-17",
       "tags": [
         "art",
@@ -85,6 +85,34 @@
       "slug": "paperclip-keeps-the-agents-together-2026-03-18",
       "status": "scheduled",
       "scheduledDate": "2026-03-18",
+      "tags": [],
+      "series": null
+    },
+    {
+      "slug": "ai-as-an-art-medium",
+      "status": "draft",
+      "scheduledDate": null,
+      "tags": [],
+      "series": null
+    },
+    {
+      "slug": "gist-memory-is-not-a-bug",
+      "status": "draft",
+      "scheduledDate": null,
+      "tags": [],
+      "series": null
+    },
+    {
+      "slug": "pull-not-push",
+      "status": "published",
+      "scheduledDate": null,
+      "tags": [],
+      "series": null
+    },
+    {
+      "slug": "paperclip-isnt-an-ai-tool",
+      "status": "draft",
+      "scheduledDate": null,
       "tags": [],
       "series": null
     }

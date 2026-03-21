@@ -14,6 +14,10 @@ function parseSeriesPart(raw: unknown): number | undefined {
   return undefined;
 }
 
+function optionalString(raw: unknown): string | undefined {
+  return typeof raw === 'string' && raw.trim() !== '' ? raw : undefined;
+}
+
 export interface BlogPost {
   slug: string;
   title: string;
@@ -24,6 +28,9 @@ export interface BlogPost {
   series?: string;
   seriesTitle?: string;
   seriesPart?: number;
+  /** Optional copy above the site footer subscribe on this post only. */
+  newsletterHeading?: string;
+  newsletterDescription?: string;
 }
 
 export type FeedItem =
@@ -60,6 +67,8 @@ export function getAllPosts(): BlogPost[] {
       series: typeof data.series === 'string' ? data.series : undefined,
       seriesTitle: typeof data.seriesTitle === 'string' ? data.seriesTitle : undefined,
       seriesPart: parseSeriesPart(data.seriesPart),
+      newsletterHeading: optionalString(data.newsletterHeading),
+      newsletterDescription: optionalString(data.newsletterDescription),
     };
   });
 
@@ -84,5 +93,7 @@ export function getPostBySlug(slug: string): BlogPost | null {
     series: typeof data.series === 'string' ? data.series : undefined,
     seriesTitle: typeof data.seriesTitle === 'string' ? data.seriesTitle : undefined,
     seriesPart: parseSeriesPart(data.seriesPart),
+    newsletterHeading: optionalString(data.newsletterHeading),
+    newsletterDescription: optionalString(data.newsletterDescription),
   };
 }

@@ -3,6 +3,7 @@ import NavBar from './components/NavBar.js';
 import ThemeProvider from './components/ThemeProvider';
 import ThemeToggle from './components/ThemeToggle';
 import SimpleAnalytics from './components/SimpleAnalytics';
+import SiteFooter from './components/SiteFooter';
 export const metadata = {
   title: 'The Arcades',
   description: 'The Arcades - Personal site of Austen Tucker',
@@ -24,6 +25,7 @@ export default function RootLayout({
         <ThemeProvider>
           <NavBar />
           {children}
+          <SiteFooter />
           <ThemeToggle />
           <SimpleAnalytics />
         </ThemeProvider>

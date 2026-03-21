@@ -49,6 +49,23 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             <MDXRemote source={post.content} />
           </div>
 
+          {(post.newsletterHeading || post.newsletterDescription) && (
+            <aside
+              className="mt-8 rounded-lg border border-[var(--border)] bg-[var(--btn-bg)] p-5 text-[var(--fg)]"
+              aria-label="Newsletter"
+            >
+              {post.newsletterHeading && (
+                <h2 className="mb-2 text-lg font-semibold text-[var(--fg)]">{post.newsletterHeading}</h2>
+              )}
+              {post.newsletterDescription && (
+                <p className="m-0 text-sm leading-relaxed text-[var(--fg-muted)]">{post.newsletterDescription}</p>
+              )}
+              <p className="mb-0 mt-3 text-sm text-[var(--fg-muted)]">
+                Subscribe in the footer below.
+              </p>
+            </aside>
+          )}
+
           <div className="mt-8 pt-4 border-t">
             <Link href="/blog" className="button-link">
               &larr; Back to Blog
