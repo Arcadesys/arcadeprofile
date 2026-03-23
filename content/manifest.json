@@ -1,0 +1,2762 @@
+[
+  {
+    "source": "Writing archive/archive/30 pride essays/30 days of pride essays.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "30-days-of-pride-essays",
+    "wordCount": 15200,
+    "firstLine": "30 days of pride essays",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/”Adrianne, I love you.”.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "adrianne-i-love-you",
+    "wordCount": 1544,
+    "firstLine": "When Tony stepped onto the Bryn Mawr station platform he started skipping. He never skipped. Not as a child, not in scho",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/“Terry never came back.”.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "terry-never-came-back",
+    "wordCount": 194,
+    "firstLine": "My scent ended at the river.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Brief, unpretentious 1 page description of this collection. I cut my teeth on furry fiction and.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "brief-unpretentious-1-page-description-of-this-collection-i-cut-my-teeth-on-furry-fiction-and",
+    "wordCount": 74972,
+    "firstLine": "Brief, unpretentious 1 page description of this collection. I cut my teeth on furry fiction and the metaphor still fits ",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Dances.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "dances",
+    "wordCount": 5999,
+    "firstLine": "The brochure stared at Kevin with adorable, baby-blue eyes.  He tried his best to look away but the bunny on the cover w",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Diaspora.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "diaspora",
+    "wordCount": 6327,
+    "firstLine": "Sundays were Irene's best night. Fridays belonged to the JANM district, and Saturdays to the infinite expanses of Hanna ",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Dinner Show.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "dinner-show",
+    "wordCount": 2310,
+    "firstLine": "Chef Gomez knew he was in for a long night from the very first table.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Glitches.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "glitches",
+    "wordCount": 1628,
+    "firstLine": "It was a perfectly routine day in the waiting room to the end of the world.  Cheryl and Martin played gin rummy on a tab",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Hell’s train station.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "hell-s-train-station",
+    "wordCount": 2321,
+    "firstLine": "The strangest thing I saw when I visited hell was the train station. I mean, sure; you see all Dante's favorite sights o",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Her Own Swimsuit.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "her-own-swimsuit",
+    "wordCount": 1552,
+    "firstLine": "Clyde knew something was wrong when he didn't want to take off her swimsuit.  He had already taken picture proof for his",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Merry Christmas Darling.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "merry-christmas-darling",
+    "wordCount": 3796,
+    "firstLine": "Sometimes he wondered why he had to wake up.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Migrant.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "migrant",
+    "wordCount": 1412,
+    "firstLine": "Borris held his daughter with one hand and a scent drag in the other.  It was late, and the featureless, flat land of Mi",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Mr. Trout’s Slide.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "mr-trout-s-slide",
+    "wordCount": 2401,
+    "firstLine": "Patrick Trout felt as if he was shrinking. Shrinking from life, from his job, from the desperation that came along with ",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Naptown Sleeps.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "naptown-sleeps",
+    "wordCount": 904,
+    "firstLine": "I",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/On Making Taco Salad.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "on-making-taco-salad",
+    "wordCount": 1052,
+    "firstLine": "This is not a story. It is a recipe.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Parable of the free range chicken.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "parable-of-the-free-range-chicken",
+    "wordCount": 925,
+    "firstLine": "A chicken flock and a cow lived on a wonderful patch of pasture beside a bubbling brook. The grass was plentiful, the wo",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Puppy Love.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "puppy-love",
+    "wordCount": 1297,
+    "firstLine": "I was hungry and I was cold.  That’s why I walked into the pet shop.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Rainbow Youth.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "rainbow-youth",
+    "wordCount": 99015,
+    "firstLine": "Chapter One",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/Scooping the Head to Tails Club.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "scooping-the-head-to-tails-club",
+    "wordCount": 199,
+    "firstLine": "See that vixen----",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/The Carrots Lodge Used to Serve Ribeye.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-carrots-lodge-used-to-serve-ribeye",
+    "wordCount": 2246,
+    "firstLine": "“Old Times Carrot Calibash Dinner,” the Carrots Lodge flier said.  Mike found a copy of it in his employee mailbox after",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/The Intake Appointment.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-intake-appointment",
+    "wordCount": 2227,
+    "firstLine": "It didn’t matter when Tabitha went; all that mattered was that it wasn’t now. Any time but now. Dials twisted, sparks sc",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/FA Archive/The Local 121 Witches and Warlocks guild.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-local-121-witches-and-warlocks-guild",
+    "wordCount": 1514,
+    "firstLine": "The steward of the Wizard and Sorceress local 124 is probably tired of seeing me. I know I'm tired of the weekly meeting",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/---interlace bits from the boy.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "interlace-bits-from-the-boy",
+    "wordCount": 7168,
+    "firstLine": "::\\<interlace bits from the boy::",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/Chapter 1.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "chapter-1",
+    "wordCount": 69560,
+    "firstLine": "Chapter 1",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/Child’s Play.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "child-s-play",
+    "wordCount": 1426,
+    "firstLine": "Child’s Play",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/Contents - 2.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "contents-2",
+    "wordCount": 46176,
+    "firstLine": "Contents",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/Contents.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "contents",
+    "wordCount": 46176,
+    "firstLine": "Contents",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/Finding Rabbit's Feet.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "finding-rabbit-s-feet",
+    "wordCount": 7676,
+    "firstLine": "`Finding Rabbit's Feet`",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/If at first you are excited, wait - 2.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "if-at-first-you-are-excited-wait-2",
+    "wordCount": 935,
+    "firstLine": "If at first you are excited, wait.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/If at first you are excited, wait.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "if-at-first-you-are-excited-wait",
+    "wordCount": 935,
+    "firstLine": "If at first you are excited, wait.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/Lauren needs to be more prominent in the MS. She needs a reason to exist.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "lauren-needs-to-be-more-prominent-in-the-ms-she-needs-a-reason-to-exist",
+    "wordCount": 70873,
+    "firstLine": "Lauren needs to be more prominent in the MS. She needs a reason to exist.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/Make a list of -hubs- for this. set pieces, like Divergent's dorm, the pit. Also play with.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "make-a-list-of-hubs-for-this-set-pieces-like-divergent-s-dorm-the-pit-also-play-with",
+    "wordCount": 35044,
+    "firstLine": "Make a list of \"hubs\" for this. set pieces, like Divergent's dorm, the pit.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/My fiancee, the 486.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "my-fiancee-the-486",
+    "wordCount": 1163,
+    "firstLine": "My fiancee, the 486",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/OurSpaces will be OurLives will be OurGraves.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "ourspaces-will-be-ourlives-will-be-ourgraves",
+    "wordCount": 11613,
+    "firstLine": "`OurSpaces will be OurLives will be OurGraves`",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/Rainbow Youth.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "rainbow-youth",
+    "wordCount": 80283,
+    "firstLine": "When you work with high school kids and computers, there are good days and there are bad days.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/Still Born, I Am.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "still-born-i-am",
+    "wordCount": 3020,
+    "firstLine": "Still Born, I Am",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/STORY ARC – KARA IS A LIE. HERE IS WHERE KARA (AND ALL THE KARAS I WROTE) comes from - 2.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "story-arc-kara-is-a-lie-here-is-where-kara-and-all-the-karas-i-wrote-comes-from-2",
+    "wordCount": 3593,
+    "firstLine": "STORY ARC – KARA IS A LIE. HERE IS WHERE KARA (AND ALL THE KARAS I WROTE) comes from.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/STORY ARC – KARA IS A LIE. HERE IS WHERE KARA (AND ALL THE KARAS I WROTE) comes from.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "story-arc-kara-is-a-lie-here-is-where-kara-and-all-the-karas-i-wrote-comes-from",
+    "wordCount": 3593,
+    "firstLine": "STORY ARC – KARA IS A LIE. HERE IS WHERE KARA (AND ALL THE KARAS I WROTE) comes from.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/The Almagomated Conscience of Billy Graham - or as his friends know him, ACOB.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-almagomated-conscience-of-billy-graham-or-as-his-friends-know-him-acob",
+    "wordCount": 22,
+    "firstLine": "The Almagomated Conscience of Billy Graham - or as his friends know him, ACOB",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/The Painted Cat - 2.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-painted-cat-2",
+    "wordCount": 83462,
+    "firstLine": "The Painted Cat",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/The Painted Cat.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-painted-cat",
+    "wordCount": 83569,
+    "firstLine": "The Painted Cat",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/finished but unpublished/Volker had been out of his mind with happiness all day. Clouds! Dank, heavy clouds that stretched.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "volker-had-been-out-of-his-mind-with-happiness-all-day-clouds-dank-heavy-clouds-that-stretched",
+    "wordCount": 1291,
+    "firstLine": "Volker had been out of his mind with happiness all day. Clouds! Dank, heavy clouds that stretched on for miles! He watch",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/Hazelton (original)/CHAPTER ONE.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "chapter-one",
+    "wordCount": 80298,
+    "firstLine": "CHAPTER ONE",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/Memoir/It's a Friday night, and I'm alone in a house full of family. I trust no one.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "it-s-a-friday-night-and-i-m-alone-in-a-house-full-of-family-i-trust-no-one",
+    "wordCount": 2987,
+    "firstLine": "It's a Friday night, and I'm alone in a house full of family. I trust no one.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/Memoir/Trains.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "trains",
+    "wordCount": 2987,
+    "firstLine": "It's a Friday night, and I'm alone in a house full of family. I trust no one.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/-Aconite- I could almost hear the rooms gulping now and then.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "aconite-i-could-almost-hear-the-rooms-gulping-now-and-then",
+    "wordCount": 3906,
+    "firstLine": "\\<Aconite\\> I could almost hear the rooms gulping now and then.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/21.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "21",
+    "wordCount": 8367,
+    "firstLine": "21",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Blithesville.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "blithesville",
+    "wordCount": 203,
+    "firstLine": "It’s not a long drive from here;",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Busking.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "busking",
+    "wordCount": 8110,
+    "firstLine": "If you really have to know why I'm here, and what magic potion I had to use to get stuck as a catboy, and all that other",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Cat and Rabbit.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "cat-and-rabbit",
+    "wordCount": 101,
+    "firstLine": "`Cat and Rabbit`",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Child’s Play.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "child-s-play",
+    "wordCount": 61,
+    "firstLine": "I remember",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Dances.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "dances",
+    "wordCount": 5999,
+    "firstLine": "The brochure stared at Kevin with adorable, baby-blue eyes.  He tried his best to look away but the bunny on the cover w",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Diaspora.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "diaspora",
+    "wordCount": 6633,
+    "firstLine": "Hi everybody! If you found your way here through twitter, welcome. :) This is kinda new for me - just letting you know t",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Fanboy.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "fanboy",
+    "wordCount": 15663,
+    "firstLine": "I hate getting Trevor's mail.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Formbot pass - peoplearebunny.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "formbot-pass-peoplearebunny",
+    "wordCount": 8806,
+    "firstLine": "Formbot pass - peoplearebunny",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Goal.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "goal",
+    "wordCount": 875,
+    "firstLine": "Goal",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Going to the bar.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "going-to-the-bar",
+    "wordCount": 204,
+    "firstLine": "Going to the bar",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/goto 10.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "goto-10",
+    "wordCount": 1398,
+    "firstLine": "It wasn’t until they had stepped into the main lobby for the fourth time that Jamie and Kairi realized they were lost.  ",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Guitar Tab for Smile Smile Smile, from MLP Friendship is Magic.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "guitar-tab-for-smile-smile-smile-from-mlp-friendship-is-magic",
+    "wordCount": 624,
+    "firstLine": "Guitar Tab for Smile Smile Smile, from MLP Friendship is Magic",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Kit was late, as usual, so when we arrived at the Ubiq Transit Center the inside-wall pods were.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "kit-was-late-as-usual-so-when-we-arrived-at-the-ubiq-transit-center-the-inside-wall-pods-were",
+    "wordCount": 274,
+    "firstLine": "Kit was late, as usual, so when we arrived at the Ubiq Transit Center the inside-wall pods were all full up; Ubiq was ru",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Part and Parcel.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "part-and-parcel",
+    "wordCount": 5570,
+    "firstLine": "Even without the visual aid of a finished surface, Emily knew her way along the scene.  Deep-cut styrofoam boards swoope",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Parts of the Whole.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "parts-of-the-whole",
+    "wordCount": 10278,
+    "firstLine": "Parts of the Whole",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Session Start (tsa-AidlBuni)- Tue Mar 11 20-03-23 2008.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "session-start-tsa-aidlbuni-tue-mar-11-20-03-23-2008",
+    "wordCount": 1134,
+    "firstLine": "Session Start (tsa:AidlBuni): Tue Mar 11 20:03:23 2008",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Shoot Em Up.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "shoot-em-up",
+    "wordCount": 243,
+    "firstLine": "Remember Dude = dead.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Stitches.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "stitches",
+    "wordCount": 15251,
+    "firstLine": "Stitches",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/The Intake Appointment.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-intake-appointment",
+    "wordCount": 2245,
+    "firstLine": "The Intake Appointment",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Titles.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "titles",
+    "wordCount": 2137,
+    "firstLine": "Titles:",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/Uploading.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "uploading",
+    "wordCount": 8186,
+    "firstLine": "The man with nine tails walked me through their empty grid.  It wasn’t really a grid, and we weren’t actually walking, b",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/What I couldn't say when i picked up the phone.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "what-i-couldn-t-say-when-i-picked-up-the-phone",
+    "wordCount": 411,
+    "firstLine": "Firstly we must not argue.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/onedrive archive/When we were really drunk, and the bars had closed for the night, Howard and I made our way to.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "when-we-were-really-drunk-and-the-bars-had-closed-for-the-night-howard-and-i-made-our-way-to",
+    "wordCount": 7041,
+    "firstLine": "When we were really drunk, and the bars had closed for the night, Howard and I made our way to this little cafe across f",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/Short Stories/“The singularity will happen in some 5000 by 5000 pivot table”.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-singularity-will-happen-in-some-5000-by-5000-pivot-table",
+    "wordCount": 799,
+    "firstLine": "There was a bright, green flash. Then, whiteness. A grid of figures stretched on to a vanishing point somewhere past inf",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/Short Stories/8 things I learned in 8 years of transition.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "8-things-i-learned-in-8-years-of-transition",
+    "wordCount": 1892,
+    "firstLine": "Eight years ago I found myself in a doctor’s office with a nurse, terrified, watching as she gave me the first shot of e",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/Short Stories/All Hallow’s Eve.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "all-hallow-s-eve",
+    "wordCount": 25499,
+    "firstLine": "\"A lie, sometimes, can be truer than the truth, which is why fiction gets written.\" - Tim O'Brien",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/Short Stories/Cleanup on Pod Six.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "cleanup-on-pod-six",
+    "wordCount": 2322,
+    "firstLine": "When you are a luddite in a cybernetic world you clean shit for a living.",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/Short Stories/Mother’s Cantrip.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "mother-s-cantrip",
+    "wordCount": 2949,
+    "firstLine": "My mother and I are standing at the edge of my childhood home's porch and staring out into an unending void. Above us a ",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/Short Stories/Mr. Trout’s Slide.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "mr-trout-s-slide",
+    "wordCount": 2401,
+    "firstLine": "Patrick Trout felt as if he was shrinking. Shrinking from life, from his job, from the desperation that came along with ",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/Short Stories/My fiancee, the 486 - 2.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "my-fiancee-the-486-2",
+    "wordCount": 1164,
+    "firstLine": "\"It will only be for a second,\" I tell Four. My finger is poised on the big red switch hiding in the recess of her belly",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/Short Stories/My fiancee, the 486.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "my-fiancee-the-486",
+    "wordCount": 1164,
+    "firstLine": "\"It will only be for a second,\" I tell Four. My finger is poised on the big red switch hiding in the recess of her belly",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/Short Stories/OUr Hope Chest.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "our-hope-chest",
+    "wordCount": 5305,
+    "firstLine": "Come to think of it, Xander was the one who found the hope chest.  Yeah.  It \\had\\ to be him; I was too busy digging thr",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/TITLE and other short stories/JessK20478 stared at two screens all day. One- the rate of a Ten-year T-Note, United States. Two.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "jessk20478-stared-at-two-screens-all-day-one-the-rate-of-a-ten-year-t-note-united-states-two",
+    "wordCount": 1333,
+    "firstLine": "JessK20478 stared at two screens all day. One: the rate of a Ten-year T-Note, United States. Two: the same T-note, Canad",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/TITLE and other short stories/The strangest thing I saw when I visited hell was the train station. I mean, sure; you see all.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-strangest-thing-i-saw-when-i-visited-hell-was-the-train-station-i-mean-sure-you-see-all",
+    "wordCount": 2317,
+    "firstLine": "The strangest thing I saw when I visited hell was the train station. I mean, sure; you see all Dante's favorite sights o",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/archive/TITLE and other short stories/When Tony stepped onto the Bryn Mawr station platform he started skipping. He never skipped. Not.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "when-tony-stepped-onto-the-bryn-mawr-station-platform-he-started-skipping-he-never-skipped-not",
+    "wordCount": 1539,
+    "firstLine": "When Tony stepped onto the Bryn Mawr station platform he started skipping. He never skipped. Not as a child, not in scho",
+    "category": "archive",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/butterflyexe/felicia - 2.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "felicia-2",
+    "wordCount": 10375,
+    "firstLine": "I woke up somewhere.",
+    "category": "butterflyexe",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/butterflyexe/Felicia - 3.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "felicia-3",
+    "wordCount": 8736,
+    "firstLine": "Rain fell. Birds sang. And above it all my UBI-pad rang and rang.",
+    "category": "butterflyexe",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/butterflyexe/Felicia.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "felicia",
+    "wordCount": 15385,
+    "firstLine": "I was heads-down on the design and coding a brand new simulation when the butterflies crossed my vision. In their wake t",
+    "category": "butterflyexe",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/butterflyexe/Gazer - 2.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "gazer-2",
+    "wordCount": 2221,
+    "firstLine": "I faked getting drunk on a bottle of bourbon to get the other scientists to leave me alone. They scowled as I stumbled t",
+    "category": "butterflyexe",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/butterflyexe/Gazer - 3.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "gazer-3",
+    "wordCount": 2855,
+    "firstLine": "I remember coming to the Prism's labs, making a dozen copies of Sharp's brain, and then endless time spent inside my own",
+    "category": "butterflyexe",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/butterflyexe/gazer.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "gazer",
+    "wordCount": 15111,
+    "firstLine": "I dream the same dream every night.",
+    "category": "butterflyexe",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/butterflyexe/Kit.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "kit",
+    "wordCount": 2685,
+    "firstLine": "I got the call from Gazer at work, buried in endless documentation about Sharp’s server activity. Gazer was on the other",
+    "category": "butterflyexe",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/butterflyexe/Overflow.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "overflow",
+    "wordCount": 842,
+    "firstLine": "I could see the asteroid when I closed my eyes.",
+    "category": "butterflyexe",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/butterflyexe/Sharp - 2.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "sharp-2",
+    "wordCount": 2492,
+    "firstLine": "Being a Brain on a hard drive had its ups and downs.",
+    "category": "butterflyexe",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/butterflyexe/sharp.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "sharp",
+    "wordCount": 9934,
+    "firstLine": "It all boiled down to arithmetic.",
+    "category": "butterflyexe",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Catsia Bell Stuff/Cat and Mouse Game.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "cat-and-mouse-game",
+    "wordCount": 3107,
+    "firstLine": "Rain. Of all the weekends of the year, and of all the places in the world, Terry had to come to the country in the midst",
+    "category": "catsia-bell-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Catsia Bell Stuff/more ideas.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "more-ideas",
+    "wordCount": 44,
+    "firstLine": "PATREON THIS SHIT",
+    "category": "catsia-bell-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Catsia Bell Stuff/Night at the opera.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "night-at-the-opera",
+    "wordCount": 2016,
+    "firstLine": "Never let it be said that gay werewolves don't have good taste. Killers, sometimes. Smelly, sure. Once a month at the ve",
+    "category": "catsia-bell-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Arcade system site archive.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "arcade-system-site-archive",
+    "wordCount": 1580,
+    "firstLine": "Arcade system site archive",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Arcades (Boots), Sep 8, 2022 at 6-45 PM.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "arcades-boots-sep-8-2022-at-6-45-pm",
+    "wordCount": 1398,
+    "firstLine": "Arcades (Boots), Sep 8, 2022 at 6:45 PM",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/are you reading me.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "are-you-reading-me",
+    "wordCount": 116,
+    "firstLine": "Shepard",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Avery,.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "avery",
+    "wordCount": 848,
+    "firstLine": "Avery,",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Bits and pieces we've sent out/Lucy.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "lucy",
+    "wordCount": 622,
+    "firstLine": "I cannot begin to explain what it's like to live your life this dissociated. At our highest count there were over a hund",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Discharge day.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "discharge-day",
+    "wordCount": 410,
+    "firstLine": "Discharge day",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/email to mom.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "email-to-mom",
+    "wordCount": 454,
+    "firstLine": "email to mom",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Hi, I’m plural.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "hi-i-m-plural",
+    "wordCount": 1896,
+    "firstLine": "If you're reading this it means that the person who sent you this link trusts you a lot. Please treat this information w",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Ideas and prompts.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "ideas-and-prompts",
+    "wordCount": 415,
+    "firstLine": "Ideas and prompts",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/it starts.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "it-starts",
+    "wordCount": 505,
+    "firstLine": "it starts - Greenie/Shep/Various Littles",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Learn day presentation - Trauma awareness in the workplace.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "learn-day-presentation-trauma-awareness-in-the-workplace",
+    "wordCount": 357,
+    "firstLine": "Learn day presentation - Dissociation and Trauma awareness in the workplace",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Nurse.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "nurse",
+    "wordCount": 253,
+    "firstLine": "Nurse Tells their story",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/One PM in a One Stoplight Town.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "one-pm-in-a-one-stoplight-town",
+    "wordCount": 166,
+    "firstLine": "It's the way he sneaks through the",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/oshkosh tells their story.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "oshkosh-tells-their-story",
+    "wordCount": 387,
+    "firstLine": "OK, kiddo. show us your stuff. Just tell us anything you want.",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Owning my Truth.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "owning-my-truth",
+    "wordCount": 934,
+    "firstLine": "Folks wanted to hear more about the trauma program, so here we are.",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Poetry snippets.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "poetry-snippets",
+    "wordCount": 29,
+    "firstLine": "Poetry snippets",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/PPWC 2022 talk - Working While Plural.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "ppwc-2022-talk-working-while-plural",
+    "wordCount": 1206,
+    "firstLine": "Multiplicity - in particular, DID - presents unique challenges for knowledge workers and white-collar professionals who ",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Program work - Vincent’s values.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "program-work-vincent-s-values",
+    "wordCount": 878,
+    "firstLine": "(Unrelated: I’m SO CHEERFUL to others when fronting. It’s fucking wild.)",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Roger,.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "roger",
+    "wordCount": 2188,
+    "firstLine": "Roger,",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/SCID-D Questions.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "scid-d-questions",
+    "wordCount": 1267,
+    "firstLine": "All qs have this format frequency which the following occurs::",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/System scouts handbook.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "system-scouts-handbook",
+    "wordCount": 1010,
+    "firstLine": "System scouts handbook",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/Addie.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "addie",
+    "wordCount": 3358,
+    "firstLine": "So if I'm being honest, I'm not entirely sure where I fit into the system.  I know I've been around since 2003 in one fo",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/Colette.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "colette",
+    "wordCount": 2717,
+    "firstLine": "Colette",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/Hal.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "hal",
+    "wordCount": 359,
+    "firstLine": "My arcade is actually two arcades, one staircase away.",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/Important events we may waan to add.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "important-events-we-may-waan-to-add",
+    "wordCount": 453,
+    "firstLine": "Important events we may waan to add:",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/Melody.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "melody",
+    "wordCount": 73,
+    "firstLine": "Melody",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/memoir piece.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "memoir-piece",
+    "wordCount": 902,
+    "firstLine": "I told him I didn't want to do it with Mark anymore. \"Drop it,\" they said. I barricaded myself in the bedroom while the ",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/Meta.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "meta",
+    "wordCount": 18974,
+    "firstLine": "We got down to 7 alters, finally.",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/Nettle.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "nettle",
+    "wordCount": 46,
+    "firstLine": "The arcade ont he third floor of union station. It was wide open, just this strange hallway filled with machines and a m",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/Parker (does some heavy lifting).md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "parker-does-some-heavy-lifting",
+    "wordCount": 89,
+    "firstLine": "“In a way, the Arcade was our first place. Infinitely available, always around the corner. They tucked into the corners ",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/Potts.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "potts",
+    "wordCount": 170,
+    "firstLine": "Super Saturday",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/Shepard.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "shepard",
+    "wordCount": 161,
+    "firstLine": "Shepard",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/Talia.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "talia",
+    "wordCount": 283,
+    "firstLine": "Talia will claim credit for waking up in the system. That she was always sort of there, and that she'd already been slip",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/The chatroom.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "the-chatroom",
+    "wordCount": 359,
+    "firstLine": "The chatroom",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/The finish line.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "the-finish-line",
+    "wordCount": 15,
+    "firstLine": "The finish line",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The infinite arcade archepelego/The maw (Twilight).txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "the-maw-twilight",
+    "wordCount": 59,
+    "firstLine": "The maw (Twilight)",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/The Nuclear Reactor of Our Heart.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "the-nuclear-reactor-of-our-heart",
+    "wordCount": 498,
+    "firstLine": "Parker",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/the project manager system.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "the-project-manager-system",
+    "wordCount": 143,
+    "firstLine": "Lucy",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Trauma narrative update.txt",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "trauma-narrative-update",
+    "wordCount": 687,
+    "firstLine": "After “we were abused by mark”…",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Trauma narrative.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "trauma-narrative",
+    "wordCount": 2097,
+    "firstLine": "Trauma narrative",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Twine- Eyes front- We all stare back.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "twine-eyes-front-we-all-stare-back",
+    "wordCount": 2478,
+    "firstLine": "Everyone gets to write their own story with some light editing. Don’t even try to make it contiguous.",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/What I couldn't say when i picked up the.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "what-i-couldn-t-say-when-i-picked-up-the",
+    "wordCount": 412,
+    "firstLine": "201X",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/DID memoirs and stuff/Whit call -.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "whit-call",
+    "wordCount": 262,
+    "firstLine": "Whit call",
+    "category": "did-memoirs-and-stuff",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/1 point nine genders at furry cons.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "1-point-nine-genders-at-furry-cons",
+    "wordCount": 1128,
+    "firstLine": "I have a personal unit of time called the Gender. It is equal to the time elapsed since October 8, 2008, the day I recei",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/dystopia timeline.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "dystopia-timeline",
+    "wordCount": 187,
+    "firstLine": "At this point",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/familiar apprentice.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "familiar-apprentice",
+    "wordCount": 513,
+    "firstLine": "Familiar apprenticeships",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/Hazelton more snippits.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "hazelton-more-snippits",
+    "wordCount": 769,
+    "firstLine": "best girl friend at school (who knows about her transition)",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/Hazelton short -college electives.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "hazelton-short-college-electives",
+    "wordCount": 1079,
+    "firstLine": "The Intersection",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/memoir ideas.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "memoir-ideas",
+    "wordCount": 1710,
+    "firstLine": "Write a few shorts. post to FA, maybe, or Tumblr, or both.",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/Mermaids and magic.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "mermaids-and-magic",
+    "wordCount": 5149,
+    "firstLine": "Today is mermaid day, and I'm a huge fan. Sitting on the dock are a line of European tourists, all Real, all with their ",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/pruning rose.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "pruning-rose",
+    "wordCount": 1968,
+    "firstLine": "Pruning Rose",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/puppysitting in the gunsmith's shed.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "puppysitting-in-the-gunsmith-s-shed",
+    "wordCount": 1291,
+    "firstLine": "Volker had been out of his mind with happiness all day. Clouds! Dank, heavy clouds that stretched on for miles! He watch",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/snippits and brainstorms.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "snippits-and-brainstorms",
+    "wordCount": 1645,
+    "firstLine": "Catgirl TV",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/stitches in time for uncanny.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "stitches-in-time-for-uncanny",
+    "wordCount": 1591,
+    "firstLine": "Emily is Typing",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/Stories from Clampett.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "stories-from-clampett",
+    "wordCount": 371,
+    "firstLine": "Stories from Clampett.",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/The girl with the gaslight (conflicted copy 2).txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-girl-with-the-gaslight-conflicted-copy-2",
+    "wordCount": 6243,
+    "firstLine": "\"The Girl with the gaslight\"",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/The girl with the gaslight (conflicted copy).txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-girl-with-the-gaslight-conflicted-copy",
+    "wordCount": 4586,
+    "firstLine": "\"The Girl with the gaslight\"",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/The girl with the gaslight.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-girl-with-the-gaslight",
+    "wordCount": 10027,
+    "firstLine": "\"The Girl with the gaslight\"",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/uncanny short.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "uncanny-short",
+    "wordCount": 2946,
+    "firstLine": "My mother and I are standing at the edge of my childhood home's porch and staring out into an unending void. Above us a ",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Current/unnamed milk and honey story.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "unnamed-milk-and-honey-story",
+    "wordCount": 2194,
+    "firstLine": "Brainstorm:",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1207856161.slyford_dinner_show.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1207856161-slyford-dinner-show",
+    "wordCount": 2309,
+    "firstLine": "Dinner Show",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1218131989.slyford_scooping_the_head_to_tails_club.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1218131989-slyford-scooping-the-head-to-tails-club",
+    "wordCount": 198,
+    "firstLine": "Scooping the Head to Tails Club",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1226025511.slyford_merry_christmas_darling.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1226025511-slyford-merry-christmas-darling",
+    "wordCount": 3792,
+    "firstLine": "Sometimes he wondered why he had to wake up.",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1239469492.slyford_puppy_love.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1239469492-slyford-puppy-love",
+    "wordCount": 1296,
+    "firstLine": "Puppy Love",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1241696198.slyford_terry_never_came_back.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1241696198-slyford-terry-never-came-back",
+    "wordCount": 193,
+    "firstLine": "“Terry never came back.”",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1251373829.slyford_the_carrots_lodge_used_to_serve_ribeye.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1251373829-slyford-the-carrots-lodge-used-to-serve-ribeye",
+    "wordCount": 2245,
+    "firstLine": "The Carrots Lodge Used to Serve Ribeye",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1274443370.slyford_dances.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1274443370-slyford-dances",
+    "wordCount": 5998,
+    "firstLine": "Dances",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1291318665.slyford_migrant.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1291318665-slyford-migrant",
+    "wordCount": 1410,
+    "firstLine": "Borris held his daughter with one hand and a scent drag in the other.  It was late, and the featureless, flat land of Mi",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1323221358.slyford_her_own_swimsuit.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1323221358-slyford-her-own-swimsuit",
+    "wordCount": 1548,
+    "firstLine": "Clyde knew something was wrong when he didn't want to take off her swimsuit.  He had already taken picture proof for his",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1324527914.slyford_diaspora.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1324527914-slyford-diaspora",
+    "wordCount": 6325,
+    "firstLine": "Sundays were Irene's best night. Fridays belonged to the JANM district, and Saturdays to the infinite expanses of Hanna ",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1336608783.slyford_seattle.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1336608783-slyford-seattle",
+    "wordCount": 1506,
+    "firstLine": "The steward of the Wizard and Sorceress local 124 is probably tired of seeing me. I know I'm tired of the weekly meeting",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1340916341.slyford_onmakingatacosalad.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1340916341-slyford-onmakingatacosalad",
+    "wordCount": 1047,
+    "firstLine": "This is not a story. It is a recipe.",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1341413667.slyford_glitches.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1341413667-slyford-glitches",
+    "wordCount": 1627,
+    "firstLine": "Glitches",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1344695872.slyford_thetravelchannelpresentshellstrainstation.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1344695872-slyford-thetravelchannelpresentshellstrainstation",
+    "wordCount": 2317,
+    "firstLine": "The strangest thing I saw when I visited hell was the train station. I mean, sure; you see all Dante's favorite sights o",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1344958962.slyford_theparableofthefree-rangechicken.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1344958962-slyford-theparableofthefree-rangechicken",
+    "wordCount": 918,
+    "firstLine": "A chicken flock and a cow lived on a wonderful patch of pasture beside a bubbling brook. The grass was plentiful, the wo",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1350173456.slyford_adrianneiloveyou..txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1350173456-slyford-adrianneiloveyou",
+    "wordCount": 1539,
+    "firstLine": "When Tony stepped onto the Bryn Mawr station platform he started skipping. He never skipped. Not as a child, not in scho",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1357706977.slyford_naptownsleeps.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1357706977-slyford-naptownsleeps",
+    "wordCount": 901,
+    "firstLine": "I",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1358795435.slyford_the_intake_appointment.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1358795435-slyford-the-intake-appointment",
+    "wordCount": 2226,
+    "firstLine": "The Intake Appointment",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/1473176195.slyford_mr_trouts_slide.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "1473176195-slyford-mr-trouts-slide",
+    "wordCount": 2444,
+    "firstLine": "My wife and I toyed around with the idea of a shapeshifter for hire. How do you get paid? How do you not become a high p",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/pride essays.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "pride-essays",
+    "wordCount": 15177,
+    "firstLine": "30 days of pride essays",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/rainbow youth.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "rainbow-youth",
+    "wordCount": 99012,
+    "firstLine": "Chapter One",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/fa and pride essays/then reality broke chapbook.txt",
+    "decision": "triage",
+    "type": "essay-series",
+    "targetSlug": "then-reality-broke-chapbook",
+    "wordCount": 74972,
+    "firstLine": "Brief, unpretentious 1 page description of this collection. I cut my teeth on furry fiction and the metaphor still fits ",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/hazelton work/Carmen's story.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "carmen-s-story",
+    "wordCount": 378,
+    "firstLine": "Carmen's story:",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Stories from Hazelton/admissions day.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "admissions-day",
+    "wordCount": 7836,
+    "firstLine": "?Eleanor's children / Eleanor's witches",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Stories from Hazelton/Carmen's story.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "carmen-s-story",
+    "wordCount": 3164,
+    "firstLine": "Aria kept a drag culture alive.",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Stories from Hazelton/hazelton notes for novel in stories.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "hazelton-notes-for-novel-in-stories",
+    "wordCount": 9186,
+    "firstLine": "Trans people access a region of higher-dimensional space that controls the strings of reality. how that space is accesse",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/figure it out later folder/Stories from Hazelton/original novel hazelton.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "original-novel-hazelton",
+    "wordCount": 80298,
+    "firstLine": "CHAPTER ONE",
+    "category": "figure-it-out-later-folder",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished - catsia bell/Cat and Mouse Game 2.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "cat-and-mouse-game-2",
+    "wordCount": 3106,
+    "firstLine": "Cat and Mouse Game",
+    "category": "finished-catsia-bell",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished - catsia bell/glow comic collab.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "glow-comic-collab",
+    "wordCount": 300,
+    "firstLine": "The Queer Agenda was like a mullet: magic business in the front and a really, really sexy party in the back.",
+    "category": "finished-catsia-bell",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished - catsia bell/ideas for erotica.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "ideas-for-erotica",
+    "wordCount": 38,
+    "firstLine": "cabal of women sissyfying a guy - possibly mind control",
+    "category": "finished-catsia-bell",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished - catsia bell/Night at the opera 2.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "night-at-the-opera-2",
+    "wordCount": 2015,
+    "firstLine": "Night at the opera",
+    "category": "finished-catsia-bell",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished shorts/30 pride essays.md",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "30-pride-essays",
+    "wordCount": 15200,
+    "firstLine": "30 days of pride essays",
+    "category": "finished-shorts",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished shorts/All Hallows Eve.txt",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "all-hallows-eve",
+    "wordCount": 25495,
+    "firstLine": "\"A lie, sometimes, can be truer than the truth, which is why fiction gets written.\" - Tim O'Brien",
+    "category": "finished-shorts",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished shorts/another archive - onenote.md",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "another-archive-onenote",
+    "wordCount": 113712,
+    "firstLine": "Even without the visual aid of a finished surface, Emily knew her way along the scene.  Deep-cut styrofoam boards swoope",
+    "category": "finished-shorts",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished shorts/butterfly exe.md",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "butterfly-exe",
+    "wordCount": 70636,
+    "firstLine": "I could see the asteroid when I closed my eyes.",
+    "category": "finished-shorts",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished shorts/Cleanup on Pod Six.txt",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "cleanup-on-pod-six",
+    "wordCount": 2321,
+    "firstLine": "Cleanup on Pod Six",
+    "category": "finished-shorts",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished shorts/girl with the gaslight.md",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "girl-with-the-gaslight",
+    "wordCount": 9987,
+    "firstLine": "I'm 15 when I see Viv for the first time.",
+    "category": "finished-shorts",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished shorts/half life 2 (ACROWDER8IT11's conflicted copy 2015-01-20).md",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "half-life-2-acrowder8it11-s-conflicted-copy-2015-01-20",
+    "wordCount": 1875,
+    "firstLine": "I remember a monstrous sound: screeching metal, the scrape of bone on asphalt, concrete crumbling under an impact force,",
+    "category": "finished-shorts",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished shorts/half life 2.md",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "half-life-2",
+    "wordCount": 1808,
+    "firstLine": "I remember a monstrous sound: screeching metal, the scrape of bone on asphalt, concrete crumbling under an impact force,",
+    "category": "finished-shorts",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished shorts/Mr Trouts Slide.md",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "mr-trouts-slide",
+    "wordCount": 2401,
+    "firstLine": "Patrick Trout felt as if he was shrinking. Shrinking from life, from his job, from the desperation that came along with ",
+    "category": "finished-shorts",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished shorts/My fiancee the 486.txt",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "my-fiancee-the-486",
+    "wordCount": 1163,
+    "firstLine": "My fiancee, the 486",
+    "category": "finished-shorts",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished shorts/My fiancee the.md",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "my-fiancee-the",
+    "wordCount": 1163,
+    "firstLine": "My fiancee, the 486",
+    "category": "finished-shorts",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished shorts/Prepare for a fight... but your only duty is to yourself.md",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "prepare-for-a-fight-but-your-only-duty-is-to-yourself",
+    "wordCount": 1882,
+    "firstLine": "Eight years ago I found myself in a doctor’s office with a nurse, terrified, watching as she gave me the first shot of e",
+    "category": "finished-shorts",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/finished shorts/slush.md",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "slush",
+    "wordCount": 557540,
+    "firstLine": "Contents",
+    "category": "finished-shorts",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Glitter Cycle/Glitter character sketch.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "glitter-character-sketch",
+    "wordCount": 1988,
+    "firstLine": "Glitter",
+    "category": "glitter-cycle",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Glitter Cycle/Glitterwave 1.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "glitterwave-1",
+    "wordCount": 19043,
+    "firstLine": "NORTH STAR:",
+    "category": "glitter-cycle",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Glitter Cycle(1)/Glitter character sketch.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "glitter-character-sketch",
+    "wordCount": 1988,
+    "firstLine": "Glitter",
+    "category": "glitter-cycle-1-",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Glitter Cycle(1)/Glitterwave 1.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "glitterwave-1",
+    "wordCount": 19043,
+    "firstLine": "NORTH STAR:",
+    "category": "glitter-cycle-1-",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/alt timeline.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "alt-timeline",
+    "wordCount": 188,
+    "firstLine": "2018: Great Britan refuses extradition of a hacker due to inhumane prison conditions in the US.",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/catsia bell stuff.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "catsia-bell-stuff",
+    "wordCount": 5181,
+    "firstLine": "Rain. Of all the weekends of the year, and of all the places in the world, Terry had to come to the country in the midst",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/emily is typing or stitches in time.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "emily-is-typing-or-stitches-in-time",
+    "wordCount": 1593,
+    "firstLine": "For Uncanny - Rewrite Stitches in Time. Extend a bit. Make things more explicit - maybe she's dealing with her friend dy",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/freewrite - dumping bowling.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "freewrite-dumping-bowling",
+    "wordCount": 77,
+    "firstLine": "I’m sitting in a renovated, 20s-era bowling alley in the middle of Indianapolis. To my right a group of old ladies are b",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/furaffinity archive.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "furaffinity-archive",
+    "wordCount": 213835,
+    "firstLine": "Chef Gomez knew he was in for a long night from the very first table.",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/Mermaid story.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "mermaid-story",
+    "wordCount": 2197,
+    "firstLine": "Brainstorm:",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/Mermaids - ink and paint story.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "mermaids-ink-and-paint-story",
+    "wordCount": 5151,
+    "firstLine": "Today is mermaid day, and I'm a huge fan. Sitting on the dock are a line of European tourists, all Real, all with their ",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/Mermaids.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "mermaids",
+    "wordCount": 5151,
+    "firstLine": "Today is mermaid day, and I'm a huge fan. Sitting on the dock are a line of European tourists, all Real, all with their ",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/mother cantrip.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "mother-cantrip",
+    "wordCount": 2949,
+    "firstLine": "My mother and I are standing at the edge of my childhood home's porch and staring out into an unending void. Above us a ",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/n-c uploading story.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "n-c-uploading-story",
+    "wordCount": 1812,
+    "firstLine": "I remember a monstrous sound: screeching metal, the scrape of bone on asphalt, concrete crumbling under an impact force,",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/one point two genders of furry fandom.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "one-point-two-genders-of-furry-fandom",
+    "wordCount": 1137,
+    "firstLine": "I have a personal unit of time called the Gender. It is equal to the time elapsed since October 8, 2008, the day I recei",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/pruning rose.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "pruning-rose",
+    "wordCount": 1969,
+    "firstLine": "Rose snapped to in a pile of her own brains. The lobes surrounded her like balls in a ballpen, and touching each one cau",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/puppysitting in the gunsmith's shed.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "puppysitting-in-the-gunsmith-s-shed",
+    "wordCount": 1297,
+    "firstLine": "Volker had been out of his mind with happiness all day. Clouds! Dank, heavy clouds that stretched on for miles! He watch",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/Stories from Clampett.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "stories-from-clampett",
+    "wordCount": 809,
+    "firstLine": "When the Smiths pulled up in their moving truck the neighbors took notice.",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/story ideas - various.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "story-ideas-various",
+    "wordCount": 4458,
+    "firstLine": "I’m sitting in a renovated, 20s-era bowling alley in the middle of Indianapolis. To my right a group of old ladies are b",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/the chat with phil.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-chat-with-phil",
+    "wordCount": 5419,
+    "firstLine": "(1:45:28 AM) Amber: heya!",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/ideas/unnamed milk and honey story.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "unnamed-milk-and-honey-story",
+    "wordCount": 5149,
+    "firstLine": "Today is mermaid day, and I'm a huge fan. Sitting on the dock are a line of European tourists, all Real, all with their ",
+    "category": "ideas",
+    "notes": ""
+  },
+  {
+    "source": "Microgames/End of the world as you know it.md",
+    "decision": "triage",
+    "type": "interactive",
+    "targetSlug": "end-of-the-world-as-you-know-it",
+    "wordCount": 2404,
+    "firstLine": "Revised LARP Draft: \"The End of the World as You Know It\"",
+    "category": "microgame",
+    "notes": ""
+  },
+  {
+    "source": "Microgames/It's Bunevitable.md",
+    "decision": "triage",
+    "type": "interactive",
+    "targetSlug": "it-s-bunevitable",
+    "wordCount": 1280,
+    "firstLine": "Overview: The Bunnevitable is a press-your-luck writing game with dice where players are aspiring magicians attempting t",
+    "category": "microgame",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Short Stories/Balance.md",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "balance",
+    "wordCount": 1,
+    "firstLine": "Balance",
+    "category": "short-stories",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Short Stories/Leveraging your balance.md",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "leveraging-your-balance",
+    "wordCount": 162,
+    "firstLine": "Leveraging your balance",
+    "category": "short-stories",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Short Stories/Mff retro.txt",
+    "decision": "triage",
+    "type": "story",
+    "targetSlug": "mff-retro",
+    "wordCount": 6,
+    "firstLine": "Good",
+    "category": "short-stories",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Story ideas/Heaven is an mmo with rankings.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "heaven-is-an-mmo-with-rankings",
+    "wordCount": 122,
+    "firstLine": "Heaven is an mmo with rankings",
+    "category": "story-ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Story ideas/Scratchpad for salma novel ideas.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "scratchpad-for-salma-novel-ideas",
+    "wordCount": 1209,
+    "firstLine": "Notes and scratchpad - witch stories",
+    "category": "story-ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Story ideas/Story ideas.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "story-ideas",
+    "wordCount": 57,
+    "firstLine": "Story ideas",
+    "category": "story-ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Story ideas/trans light romance.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "trans-light-romance",
+    "wordCount": 70,
+    "firstLine": "Trans romance story - girl falls in love with her familiar? Maybe she makes her living as a sex worker.",
+    "category": "story-ideas",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Draft/Flashlight Tag.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "flashlight-tag",
+    "wordCount": 265,
+    "firstLine": "Summer camp -or- flashlight tag",
+    "category": "to-draft",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Draft/Meet the alters page.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "meet-the-alters-page",
+    "wordCount": 1816,
+    "firstLine": "Meet the alters page",
+    "category": "to-draft",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Draft/salma - untitled multiple story.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "salma-untitled-multiple-story",
+    "wordCount": 329,
+    "firstLine": "There’s an odd moment here. There’s a boy fronter, a girl fronter, and a whole fortress of alters. Outside, she’s presen",
+    "category": "to-draft",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Draft/state transition short - depression thingy.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "state-transition-short-depression-thingy",
+    "wordCount": 3770,
+    "firstLine": "When my father finally found me, suspended in nothingness at the heart of my own mind, I tried to pretend I was an AI.",
+    "category": "to-draft",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Draft/State Transition/Dream Drifters.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "dream-drifters",
+    "wordCount": 117,
+    "firstLine": "Dream Drifters",
+    "category": "to-draft",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Draft/State Transition/Flash fiction ideas in state transition..md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "flash-fiction-ideas-in-state-transition",
+    "wordCount": 6155,
+    "firstLine": "potential titles:",
+    "category": "to-draft",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Draft/State Transition/Scratchpad for state transition.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "scratchpad-for-state-transition",
+    "wordCount": 1631,
+    "firstLine": "State Transition",
+    "category": "to-draft",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Draft/State Transition/State Transition.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "state-transition",
+    "wordCount": 65,
+    "firstLine": "I first met Grace on a cookie-cutter island floating on a sea of low bitrate waves",
+    "category": "to-draft",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/Closet cat and other stories/Closet Cat.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "closet-cat",
+    "wordCount": 8045,
+    "firstLine": "Natalie popped the cork on a pink bottle of bubbly and poured two flutes. She sat with her husband Charlie at the bistro",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/Closet cat and other stories/Closet cats (draft).md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "closet-cats-draft",
+    "wordCount": 13171,
+    "firstLine": "Evelyn's chest pounded with bass, disco lights, and the pluck of her heart when the edible kicked in. Her mind gave in t",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/Closet cat and other stories/Dragons in the middle.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "dragons-in-the-middle",
+    "wordCount": 436,
+    "firstLine": "It was the wings that bothered Dave the most. Boobs, sure. Half the world had 'em, nothing shameful about them. Lots of ",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/Closet cat and other stories/Ginny's magic.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "ginny-s-magic",
+    "wordCount": 4690,
+    "firstLine": "Evelyn's chest pounded with bass, disco lights, and the pluck of her heart when the edible kicked in. Her mind gave in t",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/Closet cat and other stories/The Endless Mallspace.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "the-endless-mallspace",
+    "wordCount": 6247,
+    "firstLine": "It was the combination dashiki and donburi stall at the center of the mall that broke Fran. Not the sea of endless white",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/Glitter Cycle/Glitter character sketch.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "glitter-character-sketch",
+    "wordCount": 1988,
+    "firstLine": "Glitter",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/Glitter Cycle/Glitterwave 1.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "glitterwave-1",
+    "wordCount": 22361,
+    "firstLine": "Any kid who thought to pick one up and what kid turned down a free toy? was instantly granted the power of flight, no qu",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/1 outline or timeline of hazelton.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "1-outline-or-timeline-of-hazelton",
+    "wordCount": 2424,
+    "firstLine": "Write this to Lizard Boy.",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/eggs and hammers.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "eggs-and-hammers",
+    "wordCount": 543,
+    "firstLine": "Cassie the egg sings to soothe herself. It's a small thing, little more than a hum of a nursery rhyme against the loud, ",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/foreword/foreword.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "foreword",
+    "wordCount": 962,
+    "firstLine": "I never knew my mother. But if you ask me about my Mother, I'll tell you the story of the fiercest Witch who ever lived.",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Ideas.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "ideas",
+    "wordCount": 1350,
+    "firstLine": "Just. Write. But come up with a few tentpoles and a one sentence story.",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Letter of recommendation - Ruth.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "letter-of-recommendation-ruth",
+    "wordCount": 248,
+    "firstLine": "Letter of recommendation - Ruth",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Meagan’s lament.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "meagan-s-lament",
+    "wordCount": 281,
+    "firstLine": "I found my powers about 6 months into transition. I could... well, I could change people. Nothing too drastic - downside",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Prison labor story.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "prison-labor-story",
+    "wordCount": 354,
+    "firstLine": "\\<women’s prison - women are trained up to do the smallest possible components",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Salma cycle/admissions day.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "admissions-day",
+    "wordCount": 7608,
+    "firstLine": "Gertrude",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Salma cycle/Broomsticks.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "broomsticks",
+    "wordCount": 2037,
+    "firstLine": "There wasn’t a lady in my graduating class who skipped out on Broomsticks. You never forgot the little ones who came off",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Salma cycle/Eleanor story.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "eleanor-story",
+    "wordCount": 2715,
+    "firstLine": "Eleanor has a crisis of three times: discovering magic in 1980, helping Eleanor in 1990, and the kids in 2020. All roads",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Salma cycle/Eleanor's Children.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "eleanor-s-children",
+    "wordCount": 48094,
+    "firstLine": "I never knew my mother. But if you ask me about my Mother, I'll tell you the story of Lady Eleanor Extravaganza, the fie",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Salma cycle/Familiar Apprentice.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "familiar-apprentice",
+    "wordCount": 11432,
+    "firstLine": "Eleanor is not shy about pulling out the Mother card. You need my help. This is what we witches do - we help. we love. I",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Salma cycle/Family Values.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "family-values",
+    "wordCount": 7674,
+    "firstLine": "Aria received the letter in her dorm room in Salma, and she couldn't stop reading it. It came, as most letters don't, ha",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Salma cycle/jenny appleseed.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "jenny-appleseed",
+    "wordCount": 7908,
+    "firstLine": "Lady Jenny Appleseed founded more Looms in more places than Eleanor could even bother to count. Her legend spread far an",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Salma cycle/Sins of the Father.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "sins-of-the-father",
+    "wordCount": 10282,
+    "firstLine": "Above all else, Lady Eleanor insisted that we be human, even if that meant \"showing your ass from time to time.\" Better ",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/salma start.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "salma-start",
+    "wordCount": 233,
+    "firstLine": "Eleanor discovers magic through a blackout bender.",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Shorts/Disruptive Sorcery.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "disruptive-sorcery",
+    "wordCount": 48,
+    "firstLine": "This could be a kid hanging with Haley.",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/salma/Shorts/Super short story about death, running from it, etc.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "super-short-story-about-death-running-from-it-etc",
+    "wordCount": 807,
+    "firstLine": "1.  Once upon a time there was a girl named Avaline. She's been a cartoon since her late twenties. The sheen is gone; it",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/To Revise/State Transition/Back in a few.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "back-in-a-few",
+    "wordCount": 952,
+    "firstLine": "Five months, twenty-nine days, twenty-three hours, fifty-nine minutes, and fifty-nine seconds after Harper went into the",
+    "category": "to-revise",
+    "notes": ""
+  },
+  {
+    "source": "Toonpunk zine/Issue 0/Toonpunk issue 0/Index.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "index",
+    "wordCount": 18,
+    "firstLine": "longform:",
+    "category": "toonpunk",
+    "notes": ""
+  },
+  {
+    "source": "Toonpunk zine/toontalk/toontalk hashtag-AcmePaintParty/Joe Average Saga.md",
+    "decision": "triage",
+    "type": "blog",
+    "targetSlug": "joe-average-saga",
+    "wordCount": 0,
+    "firstLine": "(empty)",
+    "category": "toonpunk",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/butterfly query.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "butterfly-query",
+    "wordCount": 253,
+    "firstLine": "\"A hacker and her boss stop the end of the world by enslaving every brain on the internet.\"",
+    "category": "writing-archive-root",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/catgirl light fiction.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "catgirl-light-fiction",
+    "wordCount": 8401,
+    "firstLine": "https://www.youtube.com/watch?v=XDZLo1xFprM",
+    "category": "writing-archive-root",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Free write.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "free-write",
+    "wordCount": 95,
+    "firstLine": "Free write",
+    "category": "writing-archive-root",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/gender euphoria 2.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "gender-euphoria-2",
+    "wordCount": 2400,
+    "firstLine": "Sixty minutes ago I met a lesbian lawyer named Danielle at a geeky gay bar. I am madly in love, and I couldn't care less",
+    "category": "writing-archive-root",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/gender euphoria.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "gender-euphoria",
+    "wordCount": 2400,
+    "firstLine": "Sixty minutes ago I met a lesbian lawyer named Danielle at a geeky gay bar. I am madly in love, and I couldn't care less",
+    "category": "writing-archive-root",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Jess interview.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "jess-interview",
+    "wordCount": 530,
+    "firstLine": "Jess interview",
+    "category": "writing-archive-root",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/OJST pitch.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "ojst-pitch",
+    "wordCount": 781,
+    "firstLine": "There is tragically little information on the web about sex with trans women, and what does exist is not easily accessib",
+    "category": "writing-archive-root",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/There was a bright, green flash.txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "there-was-a-bright-green-flash",
+    "wordCount": 787,
+    "firstLine": "There was a bright, green flash. Then, whiteness. A grid of figures stretched on to a vanishing point somewhere past inf",
+    "category": "writing-archive-root",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/There was a bright, green flash(1).txt",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "there-was-a-bright-green-flash-1",
+    "wordCount": 787,
+    "firstLine": "There was a bright, green flash. Then, whiteness. A grid of figures stretched on to a vanishing point somewhere past inf",
+    "category": "writing-archive-root",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Trains.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "trains",
+    "wordCount": 2987,
+    "firstLine": "It's a Friday night, and I'm alone in a house full of family. I trust no one.",
+    "category": "writing-archive-root",
+    "notes": ""
+  },
+  {
+    "source": "Writing archive/Zombietown.md",
+    "decision": "triage",
+    "type": "unknown",
+    "targetSlug": "zombietown",
+    "wordCount": 201,
+    "firstLine": "Cal met the zombie at the other end of a homemade pike. He had built it with lumber from a lemon tree from his backyard ",
+    "category": "writing-archive-root",
+    "notes": ""
+  }
+]
