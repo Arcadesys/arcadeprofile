@@ -1,8 +1,7 @@
 import "./globals.css";
 import NavBar from './components/NavBar.js';
-import ThemeProvider from './components/ThemeProvider';
-import ThemeToggle from './components/ThemeToggle';
 import SimpleAnalytics from './components/SimpleAnalytics';
+import ThemeToggle from './components/ThemeToggle';
 import SiteFooter from './components/SiteFooter';
 import { CosmosProvider } from './components/CosmosContext';
 import CosmicBackground from './components/CosmicBackground';
@@ -25,16 +24,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider>
-          <CosmosProvider>
-            <CosmicBackground />
-            <NavBar />
-            {children}
-            <SiteFooter />
-            <ThemeToggle />
-            <SimpleAnalytics />
-          </CosmosProvider>
-        </ThemeProvider>
+        <CosmosProvider>
+          <CosmicBackground />
+          <NavBar />
+          {children}
+          <SiteFooter />
+          <ThemeToggle />
+          <SimpleAnalytics />
+        </CosmosProvider>
       </body>
     </html>
   );

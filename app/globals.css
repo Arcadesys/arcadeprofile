@@ -18,21 +18,6 @@
   --border:        rgba(255, 138, 0, 0.2);
 }
 
-.light {
-  --bg:            #faf9f7;
-  --surface:       #ffffff;
-  --surface-hover: #f0eeeb;
-  --fg:            #1a1a2e;
-  --fg-muted:      #6b6b80;
-  --accent:        #e07800;
-  --neon-pink:     #d42e90;
-  --magenta:       #c44f7a;
-  --gold:          #cc8800;
-  --btn-bg:        #f0eeeb;
-  --glow-pink:     rgba(212, 46, 144, 0.15);
-  --glow-orange:   rgba(224, 120, 0, 0.1);
-  --border:        rgba(0, 0, 0, 0.1);
-}
 
 html {
   color: var(--fg);

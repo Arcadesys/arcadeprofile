@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './NavBar.module.css';
-import CosmosSlider from './CosmosSlider';
+
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -87,8 +87,6 @@ export default function NavBar() {
         </ul>
       </div>
 
-      {/* Cosmos time slider */}
-      <CosmosSlider />
     </nav>
   );
 }

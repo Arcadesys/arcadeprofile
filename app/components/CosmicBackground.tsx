@@ -27,71 +27,72 @@ export default function CosmicBackground() {
   const o = (n: number, d: number) => lo(n, d, t);
 
   /* ── palette ─────────────────────────────────────── */
-  // sky gradient (top → bottom)
-  const sky1 = c('#0a0a14', '#B87D42');
-  const sky2 = c('#0a0a14', '#C89050');
-  const sky3 = c('#1a1028', '#DDAA68');
-  const sky4 = c('#120e22', '#E8BC78');
-  const sky5 = c('#0e0a1e', '#F0C888');
+  // sky gradient (top → bottom) — night dark → pale yellow
+  const sky1 = c('#0a0a14', '#FFFDE8');
+  const sky2 = c('#0a0a14', '#FFFBE0');
+  const sky3 = c('#1a1028', '#FFF8D0');
+  const sky4 = c('#120e22', '#FFF5C4');
+  const sky5 = c('#0e0a1e', '#FFF2BB');
 
-  // ambient glows
-  const gl1 = c('#ff8a00', '#FFB850');
-  const gl2 = c('#ff3cac', '#FFA040');
-  const gl3 = c('#ffaa00', '#FFCC66');
-  const gl1o = o(0.15, 0.30);
-  const gl2o = o(0.12, 0.25);
-  const gl3o = o(0.08, 0.18);
+  // ambient glows — warm → pink
+  const gl1 = c('#ff8a00', '#ff3cac');
+  const gl2 = c('#ff3cac', '#ff69b4');
+  const gl3 = c('#ffaa00', '#ff9ce0');
+  const gl1o = o(0.15, 0.12);
+  const gl2o = o(0.12, 0.10);
+  const gl3o = o(0.08, 0.06);
 
-  // eclipse strokes — day: darker amber so they read against bright sky
-  const e1 = c('#ff8a00', '#7A4E00');
-  const e2 = c('#ff3cac', '#7A4200');
-  const e3 = c('#ff6b9d', '#6B4428');
-  const e4 = c('#ffaa00', '#7A5500');
+  // eclipse strokes — night neons → day hot pink
+  const e1 = c('#ff8a00', '#ff3cac');
+  const e2 = c('#ff3cac', '#ff69b4');
+  const e3 = c('#ff6b9d', '#ff1493');
+  const e4 = c('#ffaa00', '#ff6eb4');
 
   // eclipse glow strokes
-  const e1g = c('#ff8a00', '#9B6810');
-  const e2g = c('#ff3cac', '#9B5510');
-  const e3g = c('#ff6b9d', '#8B5838');
-  const e4g = c('#ffaa00', '#9B7010');
+  const e1g = c('#ff8a00', '#ff7dd4');
+  const e2g = c('#ff3cac', '#ff9ce0');
+  const e3g = c('#ff6b9d', '#ff5cb8');
+  const e4g = c('#ffaa00', '#ff9ce0');
 
   // eclipse stroke opacities
   const es1 = o(0.6, 0.88);
-  const eg1 = o(0.15, 0.04);
+  const eg1 = o(0.15, 0.10);
   const es2 = o(0.5, 0.82);
-  const eg2 = o(0.12, 0.03);
+  const eg2 = o(0.12, 0.08);
   const es3 = o(0.4, 0.78);
-  const eg3 = o(0.1, 0.02);
+  const eg3 = o(0.1, 0.06);
   const es4 = o(0.35, 0.72);
-  const eg4 = o(0.08, 0.02);
+  const eg4 = o(0.08, 0.05);
 
-  // occluder & ground
-  const occ = c('#0a0a14', '#18131F');
-  const gnd = c('#0e0a1e', '#A87040');
+  // occluder — dark body at night, pale yellow to match sky during day
+  const occ = c('#0a0a14', '#FFFDE8');
+  // ground
+  const gnd = c('#0e0a1e', '#F0E8D0');
 
   // stars
-  const sO = o(1, 0); // star opacity multiplier
+  const sO = o(1, 0);
 
   // wireframe / grid
-  const wc = c('#ff8a00', '#BB6E28');
-  const hzAccent = c('#ff3cac', '#BB5E18');
+  const wc = c('#ff8a00', '#cc8866');
+  const hzAccent = c('#ff3cac', '#cc7788');
 
-  // corona
-  const cor1 = c('#ff8a00', '#5B3810');
-  const cor2 = c('#ffaa00', '#6B4818');
-  const cor3 = c('#ff3cac', '#5B3010');
+  // corona — warm → pink
+  const cor1 = c('#ff8a00', '#ff3cac');
+  const cor2 = c('#ffaa00', '#ff69b4');
+  const cor3 = c('#ff3cac', '#ff1493');
 
-  // terrain chevron grays → warm earth
-  const ch1 = c('#888888', '#9B8060');
-  const ch1b = c('#777777', '#8B7050');
-  const ch2 = c('#666666', '#7B6040');
-  const ch2b = c('#777777', '#8B7050');
-  const ch3 = c('#555555', '#6B5030');
-  const ch3b = c('#666666', '#7B6040');
-  const ch4 = c('#555555', '#5B4020');
-  const ch4b = c('#4a4a4a', '#4B3018');
-  const ch5 = c('#444444', '#3B2818');
-  const ch5b = c('#4a4a4a', '#4B3020');
-  const ch6 = c('#3a3a3a', '#2B1810');
+  // terrain chevrons — grays → warm earth
+  const ch1 = c('#888888', '#D8C8A0');
+  const ch1b = c('#777777', '#C8B890');
+  const ch2 = c('#666666', '#B8A880');
+  const ch2b = c('#777777', '#C8B890');
+  const ch3 = c('#555555', '#A89870');
+  const ch3b = c('#666666', '#B8A880');
+  const ch4 = c('#555555', '#988860');
+  const ch4b = c('#4a4a4a', '#887850');
+  const ch5 = c('#444444', '#786840');
+  const ch5b = c('#4a4a4a', '#887850');
+  const ch6 = c('#3a3a3a', '#685830');
 
   // ritual geometry
   const rO = o(0.12, 0.04);
@@ -99,24 +100,39 @@ export default function CosmicBackground() {
   const rO3 = o(0.1, 0.035);
   const lnO = o(0.08, 0.03);
 
-  // reflection pools
-  const rp1a = c('#ff8a00', '#B07020');  const rp1b = c('#ff6b20', '#905818');
-  const rp2a = c('#ff3cac', '#B06830');  const rp2b = c('#c94daf', '#8B5020');
-  const rp3a = c('#ff6b9d', '#A06030');  const rp3b = c('#b84a7a', '#805020');
-  const rp4a = c('#ffaa00', '#C08020');  const rp4b = c('#c98820', '#9B6818');
+  // reflection pools — warm → pink
+  const rp1a = c('#ff8a00', '#ff5cc0');  const rp1b = c('#ff6b20', '#cc3c9a');
+  const rp2a = c('#ff3cac', '#ff69b4');  const rp2b = c('#c94daf', '#cc4c98');
+  const rp3a = c('#ff6b9d', '#ff1493');  const rp3b = c('#b84a7a', '#cc2080');
+  const rp4a = c('#ffaa00', '#ff6eb4');  const rp4b = c('#c98820', '#cc5098');
 
-  // reflection stroke — brighter versions for mirror
-  const re1  = c('#ff8a00', '#9B6010');
-  const re1g = c('#ffb347', '#B07820');
-  const re2  = c('#ff3cac', '#9B5520');
-  const re2g = c('#ff7ec8', '#B06830');
-  const re3  = c('#ff6b9d', '#8B5028');
-  const re3g = c('#ff9ec4', '#A06838');
-  const re4  = c('#ffaa00', '#9B7010');
-  const re4g = c('#ffd080', '#B08020');
+  // reflection strokes — brighter for mirror
+  const re1  = c('#ff8a00', '#ff3cac');
+  const re1g = c('#ffb347', '#ff7dd4');
+  const re2  = c('#ff3cac', '#ff69b4');
+  const re2g = c('#ff7ec8', '#ff9ce0');
+  const re3  = c('#ff6b9d', '#ff1493');
+  const re3g = c('#ff9ec4', '#ff5cb8');
+  const re4  = c('#ffaa00', '#ff6eb4');
+  const re4g = c('#ffd080', '#ff9ce0');
 
-  const horizonGlowStart = c('#ff8a00', '#CC8830');
-  const horizonGlowMid   = c('#ff3cac', '#CC7020');
+  const horizonGlowStart = c('#ff8a00', '#ff9ccc');
+  const horizonGlowMid   = c('#ff3cac', '#ff7daa');
+
+  /* ── eclipse occluder positions ── */
+  // Each occluder interpolates from night offset to its mirror (day)
+  // Primary: ring (1340,280), night occ (1365,265), day occ (1315,295)
+  const p1ox = o(1365, 1315);
+  const p1oy = o(265, 295);
+  // Secondary: ring (350,450), night occ (370,438), day occ (330,462)
+  const p2ox = o(370, 330);
+  const p2oy = o(438, 462);
+  // Tertiary: ring (880,620), night occ (893,612), day occ (867,628)
+  const p3ox = o(893, 867);
+  const p3oy = o(612, 628);
+  // Fourth: ring (1600,550), night occ (1610,544), day occ (1590,556)
+  const p4ox = o(1610, 1590);
+  const p4oy = o(544, 556);
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none', overflow: 'hidden' }}>
@@ -254,30 +270,30 @@ export default function CosmicBackground() {
           <circle cx={1520} cy={50} r={3}   fill="#e8e8ec" opacity={0.07} filter="url(#cb-starglow)"/>
         </g>
 
-        {/* ═══ ECLIPSES ═══ */}
+        {/* ═══ ECLIPSES — occluders rotate to mirror side ═══ */}
 
         {/* Primary — large, upper right */}
         <circle cx={1340} cy={280} r={120} fill="none" stroke={e1} strokeWidth={1.5} opacity={es1}/>
         <circle cx={1340} cy={280} r={120} fill="none" stroke={e1g} strokeWidth={4} opacity={eg1} filter="url(#cb-softglow)"/>
-        <circle cx={1365} cy={265} r={105} fill={occ}/>
+        <circle cx={p1ox} cy={p1oy} r={105} fill={occ}/>
         <path d="M 1225 250 Q 1200 280 1220 310" fill="none" stroke={cor1} strokeWidth={0.8} opacity={o(0.4, 0.55)}/>
         <path d="M 1240 200 Q 1220 230 1235 260" fill="none" stroke={cor2} strokeWidth={0.6} opacity={o(0.3, 0.45)}/>
 
         {/* Secondary — medium, left */}
         <circle cx={350} cy={450} r={80} fill="none" stroke={e2} strokeWidth={1.2} opacity={es2}/>
         <circle cx={350} cy={450} r={80} fill="none" stroke={e2g} strokeWidth={3} opacity={eg2} filter="url(#cb-softglow)"/>
-        <circle cx={370} cy={438} r={70} fill={occ}/>
+        <circle cx={p2ox} cy={p2oy} r={70} fill={occ}/>
         <path d="M 275 430 Q 260 450 270 475" fill="none" stroke={cor3} strokeWidth={0.6} opacity={o(0.35, 0.50)}/>
 
         {/* Tertiary — small, lower center */}
         <circle cx={880} cy={620} r={50} fill="none" stroke={e3} strokeWidth={1} opacity={es3}/>
         <circle cx={880} cy={620} r={50} fill="none" stroke={e3g} strokeWidth={2.5} opacity={eg3} filter="url(#cb-softglow)"/>
-        <circle cx={893} cy={612} r={43} fill={occ}/>
+        <circle cx={p3ox} cy={p3oy} r={43} fill={occ}/>
 
         {/* Fourth — tiny accent */}
         <circle cx={1600} cy={550} r={30} fill="none" stroke={e4} strokeWidth={0.8} opacity={es4}/>
         <circle cx={1600} cy={550} r={30} fill="none" stroke={e4g} strokeWidth={2} opacity={eg4} filter="url(#cb-softglow)"/>
-        <circle cx={1610} cy={544} r={26} fill={occ}/>
+        <circle cx={p4ox} cy={p4oy} r={26} fill={occ}/>
 
         {/* ═══ RITUAL GEOMETRY ═══ */}
         <circle cx={960} cy={440} r={400} fill="none" stroke={e1} strokeWidth={0.3} opacity={rO}/>
@@ -373,18 +389,18 @@ export default function CosmicBackground() {
             <circle cx={350}  cy={450} r={78} fill="url(#cb-rp2)"/>
             <circle cx={350}  cy={450} r={80} fill="none" stroke={re2}  strokeWidth={1.8} opacity={0.82}/>
             <circle cx={350}  cy={450} r={80} fill="none" stroke={re2g} strokeWidth={4}   opacity={0.22}/>
-            <circle cx={370}  cy={438} r={70} fill={gnd} opacity={0.9}/>
+            <circle cx={p2ox} cy={p2oy} r={70} fill={gnd} opacity={0.9}/>
             <path d="M 275 430 Q 260 450 270 475" fill="none" stroke={re2} strokeWidth={0.85} opacity={0.55}/>
             {/* tertiary */}
             <circle cx={880}  cy={620} r={48} fill="url(#cb-rp3)"/>
             <circle cx={880}  cy={620} r={50} fill="none" stroke={re3}  strokeWidth={1.5} opacity={0.78}/>
             <circle cx={880}  cy={620} r={50} fill="none" stroke={re3g} strokeWidth={3.2} opacity={0.2}/>
-            <circle cx={893}  cy={612} r={43} fill={gnd} opacity={0.88}/>
+            <circle cx={p3ox} cy={p3oy} r={43} fill={gnd} opacity={0.88}/>
             {/* fourth */}
             <circle cx={1600} cy={550} r={28} fill="url(#cb-rp4)"/>
             <circle cx={1600} cy={550} r={30} fill="none" stroke={re4}  strokeWidth={1.35} opacity={0.8}/>
             <circle cx={1600} cy={550} r={30} fill="none" stroke={re4g} strokeWidth={2.8}  opacity={0.22}/>
-            <circle cx={1610} cy={544} r={26} fill={gnd} opacity={0.88}/>
+            <circle cx={p4ox} cy={p4oy} r={26} fill={gnd} opacity={0.88}/>
           </g>
           {/* primary (large): shifted up into water strip */}
           <g transform="translate(0,-294)">
@@ -392,7 +408,7 @@ export default function CosmicBackground() {
               <circle cx={1340} cy={280} r={118} fill="url(#cb-rp1)"/>
               <circle cx={1340} cy={280} r={120} fill="none" stroke={re1}  strokeWidth={2.2} opacity={0.88}/>
               <circle cx={1340} cy={280} r={120} fill="none" stroke={re1g} strokeWidth={5}   opacity={0.28}/>
-              <circle cx={1365} cy={265} r={105} fill={gnd} opacity={0.92}/>
+              <circle cx={p1ox} cy={p1oy} r={105} fill={gnd} opacity={0.92}/>
               <path d="M 1225 250 Q 1200 280 1220 310" fill="none" stroke={re1}  strokeWidth={1.1} opacity={0.62}/>
               <path d="M 1240 200 Q 1220 230 1235 260" fill="none" stroke={re4}  strokeWidth={0.85} opacity={0.48}/>
             </g>
