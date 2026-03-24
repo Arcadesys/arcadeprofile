@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_KEY = process.env.BUTTONDOWN_API_KEY;
+const API_URL = process.env.ACTIVECAMPAIGN_API_URL;
+const API_KEY = process.env.ACTIVECAMPAIGN_API_KEY;
+const LIST_ID = process.env.ACTIVECAMPAIGN_LIST_ID || '1';
+
+const VALID_TAGS = ['fiction', 'tech', 'updates'];
 
 export async function POST(request: NextRequest) {
-  if (!API_KEY) {
+  if (!API_URL || !API_KEY) {
     return NextResponse.json(
       { error: 'Email subscription is not configured.' },
       { status: 503 }
@@ -16,36 +20,77 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
   }
 
-  const VALID_TAGS = ['fiction', 'tech', 'updates'];
   const selectedTags: string[] = Array.isArray(tags)
     ? tags.filter((t: unknown) => typeof t === 'string' && VALID_TAGS.includes(t))
     : VALID_TAGS;
 
   try {
-    const res = await fetch('https://api.buttondown.com/v1/subscribers', {
+    // Create or update the contact
+    const contactRes = await fetch(`${API_URL}/api/3/contact/sync`, {
       method: 'POST',
       headers: {
-        Authorization: `Token ${API_KEY}`,
+        'Api-Token': API_KEY,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, tags: selectedTags }),
+      body: JSON.stringify({
+        contact: { email },
+      }),
     });
 
-    if (res.status === 201) {
-      return NextResponse.json({ ok: true });
+    if (!contactRes.ok) {
+      const err = await contactRes.text();
+      console.error('ActiveCampaign contact sync failed:', err);
+      return NextResponse.json(
+        { error: 'Failed to subscribe. Please try again.' },
+        { status: 502 }
+      );
     }
 
-    if (res.status === 409) {
+    const { contact } = await contactRes.json();
 
-      return NextResponse.json({ ok: true, message: 'Already subscribed!' });
+    // Add the contact to the list
+    const listRes = await fetch(`${API_URL}/api/3/contactLists`, {
+      method: 'POST',
+      headers: {
+        'Api-Token': API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contactList: {
+          list: LIST_ID,
+          contact: contact.id,
+          status: 1,
+        },
+      }),
+    });
+
+    if (!listRes.ok) {
+      const err = await listRes.text();
+      console.error('ActiveCampaign list add failed:', err);
+      return NextResponse.json(
+        { error: 'Failed to subscribe. Please try again.' },
+        { status: 502 }
+      );
     }
 
-    const err = await res.text();
-    console.error('Buttondown subscribe failed:', res.status, err);
-    return NextResponse.json(
-      { error: 'Failed to subscribe. Please try again.' },
-      { status: 502 }
-    );
+    // Add tags to the contact
+    for (const tag of selectedTags) {
+      await fetch(`${API_URL}/api/3/contactTags`, {
+        method: 'POST',
+        headers: {
+          'Api-Token': API_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contactTag: {
+            contact: contact.id,
+            tag,
+          },
+        }),
+      });
+    }
+
+    return NextResponse.json({ ok: true });
   } catch (err) {
     console.error('Subscribe error:', err);
     return NextResponse.json(

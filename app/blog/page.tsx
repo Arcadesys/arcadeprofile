@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { getFeed } from '@/lib/blog';
+import SubscribeForm from '@/app/components/SubscribeForm';
 
 export default function BlogPage() {
   const feed = getFeed();
@@ -74,6 +75,10 @@ export default function BlogPage() {
             })}
           </div>
         )}
+
+        <div className="mt-12">
+          <SubscribeForm />
+        </div>
       </div>
     </div>
   );

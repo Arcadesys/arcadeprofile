@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { getAllStories, getStory } from '@/lib/stories';
+import SubscribeForm from '@/app/components/SubscribeForm';
 
 export function generateStaticParams() {
   return getAllStories().map(s => ({ story: s.slug }));
@@ -86,6 +87,10 @@ export default function StoryIndexPage({ params }: { params: { story: string } }
               ))}
             </ol>
           )}
+        </div>
+
+        <div className="mt-12">
+          <SubscribeForm />
         </div>
       </div>
     </div>
