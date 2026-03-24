@@ -12,6 +12,7 @@ interface ScheduledPost {
   scheduledDate: string | null;
   tags: string[];
   series: string | null;
+  group: string | null;
 }
 
 interface Series {
@@ -29,6 +30,7 @@ interface ScheduleData {
   posts: ScheduledPost[];
   series: Series[];
   settings: ScheduleSettings;
+  groups: string[];
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -69,19 +71,21 @@ function dateToString(d: Date): string {
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const WEEKDAY_HEADERS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-const SCHEDULE_URL_KEYS = ['status', 'q', 'series', 'tags'] as const;
+const SCHEDULE_URL_KEYS = ['status', 'q', 'series', 'tags', 'group'] as const;
 
 function buildScheduleSearchParams(
   filter: 'all' | 'draft' | 'scheduled' | 'published',
   searchText: string,
   filterSeries: string,
-  filterTags: string[]
+  filterTags: string[],
+  filterGroup: string
 ): URLSearchParams {
   const params = new URLSearchParams();
   if (filter !== 'all') params.set('status', filter);
   if (searchText) params.set('q', searchText);
   if (filterSeries) params.set('series', filterSeries);
   if (filterTags.length > 0) params.set('tags', filterTags.join(','));
+  if (filterGroup) params.set('group', filterGroup);
   return params;
 }
 
@@ -90,13 +94,18 @@ function scheduleUrlMatchesFilters(
   filter: 'all' | 'draft' | 'scheduled' | 'published',
   searchText: string,
   filterSeries: string,
-  filterTags: string[]
+  filterTags: string[],
+  filterGroup: string
 ): boolean {
-  const want = buildScheduleSearchParams(filter, searchText, filterSeries, filterTags);
+  const want = buildScheduleSearchParams(filter, searchText, filterSeries, filterTags, filterGroup);
   for (const k of SCHEDULE_URL_KEYS) {
     if (want.get(k) !== sp.get(k)) return false;
   }
   return true;
+}
+
+function formatGroupName(group: string): string {
+  return group.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 }
 
 export default function SchedulePage() {
@@ -129,6 +138,7 @@ function ScheduleDashboard() {
     const t = searchParams.get('tags');
     return t ? t.split(',').filter(Boolean) : [];
   });
+  const [filterGroup, setFilterGroup] = useState(() => searchParams.get('group') || '');
   const [view, setView] = useState<'list' | 'calendar'>('list');
   const [calendarMonth, setCalendarMonth] = useState(() => {
     const now = new Date();
@@ -308,20 +318,21 @@ function ScheduleDashboard() {
 
   // Sync filter state to URL params (only when different — avoids replace loops with useRouter)
   useEffect(() => {
-    if (scheduleUrlMatchesFilters(searchParams, filter, searchText, filterSeries, filterTags)) {
+    if (scheduleUrlMatchesFilters(searchParams, filter, searchText, filterSeries, filterTags, filterGroup)) {
       return;
     }
-    const qs = buildScheduleSearchParams(filter, searchText, filterSeries, filterTags).toString();
+    const qs = buildScheduleSearchParams(filter, searchText, filterSeries, filterTags, filterGroup).toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }, [filter, searchText, filterSeries, filterTags, router, pathname, searchParams]);
+  }, [filter, searchText, filterSeries, filterTags, filterGroup, router, pathname, searchParams]);
 
-  const hasActiveFilters = filter !== 'all' || searchText !== '' || filterSeries !== '' || filterTags.length > 0;
+  const hasActiveFilters = filter !== 'all' || searchText !== '' || filterSeries !== '' || filterTags.length > 0 || filterGroup !== '';
 
   const clearAllFilters = () => {
     setFilter('all');
     setSearchText('');
     setFilterSeries('');
     setFilterTags([]);
+    setFilterGroup('');
   };
 
   const toggleFilterTag = (tag: string) => {
@@ -362,7 +373,7 @@ function ScheduleDashboard() {
     setSaving(false);
   };
 
-  const isFilterActive = filter !== 'all' || searchText !== '' || filterSeries !== '' || filterTags.length > 0;
+  const isFilterActive = filter !== 'all' || searchText !== '' || filterSeries !== '' || filterTags.length > 0 || filterGroup !== '';
 
   const handleListDragStart = (e: DragEvent<HTMLDivElement>, slug: string) => {
     setListDragSlug(slug);
@@ -608,6 +619,11 @@ function ScheduleDashboard() {
       if (filterTags.length > 0) {
         posts = posts.filter(p => filterTags.every(t => p.tags.includes(t)));
       }
+      if (filterGroup) {
+        posts = filterGroup === '__none__'
+          ? posts.filter(p => !p.group)
+          : posts.filter(p => p.group === filterGroup);
+      }
 
       // Cmd/Ctrl+S — save (force re-save)
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
@@ -680,7 +696,7 @@ function ScheduleDashboard() {
 
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [data, filter, searchText, filterSeries, filterTags, focusedIndex, showShortcuts, confirmDialog, toast, saving]);
+  }, [data, filter, searchText, filterSeries, filterTags, filterGroup, focusedIndex, showShortcuts, confirmDialog, toast, saving]);
 
   const filteredPosts = useMemo((): ScheduledPost[] => {
     if (!data) return [];
@@ -700,8 +716,13 @@ function ScheduleDashboard() {
     if (filterTags.length > 0) {
       posts = posts.filter(p => filterTags.every(t => p.tags.includes(t)));
     }
+    if (filterGroup) {
+      posts = filterGroup === '__none__'
+        ? posts.filter(p => !p.group)
+        : posts.filter(p => p.group === filterGroup);
+    }
     return posts;
-  }, [data, filter, searchText, filterSeries, filterTags]);
+  }, [data, filter, searchText, filterSeries, filterTags, filterGroup]);
   const filteredPostsRef = useRef<ScheduledPost[]>([]);
   filteredPostsRef.current = filteredPosts;
 
@@ -917,6 +938,25 @@ function ScheduleDashboard() {
               maxWidth: 300,
             }}
           />
+          <select
+            value={filterGroup}
+            onChange={e => setFilterGroup(e.target.value)}
+            style={{
+              padding: '0.375rem 0.625rem',
+              borderRadius: 6,
+              border: filterGroup ? '1px solid var(--accent)' : '1px solid var(--border)',
+              background: 'var(--surface)',
+              color: filterGroup ? 'var(--accent)' : 'var(--fg-muted)',
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+            }}
+          >
+            <option value="">All groups</option>
+            <option value="__none__">No group</option>
+            {data.groups.map(g => (
+              <option key={g} value={g}>{formatGroupName(g)}</option>
+            ))}
+          </select>
           <select
             value={filterSeries}
             onChange={e => setFilterSeries(e.target.value)}
@@ -1274,6 +1314,19 @@ function ScheduleDashboard() {
                         }}>
                           {post.status}
                         </span>
+                        {post.group && (
+                          <span
+                            onClick={() => setFilterGroup(post.group!)}
+                            style={{
+                              fontSize: '0.65rem', fontWeight: 500, padding: '2px 8px', borderRadius: 4,
+                              background: 'var(--surface-hover)', color: 'var(--fg-muted)',
+                              border: '1px solid var(--border)', cursor: 'pointer',
+                            }}
+                            title={`Filter by group: ${formatGroupName(post.group)}`}
+                          >
+                            {formatGroupName(post.group)}
+                          </span>
+                        )}
                       </div>
 
                       <p style={{ fontSize: '0.8rem', color: 'var(--fg-muted)', margin: '0.25rem 0 0.5rem', lineHeight: 1.4 }}>

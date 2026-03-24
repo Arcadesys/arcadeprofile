@@ -14,6 +14,7 @@ export async function GET() {
       title: post?.title || sp.slug,
       excerpt: post?.excerpt || '',
       date: post?.date || sp.scheduledDate,
+      group: post?.group || null,
     };
   });
 
@@ -26,16 +27,23 @@ export async function GET() {
       title: p.title,
       excerpt: p.excerpt,
       date: p.date,
+      group: p.group || null,
       status: 'draft' as const,
       scheduledDate: null,
       tags: [],
       series: null,
     }));
 
+  // Collect all unique groups from blog posts
+  const groupSet = new Set<string>();
+  for (const p of posts) { if (p.group) groupSet.add(p.group); }
+  const groups = Array.from(groupSet);
+
   return NextResponse.json({
     posts: [...merged, ...unscheduled],
     series: schedule.series,
     settings: schedule.settings,
+    groups,
   });
 }
 

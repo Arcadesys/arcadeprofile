@@ -11,7 +11,6 @@ import CosmosSlider from './CosmosSlider';
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [isLocalhost, setIsLocalhost] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -20,8 +19,6 @@ export default function NavBar() {
 
   useEffect(() => {
     setMounted(true);
-    const host = window.location.hostname;
-    setIsLocalhost(host === 'localhost' || host === '127.0.0.1');
   }, []);
 
   const toggleMenu = () => {
@@ -40,7 +37,8 @@ export default function NavBar() {
     { href: '/blog',      label: 'Blog' },
     { href: '/portfolio', label: 'Tools' },
     { href: '/about',     label: 'About' },
-    ...(isLocalhost ? [{ href: '/admin/schedule', label: 'Schedule' }] : []),
+    ...(typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname)
+      ? [{ href: '/admin/schedule', label: 'Schedule' }] : []),
   ];
 
   const linkIsActive = (link) => {

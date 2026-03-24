@@ -24,6 +24,8 @@ export interface BlogPost {
   date: string;
   excerpt: string;
   content: string;
+  /** Folder the post lives in under content/blog/ (e.g. "the-singularity-log"). */
+  group?: string;
   /** Groups posts into a serialized essay series; use with seriesPart for order. */
   series?: string;
   seriesTitle?: string;
@@ -51,49 +53,71 @@ export function getFeed(): FeedItem[] {
 export function getAllPosts(): BlogPost[] {
   if (!fs.existsSync(BLOG_DIR)) return [];
 
-  const files = fs.readdirSync(BLOG_DIR).filter(f => f.endsWith('.mdx'));
+  const posts: BlogPost[] = [];
 
-  const posts = files.map(filename => {
-    const slug = filename.replace('.mdx', '');
-    const raw = fs.readFileSync(path.join(BLOG_DIR, filename), 'utf8');
-    const { data, content } = matter(raw);
-
-    return {
-      slug,
-      title: data.title || slug,
-      date: data.date || '',
-      excerpt: data.excerpt || content.slice(0, 200).replace(/[#*_\n]/g, ' ').trim() + '...',
-      content,
-      series: typeof data.series === 'string' ? data.series : undefined,
-      seriesTitle: typeof data.seriesTitle === 'string' ? data.seriesTitle : undefined,
-      seriesPart: parseSeriesPart(data.seriesPart),
-      newsletterHeading: optionalString(data.newsletterHeading),
-      newsletterDescription: optionalString(data.newsletterDescription),
-    };
-  });
+  // Read .mdx files from top-level directory
+  for (const entry of fs.readdirSync(BLOG_DIR, { withFileTypes: true })) {
+    if (entry.isFile() && entry.name.endsWith('.mdx')) {
+      const slug = entry.name.replace('.mdx', '');
+      const raw = fs.readFileSync(path.join(BLOG_DIR, entry.name), 'utf8');
+      const { data, content } = matter(raw);
+      posts.push(parsePost(slug, data, content, undefined));
+    } else if (entry.isDirectory() && !entry.name.startsWith('.')) {
+      // Read .mdx files from subdirectories (groups)
+      const groupDir = path.join(BLOG_DIR, entry.name);
+      for (const file of fs.readdirSync(groupDir)) {
+        if (file.endsWith('.mdx')) {
+          const slug = file.replace('.mdx', '');
+          const raw = fs.readFileSync(path.join(groupDir, file), 'utf8');
+          const { data, content } = matter(raw);
+          posts.push(parsePost(slug, data, content, entry.name));
+        }
+      }
+    }
+  }
 
   return posts
     .filter(p => p.date)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
-export function getPostBySlug(slug: string): BlogPost | null {
-  const filePath = path.join(BLOG_DIR, `${slug}.mdx`);
-  if (!fs.existsSync(filePath)) return null;
-
-  const raw = fs.readFileSync(filePath, 'utf8');
-  const { data, content } = matter(raw);
-
+function parsePost(slug: string, data: Record<string, unknown>, content: string, group: string | undefined): BlogPost {
   return {
     slug,
-    title: data.title || slug,
-    date: data.date || '',
-    excerpt: data.excerpt || '',
+    title: (data.title as string) || slug,
+    date: (data.date as string) || '',
+    excerpt: (data.excerpt as string) || content.slice(0, 200).replace(/[#*_\n]/g, ' ').trim() + '...',
     content,
+    group,
     series: typeof data.series === 'string' ? data.series : undefined,
     seriesTitle: typeof data.seriesTitle === 'string' ? data.seriesTitle : undefined,
     seriesPart: parseSeriesPart(data.seriesPart),
     newsletterHeading: optionalString(data.newsletterHeading),
     newsletterDescription: optionalString(data.newsletterDescription),
   };
+}
+
+export function getPostBySlug(slug: string): BlogPost | null {
+  // Check top-level first
+  const topLevel = path.join(BLOG_DIR, `${slug}.mdx`);
+  if (fs.existsSync(topLevel)) {
+    const raw = fs.readFileSync(topLevel, 'utf8');
+    const { data, content } = matter(raw);
+    return parsePost(slug, data, content, undefined);
+  }
+
+  // Search subdirectories
+  if (!fs.existsSync(BLOG_DIR)) return null;
+  for (const entry of fs.readdirSync(BLOG_DIR, { withFileTypes: true })) {
+    if (entry.isDirectory() && !entry.name.startsWith('.')) {
+      const filePath = path.join(BLOG_DIR, entry.name, `${slug}.mdx`);
+      if (fs.existsSync(filePath)) {
+        const raw = fs.readFileSync(filePath, 'utf8');
+        const { data, content } = matter(raw);
+        return parsePost(slug, data, content, entry.name);
+      }
+    }
+  }
+
+  return null;
 }
