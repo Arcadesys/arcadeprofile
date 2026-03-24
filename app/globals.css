@@ -285,3 +285,35 @@ td {
   outline: 2px solid var(--neon-pink);
   outline-offset: 2px;
 }
+
+/* ── cosmos toggle flicker ── */
+
+.cosmos-toggle {
+  animation: cosmos-flicker 4s ease-in-out infinite;
+}
+
+.cosmos-toggle:hover {
+  animation: cosmos-flicker-fast 0.8s ease-in-out infinite;
+  transform: scale(1.1);
+}
+
+@keyframes cosmos-flicker {
+  0%, 100% { opacity: 1; }
+  12%      { opacity: 0.7; }
+  14%      { opacity: 1; }
+  16%      { opacity: 0.75; }
+  18%      { opacity: 1; }
+  50%      { opacity: 1; }
+  62%      { opacity: 0.8; }
+  63%      { opacity: 1; }
+  80%      { opacity: 1; }
+  81%      { opacity: 0.65; }
+  83%      { opacity: 1; }
+}
+
+@keyframes cosmos-flicker-fast {
+  0%, 100% { opacity: 1; }
+  25%      { opacity: 0.85; }
+  50%      { opacity: 1; }
+  75%      { opacity: 0.9; }
+}

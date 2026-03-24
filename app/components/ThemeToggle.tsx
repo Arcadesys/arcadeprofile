@@ -22,19 +22,33 @@ export default function ThemeToggle() {
   const occBl = Math.round(cosmosTime * 232);
   const occColor = `rgb(${occR},${occG},${occBl})`;
 
+  const glowColor = cosmosTime < 0.5 ? '#ff8a00' : '#ff3cac';
+
   return (
     <button
       onClick={toggle}
-      className="fixed bottom-4 right-4 z-50 p-2 rounded-full"
+      className="fixed bottom-4 right-4 z-50 rounded-full cosmos-toggle"
       style={{
+        padding: '10px',
         background: `rgba(${Math.round(cosmosTime * 240)},${Math.round(cosmosTime * 240)},${Math.round(cosmosTime * 220)},${0.15 + cosmosTime * 0.3})`,
-        border: `1px solid rgba(${ringR},${ringG},${ringB},0.3)`,
+        border: `1px solid rgba(${ringR},${ringG},${ringB},0.4)`,
         backdropFilter: 'blur(8px)',
+        boxShadow: `0 0 12px ${glowColor}44, 0 0 24px ${glowColor}22`,
+        cursor: 'pointer',
       }}
       aria-label={cosmosTime < 0.5 ? 'Switch to light mode' : 'Switch to dark mode'}
     >
-      <svg viewBox="0 0 28 28" width="28" height="28">
-        <circle cx="14" cy="14" r="10" fill="none" stroke={ringColor} strokeWidth="1.5" opacity="0.9"/>
+      <svg viewBox="0 0 28 28" width="32" height="32" style={{ display: 'block' }}>
+        <defs>
+          <filter id="toggle-glow">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1.5"/>
+          </filter>
+        </defs>
+        {/* glow ring behind */}
+        <circle cx="14" cy="14" r="10" fill="none" stroke={ringColor} strokeWidth="3" opacity="0.25" filter="url(#toggle-glow)"/>
+        {/* main ring */}
+        <circle cx="14" cy="14" r="10" fill="none" stroke={ringColor} strokeWidth="1.5" opacity="0.95"/>
+        {/* occluder */}
         <circle cx={occX} cy={occY} r="8.5" fill={occColor}/>
       </svg>
     </button>
