@@ -3,9 +3,32 @@ import Link from 'next/link';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { getAllPosts, getPostBySlug } from '@/lib/blog';
 import { getEssaySeriesBySlug } from '@/lib/series';
+import type { Metadata } from 'next';
 
 export function generateStaticParams() {
   return getAllPosts().map(post => ({ slug: post.slug }));
+}
+
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+  const post = getPostBySlug(params.slug);
+  if (!post) return {};
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: 'article',
+      publishedTime: post.date,
+      url: `/blog/${post.slug}`,
+    },
+    twitter: {
+      card: 'summary',
+      title: post.title,
+      description: post.excerpt,
+    },
+  };
 }
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
