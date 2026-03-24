@@ -11,14 +11,7 @@ interface ScheduledPost {
   status: 'draft' | 'scheduled' | 'published';
   scheduledDate: string | null;
   tags: string[];
-  series: string | null;
   group: string | null;
-}
-
-interface Series {
-  id: string;
-  name: string;
-  description: string;
 }
 
 interface ScheduleSettings {
@@ -28,7 +21,6 @@ interface ScheduleSettings {
 
 interface ScheduleData {
   posts: ScheduledPost[];
-  series: Series[];
   settings: ScheduleSettings;
   groups: string[];
 }
@@ -71,19 +63,17 @@ function dateToString(d: Date): string {
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const WEEKDAY_HEADERS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-const SCHEDULE_URL_KEYS = ['status', 'q', 'series', 'tags', 'group'] as const;
+const SCHEDULE_URL_KEYS = ['status', 'q', 'tags', 'group'] as const;
 
 function buildScheduleSearchParams(
   filter: 'all' | 'draft' | 'scheduled' | 'published',
   searchText: string,
-  filterSeries: string,
   filterTags: string[],
   filterGroup: string
 ): URLSearchParams {
   const params = new URLSearchParams();
   if (filter !== 'all') params.set('status', filter);
   if (searchText) params.set('q', searchText);
-  if (filterSeries) params.set('series', filterSeries);
   if (filterTags.length > 0) params.set('tags', filterTags.join(','));
   if (filterGroup) params.set('group', filterGroup);
   return params;
@@ -93,11 +83,10 @@ function scheduleUrlMatchesFilters(
   sp: { get: (key: string) => string | null },
   filter: 'all' | 'draft' | 'scheduled' | 'published',
   searchText: string,
-  filterSeries: string,
   filterTags: string[],
   filterGroup: string
 ): boolean {
-  const want = buildScheduleSearchParams(filter, searchText, filterSeries, filterTags, filterGroup);
+  const want = buildScheduleSearchParams(filter, searchText, filterTags, filterGroup);
   for (const k of SCHEDULE_URL_KEYS) {
     if (want.get(k) !== sp.get(k)) return false;
   }
@@ -122,8 +111,6 @@ function ScheduleDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [editingTags, setEditingTags] = useState<string | null>(null);
   const [tagInput, setTagInput] = useState('');
-  const [showNewSeries, setShowNewSeries] = useState(false);
-  const [newSeries, setNewSeries] = useState({ name: '', description: '' });
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -133,7 +120,6 @@ function ScheduleDashboard() {
     return s === 'draft' || s === 'scheduled' || s === 'published' ? s : 'all';
   });
   const [searchText, setSearchText] = useState(() => searchParams.get('q') || '');
-  const [filterSeries, setFilterSeries] = useState(() => searchParams.get('series') || '');
   const [filterTags, setFilterTags] = useState<string[]>(() => {
     const t = searchParams.get('tags');
     return t ? t.split(',').filter(Boolean) : [];
@@ -156,7 +142,6 @@ function ScheduleDashboard() {
   const lastClickedSlug = useRef<string | null>(null);
   const [bulkDate, setBulkDate] = useState('');
   const [bulkStatus, setBulkStatus] = useState('');
-  const [bulkSeries, setBulkSeries] = useState('');
   const [bulkTag, setBulkTag] = useState('');
   const [autoSchedulePreview, setAutoSchedulePreview] = useState<{ slug: string; title: string; date: string }[] | null>(null);
   const [previewExcluded, setPreviewExcluded] = useState<Set<string>>(new Set());
@@ -212,19 +197,6 @@ function ScheduleDashboard() {
     setData(updated);
     save(updated);
     setBulkStatus('');
-  };
-
-  const applyBulkSeries = () => {
-    if (!data || selectedSlugs.size === 0) return;
-    const seriesVal = bulkSeries === '__none__' ? null : bulkSeries;
-    if (!bulkSeries) return;
-    const posts = data.posts.map(p =>
-      selectedSlugs.has(p.slug) ? { ...p, series: seriesVal } : p
-    );
-    const updated = { ...data, posts };
-    setData(updated);
-    save(updated);
-    setBulkSeries('');
   };
 
   const applyBulkTag = () => {
@@ -318,19 +290,18 @@ function ScheduleDashboard() {
 
   // Sync filter state to URL params (only when different — avoids replace loops with useRouter)
   useEffect(() => {
-    if (scheduleUrlMatchesFilters(searchParams, filter, searchText, filterSeries, filterTags, filterGroup)) {
+    if (scheduleUrlMatchesFilters(searchParams, filter, searchText, filterTags, filterGroup)) {
       return;
     }
-    const qs = buildScheduleSearchParams(filter, searchText, filterSeries, filterTags, filterGroup).toString();
+    const qs = buildScheduleSearchParams(filter, searchText, filterTags, filterGroup).toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }, [filter, searchText, filterSeries, filterTags, filterGroup, router, pathname, searchParams]);
+  }, [filter, searchText, filterTags, filterGroup, router, pathname, searchParams]);
 
-  const hasActiveFilters = filter !== 'all' || searchText !== '' || filterSeries !== '' || filterTags.length > 0 || filterGroup !== '';
+  const hasActiveFilters = filter !== 'all' || searchText !== '' || filterTags.length > 0 || filterGroup !== '';
 
   const clearAllFilters = () => {
     setFilter('all');
     setSearchText('');
-    setFilterSeries('');
     setFilterTags([]);
     setFilterGroup('');
   };
@@ -341,7 +312,7 @@ function ScheduleDashboard() {
     );
   };
 
-  // Collect all unique tags and series from posts
+  // Collect all unique tags from posts
   const allTags = useMemo(() => {
     if (!data) return [];
     const tags = new Set<string>();
@@ -362,9 +333,7 @@ function ScheduleDashboard() {
           status: p.status,
           scheduledDate: p.scheduledDate,
           tags: p.tags,
-          series: p.series,
         })),
-        series: updated.series,
         settings: updated.settings,
       }),
     });
@@ -373,7 +342,7 @@ function ScheduleDashboard() {
     setSaving(false);
   };
 
-  const isFilterActive = filter !== 'all' || searchText !== '' || filterSeries !== '' || filterTags.length > 0 || filterGroup !== '';
+  const isFilterActive = filter !== 'all' || searchText !== '' || filterTags.length > 0 || filterGroup !== '';
 
   const handleListDragStart = (e: DragEvent<HTMLDivElement>, slug: string) => {
     setListDragSlug(slug);
@@ -442,14 +411,6 @@ function ScheduleDashboard() {
     save(updated);
   };
 
-  const updatePostSeries = (slug: string, series: string | null) => {
-    if (!data) return;
-    const posts = data.posts.map(p => p.slug === slug ? { ...p, series } : p);
-    const updated = { ...data, posts };
-    setData(updated);
-    save(updated);
-  };
-
   const addTag = (slug: string, tag: string) => {
     if (!data || !tag.trim()) return;
     const normalized = tag.trim().toLowerCase().replace(/\s+/g, '-');
@@ -487,42 +448,6 @@ function ScheduleDashboard() {
   const dismissToast = () => {
     if (toast) clearTimeout(toast.timer);
     setToast(null);
-  };
-
-  const addSeries = () => {
-    if (!data || !newSeries.name.trim()) return;
-    const id = newSeries.name.trim().toLowerCase().replace(/\s+/g, '-');
-    if (data.series.some(s => s.id === id)) {
-      setError('Series already exists');
-      return;
-    }
-    const updated = {
-      ...data,
-      series: [...data.series, { id, name: newSeries.name.trim(), description: newSeries.description.trim() }],
-    };
-    setData(updated);
-    save(updated);
-    setNewSeries({ name: '', description: '' });
-    setShowNewSeries(false);
-  };
-
-  const removeSeries = (id: string) => {
-    if (!data) return;
-    const affectedCount = data.posts.filter(p => p.series === id).length;
-    const seriesName = data.series.find(s => s.id === id)?.name || id;
-    setConfirmDialog({
-      message: affectedCount > 0
-        ? `Remove "${seriesName}"? This will unlink ${affectedCount} post${affectedCount !== 1 ? 's' : ''} from the series.`
-        : `Remove "${seriesName}"?`,
-      onConfirm: () => {
-        const posts = data.posts.map(p => p.series === id ? { ...p, series: null } : p);
-        const series = data.series.filter(s => s.id !== id);
-        const updated = { ...data, posts, series };
-        setData(updated);
-        save(updated);
-        setConfirmDialog(null);
-      },
-    });
   };
 
   const autoSchedule = () => {
@@ -611,11 +536,6 @@ function ScheduleDashboard() {
           p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q)
         );
       }
-      if (filterSeries) {
-        posts = filterSeries === '__none__'
-          ? posts.filter(p => !p.series)
-          : posts.filter(p => p.series === filterSeries);
-      }
       if (filterTags.length > 0) {
         posts = posts.filter(p => filterTags.every(t => p.tags.includes(t)));
       }
@@ -696,7 +616,7 @@ function ScheduleDashboard() {
 
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [data, filter, searchText, filterSeries, filterTags, filterGroup, focusedIndex, showShortcuts, confirmDialog, toast, saving]);
+  }, [data, filter, searchText, filterTags, filterGroup, focusedIndex, showShortcuts, confirmDialog, toast, saving]);
 
   const filteredPosts = useMemo((): ScheduledPost[] => {
     if (!data) return [];
@@ -708,11 +628,6 @@ function ScheduleDashboard() {
         p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q)
       );
     }
-    if (filterSeries) {
-      posts = filterSeries === '__none__'
-        ? posts.filter(p => !p.series)
-        : posts.filter(p => p.series === filterSeries);
-    }
     if (filterTags.length > 0) {
       posts = posts.filter(p => filterTags.every(t => p.tags.includes(t)));
     }
@@ -722,7 +637,7 @@ function ScheduleDashboard() {
         : posts.filter(p => p.group === filterGroup);
     }
     return posts;
-  }, [data, filter, searchText, filterSeries, filterTags, filterGroup]);
+  }, [data, filter, searchText, filterTags, filterGroup]);
   const filteredPostsRef = useRef<ScheduledPost[]>([]);
   filteredPostsRef.current = filteredPosts;
 
@@ -957,25 +872,6 @@ function ScheduleDashboard() {
               <option key={g} value={g}>{formatGroupName(g)}</option>
             ))}
           </select>
-          <select
-            value={filterSeries}
-            onChange={e => setFilterSeries(e.target.value)}
-            style={{
-              padding: '0.375rem 0.625rem',
-              borderRadius: 6,
-              border: filterSeries ? '1px solid var(--accent)' : '1px solid var(--border)',
-              background: 'var(--surface)',
-              color: filterSeries ? 'var(--accent)' : 'var(--fg-muted)',
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-            }}
-          >
-            <option value="">All series</option>
-            <option value="__none__">No series</option>
-            {data.series.map(s => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
           {allTags.length > 0 && (
             <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', alignItems: 'center' }}>
               {allTags.map(tag => {
@@ -1083,37 +979,6 @@ function ScheduleDashboard() {
               }}
             >
               Set status
-            </button>
-          </div>
-
-          {/* Bulk assign series */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <select
-              value={bulkSeries}
-              onChange={e => setBulkSeries(e.target.value)}
-              style={{
-                fontSize: '0.75rem', padding: '3px 6px', borderRadius: 4,
-                border: '1px solid var(--border)', background: 'var(--surface-hover)',
-                color: 'var(--fg)', outline: 'none',
-              }}
-            >
-              <option value="">Series...</option>
-              <option value="__none__">No series</option>
-              {data.series.map(s => (
-                <option key={s.id} value={s.id}>{s.name}</option>
-              ))}
-            </select>
-            <button
-              onClick={applyBulkSeries}
-              disabled={!bulkSeries}
-              style={{
-                fontSize: '0.7rem', padding: '3px 8px', borderRadius: 4, border: 'none',
-                background: bulkSeries ? 'var(--accent)' : 'var(--surface-hover)',
-                color: bulkSeries ? '#fff' : 'var(--fg-muted)', cursor: bulkSeries ? 'pointer' : 'default',
-                fontWeight: 600,
-              }}
-            >
-              Assign
             </button>
           </div>
 
@@ -1394,7 +1259,7 @@ function ScheduleDashboard() {
                       </div>
                     </div>
 
-                    {/* Right controls: date, series, status */}
+                    {/* Right controls: date, status */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end', minWidth: 160 }}>
                       <input
                         type="date"
@@ -1406,20 +1271,6 @@ function ScheduleDashboard() {
                           color: 'var(--fg)', outline: 'none',
                         }}
                       />
-                      <select
-                        value={post.series || ''}
-                        onChange={e => updatePostSeries(post.slug, e.target.value || null)}
-                        style={{
-                          fontSize: '0.8rem', padding: '4px 8px', borderRadius: 6,
-                          border: '1px solid var(--border)', background: 'var(--surface)',
-                          color: 'var(--fg)', outline: 'none', width: '100%',
-                        }}
-                      >
-                        <option value="">No series</option>
-                        {data.series.map(s => (
-                          <option key={s.id} value={s.id}>{s.name}</option>
-                        ))}
-                      </select>
                       <select
                         value={post.status}
                         onChange={e => updatePostStatus(post.slug, e.target.value as ScheduledPost['status'])}
@@ -1625,9 +1476,9 @@ function ScheduleDashboard() {
                         }}>
                           {post.status}
                         </span>
-                        {post.series && (
+                        {post.group && (
                           <span style={{ fontSize: '0.65rem', color: 'var(--fg-muted)' }}>
-                            {data.series.find(s => s.id === post.series)?.name}
+                            {formatGroupName(post.group)}
                           </span>
                         )}
                       </div>
@@ -1666,104 +1517,6 @@ function ScheduleDashboard() {
         </div>
       )}
 
-      {/* Series management */}
-      <div style={{ marginTop: '3rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--fg)' }}>Series</h2>
-          <button
-            onClick={() => setShowNewSeries(!showNewSeries)}
-            style={{
-              padding: '0.375rem 0.75rem', borderRadius: 8,
-              border: '1px solid var(--accent)', background: 'transparent',
-              color: 'var(--accent)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
-            }}
-          >
-            {showNewSeries ? 'Cancel' : '+ New Series'}
-          </button>
-        </div>
-
-        {showNewSeries && (
-          <div style={{
-            background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12,
-            padding: '1rem', marginBottom: '1rem', display: 'flex', gap: '0.75rem', alignItems: 'flex-end',
-          }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '0.75rem', color: 'var(--fg-muted)', display: 'block', marginBottom: 4 }}>Name</label>
-              <input
-                value={newSeries.name}
-                onChange={e => setNewSeries({ ...newSeries, name: e.target.value })}
-                placeholder="e.g. Week in Review"
-                style={{
-                  width: '100%', fontSize: '0.875rem', padding: '6px 10px', borderRadius: 6,
-                  border: '1px solid var(--border)', background: 'var(--surface-hover)',
-                  color: 'var(--fg)', outline: 'none',
-                }}
-              />
-            </div>
-            <div style={{ flex: 2 }}>
-              <label style={{ fontSize: '0.75rem', color: 'var(--fg-muted)', display: 'block', marginBottom: 4 }}>Description</label>
-              <input
-                value={newSeries.description}
-                onChange={e => setNewSeries({ ...newSeries, description: e.target.value })}
-                placeholder="Brief description"
-                style={{
-                  width: '100%', fontSize: '0.875rem', padding: '6px 10px', borderRadius: 6,
-                  border: '1px solid var(--border)', background: 'var(--surface-hover)',
-                  color: 'var(--fg)', outline: 'none',
-                }}
-              />
-            </div>
-            <button
-              onClick={addSeries}
-              style={{
-                padding: '6px 16px', borderRadius: 6, border: 'none',
-                background: 'var(--accent)', color: '#fff', cursor: 'pointer',
-                fontSize: '0.875rem', fontWeight: 600, whiteSpace: 'nowrap',
-              }}
-            >
-              Add
-            </button>
-          </div>
-        )}
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {data.series.map(s => {
-            const seriesPosts = data.posts.filter(p => p.series === s.id);
-            return (
-              <div
-                key={s.id}
-                style={{
-                  background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8,
-                  padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                }}
-              >
-                <div>
-                  <span style={{ fontWeight: 600, color: 'var(--fg)', fontSize: '0.9rem' }}>{s.name}</span>
-                  <span style={{ color: 'var(--fg-muted)', fontSize: '0.8rem', marginLeft: '0.75rem' }}>
-                    {s.description}
-                  </span>
-                  <span style={{ color: 'var(--accent)', fontSize: '0.75rem', marginLeft: '0.75rem' }}>
-                    {seriesPosts.length} post{seriesPosts.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-                <button
-                  onClick={() => removeSeries(s.id)}
-                  style={{
-                    background: 'none', border: 'none', color: 'var(--fg-muted)', cursor: 'pointer',
-                    fontSize: '0.8rem', padding: '4px 8px',
-                  }}
-                  title="Remove series"
-                >
-                  Remove
-                </button>
-              </div>
-            );
-          })}
-          {data.series.length === 0 && (
-            <p style={{ color: 'var(--fg-muted)', fontSize: '0.875rem' }}>No series yet. Create one to group posts together.</p>
-          )}
-        </div>
-      </div>
 
       {/* Schedule settings */}
       <div style={{ marginTop: '3rem' }}>

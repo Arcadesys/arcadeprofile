@@ -6,8 +6,7 @@
       "scheduledDate": "2026-03-15",
       "tags": [
         "meta"
-      ],
-      "series": null
+      ]
     },
     {
       "slug": "week-in-review-2026-03-17",
@@ -15,8 +14,7 @@
       "scheduledDate": "2026-03-17",
       "tags": [
         "week-in-review"
-      ],
-      "series": "week-in-review"
+      ]
     },
     {
       "slug": "disposable-art",
@@ -27,15 +25,13 @@
         "ai",
         "furry",
         "culture"
-      ],
-      "series": "disposable-art-manifestos"
+      ]
     },
     {
       "slug": "the-social-singularity",
       "status": "scheduled",
       "scheduledDate": "2026-03-17",
-      "tags": [],
-      "series": null
+      "tags": []
     },
     {
       "slug": "the-preciousness-problem",
@@ -45,8 +41,7 @@
         "art",
         "history",
         "culture"
-      ],
-      "series": "disposable-art-manifestos"
+      ]
     },
     {
       "slug": "campfire-logic",
@@ -56,8 +51,7 @@
         "art",
         "music",
         "culture"
-      ],
-      "series": "disposable-art-manifestos"
+      ]
     },
     {
       "slug": "after-scarcity",
@@ -67,8 +61,7 @@
         "art",
         "economics",
         "culture"
-      ],
-      "series": "disposable-art-manifestos"
+      ]
     },
     {
       "slug": "i-revised-three-novels-last-week",
@@ -78,60 +71,43 @@
         "writing",
         "ai",
         "accessibility"
-      ],
-      "series": null
+      ]
     },
     {
       "slug": "paperclip-keeps-the-agents-together-2026-03-18",
-      "status": "scheduled",
+      "status": "draft",
       "scheduledDate": "2026-03-18",
-      "tags": [],
-      "series": null
+      "tags": []
     },
     {
       "slug": "ai-as-an-art-medium",
       "status": "draft",
       "scheduledDate": null,
-      "tags": [],
-      "series": null
+      "tags": []
     },
     {
       "slug": "gist-memory-is-not-a-bug",
       "status": "draft",
       "scheduledDate": null,
-      "tags": [],
-      "series": null
+      "tags": []
     },
     {
       "slug": "pull-not-push",
       "status": "published",
       "scheduledDate": null,
-      "tags": [],
-      "series": null
+      "tags": []
     },
     {
       "slug": "paperclip-isnt-an-ai-tool",
       "status": "draft",
       "scheduledDate": null,
-      "tags": [],
-      "series": null
-    }
-  ],
-  "series": [
-    {
-      "id": "week-in-review",
-      "name": "Week in Review",
-      "description": "Weekly recap of what was built, broken, and learned."
+      "tags": []
     },
     {
-      "id": "disposable-art-manifestos",
-      "name": "The Disposable Art Manifestos",
-      "description": "A four-part series on art, scarcity, and culture."
-    },
-    {
-      "id": "carl",
-      "name": "Carl",
-      "description": "Welcome to Floor-Mart."
+      "slug": "rabies-capitalism",
+      "status": "published",
+      "scheduledDate": null,
+      "tags": []
     }
   ],
   "settings": {

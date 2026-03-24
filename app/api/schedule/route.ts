@@ -31,7 +31,6 @@ export async function GET() {
       status: 'draft' as const,
       scheduledDate: null,
       tags: [],
-      series: null,
     }));
 
   // Collect all unique groups from blog posts
@@ -41,7 +40,6 @@ export async function GET() {
 
   return NextResponse.json({
     posts: [...merged, ...unscheduled],
-    series: schedule.series,
     settings: schedule.settings,
     groups,
   });
@@ -61,9 +59,7 @@ export async function PUT(request: NextRequest) {
       status: p.status,
       scheduledDate: p.scheduledDate,
       tags: p.tags || [],
-      series: p.series || null,
     })),
-    series: body.series || [],
     settings: body.settings || { publishDays: ['monday', 'tuesday', 'wednesday', 'thursday'], timezone: 'America/Chicago' },
   });
 

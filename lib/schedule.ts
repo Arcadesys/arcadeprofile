@@ -8,13 +8,6 @@ export interface ScheduledPost {
   status: 'draft' | 'scheduled' | 'published';
   scheduledDate: string | null;
   tags: string[];
-  series: string | null;
-}
-
-export interface Series {
-  id: string;
-  name: string;
-  description: string;
 }
 
 export interface ScheduleSettings {
@@ -24,7 +17,6 @@ export interface ScheduleSettings {
 
 export interface Schedule {
   posts: ScheduledPost[];
-  series: Series[];
   settings: ScheduleSettings;
 }
 
