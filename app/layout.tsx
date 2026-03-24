@@ -4,6 +4,9 @@ import ThemeProvider from './components/ThemeProvider';
 import ThemeToggle from './components/ThemeToggle';
 import SimpleAnalytics from './components/SimpleAnalytics';
 import SiteFooter from './components/SiteFooter';
+import { CosmosProvider } from './components/CosmosContext';
+import CosmicBackground from './components/CosmicBackground';
+
 export const metadata = {
   title: 'The Arcades',
   description: 'The Arcades - Personal site of Austen Tucker',
@@ -23,11 +26,14 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider>
-          <NavBar />
-          {children}
-          <SiteFooter />
-          <ThemeToggle />
-          <SimpleAnalytics />
+          <CosmosProvider>
+            <CosmicBackground />
+            <NavBar />
+            {children}
+            <SiteFooter />
+            <ThemeToggle />
+            <SimpleAnalytics />
+          </CosmosProvider>
         </ThemeProvider>
       </body>
     </html>

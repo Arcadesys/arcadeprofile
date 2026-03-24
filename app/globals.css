@@ -36,13 +36,7 @@
 
 html {
   color: var(--fg);
-  /* Solid base so the SVG reads like a horizon, not a translucent overlay. */
   background: var(--bg);
-  background-image: url('/images/bg-comps/midnightmoon.svg');
-  background-attachment: fixed;
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
 }
 
 body {
