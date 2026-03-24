@@ -73,8 +73,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Add tags to the contact
-    for (const tag of selectedTags) {
+    // Look up tag IDs by name and add them to the contact
+    for (const tagName of selectedTags) {
+      const tagSearchRes = await fetch(
+        `${API_URL}/api/3/tags?search=${encodeURIComponent(tagName)}`,
+        {
+          headers: { 'Api-Token': API_KEY },
+        }
+      );
+
+      if (!tagSearchRes.ok) continue;
+
+      const { tags: matchedTags } = await tagSearchRes.json();
+      const tagMatch = matchedTags?.find(
+        (t: { tag: string }) => t.tag.toLowerCase() === tagName.toLowerCase()
+      );
+
+      if (!tagMatch) continue;
+
       await fetch(`${API_URL}/api/3/contactTags`, {
         method: 'POST',
         headers: {
@@ -84,7 +100,7 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           contactTag: {
             contact: contact.id,
-            tag,
+            tag: tagMatch.id,
           },
         }),
       });
