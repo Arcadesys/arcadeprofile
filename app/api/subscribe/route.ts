@@ -6,6 +6,46 @@ const LIST_ID = process.env.ACTIVECAMPAIGN_LIST_ID || '1';
 
 const VALID_TAGS = ['fiction', 'tech', 'updates'];
 
+function acHeaders() {
+  return {
+    'Api-Token': API_KEY!,
+    'Content-Type': 'application/json',
+  };
+}
+
+/** Look up a tag by name; create it if it doesn't exist. Returns the numeric tag ID. */
+async function resolveTagId(tagName: string): Promise<string> {
+  // Search for existing tag
+  const searchRes = await fetch(
+    `${API_URL}/api/3/tags?search=${encodeURIComponent(tagName)}`,
+    { headers: acHeaders() }
+  );
+
+  if (searchRes.ok) {
+    const { tags } = await searchRes.json();
+    const match = tags?.find(
+      (t: { tag: string }) => t.tag.toLowerCase() === tagName.toLowerCase()
+    );
+    if (match) return match.id;
+  }
+
+  // Tag doesn't exist — create it
+  const createRes = await fetch(`${API_URL}/api/3/tags`, {
+    method: 'POST',
+    headers: acHeaders(),
+    body: JSON.stringify({
+      tag: { tag: tagName, tagType: 'contact' },
+    }),
+  });
+
+  if (!createRes.ok) {
+    throw new Error(`Failed to create tag "${tagName}": ${await createRes.text()}`);
+  }
+
+  const { tag } = await createRes.json();
+  return tag.id;
+}
+
 export async function POST(request: NextRequest) {
   if (!API_URL || !API_KEY) {
     return NextResponse.json(
@@ -28,10 +68,7 @@ export async function POST(request: NextRequest) {
     // Create or update the contact
     const contactRes = await fetch(`${API_URL}/api/3/contact/sync`, {
       method: 'POST',
-      headers: {
-        'Api-Token': API_KEY,
-        'Content-Type': 'application/json',
-      },
+      headers: acHeaders(),
       body: JSON.stringify({
         contact: { email },
       }),
@@ -51,10 +88,7 @@ export async function POST(request: NextRequest) {
     // Add the contact to the list
     const listRes = await fetch(`${API_URL}/api/3/contactLists`, {
       method: 'POST',
-      headers: {
-        'Api-Token': API_KEY,
-        'Content-Type': 'application/json',
-      },
+      headers: acHeaders(),
       body: JSON.stringify({
         contactList: {
           list: LIST_ID,
@@ -73,21 +107,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Add tags to the contact
-    for (const tag of selectedTags) {
-      await fetch(`${API_URL}/api/3/contactTags`, {
+    // Resolve tag names to IDs, then associate with the contact
+    const tagIds = await Promise.all(selectedTags.map(resolveTagId));
+
+    for (const tagId of tagIds) {
+      const tagRes = await fetch(`${API_URL}/api/3/contactTags`, {
         method: 'POST',
-        headers: {
-          'Api-Token': API_KEY,
-          'Content-Type': 'application/json',
-        },
+        headers: acHeaders(),
         body: JSON.stringify({
           contactTag: {
             contact: contact.id,
-            tag,
+            tag: tagId,
           },
         }),
       });
+
+      if (!tagRes.ok) {
+        console.error(`Failed to add tag ${tagId} to contact:`, await tagRes.text());
+      }
     }
 
     return NextResponse.json({ ok: true });

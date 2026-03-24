@@ -47,26 +47,45 @@ export default function SubscribeForm() {
   }
 
   return (
-    <div className="border rounded-lg bg-white dark:bg-gray-800 p-6 shadow-md">
-      <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
+    <div
+      className="rounded-xl p-6"
+      style={{
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        boxShadow: '0 0 30px var(--glow-pink)',
+        color: 'var(--fg)',
+      }}
+    >
+      <h3
+        className="text-lg font-semibold mb-2"
+        style={{ color: 'var(--fg)', textAlign: 'left', fontSize: '1.1em', margin: '0 0 0.5rem 0' }}
+      >
         Subscribe for updates
       </h3>
-      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+      <p
+        className="text-sm mb-4"
+        style={{ color: 'var(--fg-muted)', margin: '0 0 1rem 0' }}
+      >
         Get new posts delivered to your inbox. No spam, unsubscribe anytime.
       </p>
 
       {status === 'success' ? (
-        <p className="text-sm text-green-600 dark:text-green-400">{message}</p>
+        <p className="text-sm" style={{ color: 'var(--neon-pink)', margin: 0 }}>{message}</p>
       ) : (
         <form onSubmit={handleSubmit}>
           <div className="flex flex-wrap gap-3 mb-3">
             {TAG_OPTIONS.map(opt => (
-              <label key={opt.value} className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+              <label
+                key={opt.value}
+                className="flex items-center gap-1.5 text-sm cursor-pointer"
+                style={{ color: 'var(--fg-muted)' }}
+              >
                 <input
                   type="checkbox"
                   checked={tags.includes(opt.value)}
                   onChange={() => toggleTag(opt.value)}
-                  className="rounded border-gray-300 dark:border-gray-600"
+                  className="rounded"
+                  style={{ accentColor: 'var(--neon-pink)' }}
                 />
                 {opt.label}
               </label>
@@ -80,7 +99,12 @@ export default function SubscribeForm() {
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={status === 'loading'}
-              className="flex-1 px-3 py-2 border rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 disabled:opacity-50"
+              className="flex-1 px-3 py-2 rounded-lg text-sm disabled:opacity-50"
+              style={{
+                background: 'var(--btn-bg)',
+                color: 'var(--fg)',
+                border: '1px solid var(--border)',
+              }}
             />
             <button
               type="submit"
@@ -94,7 +118,7 @@ export default function SubscribeForm() {
       )}
 
       {status === 'error' && (
-        <p className="text-sm text-red-600 dark:text-red-400 mt-2">{message}</p>
+        <p className="text-sm mt-2" style={{ color: 'var(--accent)', margin: '0.5rem 0 0 0' }}>{message}</p>
       )}
     </div>
   );
