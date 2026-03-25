@@ -756,6 +756,15 @@ function ScheduleDashboard() {
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           {saving && <span style={{ color: 'var(--fg-muted)', fontSize: '0.875rem' }}>Saving...</span>}
           {error && <span style={{ color: '#ef4444', fontSize: '0.875rem' }}>{error}</span>}
+          <a
+            href="/admin/social"
+            style={{
+              color: 'var(--fg-muted)', fontSize: '0.85rem', textDecoration: 'none',
+              padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border)',
+            }}
+          >
+            Social Posts
+          </a>
         </div>
       </div>
 
