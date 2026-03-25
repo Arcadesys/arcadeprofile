@@ -181,27 +181,31 @@ export function getUngroupedPosts(): BlogPost[] {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
-export function getPostBySlug(slug: string): BlogPost | null {
-  // Check top-level first
+/** Returns the absolute file path and group (if any) for a blog post slug. */
+export function getPostFilePath(slug: string): { filePath: string; group?: string } | null {
   const topLevel = path.join(BLOG_DIR, `${slug}.mdx`);
   if (fs.existsSync(topLevel)) {
-    const raw = fs.readFileSync(topLevel, 'utf8');
-    const { data, content } = matter(raw);
-    return parsePost(slug, data, content, undefined);
+    return { filePath: topLevel };
   }
 
-  // Search subdirectories
   if (!fs.existsSync(BLOG_DIR)) return null;
   for (const entry of fs.readdirSync(BLOG_DIR, { withFileTypes: true })) {
     if (entry.isDirectory() && !entry.name.startsWith('.')) {
       const filePath = path.join(BLOG_DIR, entry.name, `${slug}.mdx`);
       if (fs.existsSync(filePath)) {
-        const raw = fs.readFileSync(filePath, 'utf8');
-        const { data, content } = matter(raw);
-        return parsePost(slug, data, content, entry.name);
+        return { filePath, group: entry.name };
       }
     }
   }
 
   return null;
+}
+
+export function getPostBySlug(slug: string): BlogPost | null {
+  const found = getPostFilePath(slug);
+  if (!found) return null;
+
+  const raw = fs.readFileSync(found.filePath, 'utf8');
+  const { data, content } = matter(raw);
+  return parsePost(slug, data, content, found.group);
 }

@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState, useCallback, useRef, useMemo, DragEvent, MouseEvent } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import PostEditor from './PostEditor';
 
 interface ScheduledPost {
   slug: string;
@@ -264,6 +265,7 @@ function ScheduleDashboard() {
     setPreviewExcluded(new Set());
   };
 
+  const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const [toast, setToast] = useState<{ message: string; onUndo: () => void; timer: ReturnType<typeof setTimeout> } | null>(null);
   const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -510,6 +512,7 @@ function ScheduleDashboard() {
 
       // Escape — close any overlay
       if (e.key === 'Escape') {
+        if (editingSlug) return; // PostEditor handles its own Escape
         if (showShortcuts) { setShowShortcuts(false); return; }
         if (confirmDialog) { setConfirmDialog(null); return; }
         if (toast) { dismissToast(); return; }
@@ -612,11 +615,17 @@ function ScheduleDashboard() {
         }
         return;
       }
+
+      // e — open editor
+      if (e.key === 'e') {
+        setEditingSlug(focused.slug);
+        return;
+      }
     };
 
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [data, filter, searchText, filterTags, filterGroup, focusedIndex, showShortcuts, confirmDialog, toast, saving]);
+  }, [data, filter, searchText, filterTags, filterGroup, focusedIndex, showShortcuts, confirmDialog, toast, saving, editingSlug]);
 
   const filteredPosts = useMemo((): ScheduledPost[] => {
     if (!data) return [];
@@ -1168,9 +1177,27 @@ function ScheduleDashboard() {
                     {/* Post content */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
-                        <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--fg)', margin: 0 }}>
+                        <h3
+                          onClick={(e) => { e.stopPropagation(); setEditingSlug(post.slug); }}
+                          style={{
+                            fontSize: '1rem', fontWeight: 600, color: 'var(--fg)', margin: 0,
+                            cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'var(--border)',
+                            textUnderlineOffset: '3px',
+                          }}
+                          title="Click to edit post"
+                        >
                           {post.title}
                         </h3>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setEditingSlug(post.slug); }}
+                          style={{
+                            fontSize: '0.65rem', padding: '2px 8px', borderRadius: 4,
+                            border: '1px solid var(--border)', background: 'transparent',
+                            color: 'var(--fg-muted)', cursor: 'pointer',
+                          }}
+                        >
+                          Edit
+                        </button>
                         <span style={{
                           fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em',
                           padding: '2px 8px', borderRadius: 4,
@@ -1628,6 +1655,15 @@ function ScheduleDashboard() {
         </div>
       )}
 
+      {/* Post editor slide-out panel */}
+      {editingSlug && (
+        <PostEditor
+          slug={editingSlug}
+          onClose={() => setEditingSlug(null)}
+          onSaved={() => { setEditingSlug(null); fetchData(); }}
+        />
+      )}
+
       {/* Keyboard shortcuts cheat sheet */}
       {showShortcuts && (
         <div style={{
@@ -1650,6 +1686,7 @@ function ScheduleDashboard() {
               ['k / ↑', 'Previous post'],
               ['s', 'Cycle status'],
               ['d', 'Open date picker'],
+              ['e', 'Edit post'],
               ['Space', 'Select / deselect post'],
               ['⌘A', 'Select all visible posts'],
               ['⌘S', 'Save'],

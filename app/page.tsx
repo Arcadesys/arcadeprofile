@@ -43,7 +43,6 @@ export default function Home() {
           maxWidth: "500px",
           margin: "0 auto",
         }}>
-          I use AI like a bandmate, not a crutch. This is what happens when you stop asking permission.
         </p>
       </section>
 
@@ -75,7 +74,7 @@ export default function Home() {
             &rarr; Making tools for people traditional tech forgot
           </li>
           <li style={{ lineHeight: 1.5 }}>
-            &rarr; Teaching myself what &ldquo;cat herder&rdquo; means when the cats are your own projects
+            &rarr; Teaching myself what &ldquo;product owner&rdquo; means when the product is my own life.
           </li>
         </ul>
       </section>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PROTECTED_PATHS = ['/admin', '/api/schedule'];
+const PROTECTED_PATHS = ['/admin', '/api/schedule', '/api/blog'];
 
 function isLocalhost(request: NextRequest): boolean {
   const host = request.headers.get('host') || '';
@@ -22,5 +22,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/schedule/:path*'],
+  matcher: ['/admin/:path*', '/api/schedule/:path*', '/api/blog/:path*'],
 };
