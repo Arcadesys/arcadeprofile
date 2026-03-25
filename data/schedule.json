@@ -18,8 +18,8 @@
     },
     {
       "slug": "disposable-art",
-      "status": "draft",
-      "scheduledDate": "2026-03-17",
+      "status": "scheduled",
+      "scheduledDate": "2026-03-31",
       "tags": [
         "art",
         "ai",
@@ -65,7 +65,7 @@
     },
     {
       "slug": "i-revised-three-novels-last-week",
-      "status": "published",
+      "status": "draft",
       "scheduledDate": "2026-03-17",
       "tags": [
         "writing",
@@ -93,8 +93,8 @@
     },
     {
       "slug": "pull-not-push",
-      "status": "published",
-      "scheduledDate": null,
+      "status": "scheduled",
+      "scheduledDate": "2026-03-27",
       "tags": []
     },
     {
@@ -106,7 +106,7 @@
     {
       "slug": "rabies-capitalism",
       "status": "published",
-      "scheduledDate": null,
+      "scheduledDate": "2026-03-24",
       "tags": []
     }
   ],
