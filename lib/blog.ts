@@ -2,14 +2,32 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { getAllStories, type StoryMeta } from './stories';
-import { readSchedule } from './schedule';
+import { readSchedule, writeSchedule } from './schedule';
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
 
-/** Returns the set of slugs that are NOT published according to schedule.json. */
+/** Returns the set of slugs that should NOT be shown on the site.
+ *  A post is visible if its status is 'published' OR if its status is
+ *  'scheduled' and its scheduledDate is today or in the past (using the
+ *  configured timezone). */
 function getDraftSlugs(): Set<string> {
   try {
     const schedule = readSchedule();
+    const tz = schedule.settings?.timezone || 'America/Chicago';
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz }); // YYYY-MM-DD
+
+    // Auto-promote scheduled posts whose date has arrived
+    let dirty = false;
+    for (const p of schedule.posts) {
+      if (p.status === 'scheduled' && p.scheduledDate && p.scheduledDate <= todayStr) {
+        p.status = 'published';
+        dirty = true;
+      }
+    }
+    if (dirty) {
+      writeSchedule(schedule);
+    }
+
     return new Set(
       schedule.posts
         .filter(p => p.status !== 'published')
