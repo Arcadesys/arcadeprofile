@@ -1,0 +1,76 @@
+---
+title: "Why AI Helps Juniors and Slows Down Seniors"
+date: "2026-03-26"
+excerpt: "The experience gap in AI-assisted coding isn't a bug in the tools. It's a feature of expertise itself."
+order: 2
+---
+
+# Why AI Helps Juniors and Slows Down Seniors
+
+Here's a finding that keeps showing up across every major study of AI-assisted development, regardless of methodology, sample size, or which tool they tested:
+
+Junior developers benefit more than senior ones. Sometimes dramatically more. And in certain conditions, senior developers get slower.
+
+This is not a temporary glitch. This is structural. It will hold even as the tools improve. Understanding why requires thinking about what expertise actually is and what happens when you insert a confident, fast, sometimes-wrong assistant into the middle of it.
+
+---
+
+The data is consistent enough to be boring at this point.
+
+[Peng et al. (2023)](https://arxiv.org/abs/2302.06590) ran ninety-five developers through an HTTP server implementation task with and without GitHub Copilot. The Copilot group finished 55.8% faster overall. But the gains weren't evenly distributed. Less experienced developers and those who coded more hours per day saw the largest improvements. The tool closed the gap between junior and senior performance.
+
+A year later, [Microsoft and MIT](https://mit-genai.pubpub.org/pub/v5iixksv) ran a field experiment with nearly two thousand developers across Microsoft and Accenture. Junior and short-tenured developers were more likely to adopt Copilot, more likely to keep using it, and more likely to accept its suggestions. They saw the biggest productivity bumps. Developers above median tenure showed no statistically significant increase in output.
+
+Then METR dropped the hammer. Sixteen experienced open-source developers, each working on repos they personally maintained, using Cursor Pro with Claude Sonnet. These were not juniors. These were the people who wrote the code. And they were [19% slower with AI assistance](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/) than without it.
+
+The developers themselves predicted AI would speed them up by 24%. After the study, they still believed it had sped them up by 20%. The gap between perception and measurement was as wide as the slowdown itself.
+
+---
+
+Why does this happen? The standard explanation is that the tools aren't good enough yet. Give it a year. Better models, better context windows, better integration. The gap will close.
+
+Maybe. But I think the standard explanation misses the structural part. The part that won't change even when the tools get dramatically better.
+
+Here's the thing about being good at something. Expertise isn't just knowing more. It's having built an internal model of the problem space that lets you skip steps. A senior developer reading a codebase doesn't process it line by line. They pattern-match. They see the architecture. They know which files matter and which ones don't. They've internalized the dependencies and the history and the reasons behind the weird parts.
+
+When you hand that person an AI assistant, you're not giving them a tool that operates on their internal model. You're giving them a tool that operates on the text. The AI doesn't know why the weird parts are weird. It doesn't know the history. It doesn't know that the function it's about to refactor was written that way on purpose because of a race condition that took three people two weeks to debug.
+
+So the senior developer has to do something they don't normally do: audit. They have to read the AI's output with the same care they'd give a junior developer's pull request. They have to check it against their internal model. They have to verify that the confident, fluent, syntactically perfect code doesn't break something subtle.
+
+That takes time. Often more time than just writing it themselves.
+
+---
+
+For the junior developer, the calculus is completely different.
+
+They don't have the internal model yet. They're building it. And the AI is a remarkably good scaffolding tool for someone who's still constructing their understanding of the problem space.
+
+Need to set up an HTTP server? The junior developer would spend forty-five minutes reading documentation and Stack Overflow posts. The AI generates a working skeleton in thirty seconds. Not because the AI is better than the documentation. Because the AI produces something the junior can immediately run, test, break, and learn from. The feedback loop is faster.
+
+The junior doesn't have to audit against an internal model that doesn't exist yet. They just have to ask: does it work? And if it does, they've learned something. If it doesn't, they've learned something else. Either way, they're moving.
+
+The Microsoft/MIT study found that onboarding time — measured by time to tenth pull request — was [cut in half](https://getdx.com/report/ai-assisted-engineering-q4-impact-report/) when developers used AI tools. That's not a productivity gain. That's an acceleration of the expertise-building process itself.
+
+---
+
+This creates an interesting structural asymmetry.
+
+AI tools flatten the skill curve. They pull the bottom up without pushing the top higher. In a team context, that means the average output increases while the peak output stays the same or drops. The distribution compresses.
+
+For a manager looking at aggregate metrics, this looks like a win. More PRs. More code merged. The team is "more productive." But the nature of the productivity has changed. More of it is AI-scaffolded junior work. Less of it is the senior-initiated architectural decisions, refactoring passes, and deep debugging that keep a codebase healthy over time.
+
+You don't see this in the weekly numbers. You see it six months later, when the technical debt catches up. When the codebase has grown 30% but nobody can explain why half the new code exists. When the senior developer who used to spend mornings writing features is now spending mornings reviewing AI-assisted PRs from three juniors who are each producing twice the volume they used to.
+
+---
+
+The experience gap isn't a failure of current AI tools. It's a reflection of what expertise does that AI can't — yet.
+
+Expertise compresses decision-making. It lets you skip the parts that don't matter and focus on the parts that do. An AI tool that can't see your mental model can't compress your decisions. It can only generate options. For someone who doesn't have a model yet, options are gold. For someone who already knows the answer, options are noise.
+
+The tools will get better. They'll learn codebases more deeply. They'll carry more context. They'll develop something closer to architectural awareness. When they do, the gap will narrow. But it won't disappear, because the underlying dynamic — expertise means you need less help, not more — is a property of skill itself, not a property of any particular tool.
+
+---
+
+If you're a senior developer reading this, the implication is uncomfortable but clear. The tools aren't for you the way they're for your junior colleagues. Not yet. Your job isn't to use AI the way a junior does — as a code generator. Your job is to use it the way a senior does — as a reviewer, a rubber duck, a search engine that speaks your programming language. The value for you is different, and it shows up in different metrics than lines of code.
+
+And if you're leading a team, the implication is even more important. When your juniors get faster and your seniors get slower, the temptation is to celebrate the productivity numbers and ignore the structural shift happening underneath. Don't. The numbers are real. The shift is real too. And the shift is the one that matters.
