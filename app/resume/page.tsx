@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Resume',
-  description: 'Professional resume of Austen Tucker-Crowder — Chief AI Transformation Officer, Program Manager, and Agile Coach.',
+  description: 'Professional resume of Austen Tucker-Crowder — AI Enablement and Transformation, Program Manager, and Agile Coach.',
   openGraph: {
     title: 'Resume — Austen Tucker-Crowder',
-    description: 'Chief AI Transformation Officer, Program Manager, and Agile Coach with 16+ years delivering customer-focused software solutions.',
+    description: 'AI Enablement and Transformation, Program Manager, and Agile Coach with 16+ years delivering customer-focused software solutions.',
     url: 'https://thearcades.me/resume',
   },
 };
@@ -73,7 +73,7 @@ export default function ResumePage() {
           Austen Tucker-Crowder
         </h1>
         <p style={{ color: "var(--fg-muted)", fontSize: "1.1rem", margin: "0 0 0.5rem" }}>
-          Chief AI Transformation Officer &middot; Program Manager &middot; Agile Coach
+          AI Enablement and Transformation &middot; Program Manager &middot; Agile Coach
         </p>
         <p style={{ color: "var(--fg-muted)", fontSize: "0.95rem", margin: "0 0 0.5rem" }}>
           Chicago, IL
@@ -91,7 +91,7 @@ export default function ResumePage() {
       <section style={{ marginBottom: "2.5rem" }}>
         <h2 style={sectionHeadingStyle}>Summary</h2>
         <p style={{ lineHeight: 1.8, margin: 0 }}>
-          Chief AI Transformation Officer, Program Manager, and Agile Coach with 16+ years
+          AI Enablement and Transformation, Program Manager, and Agile Coach with 16+ years
           delivering customer-focused software solutions. Currently leading ActiveCampaign&apos;s
           company-wide pivot from traditional marketing automation to an autonomous AI-first
           platform. I design facilitation methodologies, build AI-powered operational tooling,
@@ -121,7 +121,7 @@ export default function ResumePage() {
         <JobCard
           company="ActiveCampaign"
           location="Chicago, IL"
-          title="Chief AI Transformation Officer"
+          title="AI Enablement and Transformation"
           dates="06/2025 – Present"
           bullets={[
             "Coordinated full pivot from traditional marketing automation to autonomous AI-first marketing across three strategic pillars: Contextual AI, AI-First Marketing Campaigns, and AI Foundations & Data Intelligence",
