@@ -17,6 +17,16 @@ const nextConfig = {
         destination: '/did',
         permanent: false,
       },
+      {
+        source: '/series',
+        destination: '/blog',
+        permanent: true,
+      },
+      {
+        source: '/series/essay/:slug',
+        destination: '/blog/group/:slug',
+        permanent: true,
+      },
     ];
   },
 };

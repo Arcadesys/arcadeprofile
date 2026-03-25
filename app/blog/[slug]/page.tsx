@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { MDXRemote } from 'next-mdx-remote/rsc';
-import { getAllPosts, getPostBySlug } from '@/lib/blog';
-import { getEssaySeriesBySlug } from '@/lib/series';
+import { getAllPosts, getPostBySlug, getGroupBySlug } from '@/lib/blog';
 import type { Metadata } from 'next';
 
 export function generateStaticParams() {
@@ -35,35 +34,39 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   const post = getPostBySlug(params.slug);
   if (!post) notFound();
 
-  const essaySeries = post.series ? getEssaySeriesBySlug(post.series) : null;
-  const seriesTitle =
-    essaySeries?.title ??
-    post.seriesTitle ??
-    post.series?.replace(/-/g, ' ');
+  const group = post.group ? getGroupBySlug(post.group) : null;
+
+  // Find prev/next posts within the group
+  let prevPost = null;
+  let nextPost = null;
+  if (group) {
+    const idx = group.posts.findIndex(p => p.slug === post.slug);
+    if (idx > 0) prevPost = group.posts[idx - 1];
+    if (idx < group.posts.length - 1) nextPost = group.posts[idx + 1];
+  }
 
   return (
     <div className="w-full px-4 py-8">
       <div className="austenbox" style={{ margin: "0 auto", marginTop: "5%", marginBottom: "5%" }}>
         <article>
           <header className="mb-8">
-            {post.series && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+            {group && (
+              <p className="text-sm text-[var(--fg-muted)] mb-3">
                 <Link
-                  href={`/series/essay/${post.series}`}
-                  className="text-orange-600 dark:text-orange-400 hover:underline font-medium"
+                  href={`/blog/group/${group.slug}`}
+                  className="text-[var(--accent)] hover:underline font-medium"
                 >
-                  {seriesTitle}
+                  {group.title}
                 </Link>
-                {post.seriesPart != null && (
-                  <span className="text-gray-400 dark:text-gray-500">
-                    {' '}
-                    &middot; Part {post.seriesPart}
+                {post.order != null && (
+                  <span className="text-[var(--fg-muted)]">
+                    {' '}&middot; Part {post.order} of {group.posts.length}
                   </span>
                 )}
               </p>
             )}
             <h1 className="text-3xl font-bold mb-2 gaysparkles">{post.title}</h1>
-            <time className="text-sm text-gray-500 dark:text-gray-400">
+            <time className="text-sm text-[var(--fg-muted)]">
               {new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </time>
           </header>
@@ -89,9 +92,31 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             </aside>
           )}
 
-          <div className="mt-8 pt-4 border-t">
-            <Link href="/blog" className="button-link">
-              &larr; Back to Blog
+          {/* Prev / Next navigation within group */}
+          {group && (prevPost || nextPost) && (
+            <nav className="mt-8 pt-4 border-t border-[var(--border)] flex justify-between gap-4">
+              {prevPost ? (
+                <Link
+                  href={`/blog/${prevPost.slug}`}
+                  className="button-link text-sm"
+                >
+                  &larr; {prevPost.title}
+                </Link>
+              ) : <span />}
+              {nextPost ? (
+                <Link
+                  href={`/blog/${nextPost.slug}`}
+                  className="button-link text-sm text-right"
+                >
+                  {nextPost.title} &rarr;
+                </Link>
+              ) : <span />}
+            </nav>
+          )}
+
+          <div className="mt-8 pt-4 border-t border-[var(--border)]">
+            <Link href={group ? `/blog/group/${group.slug}` : '/blog'} className="button-link">
+              &larr; {group ? `Back to ${group.title}` : 'Back to Blog'}
             </Link>
           </div>
         </article>

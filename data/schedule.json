@@ -10,7 +10,7 @@
     },
     {
       "slug": "week-in-review-2026-03-17",
-      "status": "scheduled",
+      "status": "draft",
       "scheduledDate": "2026-04-01",
       "tags": [
         "week-in-review"
@@ -18,8 +18,8 @@
     },
     {
       "slug": "disposable-art",
-      "status": "scheduled",
-      "scheduledDate": "2026-03-31",
+      "status": "draft",
+      "scheduledDate": "2026-04-02",
       "tags": [
         "art",
         "ai",
@@ -29,13 +29,13 @@
     },
     {
       "slug": "the-social-singularity",
-      "status": "scheduled",
+      "status": "draft",
       "scheduledDate": "2026-04-01",
       "tags": []
     },
     {
       "slug": "the-preciousness-problem",
-      "status": "scheduled",
+      "status": "draft",
       "scheduledDate": "2026-03-27",
       "tags": [
         "art",
@@ -45,7 +45,7 @@
     },
     {
       "slug": "campfire-logic",
-      "status": "scheduled",
+      "status": "draft",
       "scheduledDate": "2026-04-01",
       "tags": [
         "art",
@@ -55,7 +55,7 @@
     },
     {
       "slug": "after-scarcity",
-      "status": "scheduled",
+      "status": "draft",
       "scheduledDate": "2026-04-01",
       "tags": [
         "art",
@@ -65,7 +65,7 @@
     },
     {
       "slug": "i-revised-three-novels-last-week",
-      "status": "scheduled",
+      "status": "draft",
       "scheduledDate": "2026-04-01",
       "tags": [
         "writing",
@@ -75,7 +75,7 @@
     },
     {
       "slug": "paperclip-keeps-the-agents-together-2026-03-18",
-      "status": "scheduled",
+      "status": "draft",
       "scheduledDate": "2026-04-01",
       "tags": []
     },
@@ -94,7 +94,7 @@
     {
       "slug": "pull-not-push",
       "status": "scheduled",
-      "scheduledDate": "2026-03-25",
+      "scheduledDate": "2026-04-01",
       "tags": []
     },
     {
@@ -105,8 +105,14 @@
     },
     {
       "slug": "rabies-capitalism",
-      "status": "published",
-      "scheduledDate": "2026-03-24",
+      "status": "scheduled",
+      "scheduledDate": "2026-04-01",
+      "tags": []
+    },
+    {
+      "slug": "carl",
+      "status": "draft",
+      "scheduledDate": null,
       "tags": []
     }
   ],

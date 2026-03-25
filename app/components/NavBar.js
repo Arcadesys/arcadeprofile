@@ -33,8 +33,7 @@ export default function NavBar() {
     { href: '/',          label: 'Home' },
     { href: '/previews',  label: 'Books' },
     { href: '/stories',   label: 'Stories' },
-    { href: '/series',    label: 'Series', prefixMatch: true },
-    { href: '/blog',      label: 'Blog' },
+    { href: '/blog',      label: 'Blog', prefixMatch: true },
     { href: '/portfolio', label: 'Tools' },
     { href: '/about',     label: 'About' },
     ...(typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname)

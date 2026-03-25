@@ -17,8 +17,8 @@ export default function StoryIndexPage({ params }: { params: { story: string } }
     <div className="w-full px-4 py-8">
       <div className="austenbox" style={{ margin: "0 auto", marginTop: "5%", marginBottom: "5%" }}>
         <div className="mb-8">
-          <Link href="/series" className="button-link inline-block mb-6">
-            &larr; All series
+          <Link href="/stories" className="button-link inline-block mb-6">
+            &larr; All stories
           </Link>
 
           <div className="flex flex-col sm:flex-row gap-6">
