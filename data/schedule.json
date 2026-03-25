@@ -10,8 +10,8 @@
     },
     {
       "slug": "week-in-review-2026-03-17",
-      "status": "published",
-      "scheduledDate": "2026-03-17",
+      "status": "scheduled",
+      "scheduledDate": "2026-04-01",
       "tags": [
         "week-in-review"
       ]
@@ -30,13 +30,13 @@
     {
       "slug": "the-social-singularity",
       "status": "scheduled",
-      "scheduledDate": "2026-03-17",
+      "scheduledDate": "2026-04-01",
       "tags": []
     },
     {
       "slug": "the-preciousness-problem",
-      "status": "draft",
-      "scheduledDate": "2026-03-17",
+      "status": "scheduled",
+      "scheduledDate": "2026-03-27",
       "tags": [
         "art",
         "history",
@@ -45,8 +45,8 @@
     },
     {
       "slug": "campfire-logic",
-      "status": "draft",
-      "scheduledDate": "2026-03-17",
+      "status": "scheduled",
+      "scheduledDate": "2026-04-01",
       "tags": [
         "art",
         "music",
@@ -55,8 +55,8 @@
     },
     {
       "slug": "after-scarcity",
-      "status": "draft",
-      "scheduledDate": "2026-03-17",
+      "status": "scheduled",
+      "scheduledDate": "2026-04-01",
       "tags": [
         "art",
         "economics",
@@ -65,8 +65,8 @@
     },
     {
       "slug": "i-revised-three-novels-last-week",
-      "status": "draft",
-      "scheduledDate": "2026-03-17",
+      "status": "scheduled",
+      "scheduledDate": "2026-04-01",
       "tags": [
         "writing",
         "ai",
@@ -75,8 +75,8 @@
     },
     {
       "slug": "paperclip-keeps-the-agents-together-2026-03-18",
-      "status": "draft",
-      "scheduledDate": "2026-03-18",
+      "status": "scheduled",
+      "scheduledDate": "2026-04-01",
       "tags": []
     },
     {
@@ -94,7 +94,7 @@
     {
       "slug": "pull-not-push",
       "status": "scheduled",
-      "scheduledDate": "2026-03-27",
+      "scheduledDate": "2026-03-25",
       "tags": []
     },
     {
