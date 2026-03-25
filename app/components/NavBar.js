@@ -36,6 +36,7 @@ export default function NavBar() {
     { href: '/stories',   label: 'Stories' },
     { href: '/blog',      label: 'Blog', prefixMatch: true },
     { href: '/portfolio', label: 'Tools' },
+    { href: '/resume',    label: 'Resume' },
     { href: '/about',     label: 'About' },
     ...(typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname)
       ? [{ href: '/admin/schedule', label: 'Schedule' }] : []),
