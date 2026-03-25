@@ -29,8 +29,8 @@
     },
     {
       "slug": "the-social-singularity",
-      "status": "draft",
-      "scheduledDate": "2026-04-01",
+      "status": "scheduled",
+      "scheduledDate": "2026-04-03",
       "tags": []
     },
     {
@@ -45,8 +45,8 @@
     },
     {
       "slug": "campfire-logic",
-      "status": "draft",
-      "scheduledDate": "2026-04-01",
+      "status": "scheduled",
+      "scheduledDate": "2026-03-30",
       "tags": [
         "art",
         "music",
@@ -94,7 +94,7 @@
     {
       "slug": "pull-not-push",
       "status": "scheduled",
-      "scheduledDate": "2026-03-27",
+      "scheduledDate": "2026-03-25",
       "tags": []
     },
     {

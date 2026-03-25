@@ -19,12 +19,12 @@ const nextConfig = {
       },
       {
         source: '/series',
-        destination: '/blog',
+        destination: '/writing',
         permanent: true,
       },
       {
         source: '/series/essay/:slug',
-        destination: '/blog/group/:slug',
+        destination: '/writing/group/:slug',
         permanent: true,
       },
     ];

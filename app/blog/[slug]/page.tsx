@@ -53,7 +53,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             {group && (
               <p className="text-sm text-[var(--fg-muted)] mb-3">
                 <Link
-                  href={`/blog/group/${group.slug}`}
+                  href={`/writing/group/${group.slug}`}
                   className="text-[var(--accent)] hover:underline font-medium"
                 >
                   {group.title}
@@ -115,7 +115,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
           )}
 
           <div className="mt-8 pt-4 border-t border-[var(--border)]">
-            <Link href={group ? `/blog/group/${group.slug}` : '/blog'} className="button-link">
+            <Link href={group ? `/writing/group/${group.slug}` : '/blog'} className="button-link">
               &larr; {group ? `Back to ${group.title}` : 'Back to Blog'}
             </Link>
           </div>

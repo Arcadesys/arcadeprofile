@@ -32,6 +32,7 @@ export default function NavBar() {
   const navLinks = [
     { href: '/',          label: 'Home' },
     { href: '/previews',  label: 'Books' },
+    { href: '/writing',   label: 'Writing', prefixMatch: true },
     { href: '/stories',   label: 'Stories' },
     { href: '/blog',      label: 'Blog', prefixMatch: true },
     { href: '/portfolio', label: 'Tools' },
