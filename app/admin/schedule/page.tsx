@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState, useCallback, useRef, useMemo, DragEvent, MouseEvent } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import PostEditor from './PostEditor';
+import SocialPanel from './SocialPanel';
 
 interface ScheduledPost {
   slug: string;
@@ -266,6 +267,7 @@ function ScheduleDashboard() {
   };
 
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
+  const [socialPost, setSocialPost] = useState<{ slug: string; title: string } | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ message: string; onConfirm: () => void } | null>(null);
   const [toast, setToast] = useState<{ message: string; onUndo: () => void; timer: ReturnType<typeof setTimeout> } | null>(null);
   const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -1198,6 +1200,16 @@ function ScheduleDashboard() {
                         >
                           Edit
                         </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setSocialPost({ slug: post.slug, title: post.title }); }}
+                          style={{
+                            fontSize: '0.65rem', padding: '2px 8px', borderRadius: 4,
+                            border: '1px solid #0085ff44', background: 'transparent',
+                            color: '#0085ff', cursor: 'pointer',
+                          }}
+                        >
+                          Social
+                        </button>
                         <span style={{
                           fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em',
                           padding: '2px 8px', borderRadius: 4,
@@ -1661,6 +1673,15 @@ function ScheduleDashboard() {
           slug={editingSlug}
           onClose={() => setEditingSlug(null)}
           onSaved={() => { setEditingSlug(null); fetchData(); }}
+        />
+      )}
+
+      {/* Social post panel */}
+      {socialPost && (
+        <SocialPanel
+          slug={socialPost.slug}
+          title={socialPost.title}
+          onClose={() => setSocialPost(null)}
         />
       )}
 
