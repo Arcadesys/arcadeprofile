@@ -2,8 +2,23 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { getAllStories, type StoryMeta } from './stories';
+import { readSchedule } from './schedule';
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
+
+/** Returns the set of slugs that are NOT published according to schedule.json. */
+function getDraftSlugs(): Set<string> {
+  try {
+    const schedule = readSchedule();
+    return new Set(
+      schedule.posts
+        .filter(p => p.status !== 'published')
+        .map(p => p.slug)
+    );
+  } catch {
+    return new Set();
+  }
+}
 
 function parseOptionalInt(raw: unknown): number | undefined {
   if (typeof raw === 'number' && !Number.isNaN(raw)) return raw;
@@ -37,6 +52,7 @@ export interface Group {
   slug: string;
   title: string;
   description?: string;
+  tags: string[];
   posts: BlogPost[];
 }
 
@@ -79,8 +95,9 @@ export function getAllPosts(): BlogPost[] {
     }
   }
 
+  const drafts = getDraftSlugs();
   return posts
-    .filter(p => p.date)
+    .filter(p => p.date && !drafts.has(p.slug))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
@@ -99,7 +116,7 @@ function parsePost(slug: string, data: Record<string, unknown>, content: string,
 }
 
 /** Read optional _group.json metadata from a group folder. */
-function readGroupMeta(groupDir: string, slug: string): { title: string; description?: string } {
+function readGroupMeta(groupDir: string, slug: string): { title: string; description?: string; tags: string[] } {
   const metaPath = path.join(groupDir, '_group.json');
   if (fs.existsSync(metaPath)) {
     try {
@@ -107,10 +124,11 @@ function readGroupMeta(groupDir: string, slug: string): { title: string; descrip
       return {
         title: typeof raw.title === 'string' ? raw.title : slugToTitle(slug),
         description: typeof raw.description === 'string' ? raw.description : undefined,
+        tags: Array.isArray(raw.tags) ? raw.tags : [],
       };
     } catch { /* fall through */ }
   }
-  return { title: slugToTitle(slug) };
+  return { title: slugToTitle(slug), tags: [] };
 }
 
 function slugToTitle(slug: string): string {
@@ -120,6 +138,7 @@ function slugToTitle(slug: string): string {
 export function getAllGroups(): Group[] {
   if (!fs.existsSync(BLOG_DIR)) return [];
 
+  const drafts = getDraftSlugs();
   const groups: Group[] = [];
 
   for (const entry of fs.readdirSync(BLOG_DIR, { withFileTypes: true })) {
@@ -134,7 +153,10 @@ export function getAllGroups(): Group[] {
         const slug = file.replace('.mdx', '');
         const raw = fs.readFileSync(path.join(groupDir, file), 'utf8');
         const { data, content } = matter(raw);
-        posts.push(parsePost(slug, data, content, entry.name));
+        const post = parsePost(slug, data, content, entry.name);
+        if (!drafts.has(slug)) {
+          posts.push(post);
+        }
       }
     }
 
@@ -147,7 +169,7 @@ export function getAllGroups(): Group[] {
     });
 
     if (posts.length > 0) {
-      groups.push({ slug: entry.name, title: meta.title, description: meta.description, posts });
+      groups.push({ slug: entry.name, title: meta.title, description: meta.description, tags: meta.tags, posts });
     }
   }
 
@@ -176,8 +198,9 @@ export function getUngroupedPosts(): BlogPost[] {
     }
   }
 
+  const drafts = getDraftSlugs();
   return posts
-    .filter(p => p.date)
+    .filter(p => p.date && !drafts.has(p.slug))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
@@ -202,6 +225,8 @@ export function getPostFilePath(slug: string): { filePath: string; group?: strin
 }
 
 export function getPostBySlug(slug: string): BlogPost | null {
+  if (getDraftSlugs().has(slug)) return null;
+
   const found = getPostFilePath(slug);
   if (!found) return null;
 
