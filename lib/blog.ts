@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { getAllStories, type StoryMeta } from './stories';
 import { readSchedule, writeSchedule } from './schedule';
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
@@ -16,11 +15,15 @@ function getDraftSlugs(): Set<string> {
     const tz = schedule.settings?.timezone || 'America/Chicago';
     const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz }); // YYYY-MM-DD
 
-    // Auto-promote scheduled posts whose date has arrived
+    // Auto-promote scheduled posts whose date has arrived,
+    // and demote published posts whose date is in the future
     let dirty = false;
     for (const p of schedule.posts) {
       if (p.status === 'scheduled' && p.scheduledDate && p.scheduledDate <= todayStr) {
         p.status = 'published';
+        dirty = true;
+      } else if (p.status === 'published' && p.scheduledDate && p.scheduledDate > todayStr) {
+        p.status = 'scheduled';
         dirty = true;
       }
     }
@@ -72,21 +75,6 @@ export interface Group {
   description?: string;
   tags: string[];
   posts: BlogPost[];
-}
-
-export type FeedItem =
-  | { type: 'post'; data: BlogPost }
-  | { type: 'story'; data: StoryMeta };
-
-export function getFeed(): FeedItem[] {
-  const posts: FeedItem[] = getAllPosts().map(p => ({ type: 'post', data: p }));
-  const stories: FeedItem[] = getAllStories().map(s => ({ type: 'story', data: s }));
-
-  return [...posts, ...stories].sort((a, b) => {
-    const dateA = a.type === 'post' ? a.data.date : a.data.latestChapterDate;
-    const dateB = b.type === 'post' ? b.data.date : b.data.latestChapterDate;
-    return new Date(dateB).getTime() - new Date(dateA).getTime();
-  });
 }
 
 export function getAllPosts(): BlogPost[] {

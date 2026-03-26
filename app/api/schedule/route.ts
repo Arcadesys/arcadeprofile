@@ -53,10 +53,16 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid schedule data' }, { status: 400 });
   }
 
+  const tz = body.settings?.timezone || 'America/Chicago';
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz }); // YYYY-MM-DD
+
   writeSchedule({
     posts: body.posts.map(p => ({
       slug: p.slug,
-      status: p.status,
+      // Never allow "published" status if the scheduled date is in the future
+      status: p.status === 'published' && p.scheduledDate && p.scheduledDate > todayStr
+        ? 'scheduled'
+        : p.status,
       scheduledDate: p.scheduledDate,
       tags: p.tags || [],
     })),

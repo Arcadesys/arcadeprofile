@@ -192,9 +192,14 @@ function ScheduleDashboard() {
 
   const applyBulkStatus = () => {
     if (!data || !bulkStatus || selectedSlugs.size === 0) return;
-    const posts = data.posts.map(p =>
-      selectedSlugs.has(p.slug) ? { ...p, status: bulkStatus as ScheduledPost['status'] } : p
-    );
+    const posts = data.posts.map(p => {
+      if (!selectedSlugs.has(p.slug)) return p;
+      // Never allow "published" status if the scheduled date is in the future
+      const effectiveStatus = bulkStatus === 'published' && isFutureDated(p)
+        ? 'scheduled' as const
+        : bulkStatus as ScheduledPost['status'];
+      return { ...p, status: effectiveStatus };
+    });
     const updated = { ...data, posts };
     setData(updated);
     save(updated);
@@ -397,8 +402,20 @@ function ScheduleDashboard() {
     return () => window.removeEventListener('beforeunload', handler);
   }, [saving]);
 
+  const isFutureDated = (post: ScheduledPost) => {
+    if (!post.scheduledDate) return false;
+    const tz = data?.settings?.timezone || 'America/Chicago';
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz });
+    return post.scheduledDate > todayStr;
+  };
+
   const updatePostStatus = (slug: string, status: ScheduledPost['status']) => {
     if (!data) return;
+    const post = data.posts.find(p => p.slug === slug);
+    // Never allow "published" status if the scheduled date is in the future
+    if (status === 'published' && post && isFutureDated(post)) {
+      status = 'scheduled';
+    }
     const posts = data.posts.map(p => p.slug === slug ? { ...p, status } : p);
     const updated = { ...data, posts };
     setData(updated);
@@ -599,9 +616,11 @@ function ScheduleDashboard() {
         return;
       }
 
-      // s — cycle status
+      // s — cycle status (skip 'published' for future-dated posts)
       if (e.key === 's') {
-        const cycle: ScheduledPost['status'][] = ['draft', 'scheduled', 'published'];
+        const cycle: ScheduledPost['status'][] = isFutureDated(focused)
+          ? ['draft', 'scheduled']
+          : ['draft', 'scheduled', 'published'];
         const nextStatus = cycle[(cycle.indexOf(focused.status) + 1) % cycle.length];
         updatePostStatus(focused.slug, nextStatus);
         return;
