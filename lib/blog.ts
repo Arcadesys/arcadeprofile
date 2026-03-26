@@ -5,6 +5,22 @@ import { readSchedule, writeSchedule } from './schedule';
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
 
+function getTodayStrInTz(timeZone: string): string {
+  // en-CA yields YYYY-MM-DD
+  return new Date().toLocaleDateString('en-CA', { timeZone });
+}
+
+function normalizeDateKey(raw: string): string {
+  // Accept "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm..." and normalize to YYYY-MM-DD.
+  const m = raw.match(/^(\d{4}-\d{2}-\d{2})/);
+  return m ? m[1] : raw;
+}
+
+function isFutureDated(dateStr: string, todayStr: string): boolean {
+  const d = normalizeDateKey(dateStr);
+  return d !== '' && d > todayStr;
+}
+
 /** Returns the set of slugs that should NOT be shown on the site.
  *  A post is visible if its status is 'published' OR if its status is
  *  'scheduled' and its scheduledDate is today or in the past (using the
@@ -13,7 +29,7 @@ function getDraftSlugs(): Set<string> {
   try {
     const schedule = readSchedule();
     const tz = schedule.settings?.timezone || 'America/Chicago';
-    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz }); // YYYY-MM-DD
+    const todayStr = getTodayStrInTz(tz);
 
     // Auto-promote scheduled posts whose date has arrived,
     // and demote published posts whose date is in the future
@@ -102,8 +118,10 @@ export function getAllPosts(): BlogPost[] {
   }
 
   const drafts = getDraftSlugs();
+  const tz = readSchedule().settings?.timezone || 'America/Chicago';
+  const todayStr = getTodayStrInTz(tz);
   return posts
-    .filter(p => p.date && !drafts.has(p.slug))
+    .filter(p => p.date && !drafts.has(p.slug) && !isFutureDated(p.date, todayStr))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
@@ -145,6 +163,8 @@ export function getAllGroups(): Group[] {
   if (!fs.existsSync(BLOG_DIR)) return [];
 
   const drafts = getDraftSlugs();
+  const tz = readSchedule().settings?.timezone || 'America/Chicago';
+  const todayStr = getTodayStrInTz(tz);
   const groups: Group[] = [];
 
   for (const entry of fs.readdirSync(BLOG_DIR, { withFileTypes: true })) {
@@ -160,7 +180,7 @@ export function getAllGroups(): Group[] {
         const raw = fs.readFileSync(path.join(groupDir, file), 'utf8');
         const { data, content } = matter(raw);
         const post = parsePost(slug, data, content, entry.name);
-        if (!drafts.has(slug)) {
+        if (!drafts.has(slug) && !isFutureDated(post.date, todayStr)) {
           posts.push(post);
         }
       }
@@ -205,8 +225,10 @@ export function getUngroupedPosts(): BlogPost[] {
   }
 
   const drafts = getDraftSlugs();
+  const tz = readSchedule().settings?.timezone || 'America/Chicago';
+  const todayStr = getTodayStrInTz(tz);
   return posts
-    .filter(p => p.date && !drafts.has(p.slug))
+    .filter(p => p.date && !drafts.has(p.slug) && !isFutureDated(p.date, todayStr))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
@@ -238,5 +260,9 @@ export function getPostBySlug(slug: string): BlogPost | null {
 
   const raw = fs.readFileSync(found.filePath, 'utf8');
   const { data, content } = matter(raw);
-  return parsePost(slug, data, content, found.group);
+  const post = parsePost(slug, data, content, found.group);
+  const tz = readSchedule().settings?.timezone || 'America/Chicago';
+  const todayStr = getTodayStrInTz(tz);
+  if (isFutureDated(post.date, todayStr)) return null;
+  return post;
 }
