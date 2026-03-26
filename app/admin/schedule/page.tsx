@@ -778,6 +778,22 @@ function ScheduleDashboard() {
           {saving && <span style={{ color: 'var(--fg-muted)', fontSize: '0.875rem' }}>Saving...</span>}
           {error && <span style={{ color: '#ef4444', fontSize: '0.875rem' }}>{error}</span>}
           <a
+            href="/admin/editor/new"
+            style={{
+              padding: '0.5rem 1rem',
+              borderRadius: 8,
+              border: 'none',
+              background: 'var(--accent)',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              textDecoration: 'none',
+            }}
+          >
+            + New Post
+          </a>
+          <a
             href="/admin/social"
             style={{
               color: 'var(--fg-muted)', fontSize: '0.85rem', textDecoration: 'none',
@@ -1218,16 +1234,17 @@ function ScheduleDashboard() {
                         >
                           {post.title}
                         </h3>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setEditingSlug(post.slug); }}
+                        <a
+                          href={`/admin/editor/${post.slug}`}
+                          onClick={(e) => e.stopPropagation()}
                           style={{
                             fontSize: '0.65rem', padding: '2px 8px', borderRadius: 4,
                             border: '1px solid var(--border)', background: 'transparent',
-                            color: 'var(--fg-muted)', cursor: 'pointer',
+                            color: 'var(--fg-muted)', cursor: 'pointer', textDecoration: 'none',
                           }}
                         >
                           Edit
-                        </button>
+                        </a>
                         <button
                           onClick={(e) => { e.stopPropagation(); setSocialPost({ slug: post.slug, title: post.title }); }}
                           style={{
