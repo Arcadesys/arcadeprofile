@@ -28,7 +28,7 @@ interface PostGunEditorProps {
   slug: string | null; // null = new post
 }
 
-type EditorMode = 'write' | 'preview';
+type EditorMode = 'write' | 'split' | 'preview';
 
 const CHANNEL_LABELS: Record<string, string> = {
   bluesky: 'Bluesky',
@@ -318,33 +318,97 @@ export default function PostGunEditor({ slug }: PostGunEditorProps) {
     return () => window.removeEventListener('keydown', handler, true);
   }, [save, router]);
 
-  // Simple markdown to HTML for preview
-  const renderPreview = (md: string) => {
-    let html = md
-      // Code blocks (must come before inline code)
-      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
-      // Headings
-      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-      // Bold and italic
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/_(.+?)_/g, '<em>$1</em>')
-      // Inline code
-      .replace(/`(.+?)`/g, '<code style="background:var(--surface-hover);padding:2px 6px;border-radius:4px;font-size:0.85em">$1</code>')
-      // Links
-      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" style="color:var(--accent)">$1</a>')
-      // Blockquotes
-      .replace(/^> (.+)$/gm, '<blockquote style="border-left:3px solid var(--accent);padding-left:1rem;color:var(--fg-muted);margin:0.5rem 0">$1</blockquote>')
-      // Unordered lists
-      .replace(/^- (.+)$/gm, '<li>$1</li>')
-      // Paragraphs (double newline)
-      .replace(/\n\n/g, '</p><p>')
-      // Single newlines to <br>
-      .replace(/\n/g, '<br>');
+  // Debounced preview content for performance
+  const [previewHtml, setPreviewHtml] = useState('');
+  const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    return `<p>${html}</p>`;
+  const renderPreview = (md: string) => {
+    // Escape HTML first to prevent XSS
+    let html = md
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // Code blocks (must come before inline transforms)
+    html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_m, lang, code) => {
+      return `<pre style="background:var(--surface);padding:1rem;border-radius:8px;overflow-x:auto;margin:1.5em auto;max-width:75ch"><code>${code.trim()}</code></pre>`;
+    });
+
+    // Horizontal rules
+    html = html.replace(/^---$/gm, '<hr>');
+
+    // Headings
+    html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+    // Images
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:8px;margin:1em auto;display:block">');
+
+    // Bold and italic (order matters)
+    html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/g, '<em>$1</em>');
+    html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+
+    // Inline code
+    html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+
+    // Links
+    html = html.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+
+    // Blockquotes (consecutive lines)
+    html = html.replace(/(?:^&gt; (.+)$\n?)+/gm, (match) => {
+      const content = match.replace(/^&gt; /gm, '').trim();
+      return `<blockquote>${content}</blockquote>`;
+    });
+
+    // Unordered lists (consecutive lines)
+    html = html.replace(/(?:^- (.+)$\n?)+/gm, (match) => {
+      const items = match.trim().split('\n').map(line => {
+        const content = line.replace(/^- /, '');
+        return `<li>${content}</li>`;
+      }).join('');
+      return `<ul>${items}</ul>`;
+    });
+
+    // Ordered lists (consecutive lines)
+    html = html.replace(/(?:^\d+\. (.+)$\n?)+/gm, (match) => {
+      const items = match.trim().split('\n').map(line => {
+        const content = line.replace(/^\d+\. /, '');
+        return `<li>${content}</li>`;
+      }).join('');
+      return `<ol>${items}</ol>`;
+    });
+
+    // JSX/MDX component placeholders
+    html = html.replace(/&lt;(\w+)([^&]*?)\/&gt;/g,
+      '<div style="padding:0.75rem 1rem;border:1px dashed var(--border);border-radius:8px;color:var(--fg-muted);font-size:0.85rem;margin:1em auto;max-width:75ch">&lt;$1 /&gt;</div>');
+    html = html.replace(/&lt;(\w+)([^&]*?)&gt;([\s\S]*?)&lt;\/\1&gt;/g,
+      '<div style="padding:0.75rem 1rem;border:1px dashed var(--border);border-radius:8px;color:var(--fg-muted);font-size:0.85rem;margin:1em auto;max-width:75ch">&lt;$1&gt;$3&lt;/$1&gt;</div>');
+
+    // Paragraphs: split on double newlines, wrap non-block content in <p>
+    const blocks = html.split(/\n\n+/);
+    html = blocks.map(block => {
+      const trimmed = block.trim();
+      if (!trimmed) return '';
+      if (/^<(h[1-6]|pre|blockquote|ul|ol|hr|div|img)/.test(trimmed)) return trimmed;
+      return `<p>${trimmed.replace(/\n/g, '<br>')}</p>`;
+    }).join('\n');
+
+    return html;
   };
+
+  // Update preview with debounce
+  useEffect(() => {
+    if (mode === 'write') return;
+    if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
+    previewTimerRef.current = setTimeout(() => {
+      setPreviewHtml(renderPreview(body));
+    }, 150);
+    return () => { if (previewTimerRef.current) clearTimeout(previewTimerRef.current); };
+  }, [body, mode]);
 
   const inputStyle = {
     fontSize: '0.85rem',
@@ -660,88 +724,99 @@ export default function PostGunEditor({ slug }: PostGunEditorProps) {
               overflow: 'hidden',
               border: '1px solid var(--border)',
             }}>
-              <button
-                onClick={() => setMode('write')}
-                style={{
-                  padding: '4px 12px',
-                  border: 'none',
-                  background: mode === 'write' ? 'var(--accent)' : 'transparent',
-                  color: mode === 'write' ? '#fff' : 'var(--fg-muted)',
-                  cursor: 'pointer',
-                  fontSize: '0.75rem',
-                  fontWeight: 500,
-                }}
-              >
-                Write
-              </button>
-              <button
-                onClick={() => setMode('preview')}
-                style={{
-                  padding: '4px 12px',
-                  border: 'none',
-                  borderLeft: '1px solid var(--border)',
-                  background: mode === 'preview' ? 'var(--accent)' : 'transparent',
-                  color: mode === 'preview' ? '#fff' : 'var(--fg-muted)',
-                  cursor: 'pointer',
-                  fontSize: '0.75rem',
-                  fontWeight: 500,
-                }}
-              >
-                Preview
-              </button>
+              {(['write', 'split', 'preview'] as EditorMode[]).map((m, i) => (
+                <button
+                  key={m}
+                  onClick={() => setMode(m)}
+                  style={{
+                    padding: '4px 12px',
+                    border: 'none',
+                    borderLeft: i > 0 ? '1px solid var(--border)' : 'none',
+                    background: mode === m ? 'var(--accent)' : 'transparent',
+                    color: mode === m ? '#fff' : 'var(--fg-muted)',
+                    cursor: 'pointer',
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    textTransform: 'capitalize',
+                  }}
+                >
+                  {m}
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Editor / Preview content */}
-          {mode === 'write' ? (
-            <textarea
-              ref={textareaRef}
-              value={body}
-              onChange={e => updateBody(e.target.value)}
-              style={{
-                flex: 1,
-                resize: 'none',
-                padding: '1.5rem',
-                border: 'none',
-                background: 'var(--bg)',
-                color: 'var(--fg)',
-                outline: 'none',
-                fontFamily: "'SF Mono', 'Fira Code', 'Consolas', monospace",
-                fontSize: '0.85rem',
-                lineHeight: 1.7,
-                tabSize: 2,
-              }}
-              placeholder="Start writing..."
-              spellCheck={false}
-              onKeyDown={e => {
-                // Tab inserts spaces instead of changing focus
-                if (e.key === 'Tab') {
-                  e.preventDefault();
-                  const start = e.currentTarget.selectionStart;
-                  const end = e.currentTarget.selectionEnd;
-                  const newVal = body.slice(0, start) + '  ' + body.slice(end);
-                  setBody(newVal);
-                  setDirty(true);
-                  requestAnimationFrame(() => {
-                    e.currentTarget.setSelectionRange(start + 2, start + 2);
-                  });
-                }
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                flex: 1,
-                padding: '1.5rem',
-                overflowY: 'auto',
-                fontSize: '0.95rem',
-                lineHeight: 1.7,
-                color: 'var(--fg)',
-              }}
-              className="prose prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: renderPreview(body) }}
-            />
-          )}
+          <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+            {/* Editor pane */}
+            {mode !== 'preview' && (
+              <textarea
+                ref={textareaRef}
+                value={body}
+                onChange={e => updateBody(e.target.value)}
+                style={{
+                  flex: 1,
+                  resize: 'none',
+                  padding: '1.5rem',
+                  border: 'none',
+                  borderRight: mode === 'split' ? '1px solid var(--border)' : 'none',
+                  background: 'var(--bg)',
+                  color: 'var(--fg)',
+                  outline: 'none',
+                  fontFamily: "'SF Mono', 'Fira Code', 'Consolas', monospace",
+                  fontSize: '0.85rem',
+                  lineHeight: 1.7,
+                  tabSize: 2,
+                }}
+                placeholder="Start writing..."
+                spellCheck={false}
+                onKeyDown={e => {
+                  if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const start = e.currentTarget.selectionStart;
+                    const end = e.currentTarget.selectionEnd;
+                    const newVal = body.slice(0, start) + '  ' + body.slice(end);
+                    setBody(newVal);
+                    setDirty(true);
+                    requestAnimationFrame(() => {
+                      e.currentTarget.setSelectionRange(start + 2, start + 2);
+                    });
+                  }
+                }}
+              />
+            )}
+
+            {/* Preview pane */}
+            {mode !== 'write' && (
+              <div
+                style={{
+                  flex: 1,
+                  overflowY: 'auto',
+                  background: 'var(--bg)',
+                }}
+              >
+                <div style={{ padding: '2rem 1.5rem', maxWidth: mode === 'preview' ? 800 : undefined, margin: mode === 'preview' ? '0 auto' : undefined }}>
+                  {/* Post header preview */}
+                  <header style={{ marginBottom: '2rem' }}>
+                    <h1 className="gaysparkles" style={{ fontSize: '1.875rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--fg)' }}>
+                      {frontmatter.title || 'Untitled'}
+                    </h1>
+                    {frontmatter.date && (
+                      <time style={{ fontSize: '0.875rem', color: 'var(--fg-muted)' }}>
+                        {new Date(frontmatter.date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </time>
+                    )}
+                  </header>
+
+                  {/* Rendered body */}
+                  <div
+                    className="prose prose-lg dark:prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{ __html: previewHtml }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
