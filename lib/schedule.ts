@@ -5,7 +5,7 @@ const SCHEDULE_PATH = path.join(process.cwd(), 'data', 'schedule.json');
 
 export interface ScheduledPost {
   slug: string;
-  status: 'draft' | 'scheduled' | 'published';
+  status: 'draft' | 'scheduled' | 'published' | 'sent';
   scheduledDate: string | null;
   tags: string[];
 }

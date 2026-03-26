@@ -10,7 +10,7 @@ interface ScheduledPost {
   title: string;
   excerpt: string;
   date: string;
-  status: 'draft' | 'scheduled' | 'published';
+  status: 'draft' | 'scheduled' | 'published' | 'sent';
   scheduledDate: string | null;
   tags: string[];
   group: string | null;
@@ -31,6 +31,7 @@ const STATUS_COLORS: Record<string, string> = {
   draft: '#ff8a00',
   scheduled: '#ff3cac',
   published: '#4ade80',
+  sent: '#60a5fa',
 };
 
 const DAY_OPTIONS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -68,7 +69,7 @@ const WEEKDAY_HEADERS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const SCHEDULE_URL_KEYS = ['status', 'q', 'tags', 'group'] as const;
 
 function buildScheduleSearchParams(
-  filter: 'all' | 'draft' | 'scheduled' | 'published',
+  filter: 'all' | 'draft' | 'scheduled' | 'published' | 'sent',
   searchText: string,
   filterTags: string[],
   filterGroup: string
@@ -83,7 +84,7 @@ function buildScheduleSearchParams(
 
 function scheduleUrlMatchesFilters(
   sp: { get: (key: string) => string | null },
-  filter: 'all' | 'draft' | 'scheduled' | 'published',
+  filter: 'all' | 'draft' | 'scheduled' | 'published' | 'sent',
   searchText: string,
   filterTags: string[],
   filterGroup: string
@@ -117,9 +118,9 @@ function ScheduleDashboard() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [filter, setFilter] = useState<'all' | 'draft' | 'scheduled' | 'published'>(() => {
+  const [filter, setFilter] = useState<'all' | 'draft' | 'scheduled' | 'published' | 'sent'>(() => {
     const s = searchParams.get('status');
-    return s === 'draft' || s === 'scheduled' || s === 'published' ? s : 'all';
+    return s === 'draft' || s === 'scheduled' || s === 'published' || s === 'sent' ? s : 'all';
   });
   const [searchText, setSearchText] = useState(() => searchParams.get('q') || '');
   const [filterTags, setFilterTags] = useState<string[]>(() => {
@@ -620,7 +621,7 @@ function ScheduleDashboard() {
       if (e.key === 's') {
         const cycle: ScheduledPost['status'][] = isFutureDated(focused)
           ? ['draft', 'scheduled']
-          : ['draft', 'scheduled', 'published'];
+          : ['draft', 'scheduled', 'published', 'sent'];
         const nextStatus = cycle[(cycle.indexOf(focused.status) + 1) % cycle.length];
         updatePostStatus(focused.slug, nextStatus);
         return;
@@ -713,6 +714,7 @@ function ScheduleDashboard() {
   const draftCount = data.posts.filter(p => p.status === 'draft').length;
   const scheduledCount = data.posts.filter(p => p.status === 'scheduled').length;
   const publishedCount = data.posts.filter(p => p.status === 'published').length;
+  const sentCount = data.posts.filter(p => p.status === 'sent').length;
 
   // Calendar helpers
   const calendarDays = getCalendarDays(calendarMonth.year, calendarMonth.month);
@@ -836,6 +838,7 @@ function ScheduleDashboard() {
             { label: 'Drafts', value: 'draft', count: draftCount },
             { label: 'Scheduled', value: 'scheduled', count: scheduledCount },
             { label: 'Published', value: 'published', count: publishedCount },
+            { label: 'Sent', value: 'sent', count: sentCount },
           ].map(f => (
             <button
               key={f.value}
@@ -1022,6 +1025,7 @@ function ScheduleDashboard() {
               <option value="draft">Draft</option>
               <option value="scheduled">Scheduled</option>
               <option value="published">Published</option>
+              <option value="sent">Sent</option>
             </select>
             <button
               onClick={applyBulkStatus}

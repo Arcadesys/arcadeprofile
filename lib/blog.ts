@@ -54,7 +54,7 @@ function getDraftSlugs(): Set<string> {
 
     return new Set(
       schedule.posts
-        .filter(p => p.status !== 'published')
+        .filter(p => p.status !== 'published' && p.status !== 'sent')
         .map(p => p.slug)
     );
   } catch {
