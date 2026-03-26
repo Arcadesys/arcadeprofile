@@ -55,6 +55,7 @@ export default function PostGunEditor({ slug }: PostGunEditorProps) {
 
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [mode, setMode] = useState<EditorMode>('write');
@@ -197,6 +198,38 @@ export default function PostGunEditor({ slug }: PostGunEditorProps) {
     }
   }, [saving, isNew, newSlug, newGroup, frontmatter, body, slug, router]);
 
+  const publish = useCallback(async () => {
+    if (publishing || isNew) return;
+
+    // Save first if dirty
+    if (dirty) {
+      await save();
+    }
+
+    setPublishing(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/blog/${slug}/publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          scheduledDate: frontmatter.date || undefined,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Failed to publish');
+        setPublishing(false);
+        return;
+      }
+      setPublishing(false);
+      router.push('/admin/schedule');
+    } catch {
+      setError('Network error publishing post');
+      setPublishing(false);
+    }
+  }, [publishing, isNew, dirty, save, slug, frontmatter.date, router]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -316,6 +349,25 @@ export default function PostGunEditor({ slug }: PostGunEditorProps) {
           >
             {saving ? 'Saving...' : isNew ? 'Create Post' : 'Save'}
           </button>
+          {!isNew && (
+            <button
+              onClick={publish}
+              disabled={publishing}
+              style={{
+                padding: '6px 20px',
+                borderRadius: 6,
+                border: 'none',
+                background: '#4ade80',
+                color: '#000',
+                cursor: publishing ? 'default' : 'pointer',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                opacity: publishing ? 0.6 : 1,
+              }}
+            >
+              {publishing ? 'Publishing...' : 'Publish'}
+            </button>
+          )}
         </div>
       </div>
 
