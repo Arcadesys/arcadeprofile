@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { postToBluesky, atUriToWebUrl } from '@/lib/bluesky';
+import { getPostBySlug } from '@/lib/blog';
+import { readMarketing, writeMarketing } from '@/lib/marketing';
+import { createPost, postToBluesky, atUriToWebUrl } from '@/lib/bluesky';
 import {
   addHistoryEntry,
   generateId,
@@ -7,18 +9,79 @@ import {
   PostVariant,
 } from '@/lib/social';
 
-interface PostRequest {
+const SITE_URL = 'https://thearcades.me';
+
+interface ComposePostRequest {
   text: string;
   platform: SocialPlatform;
   variant?: PostVariant;
-  slug?: string; // optional blog post slug
+  slug?: string;
   linkUrl?: string;
-  scheduledAt?: string; // ISO datetime — if set, queues instead of posting
+  scheduledAt?: string;
 }
 
-export async function POST(request: NextRequest) {
-  const body: PostRequest = await request.json();
+/** Marketing-driven post: slug + short|long variant, no freeform text body. */
+async function handleMarketingPost(body: {
+  slug: string;
+  platform: string;
+  variant: 'short' | 'long';
+}) {
+  const { slug, platform, variant } = body;
 
+  if (platform !== 'bluesky') {
+    return NextResponse.json({ error: 'Unsupported platform. Supported: bluesky' }, { status: 400 });
+  }
+
+  const post = getPostBySlug(slug);
+  if (!post) {
+    return NextResponse.json({ error: `Post not found: ${slug}` }, { status: 404 });
+  }
+
+  const marketing = readMarketing(slug);
+  if (!marketing?.social) {
+    return NextResponse.json(
+      {
+        error: `No marketing copy found for "${slug}". Generate marketing copy first via /api/auto-post.`,
+      },
+      { status: 404 },
+    );
+  }
+
+  const copyText = variant === 'short' ? marketing.social.short : marketing.social.long;
+  if (!copyText) {
+    return NextResponse.json(
+      { error: `No "${variant}" social copy available for "${slug}".` },
+      { status: 404 },
+    );
+  }
+
+  const postUrl = `${SITE_URL}/blog/${slug}`;
+  const textWithLink = copyText.includes(postUrl) ? copyText : `${copyText}\n\n${postUrl}`;
+
+  try {
+    const result = await createPost(textWithLink, postUrl, post.title, post.excerpt);
+
+    marketing.social.bluesky = {
+      postedAt: new Date().toISOString(),
+      postUri: result.uri,
+      variant,
+    };
+    writeMarketing(slug, marketing);
+
+    return NextResponse.json({
+      success: true,
+      postUri: result.uri,
+      platform: 'bluesky',
+      variant,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ error: `Bluesky post failed: ${message}` }, { status: 502 });
+  }
+}
+
+/** Compose / schedule post from freeform text (admin social page). */
+async function handleComposePost(body: ComposePostRequest) {
   if (!body.text?.trim()) {
     return NextResponse.json({ error: 'text is required' }, { status: 400 });
   }
@@ -29,7 +92,6 @@ export async function POST(request: NextRequest) {
   const id = generateId();
   const variant = body.variant || 'custom';
 
-  // If scheduledAt is provided, queue instead of posting immediately
   if (body.scheduledAt) {
     const scheduledDate = new Date(body.scheduledAt);
     if (isNaN(scheduledDate.getTime())) {
@@ -53,7 +115,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ id, status: 'scheduled', scheduledAt: scheduledDate.toISOString() });
   }
 
-  // Post immediately
   try {
     const result = await postToBluesky(body.text, body.linkUrl);
     const postUrl = atUriToWebUrl(result.uri);
@@ -89,4 +150,37 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ error: message, id, status: 'failed' }, { status: 502 });
   }
+}
+
+export async function POST(request: NextRequest) {
+  let raw: Record<string, unknown>;
+  try {
+    raw = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  const text = typeof raw.text === 'string' ? raw.text : '';
+  const slug = typeof raw.slug === 'string' ? raw.slug : undefined;
+  const variant = raw.variant;
+
+  // Schedule panel: { slug, platform, variant: short|long } — no compose text
+  if (slug && !text.trim() && (variant === 'short' || variant === 'long')) {
+    return handleMarketingPost({
+      slug,
+      platform: typeof raw.platform === 'string' ? raw.platform : '',
+      variant,
+    });
+  }
+
+  const body: ComposePostRequest = {
+    text,
+    platform: raw.platform as SocialPlatform,
+    variant: raw.variant as PostVariant | undefined,
+    slug: typeof raw.slug === 'string' ? raw.slug : undefined,
+    linkUrl: typeof raw.linkUrl === 'string' ? raw.linkUrl : undefined,
+    scheduledAt: typeof raw.scheduledAt === 'string' ? raw.scheduledAt : undefined,
+  };
+
+  return handleComposePost(body);
 }
