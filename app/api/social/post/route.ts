@@ -26,7 +26,7 @@ async function handleMarketingPost(body: {
   platform: string;
   variant: 'short' | 'long';
 }) {
-  const { slug, platform, variant } = body;
+  const { slug, platform } = body;
 
   if (platform !== 'bluesky') {
     return NextResponse.json({ error: 'Unsupported platform. Supported: bluesky' }, { status: 400 });
@@ -38,19 +38,20 @@ async function handleMarketingPost(body: {
   }
 
   const marketing = readMarketing(slug);
-  if (!marketing?.social) {
-    return NextResponse.json(
-      {
-        error: `No marketing copy found for "${slug}". Generate marketing copy first via /api/auto-post.`,
-      },
-      { status: 404 },
-    );
+
+  // Read from new channels structure, fall back to legacy social fields
+  let copyText: string | undefined;
+  if (marketing?.channels?.bluesky?.text) {
+    copyText = marketing.channels.bluesky.text;
+  } else if (marketing?.social?.short) {
+    copyText = marketing.social.short;
+  } else if (marketing?.social?.long) {
+    copyText = marketing.social.long;
   }
 
-  const copyText = variant === 'short' ? marketing.social.short : marketing.social.long;
   if (!copyText) {
     return NextResponse.json(
-      { error: `No "${variant}" social copy available for "${slug}".` },
+      { error: `No marketing copy found for "${slug}". Generate variants first.` },
       { status: 404 },
     );
   }
@@ -61,18 +62,23 @@ async function handleMarketingPost(body: {
   try {
     const result = await createPost(textWithLink, postUrl, post.title, post.excerpt);
 
-    marketing.social.bluesky = {
+    const postRecord = {
       postedAt: new Date().toISOString(),
       postUri: result.uri,
-      variant,
+      variant: 'bluesky',
     };
-    writeMarketing(slug, marketing);
+
+    // Store in new posted structure
+    const updated = {
+      ...marketing,
+      posted: { ...marketing?.posted, bluesky: postRecord },
+    };
+    writeMarketing(slug, updated);
 
     return NextResponse.json({
       success: true,
       postUri: result.uri,
       platform: 'bluesky',
-      variant,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';

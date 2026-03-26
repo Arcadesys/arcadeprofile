@@ -5,11 +5,18 @@ import { useEffect, useState, useCallback } from 'react';
 interface SocialPostRecord {
   postedAt: string;
   postUri: string;
-  variant: 'short' | 'long';
+  variant: string;
+}
+
+interface ChannelVariant {
+  text: string;
+  generatedAt?: string;
 }
 
 interface MarketingData {
-  newsletterBlurb?: string;
+  channels?: Record<string, ChannelVariant>;
+  posted?: Record<string, SocialPostRecord>;
+  // Legacy
   social?: {
     short?: string;
     long?: string;
@@ -26,16 +33,25 @@ interface SocialPanelProps {
 const BLUESKY_CHAR_LIMIT = 300;
 
 function blueskyPostUrl(uri: string): string | null {
-  // at://did:plc:xxx/app.bsky.feed.post/yyy -> https://bsky.app/profile/did:plc:xxx/post/yyy
   const match = uri.match(/^at:\/\/(did:[^/]+)\/app\.bsky\.feed\.post\/(.+)$/);
   if (!match) return null;
   return `https://bsky.app/profile/${match[1]}/post/${match[2]}`;
 }
 
+function getBlueskyText(m: MarketingData | null): string {
+  if (m?.channels?.bluesky?.text) return m.channels.bluesky.text;
+  if (m?.social?.short) return m.social.short;
+  if (m?.social?.long) return m.social.long;
+  return '';
+}
+
+function getBlueskyPostRecord(m: MarketingData | null): SocialPostRecord | undefined {
+  return m?.posted?.bluesky || m?.social?.bluesky;
+}
+
 export default function SocialPanel({ slug, title, onClose }: SocialPanelProps) {
   const [loading, setLoading] = useState(true);
   const [marketing, setMarketing] = useState<MarketingData | null>(null);
-  const [variant, setVariant] = useState<'short' | 'long'>('short');
   const [editText, setEditText] = useState('');
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -56,13 +72,7 @@ export default function SocialPanel({ slug, title, onClose }: SocialPanelProps) 
       }
       const data = await res.json();
       setMarketing(data.marketing);
-      const m = data.marketing as MarketingData | null;
-      if (m?.social) {
-        const text = variant === 'short' ? m.social.short : m.social.long;
-        setEditText(text || '');
-      } else {
-        setEditText('');
-      }
+      setEditText(getBlueskyText(data.marketing));
       setDirty(false);
     } catch {
       setError('Failed to load marketing data');
@@ -72,23 +82,15 @@ export default function SocialPanel({ slug, title, onClose }: SocialPanelProps) 
 
   useEffect(() => { fetchMarketing(); }, [fetchMarketing]);
 
-  // Update edit text when variant changes
-  useEffect(() => {
-    if (!marketing?.social) return;
-    const text = variant === 'short' ? marketing.social.short : marketing.social.long;
-    setEditText(text || '');
-    setDirty(false);
-  }, [variant, marketing]);
-
   const saveEdit = async () => {
-    if (!marketing || saving) return;
+    if (saving) return;
     setSaving(true);
     setError(null);
     const updated: MarketingData = {
       ...marketing,
-      social: {
-        ...marketing.social,
-        [variant]: editText,
+      channels: {
+        ...marketing?.channels,
+        bluesky: { text: editText, generatedAt: marketing?.channels?.bluesky?.generatedAt },
       },
     };
     try {
@@ -116,14 +118,13 @@ export default function SocialPanel({ slug, title, onClose }: SocialPanelProps) 
     setPostResult(null);
     setError(null);
 
-    // Save any pending edits first
     if (dirty) await saveEdit();
 
     try {
       const res = await fetch('/api/social/post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, platform: 'bluesky', variant }),
+        body: JSON.stringify({ slug, platform: 'bluesky' }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -132,7 +133,6 @@ export default function SocialPanel({ slug, title, onClose }: SocialPanelProps) 
         return;
       }
       setPostResult({ success: true, message: 'Posted to Bluesky!' });
-      // Refresh marketing data to get posted status
       await fetchMarketing();
     } catch {
       setPostResult({ success: false, message: 'Network error posting to Bluesky' });
@@ -140,15 +140,14 @@ export default function SocialPanel({ slug, title, onClose }: SocialPanelProps) 
     setPosting(false);
   };
 
-  const hasCopy = marketing?.social && (marketing.social.short || marketing.social.long);
+  const hasCopy = !!getBlueskyText(marketing);
   const currentText = editText;
   const charCount = currentText.length;
   const overLimit = charCount > BLUESKY_CHAR_LIMIT;
-  const blueskyRecord = marketing?.social?.bluesky;
+  const blueskyRecord = getBlueskyPostRecord(marketing);
   const alreadyPosted = !!blueskyRecord;
   const liveUrl = blueskyRecord ? blueskyPostUrl(blueskyRecord.postUri) : null;
 
-  // Keyboard: Escape to close
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -221,7 +220,7 @@ export default function SocialPanel({ slug, title, onClose }: SocialPanelProps) 
               No social copy generated yet for this post.
             </p>
             <p style={{ fontSize: '0.8rem', textAlign: 'center', color: 'var(--fg-muted)' }}>
-              Generate marketing copy first via the auto-post system.
+              Generate channel variants from the post editor.
             </p>
           </div>
         ) : (
@@ -240,7 +239,7 @@ export default function SocialPanel({ slug, title, onClose }: SocialPanelProps) 
                     Posted to Bluesky
                   </div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--fg-muted)' }}>
-                    {new Date(blueskyRecord.postedAt).toLocaleString()} &middot; {blueskyRecord.variant} variant
+                    {new Date(blueskyRecord.postedAt).toLocaleString()}
                   </div>
                 </div>
                 {liveUrl && (
@@ -259,35 +258,14 @@ export default function SocialPanel({ slug, title, onClose }: SocialPanelProps) 
               </div>
             )}
 
-            {/* Variant selector */}
+            {/* Channel label */}
             <div>
               <label style={{
                 fontSize: '0.75rem', fontWeight: 600, color: 'var(--fg-muted)',
                 textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem', display: 'block',
               }}>
-                Variant
+                Bluesky
               </label>
-              <div style={{ display: 'flex', gap: '0.25rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: 3, width: 'fit-content' }}>
-                {(['short', 'long'] as const).map(v => {
-                  const hasVariant = v === 'short' ? !!marketing?.social?.short : !!marketing?.social?.long;
-                  return (
-                    <button
-                      key={v}
-                      onClick={() => setVariant(v)}
-                      disabled={!hasVariant}
-                      style={{
-                        padding: '0.375rem 1rem', borderRadius: 6, border: 'none',
-                        background: variant === v ? 'var(--accent)' : 'transparent',
-                        color: !hasVariant ? 'var(--border)' : variant === v ? '#fff' : 'var(--fg-muted)',
-                        cursor: hasVariant ? 'pointer' : 'default', fontSize: '0.8rem', fontWeight: 600,
-                        textTransform: 'capitalize',
-                      }}
-                    >
-                      {v}
-                    </button>
-                  );
-                })}
-              </div>
             </div>
 
             {/* Editable social copy */}
@@ -345,7 +323,6 @@ export default function SocialPanel({ slug, title, onClose }: SocialPanelProps) 
                 background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12,
                 padding: '1rem', maxWidth: 480,
               }}>
-                {/* Mock Bluesky header */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                   <div style={{
                     width: 32, height: 32, borderRadius: '50%', background: '#0085ff',
@@ -359,14 +336,12 @@ export default function SocialPanel({ slug, title, onClose }: SocialPanelProps) 
                     <div style={{ fontSize: '0.7rem', color: 'var(--fg-muted)' }}>@handle.bsky.social</div>
                   </div>
                 </div>
-                {/* Post text */}
                 <div style={{
                   fontSize: '0.85rem', color: 'var(--fg)', lineHeight: 1.5,
                   whiteSpace: 'pre-wrap', wordBreak: 'break-word',
                 }}>
                   {currentText || <span style={{ color: 'var(--fg-muted)', fontStyle: 'italic' }}>No text</span>}
                 </div>
-                {/* Mock link card */}
                 <div style={{
                   marginTop: '0.75rem', border: '1px solid var(--border)', borderRadius: 8,
                   overflow: 'hidden',
@@ -387,7 +362,7 @@ export default function SocialPanel({ slug, title, onClose }: SocialPanelProps) 
             <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
               {alreadyPosted ? (
                 <p style={{ fontSize: '0.8rem', color: 'var(--fg-muted)', margin: 0 }}>
-                  Already posted to Bluesky. Regenerate social copy to post again.
+                  Already posted to Bluesky. Regenerate variants to post again.
                 </p>
               ) : (
                 <button
@@ -454,7 +429,7 @@ export default function SocialPanel({ slug, title, onClose }: SocialPanelProps) 
               </p>
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--fg-muted)', marginBottom: '1rem' }}>
-              Platform: <strong>Bluesky</strong> &middot; Variant: <strong>{variant}</strong> &middot; {charCount} chars
+              Platform: <strong>Bluesky</strong> &middot; {charCount} chars
             </div>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
               <button

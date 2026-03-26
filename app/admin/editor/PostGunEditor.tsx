@@ -19,11 +19,21 @@ interface PostData {
   body: string;
 }
 
+interface ChannelVariant {
+  text: string;
+  generatedAt?: string;
+}
+
 interface PostGunEditorProps {
   slug: string | null; // null = new post
 }
 
 type EditorMode = 'write' | 'preview';
+
+const CHANNEL_LABELS: Record<string, string> = {
+  bluesky: 'Bluesky',
+  newsletter: 'Newsletter',
+};
 
 interface ToolbarAction {
   label: string;
@@ -67,6 +77,13 @@ export default function PostGunEditor({ slug }: PostGunEditorProps) {
   const [groups, setGroups] = useState<string[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Channel variants state
+  const [channels, setChannels] = useState<Record<string, ChannelVariant>>({});
+  const [activeChannel, setActiveChannel] = useState<string>('bluesky');
+  const [generating, setGenerating] = useState(false);
+  const [channelDirty, setChannelDirty] = useState(false);
+  const [channelSaving, setChannelSaving] = useState(false);
+
   // Fetch existing post data
   useEffect(() => {
     if (isNew) return;
@@ -97,6 +114,17 @@ export default function PostGunEditor({ slug }: PostGunEditorProps) {
     if (!isNew || newSlug) return;
     // Only auto-slug if user hasn't manually edited slug
   }, [frontmatter.title, isNew, newSlug]);
+
+  // Fetch existing channel variants for existing posts
+  useEffect(() => {
+    if (isNew || !slug) return;
+    fetch(`/api/marketing/${slug}`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.marketing?.channels) setChannels(d.marketing.channels);
+      })
+      .catch(() => {});
+  }, [slug, isNew]);
 
   const generateSlug = (title: string) => {
     return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -197,6 +225,51 @@ export default function PostGunEditor({ slug }: PostGunEditorProps) {
       setSaving(false);
     }
   }, [saving, isNew, newSlug, newGroup, frontmatter, body, slug, router]);
+
+  const generateVariants = useCallback(async () => {
+    const targetSlug = isNew ? (newSlug || generateSlug(frontmatter.title)) : slug;
+    if (!targetSlug || generating) return;
+
+    if (dirty) await save();
+
+    setGenerating(true);
+    try {
+      const res = await fetch(`/api/marketing/${targetSlug}/generate`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.channels) {
+        setChannels(prev => ({ ...prev, ...data.channels }));
+      } else {
+        setError(data.error || 'Failed to generate variants');
+      }
+    } catch {
+      setError('Network error generating variants');
+    }
+    setGenerating(false);
+  }, [isNew, newSlug, frontmatter.title, slug, generating, dirty, save]);
+
+  const saveChannelEdit = useCallback(async (channel: string, text: string) => {
+    const targetSlug = isNew ? (newSlug || generateSlug(frontmatter.title)) : slug;
+    if (!targetSlug || channelSaving) return;
+    setChannelSaving(true);
+
+    const updatedChannels = { ...channels, [channel]: { ...channels[channel], text } };
+    try {
+      const res = await fetch(`/api/marketing/${targetSlug}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ marketing: { channels: updatedChannels } }),
+      });
+      if (res.ok) {
+        setChannels(updatedChannels);
+        setChannelDirty(false);
+      } else {
+        setError('Failed to save channel variant');
+      }
+    } catch {
+      setError('Network error saving variant');
+    }
+    setChannelSaving(false);
+  }, [isNew, newSlug, frontmatter.title, slug, channelSaving, channels]);
 
   const publish = useCallback(async () => {
     if (publishing || isNew) return;
@@ -445,17 +518,100 @@ export default function PostGunEditor({ slug }: PostGunEditorProps) {
             />
           </div>
 
-          {/* Voice pack slot placeholder */}
-          <div style={{
-            padding: '1rem',
-            borderRadius: 8,
-            border: '1px dashed var(--border)',
-            color: 'var(--fg-muted)',
-            fontSize: '0.75rem',
-            textAlign: 'center',
-          }}>
-            Voice pack selector (coming soon)
-          </div>
+          {/* Channel Variants */}
+          {!isNew && (
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <label style={labelStyle}>Channel Variants</label>
+                <button
+                  onClick={generateVariants}
+                  disabled={generating}
+                  style={{
+                    padding: '4px 10px', borderRadius: 6, border: 'none',
+                    background: generating ? 'var(--surface)' : 'var(--accent)',
+                    color: generating ? 'var(--fg-muted)' : '#fff',
+                    cursor: generating ? 'default' : 'pointer',
+                    fontSize: '0.7rem', fontWeight: 600,
+                  }}
+                >
+                  {generating ? 'Generating...' : Object.keys(channels).length > 0 ? 'Regenerate' : 'Generate'}
+                </button>
+              </div>
+
+              {Object.keys(channels).length > 0 ? (
+                <>
+                  {/* Channel tabs */}
+                  <div style={{
+                    display: 'flex', gap: '2px', marginBottom: '0.5rem',
+                    background: 'var(--surface)', borderRadius: 6, padding: 2,
+                  }}>
+                    {Object.keys(channels).map(ch => (
+                      <button
+                        key={ch}
+                        onClick={() => { setActiveChannel(ch); setChannelDirty(false); }}
+                        style={{
+                          flex: 1, padding: '4px 8px', borderRadius: 4, border: 'none',
+                          background: activeChannel === ch ? 'var(--accent)' : 'transparent',
+                          color: activeChannel === ch ? '#fff' : 'var(--fg-muted)',
+                          cursor: 'pointer', fontSize: '0.7rem', fontWeight: 600,
+                          textTransform: 'capitalize',
+                        }}
+                      >
+                        {CHANNEL_LABELS[ch] || ch}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Active channel editor */}
+                  {channels[activeChannel] && (
+                    <div>
+                      <textarea
+                        value={channels[activeChannel].text}
+                        onChange={e => {
+                          setChannels(prev => ({
+                            ...prev,
+                            [activeChannel]: { ...prev[activeChannel], text: e.target.value },
+                          }));
+                          setChannelDirty(true);
+                        }}
+                        rows={4}
+                        style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5, fontSize: '0.8rem' }}
+                      />
+                      {channels[activeChannel].generatedAt && (
+                        <div style={{ fontSize: '0.65rem', color: 'var(--fg-muted)', marginTop: '2px' }}>
+                          Generated {new Date(channels[activeChannel].generatedAt!).toLocaleDateString()}
+                        </div>
+                      )}
+                      {channelDirty && (
+                        <button
+                          onClick={() => saveChannelEdit(activeChannel, channels[activeChannel].text)}
+                          disabled={channelSaving}
+                          style={{
+                            marginTop: '0.375rem', padding: '3px 10px', borderRadius: 4, border: 'none',
+                            background: 'var(--accent)', color: '#fff', cursor: 'pointer',
+                            fontSize: '0.7rem', fontWeight: 600,
+                          }}
+                        >
+                          {channelSaving ? 'Saving...' : 'Save'}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div style={{
+                  padding: '0.75rem',
+                  borderRadius: 8,
+                  border: '1px dashed var(--border)',
+                  color: 'var(--fg-muted)',
+                  fontSize: '0.75rem',
+                  textAlign: 'center',
+                }}>
+                  No variants yet. Click Generate to create channel-specific copy.
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Editor area */}
