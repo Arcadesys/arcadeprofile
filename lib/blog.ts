@@ -22,9 +22,8 @@ function isFutureDated(dateStr: string, todayStr: string): boolean {
 }
 
 /** Returns the set of slugs that should NOT be shown on the site.
- *  A post is visible if its status is 'published' OR if its status is
- *  'scheduled' and its scheduledDate is today or in the past (using the
- *  configured timezone). */
+ *  A post is visible only if its status is 'published' and its scheduledDate
+ *  (if any) is today or in the past. */
 function getDraftSlugs(): Set<string> {
   try {
     const schedule = readSchedule();
@@ -35,6 +34,12 @@ function getDraftSlugs(): Set<string> {
     // and demote published posts whose date is in the future
     let dirty = false;
     for (const p of schedule.posts) {
+      // Auto-correct: drafts with a scheduledDate should be "scheduled"
+      if (p.status === 'draft' && p.scheduledDate) {
+        p.status = 'scheduled';
+        dirty = true;
+      }
+      // Auto-promote scheduled posts whose date has arrived
       if (p.status === 'scheduled' && p.scheduledDate && p.scheduledDate <= todayStr) {
         p.status = 'published';
         dirty = true;
@@ -54,6 +59,17 @@ function getDraftSlugs(): Set<string> {
     );
   } catch {
     return new Set();
+  }
+}
+
+/** Returns today's date string (YYYY-MM-DD) in the configured timezone. */
+function getTodayStr(): string {
+  try {
+    const schedule = readSchedule();
+    const tz = schedule.settings?.timezone || 'America/Chicago';
+    return new Date().toLocaleDateString('en-CA', { timeZone: tz });
+  } catch {
+    return new Date().toISOString().slice(0, 10);
   }
 }
 
