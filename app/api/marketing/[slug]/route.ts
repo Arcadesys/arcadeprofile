@@ -3,9 +3,9 @@ import { readMarketing, writeMarketing, MarketingData } from '@/lib/marketing';
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
-  const { slug } = params;
+  const { slug } = await params;
   const data = readMarketing(slug);
   if (!data) {
     return NextResponse.json({ slug, marketing: null });
@@ -15,9 +15,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
-  const { slug } = params;
+  const { slug } = await params;
   let body: { marketing: MarketingData };
   try {
     body = await request.json();

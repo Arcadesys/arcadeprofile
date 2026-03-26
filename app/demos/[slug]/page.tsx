@@ -6,8 +6,9 @@ export function generateStaticParams() {
   return demos.map((d) => ({ slug: d.slug }));
 }
 
-export default function DemoPage({ params }: { params: { slug: string } }) {
-  const demo = getDemoBySlug(params.slug);
+export default async function DemoPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const demo = getDemoBySlug(slug);
   if (!demo) return notFound();
 
   return (

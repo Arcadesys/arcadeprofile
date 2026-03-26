@@ -5,6 +5,7 @@ export function generateStaticParams() {
   return getAllGroups().map(g => ({ slug: g.slug }));
 }
 
-export default function LegacyGroupPage({ params }: { params: { slug: string } }) {
-  redirect(`/writing/group/${params.slug}`);
+export default async function LegacyGroupPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  redirect(`/writing/group/${slug}`);
 }

@@ -44,8 +44,8 @@ function getBookSummary(bookId: string): string | undefined {
   return undefined;
 }
 
-export default function PreviewPage({ params }: { params: { bookId: string } }) {
-  const { bookId } = params;
+export default async function PreviewPage({ params }: { params: Promise<{ bookId: string }> }) {
+  const { bookId } = await params;
   const filePath = path.join(process.cwd(), 'public', 'preview', `${bookId}.md`);
   
   // Check if the file exists
