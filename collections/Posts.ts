@@ -1,10 +1,30 @@
 import type { CollectionConfig } from 'payload';
+import { revalidatePath } from 'next/cache';
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'status', 'group', 'publishedDate', 'updatedAt'],
+  },
+  hooks: {
+    afterChange: [
+      ({ doc }) => {
+        try {
+          const slug = doc.slug as string;
+          const group = doc.group as string;
+          revalidatePath(`/blog/${slug}`);
+          revalidatePath('/blog');
+          revalidatePath('/writing');
+          revalidatePath('/feed.xml');
+          if (group) {
+            revalidatePath(`/writing/group/${group}`);
+          }
+        } catch {
+          // revalidatePath may fail outside request context (e.g. seed script)
+        }
+      },
+    ],
   },
   versions: {
     drafts: true,

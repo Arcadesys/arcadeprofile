@@ -5,6 +5,7 @@ import { getAllPosts, getPostBySlug, getGroupBySlug } from '@/lib/blog';
 import type { Metadata } from 'next';
 
 export const dynamicParams = true;
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   try {
