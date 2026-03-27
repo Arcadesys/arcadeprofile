@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPostBySlug } from '@/lib/blog';
+import type { BlogPost } from '@/lib/blog';
 import { readMarketing, writeMarketing } from '@/lib/marketing';
 import { createPost, postToBluesky, atUriToWebUrl } from '@/lib/bluesky';
 import {
@@ -32,7 +33,7 @@ async function handleMarketingPost(body: {
     return NextResponse.json({ error: 'Unsupported platform. Supported: bluesky' }, { status: 400 });
   }
 
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) {
     return NextResponse.json({ error: `Post not found: ${slug}` }, { status: 404 });
   }

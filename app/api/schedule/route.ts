@@ -1,73 +1,76 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readSchedule, writeSchedule, Schedule } from '@/lib/schedule';
-import { getAllPosts } from '@/lib/blog';
+import { getPayload } from 'payload';
+import configPromise from '@payload-config';
 
 export async function GET() {
-  const schedule = readSchedule();
-  const posts = getAllPosts();
+  const payload = await getPayload({ config: configPromise });
 
-  // Merge blog post metadata with schedule data
-  const merged = schedule.posts.map(sp => {
-    const post = posts.find(p => p.slug === sp.slug);
-    return {
-      ...sp,
-      title: post?.title || sp.slug,
-      excerpt: post?.excerpt || '',
-      date: post?.date || sp.scheduledDate,
-      group: post?.group || null,
-    };
+  const result = await payload.find({
+    collection: 'posts',
+    limit: 200,
+    sort: '-publishedDate',
+    depth: 0,
   });
 
-  // Find any blog posts not yet in the schedule (newly added files)
-  const scheduledSlugs = new Set(schedule.posts.map(p => p.slug));
-  const unscheduled = posts
-    .filter(p => !scheduledSlugs.has(p.slug))
-    .map(p => ({
-      slug: p.slug,
-      title: p.title,
-      excerpt: p.excerpt,
-      date: p.date,
-      group: p.group || null,
-      status: 'draft' as const,
-      scheduledDate: null,
-      tags: [],
-    }));
+  const posts = result.docs.map((doc) => ({
+    slug: doc.slug,
+    title: doc.title || doc.slug,
+    excerpt: doc.excerpt || '',
+    date: doc.publishedDate,
+    group: doc.group || null,
+    status: doc.status || 'draft',
+    scheduledDate: doc.scheduledPublishDate || null,
+    tags: Array.isArray(doc.tags) ? doc.tags.map((t: { tag: string }) => t.tag) : [],
+  }));
 
-  // Collect all unique groups from blog posts
+  // Collect unique groups
   const groupSet = new Set<string>();
-  for (const p of posts) { if (p.group) groupSet.add(p.group); }
-  const groups = Array.from(groupSet);
+  for (const p of posts) {
+    if (p.group) groupSet.add(p.group);
+  }
 
   return NextResponse.json({
-    posts: [...merged, ...unscheduled],
-    settings: schedule.settings,
-    groups,
+    posts,
+    settings: { publishDays: ['monday', 'wednesday', 'friday'], timezone: 'America/Chicago' },
+    groups: Array.from(groupSet),
   });
 }
 
 export async function PUT(request: NextRequest) {
-  const body: Schedule = await request.json();
+  const body = await request.json();
 
-  // Basic validation
   if (!body.posts || !Array.isArray(body.posts)) {
     return NextResponse.json({ error: 'Invalid schedule data' }, { status: 400 });
   }
 
-  const tz = body.settings?.timezone || 'America/Chicago';
-  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz }); // YYYY-MM-DD
+  const payload = await getPayload({ config: configPromise });
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: body.settings?.timezone || 'America/Chicago' });
 
-  writeSchedule({
-    posts: body.posts.map(p => ({
-      slug: p.slug,
-      // Never allow "published" status if the scheduled date is in the future
-      status: p.status === 'published' && p.scheduledDate && p.scheduledDate > todayStr
-        ? 'scheduled'
-        : p.status,
-      scheduledDate: p.scheduledDate,
-      tags: p.tags || [],
-    })),
-    settings: body.settings || { publishDays: ['monday', 'tuesday', 'wednesday', 'thursday'], timezone: 'America/Chicago' },
-  });
+  for (const p of body.posts) {
+    const result = await payload.find({
+      collection: 'posts',
+      where: { slug: { equals: p.slug } },
+      limit: 1,
+      depth: 0,
+    });
+
+    if (result.docs.length === 0) continue;
+
+    const doc = result.docs[0];
+    const status = p.status === 'published' && p.scheduledDate && p.scheduledDate > todayStr
+      ? 'scheduled'
+      : p.status;
+
+    await payload.update({
+      collection: 'posts',
+      id: doc.id,
+      data: {
+        status,
+        scheduledPublishDate: p.scheduledDate || undefined,
+        tags: Array.isArray(p.tags) ? p.tags.map((t: string) => ({ tag: t })) : undefined,
+      },
+    });
+  }
 
   return NextResponse.json({ ok: true });
 }

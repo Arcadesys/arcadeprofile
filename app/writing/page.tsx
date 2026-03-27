@@ -2,8 +2,10 @@ import { getAllGroups } from '@/lib/blog';
 import ProjectList, { type Project } from '@/app/components/ProjectList';
 import SubscribeForm from '@/app/components/SubscribeForm';
 
-export default function WritingPage() {
-  const groups = getAllGroups();
+export const dynamic = 'force-dynamic';
+
+export default async function WritingPage() {
+  const groups = await getAllGroups();
 
   const projects: Project[] = groups.map(g => ({
     slug: g.slug,

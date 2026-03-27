@@ -1,16 +1,23 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { MDXRemote } from 'next-mdx-remote/rsc';
+import { RichText } from '@payloadcms/richtext-lexical/react';
 import { getAllPosts, getPostBySlug, getGroupBySlug } from '@/lib/blog';
 import type { Metadata } from 'next';
 
-export function generateStaticParams() {
-  return getAllPosts().map(post => ({ slug: post.slug }));
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  try {
+    const posts = await getAllPosts();
+    return posts.map(post => ({ slug: post.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) return {};
 
   return {
@@ -33,10 +40,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const group = post.group ? getGroupBySlug(post.group) : null;
+  const group = post.group ? await getGroupBySlug(post.group) : null;
 
   // Find prev/next posts within the group
   let prevPost = null;
@@ -74,7 +81,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </header>
 
           <div className="prose prose-lg dark:prose-invert max-w-none">
-            <MDXRemote source={post.content} />
+            <RichText data={post.content} />
           </div>
 
           {(post.newsletterHeading || post.newsletterDescription) && (

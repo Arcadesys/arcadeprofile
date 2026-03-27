@@ -4,7 +4,7 @@ export const Posts: CollectionConfig = {
   slug: 'posts',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'status', 'author', 'updatedAt'],
+    defaultColumns: ['title', 'status', 'group', 'publishedDate', 'updatedAt'],
   },
   versions: {
     drafts: true,
@@ -38,9 +38,25 @@ export const Posts: CollectionConfig = {
       },
     },
     {
+      name: 'excerpt',
+      type: 'textarea',
+      required: true,
+    },
+    {
       name: 'content',
       type: 'richText',
       required: true,
+    },
+    {
+      name: 'publishedDate',
+      type: 'date',
+      required: true,
+      admin: {
+        position: 'sidebar',
+        date: {
+          pickerAppearance: 'dayOnly',
+        },
+      },
     },
     {
       name: 'status',
@@ -48,9 +64,9 @@ export const Posts: CollectionConfig = {
       defaultValue: 'draft',
       options: [
         { label: 'Draft', value: 'draft' },
-        { label: 'Review', value: 'review' },
         { label: 'Scheduled', value: 'scheduled' },
         { label: 'Published', value: 'published' },
+        { label: 'Sent', value: 'sent' },
       ],
       admin: {
         position: 'sidebar',
@@ -67,9 +83,25 @@ export const Posts: CollectionConfig = {
       },
     },
     {
+      name: 'group',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Group/series slug (e.g. "the-singularity-log")',
+      },
+    },
+    {
+      name: 'order',
+      type: 'number',
+      admin: {
+        position: 'sidebar',
+        description: 'Order within group (lower = first)',
+      },
+    },
+    {
       name: 'author',
       type: 'text',
-      required: true,
+      defaultValue: 'Austen Tucker',
     },
     {
       name: 'tags',
@@ -81,6 +113,20 @@ export const Posts: CollectionConfig = {
           required: true,
         },
       ],
+    },
+    {
+      name: 'newsletterHeading',
+      type: 'text',
+      admin: {
+        description: 'Optional heading for inline newsletter CTA on this post',
+      },
+    },
+    {
+      name: 'newsletterDescription',
+      type: 'textarea',
+      admin: {
+        description: 'Optional description for inline newsletter CTA on this post',
+      },
     },
   ],
 };

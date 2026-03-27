@@ -1,34 +1,40 @@
-import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
-import matter from 'gray-matter';
-import { getPostFilePath } from '@/lib/blog';
-import { readSchedule, writeSchedule } from '@/lib/schedule';
+import { getPayload } from 'payload';
+import configPromise from '@payload-config';
+import { lexicalToPlainText } from '@/lib/lexical-text';
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const found = getPostFilePath(slug);
-  if (!found) {
+  const payload = await getPayload({ config: configPromise });
+
+  const result = await payload.find({
+    collection: 'posts',
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 0,
+  });
+
+  if (result.docs.length === 0) {
     return NextResponse.json({ error: 'Post not found' }, { status: 404 });
   }
 
-  const raw = fs.readFileSync(found.filePath, 'utf8');
-  const { data, content } = matter(raw);
+  const doc = result.docs[0];
 
   return NextResponse.json({
     slug,
-    group: found.group || null,
+    group: doc.group || null,
     frontmatter: {
-      title: data.title || '',
-      date: data.date || '',
-      excerpt: data.excerpt || '',
-      order: data.order ?? null,
-      newsletterHeading: data.newsletterHeading || null,
-      newsletterDescription: data.newsletterDescription || null,
+      title: doc.title || '',
+      date: doc.publishedDate || '',
+      excerpt: doc.excerpt || '',
+      order: doc.order ?? null,
+      newsletterHeading: doc.newsletterHeading || null,
+      newsletterDescription: doc.newsletterDescription || null,
     },
-    body: content,
+    body: lexicalToPlainText(doc.content as Record<string, unknown>),
   });
 }
 
@@ -37,46 +43,40 @@ export async function PUT(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const found = getPostFilePath(slug);
-  if (!found) {
+  const payload = await getPayload({ config: configPromise });
+
+  const result = await payload.find({
+    collection: 'posts',
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 0,
+  });
+
+  if (result.docs.length === 0) {
     return NextResponse.json({ error: 'Post not found' }, { status: 404 });
   }
 
+  const doc = result.docs[0];
   const body = await request.json();
-  const { frontmatter, body: content } = body;
+  const { frontmatter } = body;
 
-  if (!frontmatter || typeof content !== 'string') {
+  if (!frontmatter) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
-  // Build clean frontmatter object (omit null/undefined optional fields)
-  const fm: Record<string, unknown> = {
-    title: frontmatter.title,
-    date: frontmatter.date,
-    excerpt: frontmatter.excerpt,
-  };
-  if (frontmatter.order != null) fm.order = frontmatter.order;
-  if (frontmatter.newsletterHeading) fm.newsletterHeading = frontmatter.newsletterHeading;
-  if (frontmatter.newsletterDescription) fm.newsletterDescription = frontmatter.newsletterDescription;
+  const updateData: Record<string, unknown> = {};
+  if (frontmatter.title !== undefined) updateData.title = frontmatter.title;
+  if (frontmatter.date !== undefined) updateData.publishedDate = frontmatter.date;
+  if (frontmatter.excerpt !== undefined) updateData.excerpt = frontmatter.excerpt;
+  if (frontmatter.order !== undefined) updateData.order = frontmatter.order;
+  if (frontmatter.newsletterHeading !== undefined) updateData.newsletterHeading = frontmatter.newsletterHeading;
+  if (frontmatter.newsletterDescription !== undefined) updateData.newsletterDescription = frontmatter.newsletterDescription;
 
-  // Reconstruct and write the MDX file
-  const fileContent = matter.stringify(content, fm);
-  fs.writeFileSync(found.filePath, fileContent, 'utf8');
-
-  // Sync date to schedule.json if present
-  if (frontmatter.date) {
-    try {
-      const schedule = readSchedule();
-      const post = schedule.posts.find(p => p.slug === slug);
-      if (post) {
-        post.scheduledDate = frontmatter.date;
-        if (post.status === 'draft') post.status = 'scheduled';
-        writeSchedule(schedule);
-      }
-    } catch {
-      // Schedule sync is best-effort
-    }
-  }
+  await payload.update({
+    collection: 'posts',
+    id: doc.id,
+    data: updateData,
+  });
 
   return NextResponse.json({ ok: true });
 }

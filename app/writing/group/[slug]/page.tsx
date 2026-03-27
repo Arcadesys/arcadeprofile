@@ -3,13 +3,18 @@ import Link from 'next/link';
 import { getAllGroups, getGroupBySlug } from '@/lib/blog';
 import type { Metadata } from 'next';
 
-export function generateStaticParams() {
-  return getAllGroups().map(g => ({ slug: g.slug }));
+export async function generateStaticParams() {
+  try {
+    const groups = await getAllGroups();
+    return groups.map(g => ({ slug: g.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const group = getGroupBySlug(slug);
+  const group = await getGroupBySlug(slug);
   if (!group) return {};
   return {
     title: group.title,
@@ -19,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function GroupPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const group = getGroupBySlug(slug);
+  const group = await getGroupBySlug(slug);
   if (!group) notFound();
 
   return (

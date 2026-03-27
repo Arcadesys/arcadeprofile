@@ -1,11 +1,12 @@
 'use client';
 
+import { use } from 'react';
 import PostGunEditor from '../PostGunEditor';
 
-export default function EditPostPage({ params }: { params: { slug: string } }) {
-  // "new" slug is handled by /admin/editor/new route, but catch it here too
-  if (params.slug === 'new') {
+export default function EditPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  if (slug === 'new') {
     return <PostGunEditor slug={null} />;
   }
-  return <PostGunEditor slug={params.slug} />;
+  return <PostGunEditor slug={slug} />;
 }

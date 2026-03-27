@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { getPostBySlug } from '@/lib/blog';
+import { lexicalToPlainText } from '@/lib/lexical-text';
 import { readMarketing, writeMarketing, ChannelVariant } from '@/lib/marketing';
 
 const SITE_URL = 'https://thearcades.me';
@@ -21,9 +22,9 @@ Rules:
 
 export async function POST(
   _request: NextRequest,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
-  const { slug } = params;
+  const { slug } = await params;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -33,13 +34,14 @@ export async function POST(
     );
   }
 
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) {
     return NextResponse.json({ error: `Post not found: ${slug}` }, { status: 404 });
   }
 
   const postUrl = `${SITE_URL}/blog/${slug}`;
-  const userPrompt = `Title: ${post.title}\nExcerpt: ${post.excerpt}\nURL: ${postUrl}\n\nFull post body:\n${post.content}`;
+  const bodyText = lexicalToPlainText(post.content as unknown as Record<string, unknown>);
+  const userPrompt = `Title: ${post.title}\nExcerpt: ${post.excerpt}\nURL: ${postUrl}\n\nFull post body:\n${bodyText}`;
 
   try {
     const client = new Anthropic({ apiKey });

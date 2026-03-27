@@ -1,11 +1,6 @@
-import fs from 'fs';
-import path from 'path';
 import { NextRequest, NextResponse } from 'next/server';
-import matter from 'gray-matter';
-import { getPostFilePath } from '@/lib/blog';
-import { readSchedule, writeSchedule } from '@/lib/schedule';
-
-const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
+import { getPayload } from 'payload';
+import configPromise from '@payload-config';
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
@@ -15,50 +10,38 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'slug is required' }, { status: 400 });
   }
 
-  // Validate slug format
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
     return NextResponse.json({ error: 'Invalid slug format (use lowercase-kebab-case)' }, { status: 400 });
   }
 
+  const payload = await getPayload({ config: configPromise });
+
   // Check for duplicates
-  if (getPostFilePath(slug)) {
+  const existing = await payload.find({
+    collection: 'posts',
+    where: { slug: { equals: slug } },
+    limit: 1,
+  });
+  if (existing.docs.length > 0) {
     return NextResponse.json({ error: 'A post with this slug already exists' }, { status: 409 });
   }
 
-  const fm: Record<string, unknown> = {
-    title: frontmatter?.title || slug.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-    date: frontmatter?.date || '',
-    excerpt: frontmatter?.excerpt || '',
-  };
+  const title = frontmatter?.title || slug.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
 
-  const mdxContent = content || '';
-  const fileContent = matter.stringify(mdxContent, fm);
-
-  // Determine target directory
-  let targetDir = BLOG_DIR;
-  if (group) {
-    targetDir = path.join(BLOG_DIR, group);
-    if (!fs.existsSync(targetDir)) {
-      fs.mkdirSync(targetDir, { recursive: true });
-    }
-  }
-
-  const filePath = path.join(targetDir, `${slug}.mdx`);
-  fs.writeFileSync(filePath, fileContent, 'utf8');
-
-  // Add to schedule.json as draft
-  try {
-    const schedule = readSchedule();
-    schedule.posts.push({
+  await payload.create({
+    collection: 'posts',
+    data: {
+      title,
       slug,
+      excerpt: frontmatter?.excerpt || '',
+      content: content || { root: { children: [{ children: [{ text: '' }], type: 'paragraph', version: 1 }], direction: null, format: '', indent: 0, type: 'root', version: 1 } },
+      publishedDate: frontmatter?.date || new Date().toISOString().slice(0, 10),
       status: 'draft',
-      scheduledDate: frontmatter?.date || null,
-      tags: [],
-    });
-    writeSchedule(schedule);
-  } catch {
-    // Schedule sync is best-effort
-  }
+      scheduledPublishDate: frontmatter?.date || undefined,
+      group: group || '',
+      author: 'Austen Tucker',
+    },
+  });
 
   return NextResponse.json({ ok: true, slug, group: group || null }, { status: 201 });
 }
