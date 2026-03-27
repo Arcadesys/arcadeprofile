@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPostBySlug } from '@/lib/blog';
-import type { BlogPost } from '@/lib/blog';
-import { readMarketing, writeMarketing } from '@/lib/marketing';
 import { createPost, postToBluesky, atUriToWebUrl } from '@/lib/bluesky';
 import {
   addHistoryEntry,
@@ -9,8 +6,6 @@ import {
   SocialPlatform,
   PostVariant,
 } from '@/lib/social';
-
-const SITE_URL = 'https://thearcades.me';
 
 interface ComposePostRequest {
   text: string;
@@ -21,71 +16,6 @@ interface ComposePostRequest {
   scheduledAt?: string;
 }
 
-/** Marketing-driven post: slug + short|long variant, no freeform text body. */
-async function handleMarketingPost(body: {
-  slug: string;
-  platform: string;
-  variant: 'short' | 'long';
-}) {
-  const { slug, platform } = body;
-
-  if (platform !== 'bluesky') {
-    return NextResponse.json({ error: 'Unsupported platform. Supported: bluesky' }, { status: 400 });
-  }
-
-  const post = await getPostBySlug(slug);
-  if (!post) {
-    return NextResponse.json({ error: `Post not found: ${slug}` }, { status: 404 });
-  }
-
-  const marketing = readMarketing(slug);
-
-  // Read from new channels structure, fall back to legacy social fields
-  let copyText: string | undefined;
-  if (marketing?.channels?.bluesky?.text) {
-    copyText = marketing.channels.bluesky.text;
-  } else if (marketing?.social?.short) {
-    copyText = marketing.social.short;
-  } else if (marketing?.social?.long) {
-    copyText = marketing.social.long;
-  }
-
-  if (!copyText) {
-    return NextResponse.json(
-      { error: `No marketing copy found for "${slug}". Generate variants first.` },
-      { status: 404 },
-    );
-  }
-
-  const postUrl = `${SITE_URL}/blog/${slug}`;
-  const textWithLink = copyText.includes(postUrl) ? copyText : `${copyText}\n\n${postUrl}`;
-
-  try {
-    const result = await createPost(textWithLink, postUrl, post.title, post.excerpt);
-
-    const postRecord = {
-      postedAt: new Date().toISOString(),
-      postUri: result.uri,
-      variant: 'bluesky',
-    };
-
-    // Store in new posted structure
-    const updated = {
-      ...marketing,
-      posted: { ...marketing?.posted, bluesky: postRecord },
-    };
-    writeMarketing(slug, updated);
-
-    return NextResponse.json({
-      success: true,
-      postUri: result.uri,
-      platform: 'bluesky',
-    });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: `Bluesky post failed: ${message}` }, { status: 502 });
-  }
-}
 
 /** Compose / schedule post from freeform text (admin social page). */
 async function handleComposePost(body: ComposePostRequest) {
@@ -167,21 +97,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  const text = typeof raw.text === 'string' ? raw.text : '';
-  const slug = typeof raw.slug === 'string' ? raw.slug : undefined;
-  const variant = raw.variant;
-
-  // Schedule panel: { slug, platform, variant: short|long } — no compose text
-  if (slug && !text.trim() && (variant === 'short' || variant === 'long')) {
-    return handleMarketingPost({
-      slug,
-      platform: typeof raw.platform === 'string' ? raw.platform : '',
-      variant,
-    });
-  }
-
   const body: ComposePostRequest = {
-    text,
+    text: typeof raw.text === 'string' ? raw.text : '',
     platform: raw.platform as SocialPlatform,
     variant: raw.variant as PostVariant | undefined,
     slug: typeof raw.slug === 'string' ? raw.slug : undefined,

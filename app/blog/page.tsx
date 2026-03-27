@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import { getAllPosts } from '@/lib/blog';
 import SubscribeForm from '@/app/components/SubscribeForm';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Blog — The Arcades',
+  description: 'Blog posts from Austen Tucker.',
+};
 
 export const dynamic = 'force-dynamic';
 

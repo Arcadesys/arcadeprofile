@@ -32,13 +32,10 @@ export default function NavBar() {
   const navLinks = [
     { href: '/',          label: 'Home' },
     { href: '/previews',  label: 'Books' },
-    { href: '/writing',   label: 'Writing', prefixMatch: true },
-{ href: '/blog',      label: 'Blog', prefixMatch: true },
+    { href: '/blog',      label: 'Blog', prefixMatch: true },
     { href: '/portfolio', label: 'Tools' },
     { href: '/resume',    label: 'Resume' },
     { href: '/about',     label: 'About' },
-    ...(typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname)
-      ? [{ href: '/admin/schedule', label: 'Schedule' }] : []),
   ];
 
   const linkIsActive = (link) => {

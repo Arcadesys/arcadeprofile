@@ -1,0 +1,15 @@
+import type { CollectionConfig } from 'payload'
+
+export const Books: CollectionConfig = {
+  slug: 'books',
+  admin: { useAsTitle: 'title' },
+  fields: [
+    { name: 'key', type: 'text', required: true, unique: true },
+    { name: 'title', type: 'text', required: true },
+    { name: 'description', type: 'textarea', required: true },
+    { name: 'coverImage', type: 'text' },
+    { name: 'buyLink', type: 'text' },
+    { name: 'hasBuyButton', type: 'checkbox', defaultValue: false },
+    { name: 'hasPreview', type: 'checkbox', defaultValue: false },
+  ],
+}
