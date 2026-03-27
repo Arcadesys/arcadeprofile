@@ -1,13 +1,14 @@
 {
   "name": "nextjs",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "node --require ./scripts/patch-next-env.cjs --import tsx/esm scripts/seed.ts"
+    "seed": "node scripts/seed-runner.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",

@@ -1,5 +1,4 @@
 import type { CollectionConfig } from 'payload';
-import { revalidatePath } from 'next/cache';
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -10,19 +9,26 @@ export const Posts: CollectionConfig = {
   hooks: {
     afterChange: [
       ({ doc }) => {
-        try {
-          const slug = doc.slug as string;
-          const group = doc.group as string;
-          revalidatePath(`/blog/${slug}`);
-          revalidatePath('/blog');
-          revalidatePath('/writing');
-          revalidatePath('/feed.xml');
-          if (group) {
-            revalidatePath(`/writing/group/${group}`);
-          }
-        } catch {
-          // revalidatePath may fail outside request context (e.g. seed script)
-        }
+        // Dynamic import of next/cache only when hook runs (in Next.js context)
+        import('next/cache')
+          .then(({ revalidatePath }) => {
+            try {
+              const slug = doc.slug as string;
+              const group = doc.group as string;
+              revalidatePath(`/blog/${slug}`);
+              revalidatePath('/blog');
+              revalidatePath('/writing');
+              revalidatePath('/feed.xml');
+              if (group) {
+                revalidatePath(`/writing/group/${group}`);
+              }
+            } catch {
+              // revalidatePath may fail outside request context
+            }
+          })
+          .catch(() => {
+            // next/cache not available (e.g. seed script)
+          });
       },
     ],
   },
