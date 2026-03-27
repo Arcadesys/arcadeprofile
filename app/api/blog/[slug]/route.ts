@@ -6,9 +6,9 @@ import { readSchedule, writeSchedule } from '@/lib/schedule';
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
-  const { slug } = params;
+  const { slug } = await params;
   const found = getPostFilePath(slug);
   if (!found) {
     return NextResponse.json({ error: 'Post not found' }, { status: 404 });
@@ -34,9 +34,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
-  const { slug } = params;
+  const { slug } = await params;
   const found = getPostFilePath(slug);
   if (!found) {
     return NextResponse.json({ error: 'Post not found' }, { status: 404 });
