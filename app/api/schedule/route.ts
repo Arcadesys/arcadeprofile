@@ -18,7 +18,7 @@ export async function GET() {
     excerpt: doc.excerpt || '',
     date: doc.publishedDate,
     group: doc.group || null,
-    status: doc.status || 'draft',
+    status: doc.publishStatus || 'draft',
     scheduledDate: doc.scheduledPublishDate || null,
     tags: Array.isArray(doc.tags) ? doc.tags.map((t: { tag: string }) => t.tag) : [],
   }));
@@ -57,7 +57,7 @@ export async function PUT(request: NextRequest) {
     if (result.docs.length === 0) continue;
 
     const doc = result.docs[0];
-    const status = p.status === 'published' && p.scheduledDate && p.scheduledDate > todayStr
+    const publishStatus = p.status === 'published' && p.scheduledDate && p.scheduledDate > todayStr
       ? 'scheduled'
       : p.status;
 
@@ -65,7 +65,7 @@ export async function PUT(request: NextRequest) {
       collection: 'posts',
       id: doc.id,
       data: {
-        status,
+        publishStatus,
         scheduledPublishDate: p.scheduledDate || undefined,
         tags: Array.isArray(p.tags) ? p.tags.map((t: string) => ({ tag: t })) : undefined,
       },

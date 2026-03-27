@@ -4,7 +4,7 @@ export const Posts: CollectionConfig = {
   slug: 'posts',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'status', 'group', 'publishedDate', 'updatedAt'],
+    defaultColumns: ['title', 'publishStatus', 'group', 'publishedDate', 'updatedAt'],
   },
   hooks: {
     afterChange: [
@@ -85,7 +85,7 @@ export const Posts: CollectionConfig = {
       },
     },
     {
-      name: 'status',
+      name: 'publishStatus',
       type: 'select',
       defaultValue: 'draft',
       options: [

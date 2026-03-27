@@ -150,7 +150,7 @@ export interface Post {
     [k: string]: unknown;
   };
   publishedDate: string;
-  status?: ('draft' | 'scheduled' | 'published' | 'sent') | null;
+  publishStatus?: ('draft' | 'scheduled' | 'published' | 'sent') | null;
   scheduledPublishDate?: string | null;
   /**
    * Group/series slug (e.g. "the-singularity-log")
@@ -384,7 +384,7 @@ export interface PostsSelect<T extends boolean = true> {
   excerpt?: T;
   content?: T;
   publishedDate?: T;
-  status?: T;
+  publishStatus?: T;
   scheduledPublishDate?: T;
   group?: T;
   order?: T;

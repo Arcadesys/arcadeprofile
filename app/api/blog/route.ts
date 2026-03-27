@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       excerpt: frontmatter?.excerpt || '',
       content: content || { root: { children: [{ children: [{ text: '' }], type: 'paragraph', version: 1 }], direction: null, format: '', indent: 0, type: 'root', version: 1 } },
       publishedDate: frontmatter?.date || new Date().toISOString().slice(0, 10),
-      status: 'draft',
+      publishStatus: 'draft',
       scheduledPublishDate: frontmatter?.date || undefined,
       group: group || '',
       author: 'Austen Tucker',
