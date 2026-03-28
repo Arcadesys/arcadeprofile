@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "node scripts/seed-runner.mjs"
+    "seed": "tsx scripts/seed-runner.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
