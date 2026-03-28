@@ -1,82 +1,15 @@
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
-import { readSchedule, writeSchedule } from './schedule';
-
-const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
-
-function getTodayStrInTz(timeZone: string): string {
-  // en-CA yields YYYY-MM-DD
-  return new Date().toLocaleDateString('en-CA', { timeZone });
-}
-
-function normalizeDateKey(raw: string): string {
-  // Accept "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm..." and normalize to YYYY-MM-DD.
-  const m = raw.match(/^(\d{4}-\d{2}-\d{2})/);
-  return m ? m[1] : raw;
-}
-
-function isFutureDated(dateStr: string, todayStr: string): boolean {
-  const d = normalizeDateKey(dateStr);
-  return d !== '' && d > todayStr;
-}
-
-/** Returns the set of slugs that should NOT be shown on the site.
- *  A post is visible if its status is 'published' OR if its status is
- *  'scheduled' and its scheduledDate is today or in the past (using the
- *  configured timezone). */
-function getDraftSlugs(): Set<string> {
-  try {
-    const schedule = readSchedule();
-    const tz = schedule.settings?.timezone || 'America/Chicago';
-    const todayStr = getTodayStrInTz(tz);
-
-    // Auto-promote scheduled posts whose date has arrived,
-    // and demote published posts whose date is in the future
-    let dirty = false;
-    for (const p of schedule.posts) {
-      if (p.status === 'scheduled' && p.scheduledDate && p.scheduledDate <= todayStr) {
-        p.status = 'published';
-        dirty = true;
-      } else if (p.status === 'published' && p.scheduledDate && p.scheduledDate > todayStr) {
-        p.status = 'scheduled';
-        dirty = true;
-      }
-    }
-    if (dirty) {
-      writeSchedule(schedule);
-    }
-
-    return new Set(
-      schedule.posts
-        .filter(p => p.status !== 'published')
-        .map(p => p.slug)
-    );
-  } catch {
-    return new Set();
-  }
-}
-
-function parseOptionalInt(raw: unknown): number | undefined {
-  if (typeof raw === 'number' && !Number.isNaN(raw)) return raw;
-  if (typeof raw === 'string') {
-    const n = parseInt(raw, 10);
-    if (!Number.isNaN(n)) return n;
-  }
-  return undefined;
-}
-
-function optionalString(raw: unknown): string | undefined {
-  return typeof raw === 'string' && raw.trim() !== '' ? raw : undefined;
-}
+import { getPayload } from 'payload';
+import configPromise from '@payload-config';
+import type { SerializedEditorState } from 'lexical';
 
 export interface BlogPost {
   slug: string;
   title: string;
   date: string;
   excerpt: string;
-  content: string;
-  /** Folder the post lives in under content/blog/ (e.g. "the-singularity-log"). */
+  /** Lexical rich text JSON — render with <RichText /> */
+  content: SerializedEditorState;
+  /** Group/series slug (e.g. "the-singularity-log"). */
   group?: string;
   /** Explicit ordering within a group (lower numbers first). */
   order?: number;
@@ -93,100 +26,85 @@ export interface Group {
   posts: BlogPost[];
 }
 
-export function getAllPosts(): BlogPost[] {
-  if (!fs.existsSync(BLOG_DIR)) return [];
-
-  const posts: BlogPost[] = [];
-
-  for (const entry of fs.readdirSync(BLOG_DIR, { withFileTypes: true })) {
-    if (entry.isFile() && entry.name.endsWith('.mdx')) {
-      const slug = entry.name.replace('.mdx', '');
-      const raw = fs.readFileSync(path.join(BLOG_DIR, entry.name), 'utf8');
-      const { data, content } = matter(raw);
-      posts.push(parsePost(slug, data, content, undefined));
-    } else if (entry.isDirectory() && !entry.name.startsWith('.')) {
-      const groupDir = path.join(BLOG_DIR, entry.name);
-      for (const file of fs.readdirSync(groupDir)) {
-        if (file.endsWith('.mdx')) {
-          const slug = file.replace('.mdx', '');
-          const raw = fs.readFileSync(path.join(groupDir, file), 'utf8');
-          const { data, content } = matter(raw);
-          posts.push(parsePost(slug, data, content, entry.name));
-        }
-      }
-    }
-  }
-
-  const drafts = getDraftSlugs();
-  const tz = readSchedule().settings?.timezone || 'America/Chicago';
-  const todayStr = getTodayStrInTz(tz);
-  return posts
-    .filter(p => p.date && !drafts.has(p.slug) && !isFutureDated(p.date, todayStr))
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-}
-
-function parsePost(slug: string, data: Record<string, unknown>, content: string, group: string | undefined): BlogPost {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toPost(doc: any): BlogPost {
   return {
-    slug,
-    title: (data.title as string) || slug,
-    date: (data.date as string) || '',
-    excerpt: (data.excerpt as string) || content.slice(0, 200).replace(/[#*_\n]/g, ' ').trim() + '...',
-    content,
-    group,
-    order: parseOptionalInt(data.order),
-    newsletterHeading: optionalString(data.newsletterHeading),
-    newsletterDescription: optionalString(data.newsletterDescription),
+    slug: doc.slug as string,
+    title: doc.title as string,
+    date: doc.publishedDate as string,
+    excerpt: doc.excerpt as string,
+    content: doc.content as SerializedEditorState,
+    group: (doc.group as string) || undefined,
+    order: doc.order as number | undefined,
+    newsletterHeading: (doc.newsletterHeading as string) || undefined,
+    newsletterDescription: (doc.newsletterDescription as string) || undefined,
   };
 }
 
-/** Read optional _group.json metadata from a group folder. */
-function readGroupMeta(groupDir: string, slug: string): { title: string; description?: string; tags: string[] } {
-  const metaPath = path.join(groupDir, '_group.json');
-  if (fs.existsSync(metaPath)) {
-    try {
-      const raw = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
-      return {
-        title: typeof raw.title === 'string' ? raw.title : slugToTitle(slug),
-        description: typeof raw.description === 'string' ? raw.description : undefined,
-        tags: Array.isArray(raw.tags) ? raw.tags : [],
-      };
-    } catch { /* fall through */ }
-  }
-  return { title: slugToTitle(slug), tags: [] };
+async function getPayloadClient() {
+  return getPayload({ config: configPromise });
 }
 
-function slugToTitle(slug: string): string {
-  return slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+export async function getAllPosts(): Promise<BlogPost[]> {
+  const payload = await getPayloadClient();
+
+  const result = await payload.find({
+    collection: 'posts',
+    where: {
+      publishStatus: { in: ['published', 'sent'] },
+    },
+    sort: '-publishedDate',
+    limit: 100,
+    depth: 0,
+  });
+
+  return result.docs.map(toPost);
 }
 
-export function getAllGroups(): Group[] {
-  if (!fs.existsSync(BLOG_DIR)) return [];
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  const payload = await getPayloadClient();
 
-  const drafts = getDraftSlugs();
-  const tz = readSchedule().settings?.timezone || 'America/Chicago';
-  const todayStr = getTodayStrInTz(tz);
+  const result = await payload.find({
+    collection: 'posts',
+    where: {
+      slug: { equals: slug },
+      publishStatus: { in: ['published', 'sent'] },
+    },
+    limit: 1,
+    depth: 0,
+  });
+
+  if (result.docs.length === 0) return null;
+  return toPost(result.docs[0]);
+}
+
+export async function getAllGroups(): Promise<Group[]> {
+  const payload = await getPayloadClient();
+
+  const groupDocs = await payload.find({
+    collection: 'groups',
+    limit: 100,
+    depth: 0,
+  });
+
   const groups: Group[] = [];
 
-  for (const entry of fs.readdirSync(BLOG_DIR, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
+  for (const g of groupDocs.docs) {
+    const postResult = await payload.find({
+      collection: 'posts',
+      where: {
+        group: { equals: g.slug },
+        publishStatus: { in: ['published', 'sent'] },
+      },
+      sort: 'order',
+      limit: 100,
+      depth: 0,
+    });
 
-    const groupDir = path.join(BLOG_DIR, entry.name);
-    const meta = readGroupMeta(groupDir, entry.name);
-    const posts: BlogPost[] = [];
+    if (postResult.docs.length === 0) continue;
 
-    for (const file of fs.readdirSync(groupDir)) {
-      if (file.endsWith('.mdx')) {
-        const slug = file.replace('.mdx', '');
-        const raw = fs.readFileSync(path.join(groupDir, file), 'utf8');
-        const { data, content } = matter(raw);
-        const post = parsePost(slug, data, content, entry.name);
-        if (!drafts.has(slug) && !isFutureDated(post.date, todayStr)) {
-          posts.push(post);
-        }
-      }
-    }
-
-    // Sort by order (if present), then by date ascending
+    const posts = postResult.docs.map(toPost);
+    // Secondary sort: by date ascending for posts without explicit order
     posts.sort((a, b) => {
       const ao = a.order ?? Infinity;
       const bo = b.order ?? Infinity;
@@ -194,9 +112,13 @@ export function getAllGroups(): Group[] {
       return new Date(a.date).getTime() - new Date(b.date).getTime();
     });
 
-    if (posts.length > 0) {
-      groups.push({ slug: entry.name, title: meta.title, description: meta.description, tags: meta.tags, posts });
-    }
+    groups.push({
+      slug: g.slug as string,
+      title: g.title as string,
+      description: (g.description as string) || undefined,
+      tags: Array.isArray(g.tags) ? g.tags.map((t: { tag: string }) => t.tag) : [],
+      posts,
+    });
   }
 
   // Sort groups by most recent post date (newest first)
@@ -207,62 +129,27 @@ export function getAllGroups(): Group[] {
   });
 }
 
-export function getGroupBySlug(slug: string): Group | null {
-  return getAllGroups().find(g => g.slug === slug) ?? null;
+export async function getGroupBySlug(slug: string): Promise<Group | null> {
+  const groups = await getAllGroups();
+  return groups.find((g) => g.slug === slug) ?? null;
 }
 
-export function getUngroupedPosts(): BlogPost[] {
-  if (!fs.existsSync(BLOG_DIR)) return [];
+export async function getUngroupedPosts(): Promise<BlogPost[]> {
+  const payload = await getPayloadClient();
 
-  const posts: BlogPost[] = [];
-  for (const entry of fs.readdirSync(BLOG_DIR, { withFileTypes: true })) {
-    if (entry.isFile() && entry.name.endsWith('.mdx')) {
-      const slug = entry.name.replace('.mdx', '');
-      const raw = fs.readFileSync(path.join(BLOG_DIR, entry.name), 'utf8');
-      const { data, content } = matter(raw);
-      posts.push(parsePost(slug, data, content, undefined));
-    }
-  }
+  const result = await payload.find({
+    collection: 'posts',
+    where: {
+      publishStatus: { in: ['published', 'sent'] },
+      or: [
+        { group: { equals: '' } },
+        { group: { exists: false } },
+      ],
+    },
+    sort: '-publishedDate',
+    limit: 100,
+    depth: 0,
+  });
 
-  const drafts = getDraftSlugs();
-  const tz = readSchedule().settings?.timezone || 'America/Chicago';
-  const todayStr = getTodayStrInTz(tz);
-  return posts
-    .filter(p => p.date && !drafts.has(p.slug) && !isFutureDated(p.date, todayStr))
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-}
-
-/** Returns the absolute file path and group (if any) for a blog post slug. */
-export function getPostFilePath(slug: string): { filePath: string; group?: string } | null {
-  const topLevel = path.join(BLOG_DIR, `${slug}.mdx`);
-  if (fs.existsSync(topLevel)) {
-    return { filePath: topLevel };
-  }
-
-  if (!fs.existsSync(BLOG_DIR)) return null;
-  for (const entry of fs.readdirSync(BLOG_DIR, { withFileTypes: true })) {
-    if (entry.isDirectory() && !entry.name.startsWith('.')) {
-      const filePath = path.join(BLOG_DIR, entry.name, `${slug}.mdx`);
-      if (fs.existsSync(filePath)) {
-        return { filePath, group: entry.name };
-      }
-    }
-  }
-
-  return null;
-}
-
-export function getPostBySlug(slug: string): BlogPost | null {
-  if (getDraftSlugs().has(slug)) return null;
-
-  const found = getPostFilePath(slug);
-  if (!found) return null;
-
-  const raw = fs.readFileSync(found.filePath, 'utf8');
-  const { data, content } = matter(raw);
-  const post = parsePost(slug, data, content, found.group);
-  const tz = readSchedule().settings?.timezone || 'America/Chicago';
-  const todayStr = getTodayStrInTz(tz);
-  if (isFutureDated(post.date, todayStr)) return null;
-  return post;
+  return result.docs.map(toPost);
 }

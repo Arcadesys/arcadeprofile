@@ -7,6 +7,11 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  webpack: (config) => {
+    // Suppress missing optional dep warning from json-schema-to-typescript (via Payload)
+    config.resolve.fallback = { ...config.resolve.fallback, 'cli-color': false };
+    return config;
+  },
   async redirects() {
     return [
       {
@@ -18,16 +23,6 @@ const nextConfig = {
         source: '/DID',
         destination: '/did',
         permanent: false,
-      },
-      {
-        source: '/series',
-        destination: '/writing',
-        permanent: true,
-      },
-      {
-        source: '/series/essay/:slug',
-        destination: '/writing/group/:slug',
-        permanent: true,
       },
     ];
   },
