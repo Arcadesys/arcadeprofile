@@ -1,10 +1,12 @@
 import { Feed } from 'feed';
-import { getAllPosts } from '@/lib/mdx';
+import { getAllPosts } from '@/lib/blog';
+
+export const dynamic = 'force-dynamic';
 
 const SITE_URL = 'https://thearcades.me';
 
 export async function GET() {
-  const posts = getAllPosts();
+  const posts = await getAllPosts();
 
   const feed = new Feed({
     title: 'The Arcades - Blog',

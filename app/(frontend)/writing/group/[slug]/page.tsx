@@ -1,15 +1,20 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getAllGroups, getGroupBySlug } from '@/lib/mdx';
+import { getAllGroups, getGroupBySlug } from '@/lib/blog';
 import type { Metadata } from 'next';
 
-export function generateStaticParams() {
-  return getAllGroups().map(g => ({ slug: g.slug }));
+export async function generateStaticParams() {
+  try {
+    const groups = await getAllGroups();
+    return groups.map(g => ({ slug: g.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const group = getGroupBySlug(slug);
+  const group = await getGroupBySlug(slug);
   if (!group) return {};
   return {
     title: group.title,
@@ -19,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function GroupPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const group = getGroupBySlug(slug);
+  const group = await getGroupBySlug(slug);
   if (!group) notFound();
 
   return (
@@ -64,15 +69,13 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
                     </p>
                   )}
                 </div>
-                {post.date && (
-                  <time className="text-xs text-[var(--fg-muted)] flex-shrink-0">
-                    {new Date(post.date).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </time>
-                )}
+                <time className="text-xs text-[var(--fg-muted)] flex-shrink-0">
+                  {new Date(post.date).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </time>
               </Link>
             </li>
           ))}
