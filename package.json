@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "tsx scripts/seed-runner.mjs"
+    "seed": "tsx scripts/seed-runner.mjs",
+    "test:paperclip-bridge": "tsx --test lib/paperclip-payload-bridge.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",

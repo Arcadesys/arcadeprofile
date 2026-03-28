@@ -1,0 +1,4 @@
+interface:
+  display_name: "Build Payload Bridge"
+  short_description: "Secure Paperclip-to-Payload bridge"
+  default_prompt: "Use $build-paperclip-payload-bridge to add a secure, allowlisted Paperclip endpoint to this Payload app."
