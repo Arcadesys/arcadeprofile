@@ -140,13 +140,13 @@ export default function SocialPage() {
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <a
-            href="/admin/schedule"
+            href="/admin"
             style={{
               color: 'var(--fg-muted)', fontSize: '0.85rem', textDecoration: 'none',
               padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border)',
             }}
           >
-            Blog Schedule
+            Payload Admin
           </a>
           <button
             onClick={handleProcess}
