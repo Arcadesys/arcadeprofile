@@ -1,24 +1,16 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { RichText } from '@payloadcms/richtext-lexical/react';
-import { getAllPosts, getPostBySlug, getGroupBySlug } from '@/lib/blog';
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import { getAllPosts, getPostBySlug, getGroupBySlug } from '@/lib/mdx';
 import type { Metadata } from 'next';
 
-export const dynamicParams = true;
-export const revalidate = 3600;
-
-export async function generateStaticParams() {
-  try {
-    const posts = await getAllPosts();
-    return posts.map(post => ({ slug: post.slug }));
-  } catch {
-    return [];
-  }
+export function generateStaticParams() {
+  return getAllPosts().map(post => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const post = getPostBySlug(slug);
   if (!post) return {};
 
   return {
@@ -41,12 +33,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const post = getPostBySlug(slug);
   if (!post) notFound();
 
-  const group = post.group ? await getGroupBySlug(post.group) : null;
+  const group = post.group ? getGroupBySlug(post.group) : null;
 
-  // Find prev/next posts within the group
   let prevPost = null;
   let nextPost = null;
   if (group) {
@@ -76,33 +67,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               </p>
             )}
             <h1 className="text-3xl font-bold mb-2 gaysparkles">{post.title}</h1>
-            <time className="text-sm text-[var(--fg-muted)]">
-              {new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </time>
+            {post.date && (
+              <time className="text-sm text-[var(--fg-muted)]">
+                {new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </time>
+            )}
           </header>
 
           <div className="prose prose-lg dark:prose-invert max-w-none">
-            <RichText data={post.content} />
+            <MDXRemote source={post.content} />
           </div>
 
-          {(post.newsletterHeading || post.newsletterDescription) && (
-            <aside
-              className="mt-8 rounded-lg border border-[var(--border)] bg-[var(--btn-bg)] p-5 text-[var(--fg)]"
-              aria-label="Newsletter"
-            >
-              {post.newsletterHeading && (
-                <h2 className="mb-2 text-lg font-semibold text-[var(--fg)]">{post.newsletterHeading}</h2>
-              )}
-              {post.newsletterDescription && (
-                <p className="m-0 text-sm leading-relaxed text-[var(--fg-muted)]">{post.newsletterDescription}</p>
-              )}
-              <p className="mb-0 mt-3 text-sm text-[var(--fg-muted)]">
-                Subscribe in the footer below.
-              </p>
-            </aside>
-          )}
-
-          {/* Prev / Next navigation within group */}
           {group && (prevPost || nextPost) && (
             <nav className="mt-8 pt-4 border-t border-[var(--border)] flex justify-between gap-4">
               {prevPost ? (

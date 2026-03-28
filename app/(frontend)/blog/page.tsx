@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getAllPosts } from '@/lib/blog';
+import { getAllPosts } from '@/lib/mdx';
 import SubscribeForm from '@/app/components/SubscribeForm';
 import type { Metadata } from 'next';
 
@@ -8,10 +8,8 @@ export const metadata: Metadata = {
   description: 'Blog posts from Austen Tucker.',
 };
 
-export const dynamic = 'force-dynamic';
-
-export default async function BlogPage() {
-  const posts = await getAllPosts();
+export default function BlogPage() {
+  const posts = getAllPosts();
 
   return (
     <div className="w-full px-4 py-8">
@@ -35,13 +33,15 @@ export default async function BlogPage() {
                     {post.title}
                   </h2>
                 </Link>
-                <time className="text-sm text-[var(--fg-muted)] mb-2 block">
-                  {new Date(post.date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </time>
+                {post.date && (
+                  <time className="text-sm text-[var(--fg-muted)] mb-2 block">
+                    {new Date(post.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </time>
+                )}
                 {post.group && (
                   <Link
                     href={`/writing/group/${post.group}`}
@@ -50,7 +50,7 @@ export default async function BlogPage() {
                     in {post.group.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                   </Link>
                 )}
-                <p className="text-[var(--fg-muted)] mt-1">{post.excerpt}</p>
+                {post.excerpt && <p className="text-[var(--fg-muted)] mt-1">{post.excerpt}</p>}
               </article>
             ))}
           </div>

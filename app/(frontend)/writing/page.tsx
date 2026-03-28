@@ -1,11 +1,14 @@
-import { getAllGroups } from '@/lib/blog';
+import { getAllGroups } from '@/lib/mdx';
 import ProjectList, { type Project } from '@/app/components/ProjectList';
 import SubscribeForm from '@/app/components/SubscribeForm';
 
-export const dynamic = 'force-dynamic';
+export const metadata = {
+  title: 'Writing',
+  description: 'Essays and nonfiction by Austen Tucker.',
+};
 
-export default async function WritingPage() {
-  const groups = await getAllGroups();
+export default function WritingPage() {
+  const groups = getAllGroups();
 
   const projects: Project[] = groups.map(g => ({
     slug: g.slug,
