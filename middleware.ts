@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PROTECTED_PATHS = ['/admin', '/api/social'];
+// Payload already protects `/admin` with its own auth flow. Keep only the
+// custom social tooling local-only so production can serve the CMS admin.
+const PROTECTED_PATHS = ['/admin/social', '/api/social'];
 
 function isLocalhost(request: NextRequest): boolean {
   const host = request.headers.get('host') || '';
@@ -23,7 +25,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/admin/:path*',
+    '/admin/social/:path*',
     '/api/social/:path*',
   ],
 };
