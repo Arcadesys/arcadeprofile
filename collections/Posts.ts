@@ -4,7 +4,7 @@ export const Posts: CollectionConfig = {
   slug: 'posts',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'publishStatus', 'group', 'publishedDate', 'updatedAt'],
+    defaultColumns: ['title', '_status', 'group', 'publishedDate', 'updatedAt'],
   },
   hooks: {
     afterChange: [
@@ -85,17 +85,12 @@ export const Posts: CollectionConfig = {
       },
     },
     {
-      name: 'publishStatus',
-      type: 'select',
-      defaultValue: 'draft',
-      options: [
-        { label: 'Draft', value: 'draft' },
-        { label: 'Scheduled', value: 'scheduled' },
-        { label: 'Published', value: 'published' },
-        { label: 'Sent', value: 'sent' },
-      ],
+      name: 'newsletterSent',
+      type: 'checkbox',
+      defaultValue: false,
       admin: {
         position: 'sidebar',
+        description: 'Whether this post has been sent to newsletter subscribers',
       },
     },
     {

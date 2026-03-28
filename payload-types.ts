@@ -150,7 +150,10 @@ export interface Post {
     [k: string]: unknown;
   };
   publishedDate: string;
-  publishStatus?: ('draft' | 'scheduled' | 'published' | 'sent') | null;
+  /**
+   * Whether this post has been sent to newsletter subscribers
+   */
+  newsletterSent?: boolean | null;
   scheduledPublishDate?: string | null;
   /**
    * Group/series slug (e.g. "the-singularity-log")
@@ -384,7 +387,7 @@ export interface PostsSelect<T extends boolean = true> {
   excerpt?: T;
   content?: T;
   publishedDate?: T;
-  publishStatus?: T;
+  newsletterSent?: T;
   scheduledPublishDate?: T;
   group?: T;
   order?: T;
