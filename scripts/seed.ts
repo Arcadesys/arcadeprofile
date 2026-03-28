@@ -20,7 +20,7 @@ import {
   getEnabledNodes,
   editorConfigFactory,
 } from '@payloadcms/richtext-lexical';
-import configPromise from '../payload.config.ts';
+import configPromise from '../payload.config';
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
 const SCHEDULE_PATH = path.join(process.cwd(), 'data', 'schedule.json');
@@ -170,10 +170,10 @@ async function main() {
           : undefined;
 
       const scheduleEntry = scheduleMap.get(slug);
-      let publishStatus: string = 'draft';
+      let publishStatus: 'draft' | 'scheduled' | 'published' | 'sent' = 'draft';
       let scheduledPublishDate: string | undefined;
       if (scheduleEntry) {
-        publishStatus = scheduleEntry.status === 'sent' ? 'sent' : scheduleEntry.status;
+        publishStatus = (scheduleEntry.status === 'sent' ? 'sent' : scheduleEntry.status) as typeof publishStatus;
         if (scheduleEntry.scheduledDate) {
           scheduledPublishDate = scheduleEntry.scheduledDate;
         }
@@ -189,7 +189,7 @@ async function main() {
           title,
           slug,
           excerpt,
-          content: lexicalContent,
+          content: lexicalContent as any,
           publishedDate: date,
           publishStatus,
           scheduledPublishDate,
@@ -209,7 +209,7 @@ async function main() {
 
   // --- Seed books ---
   console.log('\n--- Seeding Books ---');
-  const { books } = await import('../data/books.ts');
+  const { books } = await import('../data/books');
 
   for (const [key, book] of Object.entries(books)) {
     const existing = await payload.find({
@@ -239,7 +239,7 @@ async function main() {
 
   // --- Seed projects ---
   console.log('\n--- Seeding Projects ---');
-  const { projects } = await import('../data/projects.ts');
+  const { projects } = await import('../data/projects');
 
   for (const project of projects) {
     const existing = await payload.find({
@@ -268,7 +268,7 @@ async function main() {
 
   // --- Seed demos ---
   console.log('\n--- Seeding Demos ---');
-  const { demos } = await import('../data/demos.ts');
+  const { demos } = await import('../data/demos');
 
   for (const demo of demos) {
     const existing = await payload.find({

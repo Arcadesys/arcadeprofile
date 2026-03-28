@@ -26,7 +26,8 @@ export interface Group {
   posts: BlogPost[];
 }
 
-function toPost(doc: Record<string, unknown>): BlogPost {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toPost(doc: any): BlogPost {
   return {
     slug: doc.slug as string,
     title: doc.title as string,
