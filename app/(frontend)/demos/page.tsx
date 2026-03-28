@@ -1,7 +1,9 @@
 import Link from 'next/link';
-import { demos } from '@/data/demos';
+import { getAllDemos } from '@/lib/payload';
 
-export default function DemosPage() {
+export default async function DemosPage() {
+  const demos = await getAllDemos();
+
   return (
     <div className="w-full px-4 py-8">
       <div className="austenbox" style={{ margin: "0 auto", marginTop: "5%", marginBottom: "5%" }}>
@@ -27,9 +29,9 @@ export default function DemosPage() {
                 <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">
                   {demo.title}
                 </h2>
-                {demo.tags && (
+                {Array.isArray(demo.tags) && (
                   <div className="flex flex-wrap gap-2 mb-3">
-                    {demo.tags.map((tag) => (
+                    {(demo.tags as string[]).map((tag) => (
                       <span
                         key={tag}
                         className="text-xs font-medium px-2 py-1 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-200"

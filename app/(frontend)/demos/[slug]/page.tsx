@@ -1,14 +1,15 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { demos, getDemoBySlug } from '@/data/demos';
+import { getAllDemos, getDemoBySlug } from '@/lib/payload';
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const demos = await getAllDemos();
   return demos.map((d) => ({ slug: d.slug }));
 }
 
 export default async function DemoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const demo = getDemoBySlug(slug);
+  const demo = await getDemoBySlug(slug);
   if (!demo) return notFound();
 
   return (
