@@ -30,12 +30,14 @@ export default function NavBar() {
   }
 
   const navLinks = [
-    { href: '/',          label: 'Home' },
-    { href: '/previews',  label: 'Books' },
-    { href: '/blog',      label: 'Blog', prefixMatch: true },
+    { href: '/', label: 'Home' },
+    { href: '/previews', label: 'Books', prefixMatch: true },
+    { href: '/blog', label: 'Blog', prefixMatch: true },
+    { href: '/writing', label: 'Writing', prefixMatch: true },
+    { href: '/demos', label: 'Demos', prefixMatch: true },
     { href: '/portfolio', label: 'Tools' },
-    { href: '/resume',    label: 'Resume' },
-    { href: '/about',     label: 'About' },
+    { href: '/resume', label: 'Resume' },
+    { href: '/about', label: 'About' },
   ];
 
   const linkIsActive = (link) => {
@@ -60,8 +62,8 @@ export default function NavBar() {
       {/* Navigation menu */}
       <div className={`${styles.menu} ${isOpen ? styles.open : ''}`}>
         <ul>
-          {navLinks.map((link, index) => (
-            <li key={index}>
+          {navLinks.map((link) => (
+            <li key={link.href}>
               {link.external ? (
                 <a
                   href={link.href}

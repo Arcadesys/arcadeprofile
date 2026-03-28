@@ -3,11 +3,11 @@ import { fileURLToPath } from 'url';
 import { buildConfig } from 'payload';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
-import { Posts } from './collections/Posts';
-import { Groups } from './collections/Groups';
-import { Books } from './collections/Books';
-import { Projects } from './collections/Projects';
-import { Demos } from './collections/Demos';
+import { Posts } from './collections/Posts.js';
+import { Groups } from './collections/Groups.js';
+import { Books } from './collections/Books.js';
+import { Projects } from './collections/Projects.js';
+import { Demos } from './collections/Demos.js';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
