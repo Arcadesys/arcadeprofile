@@ -1,7 +1,11 @@
 import type { CollectionConfig } from 'payload';
+import { discoverabilityFields, metaFields } from './fields/discoverability';
 
 export const Groups: CollectionConfig = {
   slug: 'groups',
+  access: {
+    read: () => true,
+  },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'updatedAt'],
@@ -33,5 +37,7 @@ export const Groups: CollectionConfig = {
         },
       ],
     },
+    ...discoverabilityFields,
+    ...metaFields,
   ],
 };

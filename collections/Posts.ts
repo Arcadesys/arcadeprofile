@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { discoverabilityFields, metaFields } from './fields/discoverability';
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -11,8 +12,8 @@ export const Posts: CollectionConfig = {
   },
   hooks: {
     afterChange: [
-      ({ doc }) => {
-        // Dynamic import of next/cache only when hook runs (in Next.js context)
+      async ({ doc, previousDoc, req }) => {
+        // Revalidate Next.js ISR cache
         import('next/cache')
           .then(({ revalidatePath }) => {
             try {
@@ -24,14 +25,48 @@ export const Posts: CollectionConfig = {
               revalidatePath('/feed.xml');
               if (group) {
                 revalidatePath(`/writing/group/${group}`);
+                revalidatePath(`/${group}`);
               }
             } catch {
               // revalidatePath may fail outside request context
             }
           })
-          .catch(() => {
-            // next/cache not available (e.g. seed script)
-          });
+          .catch(() => {});
+
+        // Send newsletter when a post is first published and newsletterSent is false
+        const wasPublished = previousDoc?._status !== 'published';
+        const isNowPublished = doc._status === 'published';
+        const notYetSent = !doc.newsletterSent;
+
+        if (isNowPublished && wasPublished && notYetSent) {
+          try {
+            const { sendCampaign } = await import('../lib/activecampaign');
+            const subject = (doc.newsletterHeading as string) || (doc.title as string);
+            const excerpt = (doc.excerpt as string) || '';
+            const slug = doc.slug as string;
+            const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thearcades.me';
+
+            const htmlBody = `
+              <h2>${subject}</h2>
+              ${excerpt ? `<p>${excerpt}</p>` : ''}
+              <p><a href="${baseUrl}/blog/${slug}">Read the full post →</a></p>
+            `.trim();
+
+            await sendCampaign({ subject, htmlBody });
+
+            // Mark as sent via the local Payload API
+            await req.payload.update({
+              collection: 'posts',
+              id: doc.id as number,
+              data: { newsletterSent: true },
+            });
+
+            console.log(`[newsletter] Campaign sent for post "${doc.title}"`);
+          } catch (err) {
+            // Don't fail the save if newsletter send fails; log and continue
+            console.error('[newsletter] Failed to send campaign:', err);
+          }
+        }
       },
     ],
   },
@@ -152,5 +187,22 @@ export const Posts: CollectionConfig = {
         description: 'Optional description for inline newsletter CTA on this post',
       },
     },
+    {
+      name: 'publish_status',
+      type: 'select',
+      options: [
+        { label: 'Draft', value: 'draft' },
+        { label: 'Scheduled', value: 'scheduled' },
+        { label: 'Published', value: 'published' },
+        { label: 'Sent', value: 'sent' },
+      ],
+      defaultValue: 'draft',
+      admin: {
+        position: 'sidebar',
+        description: 'Workflow status for newsletter pipeline.',
+      },
+    },
+    ...discoverabilityFields,
+    ...metaFields,
   ],
 };

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "arcadeprofile": {
+      "command": "npx",
+      "args": ["tsx", "mcp/payload-mcp.ts"],
+      "env": {
+        "PAYLOAD_API_URL": "http://localhost:3000",
+        "PAYLOAD_API_KEY": ""
+      }
+    }
+  }
+}

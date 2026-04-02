@@ -8,6 +8,8 @@ import { Groups } from './collections/Groups';
 import { Books } from './collections/Books';
 import { Projects } from './collections/Projects';
 import { Demos } from './collections/Demos';
+import { Pages } from './collections/Pages';
+import { Media } from './collections/Media';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -19,7 +21,7 @@ export default buildConfig({
     },
     theme: 'dark',
   },
-  collections: [Posts, Groups, Books, Projects, Demos],
+  collections: [Posts, Groups, Books, Projects, Demos, Pages, Media],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'default-secret-change-me',
   db: postgresAdapter({

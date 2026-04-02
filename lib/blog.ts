@@ -129,6 +129,77 @@ export async function getGroupBySlug(slug: string): Promise<Group | null> {
   return groups.find((g) => g.slug === slug) ?? null;
 }
 
+export interface Page {
+  slug: string;
+  title: string;
+  excerpt?: string;
+  intro_label?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  intro?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  content: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  outro?: any;
+  byline?: string;
+  footer_text?: string;
+  footer_link_label?: string;
+  footer_link_href?: string;
+  meta?: {
+    title?: string;
+    description?: string;
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toPage(doc: any): Page {
+  return {
+    slug: doc.slug as string,
+    title: doc.title as string,
+    excerpt: (doc.excerpt as string) || undefined,
+    intro_label: (doc.intro_label as string) || undefined,
+    intro: doc.intro || undefined,
+    content: doc.content,
+    outro: doc.outro || undefined,
+    byline: (doc.byline as string) || undefined,
+    footer_text: (doc.footer_text as string) || undefined,
+    footer_link_label: (doc.footer_link_label as string) || undefined,
+    footer_link_href: (doc.footer_link_href as string) || undefined,
+    meta: doc.meta || undefined,
+  };
+}
+
+export async function getPageBySlug(slug: string): Promise<Page | null> {
+  const payload = await getPayloadClient();
+
+  const result = await payload.find({
+    collection: 'pages',
+    where: {
+      and: [
+        { slug: { equals: slug } },
+        { _status: { equals: 'published' } },
+      ],
+    },
+    limit: 1,
+    depth: 0,
+  });
+
+  if (result.docs.length === 0) return null;
+  return toPage(result.docs[0]);
+}
+
+export async function getAllPages(): Promise<Page[]> {
+  const payload = await getPayloadClient();
+
+  const result = await payload.find({
+    collection: 'pages',
+    where: { _status: { equals: 'published' } },
+    limit: 100,
+    depth: 0,
+  });
+
+  return result.docs.map(toPage);
+}
+
 export async function getUngroupedPosts(): Promise<BlogPost[]> {
   const payload = await getPayloadClient();
 

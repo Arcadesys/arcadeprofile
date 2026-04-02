@@ -72,6 +72,8 @@ export interface Config {
     books: Book;
     projects: Project;
     demos: Demo;
+    pages: Page;
+    media: Media;
     'payload-kv': PayloadKv;
     users: User;
     'payload-locked-documents': PayloadLockedDocument;
@@ -85,6 +87,8 @@ export interface Config {
     books: BooksSelect<false> | BooksSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     demos: DemosSelect<false> | DemosSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -178,9 +182,98 @@ export interface Post {
    * Optional description for inline newsletter CTA on this post
    */
   newsletterDescription?: string | null;
+  /**
+   * Workflow status for newsletter pipeline.
+   */
+  publish_status?: ('draft' | 'scheduled' | 'published' | 'sent') | null;
+  /**
+   * Controls how this content is surfaced and distributed.
+   */
+  discoverability?: {
+    /**
+     * One-liner for social sharing (Bluesky, etc.)
+     */
+    social_hook?: string | null;
+    /**
+     * Short summary for search and AI indexing.
+     */
+    search_summary?: string | null;
+    /**
+     * Canonical URL path (e.g. /about)
+     */
+    canonical_path?: string | null;
+    /**
+     * Include on the Start Here page.
+     */
+    featured_on_start_here?: boolean | null;
+    primaryCTA?: {
+      label?: string | null;
+      href?: string | null;
+      description?: string | null;
+    };
+  };
+  meta?: {
+    /**
+     * Override the <title>. Defaults to the document title.
+     */
+    title?: string | null;
+    /**
+     * Meta description for SEO.
+     */
+    description?: string | null;
+    /**
+     * OG image for social sharing.
+     */
+    image?: (number | null) | Media;
+    /**
+     * Comma-separated keywords for SEO.
+     */
+    keywords?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  /**
+   * Alt text for accessibility.
+   */
+  alt?: string | null;
+  caption?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    og?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -197,6 +290,50 @@ export interface Group {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Controls how this content is surfaced and distributed.
+   */
+  discoverability?: {
+    /**
+     * One-liner for social sharing (Bluesky, etc.)
+     */
+    social_hook?: string | null;
+    /**
+     * Short summary for search and AI indexing.
+     */
+    search_summary?: string | null;
+    /**
+     * Canonical URL path (e.g. /about)
+     */
+    canonical_path?: string | null;
+    /**
+     * Include on the Start Here page.
+     */
+    featured_on_start_here?: boolean | null;
+    primaryCTA?: {
+      label?: string | null;
+      href?: string | null;
+      description?: string | null;
+    };
+  };
+  meta?: {
+    /**
+     * Override the <title>. Defaults to the document title.
+     */
+    title?: string | null;
+    /**
+     * Meta description for SEO.
+     */
+    description?: string | null;
+    /**
+     * OG image for social sharing.
+     */
+    image?: (number | null) | Media;
+    /**
+     * Comma-separated keywords for SEO.
+     */
+    keywords?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -213,6 +350,32 @@ export interface Book {
   buyLink?: string | null;
   hasBuyButton?: boolean | null;
   hasPreview?: boolean | null;
+  /**
+   * Controls how this content is surfaced and distributed.
+   */
+  discoverability?: {
+    /**
+     * One-liner for social sharing (Bluesky, etc.)
+     */
+    social_hook?: string | null;
+    /**
+     * Short summary for search and AI indexing.
+     */
+    search_summary?: string | null;
+    /**
+     * Canonical URL path (e.g. /about)
+     */
+    canonical_path?: string | null;
+    /**
+     * Include on the Start Here page.
+     */
+    featured_on_start_here?: boolean | null;
+    primaryCTA?: {
+      label?: string | null;
+      href?: string | null;
+      description?: string | null;
+    };
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -236,6 +399,32 @@ export interface Project {
     | number
     | boolean
     | null;
+  /**
+   * Controls how this content is surfaced and distributed.
+   */
+  discoverability?: {
+    /**
+     * One-liner for social sharing (Bluesky, etc.)
+     */
+    social_hook?: string | null;
+    /**
+     * Short summary for search and AI indexing.
+     */
+    search_summary?: string | null;
+    /**
+     * Canonical URL path (e.g. /about)
+     */
+    canonical_path?: string | null;
+    /**
+     * Include on the Start Here page.
+     */
+    featured_on_start_here?: boolean | null;
+    primaryCTA?: {
+      label?: string | null;
+      href?: string | null;
+      description?: string | null;
+    };
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -259,8 +448,177 @@ export interface Demo {
     | number
     | boolean
     | null;
+  /**
+   * Controls how this content is surfaced and distributed.
+   */
+  discoverability?: {
+    /**
+     * One-liner for social sharing (Bluesky, etc.)
+     */
+    social_hook?: string | null;
+    /**
+     * Short summary for search and AI indexing.
+     */
+    search_summary?: string | null;
+    /**
+     * Canonical URL path (e.g. /about)
+     */
+    canonical_path?: string | null;
+    /**
+     * Include on the Start Here page.
+     */
+    featured_on_start_here?: boolean | null;
+    primaryCTA?: {
+      label?: string | null;
+      href?: string | null;
+      description?: string | null;
+    };
+  };
+  meta?: {
+    /**
+     * Override the <title>. Defaults to the document title.
+     */
+    title?: string | null;
+    /**
+     * Meta description for SEO.
+     */
+    description?: string | null;
+    /**
+     * OG image for social sharing.
+     */
+    image?: (number | null) | Media;
+    /**
+     * Comma-separated keywords for SEO.
+     */
+    keywords?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  slug: string;
+  /**
+   * Short description for search and social cards.
+   */
+  excerpt?: string | null;
+  /**
+   * Label shown above the intro box (e.g. "A note before we begin:")
+   */
+  intro_label?: string | null;
+  /**
+   * Optional intro box shown before main content.
+   */
+  intro?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Optional closing section shown after main content.
+   */
+  outro?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Attribution line shown at the bottom of the outro box (e.g. "Kai, content writer for the Arcades")
+   */
+  byline?: string | null;
+  /**
+   * Footer copy (e.g. copyright notice)
+   */
+  footer_text?: string | null;
+  footer_link_label?: string | null;
+  footer_link_href?: string | null;
+  /**
+   * Controls how this content is surfaced and distributed.
+   */
+  discoverability?: {
+    /**
+     * One-liner for social sharing (Bluesky, etc.)
+     */
+    social_hook?: string | null;
+    /**
+     * Short summary for search and AI indexing.
+     */
+    search_summary?: string | null;
+    /**
+     * Canonical URL path (e.g. /about)
+     */
+    canonical_path?: string | null;
+    /**
+     * Include on the Start Here page.
+     */
+    featured_on_start_here?: boolean | null;
+    primaryCTA?: {
+      label?: string | null;
+      href?: string | null;
+      description?: string | null;
+    };
+  };
+  meta?: {
+    /**
+     * Override the <title>. Defaults to the document title.
+     */
+    title?: string | null;
+    /**
+     * Meta description for SEO.
+     */
+    description?: string | null;
+    /**
+     * OG image for social sharing.
+     */
+    image?: (number | null) | Media;
+    /**
+     * Comma-separated keywords for SEO.
+     */
+    keywords?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -332,6 +690,14 @@ export interface PayloadLockedDocument {
         value: number | Demo;
       } | null)
     | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: number | Media;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null);
@@ -400,6 +766,30 @@ export interface PostsSelect<T extends boolean = true> {
       };
   newsletterHeading?: T;
   newsletterDescription?: T;
+  publish_status?: T;
+  discoverability?:
+    | T
+    | {
+        social_hook?: T;
+        search_summary?: T;
+        canonical_path?: T;
+        featured_on_start_here?: T;
+        primaryCTA?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              description?: T;
+            };
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        keywords?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -418,6 +808,29 @@ export interface GroupsSelect<T extends boolean = true> {
         tag?: T;
         id?: T;
       };
+  discoverability?:
+    | T
+    | {
+        social_hook?: T;
+        search_summary?: T;
+        canonical_path?: T;
+        featured_on_start_here?: T;
+        primaryCTA?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              description?: T;
+            };
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        keywords?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -433,6 +846,21 @@ export interface BooksSelect<T extends boolean = true> {
   buyLink?: T;
   hasBuyButton?: T;
   hasPreview?: T;
+  discoverability?:
+    | T
+    | {
+        social_hook?: T;
+        search_summary?: T;
+        canonical_path?: T;
+        featured_on_start_here?: T;
+        primaryCTA?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              description?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -447,6 +875,21 @@ export interface ProjectsSelect<T extends boolean = true> {
   href?: T;
   external?: T;
   tags?: T;
+  discoverability?:
+    | T
+    | {
+        social_hook?: T;
+        search_summary?: T;
+        canonical_path?: T;
+        featured_on_start_here?: T;
+        primaryCTA?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              description?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -461,8 +904,117 @@ export interface DemosSelect<T extends boolean = true> {
   image?: T;
   embedUrl?: T;
   tags?: T;
+  discoverability?:
+    | T
+    | {
+        social_hook?: T;
+        search_summary?: T;
+        canonical_path?: T;
+        featured_on_start_here?: T;
+        primaryCTA?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              description?: T;
+            };
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        keywords?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  excerpt?: T;
+  intro_label?: T;
+  intro?: T;
+  content?: T;
+  outro?: T;
+  byline?: T;
+  footer_text?: T;
+  footer_link_label?: T;
+  footer_link_href?: T;
+  discoverability?:
+    | T
+    | {
+        social_hook?: T;
+        search_summary?: T;
+        canonical_path?: T;
+        featured_on_start_here?: T;
+        primaryCTA?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              description?: T;
+            };
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        keywords?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  alt?: T;
+  caption?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        og?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
