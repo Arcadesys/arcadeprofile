@@ -10,6 +10,9 @@ import { Projects } from './collections/Projects';
 import { Demos } from './collections/Demos';
 import { Pages } from './collections/Pages';
 import { Media } from './collections/Media';
+import { Users } from './collections/Users';
+import { Subscribers } from './collections/Subscribers';
+import { SocialPosts } from './collections/SocialPosts';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -21,7 +24,7 @@ export default buildConfig({
     },
     theme: 'dark',
   },
-  collections: [Posts, Groups, Books, Projects, Demos, Pages, Media],
+  collections: [Users, Posts, Groups, Books, Projects, Demos, Pages, Media, Subscribers, SocialPosts],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'default-secret-change-me',
   db: postgresAdapter({

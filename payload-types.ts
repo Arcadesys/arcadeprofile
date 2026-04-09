@@ -67,6 +67,7 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    users: User;
     posts: Post;
     groups: Group;
     books: Book;
@@ -74,14 +75,16 @@ export interface Config {
     demos: Demo;
     pages: Page;
     media: Media;
+    subscribers: Subscriber;
+    'social-posts': SocialPost;
     'payload-kv': PayloadKv;
-    users: User;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {};
   collectionsSelect: {
+    users: UsersSelect<false> | UsersSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     groups: GroupsSelect<false> | GroupsSelect<true>;
     books: BooksSelect<false> | BooksSelect<true>;
@@ -89,8 +92,9 @@ export interface Config {
     demos: DemosSelect<false> | DemosSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
+    'social-posts': SocialPostsSelect<false> | SocialPostsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
-    users: UsersSelect<false> | UsersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -128,6 +132,31 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -622,6 +651,57 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers".
+ */
+export interface Subscriber {
+  id: number;
+  email: string;
+  tags?:
+    | {
+        tag: 'fiction' | 'tech' | 'updates';
+        id?: string | null;
+      }[]
+    | null;
+  subscribedAt?: string | null;
+  unsubscribed?: boolean | null;
+  unsubscribedAt?: string | null;
+  unsubscribeToken?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-posts".
+ */
+export interface SocialPost {
+  id: number;
+  platform: 'bluesky';
+  variant: 'short' | 'long' | 'custom';
+  text: string;
+  /**
+   * Blog post slug this social post promotes (optional)
+   */
+  slug?: string | null;
+  linkUrl?: string | null;
+  status: 'scheduled' | 'posted' | 'cancelled' | 'failed';
+  scheduledAt?: string | null;
+  postedAt?: string | null;
+  cancelledAt?: string | null;
+  failedAt?: string | null;
+  failureReason?: string | null;
+  /**
+   * AT Protocol URI
+   */
+  postUri?: string | null;
+  /**
+   * Web URL to live post
+   */
+  postUrl?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -639,36 +719,15 @@ export interface PayloadKv {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
   id: number;
   document?:
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
     | ({
         relationTo: 'posts';
         value: number | Post;
@@ -698,8 +757,12 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
-        relationTo: 'users';
-        value: number | User;
+        relationTo: 'subscribers';
+        value: number | Subscriber;
+      } | null)
+    | ({
+        relationTo: 'social-posts';
+        value: number | SocialPost;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -742,6 +805,28 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1018,33 +1103,51 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers_select".
+ */
+export interface SubscribersSelect<T extends boolean = true> {
+  email?: T;
+  tags?:
+    | T
+    | {
+        tag?: T;
+        id?: T;
+      };
+  subscribedAt?: T;
+  unsubscribed?: T;
+  unsubscribedAt?: T;
+  unsubscribeToken?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-posts_select".
+ */
+export interface SocialPostsSelect<T extends boolean = true> {
+  platform?: T;
+  variant?: T;
+  text?: T;
+  slug?: T;
+  linkUrl?: T;
+  status?: T;
+  scheduledAt?: T;
+  postedAt?: T;
+  cancelledAt?: T;
+  failedAt?: T;
+  failureReason?: T;
+  postUri?: T;
+  postUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
   key?: T;
   data?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
- */
-export interface UsersSelect<T extends boolean = true> {
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
-  sessions?:
-    | T
-    | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
-      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

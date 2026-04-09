@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { syncContact, addToList, addTagsToContact } from '@/lib/activecampaign';
+import { getPayload } from 'payload';
+import config from '@payload-config';
 
 const VALID_TAGS = ['fiction', 'tech', 'updates'];
 
 export async function POST(request: NextRequest) {
-  if (!process.env.ACTIVECAMPAIGN_API_URL || !process.env.ACTIVECAMPAIGN_API_KEY) {
-    return NextResponse.json(
-      { error: 'Email subscription is not configured.' },
-      { status: 503 },
-    );
-  }
-
   const { email, tags } = await request.json();
 
   if (!email || typeof email !== 'string') {
@@ -21,12 +15,40 @@ export async function POST(request: NextRequest) {
     ? tags.filter((t: unknown) => typeof t === 'string' && VALID_TAGS.includes(t))
     : VALID_TAGS;
 
+  const tagArray = selectedTags.map((tag) => ({ tag }));
+
   try {
-    const contactId = await syncContact(email);
-    await addToList(contactId);
-    if (selectedTags.length > 0) {
-      await addTagsToContact(contactId, selectedTags);
+    const payload = await getPayload({ config });
+
+    // Check if subscriber already exists
+    const existing = await payload.find({
+      collection: 'subscribers',
+      where: { email: { equals: email } },
+      limit: 1,
+    });
+
+    if (existing.docs.length > 0) {
+      const sub = existing.docs[0];
+      // Reactivate if unsubscribed, and update tags
+      await payload.update({
+        collection: 'subscribers',
+        id: sub.id,
+        data: {
+          tags: tagArray,
+          unsubscribed: false,
+          ...(sub.unsubscribed ? { unsubscribedAt: undefined } : {}),
+        },
+      });
+    } else {
+      await payload.create({
+        collection: 'subscribers',
+        data: {
+          email,
+          tags: tagArray,
+        },
+      });
     }
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error('Subscribe error:', err);

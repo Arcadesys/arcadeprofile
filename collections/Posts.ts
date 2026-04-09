@@ -40,7 +40,7 @@ export const Posts: CollectionConfig = {
 
         if (isNowPublished && wasPublished && notYetSent) {
           try {
-            const { sendCampaign } = await import('../lib/activecampaign');
+            const { sendNewsletter } = await import('../lib/postmark');
             const subject = (doc.newsletterHeading as string) || (doc.title as string);
             const excerpt = (doc.excerpt as string) || '';
             const slug = doc.slug as string;
@@ -52,7 +52,7 @@ export const Posts: CollectionConfig = {
               <p><a href="${baseUrl}/blog/${slug}">Read the full post →</a></p>
             `.trim();
 
-            await sendCampaign({ subject, htmlBody });
+            await sendNewsletter({ subject, htmlBody, payload: req.payload });
 
             // Mark as sent via the local Payload API
             await req.payload.update({

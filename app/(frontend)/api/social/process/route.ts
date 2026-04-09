@@ -1,13 +1,25 @@
 import { NextResponse } from 'next/server';
-import { getDuePosts, updateHistoryEntry } from '@/lib/social';
 import { postToBluesky, atUriToWebUrl } from '@/lib/bluesky';
+import { getPayload } from 'payload';
+import config from '@payload-config';
 
 /**
  * Process scheduled social posts that are due.
  * Call this on a cron or manually to fire queued posts.
  */
 export async function POST() {
-  const due = getDuePosts();
+  const payload = await getPayload({ config });
+  const now = new Date().toISOString();
+
+  const result = await payload.find({
+    collection: 'social-posts',
+    where: {
+      status: { equals: 'scheduled' },
+      scheduledAt: { less_than_equal: now },
+    },
+  });
+
+  const due = result.docs;
 
   if (due.length === 0) {
     return NextResponse.json({ processed: 0, results: [] });
@@ -18,22 +30,30 @@ export async function POST() {
   for (const entry of due) {
     try {
       if (entry.platform === 'bluesky') {
-        const result = await postToBluesky(entry.text, entry.linkUrl);
-        const postUrl = atUriToWebUrl(result.uri);
-        updateHistoryEntry(entry.id, {
-          status: 'posted',
-          postedAt: new Date().toISOString(),
-          postUri: result.uri,
-          postUrl,
+        const blueskyResult = await postToBluesky(entry.text, entry.linkUrl || undefined);
+        const postUrl = atUriToWebUrl(blueskyResult.uri);
+        await payload.update({
+          collection: 'social-posts',
+          id: entry.id,
+          data: {
+            status: 'posted',
+            postedAt: new Date().toISOString(),
+            postUri: blueskyResult.uri,
+            postUrl,
+          },
         });
         results.push({ id: entry.id, status: 'posted', postUrl });
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      updateHistoryEntry(entry.id, {
-        status: 'failed',
-        failedAt: new Date().toISOString(),
-        failureReason: message,
+      await payload.update({
+        collection: 'social-posts',
+        id: entry.id,
+        data: {
+          status: 'failed',
+          failedAt: new Date().toISOString(),
+          failureReason: message,
+        },
       });
       results.push({ id: entry.id, status: 'failed', error: message });
     }

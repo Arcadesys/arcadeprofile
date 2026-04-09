@@ -1,21 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createPost, postToBluesky, atUriToWebUrl } from '@/lib/bluesky';
-import {
-  addHistoryEntry,
-  generateId,
-  SocialPlatform,
-  PostVariant,
-} from '@/lib/social';
+import { postToBluesky, atUriToWebUrl } from '@/lib/bluesky';
+import { getPayload } from 'payload';
+import config from '@payload-config';
 
 interface ComposePostRequest {
   text: string;
-  platform: SocialPlatform;
-  variant?: PostVariant;
+  platform: string;
+  variant?: string;
   slug?: string;
   linkUrl?: string;
   scheduledAt?: string;
 }
-
 
 /** Compose / schedule post from freeform text (admin social page). */
 async function handleComposePost(body: ComposePostRequest) {
@@ -26,7 +21,7 @@ async function handleComposePost(body: ComposePostRequest) {
     return NextResponse.json({ error: 'Only bluesky platform is supported' }, { status: 400 });
   }
 
-  const id = generateId();
+  const payload = await getPayload({ config });
   const variant = body.variant || 'custom';
 
   if (body.scheduledAt) {
@@ -38,54 +33,60 @@ async function handleComposePost(body: ComposePostRequest) {
       return NextResponse.json({ error: 'scheduledAt must be in the future' }, { status: 400 });
     }
 
-    addHistoryEntry({
-      id,
-      slug: body.slug || null,
-      platform: body.platform,
-      variant,
-      text: body.text,
-      linkUrl: body.linkUrl,
-      status: 'scheduled',
-      scheduledAt: scheduledDate.toISOString(),
+    const doc = await payload.create({
+      collection: 'social-posts',
+      data: {
+        platform: body.platform,
+        variant,
+        text: body.text,
+        slug: body.slug || undefined,
+        linkUrl: body.linkUrl,
+        status: 'scheduled',
+        scheduledAt: scheduledDate.toISOString(),
+      },
     });
 
-    return NextResponse.json({ id, status: 'scheduled', scheduledAt: scheduledDate.toISOString() });
+    return NextResponse.json({ id: doc.id, status: 'scheduled', scheduledAt: scheduledDate.toISOString() });
   }
 
   try {
     const result = await postToBluesky(body.text, body.linkUrl);
     const postUrl = atUriToWebUrl(result.uri);
 
-    addHistoryEntry({
-      id,
-      slug: body.slug || null,
-      platform: body.platform,
-      variant,
-      text: body.text,
-      linkUrl: body.linkUrl,
-      status: 'posted',
-      postedAt: new Date().toISOString(),
-      postUri: result.uri,
-      postUrl,
+    const doc = await payload.create({
+      collection: 'social-posts',
+      data: {
+        platform: body.platform,
+        variant,
+        text: body.text,
+        slug: body.slug || undefined,
+        linkUrl: body.linkUrl,
+        status: 'posted',
+        postedAt: new Date().toISOString(),
+        postUri: result.uri,
+        postUrl,
+      },
     });
 
-    return NextResponse.json({ id, status: 'posted', postUri: result.uri, postUrl });
+    return NextResponse.json({ id: doc.id, status: 'posted', postUri: result.uri, postUrl });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
 
-    addHistoryEntry({
-      id,
-      slug: body.slug || null,
-      platform: body.platform,
-      variant,
-      text: body.text,
-      linkUrl: body.linkUrl,
-      status: 'failed',
-      failedAt: new Date().toISOString(),
-      failureReason: message,
+    const doc = await payload.create({
+      collection: 'social-posts',
+      data: {
+        platform: body.platform,
+        variant,
+        text: body.text,
+        slug: body.slug || undefined,
+        linkUrl: body.linkUrl,
+        status: 'failed',
+        failedAt: new Date().toISOString(),
+        failureReason: message,
+      },
     });
 
-    return NextResponse.json({ error: message, id, status: 'failed' }, { status: 502 });
+    return NextResponse.json({ error: message, id: doc.id, status: 'failed' }, { status: 502 });
   }
 }
 
@@ -99,8 +100,8 @@ export async function POST(request: NextRequest) {
 
   const body: ComposePostRequest = {
     text: typeof raw.text === 'string' ? raw.text : '',
-    platform: raw.platform as SocialPlatform,
-    variant: raw.variant as PostVariant | undefined,
+    platform: typeof raw.platform === 'string' ? raw.platform : '',
+    variant: typeof raw.variant === 'string' ? raw.variant : undefined,
     slug: typeof raw.slug === 'string' ? raw.slug : undefined,
     linkUrl: typeof raw.linkUrl === 'string' ? raw.linkUrl : undefined,
     scheduledAt: typeof raw.scheduledAt === 'string' ? raw.scheduledAt : undefined,
