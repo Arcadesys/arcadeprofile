@@ -8,6 +8,8 @@ import type { Payload } from 'payload';
 
 const BATCH_SIZE = 500; // Postmark batch API limit
 
+export type PostmarkSendEmailResponse = Awaited<ReturnType<ServerClient['sendEmail']>>;
+
 function getClient(): ServerClient {
   const token = process.env.POSTMARK_SERVER_TOKEN;
   if (!token) throw new Error('Missing POSTMARK_SERVER_TOKEN environment variable');
@@ -22,11 +24,47 @@ function getMessageStream(): string {
   return process.env.POSTMARK_BROADCAST_STREAM || 'broadcast';
 }
 
+function getTransactionalMessageStream(): string {
+  return process.env.POSTMARK_TRANSACTIONAL_STREAM || 'outbound';
+}
+
 export interface NewsletterOptions {
   subject: string;
   htmlBody: string;
   textBody?: string;
   payload: Payload;
+}
+
+export interface PostmarkTestEmailOptions {
+  to: string;
+  subject?: string;
+  htmlBody?: string;
+  textBody?: string;
+  client?: Pick<ServerClient, 'sendEmail'>;
+}
+
+export async function sendPostmarkTestEmail(
+  options: PostmarkTestEmailOptions,
+): Promise<PostmarkSendEmailResponse> {
+  const { to, client = getClient() } = options;
+  const sentAt = new Date().toISOString();
+  const fromEmail = getFromEmail();
+  const messageStream = getTransactionalMessageStream();
+  const subject = options.subject || `Postmark test email ${sentAt}`;
+  const htmlBody =
+    options.htmlBody ||
+    `<p>This is a Postmark test email from The Arcades.</p><p>Sent at ${sentAt}.</p>`;
+  const textBody =
+    options.textBody || `This is a Postmark test email from The Arcades.\nSent at ${sentAt}.`;
+
+  return client.sendEmail({
+    From: fromEmail,
+    To: to,
+    Subject: subject,
+    HtmlBody: htmlBody,
+    TextBody: textBody,
+    MessageStream: messageStream,
+  });
 }
 
 /**
