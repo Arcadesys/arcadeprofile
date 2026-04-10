@@ -9,14 +9,16 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "tsx scripts/seed-runner.mjs",
+    "seed:blog": "tsx --require ./scripts/patch-next-env.cjs scripts/seed.ts",
     "test:paperclip-bridge": "tsx --test lib/paperclip-payload-bridge.test.ts",
     "mcp": "tsx mcp/payload-mcp.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@next/env": "^15.5.14",
+    "@next/env": "^15.4.11",
     "@payloadcms/db-postgres": "^3.80.0",
+    "@payloadcms/email-nodemailer": "^3.80.0",
     "@payloadcms/next": "^3.80.0",
     "@payloadcms/richtext-lexical": "^3.80.0",
     "@payloadcms/ui": "^3.80.0",

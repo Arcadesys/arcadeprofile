@@ -1,6 +1,12 @@
 {
   "posts": [
     {
+      "slug": "test-hello-local",
+      "status": "published",
+      "scheduledDate": "2026-04-09",
+      "tags": ["test", "local"]
+    },
+    {
       "slug": "hello-world",
       "status": "published",
       "scheduledDate": "2026-03-15",

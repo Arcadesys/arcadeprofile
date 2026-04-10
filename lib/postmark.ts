@@ -25,6 +25,7 @@ function getMessageStream(): string {
 export interface NewsletterOptions {
   subject: string;
   htmlBody: string;
+  textBody?: string;
   payload: Payload;
 }
 
@@ -34,7 +35,7 @@ export interface NewsletterOptions {
  * and sends in batches of 500.
  */
 export async function sendNewsletter(options: NewsletterOptions): Promise<number> {
-  const { subject, htmlBody, payload } = options;
+  const { subject, htmlBody, payload, textBody } = options;
   const client = getClient();
   const fromEmail = getFromEmail();
   const messageStream = getMessageStream();
@@ -68,13 +69,18 @@ export async function sendNewsletter(options: NewsletterOptions): Promise<number
         <p style="font-size:12px;color:#999;text-align:center;">
           <a href="${unsubscribeUrl}" style="color:#999;">Unsubscribe</a>
         </p>`;
+      const personalizedText = [
+        textBody || htmlBody.replace(/<[^>]+>/g, ''),
+        '',
+        `Unsubscribe: ${unsubscribeUrl}`,
+      ].join('\n');
 
       return {
         From: fromEmail,
         To: sub.email as string,
         Subject: subject,
         HtmlBody: personalizedHtml,
-        TextBody: htmlBody.replace(/<[^>]+>/g, ''),
+        TextBody: personalizedText,
         MessageStream: messageStream,
         Headers: [
           {

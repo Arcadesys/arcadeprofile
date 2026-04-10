@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { postToBluesky, atUriToWebUrl } from '@/lib/bluesky';
+import { authorizeCronRequest } from '@/lib/cronAuth';
 import { getPayload } from 'payload';
 import config from '@payload-config';
 
@@ -7,7 +8,7 @@ import config from '@payload-config';
  * Process scheduled social posts that are due.
  * Call this on a cron or manually to fire queued posts.
  */
-export async function POST() {
+async function processScheduledSocialPosts() {
   const payload = await getPayload({ config });
   const now = new Date().toISOString();
 
@@ -60,4 +61,18 @@ export async function POST() {
   }
 
   return NextResponse.json({ processed: results.length, results });
+}
+
+export async function GET(request: Request) {
+  const unauthorizedResponse = authorizeCronRequest(request);
+
+  if (unauthorizedResponse) {
+    return unauthorizedResponse;
+  }
+
+  return processScheduledSocialPosts();
+}
+
+export async function POST() {
+  return processScheduledSocialPosts();
 }
