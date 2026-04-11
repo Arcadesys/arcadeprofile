@@ -1,10 +1,16 @@
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html';
-
-import type { Post } from '../payload-types';
+import type { SerializedEditorState } from 'lexical';
 
 type NewsletterContent = {
   htmlBody: string;
   textBody: string;
+};
+
+type PostInput = {
+  content: SerializedEditorState;
+  excerpt?: string | null;
+  slug: string;
+  title: string;
 };
 
 const DEFAULT_SITE_URL = 'https://thearcades.me';
@@ -27,7 +33,7 @@ function stripHtml(value: string): string {
     .trim();
 }
 
-function renderPostContent(post: Pick<Post, 'content'>): string {
+function renderPostContent(post: PostInput): string {
   try {
     return convertLexicalToHTML({
       data: post.content,
@@ -40,7 +46,7 @@ function renderPostContent(post: Pick<Post, 'content'>): string {
 }
 
 export function buildPostNewsletterContent(
-  post: Pick<Post, 'content' | 'excerpt' | 'slug' | 'title'>,
+  post: PostInput,
   siteUrl = process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL,
 ): NewsletterContent {
   const postUrl = `${siteUrl}/blog/${post.slug}`;
