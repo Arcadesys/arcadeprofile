@@ -20,7 +20,20 @@ function lo(a: number, b: number, t: number) {
 export default function CosmicBackground() {
   const { cosmosTime: t } = useCosmosTime();
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  // On narrow portrait screens the default xMidYMid centre hides both
+  // primary (x=1340) and secondary (x=350) eclipses (visible range ≈711–1210).
+  // Switch to xMinYMid on mobile so the viewport starts at x=0 and puts
+  // the secondary eclipse (x=350) into frame.
+  const [par, setPar] = useState('xMidYMid slice');
+  useEffect(() => {
+    setMounted(true);
+    const update = () => {
+      setPar(window.innerWidth < 768 ? 'xMinYMid slice' : 'xMidYMid slice');
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
   if (!mounted) return null;
 
   const c = (n: string, d: string) => lc(n, d, t);
@@ -137,7 +150,7 @@ export default function CosmicBackground() {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none', overflow: 'hidden' }}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"
-           preserveAspectRatio="xMidYMid slice" style={{ width: '100%', height: '100%', display: 'block' }}>
+           preserveAspectRatio={par} style={{ width: '100%', height: '100%', display: 'block' }}>
         <defs>
           {/* radial glows */}
           <radialGradient id="cb-glow1" cx="50%" cy="50%" r="50%">
