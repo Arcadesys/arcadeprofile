@@ -33,10 +33,10 @@ function stripHtml(value: string): string {
     .trim();
 }
 
-function renderPostContent(post: PostInput): string {
+function renderPostContent(content: SerializedEditorState): string {
   try {
     return convertLexicalToHTML({
-      data: post.content,
+      data: content,
       disableContainer: true,
     }).trim();
   } catch (error) {
@@ -53,7 +53,7 @@ export function buildPostNewsletterContent(
   const escapedTitle = escapeHtml(post.title);
   const excerpt = post.excerpt?.trim() || '';
   const escapedExcerpt = excerpt ? escapeHtml(excerpt) : '';
-  const contentHtml = renderPostContent(post);
+  const contentHtml = renderPostContent(post.content);
 
   const htmlBody = `
     <article style="font-family: Georgia, serif; color: #111827; line-height: 1.7;">
