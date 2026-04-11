@@ -50,9 +50,13 @@ const hexVars: [string, string, string][] = [
 ];
 
 const rgbaVars: [string, [number, number, number, number], [number, number, number, number]][] = [
-  ['--glow-pink',   [255, 60, 172, 0.4],  [255, 20, 147, 0.15]],
-  ['--glow-orange', [255, 138, 0, 0.3],   [224, 120, 0, 0.1]],
-  ['--border',      [255, 138, 0, 0.2],   [0, 0, 0, 0.1]],
+  ['--glow-pink',          [255, 60, 172, 0.4],  [255, 20, 147, 0.15]],
+  ['--glow-orange',        [255, 138, 0, 0.3],   [224, 120, 0, 0.1]],
+  ['--border',             [255, 138, 0, 0.2],   [0, 0, 0, 0.1]],
+  // navbar backgrounds — interpolated so the sticky bar and mobile dropdown
+  // always match the current day/night sky tone
+  ['--navbar-bg',          [10, 10, 20, 0.85],   [250, 249, 247, 0.9]],
+  ['--navbar-dropdown-bg', [10, 10, 20, 0.95],   [250, 249, 247, 0.95]],
 ];
 
 function applyThemeVars(t: number) {

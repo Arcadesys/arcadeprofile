@@ -80,12 +80,7 @@ export default function Home() {
       </section>
 
       {/* Explore tiles */}
-      <div style={{
-        display: "grid",
-        gap: "1rem",
-        gridTemplateColumns: "repeat(2, 1fr)",
-        marginBottom: "2rem",
-      }}>
+      <div className="tile-grid-home">
         <Link href="/previews" className="tile-link" style={{
           display: "flex",
           flexDirection: "column",
