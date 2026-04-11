@@ -3,8 +3,12 @@ import Link from 'next/link';
 import { getAllDemos, getDemoBySlug } from '@/lib/payload';
 
 export async function generateStaticParams() {
-  const demos = await getAllDemos();
-  return demos.map((d) => ({ slug: d.slug }));
+  try {
+    const demos = await getAllDemos();
+    return demos.map((d) => ({ slug: d.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export default async function DemoPage({ params }: { params: Promise<{ slug: string }> }) {

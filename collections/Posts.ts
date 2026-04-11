@@ -1,4 +1,7 @@
 import type { CollectionConfig } from 'payload';
+
+import type { Post } from '../payload-types';
+import { buildPostNewsletterContent } from '../lib/newsletter';
 import { discoverabilityFields, metaFields } from './fields/discoverability';
 
 export const Posts: CollectionConfig = {
@@ -8,7 +11,14 @@ export const Posts: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', '_status', 'group', 'publishedDate', 'updatedAt'],
+    defaultColumns: [
+      'title',
+      'publish_status',
+      '_status',
+      'scheduledPublishDate',
+      'publishedDate',
+      'newsletterSent',
+    ],
   },
   hooks: {
     afterChange: [
@@ -42,23 +52,18 @@ export const Posts: CollectionConfig = {
           try {
             const { sendNewsletter } = await import('../lib/postmark');
             const subject = (doc.newsletterHeading as string) || (doc.title as string);
-            const excerpt = (doc.excerpt as string) || '';
-            const slug = doc.slug as string;
-            const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thearcades.me';
+            const { htmlBody, textBody } = buildPostNewsletterContent(doc as Post);
 
-            const htmlBody = `
-              <h2>${subject}</h2>
-              ${excerpt ? `<p>${excerpt}</p>` : ''}
-              <p><a href="${baseUrl}/blog/${slug}">Read the full post →</a></p>
-            `.trim();
-
-            await sendNewsletter({ subject, htmlBody, payload: req.payload });
+            await sendNewsletter({ subject, htmlBody, textBody, payload: req.payload });
 
             // Mark as sent via the local Payload API
             await req.payload.update({
               collection: 'posts',
               id: doc.id as number,
-              data: { newsletterSent: true },
+              data: {
+                newsletterSent: true,
+                publish_status: 'sent',
+              },
             });
 
             console.log(`[newsletter] Campaign sent for post "${doc.title}"`);

@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { getAllProjects } from '@/lib/payload';
 
+export const dynamic = 'force-dynamic';
+
 function ProjectCard({ project }: { project: { id: number; title: string; description: string; image?: string | null; href: string; external?: boolean | null; tags?: unknown } }) {
   const tags = Array.isArray(project.tags) ? (project.tags as string[]) : [];
 

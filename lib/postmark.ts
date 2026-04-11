@@ -8,6 +8,8 @@ import type { Payload } from 'payload';
 
 const BATCH_SIZE = 500; // Postmark batch API limit
 
+export type PostmarkSendEmailResponse = Awaited<ReturnType<ServerClient['sendEmail']>>;
+
 function getClient(): ServerClient {
   const token = process.env.POSTMARK_SERVER_TOKEN;
   if (!token) throw new Error('Missing POSTMARK_SERVER_TOKEN environment variable');
@@ -22,10 +24,47 @@ function getMessageStream(): string {
   return process.env.POSTMARK_BROADCAST_STREAM || 'broadcast';
 }
 
+function getTransactionalMessageStream(): string {
+  return process.env.POSTMARK_TRANSACTIONAL_STREAM || 'outbound';
+}
+
 export interface NewsletterOptions {
   subject: string;
   htmlBody: string;
+  textBody?: string;
   payload: Payload;
+}
+
+export interface PostmarkTestEmailOptions {
+  to: string;
+  subject?: string;
+  htmlBody?: string;
+  textBody?: string;
+  client?: Pick<ServerClient, 'sendEmail'>;
+}
+
+export async function sendPostmarkTestEmail(
+  options: PostmarkTestEmailOptions,
+): Promise<PostmarkSendEmailResponse> {
+  const { to, client = getClient() } = options;
+  const sentAt = new Date().toISOString();
+  const fromEmail = getFromEmail();
+  const messageStream = getTransactionalMessageStream();
+  const subject = options.subject || `Postmark test email ${sentAt}`;
+  const htmlBody =
+    options.htmlBody ||
+    `<p>This is a Postmark test email from The Arcades.</p><p>Sent at ${sentAt}.</p>`;
+  const textBody =
+    options.textBody || `This is a Postmark test email from The Arcades.\nSent at ${sentAt}.`;
+
+  return client.sendEmail({
+    From: fromEmail,
+    To: to,
+    Subject: subject,
+    HtmlBody: htmlBody,
+    TextBody: textBody,
+    MessageStream: messageStream,
+  });
 }
 
 /**
@@ -34,7 +73,7 @@ export interface NewsletterOptions {
  * and sends in batches of 500.
  */
 export async function sendNewsletter(options: NewsletterOptions): Promise<number> {
-  const { subject, htmlBody, payload } = options;
+  const { subject, htmlBody, payload, textBody } = options;
   const client = getClient();
   const fromEmail = getFromEmail();
   const messageStream = getMessageStream();
@@ -68,13 +107,18 @@ export async function sendNewsletter(options: NewsletterOptions): Promise<number
         <p style="font-size:12px;color:#999;text-align:center;">
           <a href="${unsubscribeUrl}" style="color:#999;">Unsubscribe</a>
         </p>`;
+      const personalizedText = [
+        textBody || htmlBody.replace(/<[^>]+>/g, ''),
+        '',
+        `Unsubscribe: ${unsubscribeUrl}`,
+      ].join('\n');
 
       return {
         From: fromEmail,
         To: sub.email as string,
         Subject: subject,
         HtmlBody: personalizedHtml,
-        TextBody: htmlBody.replace(/<[^>]+>/g, ''),
+        TextBody: personalizedText,
         MessageStream: messageStream,
         Headers: [
           {

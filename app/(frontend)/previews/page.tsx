@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { getAllBooks } from '@/lib/payload';
 import type { Book } from '@/payload-types';
 
+export const dynamic = 'force-dynamic';
+
 function getCoverImage(bookKey: string, coverImage?: string | null): string {
   if (coverImage) return coverImage;
   return `/preview/covers/${bookKey}.png`;
