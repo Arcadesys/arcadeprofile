@@ -36,7 +36,7 @@ afterEach(() => {
   clearAcEnv();
 });
 
-test('sendBlogPostNewsletter throws ActiveCampaignError when AC_API_URL is missing', async () => {
+test('sendBlogPostNewsletter throws ActiveCampaignError when API base URL is missing', async () => {
   process.env.AC_API_KEY = 'x';
   process.env.AC_NEWSLETTER_LIST_ID = '1';
   process.env.AC_NEWSLETTER_FROM_EMAIL = 'a@b.co';
@@ -50,8 +50,46 @@ test('sendBlogPostNewsletter throws ActiveCampaignError when AC_API_URL is missi
         slug: 'post',
         fetchImpl: async () => new Response('{}', { status: 200 }),
       }),
-    (err: unknown) => err instanceof ActiveCampaignError && err.message.includes('AC_API_URL'),
+    (err: unknown) =>
+      err instanceof ActiveCampaignError &&
+      err.message.includes('AC_API_URL') &&
+      err.message.includes('ACTIVECAMPAIGN_API_URL'),
   );
+});
+
+test('sendBlogPostNewsletter accepts legacy ACTIVECAMPAIGN_* env names', async () => {
+  delete process.env.AC_API_URL;
+  delete process.env.AC_API_KEY;
+  delete process.env.AC_NEWSLETTER_LIST_ID;
+  delete process.env.AC_NEWSLETTER_FROM_EMAIL;
+  process.env.ACTIVECAMPAIGN_API_URL = 'https://legacy.example.api-us1.com';
+  process.env.ACTIVECAMPAIGN_API_KEY = 'legacy-key';
+  process.env.ACTIVECAMPAIGN_LIST_ID = '9';
+  process.env.POSTMARK_FROM_EMAIL = 'from@example.com';
+
+  const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+    if (url.includes('/api/3/messages')) {
+      return new Response(JSON.stringify({ message: { id: '1' } }), {
+        status: 201,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    return new Response(JSON.stringify({ result_code: 1, id: 2, result_message: 'ok' }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  };
+
+  const result = await sendBlogPostNewsletter({
+    subject: 'Hi',
+    htmlBody: '<p>x</p>',
+    textBody: 'x',
+    slug: 'post',
+    fetchImpl: fetchImpl as typeof fetch,
+  });
+  assert.equal(result.messageId, '1');
+  assert.equal(result.campaignId, '2');
 });
 
 test('sendBlogPostNewsletter succeeds after v3 message create and v1 campaign_create', async () => {

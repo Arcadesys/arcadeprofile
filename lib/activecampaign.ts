@@ -33,44 +33,77 @@ export interface SendBlogPostNewsletterResult {
   campaignId: string;
 }
 
+function firstNonEmpty(...values: Array<string | undefined>): string | undefined {
+  for (const v of values) {
+    const t = v?.trim();
+    if (t) return t;
+  }
+  return undefined;
+}
+
 function getApiBaseUrl(): string {
-  const raw = process.env.AC_API_URL?.trim();
+  const raw = firstNonEmpty(process.env.AC_API_URL, process.env.ACTIVECAMPAIGN_API_URL);
   if (!raw) {
-    throw new ActiveCampaignError('Missing AC_API_URL environment variable');
+    throw new ActiveCampaignError(
+      'Missing AC_API_URL or ACTIVECAMPAIGN_API_URL environment variable',
+    );
   }
   return raw.replace(/\/+$/, '');
 }
 
 function getApiKey(): string {
-  const key = process.env.AC_API_KEY?.trim();
+  const key = firstNonEmpty(process.env.AC_API_KEY, process.env.ACTIVECAMPAIGN_API_KEY);
   if (!key) {
-    throw new ActiveCampaignError('Missing AC_API_KEY environment variable');
+    throw new ActiveCampaignError(
+      'Missing AC_API_KEY or ACTIVECAMPAIGN_API_KEY environment variable',
+    );
   }
   return key;
 }
 
 function getNewsletterListId(): string {
-  const id = process.env.AC_NEWSLETTER_LIST_ID?.trim();
+  const id = firstNonEmpty(
+    process.env.AC_NEWSLETTER_LIST_ID,
+    process.env.ACTIVECAMPAIGN_LIST_ID,
+  );
   if (!id) {
-    throw new ActiveCampaignError('Missing AC_NEWSLETTER_LIST_ID environment variable');
+    throw new ActiveCampaignError(
+      'Missing AC_NEWSLETTER_LIST_ID or ACTIVECAMPAIGN_LIST_ID environment variable',
+    );
   }
   return id;
 }
 
 function getFromName(): string {
-  return process.env.AC_NEWSLETTER_FROM_NAME?.trim() || 'The Arcades';
+  return (
+    firstNonEmpty(
+      process.env.AC_NEWSLETTER_FROM_NAME,
+      process.env.ACTIVECAMPAIGN_FROM_NAME,
+    ) || 'The Arcades'
+  );
 }
 
 function getFromEmail(): string {
-  const email = process.env.AC_NEWSLETTER_FROM_EMAIL?.trim();
+  const email = firstNonEmpty(
+    process.env.AC_NEWSLETTER_FROM_EMAIL,
+    process.env.ACTIVECAMPAIGN_FROM_EMAIL,
+    process.env.POSTMARK_FROM_EMAIL,
+  );
   if (!email) {
-    throw new ActiveCampaignError('Missing AC_NEWSLETTER_FROM_EMAIL environment variable');
+    throw new ActiveCampaignError(
+      'Missing newsletter from email: set AC_NEWSLETTER_FROM_EMAIL, ACTIVECAMPAIGN_FROM_EMAIL, or POSTMARK_FROM_EMAIL',
+    );
   }
   return email;
 }
 
 function getReplyToEmail(): string {
-  return process.env.AC_NEWSLETTER_REPLY_TO?.trim() || getFromEmail();
+  return (
+    firstNonEmpty(
+      process.env.AC_NEWSLETTER_REPLY_TO,
+      process.env.ACTIVECAMPAIGN_REPLY_TO,
+    ) || getFromEmail()
+  );
 }
 
 function formatCampaignSendDate(date: Date): string {
