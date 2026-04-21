@@ -21,3 +21,14 @@
 2. Merge `feat/activecampaign-blog-notifications` into `main`.
 3. Re-run lint/test/build on `main` after merge.
 4. Push `main` to origin.
+
+## Execution status (2026-04-21)
+1. Fetched `origin/main` and `origin/feat/activecampaign-blog-notifications`.
+2. Installed dependencies with `npm install`.
+3. Ran checks:
+   - `npm run lint` ❌ (existing lint error in `app/(frontend)/admin/social/page.tsx` using `<a href="/admin/">`)
+   - `npm test` ❌ (`tsx` could not resolve `lib/**/*.test.ts`)
+   - `npx tsx --test lib/*.test.ts` ✅ (9 tests passed)
+   - `npm run build` ✅ (build succeeds; logs DB connection errors for local Postgres during static generation)
+4. Verified feature diff with:
+   - `git diff --name-status origin/main...origin/feat/activecampaign-blog-notifications`
