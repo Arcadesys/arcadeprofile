@@ -4,12 +4,6 @@
   "installCommand": "npm install",
   "framework": "nextjs",
   "outputDirectory": ".next",
-  "crons": [
-    {
-      "path": "/api/posts/publish-scheduled",
-      "schedule": "*/15 * * * *"
-    }
-  ],
   "routes": [
     {
       "src": "/(.*)",
