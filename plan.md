@@ -32,3 +32,10 @@
    - `npm run build` ✅ (build succeeds; logs DB connection errors for local Postgres during static generation)
 4. Verified feature diff with:
    - `git diff --name-status origin/main...origin/feat/activecampaign-blog-notifications`
+
+## Implementation follow-up (2026-04-21)
+1. Checked GitHub Actions runs for this branch: latest completed runs are successful; no failed jobs reported.
+2. Simulated merge from `origin/main` with `origin/feat/activecampaign-blog-notifications` on a local validation branch.
+3. Merge currently requires manual conflict resolution in:
+   - `.env.local` (modify/delete conflict)
+   - `vercel.json` (content conflict)
