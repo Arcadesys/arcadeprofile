@@ -1,7 +1,6 @@
 /**
- * ActiveCampaign: create a transactional-style HTML message (API v3), then
- * schedule a one-off list send (legacy v1 campaign_create). Both use the
- * same account host and Api-Token header per ActiveCampaign docs.
+ * ActiveCampaign: one-off list sends via API v3 — create campaign shell,
+ * populate the campaign’s message, then schedule with list + send time.
  */
 
 const REQUEST_TIMEOUT_MS = 60_000;
@@ -111,6 +110,16 @@ function formatCampaignSendDate(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
+function parseNewsletterListIdAsInt(listId: string): number {
+  const n = Number.parseInt(listId, 10);
+  if (Number.isNaN(n) || n < 1) {
+    throw new ActiveCampaignError(
+      `Newsletter list id must be a positive integer for API v3 (got: ${listId})`,
+    );
+  }
+  return n;
+}
+
 async function fetchWithTimeout(
   url: string,
   init: RequestInit,
@@ -126,32 +135,33 @@ async function fetchWithTimeout(
   }
 }
 
-type AcV3MessageResponse = {
-  message?: {
-    id?: string;
-  };
+type AcV3Errors = {
   errors?: Array<{ title?: string; detail?: string } | string>;
+  message?: string;
 };
 
-async function createMessageV3(
+function formatV3ErrorBody(parsed: AcV3Errors, fallback: string): string {
+  if (typeof parsed.message === 'string' && parsed.message.trim()) {
+    return parsed.message.trim();
+  }
+  if (!parsed.errors?.length) return fallback;
+  return parsed.errors
+    .map((e) => (typeof e === 'string' ? e : e.detail || e.title))
+    .filter(Boolean)
+    .join('; ');
+}
+
+async function createCampaignShellV3(
   baseUrl: string,
   apiKey: string,
-  options: { subject: string; htmlBody: string; textBody: string },
+  name: string,
   fetchImpl: typeof fetch,
 ): Promise<string> {
-  const url = `${baseUrl}/api/3/messages`;
-  const fromEmail = getFromEmail();
+  const url = `${baseUrl}/api/3/campaign`;
   const body = {
-    message: {
-      fromname: getFromName(),
-      /** Some AC accounts expect `email`; others document `fromemail`. */
-      email: fromEmail,
-      fromemail: fromEmail,
-      reply2: getReplyToEmail(),
-      subject: options.subject,
-      html: options.htmlBody,
-      text: options.textBody,
-    },
+    type: 'single',
+    name,
+    canSplitContent: false,
   };
 
   const response = await fetchWithTimeout(
@@ -170,144 +180,224 @@ async function createMessageV3(
   );
 
   const text = await response.text();
-  let parsed: AcV3MessageResponse;
+  let parsed: { id?: number } & AcV3Errors;
   try {
-    parsed = JSON.parse(text) as AcV3MessageResponse;
+    parsed = JSON.parse(text) as { id?: number } & AcV3Errors;
   } catch {
     throw new ActiveCampaignError(
-      'ActiveCampaign API v3 returned non-JSON when creating message',
+      'ActiveCampaign API v3 returned non-JSON when creating campaign',
       response.status,
       text.slice(0, 200),
     );
   }
 
   if (!response.ok) {
-    const detail =
-      typeof parsed.errors?.[0] === 'string'
-        ? parsed.errors[0]
-        : parsed.errors?.map((e) => (typeof e === 'string' ? e : e.detail || e.title)).join('; ');
     throw new ActiveCampaignError(
-      `ActiveCampaign message create failed (${response.status})`,
+      `ActiveCampaign campaign create failed (${response.status})`,
       response.status,
-      detail || text.slice(0, 300),
+      formatV3ErrorBody(parsed, text.slice(0, 300)),
     );
   }
 
-  const id = parsed.message?.id;
-  if (!id) {
+  const id = parsed.id;
+  if (id === undefined || id === null) {
     throw new ActiveCampaignError(
-      'ActiveCampaign message create response missing message.id',
+      'ActiveCampaign campaign create response missing id',
       response.status,
       text.slice(0, 300),
     );
   }
 
-  return id;
+  return String(id);
 }
 
-type AcV1CampaignCreateResponse = {
-  result_code?: number | string;
-  result_message?: string;
-  id?: string | number;
+type AcV3CampaignRecord = {
+  message_id?: string;
+  addressid?: string;
 };
 
-function parseV1Json(raw: string): AcV1CampaignCreateResponse {
-  try {
-    return JSON.parse(raw) as AcV1CampaignCreateResponse;
-  } catch {
-    throw new ActiveCampaignError(
-      'ActiveCampaign legacy API returned non-JSON',
-      undefined,
-      raw.slice(0, 200),
-    );
-  }
-}
-
-function isV1Success(result: AcV1CampaignCreateResponse): boolean {
-  const code = result.result_code;
-  return code === 1 || code === '1';
-}
-
-async function createCampaignSendV1(
+async function getCampaignV3(
   baseUrl: string,
   apiKey: string,
-  options: { messageId: string; listId: string; name: string; sendDate: string },
+  campaignId: string,
   fetchImpl: typeof fetch,
-): Promise<string> {
-  const query = new URLSearchParams({
-    api_action: 'campaign_create',
-    api_output: 'json',
-  });
-
-  const listKey = `p[${options.listId}]`;
-  const messageKey = `m[${options.messageId}]`;
-
-  const body = new URLSearchParams({
-    type: 'single',
-    segmentid: '0',
-    name: options.name,
-    sdate: options.sendDate,
-    status: '1',
-    public: '0',
-    trackreads: '1',
-    trackreplies: '0',
-    htmlunsub: '1',
-    textunsub: '1',
-    [listKey]: options.listId,
-    [messageKey]: '100',
-  });
-
-  const url = `${baseUrl}/admin/api.php?${query.toString()}`;
-
+): Promise<AcV3CampaignRecord> {
+  const url = `${baseUrl}/api/3/campaigns/${campaignId}`;
   const response = await fetchWithTimeout(
     url,
     {
-      method: 'POST',
+      method: 'GET',
       headers: {
         'Api-Token': apiKey,
-        'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
       },
-      body: body.toString(),
     },
     fetchImpl,
     REQUEST_TIMEOUT_MS,
   );
 
   const text = await response.text();
-  const parsed = parseV1Json(text);
+  let parsed: { campaign?: AcV3CampaignRecord } & AcV3Errors;
+  try {
+    parsed = JSON.parse(text) as { campaign?: AcV3CampaignRecord } & AcV3Errors;
+  } catch {
+    throw new ActiveCampaignError(
+      'ActiveCampaign API v3 returned non-JSON when loading campaign',
+      response.status,
+      text.slice(0, 200),
+    );
+  }
 
   if (!response.ok) {
     throw new ActiveCampaignError(
-      `ActiveCampaign campaign_create HTTP error (${response.status})`,
+      `ActiveCampaign campaign get failed (${response.status})`,
       response.status,
-      parsed.result_message || text.slice(0, 300),
+      formatV3ErrorBody(parsed, text.slice(0, 300)),
     );
   }
 
-  if (!isV1Success(parsed)) {
+  const campaign = parsed.campaign;
+  if (!campaign) {
     throw new ActiveCampaignError(
-      `ActiveCampaign campaign_create failed: ${parsed.result_message || 'unknown error'}`,
+      'ActiveCampaign campaign get response missing campaign',
       response.status,
       text.slice(0, 300),
     );
   }
 
-  const id = parsed.id !== undefined && parsed.id !== null ? String(parsed.id) : '';
-  if (!id) {
+  return campaign;
+}
+
+function buildMessagePayload(options: { subject: string; htmlBody: string; textBody: string }) {
+  const fromEmail = getFromEmail();
+  return {
+    fromname: getFromName(),
+    email: fromEmail,
+    fromemail: fromEmail,
+    reply2: getReplyToEmail(),
+    subject: options.subject,
+    html: options.htmlBody,
+    text: options.textBody,
+  };
+}
+
+async function updateMessageV3(
+  baseUrl: string,
+  apiKey: string,
+  messageId: string,
+  options: { subject: string; htmlBody: string; textBody: string },
+  fetchImpl: typeof fetch,
+): Promise<void> {
+  const url = `${baseUrl}/api/3/messages/${encodeURIComponent(messageId)}`;
+  const body = { message: buildMessagePayload(options) };
+
+  const response = await fetchWithTimeout(
+    url,
+    {
+      method: 'PUT',
+      headers: {
+        'Api-Token': apiKey,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(body),
+    },
+    fetchImpl,
+    REQUEST_TIMEOUT_MS,
+  );
+
+  const text = await response.text();
+  let parsed: AcV3Errors;
+  try {
+    parsed = JSON.parse(text) as AcV3Errors;
+  } catch {
     throw new ActiveCampaignError(
-      'ActiveCampaign campaign_create response missing id',
+      'ActiveCampaign API v3 returned non-JSON when updating message',
       response.status,
-      text.slice(0, 300),
+      text.slice(0, 200),
     );
   }
 
-  return id;
+  if (!response.ok) {
+    throw new ActiveCampaignError(
+      `ActiveCampaign message update failed (${response.status})`,
+      response.status,
+      formatV3ErrorBody(parsed, text.slice(0, 300)),
+    );
+  }
+}
+
+async function scheduleCampaignEditV3(
+  baseUrl: string,
+  apiKey: string,
+  campaignId: string,
+  options: {
+    listIdInt: number;
+    scheduledDate: string;
+    addressId?: number;
+  },
+  fetchImpl: typeof fetch,
+): Promise<void> {
+  const url = `${baseUrl}/api/3/campaigns/${encodeURIComponent(campaignId)}/edit`;
+  const body: Record<string, unknown> = {
+    segmentId: '0',
+    listIds: [options.listIdInt],
+    scheduledDate: options.scheduledDate,
+    readTrackingEnabled: true,
+    linkTrackingEnabled: true,
+    replyTrackingEnabled: false,
+    publicCampaignArchive: false,
+  };
+  if (options.addressId !== undefined) {
+    body.addressId = options.addressId;
+  }
+
+  const response = await fetchWithTimeout(
+    url,
+    {
+      method: 'PUT',
+      headers: {
+        'Api-Token': apiKey,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(body),
+    },
+    fetchImpl,
+    REQUEST_TIMEOUT_MS,
+  );
+
+  const text = await response.text();
+  let parsed: AcV3Errors;
+  try {
+    parsed = JSON.parse(text) as AcV3Errors;
+  } catch {
+    throw new ActiveCampaignError(
+      'ActiveCampaign API v3 returned non-JSON when scheduling campaign',
+      response.status,
+      text.slice(0, 200),
+    );
+  }
+
+  if (!response.ok) {
+    throw new ActiveCampaignError(
+      `ActiveCampaign campaign schedule failed (${response.status})`,
+      response.status,
+      formatV3ErrorBody(parsed, text.slice(0, 300)),
+    );
+  }
+}
+
+function parseOptionalAddressId(addressid: string | undefined): number | undefined {
+  if (!addressid) return undefined;
+  const n = Number.parseInt(addressid, 10);
+  if (Number.isNaN(n) || n < 1) return undefined;
+  return n;
 }
 
 /**
- * Creates an HTML message in ActiveCampaign and schedules a one-off campaign
- * to the configured newsletter list.
+ * Creates a single-send campaign in ActiveCampaign (API v3), fills the
+ * campaign’s message body, and schedules it for the configured newsletter list.
  *
  * @throws ActiveCampaignError on configuration or API failures
  */
@@ -318,13 +408,26 @@ export async function sendBlogPostNewsletter(
   const baseUrl = getApiBaseUrl();
   const apiKey = getApiKey();
   const listId = getNewsletterListId();
+  const listIdInt = parseNewsletterListIdAsInt(listId);
 
   const internalName = `Blog: ${options.slug}`.slice(0, 240);
   const sendDate = formatCampaignSendDate(new Date());
 
-  const messageId = await createMessageV3(
+  const campaignId = await createCampaignShellV3(baseUrl, apiKey, internalName, fetchImpl);
+  const campaign = await getCampaignV3(baseUrl, apiKey, campaignId, fetchImpl);
+  const messageId = campaign.message_id?.trim();
+  if (!messageId) {
+    throw new ActiveCampaignError(
+      'ActiveCampaign campaign has no message_id; cannot populate newsletter body via API v3',
+      undefined,
+      `campaign id ${campaignId}`,
+    );
+  }
+
+  await updateMessageV3(
     baseUrl,
     apiKey,
+    messageId,
     {
       subject: options.subject,
       htmlBody: options.htmlBody,
@@ -333,14 +436,14 @@ export async function sendBlogPostNewsletter(
     fetchImpl,
   );
 
-  const campaignId = await createCampaignSendV1(
+  await scheduleCampaignEditV3(
     baseUrl,
     apiKey,
+    campaignId,
     {
-      messageId,
-      listId,
-      name: internalName,
-      sendDate,
+      listIdInt,
+      scheduledDate: sendDate,
+      addressId: parseOptionalAddressId(campaign.addressid),
     },
     fetchImpl,
   );

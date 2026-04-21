@@ -69,16 +69,33 @@ test('sendBlogPostNewsletter accepts legacy ACTIVECAMPAIGN_* env names', async (
 
   const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    if (url.includes('/api/3/messages')) {
-      return new Response(JSON.stringify({ message: { id: '1' } }), {
-        status: 201,
+    if (url.endsWith('/api/3/campaign')) {
+      return new Response(JSON.stringify({ id: 2, name: 'Blog: post', type: 'single', canSplitContent: false }), {
+        status: 200,
         headers: { 'content-type': 'application/json' },
       });
     }
-    return new Response(JSON.stringify({ result_code: 1, id: 2, result_message: 'ok' }), {
-      status: 200,
-      headers: { 'content-type': 'application/json' },
-    });
+    if (url.includes('/api/3/campaigns/2') && !url.includes('/edit')) {
+      return new Response(
+        JSON.stringify({ campaign: { message_id: '1', addressid: '0' } }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    }
+    if (url.includes('/api/3/messages/1')) {
+      assert.equal(init?.method, 'PUT');
+      return new Response(JSON.stringify({ message: { id: '1' } }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    if (url.includes('/api/3/campaigns/2/edit')) {
+      assert.equal(init?.method, 'PUT');
+      return new Response(JSON.stringify({ id: 2, scheduledDate: '2026-01-01 12:00:00' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    assert.fail(`Unexpected fetch URL: ${url}`);
   };
 
   const result = await sendBlogPostNewsletter({
@@ -92,21 +109,38 @@ test('sendBlogPostNewsletter accepts legacy ACTIVECAMPAIGN_* env names', async (
   assert.equal(result.campaignId, '2');
 });
 
-test('sendBlogPostNewsletter succeeds after v3 message create and v1 campaign_create', async () => {
+test('sendBlogPostNewsletter succeeds after v3 campaign shell, message update, and schedule edit', async () => {
   setAcEnv();
 
   const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    if (url.includes('/api/3/messages')) {
+    if (url.endsWith('/api/3/campaign')) {
       assert.equal(init?.method, 'POST');
-      return new Response(JSON.stringify({ message: { id: '88' } }), {
-        status: 201,
+      return new Response(JSON.stringify({ id: 900, name: 'Blog: my-post', type: 'single', canSplitContent: false }), {
+        status: 200,
         headers: { 'content-type': 'application/json' },
       });
     }
-    if (url.includes('/admin/api.php')) {
-      assert.equal(init?.method, 'POST');
-      return new Response(JSON.stringify({ result_code: 1, id: 900, result_message: 'Campaign saved' }), {
+    if (url.endsWith('/api/3/campaigns/900')) {
+      assert.equal(init?.method, 'GET');
+      return new Response(
+        JSON.stringify({ campaign: { message_id: '88', addressid: '2' } }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    }
+    if (url.includes('/api/3/messages/88')) {
+      assert.equal(init?.method, 'PUT');
+      return new Response(JSON.stringify({ message: { id: '88' } }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    if (url.includes('/api/3/campaigns/900/edit')) {
+      assert.equal(init?.method, 'PUT');
+      const parsed = JSON.parse(String(init?.body)) as { listIds?: number[]; addressId?: number };
+      assert.deepEqual(parsed.listIds, [3]);
+      assert.equal(parsed.addressId, 2);
+      return new Response(JSON.stringify({ id: 900, listIds: [3] }), {
         status: 200,
         headers: { 'content-type': 'application/json' },
       });
@@ -126,7 +160,7 @@ test('sendBlogPostNewsletter succeeds after v3 message create and v1 campaign_cr
   assert.equal(result.campaignId, '900');
 });
 
-test('sendBlogPostNewsletter throws when v3 returns error status', async () => {
+test('sendBlogPostNewsletter throws when v3 campaign create returns error status', async () => {
   setAcEnv();
 
   const fetchImpl = async (): Promise<Response> =>
@@ -146,26 +180,41 @@ test('sendBlogPostNewsletter throws when v3 returns error status', async () => {
       }),
     (err: unknown) =>
       err instanceof ActiveCampaignError &&
-      err.message.includes('message create failed') &&
+      err.message.includes('campaign create failed') &&
       err.causeStatus === 422,
   );
 });
 
-test('sendBlogPostNewsletter throws when v1 campaign_create reports failure', async () => {
+test('sendBlogPostNewsletter throws when v3 campaign schedule reports failure', async () => {
   setAcEnv();
 
   let step = 0;
-  const fetchImpl = async (input: RequestInfo): Promise<Response> => {
+  const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    if (url.includes('/api/3/messages')) {
+    if (url.endsWith('/api/3/campaign')) {
       step += 1;
-      return new Response(JSON.stringify({ message: { id: '10' } }), {
-        status: 201,
+      return new Response(JSON.stringify({ id: 10, name: 'x', type: 'single', canSplitContent: false }), {
+        status: 200,
         headers: { 'content-type': 'application/json' },
       });
     }
-    return new Response(JSON.stringify({ result_code: 0, result_message: 'List not found' }), {
-      status: 200,
+    if (url.endsWith('/api/3/campaigns/10')) {
+      step += 1;
+      return new Response(
+        JSON.stringify({ campaign: { message_id: '5', addressid: '0' } }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    }
+    if (url.includes('/api/3/messages/5')) {
+      step += 1;
+      assert.equal(init?.method, 'PUT');
+      return new Response(JSON.stringify({ message: { id: '5' } }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    return new Response(JSON.stringify({ message: 'List not found' }), {
+      status: 400,
       headers: { 'content-type': 'application/json' },
     });
   };
@@ -180,13 +229,13 @@ test('sendBlogPostNewsletter throws when v1 campaign_create reports failure', as
         fetchImpl: fetchImpl as typeof fetch,
       }),
     (err: unknown) =>
-      err instanceof ActiveCampaignError && err.message.includes('campaign_create failed'),
+      err instanceof ActiveCampaignError && err.message.includes('campaign schedule failed'),
   );
 
-  assert.equal(step, 1);
+  assert.equal(step, 3);
 });
 
-test('sendBlogPostNewsletter throws when v3 response is not JSON', async () => {
+test('sendBlogPostNewsletter throws when v3 campaign create response is not JSON', async () => {
   setAcEnv();
 
   await assert.rejects(
@@ -199,6 +248,6 @@ test('sendBlogPostNewsletter throws when v3 response is not JSON', async () => {
         fetchImpl: async () => new Response('not-json', { status: 500 }),
       }),
     (err: unknown) =>
-      err instanceof ActiveCampaignError && err.message.includes('non-JSON when creating message'),
+      err instanceof ActiveCampaignError && err.message.includes('non-JSON when creating campaign'),
   );
 });

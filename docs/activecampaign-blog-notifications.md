@@ -1,9 +1,10 @@
 # ActiveCampaign blog notifications
 
-When a Payload **post** first transitions to **published** and `newsletterSent` is false, the [`collections/Posts.ts`](../collections/Posts.ts) `afterChange` hook calls [`sendBlogPostNewsletter`](../lib/activecampaign.ts). That flow:
+When a Payload **post** first transitions to **published** and `newsletterSent` is false, the [`collections/Posts.ts`](../collections/Posts.ts) `afterChange` hook calls [`sendBlogPostNewsletter`](../lib/activecampaign.ts). That flow (all **API v3**):
 
-1. Creates an HTML message via **ActiveCampaign API v3** (`POST /api/3/messages`).
-2. Schedules a one-off list campaign via **legacy v1** `campaign_create` (`POST /admin/api.php`), targeting your newsletter list.
+1. Creates a **single-send campaign shell** (`POST /api/3/campaign` with `type: "single"`).
+2. Loads the campaign, reads its **`message_id`**, and **updates that message** with HTML and text (`PUT /api/3/messages/{id}`).
+3. **Schedules** the send to your newsletter list (`PUT /api/3/campaigns/{id}/edit` with `listIds` and `scheduledDate`).
 
 Scheduled posts are published by [`app/(frontend)/api/posts/publish-scheduled/route.ts`](../app/(frontend)/api/posts/publish-scheduled/route.ts) (cron with `CRON_SECRET`). That `payload.update` runs the same hook, so emails align with go-live time.
 
@@ -48,5 +49,6 @@ You can point an [RSS-triggered campaign](https://help.activecampaign.com/hc/en-
 ## References
 
 - [ActiveCampaign API overview](https://developers.activecampaign.com/reference/overview)
-- [Create a message (v3)](https://developers.activecampaign.com/reference/create-a-new-message)
-- [Legacy `campaign_create` example](https://www.activecampaign.com/api/example.php?call=campaign_create)
+- [Create Campaign (v3)](https://developers.activecampaign.com/reference/create-campaign)
+- [Update a message (v3)](https://developers.activecampaign.com/reference/update-a-message)
+- [Edit campaign / schedule (v3)](https://developers.activecampaign.com/reference/edit-campaign)
