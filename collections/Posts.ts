@@ -50,11 +50,16 @@ export const Posts: CollectionConfig = {
 
         if (isNowPublished && wasPublished && notYetSent) {
           try {
-            const { sendNewsletter } = await import('../lib/postmark');
+            const { sendBlogPostNewsletter } = await import('../lib/activecampaign');
             const subject = (doc.newsletterHeading as string) || (doc.title as string);
             const { htmlBody, textBody } = buildPostNewsletterContent(doc as Post);
 
-            await sendNewsletter({ subject, htmlBody, textBody, payload: req.payload });
+            const result = await sendBlogPostNewsletter({
+              subject,
+              htmlBody,
+              textBody,
+              slug: doc.slug as string,
+            });
 
             // Mark as sent via the local Payload API
             await req.payload.update({
@@ -66,7 +71,15 @@ export const Posts: CollectionConfig = {
               },
             });
 
-            console.log(`[newsletter] Campaign sent for post "${doc.title}"`);
+            console.log(
+              `[newsletter] ActiveCampaign campaign sent for post "${doc.title}"`,
+              JSON.stringify({
+                postId: doc.id,
+                slug: doc.slug,
+                acMessageId: result.messageId,
+                acCampaignId: result.campaignId,
+              }),
+            );
           } catch (err) {
             // Don't fail the save if newsletter send fails; log and continue
             console.error('[newsletter] Failed to send campaign:', err);

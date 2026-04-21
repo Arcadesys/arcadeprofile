@@ -13,6 +13,8 @@ export interface BlogPost {
   group?: string;
   /** Explicit ordering within a group (lower numbers first). */
   order?: number;
+  /** Display author (Payload `posts.author`). */
+  author?: string;
   /** Optional copy above the site footer subscribe on this post only. */
   newsletterHeading?: string;
   newsletterDescription?: string;
@@ -36,6 +38,7 @@ function toPost(doc: any): BlogPost {
     content: doc.content as SerializedEditorState,
     group: (doc.group as string) || undefined,
     order: doc.order as number | undefined,
+    author: (doc.author as string) || undefined,
     newsletterHeading: (doc.newsletterHeading as string) || undefined,
     newsletterDescription: (doc.newsletterDescription as string) || undefined,
   };
@@ -50,6 +53,25 @@ export async function getAllPosts(): Promise<BlogPost[]> {
 
   const result = await payload.find({
     collection: 'posts',
+    sort: '-publishedDate',
+    limit: 100,
+    depth: 0,
+  });
+
+  return result.docs.map(toPost);
+}
+
+/**
+ * Published posts only, for RSS and syndication (excludes drafts).
+ */
+export async function getPublishedPostsForRss(): Promise<BlogPost[]> {
+  const payload = await getPayloadClient();
+
+  const result = await payload.find({
+    collection: 'posts',
+    where: {
+      _status: { equals: 'published' },
+    },
     sort: '-publishedDate',
     limit: 100,
     depth: 0,
