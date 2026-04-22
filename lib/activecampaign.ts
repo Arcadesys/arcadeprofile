@@ -23,6 +23,13 @@ export interface SendBlogPostNewsletterOptions {
   textBody: string;
   /** Used for internal campaign name in AC */
   slug: string;
+  /**
+   * When the list send should be scheduled in ActiveCampaign (maps to
+   * `scheduledDate` on the campaign). Typically the post’s `publishedDate`
+   * (public go-live). Omitted = send as soon as AC allows (now). If the value
+   * is in the past, it is clamped to the current time.
+   */
+  scheduledSendAt?: Date;
   /** Override fetch (tests) */
   fetchImpl?: typeof fetch;
 }
@@ -105,9 +112,24 @@ function getReplyToEmail(): string {
   );
 }
 
-function formatCampaignSendDate(date: Date): string {
+/**
+ * Formats a date for ActiveCampaign `scheduledDate` (string per API v3).
+ * Uses the runtime local timezone; ensure server/AC expectations match in production.
+ */
+export function formatCampaignSendDate(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+
+/** Resolves the instant to send to AC, clamping past times to `now` for API acceptance. */
+function resolveAcScheduledSendInstant(scheduledSendAt: Date | undefined, now: Date = new Date()): Date {
+  if (!scheduledSendAt) {
+    return now;
+  }
+  if (Number.isNaN(scheduledSendAt.getTime())) {
+    return now;
+  }
+  return scheduledSendAt.getTime() < now.getTime() ? now : scheduledSendAt;
 }
 
 function parseNewsletterListIdAsInt(listId: string): number {
@@ -411,7 +433,8 @@ export async function sendBlogPostNewsletter(
   const listIdInt = parseNewsletterListIdAsInt(listId);
 
   const internalName = `Blog: ${options.slug}`.slice(0, 240);
-  const sendDate = formatCampaignSendDate(new Date());
+  const sendAt = resolveAcScheduledSendInstant(options.scheduledSendAt);
+  const sendDate = formatCampaignSendDate(sendAt);
 
   const campaignId = await createCampaignShellV3(baseUrl, apiKey, internalName, fetchImpl);
   const campaign = await getCampaignV3(baseUrl, apiKey, campaignId, fetchImpl);

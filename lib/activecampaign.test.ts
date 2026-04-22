@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
 
-import { ActiveCampaignError, sendBlogPostNewsletter } from './activecampaign';
+import { ActiveCampaignError, formatCampaignSendDate, sendBlogPostNewsletter } from './activecampaign';
 
 function setAcEnv(overrides: Record<string, string | undefined> = {}) {
   const defaults: Record<string, string> = {
@@ -137,9 +137,15 @@ test('sendBlogPostNewsletter succeeds after v3 campaign shell, message update, a
     }
     if (url.includes('/api/3/campaigns/900/edit')) {
       assert.equal(init?.method, 'PUT');
-      const parsed = JSON.parse(String(init?.body)) as { listIds?: number[]; addressId?: number };
+      const parsed = JSON.parse(String(init?.body)) as {
+        listIds?: number[];
+        addressId?: number;
+        scheduledDate?: string;
+      };
       assert.deepEqual(parsed.listIds, [3]);
       assert.equal(parsed.addressId, 2);
+      const expectedAt = new Date(2026, 4, 1, 10, 0, 0);
+      assert.equal(parsed.scheduledDate, formatCampaignSendDate(expectedAt));
       return new Response(JSON.stringify({ id: 900, listIds: [3] }), {
         status: 200,
         headers: { 'content-type': 'application/json' },
@@ -153,11 +159,70 @@ test('sendBlogPostNewsletter succeeds after v3 campaign shell, message update, a
     htmlBody: '<p>Body</p>',
     textBody: 'Body',
     slug: 'my-post',
+    scheduledSendAt: new Date(2026, 4, 1, 10, 0, 0),
     fetchImpl: fetchImpl as typeof fetch,
   });
 
   assert.equal(result.messageId, '88');
   assert.equal(result.campaignId, '900');
+});
+
+test('sendBlogPostNewsletter clamps past scheduledSendAt to now for the edit call', async () => {
+  setAcEnv();
+  const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+    if (url.endsWith('/api/3/campaign')) {
+      return new Response(JSON.stringify({ id: 1, name: 'Blog: t', type: 'single', canSplitContent: false }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    if (url.endsWith('/api/3/campaigns/1') && !url.includes('/edit')) {
+      return new Response(
+        JSON.stringify({ campaign: { message_id: '9', addressid: '0' } }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    }
+    if (url.includes('/api/3/messages/9')) {
+      return new Response(JSON.stringify({ message: { id: '9' } }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    if (url.includes('/api/3/campaigns/1/edit')) {
+      const parsed = JSON.parse(String(init?.body)) as { scheduledDate?: string };
+      const raw = parsed.scheduledDate;
+      if (!raw) {
+        assert.fail('missing scheduledDate');
+      }
+      const y = raw.slice(0, 4);
+      const mo = raw.slice(5, 7);
+      const d = raw.slice(8, 10);
+      const h = raw.slice(11, 13);
+      const min = raw.slice(14, 16);
+      const s = raw.slice(17, 19);
+      const asDate = new Date(Number(y), Number(mo) - 1, Number(d), Number(h), Number(min), Number(s));
+      const skew = Math.abs(asDate.getTime() - Date.now());
+      assert.ok(
+        skew < 3000,
+        `expected scheduledDate near now, got ${raw} (skew ${skew}ms)`,
+      );
+      return new Response(JSON.stringify({ id: 1 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    return new Response('{}', { status: 500 });
+  };
+
+  await sendBlogPostNewsletter({
+    subject: 'A',
+    htmlBody: 'b',
+    textBody: 'b',
+    slug: 't',
+    scheduledSendAt: new Date(2000, 0, 1, 12, 0, 0),
+    fetchImpl: fetchImpl as typeof fetch,
+  });
 });
 
 test('sendBlogPostNewsletter throws when v3 campaign create returns error status', async () => {

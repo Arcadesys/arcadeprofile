@@ -54,11 +54,21 @@ export const Posts: CollectionConfig = {
             const subject = (doc.newsletterHeading as string) || (doc.title as string);
             const { htmlBody, textBody } = buildPostNewsletterContent(doc as Post);
 
+            let scheduledSendAt: Date | undefined;
+            const publishedRaw = doc.publishedDate;
+            if (typeof publishedRaw === 'string' && publishedRaw) {
+              const t = new Date(publishedRaw);
+              if (!Number.isNaN(t.getTime())) {
+                scheduledSendAt = t;
+              }
+            }
+
             const result = await sendBlogPostNewsletter({
               subject,
               htmlBody,
               textBody,
               slug: doc.slug as string,
+              scheduledSendAt,
             });
 
             // Mark as sent via the local Payload API

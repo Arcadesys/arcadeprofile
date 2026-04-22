@@ -6,7 +6,9 @@ When a Payload **post** first transitions to **published** and `newsletterSent` 
 2. Loads the campaign, reads its **`message_id`**, and **updates that message** with HTML and text (`PUT /api/3/messages/{id}`).
 3. **Schedules** the send to your newsletter list (`PUT /api/3/campaigns/{id}/edit` with `listIds` and `scheduledDate`).
 
-Scheduled posts are published by [`app/(frontend)/api/posts/publish-scheduled/route.ts`](../app/(frontend)/api/posts/publish-scheduled/route.ts) (cron with `CRON_SECRET`). That `payload.update` runs the same hook, so emails align with go-live time.
+**When the list send is scheduled in AC:** the app passes the post’s **`publishedDate`** (go-live time) as `scheduledDate` when the hook runs. If that time is already in the past, it **clamps to the current time** so AC still accepts the schedule. Times use the **Node process timezone**; align your server/AC account expectations in staging.
+
+**Flipping scheduled drafts to live:** use [`app/(frontend)/api/posts/publish-scheduled/route.ts`](../app/(frontend)/api/posts/publish-scheduled/route.ts). Any trusted caller (external scheduler, `curl`, serverless cron elsewhere) can `GET` or `POST` that URL with `Authorization: Bearer <CRON_SECRET>`. (Vercel platform crons are not configured in this repo; you bring your own trigger.) The route’s `payload.update` sets `publishedDate` from `scheduledPublishDate` and moves `_status` to `published`, so the same `afterChange` hook runs and the AC send uses that go-live time.
 
 ## Environment variables
 
