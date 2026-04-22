@@ -1,6 +1,6 @@
 /**
- * Postmark email client for newsletter broadcasts.
- * Replaces ActiveCampaign for sending newsletters to subscribers.
+ * Postmark email client: batch newsletter helper and transactional test sends.
+ * Blog publish notifications use ActiveCampaign (`lib/activecampaign.ts`).
  */
 
 import { ServerClient, Message } from 'postmark';

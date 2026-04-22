@@ -1,12 +1,20 @@
 import { Feed } from 'feed';
-import { getAllPosts } from '@/lib/blog';
+import { getPublishedPostsForRss } from '@/lib/blog';
+import { buildPostNewsletterContent } from '@/lib/newsletter';
+import type { Post } from '@/payload-types';
 
 export const dynamic = 'force-dynamic';
 
-const SITE_URL = 'https://thearcades.me';
+const DEFAULT_SITE_URL = 'https://thearcades.me';
+
+function getSiteUrl(): string {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim() || DEFAULT_SITE_URL;
+  return raw.replace(/\/+$/, '');
+}
 
 export async function GET() {
-  const posts = await getAllPosts();
+  const SITE_URL = getSiteUrl();
+  const posts = await getPublishedPostsForRss();
 
   const feed = new Feed({
     title: 'The Arcades - Blog',
@@ -19,16 +27,27 @@ export async function GET() {
       name: 'Austen Tucker',
       link: SITE_URL,
     },
+    feedLinks: {
+      rss: `${SITE_URL}/feed.xml`,
+    },
   });
 
   for (const post of posts) {
+    const postLink = `${SITE_URL}/blog/${post.slug}`;
+    const authorName = post.author?.trim() || 'Austen Tucker';
+    const { htmlBody } = buildPostNewsletterContent(
+      post as unknown as Pick<Post, 'content' | 'excerpt' | 'slug' | 'title'>,
+      SITE_URL,
+    );
+
     feed.addItem({
       title: post.title,
-      id: `${SITE_URL}/blog/${post.slug}`,
-      link: `${SITE_URL}/blog/${post.slug}`,
+      id: postLink,
+      link: postLink,
       description: post.excerpt,
+      content: htmlBody,
       date: new Date(post.date),
-      author: [{ name: 'Austen Tucker', link: SITE_URL }],
+      author: [{ name: authorName, link: SITE_URL }],
     });
   }
 
