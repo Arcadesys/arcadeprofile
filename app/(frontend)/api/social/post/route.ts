@@ -22,7 +22,7 @@ async function handleComposePost(body: ComposePostRequest) {
   }
 
   const payload = await getPayload({ config });
-  const variant = body.variant || 'custom';
+  const variant = (body.variant || 'custom') as 'short' | 'long' | 'custom';
 
   if (body.scheduledAt) {
     const scheduledDate = new Date(body.scheduledAt);

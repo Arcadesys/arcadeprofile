@@ -3,7 +3,7 @@ import { RichText } from '@payloadcms/richtext-lexical/react';
 import { getPageBySlug } from '@/lib/blog';
 import type { Metadata } from 'next';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageBySlug('about');

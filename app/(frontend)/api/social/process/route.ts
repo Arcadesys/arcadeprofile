@@ -73,6 +73,12 @@ export async function GET(request: Request) {
   return processScheduledSocialPosts();
 }
 
-export async function POST() {
+export async function POST(request: Request) {
+  const unauthorizedResponse = authorizeCronRequest(request);
+
+  if (unauthorizedResponse) {
+    return unauthorizedResponse;
+  }
+
   return processScheduledSocialPosts();
 }

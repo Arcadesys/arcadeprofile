@@ -1,10 +1,16 @@
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html';
-
-import type { Post } from '../payload-types';
+import type { SerializedEditorState } from 'lexical';
 
 type NewsletterContent = {
   htmlBody: string;
   textBody: string;
+};
+
+type PostInput = {
+  content: SerializedEditorState;
+  excerpt?: string | null;
+  slug: string;
+  title: string;
 };
 
 const DEFAULT_SITE_URL = 'https://thearcades.me';
@@ -27,10 +33,10 @@ function stripHtml(value: string): string {
     .trim();
 }
 
-function renderPostContent(post: Pick<Post, 'content'>): string {
+function renderPostContent(content: SerializedEditorState): string {
   try {
     return convertLexicalToHTML({
-      data: post.content,
+      data: content,
       disableContainer: true,
     }).trim();
   } catch (error) {
@@ -40,14 +46,14 @@ function renderPostContent(post: Pick<Post, 'content'>): string {
 }
 
 export function buildPostNewsletterContent(
-  post: Pick<Post, 'content' | 'excerpt' | 'slug' | 'title'>,
+  post: PostInput,
   siteUrl = process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL,
 ): NewsletterContent {
   const postUrl = `${siteUrl}/blog/${post.slug}`;
   const escapedTitle = escapeHtml(post.title);
   const excerpt = post.excerpt?.trim() || '';
   const escapedExcerpt = excerpt ? escapeHtml(excerpt) : '';
-  const contentHtml = renderPostContent(post);
+  const contentHtml = renderPostContent(post.content);
 
   const htmlBody = `
     <article style="font-family: Georgia, serif; color: #111827; line-height: 1.7;">

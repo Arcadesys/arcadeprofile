@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     ? tags.filter((t: unknown) => typeof t === 'string' && VALID_TAGS.includes(t))
     : VALID_TAGS;
 
-  const tagArray = selectedTags.map((tag) => ({ tag }));
+  const tagArray = selectedTags.map((tag) => ({ tag: tag as 'fiction' | 'tech' | 'updates' }));
 
   try {
     const payload = await getPayload({ config });
