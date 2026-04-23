@@ -1,6 +1,6 @@
+import { Analytics } from '@vercel/analytics/next';
 import "../globals.css";
 import NavBar from '../components/NavBar.js';
-import SimpleAnalytics from '../components/SimpleAnalytics';
 import ThemeToggle from '../components/ThemeToggle';
 import SiteFooter from '../components/SiteFooter';
 import { CosmosProvider } from '../components/CosmosContext';
@@ -30,7 +30,7 @@ export default function FrontendLayout({
           {children}
           <SiteFooter />
           <ThemeToggle />
-          <SimpleAnalytics />
+          <Analytics />
         </CosmosProvider>
       </body>
     </html>

@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { getAllDemos } from '@/lib/payload';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DemosPage() {
   const demos = await getAllDemos();
 

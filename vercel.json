@@ -7,7 +7,7 @@
   "crons": [
     {
       "path": "/api/posts/publish-scheduled",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 9 * * *"
     }
   ],
   "routes": [

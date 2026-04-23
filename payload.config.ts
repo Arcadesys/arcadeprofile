@@ -27,6 +27,7 @@ const email = postmarkToken
   ? nodemailerAdapter({
       defaultFromAddress,
       defaultFromName,
+      skipVerify: true,
       transportOptions: {
         host: 'smtp.postmarkapp.com',
         port: 587,
@@ -37,10 +38,7 @@ const email = postmarkToken
         },
       },
     })
-  : nodemailerAdapter({
-      defaultFromAddress,
-      defaultFromName,
-    });
+  : undefined;
 
 export default buildConfig({
   admin: {

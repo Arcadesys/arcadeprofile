@@ -20,7 +20,7 @@ async function publishScheduledPosts() {
   const result = await payload.find({
     collection: 'posts',
     depth: 0,
-    limit: 0,
+    limit: perRunLimit || 0,
     sort: ['scheduledPublishDate', 'order'],
     where: {
       and: [
@@ -38,10 +38,9 @@ async function publishScheduledPosts() {
   });
 
   const duePosts = result.docs as Post[];
-  const postsToPublish = perRunLimit ? duePosts.slice(0, perRunLimit) : duePosts;
   const results: PublishResult[] = [];
 
-  for (const post of postsToPublish) {
+  for (const post of duePosts) {
     try {
       await payload.update({
         collection: 'posts',
@@ -75,10 +74,10 @@ async function publishScheduledPosts() {
   const failed = results.length - processed;
 
   return NextResponse.json({
-    due: duePosts.length,
+    due: result.totalDocs,
     processed,
     failed,
-    skipped: Math.max(duePosts.length - postsToPublish.length, 0),
+    skipped: Math.max(result.totalDocs - duePosts.length, 0),
     results,
   });
 }
