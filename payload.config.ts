@@ -22,6 +22,7 @@ const dirname = path.dirname(filename);
 const defaultFromAddress = process.env.POSTMARK_FROM_EMAIL || 'austen@thearcades.me';
 const defaultFromName = process.env.POSTMARK_FROM_NAME || 'The Arcades';
 const postmarkToken = process.env.POSTMARK_SERVER_TOKEN;
+const databaseURL = process.env.DATABASE_URL || process.env.DATABASE_URI || '';
 
 const email = postmarkToken
   ? nodemailerAdapter({
@@ -54,7 +55,7 @@ export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || 'default-secret-change-me',
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL || '',
+      connectionString: databaseURL,
     },
   }),
   typescript: {

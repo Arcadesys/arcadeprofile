@@ -1,4 +1,4 @@
-import { Analytics } from '@vercel/analytics/next';
+import { Analytics } from '@vercel/analytics/react';
 import "../globals.css";
 import NavBar from '../components/NavBar.js';
 import ThemeToggle from '../components/ThemeToggle';
