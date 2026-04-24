@@ -12,6 +12,7 @@ import { Projects } from './collections/Projects';
 import { Demos } from './collections/Demos';
 import { Pages } from './collections/Pages';
 import { Media } from './collections/Media';
+import { BlobImages } from './collections/BlobImages';
 import { Users } from './collections/Users';
 import { Subscribers } from './collections/Subscribers';
 import { SocialPosts } from './collections/SocialPosts';
@@ -48,7 +49,7 @@ export default buildConfig({
     },
     theme: 'dark',
   },
-  collections: [Users, Posts, Groups, Books, Projects, Demos, Pages, Media, Subscribers, SocialPosts],
+  collections: [Users, Posts, Groups, Books, Projects, Demos, Pages, Media, BlobImages, Subscribers, SocialPosts],
   editor: lexicalEditor(),
   email,
   sharp,

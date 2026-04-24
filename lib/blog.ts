@@ -28,6 +28,17 @@ export interface Group {
   posts: BlogPost[];
 }
 
+export interface GroupBlobImage {
+  id: number;
+  title: string;
+  url: string;
+  pathname?: string;
+  alt: string;
+  caption?: string;
+  order: number;
+  featured: boolean;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toPost(doc: any): BlogPost {
   return {
@@ -149,6 +160,45 @@ export async function getAllGroups(): Promise<Group[]> {
 export async function getGroupBySlug(slug: string): Promise<Group | null> {
   const groups = await getAllGroups();
   return groups.find((g) => g.slug === slug) ?? null;
+}
+
+export async function getBlobImagesByGroupSlug(slug: string): Promise<GroupBlobImage[]> {
+  const payload = await getPayloadClient();
+
+  const groupResult = await payload.find({
+    collection: 'groups',
+    where: {
+      slug: { equals: slug },
+    },
+    limit: 1,
+    depth: 0,
+  });
+
+  const group = groupResult.docs[0];
+  if (!group) return [];
+
+  const imageResult = await payload.find({
+    collection: 'blob-images',
+    where: {
+      group: { equals: group.id },
+    },
+    sort: 'order',
+    limit: 200,
+    depth: 0,
+  });
+
+  return imageResult.docs
+    .map((doc) => ({
+      id: doc.id as number,
+      title: doc.title as string,
+      url: doc.url as string,
+      pathname: (doc.pathname as string) || undefined,
+      alt: doc.alt as string,
+      caption: (doc.caption as string) || undefined,
+      order: (doc.order as number) ?? 0,
+      featured: Boolean(doc.featured),
+    }))
+    .sort((a, b) => a.order - b.order);
 }
 
 export interface Page {

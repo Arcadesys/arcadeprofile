@@ -75,6 +75,7 @@ export interface Config {
     demos: Demo;
     pages: Page;
     media: Media;
+    'blob-images': BlobImage;
     subscribers: Subscriber;
     'social-posts': SocialPost;
     'payload-kv': PayloadKv;
@@ -92,6 +93,7 @@ export interface Config {
     demos: DemosSelect<false> | DemosSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'blob-images': BlobImagesSelect<false> | BlobImagesSelect<true>;
     subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
     'social-posts': SocialPostsSelect<false> | SocialPostsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -654,6 +656,32 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blob-images".
+ */
+export interface BlobImage {
+  id: number;
+  title: string;
+  /**
+   * Public Vercel Blob URL.
+   */
+  url: string;
+  /**
+   * Blob pathname/key, useful if we need deletion later.
+   */
+  pathname?: string | null;
+  alt: string;
+  caption?: string | null;
+  group: number | Group;
+  /**
+   * Lower numbers appear first.
+   */
+  order?: number | null;
+  featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "subscribers".
  */
 export interface Subscriber {
@@ -758,6 +786,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'blob-images';
+        value: number | BlobImage;
       } | null)
     | ({
         relationTo: 'subscribers';
@@ -1106,6 +1138,22 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blob-images_select".
+ */
+export interface BlobImagesSelect<T extends boolean = true> {
+  title?: T;
+  url?: T;
+  pathname?: T;
+  alt?: T;
+  caption?: T;
+  group?: T;
+  order?: T;
+  featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

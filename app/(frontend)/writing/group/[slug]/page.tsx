@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getAllGroups, getGroupBySlug } from '@/lib/blog';
+import { getAllGroups, getBlobImagesByGroupSlug, getGroupBySlug } from '@/lib/blog';
 import type { Metadata } from 'next';
 
 export async function generateStaticParams() {
@@ -26,6 +26,7 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
   const { slug } = await params;
   const group = await getGroupBySlug(slug);
   if (!group) notFound();
+  const galleryImages = await getBlobImagesByGroupSlug(slug);
 
   return (
     <div className="w-full px-4 py-8">
@@ -48,6 +49,30 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
             {group.posts.length} {group.posts.length === 1 ? 'essay' : 'essays'}
           </p>
         </header>
+
+        {galleryImages.length > 0 && (
+          <section className="mb-10">
+            <h2 className="text-2xl font-semibold mb-4">Gallery</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {galleryImages.map((image) => (
+                <figure
+                  key={image.id}
+                  className="rounded-lg border border-[var(--border)] bg-[var(--surface)] overflow-hidden"
+                >
+                  <img
+                    src={image.url}
+                    alt={image.alt}
+                    loading="lazy"
+                    className="w-full h-56 object-cover"
+                  />
+                  {image.caption && (
+                    <figcaption className="text-sm text-[var(--fg-muted)] p-3">{image.caption}</figcaption>
+                  )}
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
 
         <ol className="space-y-3">
           {group.posts.map((post, idx) => (
