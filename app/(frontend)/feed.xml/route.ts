@@ -22,7 +22,7 @@ export async function GET() {
     id: SITE_URL,
     link: SITE_URL,
     language: 'en',
-    copyright: `© ${new Date().getFullYear()} Austen Tucker`,
+    copyright: `© 2006 Austen Tucker`,
     author: {
       name: 'Austen Tucker',
       link: SITE_URL,

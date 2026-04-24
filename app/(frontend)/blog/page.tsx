@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { getAllPosts } from '@/lib/blog';
-import SubscribeForm from '@/app/components/SubscribeForm';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -56,9 +55,6 @@ export default async function BlogPage() {
           </div>
         )}
 
-        <div className="mt-12">
-          <SubscribeForm />
-        </div>
       </div>
     </div>
   );

@@ -302,7 +302,7 @@ export default function Home() {
         borderTop: "1px solid var(--border)",
       }}>
         <p>
-          &copy; 2025 Austen Tucker. Licensed under{" "}
+          &copy; 2006 Austen Tucker. Licensed under{" "}
           <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="text-link" style={{ textDecoration: "underline" }}>
             Creative Commons Attribution 4.0
           </a>

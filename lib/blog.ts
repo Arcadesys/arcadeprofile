@@ -53,8 +53,11 @@ export async function getAllPosts(): Promise<BlogPost[]> {
 
   const result = await payload.find({
     collection: 'posts',
+    where: {
+      _status: { equals: 'published' },
+    },
     sort: '-publishedDate',
-    limit: 100,
+    limit: 0,
     depth: 0,
   });
 
@@ -86,7 +89,10 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   const result = await payload.find({
     collection: 'posts',
     where: {
-      slug: { equals: slug },
+      and: [
+        { slug: { equals: slug } },
+        { _status: { equals: 'published' } },
+      ],
     },
     limit: 1,
     depth: 0,
@@ -111,7 +117,10 @@ export async function getAllGroups(): Promise<Group[]> {
     const postResult = await payload.find({
       collection: 'posts',
       where: {
-        group: { equals: g.slug },
+        and: [
+          { group: { equals: g.slug } },
+          { _status: { equals: 'published' } },
+        ],
       },
       sort: 'order',
       limit: 100,
@@ -228,9 +237,14 @@ export async function getUngroupedPosts(): Promise<BlogPost[]> {
   const result = await payload.find({
     collection: 'posts',
     where: {
-      or: [
-        { group: { equals: '' } },
-        { group: { exists: false } },
+      and: [
+        { _status: { equals: 'published' } },
+        {
+          or: [
+            { group: { equals: '' } },
+            { group: { exists: false } },
+          ],
+        },
       ],
     },
     sort: '-publishedDate',
