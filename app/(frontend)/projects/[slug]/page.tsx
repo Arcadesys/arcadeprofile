@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getAllProjectHubs, getProjectBySlug, type ProjectHub, type ProjectResource } from '@/lib/payload';
 import { getPostsBySlugs } from '@/lib/blog';
+import { categoryLabels } from '@/components/menu';
 
 export const dynamic = 'force-dynamic';
 
@@ -189,6 +190,7 @@ export default async function ProjectPage({
                                     className="h-full w-full"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                     allowFullScreen
+                                    sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
                                   />
                                 </div>
                               ) : (

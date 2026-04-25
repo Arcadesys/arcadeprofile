@@ -1,12 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { discoverabilityFields } from './fields/discoverability';
-
-function slugify(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
+import { slugify } from '@/lib/utils';
 
 export const Projects: CollectionConfig = {
   slug: 'projects',

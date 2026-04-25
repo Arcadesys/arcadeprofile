@@ -1,16 +1,8 @@
 import Link from 'next/link';
 import { getAllProjectHubs, type ProjectHub } from '@/lib/payload';
-import { projectCategoryLinks } from '@/components/menu';
+import { projectCategoryLinks, categoryLabels } from '@/components/menu';
 
 export const dynamic = 'force-dynamic';
-
-const categoryLabels: Record<string, string> = {
-  fiction: 'Fiction',
-  tools: 'Tools',
-  experiments: 'Experiments',
-  'audio-video': 'Audio/Video',
-  community: 'Community',
-};
 
 const resourceLabels: Record<string, string> = {
   post: 'Posts',

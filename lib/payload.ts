@@ -2,6 +2,7 @@ import { getPayload } from 'payload';
 import configPromise from '@payload-config';
 import type { Book, Demo, Project } from '@/payload-types';
 import { projects as staticProjects } from '@/data/projects';
+import { slugify } from '@/lib/utils';
 
 export type ProjectResourceKind =
   | 'post'
@@ -18,8 +19,8 @@ export interface ProjectResource {
   label: string;
   href: string;
   kind: ProjectResourceKind;
-  description?: string;
-  external?: boolean;
+  description?: string | null;
+  external?: boolean | null;
   id?: string | null;
 }
 
@@ -52,13 +53,6 @@ async function getPayloadClient() {
   return getPayload({ config: configPromise });
 }
 
-function slugify(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-
 function normalizeStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value
@@ -73,43 +67,34 @@ function normalizeStringArray(value: unknown): string[] {
 }
 
 function normalizeProject(doc: Project): ProjectHub {
-  const raw = doc as Project & {
-    slug?: string | null;
-    featured?: boolean | null;
-    category?: string | null;
-    status?: string | null;
-    primaryCTA?: ProjectCTA;
-    resources?: ProjectResource[] | null;
-    relatedPostSlugs?: { slug?: string | null }[] | null;
-  };
-  const resources = Array.isArray(raw.resources) ? raw.resources : [];
-  const primaryCTA = raw.primaryCTA?.href
-    ? raw.primaryCTA
+  const resources = Array.isArray(doc.resources) ? doc.resources : [];
+  const primaryCTA = doc.primaryCTA?.href
+    ? doc.primaryCTA
     : {
-        label: raw.external ? 'View Project' : 'Open Project',
-        href: raw.href,
-        type: raw.external ? 'other' as const : 'experiment' as const,
+        label: doc.external ? 'View Project' : 'Open Project',
+        href: doc.href,
+        type: doc.external ? 'other' as const : 'experiment' as const,
       };
 
   return {
-    id: raw.id,
-    slug: raw.slug || slugify(raw.title),
-    title: raw.title,
-    description: raw.description,
-    image: raw.image,
-    href: raw.href,
-    external: raw.external,
-    tags: normalizeStringArray(raw.tags),
-    featured: Boolean(raw.featured),
-    category: raw.category,
-    status: raw.status,
+    id: doc.id,
+    slug: doc.slug || slugify(doc.title),
+    title: doc.title,
+    description: doc.description,
+    image: doc.image,
+    href: doc.href,
+    external: doc.external,
+    tags: normalizeStringArray(doc.tags),
+    featured: Boolean(doc.featured),
+    category: doc.category,
+    status: doc.status,
     primaryCTA,
     resources,
-    relatedPostSlugs: Array.isArray(raw.relatedPostSlugs)
-      ? raw.relatedPostSlugs.map(item => item.slug).filter((slug): slug is string => Boolean(slug))
+    relatedPostSlugs: Array.isArray(doc.relatedPostSlugs)
+      ? doc.relatedPostSlugs.map(item => item.slug).filter((slug): slug is string => Boolean(slug))
       : [],
-    updatedAt: raw.updatedAt,
-    createdAt: raw.createdAt,
+    updatedAt: doc.updatedAt,
+    createdAt: doc.createdAt,
   };
 }
 

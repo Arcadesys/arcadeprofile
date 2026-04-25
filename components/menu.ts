@@ -21,3 +21,11 @@ export const projectCategoryLinks = [
   { href: '/projects?category=experiments', label: 'Experiments' },
   { href: '/projects?category=audio-video', label: 'Audio/Video' },
 ];
+
+export const categoryLabels: Record<string, string> = {
+  fiction: 'Fiction',
+  tools: 'Tools',
+  experiments: 'Experiments',
+  'audio-video': 'Audio/Video',
+  community: 'Community',
+};
