@@ -42,9 +42,9 @@ export default function BlobUploadPage() {
       }
 
       setResult(data as UploadResponse);
-    } catch {
+    } catch (err) {
+      console.error('Upload request failed:', err);
       setError('Upload request failed. Please try again.');
-    } finally {
       setIsUploading(false);
     }
   };
