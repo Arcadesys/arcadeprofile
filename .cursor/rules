@@ -1,0 +1,32 @@
+# Arcades Profile — Cursor Rules
+
+## Tech stack
+- Next.js 15 (App Router), React 19, TypeScript (strict)
+- Payload CMS v3 with PostgreSQL
+- Tailwind CSS + SASS
+- Vercel deployment
+
+## Package manager
+Always use **npm**. Never suggest `yarn`, `pnpm`, or `bun`.
+
+## Code style
+- TypeScript strict mode — no `any` unless absolutely necessary
+- Prefer functional components and React hooks
+- Co-locate types with the files that use them
+- Use Tailwind utility classes; avoid inline styles
+
+## Project conventions
+- App Router pages and API routes live in `app/`
+- Payload collections are defined in `collections/` and registered in `payload.config.ts`
+- Shared utilities belong in `lib/`
+- All new API routes go under `app/api/`
+
+## Commands
+- `npm run dev` — start dev server (port 3000)
+- `npm run lint` — ESLint
+- `npm test` — run tests with tsx
+- `npm run build` — production build
+
+## Environment
+- Required vars are in `.env.example` — never commit real secrets
+- `MCP_API_KEY` and `PAYLOAD_API_KEY` are separate — rotate independently
