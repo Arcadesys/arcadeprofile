@@ -3,6 +3,7 @@ import path from 'path';
 import Link from 'next/link';
 import { getAllBooks } from '@/lib/payload';
 import type { Book } from '@/payload-types';
+import { books as staticBooks } from '@/data/books';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,9 @@ function getCoverImage(bookKey: string, coverImage?: string | null): string {
 
 export default async function SamplesPage() {
   const books = await getAllBooks();
+  const staticSampleKeys = Object.entries(staticBooks)
+    .filter(([, book]) => book.hasPreview)
+    .map(([key]) => key);
 
   const previewDir = path.join(process.cwd(), 'public', 'preview');
   let previewFiles: string[] = [];
@@ -24,10 +28,14 @@ export default async function SamplesPage() {
     // preview directory may not exist
   }
 
+  const sampleBookKeys = new Set([
+    ...staticSampleKeys,
+    ...books.filter(book => book.hasPreview).map(book => book.key),
+  ]);
+
   // Books from Payload keyed by their key field
   const booksByKey = new Map(books.map(b => [b.key, b]));
-  // Add any preview files that don't have a corresponding book in Payload
-  const allKeys = new Set([...books.map(b => b.key), ...previewFiles]);
+  const allKeys = Array.from(sampleBookKeys).filter(bookKey => previewFiles.includes(bookKey));
 
   return (
     <div className="w-full px-4 py-8">
@@ -40,10 +48,11 @@ export default async function SamplesPage() {
         <div className="space-y-6">
           {Array.from(allKeys).map(bookKey => {
             const book: Book | undefined = booksByKey.get(bookKey);
-            const title = book?.title ?? bookKey.charAt(0).toUpperCase() + bookKey.slice(1).replace(/-/g, ' ');
-            const description = book?.description ?? 'Sample available';
+            const staticBook = staticBooks[bookKey as keyof typeof staticBooks];
+            const title = book?.title ?? staticBook?.title ?? bookKey.charAt(0).toUpperCase() + bookKey.slice(1).replace(/-/g, ' ');
+            const description = book?.description ?? staticBook?.description ?? 'Sample available';
             const hasPreview = book?.hasPreview || previewFiles.includes(bookKey);
-            const coverImage = getCoverImage(bookKey, book?.coverImage);
+            const coverImage = getCoverImage(bookKey, book?.coverImage ?? staticBook?.coverImage);
 
             return (
               <div key={bookKey} className="flex flex-col md:flex-row gap-4 border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow bg-white dark:bg-gray-800 p-4">

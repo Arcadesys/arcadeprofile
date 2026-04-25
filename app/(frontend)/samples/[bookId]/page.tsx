@@ -2,17 +2,18 @@ import fs from 'fs';
 import path from 'path';
 import { notFound } from 'next/navigation';
 import BookPreview from '@/app/components/BookPreview';
+import { getAllBooks } from '@/lib/payload';
+import { books as staticBooks } from '@/data/books';
+
+function getStaticSampleKeys(): string[] {
+  return Object.entries(staticBooks)
+    .filter(([, book]) => book.hasPreview)
+    .map(([key]) => key);
+}
 
 // Function to get available book samples
 export function generateStaticParams() {
-  const previewDir = path.join(process.cwd(), 'public', 'preview');
-  const files = fs.readdirSync(previewDir)
-    .filter(file => file.endsWith('.md'))
-    .map(file => ({
-      bookId: file.replace('.md', '')
-    }));
-  
-  return files;
+  return getStaticSampleKeys().map(bookId => ({ bookId }));
 }
 
 // Function to get book summary
@@ -34,6 +35,15 @@ function getBookSummary(bookId: string): string | undefined {
 
 export default async function SamplePage({ params }: { params: Promise<{ bookId: string }> }) {
   const { bookId } = await params;
+  const staticSampleKeys = getStaticSampleKeys();
+  const books = await getAllBooks();
+  const isSample = staticSampleKeys.includes(bookId)
+    || books.some(book => book.key === bookId && book.hasPreview);
+
+  if (!isSample) {
+    notFound();
+  }
+
   const filePath = path.join(process.cwd(), 'public', 'preview', `${bookId}.md`);
   
   // Check if the file exists
