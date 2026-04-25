@@ -2,7 +2,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { buildConfig } from 'payload';
 import { postgresAdapter } from '@payloadcms/db-postgres';
-import { nodemailerAdapter } from '@payloadcms/email-nodemailer';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import sharp from 'sharp';
 import { Posts } from './collections/Posts';
@@ -15,31 +14,13 @@ import { Media } from './collections/Media';
 import { Users } from './collections/Users';
 import { Subscribers } from './collections/Subscribers';
 import { SocialPosts } from './collections/SocialPosts';
+import { createPayloadEmailAdapter } from './lib/payload-email';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
-const defaultFromAddress = process.env.POSTMARK_FROM_EMAIL || 'austen@thearcades.me';
-const defaultFromName = process.env.POSTMARK_FROM_NAME || 'The Arcades';
-const postmarkToken = process.env.POSTMARK_SERVER_TOKEN;
 const databaseURL = process.env.DATABASE_URL || process.env.DATABASE_URI || '';
-
-const email = postmarkToken
-  ? nodemailerAdapter({
-      defaultFromAddress,
-      defaultFromName,
-      skipVerify: true,
-      transportOptions: {
-        host: 'smtp.postmarkapp.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: postmarkToken,
-          pass: postmarkToken,
-        },
-      },
-    })
-  : undefined;
+const email = createPayloadEmailAdapter();
 
 export default buildConfig({
   admin: {

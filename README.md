@@ -85,3 +85,20 @@ curl -X POST http://localhost:3000/api/mcp \
     }
   }'
 ```
+
+
+## Payload email (Postmark)
+
+Payload CMS email is configured to use Postmark SMTP when `POSTMARK_SERVER_TOKEN` is set. To enforce fail-fast behavior in production, set `POSTMARK_REQUIRED_IN_PROD=true`.
+
+Required env vars:
+
+- `POSTMARK_SERVER_TOKEN`
+- `POSTMARK_FROM_EMAIL`
+- `POSTMARK_FROM_NAME` (optional, defaults to `The Arcades`)
+- `POSTMARK_REQUIRED_IN_PROD` (optional safety rail)
+- `POSTMARK_WEBHOOK_SECRET` (optional auth token for `/api/postmark/webhook`)
+
+`/api/postmark/webhook` captures Postmark bounce/spam complaint/subscription-change events and marks matching subscribers as unsubscribed.
+
+See `docs/postmark-payload-wiring-plan.md` for rollout details.
