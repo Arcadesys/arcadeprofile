@@ -37,6 +37,7 @@ export default function NavBar() {
     { href: '/demos', label: 'Demos', prefixMatch: true },
     { href: '/portfolio', label: 'Tools' },
     { href: '/resume', label: 'Resume' },
+    { href: '/toons', label: 'Toons', prefixMatch: true },
     { href: '/about', label: 'About' },
   ];
 
