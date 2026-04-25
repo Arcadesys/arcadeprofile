@@ -6,12 +6,6 @@ First, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -44,7 +38,7 @@ The repo ships a Payload CMS MCP server that exposes Posts, Pages, Groups, Books
 The `.mcp.json` in the repo root is pre-configured. Add your env vars and it just works:
 
 ```bash
-PAYLOAD_API_URL=http://localhost:3000 PAYLOAD_API_KEY=<key> pnpm run mcp
+PAYLOAD_API_URL=http://localhost:3000 PAYLOAD_API_KEY=<key> npm run mcp
 ```
 
 ### Connecting claude.ai as a custom connector
@@ -85,3 +79,20 @@ curl -X POST http://localhost:3000/api/mcp \
     }
   }'
 ```
+
+
+## Payload email (Postmark)
+
+Payload CMS email is configured to use Postmark SMTP when `POSTMARK_SERVER_TOKEN` is set. To enforce fail-fast behavior in production, set `POSTMARK_REQUIRED_IN_PROD=true`.
+
+Required env vars:
+
+- `POSTMARK_SERVER_TOKEN`
+- `POSTMARK_FROM_EMAIL`
+- `POSTMARK_FROM_NAME` (optional, defaults to `The Arcades`)
+- `POSTMARK_REQUIRED_IN_PROD` (optional safety rail)
+- `POSTMARK_WEBHOOK_SECRET` (optional auth token for `/api/postmark/webhook`)
+
+`/api/postmark/webhook` captures Postmark bounce/spam complaint/subscription-change events and marks matching subscribers as unsubscribed.
+
+See `docs/postmark-payload-wiring-plan.md` for rollout details.

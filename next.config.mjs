@@ -7,6 +7,14 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
+    ],
+  },
   webpack: (config) => {
     // Suppress missing optional dep warning from json-schema-to-typescript (via Payload)
     config.resolve.fallback = { ...config.resolve.fallback, 'cli-color': false };
