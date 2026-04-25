@@ -138,7 +138,7 @@ export default async function ProjectPage({
             <div className="mt-4 flex flex-wrap gap-2">
               {project.category && (
                 <span className="rounded-full border border-[var(--border)] px-2 py-0.5 text-xs text-[var(--fg-muted)]">
-                  {project.category.replace(/-/g, ' ')}
+                  {categoryLabels[project.category] ?? project.category.replace(/-/g, ' ')}
                 </span>
               )}
               {project.tags.map(tag => (
