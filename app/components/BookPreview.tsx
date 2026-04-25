@@ -120,10 +120,10 @@ export default function BookPreview({ content, bookId, showCta = true, summary }
         </div>
       )}
       
-      {/* Book Summary/Blurb Section */}
+      {/* Preview Summary/Blurb Section */}
       {summary && (
         <div className={`w-full max-w-4xl mx-auto mb-8 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 ${styles.contentBox}`}>
-          <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">About this Book</h2>
+          <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">About this preview</h2>
           <div className="prose dark:prose-invert prose-lg max-w-none">
             <div 
               dangerouslySetInnerHTML={{ __html: formatMarkdown(summary) }} 
@@ -240,4 +240,4 @@ function formatMarkdown(markdown: string): string {
   }).join('\n\n');
 
   return html;
-} 
+}

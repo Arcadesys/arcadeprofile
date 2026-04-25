@@ -15,18 +15,6 @@ export function generateStaticParams() {
   return files;
 }
 
-// Function to check if a cover image exists
-function coverImageExists(bookId: string): boolean {
-  const possiblePaths = [
-    path.join(process.cwd(), 'public', 'preview', 'covers', `${bookId}.png`),
-    path.join(process.cwd(), 'public', 'preview', 'covers', `${bookId}.jpg`),
-    path.join(process.cwd(), 'public', 'preview', 'covers', `${bookId.replace('ch1', '')}.png`),
-    path.join(process.cwd(), 'public', 'preview', 'covers', 'book.svg')
-  ];
-  
-  return possiblePaths.some(p => fs.existsSync(p));
-}
-
 // Function to get book summary
 function getBookSummary(bookId: string): string | undefined {
   // First, try to find a dedicated summary file
@@ -55,7 +43,6 @@ export default async function PreviewPage({ params }: { params: Promise<{ bookId
   
   // Read the markdown content
   const markdownContent = fs.readFileSync(filePath, 'utf8');
-  const hasCover = coverImageExists(bookId);
   const summary = getBookSummary(bookId);
   
   return (
@@ -68,4 +55,4 @@ export default async function PreviewPage({ params }: { params: Promise<{ bookId
       />
     </div>
   );
-} 
+}

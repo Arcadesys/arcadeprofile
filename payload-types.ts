@@ -417,9 +417,19 @@ export interface Book {
  */
 export interface Project {
   id: number;
+  /**
+   * Stable project URL slug.
+   */
+  slug: string;
   title: string;
   description: string;
   image?: string | null;
+  /**
+   * Feature this project in the main navigation panel.
+   */
+  featured?: boolean | null;
+  category?: ('fiction' | 'tools' | 'experiments' | 'audio-video' | 'community') | null;
+  status?: ('active' | 'available' | 'in-progress' | 'archived') | null;
   href: string;
   external?: boolean | null;
   tags?:
@@ -430,6 +440,30 @@ export interface Project {
     | string
     | number
     | boolean
+    | null;
+  primaryCTA?: {
+    label?: string | null;
+    href?: string | null;
+    type?: ('preview' | 'buy' | 'experiment' | 'youtube' | 'audio' | 'repo' | 'download' | 'other') | null;
+  };
+  resources?:
+    | {
+        label: string;
+        href: string;
+        kind: 'post' | 'preview' | 'buy' | 'youtube' | 'audio' | 'experiment' | 'repo' | 'download' | 'other';
+        description?: string | null;
+        external?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Blog post slugs to surface on the project hub page.
+   */
+  relatedPostSlugs?:
+    | {
+        slug: string;
+        id?: string | null;
+      }[]
     | null;
   /**
    * Controls how this content is surfaced and distributed.
@@ -960,12 +994,39 @@ export interface BooksSelect<T extends boolean = true> {
  * via the `definition` "projects_select".
  */
 export interface ProjectsSelect<T extends boolean = true> {
+  slug?: T;
   title?: T;
   description?: T;
   image?: T;
+  featured?: T;
+  category?: T;
+  status?: T;
   href?: T;
   external?: T;
   tags?: T;
+  primaryCTA?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        type?: T;
+      };
+  resources?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        kind?: T;
+        description?: T;
+        external?: T;
+        id?: T;
+      };
+  relatedPostSlugs?:
+    | T
+    | {
+        slug?: T;
+        id?: T;
+      };
   discoverability?:
     | T
     | {

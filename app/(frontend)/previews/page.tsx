@@ -11,7 +11,7 @@ function getCoverImage(bookKey: string, coverImage?: string | null): string {
   return `/preview/covers/${bookKey}.png`;
 }
 
-export default async function BooksAndPreviewsPage() {
+export default async function PreviewsPage() {
   const books = await getAllBooks();
 
   const previewDir = path.join(process.cwd(), 'public', 'preview');
@@ -32,7 +32,10 @@ export default async function BooksAndPreviewsPage() {
   return (
     <div className="w-full px-4 py-8">
       <div className="austenbox" style={{ margin: "0 auto", marginTop: "5%", marginBottom: "5%" }}>
-        <h1 className="text-3xl font-bold mb-8 text-center gaysparkles">Books & Previews</h1>
+        <h1 className="text-3xl font-bold mb-3 text-center gaysparkles">Previews</h1>
+        <p className="mx-auto mb-8 max-w-2xl text-center text-sm leading-relaxed text-[var(--fg-muted)]">
+          Read a sample, then subscribe or join the beta list when something catches.
+        </p>
 
         <div className="space-y-6">
           {Array.from(allKeys).map(bookKey => {

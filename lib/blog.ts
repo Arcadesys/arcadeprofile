@@ -96,6 +96,30 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   return toPost(result.docs[0]);
 }
 
+export async function getPostsBySlugs(slugs: string[]): Promise<BlogPost[]> {
+  const uniqueSlugs = [...new Set(slugs.filter(Boolean))];
+  if (uniqueSlugs.length === 0) return [];
+
+  const payload = await getPayloadClient();
+  const result = await payload.find({
+    collection: 'posts',
+    where: {
+      slug: { in: uniqueSlugs },
+    },
+    limit: uniqueSlugs.length,
+    depth: 0,
+  });
+
+  const postsBySlug = new Map(result.docs.map(doc => {
+    const post = toPost(doc);
+    return [post.slug, post] as const;
+  }));
+
+  return uniqueSlugs
+    .map(slug => postsBySlug.get(slug))
+    .filter((post): post is BlogPost => Boolean(post));
+}
+
 export async function getAllGroups(): Promise<Group[]> {
   const payload = await getPayloadClient();
 

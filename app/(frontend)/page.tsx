@@ -95,9 +95,9 @@ export default function Home() {
           transition: "all 0.2s",
           textAlign: "center",
         }}>
-          <span style={{ fontSize: "2rem", marginBottom: "0.5rem" }} role="img" aria-label="Books">&#x1F4DA;</span>
-          <span style={{ fontWeight: 600 }}>Writing Lab</span>
-          <span style={{ fontSize: "0.85rem", color: "var(--fg-muted)", marginTop: "0.25rem" }}>Novels &amp; previews</span>
+          <span style={{ fontSize: "2rem", marginBottom: "0.5rem" }} role="img" aria-label="Previews">&#x1F4DA;</span>
+          <span style={{ fontWeight: 600 }}>Previews</span>
+          <span style={{ fontSize: "0.85rem", color: "var(--fg-muted)", marginTop: "0.25rem" }}>Sample chapters &amp; excerpts</span>
         </Link>
 
         <Link href="/blog" className="tile-link" style={{
@@ -138,7 +138,7 @@ export default function Home() {
           <span style={{ fontSize: "0.85rem", color: "var(--fg-muted)", marginTop: "0.25rem" }}>Demos &amp; experiments</span>
         </Link>
 
-        <Link href="/portfolio" className="tile-link" style={{
+        <Link href="/projects" className="tile-link" style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -191,20 +191,20 @@ export default function Home() {
         </ul>
       </section>
 
-      {/* Books detail */}
+      {/* Previews detail */}
       <div style={{
         display: "grid",
         gap: "1.5rem",
         gridTemplateColumns: "1fr",
       }}>
         <div className="austenbox" style={{ margin: 0 }}>
-          <h2 style={{ marginBottom: "0.5rem", textAlign: "left" }}>Books</h2>
+          <h2 style={{ marginBottom: "0.5rem", textAlign: "left" }}>Previews</h2>
           <p style={{ margin: "0 0 1rem" }}>
-            Published YA fantasy &mdash; queer identity, civil rights allegory, catgirls with feelings.
-            Five titles out, more on the way. Not represented right now, but open to it.
+            Sample chapters, project excerpts, and early looks at the fiction in progress.
+            Start here if you want to read before subscribing or joining a beta.
           </p>
           <Link href="/previews" className="button-link" style={{ display: "inline-block" }}>
-            Browse the catalog
+            Browse previews
           </Link>
         </div>
 
@@ -220,8 +220,8 @@ export default function Home() {
             <Link href="/blog" className="button-link">
               Blog
             </Link>
-            <Link href="/portfolio" className="button-link">
-              Portfolio
+            <Link href="/projects" className="button-link">
+              Projects
             </Link>
             <Link href="/demos" className="button-link">
               Demos
