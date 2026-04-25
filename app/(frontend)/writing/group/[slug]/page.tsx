@@ -59,12 +59,15 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
                   key={image.id}
                   className="rounded-lg border border-[var(--border)] bg-[var(--surface)] overflow-hidden"
                 >
-                  <img
-                    src={image.url}
-                    alt={image.alt}
-                    loading="lazy"
-                    className="w-full h-56 object-cover"
-                  />
+                  <div className="relative w-full h-56">
+                    <Image
+                      src={image.url}
+                      alt={image.alt}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover"
+                    />
+                  </div>
                   {image.caption && (
                     <figcaption className="text-sm text-[var(--fg-muted)] p-3">{image.caption}</figcaption>
                   )}
