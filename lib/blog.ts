@@ -18,6 +18,12 @@ export interface BlogPost {
   /** Optional copy above the site footer subscribe on this post only. */
   newsletterHeading?: string;
   newsletterDescription?: string;
+  /** Whether this post appears on /samples. */
+  showInSamples?: boolean;
+  /** Explicit ordering for /samples (lower numbers first). */
+  sampleOrder?: number;
+  /** Optional CTA label for /samples. */
+  sampleLabel?: string;
 }
 
 export interface Group {
@@ -41,6 +47,9 @@ function toPost(doc: any): BlogPost {
     author: (doc.author as string) || undefined,
     newsletterHeading: (doc.newsletterHeading as string) || undefined,
     newsletterDescription: (doc.newsletterDescription as string) || undefined,
+    showInSamples: Boolean(doc.showInSamples),
+    sampleOrder: doc.sampleOrder as number | undefined,
+    sampleLabel: (doc.sampleLabel as string) || undefined,
   };
 }
 
@@ -118,6 +127,52 @@ export async function getPostsBySlugs(slugs: string[]): Promise<BlogPost[]> {
   return uniqueSlugs
     .map(slug => postsBySlug.get(slug))
     .filter((post): post is BlogPost => Boolean(post));
+}
+
+export async function getSamplePosts(): Promise<BlogPost[]> {
+  const payload = await getPayloadClient();
+
+  const result = await payload.find({
+    collection: 'posts',
+    where: {
+      and: [
+        { showInSamples: { equals: true } },
+        { _status: { equals: 'published' } },
+      ],
+    },
+    sort: 'sampleOrder',
+    limit: 100,
+    depth: 0,
+  });
+
+  return result.docs
+    .map(toPost)
+    .sort((a, b) => {
+      const ao = a.sampleOrder ?? Infinity;
+      const bo = b.sampleOrder ?? Infinity;
+      if (ao !== bo) return ao - bo;
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+}
+
+export async function getSamplePostBySlug(slug: string): Promise<BlogPost | null> {
+  const payload = await getPayloadClient();
+
+  const result = await payload.find({
+    collection: 'posts',
+    where: {
+      and: [
+        { slug: { equals: slug } },
+        { showInSamples: { equals: true } },
+        { _status: { equals: 'published' } },
+      ],
+    },
+    limit: 1,
+    depth: 0,
+  });
+
+  if (result.docs.length === 0) return null;
+  return toPost(result.docs[0]);
 }
 
 export async function getAllGroups(): Promise<Group[]> {

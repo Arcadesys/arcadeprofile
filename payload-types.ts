@@ -219,6 +219,18 @@ export interface Post {
    */
   publish_status?: ('draft' | 'scheduled' | 'published' | 'sent') | null;
   /**
+   * Show this published post on /samples.
+   */
+  showInSamples?: boolean | null;
+  /**
+   * Lower numbers appear first. Posts without a value fall back to publish date.
+   */
+  sampleOrder?: number | null;
+  /**
+   * Optional button text for /samples.
+   */
+  sampleLabel?: string | null;
+  /**
    * Controls how this content is surfaced and distributed.
    */
   discoverability?: {
@@ -892,6 +904,9 @@ export interface PostsSelect<T extends boolean = true> {
   newsletterHeading?: T;
   newsletterDescription?: T;
   publish_status?: T;
+  showInSamples?: T;
+  sampleOrder?: T;
+  sampleLabel?: T;
   discoverability?:
     | T
     | {
