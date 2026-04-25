@@ -6,12 +6,6 @@ First, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -44,7 +38,7 @@ The repo ships a Payload CMS MCP server that exposes Posts, Pages, Groups, Books
 The `.mcp.json` in the repo root is pre-configured. Add your env vars and it just works:
 
 ```bash
-PAYLOAD_API_URL=http://localhost:3000 PAYLOAD_API_KEY=<key> pnpm run mcp
+PAYLOAD_API_URL=http://localhost:3000 PAYLOAD_API_KEY=<key> npm run mcp
 ```
 
 ### Connecting claude.ai as a custom connector
