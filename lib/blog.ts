@@ -189,14 +189,14 @@ export async function getBlobImagesByGroupSlug(slug: string): Promise<GroupBlobI
 
   return imageResult.docs
     .map((doc) => ({
-      id: doc.id as number,
-      title: doc.title as string,
-      url: doc.url as string,
-      pathname: (doc.pathname as string) || undefined,
-      alt: doc.alt as string,
-      caption: (doc.caption as string) || undefined,
-      order: (doc.order as number) ?? 0,
-      featured: Boolean(doc.featured),
+      id: doc.id,
+      title: doc.title,
+      url: doc.url,
+      pathname: doc.pathname || undefined,
+      alt: doc.alt,
+      caption: doc.caption || undefined,
+      order: doc.order ?? 0,
+      featured: !!doc.featured,
     }))
     .sort((a, b) => a.order - b.order);
 }
