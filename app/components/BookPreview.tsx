@@ -96,8 +96,8 @@ export default function BookPreview({ content, bookId, showCta = true, summary }
     <div className={`flex flex-col min-h-screen w-full ${styles.previewContainer}`}>
       <div className={`bg-white dark:bg-gray-800 shadow-md p-4 mb-4 flex justify-between items-center ${styles.contentBox}`}>
         <div>
-          <Link href="/previews" className="text-blue-600 dark:text-blue-400 hover:underline">
-            ← Back to Previews
+          <Link href="/samples" className="text-blue-600 dark:text-blue-400 hover:underline">
+            ← Back to Samples
           </Link>
           <h1 className="text-2xl font-bold mt-2 text-gray-800 dark:text-gray-200">{title}</h1>
         </div>
@@ -120,10 +120,10 @@ export default function BookPreview({ content, bookId, showCta = true, summary }
         </div>
       )}
       
-      {/* Preview Summary/Blurb Section */}
+      {/* Sample Summary/Blurb Section */}
       {summary && (
         <div className={`w-full max-w-4xl mx-auto mb-8 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 ${styles.contentBox}`}>
-          <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">About this preview</h2>
+          <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">About this sample</h2>
           <div className="prose dark:prose-invert prose-lg max-w-none">
             <div 
               dangerouslySetInnerHTML={{ __html: formatMarkdown(summary) }} 
@@ -153,7 +153,7 @@ export default function BookPreview({ content, bookId, showCta = true, summary }
             
             <div className="text-blue-700 dark:text-blue-300 space-y-4">
               <p>
-                I hope you've been enjoying this preview of The Two-Flat Cats. If you've made it this far, I have a feeling you might want more—and I'd love to send it your way.
+                I hope you've been enjoying this sample of The Two-Flat Cats. If you've made it this far, I have a feeling you might want more—and I'd love to send it your way.
               </p>
               
               <p>

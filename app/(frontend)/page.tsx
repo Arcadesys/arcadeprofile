@@ -81,7 +81,7 @@ export default function Home() {
 
       {/* Explore tiles */}
       <div className="tile-grid-home">
-        <Link href="/previews" className="tile-link" style={{
+        <Link href="/samples" className="tile-link" style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -95,8 +95,8 @@ export default function Home() {
           transition: "all 0.2s",
           textAlign: "center",
         }}>
-          <span style={{ fontSize: "2rem", marginBottom: "0.5rem" }} role="img" aria-label="Previews">&#x1F4DA;</span>
-          <span style={{ fontWeight: 600 }}>Previews</span>
+          <span style={{ fontSize: "2rem", marginBottom: "0.5rem" }} role="img" aria-label="Samples">&#x1F4DA;</span>
+          <span style={{ fontWeight: 600 }}>Samples</span>
           <span style={{ fontSize: "0.85rem", color: "var(--fg-muted)", marginTop: "0.25rem" }}>Sample chapters &amp; excerpts</span>
         </Link>
 
@@ -191,20 +191,20 @@ export default function Home() {
         </ul>
       </section>
 
-      {/* Previews detail */}
+      {/* Samples detail */}
       <div style={{
         display: "grid",
         gap: "1.5rem",
         gridTemplateColumns: "1fr",
       }}>
         <div className="austenbox" style={{ margin: 0 }}>
-          <h2 style={{ marginBottom: "0.5rem", textAlign: "left" }}>Previews</h2>
+          <h2 style={{ marginBottom: "0.5rem", textAlign: "left" }}>Samples</h2>
           <p style={{ margin: "0 0 1rem" }}>
             Sample chapters, project excerpts, and early looks at the fiction in progress.
             Start here if you want to read before subscribing or joining a beta.
           </p>
-          <Link href="/previews" className="button-link" style={{ display: "inline-block" }}>
-            Browse previews
+          <Link href="/samples" className="button-link" style={{ display: "inline-block" }}>
+            Browse samples
           </Link>
         </div>
 

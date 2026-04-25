@@ -14,7 +14,7 @@ const categoryLabels: Record<string, string> = {
 
 const resourceLabels: Record<string, string> = {
   post: 'Posts',
-  preview: 'Preview',
+  preview: 'Sample',
   buy: 'Buy',
   youtube: 'Video',
   audio: 'Audio',

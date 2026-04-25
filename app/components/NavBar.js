@@ -10,7 +10,7 @@ import { mainMenuLinks, projectCategoryLinks } from '../../components/menu';
 
 const RESOURCE_LABELS = {
   post: 'Posts',
-  preview: 'Preview',
+  preview: 'Sample',
   buy: 'Buy',
   youtube: 'Video',
   audio: 'Audio',

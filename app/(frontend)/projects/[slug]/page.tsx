@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 const kindLabels: Record<string, string> = {
   post: 'Posts',
-  preview: 'Previews',
+  preview: 'Samples',
   buy: 'Buy',
   youtube: 'Video',
   audio: 'Audio',

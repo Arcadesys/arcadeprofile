@@ -5,7 +5,7 @@ const footerGroups = [
   {
     title: 'Writing',
     links: [
-      { href: '/previews', label: 'Previews' },
+      { href: '/samples', label: 'Samples' },
       { href: '/writing', label: 'Writing hub' },
       { href: '/blog', label: 'Blog archive' },
     ],
@@ -38,7 +38,7 @@ export default function SiteFooter() {
       <div className="mx-auto grid max-w-[980px] gap-8">
         <section className="rounded-lg border border-[var(--border)] bg-[var(--bg)] p-5">
           <p className="mb-2 text-sm font-semibold uppercase tracking-[0.08em] text-[var(--fg-muted)]">
-            Start with a preview
+            Start with a sample
           </p>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
@@ -47,8 +47,8 @@ export default function SiteFooter() {
                 Browse sample chapters and project excerpts, then subscribe or sign up as a beta reader if one catches.
               </p>
             </div>
-            <Link href="/previews" className="button-link shrink-0 text-center">
-              Browse previews
+            <Link href="/samples" className="button-link shrink-0 text-center">
+              Browse samples
             </Link>
           </div>
         </section>

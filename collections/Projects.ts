@@ -88,7 +88,7 @@ export const Projects: CollectionConfig = {
           name: 'type',
           type: 'select',
           options: [
-            { label: 'Preview', value: 'preview' },
+            { label: 'Sample', value: 'preview' },
             { label: 'Buy', value: 'buy' },
             { label: 'Experiment', value: 'experiment' },
             { label: 'Video', value: 'youtube' },
@@ -112,7 +112,7 @@ export const Projects: CollectionConfig = {
           required: true,
           options: [
             { label: 'Post', value: 'post' },
-            { label: 'Preview', value: 'preview' },
+            { label: 'Sample', value: 'preview' },
             { label: 'Buy', value: 'buy' },
             { label: 'YouTube', value: 'youtube' },
             { label: 'Audio', value: 'audio' },

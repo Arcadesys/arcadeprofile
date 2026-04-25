@@ -180,7 +180,7 @@ function StaticAboutPage() {
         <h2 style={{ textAlign: 'left' }}>What this site is</h2>
         <p>
           This is not just a portfolio. It is a permanent address. The blog runs on RSS, the projects live
-          here, the previews live here, and the tools get built here. Pull, not push. The door does not move.
+          here, the samples live here, and the tools get built here. Pull, not push. The door does not move.
         </p>
       </section>
     </div>

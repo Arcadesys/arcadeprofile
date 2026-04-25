@@ -9,7 +9,7 @@ export type MenuLink = {
 
 export const mainMenuLinks: MenuLink[] = [
   { href: '/', label: 'Start Here' },
-  { href: '/previews', label: 'Previews', prefixMatch: true, isPrimary: true },
+  { href: '/samples', label: 'Samples', prefixMatch: true, isPrimary: true },
   { href: '/projects', label: 'Projects', prefixMatch: true, panel: 'projects' },
   { href: '/writing', label: 'Writing', prefixMatch: true },
   { href: '/about', label: 'About' },

@@ -126,8 +126,8 @@ export const projects: ProjectInfo[] = [
         kind: 'preview',
       },
       {
-        label: 'Preview library',
-        href: '/previews',
+        label: 'Sample library',
+        href: '/samples',
         kind: 'preview',
       },
     ],
