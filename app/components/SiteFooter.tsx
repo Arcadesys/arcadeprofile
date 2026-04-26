@@ -21,7 +21,7 @@ const footerGroups = [
   {
     title: 'About',
     links: [
-      { href: '/about', label: 'About Austen' },
+      { href: '/bio', label: 'About Austen' },
       { href: '/resume', label: 'Resume' },
       { href: '/did', label: 'DID' },
       { href: '/betareader', label: 'Beta reader form' },
