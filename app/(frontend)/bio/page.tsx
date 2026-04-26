@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function AboutPage() {
+export default async function BioPage() {
   const page = await getPageBySlug('bio');
   if (!page) notFound();
 
