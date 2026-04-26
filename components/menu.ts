@@ -12,7 +12,7 @@ export const mainMenuLinks: MenuLink[] = [
   { href: '/samples', label: 'Samples', prefixMatch: true, isPrimary: true },
   { href: '/projects', label: 'Projects', prefixMatch: true, panel: 'projects' },
   { href: '/writing', label: 'Writing', prefixMatch: true },
-  { href: '/about', label: 'About' },
+  { href: '/bio', label: 'Bio' },
 ];
 
 export const projectCategoryLinks = [

@@ -18,7 +18,6 @@ export const Pages: CollectionConfig = {
             try {
               const slug = doc.slug as string;
               revalidatePath(`/${slug}`);
-              if (slug === 'about') revalidatePath('/about');
             } catch {
               // revalidatePath may fail outside request context
             }
