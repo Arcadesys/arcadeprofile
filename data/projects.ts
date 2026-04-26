@@ -85,27 +85,6 @@ export const projects: ProjectInfo[] = [
     ],
   },
   {
-    slug: 'meal-planner',
-    title: 'Meal Planner',
-    description: 'An interactive questionnaire-based meal planning tool for generating weekly meal plans.',
-    href: '/mealplan',
-    category: 'tools',
-    status: 'active',
-    tags: ['Utility', 'React', 'Interactive'],
-    primaryCTA: {
-      label: 'Open Meal Planner',
-      href: '/mealplan',
-      type: 'experiment',
-    },
-    resources: [
-      {
-        label: 'Meal planner tool',
-        href: '/mealplan',
-        kind: 'experiment',
-      },
-    ],
-  },
-  {
     slug: 'beta-reader-signup',
     title: 'Beta Reader Signup',
     description: 'Landing page for beta reader recruitment for upcoming fiction projects.',
