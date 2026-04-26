@@ -6,7 +6,12 @@ import type { Metadata } from 'next';
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const page = await getPageBySlug('bio');
+  let page;
+  try {
+    page = await getPageBySlug('bio');
+  } catch {
+    return {};
+  }
   if (!page) return {};
   return {
     title: page.meta?.title ?? page.title,
@@ -15,7 +20,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function BioPage() {
-  const page = await getPageBySlug('bio');
+  let page;
+  try {
+    page = await getPageBySlug('bio');
+  } catch (error) {
+    console.error('Error fetching bio page:', error);
+    notFound();
+  }
   if (!page) notFound();
 
   return (

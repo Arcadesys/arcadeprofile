@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { RichText } from '@payloadcms/richtext-lexical/react';
-import { getAllPosts } from '@/lib/blog';
+import { getAllPosts, type BlogPost } from '@/lib/blog';
 import SubscribeForm from '@/app/components/SubscribeForm';
 import type { Metadata } from 'next';
 
@@ -12,7 +12,13 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const posts = (await getAllPosts()).slice(0, 10);
+  let posts: BlogPost[] = [];
+  try {
+    posts = await getAllPosts();
+  } catch (error) {
+    console.error('Failed to fetch home page posts:', error);
+    // DB unavailable — render empty state rather than 500
+  }
 
   return (
     <div className="w-full px-4 py-8">

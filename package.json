@@ -11,7 +11,6 @@
     "seed": "tsx scripts/seed-runner.mjs",
     "seed:blog": "tsx --require ./scripts/patch-next-env.cjs scripts/seed.ts",
     "test": "tsx --test \"lib/**/*.test.ts\"",
-    "test:paperclip-bridge": "tsx --test lib/paperclip-payload-bridge.test.ts",
     "mcp": "tsx mcp/payload-mcp.ts"
   },
   "dependencies": {
