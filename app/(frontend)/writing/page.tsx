@@ -1,11 +1,16 @@
-import { getAllGroups } from '@/lib/blog';
+import { getAllGroups, type Group } from '@/lib/blog';
 import ProjectList, { type Project } from '@/app/components/ProjectList';
 import SubscribeForm from '@/app/components/SubscribeForm';
 
 export const dynamic = 'force-dynamic';
 
 export default async function WritingPage() {
-  const groups = await getAllGroups();
+  let groups: Group[] = [];
+  try {
+    groups = await getAllGroups();
+  } catch (error) {
+    console.error('Failed to fetch writing groups:', error);
+  }
 
   const projects: Project[] = groups.map(g => ({
     slug: g.slug,

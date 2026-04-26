@@ -14,7 +14,12 @@ export async function generateStaticParams() {
 
 export default async function SampleRedirectPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = await getSamplePostBySlug(slug);
+  let post: Awaited<ReturnType<typeof getSamplePostBySlug>> = null;
+  try {
+    post = await getSamplePostBySlug(slug);
+  } catch (error) {
+    console.error('Failed to fetch sample post:', error);
+  }
 
   if (!post) {
     notFound();

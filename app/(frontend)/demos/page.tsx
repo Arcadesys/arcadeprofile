@@ -1,10 +1,16 @@
 import Link from 'next/link';
 import { getAllDemos } from '@/lib/payload';
+import type { Demo } from '@/payload-types';
 
 export const dynamic = 'force-dynamic';
 
 export default async function DemosPage() {
-  const demos = await getAllDemos();
+  let demos: Demo[] = [];
+  try {
+    demos = await getAllDemos();
+  } catch (error) {
+    console.error('Failed to fetch demos:', error);
+  }
 
   return (
     <div className="w-full px-4 py-8">

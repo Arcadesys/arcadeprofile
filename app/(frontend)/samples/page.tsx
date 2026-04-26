@@ -1,10 +1,15 @@
 import Link from 'next/link';
-import { getSamplePosts } from '@/lib/blog';
+import { getSamplePosts, type BlogPost } from '@/lib/blog';
 
 export const dynamic = 'force-dynamic';
 
 export default async function SamplesPage() {
-  const posts = await getSamplePosts();
+  let posts: BlogPost[] = [];
+  try {
+    posts = await getSamplePosts();
+  } catch (error) {
+    console.error('Failed to fetch sample posts:', error);
+  }
 
   return (
     <div className="w-full px-4 py-8">

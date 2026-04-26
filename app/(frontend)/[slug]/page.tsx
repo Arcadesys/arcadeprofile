@@ -26,7 +26,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  const page = await getPageBySlug(slug);
+  let page: Awaited<ReturnType<typeof getPageBySlug>> = null;
+  let group: Awaited<ReturnType<typeof getGroupBySlug>> = null;
+  try {
+    page = await getPageBySlug(slug);
+    if (!page) {
+      group = await getGroupBySlug(slug);
+    }
+  } catch (error) {
+    console.error('Failed to fetch slug metadata:', error);
+  }
+
   if (page) {
     return {
       title: page.meta?.title ?? page.title,
@@ -34,7 +44,6 @@ export async function generateMetadata({
     };
   }
 
-  const group = await getGroupBySlug(slug);
   if (group) {
     return {
       title: group.title,
@@ -52,14 +61,22 @@ export default async function SlugPage({
 }) {
   const { slug } = await params;
 
-  // 1. Try Pages first
-  const page = await getPageBySlug(slug);
+  let page: Awaited<ReturnType<typeof getPageBySlug>> = null;
+  let group: Awaited<ReturnType<typeof getGroupBySlug>> = null;
+  try {
+    page = await getPageBySlug(slug);
+    if (!page) {
+      group = await getGroupBySlug(slug);
+    }
+  } catch (error) {
+    console.error('Failed to fetch slug page:', error);
+    notFound();
+  }
+
   if (page) {
     return <PageView page={page} />;
   }
 
-  // 2. Fall back to Groups
-  const group = await getGroupBySlug(slug);
   if (group) {
     return (
       <div className="w-full px-4 py-8">

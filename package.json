@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "migrate": "payload migrate",
     "seed": "tsx scripts/seed-runner.mjs",
     "seed:blog": "tsx --require ./scripts/patch-next-env.cjs scripts/seed.ts",
     "test": "tsx --test \"lib/**/*.test.ts\"",
