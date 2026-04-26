@@ -82,7 +82,7 @@ const legacyPostSelect = {
   author: true,
   newsletterHeading: true,
   newsletterDescription: true,
-};
+} as const;
 
 export async function getAllPosts(): Promise<BlogPost[]> {
   const payload = await getPayloadClient();
