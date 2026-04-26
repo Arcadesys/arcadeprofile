@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const posts = await getAllPosts();
+  const posts = (await getAllPosts()).slice(0, 10);
 
   return (
     <div className="w-full px-4 py-8">
