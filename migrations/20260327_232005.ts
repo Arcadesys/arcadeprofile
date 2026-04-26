@@ -1,6 +1,45 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
-export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
+async function baseSchemaExists(db: MigrateUpArgs['db']): Promise<boolean> {
+  const result = await db.execute(sql`
+    SELECT
+      to_regtype('public.enum_posts_publish_status') AS posts_publish_status,
+      to_regclass('public.posts') AS posts,
+      to_regclass('public.users') AS users,
+      to_regclass('public.payload_migrations') AS payload_migrations;
+  `);
+  const rows = 'rows' in result ? result.rows : result;
+  const [row] = rows as {
+    payload_migrations: string | null;
+    posts: string | null;
+    posts_publish_status: string | null;
+    users: string | null;
+  }[];
+
+  const hasBaseSchema = Boolean(row?.posts_publish_status && row.posts && row.users);
+
+  if (hasBaseSchema && !row?.payload_migrations) {
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS "payload_migrations" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "name" varchar,
+        "batch" numeric,
+        "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+        "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS "payload_migrations_updated_at_idx" ON "payload_migrations" USING btree ("updated_at");
+      CREATE INDEX IF NOT EXISTS "payload_migrations_created_at_idx" ON "payload_migrations" USING btree ("created_at");
+    `);
+  }
+
+  return hasBaseSchema;
+}
+
+export async function up({ db }: MigrateUpArgs): Promise<void> {
+  if (await baseSchemaExists(db)) {
+    return;
+  }
+
   await db.execute(sql`
    CREATE TYPE "public"."enum_posts_publish_status" AS ENUM('draft', 'scheduled', 'published', 'sent');
   CREATE TYPE "public"."enum_posts_status" AS ENUM('draft', 'published');
