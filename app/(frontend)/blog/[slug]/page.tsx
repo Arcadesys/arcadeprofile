@@ -58,7 +58,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   let group = null;
   try {
     group = post.group ? await getGroupBySlug(post.group) : null;
-  } catch {
+  } catch (error) {
+    console.error('Failed to fetch group navigation:', error);
     // group nav unavailable — render post without prev/next
   }
 
