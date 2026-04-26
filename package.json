@@ -11,6 +11,7 @@
     "migrate": "payload migrate",
     "seed": "tsx scripts/seed-runner.mjs",
     "seed:blog": "tsx --require ./scripts/patch-next-env.cjs scripts/seed.ts",
+    "postmark:test": "tsx scripts/send-test-email.ts",
     "test": "tsx --test \"lib/**/*.test.ts\"",
     "mcp": "tsx mcp/payload-mcp.ts"
   },

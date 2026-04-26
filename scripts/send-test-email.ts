@@ -1,38 +1,30 @@
 import { config } from 'dotenv';
 config({ path: '.env.local' });
 
-import { getPayload } from 'payload';
 import { sendPostmarkTestEmail } from '../lib/postmark';
 
-async function main() {
-  const { default: configPromise } = await import('../payload.config');
-  const { getAllPosts } = await import('../lib/blog');
-  const { buildPostNewsletterContent } = await import('../lib/newsletter');
+function getRecipient(): string {
+  const recipient = process.argv[2] || process.env.POSTMARK_TEST_TO || process.env.POSTMARK_FROM_EMAIL;
 
-  const payload = await getPayload({ config: configPromise });
-
-  const posts = await getAllPosts();
-
-  if (posts.length === 0) {
-    console.error('No posts found in the database.');
-    process.exit(1);
+  if (!recipient) {
+    throw new Error(
+      'Missing recipient. Pass an email as the first argument or set POSTMARK_TEST_TO / POSTMARK_FROM_EMAIL in .env.local.',
+    );
   }
 
-  const randomPost = posts[Math.floor(Math.random() * posts.length)];
-  console.log(`Selected post: "${randomPost.title}" (${randomPost.slug})`);
+  return recipient;
+}
 
-  const { htmlBody, textBody } = buildPostNewsletterContent({
-    title: randomPost.title,
-    slug: randomPost.slug,
-    excerpt: randomPost.excerpt,
-    content: randomPost.content,
-  });
+async function main() {
+  const to = getRecipient();
+
+  console.log(`Sending Postmark test email to ${to}`);
 
   const result = await sendPostmarkTestEmail({
-    to: 'austen@thearcades.me',
-    subject: `[Test] ${randomPost.title}`,
-    htmlBody,
-    textBody,
+    to,
+    subject: 'Hello from Postmark',
+    htmlBody: '<strong>Hello</strong> dear Postmark user.',
+    textBody: 'Hello dear Postmark user.',
   });
 
   console.log('Email sent successfully!');
