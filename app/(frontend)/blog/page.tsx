@@ -14,7 +14,8 @@ export default async function BlogPage() {
   let posts: BlogPost[] = [];
   try {
     posts = await getAllPosts();
-  } catch {
+  } catch (error) {
+    console.error('Failed to fetch blog posts:', error);
     // DB unavailable — render empty state rather than 500
   }
 
