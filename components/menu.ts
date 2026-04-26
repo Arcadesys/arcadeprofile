@@ -8,9 +8,11 @@ export type MenuLink = {
 };
 
 export const mainMenuLinks: MenuLink[] = [
-  { href: '/projects', label: 'Projects', prefixMatch: true },
+  { href: '/projects', label: 'Projects', prefixMatch: true, panel: 'projects' },
+  { href: '/resume', label: 'Resume' },
   { href: '/bio', label: 'Bio' },
   { href: '/blog', label: 'Blog', prefixMatch: true },
+  { href: '/store', label: 'Store' },
 ];
 
 export const projectCategoryLinks = [

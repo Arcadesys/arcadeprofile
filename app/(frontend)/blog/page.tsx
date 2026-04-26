@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { RichText } from '@payloadcms/richtext-lexical/react';
+import type { SerializedEditorState } from 'lexical';
 import { getAllPosts, type BlogPost } from '@/lib/blog';
 import SubscribeForm from '@/app/components/SubscribeForm';
 import type { Metadata } from 'next';
@@ -10,34 +12,18 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-function collectText(value: unknown): string[] {
-  if (!value || typeof value !== 'object') return [];
-
-  if ('text' in value && typeof value.text === 'string') {
-    return [value.text];
-  }
-
-  if ('children' in value && Array.isArray(value.children)) {
-    return value.children.flatMap(collectText);
-  }
-
-  if ('root' in value) {
-    return collectText(value.root);
-  }
-
-  return [];
-}
-
-function firstWords(post: BlogPost, count = 100): string {
-  const bodyText = collectText(post.content).join(' ').replace(/\s+/g, ' ').trim();
-  const source = bodyText || post.excerpt;
-  const words = source.split(/\s+/).filter(Boolean);
-
-  if (words.length <= count) {
-    return source;
-  }
-
-  return `${words.slice(0, count).join(' ')}...`;
+function firstParagraphs(content: SerializedEditorState | undefined, n: number): SerializedEditorState | null {
+  if (!content?.root?.children?.length) return null;
+  const children = content.root.children as Array<{ type?: string }>;
+  const paragraphs = children.filter(child => child?.type === 'paragraph').slice(0, n);
+  if (paragraphs.length === 0) return null;
+  return {
+    ...content,
+    root: {
+      ...content.root,
+      children: paragraphs as typeof content.root.children,
+    },
+  };
 }
 
 export default async function BlogPage() {
@@ -60,41 +46,50 @@ export default async function BlogPage() {
         {posts.length === 0 ? (
           <p className="text-center text-[var(--fg-muted)]">No posts yet. Check back soon!</p>
         ) : (
-          <div className="space-y-4">
-            {posts.map(post => (
-              <article
-                key={post.slug}
-                className="border border-[var(--border)] rounded-lg bg-[var(--surface)] p-5"
-              >
-                <Link href={`/blog/${post.slug}`}>
-                  <h2 className="text-lg font-semibold text-[var(--fg)] hover:text-[var(--neon-pink)] transition-colors mb-1">
-                    {post.title}
-                  </h2>
-                </Link>
-                <time className="text-sm text-[var(--fg-muted)] mb-2 block">
-                  {new Date(post.date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </time>
-                {post.group && (
-                  <Link
-                    href={`/writing/group/${post.group}`}
-                    className="text-xs text-[var(--fg-muted)] hover:text-[var(--neon-pink)] transition-colors"
-                  >
-                    in {post.group.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-                  </Link>
-                )}
-                <p className="text-[var(--fg-muted)] mt-3 leading-relaxed">{firstWords(post)}</p>
-                <Link
-                  href={`/blog/${post.slug}`}
-                  className="mt-3 inline-block text-sm font-semibold text-[var(--neon-pink)] hover:underline"
+          <div className="space-y-6">
+            {posts.map(post => {
+              const preview = firstParagraphs(post.content, 3);
+              return (
+                <article
+                  key={post.slug}
+                  className="border border-[var(--border)] rounded-lg bg-[var(--surface)] p-5"
                 >
-                  Read more
-                </Link>
-              </article>
-            ))}
+                  <Link href={`/blog/${post.slug}`}>
+                    <h2 className="text-xl font-semibold text-[var(--fg)] hover:text-[var(--neon-pink)] transition-colors mb-1">
+                      {post.title}
+                    </h2>
+                  </Link>
+                  <time className="text-sm text-[var(--fg-muted)] mb-2 block">
+                    {new Date(post.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </time>
+                  {post.group && (
+                    <Link
+                      href={`/writing/group/${post.group}`}
+                      className="text-xs text-[var(--fg-muted)] hover:text-[var(--neon-pink)] transition-colors"
+                    >
+                      in {post.group.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                    </Link>
+                  )}
+                  {preview ? (
+                    <div className="prose prose-invert max-w-none mt-3">
+                      <RichText data={preview} />
+                    </div>
+                  ) : post.excerpt ? (
+                    <p className="text-[var(--fg-muted)] mt-3">{post.excerpt}</p>
+                  ) : null}
+                  <Link
+                    href={`/blog/${post.slug}`}
+                    className="button-link inline-block mt-4 text-sm"
+                  >
+                    Read full post &rarr;
+                  </Link>
+                </article>
+              );
+            })}
           </div>
         )}
 
