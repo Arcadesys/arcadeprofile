@@ -18,7 +18,12 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  let post;
+  try {
+    post = await getPostBySlug(slug);
+  } catch {
+    return {};
+  }
   if (!post) return {};
 
   return {
@@ -41,10 +46,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  let post;
+  try {
+    post = await getPostBySlug(slug);
+  } catch {
+    notFound();
+  }
   if (!post) notFound();
 
-  const group = post.group ? await getGroupBySlug(post.group) : null;
+  let group = null;
+  try {
+    group = post.group ? await getGroupBySlug(post.group) : null;
+  } catch {
+    // group nav unavailable — render post without prev/next
+  }
 
   // Find prev/next posts within the group
   let prevPost = null;

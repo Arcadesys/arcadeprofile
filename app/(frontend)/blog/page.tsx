@@ -11,7 +11,12 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function BlogPage() {
-  const posts = await getAllPosts();
+  let posts = [];
+  try {
+    posts = await getAllPosts();
+  } catch {
+    // DB unavailable — render empty state rather than 500
+  }
 
   return (
     <div className="w-full px-4 py-8">
