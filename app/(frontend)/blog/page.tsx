@@ -10,6 +10,36 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
+function collectText(value: unknown): string[] {
+  if (!value || typeof value !== 'object') return [];
+
+  if ('text' in value && typeof value.text === 'string') {
+    return [value.text];
+  }
+
+  if ('children' in value && Array.isArray(value.children)) {
+    return value.children.flatMap(collectText);
+  }
+
+  if ('root' in value) {
+    return collectText(value.root);
+  }
+
+  return [];
+}
+
+function firstWords(post: BlogPost, count = 100): string {
+  const bodyText = collectText(post.content).join(' ').replace(/\s+/g, ' ').trim();
+  const source = bodyText || post.excerpt;
+  const words = source.split(/\s+/).filter(Boolean);
+
+  if (words.length <= count) {
+    return source;
+  }
+
+  return `${words.slice(0, count).join(' ')}...`;
+}
+
 export default async function BlogPage() {
   let posts: BlogPost[] = [];
   try {
@@ -56,7 +86,13 @@ export default async function BlogPage() {
                     in {post.group.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                   </Link>
                 )}
-                <p className="text-[var(--fg-muted)] mt-1">{post.excerpt}</p>
+                <p className="text-[var(--fg-muted)] mt-3 leading-relaxed">{firstWords(post)}</p>
+                <Link
+                  href={`/blog/${post.slug}`}
+                  className="mt-3 inline-block text-sm font-semibold text-[var(--neon-pink)] hover:underline"
+                >
+                  Read more
+                </Link>
               </article>
             ))}
           </div>

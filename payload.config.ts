@@ -6,11 +6,12 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import sharp from 'sharp';
 import { collections } from './collections';
 import { createPayloadEmailAdapter } from './lib/payload-email';
+import { getDatabaseURLForPayloadConfig } from './lib/env';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
-const databaseURL = process.env.DATABASE_URL || process.env.DATABASE_URI || '';
+const databaseURL = getDatabaseURLForPayloadConfig();
 const email = createPayloadEmailAdapter();
 
 export default buildConfig({

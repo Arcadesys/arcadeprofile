@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState, useCallback } from 'react';
 
 type SocialPostStatus = 'scheduled' | 'posted' | 'cancelled' | 'failed';
@@ -139,7 +140,7 @@ export default function SocialPage() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <a
+          <Link
             href="/admin"
             style={{
               color: 'var(--fg-muted)', fontSize: '0.85rem', textDecoration: 'none',
@@ -147,7 +148,7 @@ export default function SocialPage() {
             }}
           >
             Payload Admin
-          </a>
+          </Link>
           <button
             onClick={handleProcess}
             disabled={processing}
