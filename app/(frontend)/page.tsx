@@ -14,8 +14,9 @@ export const dynamic = 'force-dynamic';
 export default async function Home() {
   let posts: BlogPost[] = [];
   try {
-    posts = (await getAllPosts()).slice(0, 10);
-  } catch {
+    posts = await getAllPosts();
+  } catch (error) {
+    console.error('Failed to fetch home page posts:', error);
     // DB unavailable — render empty state rather than 500
   }
 
