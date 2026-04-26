@@ -23,7 +23,8 @@ export default async function BioPage() {
   let page;
   try {
     page = await getPageBySlug('bio');
-  } catch {
+  } catch (error) {
+    console.error('Error fetching bio page:', error);
     notFound();
   }
   if (!page) notFound();
