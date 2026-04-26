@@ -1,15 +1,13 @@
 import crypto from 'crypto';
 import type { CollectionConfig } from 'payload';
+import { authenticatedAccess } from './shared/access';
+import { adminGroups } from './shared/admin';
 
 export const Subscribers: CollectionConfig = {
   slug: 'subscribers',
-  access: {
-    read: ({ req }) => !!req.user,
-    create: ({ req }) => !!req.user,
-    update: ({ req }) => !!req.user,
-    delete: ({ req }) => !!req.user,
-  },
+  access: authenticatedAccess,
   admin: {
+    group: adminGroups.audience,
     useAsTitle: 'email',
     defaultColumns: ['email', 'tags', 'unsubscribed', 'subscribedAt'],
   },

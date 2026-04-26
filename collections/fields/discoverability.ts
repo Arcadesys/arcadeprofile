@@ -1,6 +1,5 @@
 import type { Field } from 'payload';
 
-
 export const discoverabilityFields: Field[] = [
   {
     name: 'discoverability',
@@ -95,4 +94,9 @@ export const metaFields: Field[] = [
       },
     ],
   },
+];
+
+export const discoverabilityAndMetaFields: Field[] = [
+  ...discoverabilityFields,
+  ...metaFields,
 ];

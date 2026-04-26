@@ -4,16 +4,7 @@ import { buildConfig } from 'payload';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import sharp from 'sharp';
-import { Posts } from './collections/Posts';
-import { Groups } from './collections/Groups';
-import { Books } from './collections/Books';
-import { Projects } from './collections/Projects';
-import { Demos } from './collections/Demos';
-import { Pages } from './collections/Pages';
-import { Media } from './collections/Media';
-import { Users } from './collections/Users';
-import { Subscribers } from './collections/Subscribers';
-import { SocialPosts } from './collections/SocialPosts';
+import { collections } from './collections';
 import { createPayloadEmailAdapter } from './lib/payload-email';
 
 const filename = fileURLToPath(import.meta.url);
@@ -29,7 +20,7 @@ export default buildConfig({
     },
     theme: 'dark',
   },
-  collections: [Users, Posts, Groups, Books, Projects, Demos, Pages, Media, Subscribers, SocialPosts],
+  collections,
   editor: lexicalEditor(),
   email,
   sharp,

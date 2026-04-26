@@ -2,16 +2,30 @@ import type { CollectionConfig } from 'payload';
 
 import type { Post } from '../payload-types';
 import { buildPostNewsletterContent } from '../lib/newsletter';
-import { discoverabilityFields, metaFields } from './fields/discoverability';
+import { discoverabilityAndMetaFields } from './fields/discoverability';
+import { slugField } from './fields/slug';
+import { tagArrayField } from './fields/tags';
+import { revalidatePathsFor } from './hooks/revalidate';
+import { publicReadAccess } from './shared/access';
+import { adminGroups, titledAdmin } from './shared/admin';
+
+const revalidatePostPaths = revalidatePathsFor((doc) => {
+  const slug = doc.slug as string;
+  const group = doc.group as string | undefined;
+  const paths = ['/blog', '/writing', '/samples', '/feed.xml', `/blog/${slug}`];
+
+  if (group) {
+    paths.push(`/writing/group/${group}`, `/${group}`);
+  }
+
+  return paths;
+});
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
-  access: {
-    read: () => true,
-  },
+  access: publicReadAccess,
   admin: {
-    useAsTitle: 'title',
-    defaultColumns: [
+    ...titledAdmin(adminGroups.publishing, [
       'title',
       'publish_status',
       '_status',
@@ -20,32 +34,12 @@ export const Posts: CollectionConfig = {
       'showInSamples',
       'sampleOrder',
       'newsletterSent',
-    ],
+    ]),
   },
   hooks: {
     afterChange: [
+      revalidatePostPaths,
       async ({ doc, previousDoc, req }) => {
-        // Revalidate Next.js ISR cache
-        import('next/cache')
-          .then(({ revalidatePath }) => {
-            try {
-              const slug = doc.slug as string;
-              const group = doc.group as string;
-              revalidatePath(`/blog/${slug}`);
-              revalidatePath('/blog');
-              revalidatePath('/writing');
-              revalidatePath('/samples');
-              revalidatePath('/feed.xml');
-              if (group) {
-                revalidatePath(`/writing/group/${group}`);
-                revalidatePath(`/${group}`);
-              }
-            } catch {
-              // revalidatePath may fail outside request context
-            }
-          })
-          .catch(() => {});
-
         // Send newsletter when a post is first published and newsletterSent is false
         const wasPublished = previousDoc?._status !== 'published';
         const isNowPublished = doc._status === 'published';
@@ -110,28 +104,7 @@ export const Posts: CollectionConfig = {
       type: 'text',
       required: true,
     },
-    {
-      name: 'slug',
-      type: 'text',
-      required: true,
-      unique: true,
-      admin: {
-        position: 'sidebar',
-      },
-      hooks: {
-        beforeValidate: [
-          ({ value, siblingData }) => {
-            if (!value && siblingData?.title) {
-              return siblingData.title
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-|-$/g, '');
-            }
-            return value;
-          },
-        ],
-      },
-    },
+    slugField(),
     {
       name: 'excerpt',
       type: 'textarea',
@@ -193,17 +166,7 @@ export const Posts: CollectionConfig = {
       type: 'text',
       defaultValue: 'Austen Tucker',
     },
-    {
-      name: 'tags',
-      type: 'array',
-      fields: [
-        {
-          name: 'tag',
-          type: 'text',
-          required: true,
-        },
-      ],
-    },
+    tagArrayField,
     {
       name: 'newsletterHeading',
       type: 'text',
@@ -265,7 +228,6 @@ export const Posts: CollectionConfig = {
         },
       ],
     },
-    ...discoverabilityFields,
-    ...metaFields,
+    ...discoverabilityAndMetaFields,
   ],
 };

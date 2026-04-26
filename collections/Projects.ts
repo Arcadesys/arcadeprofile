@@ -1,34 +1,16 @@
 import type { CollectionConfig } from 'payload';
 import { discoverabilityFields } from './fields/discoverability';
-import { slugify } from '@/lib/utils';
+import { slugField } from './fields/slug';
+import { jsonTagsField } from './fields/tags';
+import { publicReadAccess } from './shared/access';
+import { adminGroups, titledAdmin } from './shared/admin';
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
-  access: {
-    read: () => true,
-  },
-  admin: { useAsTitle: 'title' },
+  access: publicReadAccess,
+  admin: titledAdmin(adminGroups.content),
   fields: [
-    {
-      name: 'slug',
-      type: 'text',
-      required: true,
-      unique: true,
-      admin: {
-        position: 'sidebar',
-        description: 'Stable project URL slug.',
-      },
-      hooks: {
-        beforeValidate: [
-          ({ value, siblingData }) => {
-            if (!value && siblingData?.title) {
-              return slugify(String(siblingData.title));
-            }
-            return value;
-          },
-        ],
-      },
-    },
+    slugField('Stable project URL slug.'),
     { name: 'title', type: 'text', required: true },
     { name: 'description', type: 'textarea', required: true },
     { name: 'image', type: 'text' },
@@ -71,7 +53,7 @@ export const Projects: CollectionConfig = {
     },
     { name: 'href', type: 'text', required: true },
     { name: 'external', type: 'checkbox', defaultValue: false },
-    { name: 'tags', type: 'json' },
+    jsonTagsField,
     {
       name: 'primaryCTA',
       type: 'group',

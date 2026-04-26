@@ -1,4 +1,6 @@
 import type { CollectionConfig } from 'payload'
+import { publicReadAccess } from './shared/access'
+import { adminGroups } from './shared/admin'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -6,10 +8,9 @@ export const Users: CollectionConfig = {
     useAPIKey: true,
   },
   admin: {
+    group: adminGroups.system,
     useAsTitle: 'email',
   },
-  access: {
-    read: () => true,
-  },
+  access: publicReadAccess,
   fields: [],
 }

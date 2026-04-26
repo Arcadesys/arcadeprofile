@@ -1,14 +1,12 @@
 import type { CollectionConfig } from 'payload';
+import { authenticatedAccess } from './shared/access';
+import { adminGroups } from './shared/admin';
 
 export const SocialPosts: CollectionConfig = {
   slug: 'social-posts',
-  access: {
-    read: ({ req }) => !!req.user,
-    create: ({ req }) => !!req.user,
-    update: ({ req }) => !!req.user,
-    delete: ({ req }) => !!req.user,
-  },
+  access: authenticatedAccess,
   admin: {
+    group: adminGroups.publishing,
     useAsTitle: 'text',
     defaultColumns: ['platform', 'status', 'text', 'scheduledAt', 'postedAt'],
   },

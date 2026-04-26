@@ -1,43 +1,26 @@
 import type { CollectionConfig } from 'payload';
-import { discoverabilityFields, metaFields } from './fields/discoverability';
+import { discoverabilityAndMetaFields } from './fields/discoverability';
+import { slugField } from './fields/slug';
+import { tagArrayField } from './fields/tags';
+import { publicReadAccess } from './shared/access';
+import { adminGroups, titledAdmin } from './shared/admin';
 
 export const Groups: CollectionConfig = {
   slug: 'groups',
-  access: {
-    read: () => true,
-  },
-  admin: {
-    useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'updatedAt'],
-  },
+  access: publicReadAccess,
+  admin: titledAdmin(adminGroups.content, ['title', 'slug', 'updatedAt']),
   fields: [
     {
       name: 'title',
       type: 'text',
       required: true,
     },
-    {
-      name: 'slug',
-      type: 'text',
-      required: true,
-      unique: true,
-    },
+    slugField(),
     {
       name: 'description',
       type: 'textarea',
     },
-    {
-      name: 'tags',
-      type: 'array',
-      fields: [
-        {
-          name: 'tag',
-          type: 'text',
-          required: true,
-        },
-      ],
-    },
-    ...discoverabilityFields,
-    ...metaFields,
+    tagArrayField,
+    ...discoverabilityAndMetaFields,
   ],
 };
