@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function AboutPage() {
+export default async function BioPage() {
   let page;
   try {
     page = await getPageBySlug('bio');
@@ -29,7 +29,7 @@ export default async function AboutPage() {
   if (!page) notFound();
 
   return (
-    <div style={{ maxWidth: '740px', margin: '0 auto', padding: '2rem 1rem' }}>
+    <div className="austenbox" style={{ maxWidth: '740px', margin: '0 auto' }}>
       <section style={{ marginBottom: '3rem', marginTop: '2rem' }}>
         <h1
           className="gaysparkles"
