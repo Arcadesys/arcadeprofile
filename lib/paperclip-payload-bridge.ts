@@ -89,7 +89,7 @@ export class BridgeValidationError extends Error {
 }
 
 export function buildBridgeConfigFromEnv(
-  env: NodeJS.ProcessEnv = process.env,
+  env: Partial<NodeJS.ProcessEnv> = process.env,
 ): PaperclipPayloadBridgeConfig {
   const sharedSecret = env.PAPERCLIP_PAYLOAD_SHARED_SECRET ?? env.PAPERCLIP_SHARED_SECRET;
 

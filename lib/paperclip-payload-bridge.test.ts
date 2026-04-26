@@ -26,7 +26,7 @@ const baseEnv = {
       collections: ['posts'],
     },
   }),
-} satisfies NodeJS.ProcessEnv;
+} satisfies Partial<NodeJS.ProcessEnv>;
 
 test('authenticateBridgeRequest accepts a valid signature', () => {
   const config = buildBridgeConfigFromEnv(baseEnv);
