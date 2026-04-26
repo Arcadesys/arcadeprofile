@@ -11,6 +11,7 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { getPayload } from 'payload';
+import { slugify } from '../lib/utils';
 import { createHeadlessEditor } from '@payloadcms/richtext-lexical/lexical/headless';
 import {
   $convertFromMarkdownString,
@@ -348,6 +349,7 @@ Pull, not push. The door doesn't move.
     await payload.create({
       collection: 'projects',
       data: {
+        slug: project.slug || slugify(project.title),
         title: project.title,
         description: project.description,
         image: project.image || null,

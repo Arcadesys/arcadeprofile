@@ -17,6 +17,8 @@ export const Posts: CollectionConfig = {
       '_status',
       'scheduledPublishDate',
       'publishedDate',
+      'showInSamples',
+      'sampleOrder',
       'newsletterSent',
     ],
   },
@@ -32,6 +34,7 @@ export const Posts: CollectionConfig = {
               revalidatePath(`/blog/${slug}`);
               revalidatePath('/blog');
               revalidatePath('/writing');
+              revalidatePath('/samples');
               revalidatePath('/feed.xml');
               if (group) {
                 revalidatePath(`/writing/group/${group}`);
@@ -229,6 +232,38 @@ export const Posts: CollectionConfig = {
         position: 'sidebar',
         description: 'Workflow status for newsletter pipeline.',
       },
+    },
+    {
+      type: 'collapsible',
+      label: 'Samples',
+      admin: {
+        description: 'Controls whether this post appears in the public Samples funnel.',
+      },
+      fields: [
+        {
+          name: 'showInSamples',
+          type: 'checkbox',
+          defaultValue: false,
+          admin: {
+            description: 'Show this published post on /samples.',
+          },
+        },
+        {
+          name: 'sampleOrder',
+          type: 'number',
+          admin: {
+            description: 'Lower numbers appear first. Posts without a value fall back to publish date.',
+          },
+        },
+        {
+          name: 'sampleLabel',
+          type: 'text',
+          admin: {
+            description: 'Optional button text for /samples.',
+            placeholder: 'Read Sample',
+          },
+        },
+      ],
     },
     ...discoverabilityFields,
     ...metaFields,
