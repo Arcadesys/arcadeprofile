@@ -49,7 +49,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   let post;
   try {
     post = await getPostBySlug(slug);
-  } catch {
+  } catch (error) {
+    console.error('Error fetching blog post:', error);
     notFound();
   }
   if (!post) notFound();
