@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getAllProjectHubs, getProjectBySlug, type ProjectHub, type ProjectResource } from '@/lib/payload';
-import { getPostsBySlugs } from '@/lib/blog';
+import { getPostsBySlugs, type BlogPost } from '@/lib/blog';
 import { categoryLabels } from '@/components/menu';
 
 export const dynamic = 'force-dynamic';
@@ -121,7 +121,12 @@ export default async function ProjectPage({
   if (!project) notFound();
 
   const groupedResources = groupResources(project.resources);
-  const relatedPosts = await getPostsBySlugs(project.relatedPostSlugs);
+  let relatedPosts: BlogPost[] = [];
+  try {
+    relatedPosts = await getPostsBySlugs(project.relatedPostSlugs);
+  } catch (error) {
+    console.error('Failed to fetch related posts for project:', error);
+  }
 
   return (
     <div className="w-full px-4 py-8">

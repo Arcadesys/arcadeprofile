@@ -13,7 +13,12 @@ export async function generateStaticParams() {
 
 export default async function DemoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const demo = await getDemoBySlug(slug);
+  let demo: Awaited<ReturnType<typeof getDemoBySlug>> = null;
+  try {
+    demo = await getDemoBySlug(slug);
+  } catch (error) {
+    console.error('Failed to fetch demo:', error);
+  }
   if (!demo) return notFound();
 
   return (

@@ -14,7 +14,12 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const group = await getGroupBySlug(slug);
+  let group: Awaited<ReturnType<typeof getGroupBySlug>> = null;
+  try {
+    group = await getGroupBySlug(slug);
+  } catch (error) {
+    console.error('Failed to fetch group for metadata:', error);
+  }
   if (!group) return {};
   return {
     title: group.title,
@@ -24,7 +29,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function GroupPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const group = await getGroupBySlug(slug);
+  let group: Awaited<ReturnType<typeof getGroupBySlug>> = null;
+  try {
+    group = await getGroupBySlug(slug);
+  } catch (error) {
+    console.error('Failed to fetch group:', error);
+  }
   if (!group) notFound();
 
   return (
