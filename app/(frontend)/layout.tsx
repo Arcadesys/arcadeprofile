@@ -5,8 +5,6 @@ import ThemeToggle from '../components/ThemeToggle';
 import SiteFooter from '../components/SiteFooter';
 import { CosmosProvider } from '../components/CosmosContext';
 import CosmicBackground from '../components/CosmicBackground';
-import { getAllProjectHubs } from '@/lib/payload';
-import type { ProjectHub } from '@/lib/payload';
 
 export const metadata = {
   title: 'The Arcades',
@@ -18,24 +16,17 @@ export const metadata = {
   },
 };
 
-export default async function FrontendLayout({
+export default function FrontendLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let projects: ProjectHub[] = [];
-  try {
-    projects = await getAllProjectHubs();
-  } catch {
-    projects = [];
-  }
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
         <CosmosProvider>
           <CosmicBackground />
-          <NavBar projects={projects} />
+          <NavBar />
           {children}
           <SiteFooter />
           <ThemeToggle />
