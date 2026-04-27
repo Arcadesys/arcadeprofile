@@ -304,7 +304,7 @@ export const toolDefinitions: Tool[] = [
   // ---- Projects ----
   {
     name: 'list_projects',
-    description: 'List all projects in the Payload Projects collection.',
+    description: 'List all projects (groups are the canonical project entity).',
     inputSchema: { type: 'object', properties: {} },
   },
 ];
@@ -523,7 +523,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Projects ----
 
   async list_projects() {
-    const data = (await payloadFetch('/projects?limit=50&depth=0')) as { docs: unknown[] };
+    const data = (await payloadFetch('/groups?limit=50&depth=0')) as { docs: unknown[] };
     return { content: [{ type: 'text', text: JSON.stringify(data.docs, null, 2) }] };
   },
 };

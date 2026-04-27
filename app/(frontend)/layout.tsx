@@ -5,7 +5,7 @@ import ThemeToggle from '../components/ThemeToggle';
 import SiteFooter from '../components/SiteFooter';
 import { CosmosProvider } from '../components/CosmosContext';
 import CosmicBackground from '../components/CosmicBackground';
-import { getFeaturedProjectHubs } from '@/lib/payload';
+import { getAllProjectHubs } from '@/lib/payload';
 import type { ProjectHub } from '@/lib/payload';
 
 export const metadata = {
@@ -23,11 +23,11 @@ export default async function FrontendLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let featuredProjects: ProjectHub[] = [];
+  let projects: ProjectHub[] = [];
   try {
-    featuredProjects = await getFeaturedProjectHubs();
+    projects = await getAllProjectHubs();
   } catch {
-    featuredProjects = [];
+    projects = [];
   }
 
   return (
@@ -35,7 +35,7 @@ export default async function FrontendLayout({
       <body>
         <CosmosProvider>
           <CosmicBackground />
-          <NavBar featuredProjects={featuredProjects} />
+          <NavBar projects={projects} />
           {children}
           <SiteFooter />
           <ThemeToggle />

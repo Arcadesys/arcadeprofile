@@ -1,7 +1,6 @@
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
-import type { Book, Demo, Project } from '@/payload-types';
-import { projects as staticProjects } from '@/data/projects';
+import type { Book, Demo, Group } from '@/payload-types';
 import { slugify } from '@/lib/utils';
 
 export type ProjectResourceKind =
@@ -66,65 +65,50 @@ function normalizeStringArray(value: unknown): string[] {
     .filter(Boolean);
 }
 
-function normalizeProject(doc: Project): ProjectHub {
+function defaultProjectHref(slug: string): string {
+  return `/projects/${slug}`;
+}
+
+function normalizeGroup(doc: Group, postSlugsForGroup: string[] = []): ProjectHub {
+  const slug = doc.slug || slugify(doc.title);
   const resources = Array.isArray(doc.resources) ? doc.resources : [];
-  const primaryCTA = doc.primaryCTA?.href
-    ? doc.primaryCTA
+  const href = doc.href || defaultProjectHref(slug);
+  const external = Boolean(doc.external);
+
+  const projectCTA = doc.projectCTA?.href
+    ? doc.projectCTA
     : {
-        label: doc.external ? 'View Project' : 'Open Project',
-        href: doc.href,
-        type: doc.external ? 'other' as const : 'experiment' as const,
+        label: external ? 'View Project' : 'Open Project',
+        href,
+        type: external ? ('other' as const) : ('experiment' as const),
       };
+
+  const explicitRelated = Array.isArray(doc.relatedPostSlugs)
+    ? doc.relatedPostSlugs
+        .map(item => item.slug)
+        .filter((value): value is string => Boolean(value))
+    : [];
+
+  const relatedPostSlugs = Array.from(new Set([...postSlugsForGroup, ...explicitRelated]));
 
   return {
     id: doc.id,
-    slug: doc.slug || slugify(doc.title),
+    slug,
     title: doc.title,
-    description: doc.description,
+    description: doc.description ?? '',
     image: doc.image,
-    href: doc.href,
-    external: doc.external,
+    href,
+    external,
     tags: normalizeStringArray(doc.tags),
     featured: Boolean(doc.featured),
     category: doc.category,
     status: doc.status,
-    primaryCTA,
+    primaryCTA: projectCTA,
     resources,
-    relatedPostSlugs: Array.isArray(doc.relatedPostSlugs)
-      ? doc.relatedPostSlugs.map(item => item.slug).filter((slug): slug is string => Boolean(slug))
-      : [],
+    relatedPostSlugs,
     updatedAt: doc.updatedAt,
     createdAt: doc.createdAt,
   };
-}
-
-function normalizeStaticProject(project: (typeof staticProjects)[number], index: number): ProjectHub {
-  return {
-    id: -(index + 1),
-    slug: project.slug || slugify(project.title),
-    title: project.title,
-    description: project.description,
-    image: project.image,
-    href: project.href,
-    external: project.external,
-    tags: project.tags || [],
-    featured: Boolean(project.featured),
-    category: project.category,
-    status: project.status || 'active',
-    primaryCTA: project.primaryCTA || {
-      label: project.external ? 'View Project' : 'Open Project',
-      href: project.href,
-      type: project.external ? 'other' : 'experiment',
-    },
-    resources: project.resources || [],
-    relatedPostSlugs: project.relatedPostSlugs || [],
-    updatedAt: undefined,
-    createdAt: undefined,
-  };
-}
-
-function getStaticProjectHubs(): ProjectHub[] {
-  return staticProjects.map(normalizeStaticProject);
 }
 
 export async function getAllBooks(): Promise<Book[]> {
@@ -158,52 +142,76 @@ export async function getDemoBySlug(slug: string): Promise<Demo | null> {
   return result.docs[0] ?? null;
 }
 
-export async function getAllProjects(): Promise<Project[]> {
+async function fetchPostSlugsByGroup(slugs: string[]): Promise<Map<string, string[]>> {
+  const map = new Map<string, string[]>();
+  if (slugs.length === 0) return map;
+
   const payload = await getPayloadClient();
   const result = await payload.find({
-    collection: 'projects',
-    limit: 100,
+    collection: 'posts',
+    where: { group: { in: slugs } },
+    sort: 'order',
+    limit: 500,
     depth: 0,
   });
-  return result.docs;
+
+  for (const doc of result.docs) {
+    const groupSlug = (doc.group as string | undefined) ?? '';
+    const postSlug = (doc.slug as string | undefined) ?? '';
+    if (!groupSlug || !postSlug) continue;
+    const list = map.get(groupSlug) ?? [];
+    list.push(postSlug);
+    map.set(groupSlug, list);
+  }
+
+  return map;
 }
 
 export async function getAllProjectHubs(): Promise<ProjectHub[]> {
-  let projects: Project[] = [];
+  let groups: Group[] = [];
   try {
-    projects = await getAllProjects();
+    const payload = await getPayloadClient();
+    const result = await payload.find({
+      collection: 'groups',
+      limit: 200,
+      depth: 0,
+    });
+    groups = result.docs;
   } catch {
-    projects = [];
+    groups = [];
   }
-  const projectHubs = projects.length > 0
-    ? projects.map(normalizeProject)
-    : getStaticProjectHubs();
-  return projectHubs.sort((a, b) => a.title.localeCompare(b.title));
-}
 
-export async function getFeaturedProjectHubs(): Promise<ProjectHub[]> {
-  const projects = await getAllProjectHubs();
-  const featured = projects.filter(project => project.featured).slice(0, 5);
-  return featured.length > 0 ? featured : projects.slice(0, 5);
+  if (groups.length === 0) return [];
+
+  const slugs = groups.map(g => g.slug || slugify(g.title)).filter(Boolean);
+  const postSlugsByGroup = await fetchPostSlugsByGroup(slugs).catch(() => new Map<string, string[]>());
+
+  return groups
+    .map(group => {
+      const slug = group.slug || slugify(group.title);
+      return normalizeGroup(group, postSlugsByGroup.get(slug) ?? []);
+    })
+    .sort((a, b) => a.title.localeCompare(b.title));
 }
 
 export async function getProjectBySlug(slug: string): Promise<ProjectHub | null> {
   try {
     const payload = await getPayloadClient();
     const result = await payload.find({
-      collection: 'projects',
+      collection: 'groups',
       where: { slug: { equals: slug } },
       limit: 1,
       depth: 0,
     });
 
-    if (result.docs[0]) {
-      return normalizeProject(result.docs[0]);
-    }
-  } catch {
-    // Fall through to the normalized static/legacy lookup.
-  }
+    const doc = result.docs[0];
+    if (!doc) return null;
 
-  const projects = await getAllProjectHubs();
-  return projects.find(project => project.slug === slug) ?? null;
+    const postSlugsByGroup = await fetchPostSlugsByGroup([slug]).catch(
+      () => new Map<string, string[]>(),
+    );
+    return normalizeGroup(doc, postSlugsByGroup.get(slug) ?? []);
+  } catch {
+    return null;
+  }
 }
