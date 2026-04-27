@@ -1,5 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import nextEnv from '@next/env';
 import { buildConfig } from 'payload';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
@@ -11,7 +12,12 @@ import { getDatabaseURLForPayloadConfig } from './lib/env';
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
-const databaseURL = getDatabaseURLForPayloadConfig();
+const { loadEnvConfig } = nextEnv;
+
+loadEnvConfig(process.cwd());
+
+const requiresDatabaseURL = process.argv.includes('migrate');
+const databaseURL = getDatabaseURLForPayloadConfig({ requireDatabaseURL: requiresDatabaseURL });
 const email = createPayloadEmailAdapter();
 
 export default buildConfig({

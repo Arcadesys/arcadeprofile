@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getAllDemos } from '@/lib/payload';
 import type { Demo } from '@/payload-types';
 
@@ -28,9 +29,11 @@ export default async function DemosPage() {
                 className="border rounded-lg shadow-md hover:shadow-lg transition-shadow bg-white dark:bg-gray-800 p-6 flex flex-col"
               >
                 {demo.image && (
-                  <img
+                  <Image
                     src={demo.image}
                     alt={demo.title}
+                    width={640}
+                    height={320}
                     className="w-full h-40 object-cover rounded mb-4"
                   />
                 )}

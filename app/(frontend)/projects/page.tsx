@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getAllProjectHubs, type ProjectHub } from '@/lib/payload';
 import { projectCategoryLinks, categoryLabels } from '@/components/menu';
 
@@ -31,9 +32,11 @@ function ProjectCard({ project }: { project: ProjectHub }) {
       className="group block rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 transition-all hover:border-[var(--neon-pink)] hover:bg-[var(--surface-hover)] hover:shadow-[0_0_18px_var(--glow-pink)]"
     >
       {project.image && (
-        <img
+        <Image
           src={project.image}
           alt={project.title}
+          width={640}
+          height={320}
           className="mb-4 h-40 w-full rounded object-cover"
         />
       )}

@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import styles from './NavBar.module.css';
 import { mainMenuLinks, projectCategoryLinks } from '../../components/menu';
@@ -91,7 +92,7 @@ export default function NavBar({ featuredProjects = [] }) {
     <nav className={styles.navbar} ref={navRef}>
       {/* Logo */}
       <Link href="/" className={styles.logo}>
-        <img src="/the-arcades-logo.svg" alt="The Arcades" height={36} />
+        <Image src="/the-arcades-logo.svg" alt="The Arcades" width={180} height={36} priority />
       </Link>
 
       <button

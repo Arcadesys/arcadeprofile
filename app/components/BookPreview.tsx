@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './BookPreview.module.css';
 
 interface BookPreviewProps {
@@ -112,9 +113,11 @@ export default function BookPreview({ content, bookId, showCta = true, summary }
 
       {coverImage && (
         <div className="w-full max-w-2xl mx-auto mb-8">
-          <img 
+          <Image
             src={coverImage} 
             alt={`Cover for ${title}`} 
+            width={800}
+            height={1200}
             className="w-full h-auto rounded-lg shadow-lg"
           />
         </div>

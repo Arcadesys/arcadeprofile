@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getAllProjectHubs, getProjectBySlug, type ProjectHub, type ProjectResource } from '@/lib/payload';
@@ -164,9 +165,11 @@ export default async function ProjectPage({
         </header>
 
         {project.image && (
-          <img
+          <Image
             src={project.image}
             alt={project.title}
+            width={1200}
+            height={630}
             className="mt-8 max-h-[420px] w-full rounded-lg object-cover"
           />
         )}
