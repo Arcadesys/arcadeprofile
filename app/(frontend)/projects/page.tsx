@@ -31,7 +31,7 @@ function ProjectCard({ project }: { project: ProjectHub }) {
       href={`/projects/${project.slug}`}
       className="group block rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 transition-all hover:border-[var(--neon-pink)] hover:bg-[var(--surface-hover)] hover:shadow-[0_0_18px_var(--glow-pink)]"
     >
-      {project.image && (
+      {project.image ? (
         <Image
           src={project.image}
           alt={project.title}
@@ -39,6 +39,13 @@ function ProjectCard({ project }: { project: ProjectHub }) {
           height={320}
           className="mb-4 h-40 w-full rounded object-cover"
         />
+      ) : (
+        <div
+          aria-hidden="true"
+          className="mb-4 flex h-40 w-full items-center justify-center rounded border border-[var(--border)] bg-[rgba(255,60,172,0.08)] text-2xl font-semibold text-[var(--fg-muted)]"
+        >
+          {project.title.charAt(0).toUpperCase()}
+        </div>
       )}
       <div className="mb-2 flex flex-wrap items-center gap-2">
         {project.category && (

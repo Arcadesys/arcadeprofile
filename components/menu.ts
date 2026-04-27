@@ -4,11 +4,10 @@ export type MenuLink = {
   prefixMatch?: boolean;
   isPrimary?: boolean;
   external?: boolean;
-  panel?: 'projects';
 };
 
 export const mainMenuLinks: MenuLink[] = [
-  { href: '/projects', label: 'Projects', prefixMatch: true, panel: 'projects' },
+  { href: '/projects', label: 'Projects', prefixMatch: true },
   { href: '/resume', label: 'Resume' },
   { href: '/bio', label: 'Bio' },
   { href: '/blog', label: 'Blog', prefixMatch: true },
