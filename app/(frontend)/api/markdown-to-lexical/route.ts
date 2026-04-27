@@ -11,8 +11,8 @@ let cachedNodes: Array<Klass<LexicalNode> | LexicalNodeReplacement> | null = nul
 async function getEditorNodes() {
   if (cachedNodes) return cachedNodes;
   const payload = await getPayload({ config });
-  const sanitizedConfig = await payload.config;
-  const editorConfig = await editorConfigFactory.default({ config: sanitizedConfig });
+  const sanitizedConfig = payload.config;
+  const editorConfig = await sanitizedConfig.editor({ config: sanitizedConfig });
   cachedNodes = getEnabledNodes({ editorConfig });
   return cachedNodes;
 }
