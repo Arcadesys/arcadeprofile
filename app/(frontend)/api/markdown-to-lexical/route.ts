@@ -12,7 +12,7 @@ async function getEditorNodes() {
   if (cachedNodes) return cachedNodes;
   const payload = await getPayload({ config });
   const sanitizedConfig = payload.config;
-  const editorConfig = await sanitizedConfig.editor({ config: sanitizedConfig });
+  const editorConfig = await editorConfigFactory.default({ config: sanitizedConfig });
   cachedNodes = getEnabledNodes({ editorConfig });
   return cachedNodes;
 }
