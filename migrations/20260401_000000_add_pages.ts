@@ -1,6 +1,29 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
+async function pagesSchemaExists(db: MigrateUpArgs['db']): Promise<boolean> {
+  const result = await db.execute(sql`
+    SELECT
+      to_regtype('public.enum_pages_status') AS pages_status,
+      to_regtype('public.enum__pages_v_version_status') AS pages_version_status,
+      to_regclass('public.pages') AS pages,
+      to_regclass('public._pages_v') AS pages_versions;
+  `);
+  const rows = 'rows' in result ? result.rows : result;
+  const [row] = rows as {
+    pages: string | null;
+    pages_status: string | null;
+    pages_version_status: string | null;
+    pages_versions: string | null;
+  }[];
+
+  return Boolean(row?.pages_status && row.pages_version_status && row.pages && row.pages_versions);
+}
+
 export async function up({ db }: MigrateUpArgs): Promise<void> {
+  if (await pagesSchemaExists(db)) {
+    return;
+  }
+
   await db.execute(sql`
    CREATE TYPE "public"."enum_pages_status" AS ENUM('draft', 'published');
   CREATE TYPE "public"."enum__pages_v_version_status" AS ENUM('draft', 'published');

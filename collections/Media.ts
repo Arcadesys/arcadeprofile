@@ -1,10 +1,10 @@
 import type { CollectionConfig } from 'payload';
+import { publicReadAccess } from './shared/access';
+import { adminGroups } from './shared/admin';
 
 export const Media: CollectionConfig = {
   slug: 'media',
-  access: {
-    read: () => true,
-  },
+  access: publicReadAccess,
   upload: {
     staticDir: 'public/media',
     adminThumbnail: 'og',
@@ -24,6 +24,7 @@ export const Media: CollectionConfig = {
     ],
   },
   admin: {
+    group: adminGroups.system,
     useAsTitle: 'filename',
   },
   fields: [

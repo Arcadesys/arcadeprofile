@@ -3,7 +3,7 @@
  * populate the campaign’s message, then schedule with list + send time.
  */
 
-const REQUEST_TIMEOUT_MS = 60_000;
+const REQUEST_TIMEOUT_MS = 15_000;
 
 export class ActiveCampaignError extends Error {
   constructor(

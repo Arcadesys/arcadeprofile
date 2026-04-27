@@ -5,7 +5,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
-    background-color: rgba(10, 10, 20, 0.85);
+    background-color: var(--navbar-bg);
     color: var(--fg);
     border-bottom: 1px solid var(--border);
     box-shadow: none;
@@ -14,12 +14,6 @@
     z-index: 100;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-:global(.light) .navbar {
-    background-color: rgba(250, 249, 247, 0.9);
-    border-bottom: 1px solid var(--border);
 }
 
 .logo {
@@ -36,7 +30,14 @@
 /* Hamburger icon styles */
 .hamburger {
     display: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    background: var(--surface);
     font-size: 1.5rem;
+    line-height: 1;
     cursor: pointer;
     color: var(--fg);
 }
@@ -58,13 +59,20 @@
 }
 
 .menu a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
     color: var(--fg-muted);
     text-decoration: none;
     font-weight: 400;
+    font: inherit;
     letter-spacing: 0.03em;
     padding: 0.5rem 0.75rem;
+    border: 0;
     border-radius: 0.25rem;
+    background: transparent;
     transition: color 0.2s;
+    cursor: pointer;
 }
 
 .menu a:hover {
@@ -80,39 +88,39 @@
     text-shadow: 0 0 12px var(--glow-pink);
 }
 
-:global(.light) .menu a {
-    color: var(--fg-muted);
+.menu a.primaryLink {
+    color: var(--fg);
+    border: 1px solid var(--neon-pink);
+    background: rgba(255, 60, 172, 0.1);
+    box-shadow: 0 0 12px var(--glow-pink);
+    font-weight: 600;
 }
 
-:global(.light) .menu a:hover {
-    color: var(--neon-pink);
-}
-
-:global(.light) .menu a.active {
-    color: var(--neon-pink);
+.menu a.primaryLink:hover,
+.menu a.primaryLink.active {
+    color: var(--bg);
+    background: var(--neon-pink);
+    text-shadow: none;
 }
 
 /* Responsive Styles */
 @media (max-width: 768px) {
     .hamburger {
-        display: block;
+        display: grid;
     }
 
     .menu {
         display: none;
         flex-direction: column;
         width: 100%;
-        background-color: rgba(10, 10, 20, 0.95);
+        max-height: calc(100vh - 60px);
+        overflow-y: auto;
+        background-color: var(--navbar-dropdown-bg);
         border: 1px solid var(--border);
         position: absolute;
         top: 60px;
         left: 0;
         box-shadow: none;
-    }
-
-    :global(.light) .menu {
-        background-color: rgba(250, 249, 247, 0.95);
-        border: 1px solid var(--border);
     }
 
     .menu.open {
@@ -131,8 +139,16 @@
     }
 
     .menu a {
-        display: block;
+        display: flex;
         padding: 1rem;
         width: 100%;
+        border-radius: 0;
+    }
+
+    .menu a.primaryLink {
+        justify-content: center;
+        margin: 0.75rem 1rem;
+        width: calc(100% - 2rem);
+        border-radius: 0.375rem;
     }
 }

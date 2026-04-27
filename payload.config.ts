@@ -1,44 +1,22 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { loadEnvConfig } from '@next/env';
 import { buildConfig } from 'payload';
 import { postgresAdapter } from '@payloadcms/db-postgres';
-import { nodemailerAdapter } from '@payloadcms/email-nodemailer';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import sharp from 'sharp';
-import { Posts } from './collections/Posts';
-import { Groups } from './collections/Groups';
-import { Books } from './collections/Books';
-import { Projects } from './collections/Projects';
-import { Demos } from './collections/Demos';
-import { Pages } from './collections/Pages';
-import { Media } from './collections/Media';
-import { Users } from './collections/Users';
-import { Subscribers } from './collections/Subscribers';
-import { SocialPosts } from './collections/SocialPosts';
+import { collections } from './collections';
+import { createPayloadEmailAdapter } from './lib/payload-email';
+import { getDatabaseURLForPayloadConfig } from './lib/env';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
-const defaultFromAddress = process.env.POSTMARK_FROM_EMAIL || 'austen@thearcades.me';
-const defaultFromName = process.env.POSTMARK_FROM_NAME || 'The Arcades';
-const postmarkToken = process.env.POSTMARK_SERVER_TOKEN;
+loadEnvConfig(process.cwd());
 
-const email = postmarkToken
-  ? nodemailerAdapter({
-      defaultFromAddress,
-      defaultFromName,
-      skipVerify: true,
-      transportOptions: {
-        host: 'smtp.postmarkapp.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: postmarkToken,
-          pass: postmarkToken,
-        },
-      },
-    })
-  : undefined;
+const requiresDatabaseURL = process.argv.includes('migrate');
+const databaseURL = getDatabaseURLForPayloadConfig({ requireDatabaseURL: requiresDatabaseURL });
+const email = createPayloadEmailAdapter();
 
 export default buildConfig({
   admin: {
@@ -47,14 +25,14 @@ export default buildConfig({
     },
     theme: 'dark',
   },
-  collections: [Users, Posts, Groups, Books, Projects, Demos, Pages, Media, Subscribers, SocialPosts],
+  collections,
   editor: lexicalEditor(),
   email,
   sharp,
   secret: process.env.PAYLOAD_SECRET || 'default-secret-change-me',
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL || '',
+      connectionString: databaseURL,
     },
   }),
   typescript: {

@@ -1,31 +1,16 @@
 import type { CollectionConfig } from 'payload';
-import { discoverabilityFields, metaFields } from './fields/discoverability';
+import { discoverabilityAndMetaFields } from './fields/discoverability';
+import { slugField } from './fields/slug';
+import { revalidatePathsFor } from './hooks/revalidate';
+import { publicReadAccess } from './shared/access';
+import { adminGroups, titledAdmin } from './shared/admin';
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
-  access: {
-    read: () => true,
-  },
-  admin: {
-    useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', '_status', 'updatedAt'],
-  },
+  access: publicReadAccess,
+  admin: titledAdmin(adminGroups.content, ['title', 'slug', '_status', 'updatedAt']),
   hooks: {
-    afterChange: [
-      ({ doc }) => {
-        import('next/cache')
-          .then(({ revalidatePath }) => {
-            try {
-              const slug = doc.slug as string;
-              revalidatePath(`/${slug}`);
-              if (slug === 'about') revalidatePath('/about');
-            } catch {
-              // revalidatePath may fail outside request context
-            }
-          })
-          .catch(() => {});
-      },
-    ],
+    afterChange: [revalidatePathsFor((doc) => [`/${doc.slug}`])],
   },
   versions: {
     drafts: true,
@@ -36,28 +21,7 @@ export const Pages: CollectionConfig = {
       type: 'text',
       required: true,
     },
-    {
-      name: 'slug',
-      type: 'text',
-      required: true,
-      unique: true,
-      admin: {
-        position: 'sidebar',
-      },
-      hooks: {
-        beforeValidate: [
-          ({ value, siblingData }) => {
-            if (!value && siblingData?.title) {
-              return siblingData.title
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-|-$/g, '');
-            }
-            return value;
-          },
-        ],
-      },
-    },
+    slugField(),
     {
       name: 'excerpt',
       type: 'textarea',
@@ -113,7 +77,6 @@ export const Pages: CollectionConfig = {
       name: 'footer_link_href',
       type: 'text',
     },
-    ...discoverabilityFields,
-    ...metaFields,
+    ...discoverabilityAndMetaFields,
   ],
 };

@@ -4,9 +4,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import styles from './NavBar.module.css';
+import { mainMenuLinks } from '../../components/menu';
 
+function classNames(...values) {
+  return values.filter(Boolean).join(' ');
+}
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,24 +26,9 @@ export default function NavBar() {
     setMounted(true);
   }, []);
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
-
   if (!mounted) {
     return null;
   }
-
-  const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/previews', label: 'Books', prefixMatch: true },
-    { href: '/blog', label: 'Blog', prefixMatch: true },
-    { href: '/writing', label: 'Writing', prefixMatch: true },
-    { href: '/demos', label: 'Demos', prefixMatch: true },
-    { href: '/portfolio', label: 'Tools' },
-    { href: '/resume', label: 'Resume' },
-    { href: '/about', label: 'About' },
-  ];
 
   const linkIsActive = (link) => {
     if (link.prefixMatch) {
@@ -51,32 +41,40 @@ export default function NavBar() {
     <nav className={styles.navbar}>
       {/* Logo */}
       <Link href="/" className={styles.logo}>
-        <img src="/the-arcades-logo.svg" alt="The Arcades" height={36} />
+        <Image src="/the-arcades-logo.svg" alt="The Arcades" width={180} height={36} priority />
       </Link>
 
-      {/* Hamburger icon */}
-      <div className={styles.hamburger} onClick={toggleMenu}>
-        ☰
-      </div>
+      <button
+        type="button"
+        className={styles.hamburger}
+        onClick={() => setIsOpen(open => !open)}
+        aria-expanded={isOpen}
+        aria-controls="site-menu"
+        aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
+      >
+        <span aria-hidden="true">{isOpen ? '×' : '☰'}</span>
+      </button>
 
       {/* Navigation menu */}
-      <div className={`${styles.menu} ${isOpen ? styles.open : ''}`}>
+      <div id="site-menu" className={`${styles.menu} ${isOpen ? styles.open : ''}`}>
         <ul>
-          {navLinks.map((link) => (
+          {mainMenuLinks.map((link) => (
             <li key={link.href}>
               {link.external ? (
                 <a
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={linkIsActive(link) ? styles.active : ''}
+                  className={classNames(link.isPrimary && styles.primaryLink, linkIsActive(link) && styles.active)}
+                  aria-current={linkIsActive(link) ? 'page' : undefined}
                 >
                   {link.label}
                 </a>
               ) : (
                 <Link
                   href={link.href}
-                  className={linkIsActive(link) ? styles.active : ''}
+                  className={classNames(link.isPrimary && styles.primaryLink, linkIsActive(link) && styles.active)}
+                  aria-current={linkIsActive(link) ? 'page' : undefined}
                 >
                   {link.label}
                 </Link>

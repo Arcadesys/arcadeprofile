@@ -18,6 +18,12 @@ export interface BlogPost {
   /** Optional copy above the site footer subscribe on this post only. */
   newsletterHeading?: string;
   newsletterDescription?: string;
+  /** Whether this post appears on /samples. */
+  showInSamples?: boolean;
+  /** Explicit ordering for /samples (lower numbers first). */
+  sampleOrder?: number;
+  /** Optional CTA label for /samples. */
+  sampleLabel?: string;
 }
 
 export interface Group {
@@ -41,6 +47,9 @@ function toPost(doc: any): BlogPost {
     author: (doc.author as string) || undefined,
     newsletterHeading: (doc.newsletterHeading as string) || undefined,
     newsletterDescription: (doc.newsletterDescription as string) || undefined,
+    showInSamples: Boolean(doc.showInSamples),
+    sampleOrder: doc.sampleOrder as number | undefined,
+    sampleLabel: (doc.sampleLabel as string) || undefined,
   };
 }
 
@@ -48,18 +57,61 @@ async function getPayloadClient() {
   return getPayload({ config: configPromise });
 }
 
+function isMissingPostSamplesColumnError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+
+  const maybeError = error as {
+    cause?: { code?: string; message?: string };
+    message?: string;
+  };
+
+  const hasMissingColumnCode = maybeError.cause?.code === '42703';
+  const text = `${maybeError.message ?? ''} ${maybeError.cause?.message ?? ''}`;
+
+  return hasMissingColumnCode && text.includes('show_in_samples');
+}
+
+const legacyPostSelect = {
+  slug: true,
+  title: true,
+  publishedDate: true,
+  excerpt: true,
+  content: true,
+  group: true,
+  order: true,
+  author: true,
+  newsletterHeading: true,
+  newsletterDescription: true,
+} as const;
+
 export async function getAllPosts(): Promise<BlogPost[]> {
   const payload = await getPayloadClient();
 
-  const result = await payload.find({
-    collection: 'posts',
-    where: {
-      _status: { equals: 'published' },
-    },
-    sort: '-publishedDate',
-    limit: 100,
-    depth: 0,
-  });
+  let result;
+  try {
+    result = await payload.find({
+      collection: 'posts',
+      sort: '-publishedDate',
+      limit: 100,
+      depth: 0,
+    });
+  } catch (error) {
+    if (!isMissingPostSamplesColumnError(error)) {
+      throw error;
+    }
+
+    console.warn(
+      'posts.show_in_samples is missing in the database. Falling back to legacy post query. Run `npm run migrate` to apply latest schema changes.',
+    );
+
+    result = await payload.find({
+      collection: 'posts',
+      sort: '-publishedDate',
+      limit: 100,
+      depth: 0,
+      select: legacyPostSelect,
+    });
+  }
 
   return result.docs.map(toPost);
 }
@@ -89,14 +141,105 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   const result = await payload.find({
     collection: 'posts',
     where: {
-      and: [
-        { slug: { equals: slug } },
-        { _status: { equals: 'published' } },
-      ],
+      slug: { equals: slug },
     },
     limit: 1,
     depth: 0,
   });
+
+  if (result.docs.length === 0) return null;
+  return toPost(result.docs[0]);
+}
+
+export async function getPostsBySlugs(slugs: string[]): Promise<BlogPost[]> {
+  const uniqueSlugs = [...new Set(slugs.filter(Boolean))];
+  if (uniqueSlugs.length === 0) return [];
+
+  const payload = await getPayloadClient();
+  const result = await payload.find({
+    collection: 'posts',
+    where: {
+      slug: { in: uniqueSlugs },
+    },
+    limit: uniqueSlugs.length,
+    depth: 0,
+  });
+
+  const postsBySlug = new Map(result.docs.map(doc => {
+    const post = toPost(doc);
+    return [post.slug, post] as const;
+  }));
+
+  return uniqueSlugs
+    .map(slug => postsBySlug.get(slug))
+    .filter((post): post is BlogPost => Boolean(post));
+}
+
+export async function getSamplePosts(): Promise<BlogPost[]> {
+  const payload = await getPayloadClient();
+
+  let result;
+  try {
+    result = await payload.find({
+      collection: 'posts',
+      where: {
+        and: [
+          { showInSamples: { equals: true } },
+          { _status: { equals: 'published' } },
+        ],
+      },
+      sort: 'sampleOrder',
+      limit: 100,
+      depth: 0,
+    });
+  } catch (error) {
+    if (!isMissingPostSamplesColumnError(error)) {
+      throw error;
+    }
+
+    console.warn(
+      'posts.show_in_samples is missing in the database. Returning no sample posts until migrations are applied (`npm run migrate`).',
+    );
+    return [];
+  }
+
+  return result.docs
+    .map(toPost)
+    .sort((a, b) => {
+      const ao = a.sampleOrder ?? Infinity;
+      const bo = b.sampleOrder ?? Infinity;
+      if (ao !== bo) return ao - bo;
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+}
+
+export async function getSamplePostBySlug(slug: string): Promise<BlogPost | null> {
+  const payload = await getPayloadClient();
+
+  let result;
+  try {
+    result = await payload.find({
+      collection: 'posts',
+      where: {
+        and: [
+          { slug: { equals: slug } },
+          { showInSamples: { equals: true } },
+          { _status: { equals: 'published' } },
+        ],
+      },
+      limit: 1,
+      depth: 0,
+    });
+  } catch (error) {
+    if (!isMissingPostSamplesColumnError(error)) {
+      throw error;
+    }
+
+    console.warn(
+      'posts.show_in_samples is missing in the database. Sample post lookups are unavailable until migrations are applied (`npm run migrate`).',
+    );
+    return null;
+  }
 
   if (result.docs.length === 0) return null;
   return toPost(result.docs[0]);
@@ -117,10 +260,7 @@ export async function getAllGroups(): Promise<Group[]> {
     const postResult = await payload.find({
       collection: 'posts',
       where: {
-        and: [
-          { group: { equals: g.slug } },
-          { _status: { equals: 'published' } },
-        ],
+        group: { equals: g.slug },
       },
       sort: 'order',
       limit: 100,
@@ -237,14 +377,9 @@ export async function getUngroupedPosts(): Promise<BlogPost[]> {
   const result = await payload.find({
     collection: 'posts',
     where: {
-      and: [
-        { _status: { equals: 'published' } },
-        {
-          or: [
-            { group: { equals: '' } },
-            { group: { exists: false } },
-          ],
-        },
+      or: [
+        { group: { equals: '' } },
+        { group: { exists: false } },
       ],
     },
     sort: '-publishedDate',

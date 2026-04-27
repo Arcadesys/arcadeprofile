@@ -1,20 +1,21 @@
 import type { CollectionConfig } from 'payload';
-import { discoverabilityFields, metaFields } from './fields/discoverability';
+import { discoverabilityAndMetaFields } from './fields/discoverability';
+import { slugField } from './fields/slug';
+import { jsonTagsField } from './fields/tags';
+import { publicReadAccess } from './shared/access';
+import { adminGroups, titledAdmin } from './shared/admin';
 
 export const Demos: CollectionConfig = {
   slug: 'demos',
-  access: {
-    read: () => true,
-  },
-  admin: { useAsTitle: 'title' },
+  access: publicReadAccess,
+  admin: titledAdmin(adminGroups.content),
   fields: [
-    { name: 'slug', type: 'text', required: true, unique: true },
+    slugField(),
     { name: 'title', type: 'text', required: true },
     { name: 'description', type: 'textarea', required: true },
     { name: 'image', type: 'text' },
     { name: 'embedUrl', type: 'text', required: true },
-    { name: 'tags', type: 'json' },
-    ...discoverabilityFields,
-    ...metaFields,
+    jsonTagsField,
+    ...discoverabilityAndMetaFields,
   ],
 };

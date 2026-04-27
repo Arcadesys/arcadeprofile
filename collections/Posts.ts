@@ -2,47 +2,43 @@ import type { CollectionConfig } from 'payload';
 
 import type { Post } from '../payload-types';
 import { buildPostNewsletterContent } from '../lib/newsletter';
-import { discoverabilityFields, metaFields } from './fields/discoverability';
+import { discoverabilityAndMetaFields } from './fields/discoverability';
+import { slugField } from './fields/slug';
+import { tagArrayField } from './fields/tags';
+import { revalidatePathsFor } from './hooks/revalidate';
+import { publicReadAccess } from './shared/access';
+import { adminGroups, titledAdmin } from './shared/admin';
+
+const revalidatePostPaths = revalidatePathsFor((doc) => {
+  const slug = doc.slug as string;
+  const group = doc.group as string | undefined;
+  const paths = ['/blog', '/writing', '/samples', '/feed.xml', `/blog/${slug}`];
+
+  if (group) {
+    paths.push(`/writing/group/${group}`, `/${group}`);
+  }
+
+  return paths;
+});
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
-  access: {
-    read: () => true,
-  },
+  access: publicReadAccess,
   admin: {
-    useAsTitle: 'title',
-    defaultColumns: [
+    ...titledAdmin(adminGroups.publishing, [
       'title',
-      'publish_status',
       '_status',
       'scheduledPublishDate',
       'publishedDate',
+      'showInSamples',
+      'sampleOrder',
       'newsletterSent',
-    ],
+    ]),
   },
   hooks: {
     afterChange: [
+      revalidatePostPaths,
       async ({ doc, previousDoc, req }) => {
-        // Revalidate Next.js ISR cache
-        import('next/cache')
-          .then(({ revalidatePath }) => {
-            try {
-              const slug = doc.slug as string;
-              const group = doc.group as string;
-              revalidatePath(`/blog/${slug}`);
-              revalidatePath('/blog');
-              revalidatePath('/writing');
-              revalidatePath('/feed.xml');
-              if (group) {
-                revalidatePath(`/writing/group/${group}`);
-                revalidatePath(`/${group}`);
-              }
-            } catch {
-              // revalidatePath may fail outside request context
-            }
-          })
-          .catch(() => {});
-
         // Send newsletter when a post is first published and newsletterSent is false
         const wasPublished = previousDoc?._status !== 'published';
         const isNowPublished = doc._status === 'published';
@@ -107,28 +103,7 @@ export const Posts: CollectionConfig = {
       type: 'text',
       required: true,
     },
-    {
-      name: 'slug',
-      type: 'text',
-      required: true,
-      unique: true,
-      admin: {
-        position: 'sidebar',
-      },
-      hooks: {
-        beforeValidate: [
-          ({ value, siblingData }) => {
-            if (!value && siblingData?.title) {
-              return siblingData.title
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-|-$/g, '');
-            }
-            return value;
-          },
-        ],
-      },
-    },
+    slugField(),
     {
       name: 'excerpt',
       type: 'textarea',
@@ -141,10 +116,12 @@ export const Posts: CollectionConfig = {
     },
     {
       name: 'publishedDate',
+      label: 'Public Date',
       type: 'date',
       required: true,
       admin: {
         position: 'sidebar',
+        description: 'Date shown publicly and used for sorting published posts.',
         date: {
           pickerAppearance: 'dayOnly',
         },
@@ -161,9 +138,11 @@ export const Posts: CollectionConfig = {
     },
     {
       name: 'scheduledPublishDate',
+      label: 'Scheduled Publish Date',
       type: 'date',
       admin: {
         position: 'sidebar',
+        description: 'When a draft should be promoted to published by the scheduler.',
         date: {
           pickerAppearance: 'dayAndTime',
         },
@@ -190,17 +169,7 @@ export const Posts: CollectionConfig = {
       type: 'text',
       defaultValue: 'Austen Tucker',
     },
-    {
-      name: 'tags',
-      type: 'array',
-      fields: [
-        {
-          name: 'tag',
-          type: 'text',
-          required: true,
-        },
-      ],
-    },
+    tagArrayField,
     {
       name: 'newsletterHeading',
       type: 'text',
@@ -217,20 +186,53 @@ export const Posts: CollectionConfig = {
     },
     {
       name: 'publish_status',
+      label: 'Workflow Status',
       type: 'select',
       options: [
-        { label: 'Draft', value: 'draft' },
-        { label: 'Scheduled', value: 'scheduled' },
-        { label: 'Published', value: 'published' },
-        { label: 'Sent', value: 'sent' },
+        { label: 'Not queued', value: 'draft' },
+        { label: 'Scheduled publish', value: 'scheduled' },
+        { label: 'Published by scheduler', value: 'published' },
+        { label: 'Newsletter sent', value: 'sent' },
       ],
       defaultValue: 'draft',
       admin: {
         position: 'sidebar',
-        description: 'Workflow status for newsletter pipeline.',
+        description:
+          'Internal scheduling/newsletter workflow. Payload draft/published state lives in Status.',
       },
     },
-    ...discoverabilityFields,
-    ...metaFields,
+    {
+      type: 'collapsible',
+      label: 'Samples',
+      admin: {
+        description: 'Controls whether this post appears in the public Samples funnel.',
+      },
+      fields: [
+        {
+          name: 'showInSamples',
+          type: 'checkbox',
+          defaultValue: false,
+          admin: {
+            description: 'Show this published post on /samples.',
+          },
+        },
+        {
+          name: 'sampleOrder',
+          type: 'number',
+          admin: {
+            description: 'Lower numbers appear first. Posts without a value fall back to publish date.',
+          },
+        },
+        {
+          name: 'sampleLabel',
+          type: 'text',
+          admin: {
+            description: 'Optional button text for /samples.',
+            placeholder: 'Read Sample',
+          },
+        },
+      ],
+    },
+    ...discoverabilityAndMetaFields,
   ],
 };

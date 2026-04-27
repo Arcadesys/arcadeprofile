@@ -8,10 +8,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "migrate": "payload migrate",
     "seed": "tsx scripts/seed-runner.mjs",
     "seed:blog": "tsx --require ./scripts/patch-next-env.cjs scripts/seed.ts",
+    "postmark:test": "tsx scripts/send-test-email.ts",
     "test": "tsx --test \"lib/**/*.test.ts\"",
-    "test:paperclip-bridge": "tsx --test lib/paperclip-payload-bridge.test.ts",
     "mcp": "tsx mcp/payload-mcp.ts"
   },
   "dependencies": {
@@ -25,6 +26,7 @@
     "@payloadcms/ui": "^3.80.0",
     "@tailwindcss/typography": "^0.5.10",
     "@vercel/analytics": "^1.6.1",
+    "@vercel/blob": "^2.3.3",
     "dotenv": "^17.4.1",
     "feed": "^5.2.0",
     "gray-matter": "^4.0.3",
@@ -36,8 +38,7 @@
     "react": "^19",
     "react-dom": "^19",
     "sharp": "^0.33.5",
-    "vercel": "^41.3.2",
-    "yarn": "^1.22.22"
+    "vercel": "^41.3.2"
   },
   "devDependencies": {
     "@types/node": "^20",

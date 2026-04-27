@@ -27,8 +27,9 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="fixed bottom-4 right-4 z-50 rounded-full cosmos-toggle"
+      className="fixed right-4 z-50 rounded-full cosmos-toggle"
       style={{
+        bottom: 'max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem))',
         padding: '10px',
         background: `rgba(${Math.round(cosmosTime * 240)},${Math.round(cosmosTime * 240)},${Math.round(cosmosTime * 220)},${0.15 + cosmosTime * 0.3})`,
         border: `1px solid rgba(${ringR},${ringG},${ringB},0.4)`,

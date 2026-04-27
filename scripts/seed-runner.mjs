@@ -35,14 +35,29 @@ async function seed() {
   console.log('\n--- Seeding Projects ---')
   const { projects } = await import('../data/projects.ts')
   for (const project of projects) {
-    const existing = await payload.find({ collection: 'projects', where: { title: { equals: project.title } } })
+    const existing = await payload.find({
+      collection: 'projects',
+      where: {
+        or: [
+          { slug: { equals: project.slug } },
+          { title: { equals: project.title } },
+        ],
+      },
+    })
     if (existing.docs.length > 0) { console.log(`  [skip] ${project.title} (already exists)`); continue }
     await payload.create({
       collection: 'projects',
       data: {
+        slug: project.slug,
         title: project.title, description: project.description,
+        featured: project.featured ?? false,
+        category: project.category || null,
+        status: project.status || 'active',
         image: project.image || null, href: project.href,
         external: project.external ?? false, tags: project.tags || [],
+        primaryCTA: project.primaryCTA || {},
+        resources: project.resources || [],
+        relatedPostSlugs: (project.relatedPostSlugs || []).map((slug) => ({ slug })),
       },
     })
     console.log(`  [created] ${project.title}`)

@@ -1,11 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function BetaReader() {
-  const router = useRouter();
-  
   useEffect(() => {
     // Redirect to Google Form
     window.location.href = 'https://docs.google.com/forms/d/e/1FAIpQLSeOpGMaOMJwCqu9WHUpJvjlYvRIgV6vC3BqdstVJvssPlWeqg/viewform?usp=dialog';

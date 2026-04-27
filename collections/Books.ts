@@ -1,12 +1,12 @@
 import type { CollectionConfig } from 'payload';
 import { discoverabilityFields } from './fields/discoverability';
+import { publicReadAccess } from './shared/access';
+import { adminGroups, titledAdmin } from './shared/admin';
 
 export const Books: CollectionConfig = {
   slug: 'books',
-  access: {
-    read: () => true,
-  },
-  admin: { useAsTitle: 'title' },
+  access: publicReadAccess,
+  admin: titledAdmin(adminGroups.library),
   fields: [
     { name: 'key', type: 'text', required: true, unique: true },
     { name: 'title', type: 'text', required: true },
