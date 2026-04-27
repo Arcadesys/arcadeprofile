@@ -18,6 +18,12 @@ async function getEditorNodes() {
 }
 
 export async function POST(request: Request) {
+  const authHeader = request.headers.get('Authorization');
+  const apiKey = process.env.PAYLOAD_API_KEY;
+  if (apiKey && authHeader !== `Bearer ${apiKey}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const body = await request.json().catch(() => null);
   if (!body?.markdown || typeof body.markdown !== 'string') {
     return NextResponse.json({ error: 'markdown field required' }, { status: 400 });
