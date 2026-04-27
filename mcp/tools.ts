@@ -44,41 +44,19 @@ export async function payloadFetch(path: string, options?: RequestInit): Promise
   return res.json();
 }
 
-export function markdownToLexical(markdown: string): unknown {
-  // Minimal Lexical paragraph node representation for plain markdown.
-  // Agents can pass pre-formatted Lexical JSON, or we wrap the raw text.
-  const paragraphs = markdown
-    .split(/\n{2,}/)
-    .filter(Boolean)
-    .map((text) => ({
-      type: 'paragraph',
-      version: 1,
-      children: [
-        {
-          type: 'text',
-          version: 1,
-          text: text.replace(/\n/g, ' '),
-          detail: 0,
-          format: 0,
-          mode: 'normal',
-          style: '',
-        },
-      ],
-      direction: 'ltr',
-      format: '',
-      indent: 0,
-    }));
-
-  return {
-    root: {
-      type: 'root',
-      version: 1,
-      children: paragraphs,
-      direction: 'ltr',
-      format: '',
-      indent: 0,
-    },
-  };
+export async function markdownToLexical(markdown: string): Promise<unknown> {
+  const res = await fetch(`${getBaseUrl()}/api/markdown-to-lexical`, {
+    method: 'POST',
+    headers: apiHeaders(),
+    body: JSON.stringify({ markdown }),
+  });
+  if (!res.ok) {
+    throw new Error(
+      `markdown-to-lexical conversion failed (${res.status}): ${await res.text()}`,
+    );
+  }
+  const { lexical } = (await res.json()) as { lexical: unknown };
+  return lexical;
 }
 
 // ---------------------------------------------------------------------------
@@ -371,7 +349,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
       title: args.title,
       slug,
       excerpt: args.excerpt,
-      content: markdownToLexical(args.content as string),
+      content: await markdownToLexical(args.content as string),
       publishedDate: (args.publishedDate as string) || new Date().toISOString().slice(0, 10),
       _status,
       publish_status,
@@ -421,7 +399,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
     if (args.title !== undefined) payload.title = args.title;
     if (args.excerpt !== undefined) payload.excerpt = args.excerpt;
     if (args.content !== undefined)
-      payload.content = markdownToLexical(args.content as string);
+      payload.content = await markdownToLexical(args.content as string);
     if (args.publishedDate !== undefined) payload.publishedDate = args.publishedDate;
     if (args.group !== undefined) payload.group = args.group;
     if (args.order !== undefined) payload.order = args.order;
@@ -488,7 +466,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const payload: Record<string, unknown> = {};
     if (args.title) payload.title = args.title;
     if (args.excerpt) payload.excerpt = args.excerpt;
-    if (args.content) payload.content = markdownToLexical(args.content as string);
+    if (args.content) payload.content = await markdownToLexical(args.content as string);
 
     await payloadFetch(`/pages/${id}`, {
       method: 'PATCH',

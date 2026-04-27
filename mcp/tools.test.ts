@@ -93,13 +93,26 @@ test('update_post schema requires slug', () => {
 // markdownToLexical
 // ---------------------------------------------------------------------------
 
-test('markdownToLexical wraps paragraphs in root node', () => {
-  const result = markdownToLexical('Hello world\n\nSecond paragraph') as {
-    root: { children: { children: { text: string }[] }[] };
+test('markdownToLexical wraps paragraphs in root node', async () => {
+  const mockLexical = {
+    root: {
+      children: [
+        { children: [{ text: 'Hello world' }] },
+        { children: [{ text: 'Second paragraph' }] },
+      ],
+    },
   };
-  assert.equal(result.root.children.length, 2);
-  assert.equal(result.root.children[0].children[0].text, 'Hello world');
-  assert.equal(result.root.children[1].children[0].text, 'Second paragraph');
+  const restore = mockFetch(async () => jsonResponse({ lexical: mockLexical }));
+  try {
+    const result = (await markdownToLexical('Hello world\n\nSecond paragraph')) as {
+      root: { children: { children: { text: string }[] }[] };
+    };
+    assert.equal(result.root.children.length, 2);
+    assert.equal(result.root.children[0].children[0].text, 'Hello world');
+    assert.equal(result.root.children[1].children[0].text, 'Second paragraph');
+  } finally {
+    restore();
+  }
 });
 
 // ---------------------------------------------------------------------------
