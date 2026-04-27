@@ -57,7 +57,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
       _status: { equals: 'published' },
     },
     sort: '-publishedDate',
-    limit: 0,
+    limit: 100,
     depth: 0,
   });
 
