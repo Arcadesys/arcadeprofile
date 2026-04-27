@@ -38,6 +38,7 @@ function lerp(a: number, b: number, t: number): number {
 
 const hexVars: [string, string, string][] = [
   ['--bg',            '#000000', '#FFFDE8'],
+  ['--bg-deep',       '#000000', '#F5F2E0'],
   ['--surface',       '#14142a', '#FFFFF0'],
   ['--surface-hover', '#1e1e3a', '#FFF8DC'],
   ['--fg',            '#e8e8ec', '#1a1a2e'],
@@ -53,6 +54,7 @@ const rgbaVars: [string, [number, number, number, number], [number, number, numb
   ['--glow-pink',          [255, 60, 172, 0.4],  [255, 20, 147, 0.15]],
   ['--glow-orange',        [255, 138, 0, 0.3],   [224, 120, 0, 0.1]],
   ['--border',             [255, 138, 0, 0.2],   [0, 0, 0, 0.1]],
+  ['--border-strong',      [255, 138, 0, 0.45],  [0, 0, 0, 0.25]],
   // navbar backgrounds — interpolated so the sticky bar and mobile dropdown
   // always match the current day/night sky tone
   ['--navbar-bg',          [10, 10, 20, 0.85],   [250, 249, 247, 0.9]],
