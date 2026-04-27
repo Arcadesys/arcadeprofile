@@ -82,7 +82,6 @@ export default async function Home() {
           <SubscribeForm />
         </div>
       </div>
-
     </div>
   );
 }
