@@ -1,6 +1,7 @@
 /**
  * One-time seed script: seeds blog posts/groups from MDX files, then seeds
- * books, projects, and demos from static data files.
+ * books and demos from static data files. Groups are the canonical "project"
+ * entity — see collections/Groups.ts.
  *
  * Usage: npm run seed
  * (uses patch-next-env.cjs preload to fix CJS/ESM interop)
@@ -11,7 +12,6 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { getPayload } from 'payload';
-import { slugify } from '../lib/utils';
 import { createHeadlessEditor } from '@payloadcms/richtext-lexical/lexical/headless';
 import {
   $convertFromMarkdownString,
@@ -329,36 +329,6 @@ Pull, not push. The door doesn't move.
       },
     });
     console.log(`  [created] ${key}`);
-  }
-
-  // --- Seed projects ---
-  console.log('\n--- Seeding Projects ---');
-  const { projects } = await import('../data/projects');
-
-  for (const project of projects) {
-    const existing = await payload.find({
-      collection: 'projects',
-      where: { title: { equals: project.title } },
-    });
-
-    if (existing.docs.length > 0) {
-      console.log(`  [skip] ${project.title} (already exists)`);
-      continue;
-    }
-
-    await payload.create({
-      collection: 'projects',
-      data: {
-        slug: project.slug || slugify(project.title),
-        title: project.title,
-        description: project.description,
-        image: project.image || null,
-        href: project.href,
-        external: project.external ?? false,
-        tags: project.tags || [],
-      },
-    });
-    console.log(`  [created] ${project.title}`);
   }
 
   // --- Seed demos ---

@@ -71,7 +71,6 @@ export interface Config {
     posts: Post;
     groups: Group;
     books: Book;
-    projects: Project;
     demos: Demo;
     pages: Page;
     media: Media;
@@ -88,7 +87,6 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     groups: GroupsSelect<false> | GroupsSelect<true>;
     books: BooksSelect<false> | BooksSelect<true>;
-    projects: ProjectsSelect<false> | ProjectsSelect<true>;
     demos: DemosSelect<false> | DemosSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -326,11 +324,53 @@ export interface Media {
 export interface Group {
   id: number;
   title: string;
+  /**
+   * Stable group/project URL slug.
+   */
   slug: string;
   description?: string | null;
+  image?: string | null;
+  href?: string | null;
+  /**
+   * Whether `href` points off-site.
+   */
+  external?: boolean | null;
+  /**
+   * Feature this group in the main navigation panel.
+   */
+  featured?: boolean | null;
+  category?: ('fiction' | 'tools' | 'experiments' | 'audio-video' | 'community' | 'writing') | null;
+  status?: ('active' | 'available' | 'in-progress' | 'archived') | null;
   tags?:
     | {
         tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Primary call-to-action for the project hub page.
+   */
+  projectCTA?: {
+    label?: string | null;
+    href?: string | null;
+    type?: ('preview' | 'buy' | 'experiment' | 'youtube' | 'audio' | 'repo' | 'download' | 'other') | null;
+  };
+  resources?:
+    | {
+        label: string;
+        href: string;
+        kind: 'post' | 'preview' | 'buy' | 'youtube' | 'audio' | 'experiment' | 'repo' | 'download' | 'other';
+        description?: string | null;
+        external?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Extra blog post slugs to surface beyond posts whose `group` field already matches this slug.
+   */
+  relatedPostSlugs?:
+    | {
+        slug: string;
         id?: string | null;
       }[]
     | null;
@@ -394,89 +434,6 @@ export interface Book {
   buyLink?: string | null;
   hasBuyButton?: boolean | null;
   hasPreview?: boolean | null;
-  /**
-   * Controls how this content is surfaced and distributed.
-   */
-  discoverability?: {
-    /**
-     * One-liner for social sharing (Bluesky, etc.)
-     */
-    social_hook?: string | null;
-    /**
-     * Short summary for search and AI indexing.
-     */
-    search_summary?: string | null;
-    /**
-     * Canonical URL path (e.g. /about)
-     */
-    canonical_path?: string | null;
-    /**
-     * Include on the Start Here page.
-     */
-    featured_on_start_here?: boolean | null;
-    primaryCTA?: {
-      label?: string | null;
-      href?: string | null;
-      description?: string | null;
-    };
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "projects".
- */
-export interface Project {
-  id: number;
-  /**
-   * Stable project URL slug.
-   */
-  slug: string;
-  title: string;
-  description: string;
-  image?: string | null;
-  /**
-   * Feature this project in the main navigation panel.
-   */
-  featured?: boolean | null;
-  category?: ('fiction' | 'tools' | 'experiments' | 'audio-video' | 'community') | null;
-  status?: ('active' | 'available' | 'in-progress' | 'archived') | null;
-  href: string;
-  external?: boolean | null;
-  tags?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  primaryCTA?: {
-    label?: string | null;
-    href?: string | null;
-    type?: ('preview' | 'buy' | 'experiment' | 'youtube' | 'audio' | 'repo' | 'download' | 'other') | null;
-  };
-  resources?:
-    | {
-        label: string;
-        href: string;
-        kind: 'post' | 'preview' | 'buy' | 'youtube' | 'audio' | 'experiment' | 'repo' | 'download' | 'other';
-        description?: string | null;
-        external?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Blog post slugs to surface on the project hub page.
-   */
-  relatedPostSlugs?:
-    | {
-        slug: string;
-        id?: string | null;
-      }[]
-    | null;
   /**
    * Controls how this content is surfaced and distributed.
    */
@@ -790,10 +747,6 @@ export interface PayloadLockedDocument {
         value: number | Book;
       } | null)
     | ({
-        relationTo: 'projects';
-        value: number | Project;
-      } | null)
-    | ({
         relationTo: 'demos';
         value: number | Demo;
       } | null)
@@ -942,10 +895,39 @@ export interface GroupsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   description?: T;
+  image?: T;
+  href?: T;
+  external?: T;
+  featured?: T;
+  category?: T;
+  status?: T;
   tags?:
     | T
     | {
         tag?: T;
+        id?: T;
+      };
+  projectCTA?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        type?: T;
+      };
+  resources?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+        kind?: T;
+        description?: T;
+        external?: T;
+        id?: T;
+      };
+  relatedPostSlugs?:
+    | T
+    | {
+        slug?: T;
         id?: T;
       };
   discoverability?:
@@ -986,62 +968,6 @@ export interface BooksSelect<T extends boolean = true> {
   buyLink?: T;
   hasBuyButton?: T;
   hasPreview?: T;
-  discoverability?:
-    | T
-    | {
-        social_hook?: T;
-        search_summary?: T;
-        canonical_path?: T;
-        featured_on_start_here?: T;
-        primaryCTA?:
-          | T
-          | {
-              label?: T;
-              href?: T;
-              description?: T;
-            };
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "projects_select".
- */
-export interface ProjectsSelect<T extends boolean = true> {
-  slug?: T;
-  title?: T;
-  description?: T;
-  image?: T;
-  featured?: T;
-  category?: T;
-  status?: T;
-  href?: T;
-  external?: T;
-  tags?: T;
-  primaryCTA?:
-    | T
-    | {
-        label?: T;
-        href?: T;
-        type?: T;
-      };
-  resources?:
-    | T
-    | {
-        label?: T;
-        href?: T;
-        kind?: T;
-        description?: T;
-        external?: T;
-        id?: T;
-      };
-  relatedPostSlugs?:
-    | T
-    | {
-        slug?: T;
-        id?: T;
-      };
   discoverability?:
     | T
     | {

@@ -37,9 +37,9 @@ function getResourceBadges(project) {
 }
 
 /**
- * @param {{ featuredProjects?: import('@/lib/payload').ProjectHub[] }} props
+ * @param {{ projects?: import('@/lib/payload').ProjectHub[] }} props
  */
-export default function NavBar({ featuredProjects = [] }) {
+export default function NavBar({ projects = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [projectsOpen, setProjectsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -160,8 +160,8 @@ export default function NavBar({ featuredProjects = [] }) {
                     </div>
 
                     <div className={styles.featuredProjects}>
-                      {featuredProjects.length > 0 ? (
-                        featuredProjects.map(project => (
+                      {projects.length > 0 ? (
+                        projects.map(project => (
                           <Link
                             key={project.slug}
                             href={`/projects/${project.slug}`}
@@ -169,9 +169,11 @@ export default function NavBar({ featuredProjects = [] }) {
                             onClick={() => setProjectsOpen(false)}
                           >
                             <span className={styles.featuredProjectTitle}>{project.title}</span>
-                            <span className={styles.featuredProjectDescription}>
-                              {project.description}
-                            </span>
+                            {project.description && (
+                              <span className={styles.featuredProjectDescription}>
+                                {project.description}
+                              </span>
+                            )}
                             <span className={styles.resourceBadges}>
                               {getResourceBadges(project).map(label => (
                                 <span key={label}>{label}</span>
