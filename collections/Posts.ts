@@ -27,7 +27,6 @@ export const Posts: CollectionConfig = {
   admin: {
     ...titledAdmin(adminGroups.publishing, [
       'title',
-      'publish_status',
       '_status',
       'scheduledPublishDate',
       'publishedDate',
@@ -117,10 +116,12 @@ export const Posts: CollectionConfig = {
     },
     {
       name: 'publishedDate',
+      label: 'Public Date',
       type: 'date',
       required: true,
       admin: {
         position: 'sidebar',
+        description: 'Date shown publicly and used for sorting published posts.',
         date: {
           pickerAppearance: 'dayOnly',
         },
@@ -137,9 +138,11 @@ export const Posts: CollectionConfig = {
     },
     {
       name: 'scheduledPublishDate',
+      label: 'Scheduled Publish Date',
       type: 'date',
       admin: {
         position: 'sidebar',
+        description: 'When a draft should be promoted to published by the scheduler.',
         date: {
           pickerAppearance: 'dayAndTime',
         },
@@ -183,17 +186,19 @@ export const Posts: CollectionConfig = {
     },
     {
       name: 'publish_status',
+      label: 'Workflow Status',
       type: 'select',
       options: [
-        { label: 'Draft', value: 'draft' },
-        { label: 'Scheduled', value: 'scheduled' },
-        { label: 'Published', value: 'published' },
-        { label: 'Sent', value: 'sent' },
+        { label: 'Not queued', value: 'draft' },
+        { label: 'Scheduled publish', value: 'scheduled' },
+        { label: 'Published by scheduler', value: 'published' },
+        { label: 'Newsletter sent', value: 'sent' },
       ],
       defaultValue: 'draft',
       admin: {
         position: 'sidebar',
-        description: 'Workflow status for newsletter pipeline.',
+        description:
+          'Internal scheduling/newsletter workflow. Payload draft/published state lives in Status.',
       },
     },
     {
