@@ -55,31 +55,17 @@ async function payloadFetch(path: string, options?: RequestInit) {
   return res.json();
 }
 
-function markdownToLexical(markdown: string) {
-  // Minimal Lexical paragraph node representation for plain markdown.
-  // Agents can pass pre-formatted Lexical JSON, or we wrap the raw text.
-  const paragraphs = markdown
-    .split(/\n{2,}/)
-    .filter(Boolean)
-    .map((text) => ({
-      type: 'paragraph',
-      version: 1,
-      children: [{ type: 'text', version: 1, text: text.replace(/\n/g, ' '), detail: 0, format: 0, mode: 'normal', style: '' }],
-      direction: 'ltr',
-      format: '',
-      indent: 0,
-    }));
-
-  return {
-    root: {
-      type: 'root',
-      version: 1,
-      children: paragraphs,
-      direction: 'ltr',
-      format: '',
-      indent: 0,
-    },
-  };
+async function markdownToLexical(markdown: string) {
+  const res = await fetch(`${BASE_URL}/api/markdown-to-lexical`, {
+    method: 'POST',
+    headers: { ...apiHeaders() },
+    body: JSON.stringify({ markdown }),
+  });
+  if (!res.ok) {
+    throw new Error(`markdown-to-lexical conversion failed (${res.status}): ${await res.text()}`);
+  }
+  const { lexical } = await res.json();
+  return lexical;
 }
 
 // ---------------------------------------------------------------------------
@@ -239,7 +225,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'create_post': {
         const slug = (args.slug as string) ||
           (args.title as string).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-        const content = markdownToLexical(args.content as string);
+        const content = await markdownToLexical(args.content as string);
         const data = await payloadFetch('/posts', {
           method: 'POST',
           body: JSON.stringify({
@@ -265,7 +251,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const payload: Record<string, unknown> = {};
         if (args.title) payload.title = args.title;
         if (args.excerpt) payload.excerpt = args.excerpt;
-        if (args.content) payload.content = markdownToLexical(args.content as string);
+        if (args.content) payload.content = await markdownToLexical(args.content as string);
         if (args.status) payload._status = args.status;
         if (args.group !== undefined) payload.group = args.group;
 
@@ -307,7 +293,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const payload: Record<string, unknown> = {};
         if (args.title) payload.title = args.title;
         if (args.excerpt) payload.excerpt = args.excerpt;
-        if (args.content) payload.content = markdownToLexical(args.content as string);
+        if (args.content) payload.content = await markdownToLexical(args.content as string);
 
         await payloadFetch(`/pages/${id}`, {
           method: 'PATCH',
