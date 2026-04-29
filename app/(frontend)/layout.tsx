@@ -4,7 +4,7 @@ import "../globals.css";
 import { ThemeProvider } from '../components/ThemeContext';
 import ThemeBg from '../components/ThemeBg';
 import DockStack from '../components/DockStack';
-import NavBar from '../components/NavBar';
+import Navbar from '../components/Navbar';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -51,10 +51,10 @@ export default function FrontendLayout({
       <body>
         <ThemeProvider>
           <ThemeBg />
-          <NavBar />
-          <div style={{ paddingTop: 'var(--navbar-height, 3.5rem)' }}>
-            {children}
+          <div className="nav-wrapper">
+            <Navbar />
           </div>
+          {children}
           <DockStack />
         </ThemeProvider>
         <Analytics />

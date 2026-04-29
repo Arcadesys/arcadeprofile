@@ -76,6 +76,7 @@ export interface Config {
     media: Media;
     subscribers: Subscriber;
     'social-posts': SocialPost;
+    'nav-items': NavItem;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -92,6 +93,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
     'social-posts': SocialPostsSelect<false> | SocialPostsSelect<true>;
+    'nav-items': NavItemsSelect<false> | NavItemsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -663,6 +665,20 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "nav-items".
+ */
+export interface NavItem {
+  id: number;
+  label: string;
+  href: string;
+  order: number;
+  visible?: boolean | null;
+  isPrimary?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "subscribers".
  */
 export interface Subscriber {
@@ -1114,6 +1130,19 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "nav-items_select".
+ */
+export interface NavItemsSelect<T extends boolean = true> {
+  label?: T;
+  href?: T;
+  order?: T;
+  visible?: T;
+  isPrimary?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
