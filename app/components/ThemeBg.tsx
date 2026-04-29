@@ -50,7 +50,7 @@ export default function ThemeBg() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
-      ctx!.scale(dpr, dpr);
+      ctx?.scale(dpr, dpr);
     }
 
     function build() {

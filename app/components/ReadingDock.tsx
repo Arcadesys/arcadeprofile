@@ -53,7 +53,15 @@ export default function ReadingDock({ closeOther }: { closeOther?: () => void })
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setPrefs(p => ({ ...p, ...JSON.parse(raw) }));
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        const valid: Partial<Prefs> = {};
+        for (const key of Object.keys(DEFAULTS) as (keyof Prefs)[]) {
+          if (typeof parsed[key] === 'string') valid[key] = parsed[key];
+        }
+        setPrefs(p => ({ ...p, ...valid }));
+      }
     } catch {}
   }, []);
 

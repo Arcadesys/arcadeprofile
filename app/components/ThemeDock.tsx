@@ -3,6 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTheme, type ThemeName } from './ThemeContext';
 
+const THEME_KEY_MAP: Record<string, ThemeName> = {
+  '1': 'neon', '2': 'eclipse', '3': 'crt', '4': 'rain', '5': 'stars', '6': 'dawn', '7': 'cosmos',
+};
+
 const SWATCHES: { name: ThemeName; label: string; cls: string }[] = [
   { name: 'neon',    label: 'Neon',    cls: 's-neon' },
   { name: 'eclipse', label: 'Eclipse', cls: 's-eclipse' },
@@ -26,8 +30,7 @@ export default function ThemeDock() {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') setOpen(false);
       if (/input|textarea/i.test((e.target as HTMLElement)?.tagName || '')) return;
-      const map: Record<string, ThemeName> = { '1':'neon','2':'eclipse','3':'crt','4':'rain','5':'stars','6':'dawn','7':'cosmos' };
-      if (map[e.key]) setTheme(map[e.key]);
+      if (THEME_KEY_MAP[e.key]) setTheme(THEME_KEY_MAP[e.key]);
     }
     document.addEventListener('click', onDoc);
     document.addEventListener('keydown', onKey);
