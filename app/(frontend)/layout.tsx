@@ -1,11 +1,9 @@
 import { Analytics } from '@vercel/analytics/react';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Inter, JetBrains_Mono, Lora } from 'next/font/google';
 import "../globals.css";
-import NavBar from '../components/NavBar.js';
-import ThemeToggle from '../components/ThemeToggle';
-import SiteFooter from '../components/SiteFooter';
-import { CosmosProvider } from '../components/CosmosContext';
-import CosmicBackground from '../components/CosmicBackground';
+import { ThemeProvider } from '../components/ThemeContext';
+import ThemeBg from '../components/ThemeBg';
+import DockStack from '../components/DockStack';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -18,6 +16,13 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   weight: ['400', '500'],
   variable: '--font-jetbrains-mono',
+  display: 'swap',
+});
+
+const lora = Lora({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-lora',
   display: 'swap',
 });
 
@@ -37,16 +42,18 @@ export default function FrontendLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${inter.variable} ${jetbrainsMono.variable} ${lora.variable}`}
+      suppressHydrationWarning
+    >
       <body>
-        <CosmosProvider>
-          <CosmicBackground />
-          <NavBar />
+        <ThemeProvider>
+          <ThemeBg />
           {children}
-          <SiteFooter />
-          <ThemeToggle />
-          <Analytics />
-        </CosmosProvider>
+          <DockStack />
+        </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
