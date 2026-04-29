@@ -183,11 +183,17 @@ export interface Post {
     };
     [k: string]: unknown;
   };
+  /**
+   * Date shown publicly and used for sorting published posts.
+   */
   publishedDate: string;
   /**
    * Whether this post has been sent to newsletter subscribers
    */
   newsletterSent?: boolean | null;
+  /**
+   * When a draft should be promoted to published by the scheduler.
+   */
   scheduledPublishDate?: string | null;
   /**
    * Group/series slug (e.g. "the-singularity-log")
@@ -213,7 +219,7 @@ export interface Post {
    */
   newsletterDescription?: string | null;
   /**
-   * Workflow status for newsletter pipeline.
+   * Internal scheduling/newsletter workflow. Payload draft/published state lives in Status.
    */
   publish_status?: ('draft' | 'scheduled' | 'published' | 'sent') | null;
   /**
