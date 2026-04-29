@@ -1,9 +1,6 @@
 import { Analytics } from '@vercel/analytics/react';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import "../globals.css";
-import NavBar from '../components/NavBar.js';
-import ThemeToggle from '../components/ThemeToggle';
-import SiteFooter from '../components/SiteFooter';
 import { CosmosProvider } from '../components/CosmosContext';
 import CosmicBackground from '../components/CosmicBackground';
 
@@ -41,10 +38,7 @@ export default function FrontendLayout({
       <body>
         <CosmosProvider>
           <CosmicBackground />
-          <NavBar />
           {children}
-          <SiteFooter />
-          <ThemeToggle />
           <Analytics />
         </CosmosProvider>
       </body>
