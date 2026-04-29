@@ -1193,14 +1193,14 @@ sub, sup    { font-size: 0.75em; line-height: 0; }
   align-items: center;
   height: 30px;
   text-shadow: none;
-  color: transparent;
+  color: var(--fg);
 }
 .nav-logo img {
   height: 30px;
   width: auto;
 }
 .nav-logo:hover {
-  color: transparent;
+  color: var(--fg);
   text-shadow: none;
 }
 
@@ -1243,11 +1243,6 @@ sub, sup    { font-size: 0.75em; line-height: 0; }
   background: rgba(255, 60, 172, 0.18);
   box-shadow: 0 0 20px var(--glow-pink);
 }
-.site-nav a.primary.active {
-  color: var(--fg);
-  text-shadow: none;
-}
-
 /* High-contrast nav overrides */
 html[data-contrast="high"] .site-nav {
   background-color: #000000;

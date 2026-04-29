@@ -30,7 +30,7 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
         {items.map((item) => {
           const isActive = item.href === '/'
             ? pathname === '/'
-            : pathname.startsWith(item.href);
+            : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
           return (
             <li key={item.id}>
