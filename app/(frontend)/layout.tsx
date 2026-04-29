@@ -4,6 +4,7 @@ import "../globals.css";
 import { ThemeProvider } from '../components/ThemeContext';
 import ThemeBg from '../components/ThemeBg';
 import DockStack from '../components/DockStack';
+import NavBar from '../components/NavBar';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -50,7 +51,10 @@ export default function FrontendLayout({
       <body>
         <ThemeProvider>
           <ThemeBg />
-          {children}
+          <NavBar />
+          <div style={{ paddingTop: '3.5rem' }}>
+            {children}
+          </div>
           <DockStack />
         </ThemeProvider>
         <Analytics />
