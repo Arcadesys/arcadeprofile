@@ -23,7 +23,7 @@ export default async function Navbar() {
     });
 
     if (result.docs.length > 0) {
-      items = result.docs.map((doc: { id: string | number; label: string; href: string; isPrimary?: boolean | null }) => ({
+      items = result.docs.map((doc) => ({
         id:        String(doc.id),
         label:     doc.label,
         href:      doc.href,
