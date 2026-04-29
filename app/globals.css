@@ -1252,3 +1252,130 @@ html[data-contrast="high"] .site-nav {
 html[data-contrast="high"] .site-nav a.primary {
   box-shadow: none;
 }
+
+/* ── Projects page ──────────────────────────────────────── */
+.projects-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-5) var(--space-8);
+}
+
+.projects-header {
+  margin-bottom: var(--space-7);
+}
+.projects-header h1 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-3);
+}
+.projects-subtitle {
+  color: var(--fg-muted);
+  font-size: 1rem;
+}
+
+.projects-section { margin-bottom: var(--space-7); }
+.projects-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-4);
+}
+
+.project-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.project-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 16px var(--glow-orange);
+}
+
+.project-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.project-card-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+}
+.project-card-title a {
+  color: var(--fg);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.project-card-title a:hover {
+  color: var(--neon-pink);
+  text-shadow: 0 0 8px var(--glow-pink);
+}
+
+.project-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.project-pill {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+}
+
+.project-card-desc {
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+  flex: 1;
+}
+
+.project-cta {
+  display: inline-block;
+  margin-top: auto;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--neon-pink);
+  background: rgba(255, 60, 172, 0.1);
+  color: var(--fg);
+  text-decoration: none;
+  transition: background 0.2s, box-shadow 0.2s;
+  align-self: flex-start;
+}
+.project-cta:hover {
+  background: rgba(255, 60, 172, 0.2);
+  box-shadow: 0 0 12px var(--glow-pink);
+  color: var(--fg);
+  text-shadow: none;
+}
+.project-cta[data-type="buy"] {
+  border-color: var(--accent);
+  background: rgba(255, 138, 0, 0.1);
+}
+.project-cta[data-type="buy"]:hover {
+  background: rgba(255, 138, 0, 0.2);
+  box-shadow: 0 0 12px var(--glow-orange);
+}
