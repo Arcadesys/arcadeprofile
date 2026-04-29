@@ -27,6 +27,7 @@ function ProjectCard({ project }: { project: ProjectHub }) {
 
   const cardContent = (
     <div
+      className="project-card"
       style={{
         padding: '1.25rem',
         background: 'var(--surface)',
@@ -35,18 +36,8 @@ function ProjectCard({ project }: { project: ProjectHub }) {
         display: 'flex',
         flexDirection: 'column',
         gap: '0.5rem',
-        transition: 'border-color 0.15s, box-shadow 0.15s',
         height: '100%',
         cursor: project.href ? 'pointer' : 'default',
-      }}
-      onMouseEnter={e => {
-        if (!project.href) return;
-        (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--neon-pink)';
-        (e.currentTarget as HTMLDivElement).style.boxShadow = '0 0 12px var(--glow-pink)';
-      }}
-      onMouseLeave={e => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border)';
-        (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
       }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem' }}>
@@ -130,7 +121,8 @@ export default async function ProjectsPage() {
   const byCategory: Record<string, ProjectHub[]> = {};
   for (const p of rest) {
     const key = p.category ?? 'other';
-    byCategory[key] = [...(byCategory[key] ?? []), p];
+    if (!byCategory[key]) byCategory[key] = [];
+    byCategory[key].push(p);
   }
 
   const categoryOrder = ['fiction', 'tools', 'experiments', 'audio-video', 'community', 'writing', 'other'];

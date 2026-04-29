@@ -59,6 +59,9 @@
   --reading-scale:       1;
   --reading-line-height: 1.6;
   --reading-measure:     68ch;
+
+  --navbar-height: 3.5rem;
+  --nav-bg: rgba(10, 5, 20, 0.85);
 }
 
 /* ── Reading-mode overrides ─────────────────────────────── */
@@ -1164,4 +1167,14 @@ sub, sup    { font-size: 0.75em; line-height: 0; }
   font-size: 13px;
   text-align: center;
   font-style: italic;
+}
+
+/* ── Project cards ──────────────────────────────────────── */
+.project-card {
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+a:hover .project-card,
+a:focus-visible .project-card {
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 12px var(--glow-pink);
 }

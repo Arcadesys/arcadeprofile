@@ -19,7 +19,7 @@ export default function NavBar() {
         alignItems: 'center',
         gap: '0.25rem',
         padding: '0.75rem 1.5rem',
-        background: 'rgba(10, 5, 20, 0.85)',
+        background: 'var(--nav-bg, rgba(10, 5, 20, 0.85))',
         backdropFilter: 'blur(12px)',
         borderBottom: '1px solid var(--border)',
       }}

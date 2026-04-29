@@ -52,7 +52,7 @@ export default function FrontendLayout({
         <ThemeProvider>
           <ThemeBg />
           <NavBar />
-          <div style={{ paddingTop: '3.5rem' }}>
+          <div style={{ paddingTop: 'var(--navbar-height, 3.5rem)' }}>
             {children}
           </div>
           <DockStack />
