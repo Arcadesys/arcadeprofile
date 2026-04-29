@@ -59,6 +59,9 @@
   --reading-scale:       1;
   --reading-line-height: 1.6;
   --reading-measure:     68ch;
+
+  --navbar-height: 3.5rem;
+  --nav-bg: rgba(10, 5, 20, 0.85);
 }
 
 /* ── Reading-mode overrides ─────────────────────────────── */
@@ -1378,4 +1381,28 @@ html[data-contrast="high"] .site-nav a.primary {
 .project-cta[data-type="buy"]:hover {
   background: rgba(255, 138, 0, 0.2);
   box-shadow: 0 0 12px var(--glow-orange);
+}
+
+/* Link-wrapped card hover (projects page) */
+a:hover .project-card,
+a:focus-visible .project-card {
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 12px var(--glow-pink);
+}
+
+.project-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+.project-tag {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--fg-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
 }
