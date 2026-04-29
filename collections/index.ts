@@ -2,6 +2,7 @@ import { Books } from './Books';
 import { Demos } from './Demos';
 import { Groups } from './Groups';
 import { Media } from './Media';
+import { NavItems } from './NavItems';
 import { Pages } from './Pages';
 import { Posts } from './Posts';
 import { SocialPosts } from './SocialPosts';
@@ -18,4 +19,5 @@ export const collections = [
   Media,
   Subscribers,
   SocialPosts,
+  NavItems,
 ];

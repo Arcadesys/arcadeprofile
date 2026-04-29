@@ -1165,3 +1165,95 @@ sub, sup    { font-size: 0.75em; line-height: 0; }
   text-align: center;
   font-style: italic;
 }
+
+/* ── Navbar ─────────────────────────────────────────────── */
+.nav-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: var(--space-3) var(--space-5);
+  pointer-events: none; /* let clicks pass through the wrapper gap */
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background-color: rgba(10, 10, 20, 0.85);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: auto;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  text-shadow: none;
+  color: transparent;
+}
+.nav-logo img {
+  height: 30px;
+  width: auto;
+}
+.nav-logo:hover {
+  color: transparent;
+  text-shadow: none;
+}
+
+.site-nav ul {
+  display: flex;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site-nav a:not(.nav-logo) {
+  color: var(--fg-muted);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.03em;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s, text-shadow 0.2s;
+  display: block;
+}
+.site-nav a:not(.nav-logo):hover {
+  color: var(--neon-pink);
+  text-shadow: 0 0 8px var(--glow-pink);
+}
+.site-nav a.active {
+  color: var(--neon-pink);
+  font-weight: 500;
+  text-shadow: 0 0 12px var(--glow-pink);
+}
+.site-nav a.primary {
+  color: var(--fg);
+  border: 1px solid var(--neon-pink);
+  background: rgba(255, 60, 172, 0.1);
+  box-shadow: 0 0 12px var(--glow-pink);
+  font-weight: 600;
+}
+.site-nav a.primary:hover {
+  color: var(--fg);
+  background: rgba(255, 60, 172, 0.18);
+  box-shadow: 0 0 20px var(--glow-pink);
+}
+.site-nav a.primary.active {
+  color: var(--fg);
+  text-shadow: none;
+}
+
+/* High-contrast nav overrides */
+html[data-contrast="high"] .site-nav {
+  background-color: #000000;
+  border-color: rgba(255, 255, 255, 0.4);
+  backdrop-filter: none;
+}
+html[data-contrast="high"] .site-nav a.primary {
+  box-shadow: none;
+}

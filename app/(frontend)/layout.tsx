@@ -4,6 +4,7 @@ import "../globals.css";
 import { ThemeProvider } from '../components/ThemeContext';
 import ThemeBg from '../components/ThemeBg';
 import DockStack from '../components/DockStack';
+import Navbar from '../components/Navbar';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -50,6 +51,9 @@ export default function FrontendLayout({
       <body>
         <ThemeProvider>
           <ThemeBg />
+          <div className="nav-wrapper">
+            <Navbar />
+          </div>
           {children}
           <DockStack />
         </ThemeProvider>
