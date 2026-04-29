@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 import { useTheme } from './ThemeContext';
+import { CosmosProvider } from './CosmosContext';
+import CosmicBackground from './CosmicBackground';
 
 function cn(base: string, active: boolean) {
   return active ? `${base} active` : base;
@@ -132,6 +134,14 @@ export default function ThemeBg() {
         <div className="sun" />
         <div className="grid" />
       </div>
+
+      {/* Cosmos — mounts only when active; CosmicBackground uses position:fixed so
+          it can't be faded via parent opacity. Unmounting is the clean swap. */}
+      {theme === 'cosmos' && (
+        <CosmosProvider>
+          <CosmicBackground />
+        </CosmosProvider>
+      )}
     </div>
   );
 }

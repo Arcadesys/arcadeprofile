@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 
-export type ThemeName = 'neon' | 'eclipse' | 'crt' | 'rain' | 'stars' | 'dawn';
+export type ThemeName = 'neon' | 'eclipse' | 'crt' | 'rain' | 'stars' | 'dawn' | 'cosmos';
 
 const STORAGE_KEY = 'arcades-theme';
 

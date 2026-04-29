@@ -183,6 +183,9 @@ hr, hr.ds-hr {
 }
 .theme-bg > .theme.active { opacity: 1; }
 
+/* Theme: Cosmos — the original SVG animation; CosmicBackground renders its own fixed SVG */
+.theme.cosmos { background: transparent; }
+
 /* Theme: Neon */
 .theme.neon {
   background:
@@ -421,6 +424,7 @@ hr, hr.ds-hr {
   letter-spacing: 0.04em;
   text-align: center;
 }
+.s-cosmos  { background: radial-gradient(ellipse 80% 50% at 50% 70%, rgba(255,138,0,0.5) 0%, transparent 60%), radial-gradient(circle at 65% 35%, rgba(255,60,172,0.6) 0%, transparent 40%), #0a0a14; }
 .s-neon    { background: radial-gradient(circle at 30% 30%, #ff8a00, transparent 55%), radial-gradient(circle at 70% 30%, #ff3cac, transparent 55%), #0a0a14; }
 .s-eclipse { background: radial-gradient(circle at 65% 35%, #ff8a00 0%, #ff3cac 50%, #050510 70%); }
 .s-eclipse::after { content: ''; position: absolute; top: 8px; right: 8px; width: 18px; height: 18px; border-radius: 50%; background: #050510; }
