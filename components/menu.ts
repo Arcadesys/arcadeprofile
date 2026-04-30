@@ -67,4 +67,5 @@ export const categoryLabels: Record<string, string> = {
   experiments: 'Experiments',
   'audio-video': 'Audio/Video',
   community: 'Community',
+  writing: 'Writing',
 };
