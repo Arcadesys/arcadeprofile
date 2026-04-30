@@ -2,16 +2,13 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { RichText } from '@payloadcms/richtext-lexical/react';
-import { getAllPosts, getPostBySlug, getGroupBySlug } from '@/lib/blog';
+import { getPostBySlug, getGroupBySlug } from '@/lib/blog';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 
-type Props = { params: Promise<{ slug: string }> };
+export const dynamic = 'force-dynamic';
 
-export async function generateStaticParams() {
-  const posts = await getAllPosts();
-  return posts.map(p => ({ slug: p.slug }));
-}
+type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
