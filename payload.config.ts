@@ -1,6 +1,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { loadEnvConfig } from '@next/env';
+import nextEnv from '@next/env';
+const { loadEnvConfig } = nextEnv;
 import { buildConfig } from 'payload';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
