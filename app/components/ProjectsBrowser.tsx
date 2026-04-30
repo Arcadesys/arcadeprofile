@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { ProjectHub } from '@/lib/payload';
@@ -92,17 +92,23 @@ export default function ProjectsBrowser({
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<string | undefined>(initialCategory);
 
+  useEffect(() => {
+    setCategory(initialCategory);
+  }, [initialCategory]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return projects.filter(p => {
       if (category && p.category !== category) return false;
       if (!q) return true;
+      const displayCategory = p.category ? (categoryLabels[p.category] ?? p.category) : '';
+      const displayStatus = p.status ? p.status.replace(/-/g, ' ') : '';
       const haystack = [
         p.title,
         p.description,
         ...(p.tags ?? []),
-        p.category ?? '',
-        p.status ?? '',
+        displayCategory,
+        displayStatus,
       ]
         .join(' ')
         .toLowerCase();
@@ -136,7 +142,8 @@ export default function ProjectsBrowser({
           All
         </button>
         {projectCategoryLinks.map(link => {
-          const slug = link.href.split('=')[1];
+          const queryString = link.href.split('?')[1] ?? '';
+          const slug = new URLSearchParams(queryString).get('category') ?? undefined;
           const active = category === slug;
           return (
             <button
