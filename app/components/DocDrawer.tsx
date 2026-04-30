@@ -1,0 +1,184 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+
+export type DrawerItem = {
+  num: string | number;
+  label: string;
+  href?: string;
+  state?: 'read' | 'current' | 'unread';
+};
+
+export type DrawerSection = {
+  title: string;
+  items: DrawerItem[];
+};
+
+export type DocDrawerProps = {
+  eyebrow?: string;
+  groupTitle: string;
+  groupTitleEm?: string;
+  author?: string;
+  year?: string | number;
+  currentPosition: number;
+  totalCount: number;
+  sections: DrawerSection[];
+  prevHref?: string;
+  nextHref?: string;
+};
+
+export default function DocDrawer({
+  eyebrow,
+  groupTitle,
+  groupTitleEm,
+  author,
+  year,
+  currentPosition,
+  totalCount,
+  sections,
+  prevHref,
+  nextHref,
+}: DocDrawerProps) {
+  const [open, setOpen] = useState(false);
+  const currentItemRef = useRef<HTMLAnchorElement>(null);
+  const listRef = useRef<HTMLElement>(null);
+
+  // Scroll current item into view on mount
+  useEffect(() => {
+    if (currentItemRef.current) {
+      currentItemRef.current.scrollIntoView({ block: 'center', behavior: 'instant' });
+    }
+  }, []);
+
+  // Close on outside click / Escape; ←/→ navigate
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') { setOpen(false); return; }
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === 'ArrowLeft' && prevHref) window.location.href = prevHref;
+      if (e.key === 'ArrowRight' && nextHref) window.location.href = nextHref;
+    }
+    function onDoc(e: MouseEvent) {
+      const drawer = document.getElementById('doc-drawer');
+      const toggle = document.getElementById('dd-toggle');
+      if (drawer && !drawer.contains(e.target as Node) && !toggle?.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('click', onDoc);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('click', onDoc);
+    };
+  }, [prevHref, nextHref]);
+
+  const progressPct = Math.round((currentPosition / totalCount) * 100);
+
+  // Split groupTitle at groupTitleEm to build the title with an em highlight
+  function renderTitle() {
+    if (!groupTitleEm || !groupTitle.includes(groupTitleEm)) {
+      return <div className="dd-group-title">{groupTitle}</div>;
+    }
+    const [before, after] = groupTitle.split(groupTitleEm);
+    return (
+      <div className="dd-group-title">
+        {before}<em>{groupTitleEm}</em>{after}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <button
+        id="dd-toggle"
+        className="dd-toggle"
+        aria-label={open ? 'Close document navigation' : 'Open document navigation'}
+        aria-expanded={open}
+        aria-controls="doc-drawer"
+        onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
+      >
+        ☰
+      </button>
+
+      <aside
+        id="doc-drawer"
+        className={`doc-drawer${open ? ' open' : ''}`}
+        aria-label="Document position in series"
+      >
+        <div className="dd-head">
+          {eyebrow && <div className="dd-eyebrow">{eyebrow}</div>}
+          {renderTitle()}
+          <div className="dd-meta">
+            <span>{[author, year].filter(Boolean).join(' · ')}</span>
+            <span className="dd-position">Pt {currentPosition} / {totalCount}</span>
+          </div>
+          <div
+            className="dd-progress"
+            aria-label={`Reading progress: ${progressPct}%`}
+          >
+            <span style={{ width: `${progressPct}%` }} />
+          </div>
+        </div>
+
+        <nav className="dd-list" id="dd-list" ref={listRef} aria-label="Chapter list">
+          {sections.map((section) => (
+            <div key={section.title}>
+              <div className="dd-section">{section.title}</div>
+              {section.items.map((item) => {
+                const isCurrent = item.state === 'current';
+                const cls = `dd-item${item.state ? ` ${item.state}` : ''}`;
+                const inner = (
+                  <>
+                    <span className="num">{String(item.num).padStart(2, '0')}</span>
+                    <span className="label">{item.label}</span>
+                  </>
+                );
+                if (item.href) {
+                  return (
+                    <Link
+                      key={`${item.num}-${item.label}`}
+                      href={item.href}
+                      className={cls}
+                      aria-current={isCurrent ? 'page' : undefined}
+                      ref={isCurrent ? currentItemRef : undefined}
+                    >
+                      {inner}
+                    </Link>
+                  );
+                }
+                return (
+                  <span
+                    key={`${item.num}-${item.label}`}
+                    className={cls}
+                    aria-current={isCurrent ? 'page' : undefined}
+                    ref={isCurrent ? (currentItemRef as React.RefObject<HTMLSpanElement>) : undefined}
+                  >
+                    {inner}
+                  </span>
+                );
+              })}
+            </div>
+          ))}
+        </nav>
+
+        <div className="dd-foot">
+          {prevHref ? (
+            <Link href={prevHref} className="dd-nav prev" aria-label="Previous chapter">← Prev</Link>
+          ) : (
+            <span className="dd-nav prev disabled" aria-disabled="true">← Prev</span>
+          )}
+          <div className="dd-fraction">
+            <strong>{currentPosition}</strong> / {totalCount}
+          </div>
+          {nextHref ? (
+            <Link href={nextHref} className="dd-nav next" aria-label="Next chapter">Next →</Link>
+          ) : (
+            <span className="dd-nav next disabled" aria-disabled="true">Next →</span>
+          )}
+        </div>
+      </aside>
+    </>
+  );
+}
