@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "if [ -n \"$DATABASE_URL\" ]; then npm run migrate; fi && npm run build",
+  "buildCommand": "if [ -n \"$DATABASE_URL\" ]; then echo y | npm run migrate; fi && npm run build",
   "installCommand": "npm install",
   "framework": "nextjs",
   "outputDirectory": ".next",
