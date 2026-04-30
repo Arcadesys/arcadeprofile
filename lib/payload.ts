@@ -177,7 +177,8 @@ export async function getAllProjectHubs(): Promise<ProjectHub[]> {
       depth: 0,
     });
     groups = result.docs;
-  } catch {
+  } catch (error) {
+    console.error('[getAllProjectHubs] failed to load groups:', error);
     groups = [];
   }
 
@@ -211,7 +212,8 @@ export async function getProjectBySlug(slug: string): Promise<ProjectHub | null>
       () => new Map<string, string[]>(),
     );
     return normalizeGroup(doc, postSlugsByGroup.get(slug) ?? []);
-  } catch {
+  } catch (error) {
+    console.error('[getProjectBySlug] failed to load group:', slug, error);
     return null;
   }
 }
