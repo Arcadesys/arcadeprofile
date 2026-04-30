@@ -665,20 +665,6 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "nav-items".
- */
-export interface NavItem {
-  id: number;
-  label: string;
-  href: string;
-  order: number;
-  visible?: boolean | null;
-  isPrimary?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "subscribers".
  */
 export interface Subscriber {
@@ -725,6 +711,34 @@ export interface SocialPost {
    * Web URL to live post
    */
   postUrl?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Navigation bar items — control label, route, order, visibility, and which item gets the primary (highlighted) treatment.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "nav-items".
+ */
+export interface NavItem {
+  id: number;
+  label: string;
+  /**
+   * Route or URL (e.g. /projects or https://store.example.com)
+   */
+  href: string;
+  /**
+   * Lower numbers appear first.
+   */
+  order: number;
+  /**
+   * Uncheck to hide this item without deleting it.
+   */
+  visible?: boolean | null;
+  /**
+   * Gives this item the highlighted (glowing border) primary treatment.
+   */
+  isPrimary?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -787,6 +801,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'social-posts';
         value: number | SocialPost;
+      } | null)
+    | ({
+        relationTo: 'nav-items';
+        value: number | NavItem;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1133,19 +1151,6 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "nav-items_select".
- */
-export interface NavItemsSelect<T extends boolean = true> {
-  label?: T;
-  href?: T;
-  order?: T;
-  visible?: T;
-  isPrimary?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "subscribers_select".
  */
 export interface SubscribersSelect<T extends boolean = true> {
@@ -1181,6 +1186,19 @@ export interface SocialPostsSelect<T extends boolean = true> {
   failureReason?: T;
   postUri?: T;
   postUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "nav-items_select".
+ */
+export interface NavItemsSelect<T extends boolean = true> {
+  label?: T;
+  href?: T;
+  order?: T;
+  visible?: T;
+  isPrimary?: T;
   updatedAt?: T;
   createdAt?: T;
 }

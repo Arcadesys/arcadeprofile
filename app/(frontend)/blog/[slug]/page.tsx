@@ -2,16 +2,13 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { RichText } from '@payloadcms/richtext-lexical/react';
-import { getAllPosts, getPostBySlug, getGroupBySlug } from '@/lib/blog';
+import { getPostBySlug, getGroupBySlug } from '@/lib/blog';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 
-type Props = { params: Promise<{ slug: string }> };
+export const dynamic = 'force-dynamic';
 
-export async function generateStaticParams() {
-  const posts = await getAllPosts();
-  return posts.map(p => ({ slug: p.slug }));
-}
+type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -37,20 +34,40 @@ export default async function BlogPostPage({ params }: Props) {
   const group = post.group ? await getGroupBySlug(post.group) : null;
   const groupPosts = group?.posts ?? [];
   const currentIndex = groupPosts.findIndex(p => p.slug === slug);
-  const currentPosition = currentIndex + 1;
-  const prevPost = currentIndex > 0 ? groupPosts[currentIndex - 1] : null;
+
+  function partNum(n: number) { return String(n).padStart(2, '0'); }
+
+  // intro = position 1 (part 00), posts start at position 2 (part 01+)
+  const currentPosition = currentIndex + 2;
+  const totalCount = groupPosts.length + 1;
+  const prevHref = group
+    ? currentIndex === 0
+      ? `/projects/${group.slug}/00`
+      : `/projects/${group.slug}/${partNum(currentIndex)}`
+    : undefined;
+  const nextHref = group && currentIndex < groupPosts.length - 1
+    ? `/projects/${group.slug}/${partNum(currentIndex + 2)}`
+    : undefined;
   const nextPost = currentIndex < groupPosts.length - 1 ? groupPosts[currentIndex + 1] : null;
 
   const drawerSections: DrawerSection[] = group
     ? [
         {
           title: group.title,
-          items: groupPosts.map((p, i) => ({
-            num: i + 1,
-            label: p.title,
-            href: `/blog/${p.slug}`,
-            state: p.slug === slug ? 'current' : i < currentIndex ? 'read' : 'unread',
-          })),
+          items: [
+            {
+              num: '00',
+              label: 'Introduction',
+              href: `/projects/${group.slug}/00`,
+              state: 'read' as const,
+            },
+            ...groupPosts.map((p, i) => ({
+              num: partNum(i + 1),
+              label: p.title,
+              href: `/projects/${group.slug}/${partNum(i + 1)}`,
+              state: p.slug === slug ? ('current' as const) : i < currentIndex ? ('read' as const) : ('unread' as const),
+            })),
+          ],
         },
       ]
     : [];
@@ -63,10 +80,10 @@ export default async function BlogPostPage({ params }: Props) {
           groupTitle={group.title}
           author={post.author}
           currentPosition={currentPosition}
-          totalCount={groupPosts.length}
+          totalCount={totalCount}
           sections={drawerSections}
-          prevHref={prevPost ? `/blog/${prevPost.slug}` : undefined}
-          nextHref={nextPost ? `/blog/${nextPost.slug}` : undefined}
+          prevHref={prevHref}
+          nextHref={nextHref}
         />
       )}
 
@@ -113,15 +130,15 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
-          {group && (prevPost || nextPost) && (
+          {group && (prevHref || nextPost) && (
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-              {prevPost ? (
-                <Link href={`/blog/${prevPost.slug}`} style={{ color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '0.9rem' }}>
-                  ← {prevPost.title}
+              {prevHref ? (
+                <Link href={prevHref} style={{ color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '0.9rem' }}>
+                  ← {currentIndex === 0 ? 'Introduction' : groupPosts[currentIndex - 1].title}
                 </Link>
               ) : <span />}
-              {nextPost && (
-                <Link href={`/blog/${nextPost.slug}`} style={{ color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '0.9rem' }}>
+              {nextPost && nextHref && (
+                <Link href={nextHref} style={{ color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '0.9rem' }}>
                   {nextPost.title} →
                 </Link>
               )}

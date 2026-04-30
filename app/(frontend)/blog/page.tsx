@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { getAllPosts } from '@/lib/blog';
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Blog — The Arcades',
   description: 'Writing by Austen Tucker.',
