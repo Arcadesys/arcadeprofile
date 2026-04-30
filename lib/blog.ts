@@ -91,6 +91,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
   try {
     result = await payload.find({
       collection: 'posts',
+      where: { _status: { equals: 'published' } },
       sort: '-publishedDate',
       limit: 100,
       depth: 0,
@@ -106,6 +107,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
 
     result = await payload.find({
       collection: 'posts',
+      where: { _status: { equals: 'published' } },
       sort: '-publishedDate',
       limit: 100,
       depth: 0,
@@ -141,7 +143,10 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   const result = await payload.find({
     collection: 'posts',
     where: {
-      slug: { equals: slug },
+      and: [
+        { slug: { equals: slug } },
+        { _status: { equals: 'published' } },
+      ],
     },
     limit: 1,
     depth: 0,
@@ -159,7 +164,10 @@ export async function getPostsBySlugs(slugs: string[]): Promise<BlogPost[]> {
   const result = await payload.find({
     collection: 'posts',
     where: {
-      slug: { in: uniqueSlugs },
+      and: [
+        { slug: { in: uniqueSlugs } },
+        { _status: { equals: 'published' } },
+      ],
     },
     limit: uniqueSlugs.length,
     depth: 0,
@@ -260,7 +268,10 @@ export async function getAllGroups(): Promise<Group[]> {
     const postResult = await payload.find({
       collection: 'posts',
       where: {
-        group: { equals: g.slug },
+        and: [
+          { group: { equals: g.slug } },
+          { _status: { equals: 'published' } },
+        ],
       },
       sort: 'order',
       limit: 100,
