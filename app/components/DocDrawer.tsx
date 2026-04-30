@@ -44,6 +44,16 @@ export default function DocDrawer({
   const currentItemRef = useRef<HTMLAnchorElement>(null);
   const listRef = useRef<HTMLElement>(null);
 
+  useEffect(() => {
+    document.body.classList.add('has-doc-drawer');
+    return () => { document.body.classList.remove('has-doc-drawer'); };
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle('dd-open', open);
+    return () => { document.body.classList.remove('dd-open'); };
+  }, [open]);
+
   // Scroll current item into view on mount
   useEffect(() => {
     if (currentItemRef.current) {
