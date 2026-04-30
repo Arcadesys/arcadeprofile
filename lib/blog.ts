@@ -296,8 +296,13 @@ export async function getAllGroups(): Promise<Group[]> {
 }
 
 export async function getGroupBySlug(slug: string): Promise<Group | null> {
-  const groups = await getAllGroups();
-  return groups.find((g) => g.slug === slug) ?? null;
+  try {
+    const groups = await getAllGroups();
+    return groups.find((g) => g.slug === slug) ?? null;
+  } catch (error) {
+    console.error('[getGroupBySlug] failed to load group:', slug, error);
+    return null;
+  }
 }
 
 export interface Page {
