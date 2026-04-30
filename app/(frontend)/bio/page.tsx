@@ -39,12 +39,12 @@ const tagStyle = {
 } as const;
 
 function Tag({ label }: { label: string }) {
-  return <span style={tagStyle}>{label}</span>;
+  return <li style={tagStyle}>{label}</li>;
 }
 
 export default function BioPage() {
   return (
-    <div style={{ maxWidth: '740px', margin: '0 auto', padding: '2rem 1rem' }}>
+    <main style={{ maxWidth: '740px', margin: '0 auto', padding: '2rem 1rem' }}>
 
       {/* Header */}
       <section style={{ marginBottom: '2.5rem', marginTop: '2rem', textAlign: 'center' }}>
@@ -84,7 +84,7 @@ export default function BioPage() {
       {/* What I do */}
       <section style={{ marginBottom: '2.5rem' }}>
         <h2 style={sectionHeadingStyle}>What I do</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+        <ul style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', listStyle: 'none', padding: 0, margin: 0 }}>
           {[
             {
               title: 'AI Enablement',
@@ -103,26 +103,26 @@ export default function BioPage() {
               body: 'Writing code, shipping tools, and making software that I or other people actually want to use.',
             },
           ].map(({ title, body }) => (
-            <div key={title} style={cardStyle}>
+            <li key={title} style={cardStyle}>
               <h3 style={{ margin: '0 0 0.5rem', fontSize: '1rem', color: 'var(--accent)' }}>{title}</h3>
               <p style={{ margin: 0, fontSize: '0.92rem', lineHeight: 1.7, color: 'var(--fg-muted)' }}>{body}</p>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       {/* Interests */}
       <section style={{ marginBottom: '2.5rem' }}>
         <h2 style={sectionHeadingStyle}>Interests &amp; obsessions</h2>
         <div style={cardStyle}>
-          <div>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {[
               'AI agents & tooling', 'board game design', 'fiction writing', 'facilitation theory',
               'MCP servers', 'constructivism', 'accessibility', 'Next.js', 'Payload CMS',
               'systems thinking', 'Agile coaching', 'Cursor IDE', 'weird personal projects',
               'Chicago', 'tabletop RPGs',
             ].map((t) => <Tag key={t} label={t} />)}
-          </div>
+          </ul>
         </div>
       </section>
 
@@ -158,11 +158,11 @@ export default function BioPage() {
           </p>
           <p style={{ margin: 0, fontSize: '0.95rem' }}>
             <strong>Site:</strong>{' '}
-            <a href="https://thearcades.me">thearcades.me</a>
+            <a href="/">thearcades.me</a>
           </p>
         </div>
       </section>
 
-    </div>
+    </main>
   );
 }
