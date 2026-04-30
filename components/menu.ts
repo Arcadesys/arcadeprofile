@@ -6,6 +6,11 @@ export type MenuLink = {
   external?: boolean;
 };
 
+export type FooterGroup = {
+  title: string;
+  links: { href: string; label: string }[];
+};
+
 export const mainMenuLinks: MenuLink[] = [
   { href: '/projects', label: 'Projects', prefixMatch: true },
   { href: '/resume', label: 'Resume' },
@@ -13,6 +18,41 @@ export const mainMenuLinks: MenuLink[] = [
   { href: '/blog', label: 'Blog', prefixMatch: true },
   { href: '/store', label: 'Store' },
 ];
+
+export const footerGroups: FooterGroup[] = [
+  {
+    title: 'Writing',
+    links: [
+      { href: '/samples', label: 'Samples' },
+      { href: '/writing', label: 'Writing hub' },
+      { href: '/blog', label: 'Blog archive' },
+    ],
+  },
+  {
+    title: 'Projects',
+    links: [
+      { href: '/projects', label: 'Projects' },
+      { href: '/demos', label: 'Demos' },
+    ],
+  },
+  {
+    title: 'About',
+    links: [
+      { href: '/bio', label: 'About Austen' },
+      { href: '/resume', label: 'Resume' },
+      { href: '/did', label: 'DID' },
+      { href: '/betareader', label: 'Beta reader form' },
+    ],
+  },
+];
+
+export const footerCta = {
+  eyebrow: 'Start with a sample',
+  heading: 'Read the work first.',
+  body: 'Browse sample chapters and project excerpts, then subscribe or sign up as a beta reader if one catches.',
+  href: '/samples',
+  label: 'Browse samples',
+};
 
 export const projectCategoryLinks = [
   { href: '/projects?category=fiction', label: 'Fiction' },

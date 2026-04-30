@@ -76,6 +76,7 @@ export interface Config {
     media: Media;
     subscribers: Subscriber;
     'social-posts': SocialPost;
+    'nav-items': NavItem;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -92,6 +93,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
     'social-posts': SocialPostsSelect<false> | SocialPostsSelect<true>;
+    'nav-items': NavItemsSelect<false> | NavItemsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -183,11 +185,17 @@ export interface Post {
     };
     [k: string]: unknown;
   };
+  /**
+   * Date shown publicly and used for sorting published posts.
+   */
   publishedDate: string;
   /**
    * Whether this post has been sent to newsletter subscribers
    */
   newsletterSent?: boolean | null;
+  /**
+   * When a draft should be promoted to published by the scheduler.
+   */
   scheduledPublishDate?: string | null;
   /**
    * Group/series slug (e.g. "the-singularity-log")
@@ -213,7 +221,7 @@ export interface Post {
    */
   newsletterDescription?: string | null;
   /**
-   * Workflow status for newsletter pipeline.
+   * Internal scheduling/newsletter workflow. Payload draft/published state lives in Status.
    */
   publish_status?: ('draft' | 'scheduled' | 'published' | 'sent') | null;
   /**
@@ -654,6 +662,20 @@ export interface Page {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "nav-items".
+ */
+export interface NavItem {
+  id: number;
+  label: string;
+  href: string;
+  order: number;
+  visible?: boolean | null;
+  isPrimary?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1108,6 +1130,19 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "nav-items_select".
+ */
+export interface NavItemsSelect<T extends boolean = true> {
+  label?: T;
+  href?: T;
+  order?: T;
+  visible?: T;
+  isPrimary?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

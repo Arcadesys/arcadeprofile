@@ -11,7 +11,6 @@ import { getDatabaseURLForPayloadConfig } from './lib/env';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
-
 loadEnvConfig(process.cwd());
 
 const requiresDatabaseURL = process.argv.includes('migrate');
@@ -31,6 +30,9 @@ export default buildConfig({
   sharp,
   secret: process.env.PAYLOAD_SECRET || 'default-secret-change-me',
   db: postgresAdapter({
+    // Avoid interactive Drizzle schema-push prompts during `next dev`.
+    // Schema changes should be applied via explicit migrations instead.
+    push: false,
     pool: {
       connectionString: databaseURL,
     },

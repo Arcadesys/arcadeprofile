@@ -1,7 +1,18 @@
+import type { Metadata } from 'next';
 import { getAllProjectHubs } from '@/lib/payload';
 import ProjectsBrowser from '@/app/components/ProjectsBrowser';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Projects — The Arcades',
+  description: 'Fiction, tools, experiments, and other things Austen is building.',
+  openGraph: {
+    title: 'Projects — The Arcades',
+    description: 'Projects and creative work by Austen Tucker-Crowder.',
+    url: 'https://thearcades.me/projects',
+  },
+};
 
 export default async function ProjectsPage({
   searchParams,
