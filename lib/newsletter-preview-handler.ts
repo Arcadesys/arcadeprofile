@@ -65,37 +65,28 @@ type ParsedInput = { postId: number; delayMinutes: number };
 async function getInput(
   request: Request,
 ): Promise<ParsedInput | { error: string; status: number }> {
-  if (request.method === 'GET') {
-    const url = new URL(request.url);
-    const postId = parsePostId(url.searchParams.get('postId'));
-    if (!postId) {
-      return { error: 'A positive integer "postId" is required.', status: 400 };
-    }
-    return {
-      postId,
-      delayMinutes: clampDelay(url.searchParams.get('delayMinutes')),
-    };
+  // POST-only: scheduling an AC campaign is a write side effect, so we don't
+  // expose a GET form that could be triggered accidentally by prefetchers,
+  // link previewers, or pasted URLs.
+  if (request.method !== 'POST') {
+    return { error: 'Method not allowed.', status: 405 };
   }
 
-  if (request.method === 'POST') {
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return { error: 'Request body must be valid JSON.', status: 400 };
-    }
-    const obj = (body && typeof body === 'object' ? body : {}) as Record<string, unknown>;
-    const postId = parsePostId(obj.postId);
-    if (!postId) {
-      return { error: 'A positive integer "postId" is required.', status: 400 };
-    }
-    return {
-      postId,
-      delayMinutes: clampDelay(obj.delayMinutes),
-    };
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return { error: 'Request body must be valid JSON.', status: 400 };
   }
-
-  return { error: 'Method not allowed.', status: 405 };
+  const obj = (body && typeof body === 'object' ? body : {}) as Record<string, unknown>;
+  const postId = parsePostId(obj.postId);
+  if (!postId) {
+    return { error: 'A positive integer "postId" is required.', status: 400 };
+  }
+  return {
+    postId,
+    delayMinutes: clampDelay(obj.delayMinutes),
+  };
 }
 
 export async function handleNewsletterPreviewRequest(

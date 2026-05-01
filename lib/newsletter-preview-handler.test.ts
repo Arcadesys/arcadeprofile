@@ -191,10 +191,12 @@ test('returns 502 with details when ActiveCampaign rejects the campaign', async 
   assert.equal(body.details, 'Invalid');
 });
 
-test('returns 405 for unsupported methods', async () => {
-  const response = await handleNewsletterPreviewRequest(
-    new Request('https://example.com/api/email/preview-newsletter', { method: 'PUT' }),
-    makeDeps(),
-  );
-  assert.equal(response.status, 405);
+test('returns 405 for non-POST methods (GET, PUT, DELETE)', async () => {
+  for (const method of ['GET', 'PUT', 'DELETE'] as const) {
+    const response = await handleNewsletterPreviewRequest(
+      new Request('https://example.com/api/email/preview-newsletter', { method }),
+      makeDeps(),
+    );
+    assert.equal(response.status, 405, `${method} should be rejected`);
+  }
 });

@@ -61,7 +61,9 @@ async function fetchPostForPreview(payload: Payload, postId: number): Promise<Pr
   }
 }
 
-async function handleRequest(request: Request) {
+// POST-only: scheduling a campaign is a side-effecting write, so GET is not
+// exposed to avoid accidental triggers from prefetchers or pasted URLs.
+export async function POST(request: Request) {
   const payload = await getPayload({ config });
   return handleNewsletterPreviewRequest(request, {
     authorizeRequest: authorizeBearerOrAdminSession,
@@ -79,12 +81,4 @@ async function handleRequest(request: Request) {
       }),
     getTestListId: () => process.env.AC_TEST_LIST_ID,
   });
-}
-
-export async function GET(request: Request) {
-  return handleRequest(request);
-}
-
-export async function POST(request: Request) {
-  return handleRequest(request);
 }
