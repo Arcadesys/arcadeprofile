@@ -121,6 +121,22 @@ export const Groups: CollectionConfig = {
       ],
     },
     {
+      name: 'chapters',
+      type: 'array',
+      admin: {
+        description: 'Optional chapter groupings. Posts can reference a chapter slug to appear under that section in the doc drawer.',
+      },
+      fields: [
+        { name: 'title', type: 'text', required: true },
+        {
+          name: 'slug',
+          type: 'text',
+          required: true,
+          admin: { description: 'Unique slug within this group, referenced by the post Chapter field.' },
+        },
+      ],
+    },
+    {
       name: 'relatedPostSlugs',
       type: 'array',
       admin: {

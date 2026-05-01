@@ -165,6 +165,14 @@ export const Posts: CollectionConfig = {
       },
     },
     {
+      name: 'chapter',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'Chapter slug within the group (matches a chapter defined on the group)',
+      },
+    },
+    {
       name: 'author',
       type: 'text',
       defaultValue: 'Austen Tucker',

@@ -50,27 +50,50 @@ export default async function BlogPostPage({ params }: Props) {
     : undefined;
   const nextPost = currentIndex < groupPosts.length - 1 ? groupPosts[currentIndex + 1] : null;
 
-  const drawerSections: DrawerSection[] = group
-    ? [
+  const introItem = {
+    num: '00',
+    label: 'Introduction',
+    href: `/projects/${group?.slug}/00`,
+    state: 'read' as const,
+  };
+
+  const postItems = groupPosts.map((p, i) => ({
+    num: partNum(i + 1),
+    label: p.title,
+    href: `/projects/${group?.slug}/${partNum(i + 1)}`,
+    state: p.slug === slug ? ('current' as const) : i < currentIndex ? ('read' as const) : ('unread' as const),
+    chapter: p.chapter,
+  }));
+
+  let drawerSections: DrawerSection[] = [];
+  if (group) {
+    const chapters = group.chapters?.filter(c => c.slug && c.title) ?? [];
+    if (chapters.length > 0) {
+      // Chapter mode: intro in its own Overview section, then one section per chapter
+      const chapterSlugs = new Set(chapters.map(c => c.slug));
+      const sections: DrawerSection[] = [
+        { title: 'Overview', items: [introItem] },
+        ...chapters.map(ch => ({
+          title: ch.title,
+          items: postItems.filter(item => item.chapter === ch.slug),
+        })).filter(s => s.items.length > 0),
+      ];
+      // Posts not assigned to any defined chapter
+      const orphans = postItems.filter(item => !item.chapter || !chapterSlugs.has(item.chapter));
+      if (orphans.length > 0) {
+        sections.push({ title: 'Other', items: orphans });
+      }
+      drawerSections = sections;
+    } else {
+      // Flat mode: single section (original behavior)
+      drawerSections = [
         {
           title: group.title,
-          items: [
-            {
-              num: '00',
-              label: 'Introduction',
-              href: `/projects/${group.slug}/00`,
-              state: 'read' as const,
-            },
-            ...groupPosts.map((p, i) => ({
-              num: partNum(i + 1),
-              label: p.title,
-              href: `/projects/${group.slug}/${partNum(i + 1)}`,
-              state: p.slug === slug ? ('current' as const) : i < currentIndex ? ('read' as const) : ('unread' as const),
-            })),
-          ],
+          items: [introItem, ...postItems],
         },
-      ]
-    : [];
+      ];
+    }
+  }
 
   return (
     <>

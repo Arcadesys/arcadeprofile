@@ -205,6 +205,10 @@ export interface Post {
    * Order within group (lower = first)
    */
   order?: number | null;
+  /**
+   * Chapter slug within the group (matches a chapter defined on the group)
+   */
+  chapter?: string | null;
   author?: string | null;
   tags?:
     | {
@@ -370,6 +374,19 @@ export interface Group {
         kind: 'post' | 'preview' | 'buy' | 'youtube' | 'audio' | 'experiment' | 'repo' | 'download' | 'other';
         description?: string | null;
         external?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional chapter groupings. Posts can reference a chapter slug to appear under that section in the doc drawer.
+   */
+  chapters?:
+    | {
+        title: string;
+        /**
+         * Unique slug within this group, referenced by the post Chapter field.
+         */
+        slug: string;
         id?: string | null;
       }[]
     | null;
@@ -887,6 +904,7 @@ export interface PostsSelect<T extends boolean = true> {
   scheduledPublishDate?: T;
   group?: T;
   order?: T;
+  chapter?: T;
   author?: T;
   tags?:
     | T
@@ -962,6 +980,13 @@ export interface GroupsSelect<T extends boolean = true> {
         kind?: T;
         description?: T;
         external?: T;
+        id?: T;
+      };
+  chapters?:
+    | T
+    | {
+        title?: T;
+        slug?: T;
         id?: T;
       };
   relatedPostSlugs?:

@@ -13,6 +13,8 @@ export interface BlogPost {
   group?: string;
   /** Explicit ordering within a group (lower numbers first). */
   order?: number;
+  /** Chapter slug within the group, matching a chapter defined on the group. */
+  chapter?: string;
   /** Display author (Payload `posts.author`). */
   author?: string;
   /** Optional copy above the site footer subscribe on this post only. */
@@ -26,11 +28,17 @@ export interface BlogPost {
   sampleLabel?: string;
 }
 
+export interface Chapter {
+  title: string;
+  slug: string;
+}
+
 export interface Group {
   slug: string;
   title: string;
   description?: string;
   tags: string[];
+  chapters?: Chapter[];
   posts: BlogPost[];
 }
 
@@ -44,6 +52,7 @@ function toPost(doc: any): BlogPost {
     content: doc.content as SerializedEditorState,
     group: (doc.group as string) || undefined,
     order: doc.order as number | undefined,
+    chapter: (doc.chapter as string) || undefined,
     author: (doc.author as string) || undefined,
     newsletterHeading: (doc.newsletterHeading as string) || undefined,
     newsletterDescription: (doc.newsletterDescription as string) || undefined,
@@ -294,6 +303,9 @@ export async function getAllGroups(): Promise<Group[]> {
       title: g.title as string,
       description: (g.description as string) || undefined,
       tags: Array.isArray(g.tags) ? g.tags.map((t: { tag: string }) => t.tag) : [],
+      chapters: Array.isArray(g.chapters)
+        ? g.chapters.map((c: { title: string; slug: string }) => ({ title: c.title, slug: c.slug }))
+        : undefined,
       posts,
     });
   }
