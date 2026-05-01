@@ -43,6 +43,37 @@ Required vars are documented in `.env.example`. Never commit secrets. Key vars:
 - `MCP_API_KEY` — API key for HTTP MCP endpoint (separate from PAYLOAD_API_KEY)
 - `POSTMARK_SERVER_TOKEN` — Postmark SMTP token for email
 - `POSTMARK_FROM_EMAIL` — Sender address
+- `AC_TEST_LIST_ID` — single-recipient AC list used by the per-post "Send newsletter preview" admin button
+- `CRON_SECRET` — bearer token for `/api/posts/publish-scheduled` (also accepted by the preview route for curl callers)
+
+## Scheduled posts
+
+The daily promotion of `publish_status: 'scheduled'` drafts to published is
+triggered by the GitHub Actions workflow at
+`.github/workflows/scheduled-posts.yml`, which runs at 09:00 UTC and calls
+`/api/posts/publish-scheduled` with `Authorization: Bearer ${CRON_SECRET}`.
+Required GitHub Actions secrets: `CRON_SECRET` (matches the deployed env)
+and `CRON_TARGET_URL` (e.g. `https://arcadeprofile.vercel.app`). The
+workflow has a `workflow_dispatch` trigger so you can run it manually
+from the Actions UI.
+
+## Newsletter previews
+
+Every post in the Payload admin has a "Newsletter preview" sidebar button.
+Clicking it schedules an AC campaign with the post's actual rendered
+newsletter content, targeted at `AC_TEST_LIST_ID` (the single-recipient
+test list), with a configurable 1–60 minute delay. The same flow is
+exposed via:
+
+```sh
+curl -X POST -H "Authorization: Bearer $CRON_SECRET" \
+  -H 'content-type: application/json' \
+  -d '{"postId": <id>, "delayMinutes": 1}' \
+  https://arcadeprofile.vercel.app/api/email/preview-newsletter
+```
+
+The preview path never reads `AC_NEWSLETTER_LIST_ID`; it errors out (500)
+if `AC_TEST_LIST_ID` is unset.
 
 ## Project Structure
 

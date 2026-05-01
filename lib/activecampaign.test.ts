@@ -144,7 +144,7 @@ test('sendBlogPostNewsletter succeeds after v3 campaign shell, message update, a
       };
       assert.deepEqual(parsed.listIds, [3]);
       assert.equal(parsed.addressId, 2);
-      const expectedAt = new Date(2026, 4, 1, 10, 0, 0);
+      const expectedAt = new Date(2030, 4, 1, 10, 0, 0);
       assert.equal(parsed.scheduledDate, formatCampaignSendDate(expectedAt));
       return new Response(JSON.stringify({ id: 900, listIds: [3] }), {
         status: 200,
@@ -159,7 +159,7 @@ test('sendBlogPostNewsletter succeeds after v3 campaign shell, message update, a
     htmlBody: '<p>Body</p>',
     textBody: 'Body',
     slug: 'my-post',
-    scheduledSendAt: new Date(2026, 4, 1, 10, 0, 0),
+    scheduledSendAt: new Date(2030, 4, 1, 10, 0, 0),
     fetchImpl: fetchImpl as typeof fetch,
   });
 
@@ -298,6 +298,100 @@ test('sendBlogPostNewsletter throws when v3 campaign schedule reports failure', 
   );
 
   assert.equal(step, 3);
+});
+
+test('sendBlogPostNewsletter uses listIdOverride instead of AC_NEWSLETTER_LIST_ID when provided', async () => {
+  setAcEnv({ AC_NEWSLETTER_LIST_ID: '999' });
+
+  let scheduledListIds: number[] | undefined;
+  const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+    if (url.endsWith('/api/3/campaign')) {
+      return new Response(JSON.stringify({ id: 7, name: 'Blog: x', type: 'single', canSplitContent: false }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    if (url.endsWith('/api/3/campaigns/7')) {
+      return new Response(
+        JSON.stringify({ campaign: { message_id: '11', addressid: '0' } }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    }
+    if (url.includes('/api/3/messages/11')) {
+      return new Response(JSON.stringify({ message: { id: '11' } }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    if (url.includes('/api/3/campaigns/7/edit')) {
+      const parsed = JSON.parse(String(init?.body)) as { listIds?: number[] };
+      scheduledListIds = parsed.listIds;
+      return new Response(JSON.stringify({ id: 7 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    assert.fail(`Unexpected fetch URL: ${url}`);
+  };
+
+  await sendBlogPostNewsletter({
+    subject: 'X',
+    htmlBody: 'b',
+    textBody: 'b',
+    slug: 'x',
+    listIdOverride: '42',
+    fetchImpl: fetchImpl as typeof fetch,
+  });
+
+  assert.deepEqual(scheduledListIds, [42]);
+});
+
+test('sendBlogPostNewsletter falls back to AC_NEWSLETTER_LIST_ID when listIdOverride is empty string', async () => {
+  setAcEnv({ AC_NEWSLETTER_LIST_ID: '5' });
+
+  let scheduledListIds: number[] | undefined;
+  const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+    if (url.endsWith('/api/3/campaign')) {
+      return new Response(JSON.stringify({ id: 8 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    if (url.endsWith('/api/3/campaigns/8')) {
+      return new Response(
+        JSON.stringify({ campaign: { message_id: '12', addressid: '0' } }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    }
+    if (url.includes('/api/3/messages/12')) {
+      return new Response(JSON.stringify({ message: { id: '12' } }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    if (url.includes('/api/3/campaigns/8/edit')) {
+      const parsed = JSON.parse(String(init?.body)) as { listIds?: number[] };
+      scheduledListIds = parsed.listIds;
+      return new Response(JSON.stringify({ id: 8 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    assert.fail(`Unexpected fetch URL: ${url}`);
+  };
+
+  await sendBlogPostNewsletter({
+    subject: 'X',
+    htmlBody: 'b',
+    textBody: 'b',
+    slug: 'x',
+    listIdOverride: '   ',
+    fetchImpl: fetchImpl as typeof fetch,
+  });
+
+  assert.deepEqual(scheduledListIds, [5]);
 });
 
 test('sendBlogPostNewsletter throws when v3 campaign create response is not JSON', async () => {

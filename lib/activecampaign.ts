@@ -30,6 +30,13 @@ export interface SendBlogPostNewsletterOptions {
    * is in the past, it is clamped to the current time.
    */
   scheduledSendAt?: Date;
+  /**
+   * Override the AC list this campaign targets. When set, takes precedence
+   * over `AC_NEWSLETTER_LIST_ID` / `ACTIVECAMPAIGN_LIST_ID`. Used by the
+   * "Send newsletter preview" admin path so previews go to a test list
+   * instead of production subscribers.
+   */
+  listIdOverride?: string;
   /** Override fetch (tests) */
   fetchImpl?: typeof fetch;
 }
@@ -429,7 +436,7 @@ export async function sendBlogPostNewsletter(
   const fetchImpl = options.fetchImpl ?? fetch;
   const baseUrl = getApiBaseUrl();
   const apiKey = getApiKey();
-  const listId = getNewsletterListId();
+  const listId = firstNonEmpty(options.listIdOverride) ?? getNewsletterListId();
   const listIdInt = parseNewsletterListIdAsInt(listId);
 
   const internalName = `Blog: ${options.slug}`.slice(0, 240);
