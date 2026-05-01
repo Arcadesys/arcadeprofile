@@ -137,6 +137,16 @@ export const Posts: CollectionConfig = {
       },
     },
     {
+      name: 'newsletterPreview',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: '/components/admin/SendNewsletterPreview',
+        },
+      },
+    },
+    {
       name: 'scheduledPublishDate',
       label: 'Scheduled Publish Date',
       type: 'date',

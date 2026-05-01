@@ -1,0 +1,19 @@
+name: Publish scheduled posts
+on:
+  schedule:
+    - cron: '0 9 * * *'   # 09:00 UTC daily — replaces the previous Vercel cron.
+  workflow_dispatch:        # adds a manual "Run workflow" button.
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger publish-scheduled endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          CRON_TARGET_URL: ${{ secrets.CRON_TARGET_URL }}
+        run: |
+          curl --fail-with-body --show-error --silent \
+            -X POST \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "${CRON_TARGET_URL}/api/posts/publish-scheduled"
