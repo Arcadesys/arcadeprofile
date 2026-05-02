@@ -5,6 +5,7 @@ import { RichText } from '@payloadcms/richtext-lexical/react';
 import { getPostBySlug, getGroupBySlug } from '@/lib/blog';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
+import SubscribeCTA from '@/app/components/SubscribeCTA';
 
 export const dynamic = 'force-dynamic';
 
@@ -175,6 +176,10 @@ export default async function BlogPostPage({ params }: Props) {
           </Link>
         </footer>
       </main>
+
+      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 1.5rem 6rem' }}>
+        <SubscribeCTA />
+      </div>
     </>
   );
 }
