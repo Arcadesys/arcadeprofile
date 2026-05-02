@@ -6,6 +6,7 @@ import * as migration_20260426_150000_add_user_api_key_fields from './20260426_1
 import * as migration_20260426_153000_fix_user_api_key_column_name from './20260426_153000_fix_user_api_key_column_name';
 import * as migration_20260430_000000_add_groups_fields from './20260430_000000_add_groups_fields';
 import * as migration_20260501_000000_add_chapters from './20260501_000000_add_chapters';
+import * as migration_20260502_000000_add_posts_newsletter_sent from './20260502_000000_add_posts_newsletter_sent';
 
 export const migrations = [
   {
@@ -47,5 +48,10 @@ export const migrations = [
     up: migration_20260501_000000_add_chapters.up,
     down: migration_20260501_000000_add_chapters.down,
     name: '20260501_000000_add_chapters',
+  },
+  {
+    up: migration_20260502_000000_add_posts_newsletter_sent.up,
+    down: migration_20260502_000000_add_posts_newsletter_sent.down,
+    name: '20260502_000000_add_posts_newsletter_sent',
   },
 ];
