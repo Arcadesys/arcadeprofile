@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "migrate": "payload migrate",
+    "db:bootstrap": "node scripts/db-bootstrap.mjs",
     "seed": "tsx scripts/seed-runner.mjs",
     "seed:blog": "tsx --require ./scripts/patch-next-env.cjs scripts/seed.ts",
     "seed:groups": "tsx --require ./scripts/patch-next-env.cjs scripts/seed-groups.ts",
