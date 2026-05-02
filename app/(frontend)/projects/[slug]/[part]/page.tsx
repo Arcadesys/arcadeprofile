@@ -171,8 +171,8 @@ export default async function ProjectPartPage({ params }: Props) {
     paddingLeft: posts.length > 0 ? 'max(1.5rem, calc(280px + 2rem))' : '1.5rem',
   };
   const postMainStyle: React.CSSProperties = {
-    ...mainStyle,
-    maxWidth: '840px',
+    padding: '4rem 2rem 6rem',
+    paddingLeft: posts.length > 0 ? 'max(2rem, calc(280px + 2rem))' : '2rem',
   };
 
   // ── intro ──
