@@ -53,28 +53,25 @@ export const Posts: CollectionConfig = {
         if (isNowPublished && wasPublished && notYetSent) {
           try {
             const { sendBlogPostNewsletter } = await import('../lib/activecampaign');
+            const { resolveGroupHeroForPost } = await import('../lib/post-newsletter');
             const subject = (doc.newsletterHeading as string) || (doc.title as string);
 
-            // Look up the group so the email can fall back to its image when
-            // the post has no populated meta.image of its own.
-            let group: { image?: string | null; title?: string | null } | null = null;
-            const groupSlug = typeof doc.group === 'string' ? doc.group.trim() : '';
-            if (groupSlug) {
-              const groupResult = await req.payload.find({
-                collection: 'groups',
-                where: { slug: { equals: groupSlug } },
-                depth: 0,
-                limit: 1,
-                overrideAccess: true,
-              });
-              const found = groupResult.docs[0] as { image?: string | null; title?: string | null } | undefined;
-              if (found) {
-                group = { image: found.image ?? null, title: found.title ?? null };
-              }
-            }
+            // afterChange's `doc` reflects the depth used by the triggering
+            // operation, which is often 0 — that leaves `meta.image` as a bare
+            // id and the renderer would skip the post hero, silently falling
+            // back to the group image. Refetch with depth: 1 so the Media
+            // upload is populated with `url`/`alt`.
+            const populated = (await req.payload.findByID({
+              collection: 'posts',
+              id: doc.id as number,
+              depth: 1,
+              overrideAccess: true,
+            })) as Post;
+
+            const group = await resolveGroupHeroForPost(req.payload, populated);
 
             const { htmlBody, textBody } = buildPostNewsletterContent({
-              ...(doc as Post),
+              ...populated,
               group,
             });
 

@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getPayload } from 'payload';
 
 import config from '@payload-config';
-import { buildPostNewsletterContent } from '@/lib/newsletter';
+import { buildPostNewsletterContent, escapeHtml } from '@/lib/newsletter';
+import { resolveGroupHeroForPost } from '@/lib/post-newsletter';
 import type { Post } from '@/payload-types';
 
 /**
@@ -39,15 +40,6 @@ function parsePostId(raw: string | null): number | null {
   if (!raw) return null;
   const n = Number.parseInt(raw, 10);
   return Number.isFinite(n) && n > 0 ? n : null;
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }
 
 function renderPreviewPage(args: {
@@ -126,21 +118,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: `No post with id ${postId}.` }, { status: 404 });
   }
 
-  let group: { image?: string | null; title?: string | null } | null = null;
-  const groupSlug = typeof post.group === 'string' ? post.group.trim() : '';
-  if (groupSlug) {
-    const groupResult = await payload.find({
-      collection: 'groups',
-      where: { slug: { equals: groupSlug } },
-      depth: 0,
-      limit: 1,
-      overrideAccess: true,
-    });
-    const found = groupResult.docs[0] as { image?: string | null; title?: string | null } | undefined;
-    if (found) {
-      group = { image: found.image ?? null, title: found.title ?? null };
-    }
-  }
+  const group = await resolveGroupHeroForPost(payload, post);
 
   let htmlBody: string;
   try {
