@@ -88,6 +88,32 @@ const statements = [
         ON "groups_chapters" USING btree ("_parent_id")
     `,
   },
+  {
+    label: 'payload_locked_documents_rels.nav_items_id',
+    run: () => sql`
+      ALTER TABLE "payload_locked_documents_rels"
+        ADD COLUMN IF NOT EXISTS "nav_items_id" integer
+    `,
+  },
+  {
+    label: 'payload_locked_documents_rels.nav_items_id FK',
+    run: () => sql`
+      DO $$ BEGIN
+        ALTER TABLE "payload_locked_documents_rels"
+          ADD CONSTRAINT "payload_locked_documents_rels_nav_items_fk"
+          FOREIGN KEY ("nav_items_id") REFERENCES "public"."nav_items"("id")
+          ON DELETE CASCADE ON UPDATE NO ACTION;
+      EXCEPTION WHEN duplicate_object THEN null;
+      END $$;
+    `,
+  },
+  {
+    label: 'payload_locked_documents_rels_nav_items_id_idx',
+    run: () => sql`
+      CREATE INDEX IF NOT EXISTS "payload_locked_documents_rels_nav_items_id_idx"
+        ON "payload_locked_documents_rels" USING btree ("nav_items_id")
+    `,
+  },
 ];
 
 let failed = false;
