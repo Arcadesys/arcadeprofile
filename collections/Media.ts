@@ -6,7 +6,6 @@ export const Media: CollectionConfig = {
   slug: 'media',
   access: publicReadAccess,
   upload: {
-    staticDir: 'public/media',
     adminThumbnail: 'og',
     imageSizes: [
       {
