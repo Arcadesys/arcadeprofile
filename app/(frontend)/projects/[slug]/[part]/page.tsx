@@ -170,6 +170,10 @@ export default async function ProjectPartPage({ params }: Props) {
     padding: '4rem 1.5rem 6rem',
     paddingLeft: posts.length > 0 ? 'max(1.5rem, calc(280px + 2rem))' : '1.5rem',
   };
+  const postMainStyle: React.CSSProperties = {
+    ...mainStyle,
+    maxWidth: '840px',
+  };
 
   // ── intro ──
   if (idx === 0) {
@@ -279,7 +283,7 @@ export default async function ProjectPartPage({ params }: Props) {
   return (
     <>
       {drawer}
-      <main style={mainStyle}>
+      <main style={postMainStyle}>
         <nav style={{ marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
           <Link href={`/projects/${slug}/00`} style={navLinkStyle}>← {project.title}</Link>
         </nav>
