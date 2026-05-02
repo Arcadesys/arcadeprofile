@@ -27,7 +27,7 @@ export const Posts: CollectionConfig = {
   admin: {
     ...titledAdmin(adminGroups.publishing, [
       'title',
-      '_status',
+      'publish_status',
       'scheduledPublishDate',
       'publishedDate',
       'showInSamples',
@@ -39,9 +39,15 @@ export const Posts: CollectionConfig = {
     afterChange: [
       revalidatePostPaths,
       async ({ doc, previousDoc, req }) => {
-        // Send newsletter when a post is first published and newsletterSent is false
-        const wasPublished = previousDoc?._status !== 'published';
-        const isNowPublished = doc._status === 'published';
+        // Send newsletter when a post first transitions into a public state
+        // and newsletterSent is false. Public states are 'published' and 'sent'.
+        const wasPublic =
+          previousDoc?.publish_status === 'published' ||
+          previousDoc?.publish_status === 'sent';
+        const isNowPublic =
+          doc.publish_status === 'published' || doc.publish_status === 'sent';
+        const wasPublished = !wasPublic;
+        const isNowPublished = isNowPublic;
         const notYetSent = !doc.newsletterSent;
 
         if (isNowPublished && wasPublished && notYetSent) {
@@ -93,9 +99,6 @@ export const Posts: CollectionConfig = {
         }
       },
     ],
-  },
-  versions: {
-    drafts: true,
   },
   fields: [
     {
