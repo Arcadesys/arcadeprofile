@@ -1,6 +1,10 @@
 /**
- * ActiveCampaign: one-off list sends via API v3 — create campaign shell,
- * populate the campaign’s message, then schedule with list + send time.
+ * ActiveCampaign: one-off list sends via the legacy "action" endpoints
+ * (`message_add` + `campaign_create`) exposed under `/api/3/`. The v3 REST
+ * `POST /api/3/campaign` shell does not reliably auto-create an underlying
+ * message on every account, so the schedule step would fail with no
+ * `message_id`. The action endpoints create the message and the scheduled
+ * single-send campaign atomically.
  */
 
 const REQUEST_TIMEOUT_MS = 15_000;
@@ -180,253 +184,198 @@ function formatV3ErrorBody(parsed: AcV3Errors, fallback: string): string {
     .join('; ');
 }
 
-async function createCampaignShellV3(
+/**
+ * URL-encodes a form key the same way encodeURIComponent does, but leaves
+ * `[` and `]` intact. The legacy /admin/api.php parser doesn't urldecode
+ * brackets in array keys, so percent-encoding them turns `p[3]` into the
+ * literal key `p%5B3%5D` and AC reports the array as empty.
+ */
+function encodeFormKey(key: string): string {
+  return encodeURIComponent(key).replace(/%5B/g, '[').replace(/%5D/g, ']');
+}
+
+type AcLegacyResponse = {
+  result_code?: number | string;
+  result_message?: string;
+  result_output?: string;
+  id?: number | string;
+};
+
+async function postLegacyAction(
   baseUrl: string,
   apiKey: string,
-  name: string,
+  action: 'message_add' | 'campaign_create',
+  params: Record<string, string>,
   fetchImpl: typeof fetch,
-): Promise<string> {
-  const url = `${baseUrl}/api/3/campaign`;
-  const body = {
-    type: 'single',
-    name,
-    canSplitContent: false,
-  };
+): Promise<AcLegacyResponse> {
+  // ActiveCampaign v3 REST cannot link a message to a campaign — confirmed
+  // by AC's own community forum. The legacy `/admin/api.php?api_action=…`
+  // actions are the only supported way to schedule a single-send campaign
+  // with a message body. Auth is the `api_key` query param; the modern
+  // `Api-Token` header isn't honored on this endpoint.
+  const query = new URLSearchParams({
+    api_action: action,
+    api_key: apiKey,
+    api_output: 'json',
+  });
+  const url = `${baseUrl}/admin/api.php?${query.toString()}`;
+
+  // Build the body manually so `[` and `]` in array keys survive transit.
+  const body = Object.entries(params)
+    .map(([k, v]) => `${encodeFormKey(k)}=${encodeURIComponent(v)}`)
+    .join('&');
 
   const response = await fetchWithTimeout(
     url,
     {
       method: 'POST',
       headers: {
-        'Api-Token': apiKey,
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
       },
-      body: JSON.stringify(body),
+      body,
     },
     fetchImpl,
     REQUEST_TIMEOUT_MS,
   );
 
   const text = await response.text();
-  let parsed: { id?: number } & AcV3Errors;
+  let parsed: AcLegacyResponse & AcV3Errors;
   try {
-    parsed = JSON.parse(text) as { id?: number } & AcV3Errors;
+    parsed = JSON.parse(text) as AcLegacyResponse & AcV3Errors;
   } catch {
     throw new ActiveCampaignError(
-      'ActiveCampaign API v3 returned non-JSON when creating campaign',
+      `ActiveCampaign ${action} returned non-JSON`,
       response.status,
       text.slice(0, 200),
     );
   }
 
-  if (!response.ok) {
+  // Action endpoints can return HTTP 200 with `result_code: 0` on failure.
+  const resultCode = Number(parsed.result_code);
+  if (!response.ok || resultCode !== 1) {
+    const detail =
+      (typeof parsed.result_message === 'string' && parsed.result_message.trim()) ||
+      formatV3ErrorBody(parsed, text.slice(0, 300));
     throw new ActiveCampaignError(
-      `ActiveCampaign campaign create failed (${response.status})`,
+      `ActiveCampaign ${action} failed (${response.status})`,
       response.status,
-      formatV3ErrorBody(parsed, text.slice(0, 300)),
+      detail,
     );
   }
+
+  return parsed;
+}
+
+async function createMessage(
+  baseUrl: string,
+  apiKey: string,
+  options: {
+    subject: string;
+    htmlBody: string;
+    textBody: string;
+    listIdInt: number;
+  },
+  fetchImpl: typeof fetch,
+): Promise<string> {
+  const fromEmail = getFromEmail();
+  const params: Record<string, string> = {
+    format: 'html',
+    fromname: getFromName(),
+    fromemail: fromEmail,
+    reply2: getReplyToEmail(),
+    priority: '3',
+    charset: 'utf-8',
+    encoding: 'quoted-printable',
+    subject: options.subject,
+    // `htmlconstructor: 'external'` tells AC to FETCH the body from an external
+    // URL (`htmlfetch`), not "raw HTML provided inline". With no URL set, AC
+    // stores a fetch-attempt placeholder (`fetch:`) and that is what subscribers
+    // see. Use `'editor'` when providing the HTML directly via the `html` field.
+    htmlconstructor: 'editor',
+    html: options.htmlBody,
+    textconstructor: 'editor',
+    text: options.textBody,
+    // Associate the message with the target list. AC requires this on
+    // message_add, and the same `p[<list_id>]=<list_id>` shape is what the
+    // campaign uses too.
+    [`p[${options.listIdInt}]`]: String(options.listIdInt),
+  };
+
+  const parsed = await postLegacyAction(baseUrl, apiKey, 'message_add', params, fetchImpl);
 
   const id = parsed.id;
-  if (id === undefined || id === null) {
+  if (id === undefined || id === null || String(id).trim() === '') {
     throw new ActiveCampaignError(
-      'ActiveCampaign campaign create response missing id',
-      response.status,
-      text.slice(0, 300),
+      'ActiveCampaign message_add response missing id',
+      undefined,
+      JSON.stringify(parsed).slice(0, 300),
     );
   }
-
   return String(id);
 }
 
-type AcV3CampaignRecord = {
-  message_id?: string;
-  addressid?: string;
-};
-
-async function getCampaignV3(
+async function createCampaign(
   baseUrl: string,
   apiKey: string,
-  campaignId: string,
-  fetchImpl: typeof fetch,
-): Promise<AcV3CampaignRecord> {
-  const url = `${baseUrl}/api/3/campaigns/${campaignId}`;
-  const response = await fetchWithTimeout(
-    url,
-    {
-      method: 'GET',
-      headers: {
-        'Api-Token': apiKey,
-        Accept: 'application/json',
-      },
-    },
-    fetchImpl,
-    REQUEST_TIMEOUT_MS,
-  );
-
-  const text = await response.text();
-  let parsed: { campaign?: AcV3CampaignRecord } & AcV3Errors;
-  try {
-    parsed = JSON.parse(text) as { campaign?: AcV3CampaignRecord } & AcV3Errors;
-  } catch {
-    throw new ActiveCampaignError(
-      'ActiveCampaign API v3 returned non-JSON when loading campaign',
-      response.status,
-      text.slice(0, 200),
-    );
-  }
-
-  if (!response.ok) {
-    throw new ActiveCampaignError(
-      `ActiveCampaign campaign get failed (${response.status})`,
-      response.status,
-      formatV3ErrorBody(parsed, text.slice(0, 300)),
-    );
-  }
-
-  const campaign = parsed.campaign;
-  if (!campaign) {
-    throw new ActiveCampaignError(
-      'ActiveCampaign campaign get response missing campaign',
-      response.status,
-      text.slice(0, 300),
-    );
-  }
-
-  return campaign;
-}
-
-function buildMessagePayload(options: { subject: string; htmlBody: string; textBody: string }) {
-  const fromEmail = getFromEmail();
-  return {
-    fromname: getFromName(),
-    email: fromEmail,
-    fromemail: fromEmail,
-    reply2: getReplyToEmail(),
-    subject: options.subject,
-    html: options.htmlBody,
-    text: options.textBody,
-  };
-}
-
-async function updateMessageV3(
-  baseUrl: string,
-  apiKey: string,
-  messageId: string,
-  options: { subject: string; htmlBody: string; textBody: string },
-  fetchImpl: typeof fetch,
-): Promise<void> {
-  const url = `${baseUrl}/api/3/messages/${encodeURIComponent(messageId)}`;
-  const body = { message: buildMessagePayload(options) };
-
-  const response = await fetchWithTimeout(
-    url,
-    {
-      method: 'PUT',
-      headers: {
-        'Api-Token': apiKey,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(body),
-    },
-    fetchImpl,
-    REQUEST_TIMEOUT_MS,
-  );
-
-  const text = await response.text();
-  let parsed: AcV3Errors;
-  try {
-    parsed = JSON.parse(text) as AcV3Errors;
-  } catch {
-    throw new ActiveCampaignError(
-      'ActiveCampaign API v3 returned non-JSON when updating message',
-      response.status,
-      text.slice(0, 200),
-    );
-  }
-
-  if (!response.ok) {
-    throw new ActiveCampaignError(
-      `ActiveCampaign message update failed (${response.status})`,
-      response.status,
-      formatV3ErrorBody(parsed, text.slice(0, 300)),
-    );
-  }
-}
-
-async function scheduleCampaignEditV3(
-  baseUrl: string,
-  apiKey: string,
-  campaignId: string,
   options: {
+    name: string;
     listIdInt: number;
+    messageId: string;
     scheduledDate: string;
-    addressId?: number;
   },
   fetchImpl: typeof fetch,
-): Promise<void> {
-  const url = `${baseUrl}/api/3/campaigns/${encodeURIComponent(campaignId)}/edit`;
-  const body: Record<string, unknown> = {
-    segmentId: '0',
-    listIds: [options.listIdInt],
-    scheduledDate: options.scheduledDate,
-    readTrackingEnabled: true,
-    linkTrackingEnabled: true,
-    replyTrackingEnabled: false,
-    publicCampaignArchive: false,
+): Promise<string> {
+  const fromEmail = getFromEmail();
+  const params: Record<string, string> = {
+    type: 'single',
+    name: options.name,
+    sdate: options.scheduledDate,
+    status: '1', // 1 = scheduled
+    public: '0',
+    tracklinks: 'all',
+    tracklinkanalytics: '0',
+    trackreads: '1',
+    trackreadsanalytics: '0',
+    trackreplies: '0',
+    analytics_campaign_name: '',
+    htmlunsub: '1',
+    textunsub: '1',
+    htmlunsubdata: '',
+    textunsubdata: '',
+    segmentid: '0',
+    fromname: getFromName(),
+    fromemail: fromEmail,
+    reply2: getReplyToEmail(),
+    priority: '3',
+    formid: '0',
+    embed_images: '1',
+    // Lists go under `p[<list_id>]=<list_id>` (NOT `list[<list_id>]`).
+    // AC's `campaign_create` example shows `p[1]=1` for list association.
+    // Sending `list[…]` instead returns "You did not provide any lists."
+    [`p[${options.listIdInt}]`]: String(options.listIdInt),
+    // Messages: `m[<message_id>]=<send_percentage>`. 100 = single send.
+    [`m[${options.messageId}]`]: '100',
   };
-  if (options.addressId !== undefined) {
-    body.addressId = options.addressId;
-  }
 
-  const response = await fetchWithTimeout(
-    url,
-    {
-      method: 'PUT',
-      headers: {
-        'Api-Token': apiKey,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(body),
-    },
-    fetchImpl,
-    REQUEST_TIMEOUT_MS,
-  );
+  const parsed = await postLegacyAction(baseUrl, apiKey, 'campaign_create', params, fetchImpl);
 
-  const text = await response.text();
-  let parsed: AcV3Errors;
-  try {
-    parsed = JSON.parse(text) as AcV3Errors;
-  } catch {
+  const id = parsed.id;
+  if (id === undefined || id === null || String(id).trim() === '') {
     throw new ActiveCampaignError(
-      'ActiveCampaign API v3 returned non-JSON when scheduling campaign',
-      response.status,
-      text.slice(0, 200),
+      'ActiveCampaign campaign_create response missing id',
+      undefined,
+      JSON.stringify(parsed).slice(0, 300),
     );
   }
-
-  if (!response.ok) {
-    throw new ActiveCampaignError(
-      `ActiveCampaign campaign schedule failed (${response.status})`,
-      response.status,
-      formatV3ErrorBody(parsed, text.slice(0, 300)),
-    );
-  }
-}
-
-function parseOptionalAddressId(addressid: string | undefined): number | undefined {
-  if (!addressid) return undefined;
-  const n = Number.parseInt(addressid, 10);
-  if (Number.isNaN(n) || n < 1) return undefined;
-  return n;
+  return String(id);
 }
 
 /**
- * Creates a single-send campaign in ActiveCampaign (API v3), fills the
- * campaign’s message body, and schedules it for the configured newsletter list.
+ * Creates a single-send campaign in ActiveCampaign by posting to the legacy
+ * `/admin/api.php` action endpoints. The v3 REST API cannot link a message
+ * to a campaign (confirmed by AC's own community forum), so the legacy
+ * `message_add` + `campaign_create` actions are the only supported path.
  *
  * @throws ActiveCampaignError on configuration or API failures
  */
@@ -443,37 +392,26 @@ export async function sendBlogPostNewsletter(
   const sendAt = resolveAcScheduledSendInstant(options.scheduledSendAt);
   const sendDate = formatCampaignSendDate(sendAt);
 
-  const campaignId = await createCampaignShellV3(baseUrl, apiKey, internalName, fetchImpl);
-  const campaign = await getCampaignV3(baseUrl, apiKey, campaignId, fetchImpl);
-  const messageId = campaign.message_id?.trim();
-  if (!messageId) {
-    throw new ActiveCampaignError(
-      'ActiveCampaign campaign has no message_id; cannot populate newsletter body via API v3',
-      undefined,
-      `campaign id ${campaignId}`,
-    );
-  }
-
-  await updateMessageV3(
+  const messageId = await createMessage(
     baseUrl,
     apiKey,
-    messageId,
     {
       subject: options.subject,
       htmlBody: options.htmlBody,
       textBody: options.textBody,
+      listIdInt,
     },
     fetchImpl,
   );
 
-  await scheduleCampaignEditV3(
+  const campaignId = await createCampaign(
     baseUrl,
     apiKey,
-    campaignId,
     {
+      name: internalName,
       listIdInt,
+      messageId,
       scheduledDate: sendDate,
-      addressId: parseOptionalAddressId(campaign.addressid),
     },
     fetchImpl,
   );

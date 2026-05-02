@@ -53,8 +53,27 @@ export const Posts: CollectionConfig = {
         if (isNowPublished && wasPublished && notYetSent) {
           try {
             const { sendBlogPostNewsletter } = await import('../lib/activecampaign');
+            const { resolveGroupHeroForPost } = await import('../lib/post-newsletter');
             const subject = (doc.newsletterHeading as string) || (doc.title as string);
-            const { htmlBody, textBody } = buildPostNewsletterContent(doc as Post);
+
+            // afterChange's `doc` reflects the depth used by the triggering
+            // operation, which is often 0 — that leaves `meta.image` as a bare
+            // id and the renderer would skip the post hero, silently falling
+            // back to the group image. Refetch with depth: 1 so the Media
+            // upload is populated with `url`/`alt`.
+            const populated = (await req.payload.findByID({
+              collection: 'posts',
+              id: doc.id as number,
+              depth: 1,
+              overrideAccess: true,
+            })) as Post;
+
+            const group = await resolveGroupHeroForPost(req.payload, populated);
+
+            const { htmlBody, textBody } = buildPostNewsletterContent({
+              ...populated,
+              group,
+            });
 
             let scheduledSendAt: Date | undefined;
             const publishedRaw = doc.publishedDate;
