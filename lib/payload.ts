@@ -1,6 +1,6 @@
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
-import type { Book, Demo, Group } from '@/payload-types';
+import type { Book, Demo, Group, Media } from '@/payload-types';
 import { slugify } from '@/lib/utils';
 
 export type ProjectResourceKind =
@@ -96,7 +96,7 @@ function normalizeGroup(doc: Group, postSlugsForGroup: string[] = []): ProjectHu
     slug,
     title: doc.title,
     description: doc.description ?? '',
-    image: doc.image,
+    image: typeof doc.image === 'object' && doc.image !== null ? (doc.image as Media).url : null,
     href,
     external,
     tags: normalizeStringArray(doc.tags),
@@ -174,7 +174,7 @@ export async function getAllProjectHubs(): Promise<ProjectHub[]> {
     const result = await payload.find({
       collection: 'groups',
       limit: 200,
-      depth: 0,
+      depth: 1,
     });
     groups = result.docs;
   } catch (error) {
@@ -202,7 +202,7 @@ export async function getProjectBySlug(slug: string): Promise<ProjectHub | null>
       collection: 'groups',
       where: { slug: { equals: slug } },
       limit: 1,
-      depth: 0,
+      depth: 1,
     });
 
     const doc = result.docs[0];
