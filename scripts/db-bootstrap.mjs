@@ -50,6 +50,58 @@ const statements = [
       )
     `,
   },
+  {
+    label: 'posts.chapter',
+    run: () => sql`
+      ALTER TABLE "posts"
+        ADD COLUMN IF NOT EXISTS "chapter" varchar
+    `,
+  },
+  {
+    label: '_posts_v.version_chapter',
+    run: () => sql`
+      ALTER TABLE "_posts_v"
+        ADD COLUMN IF NOT EXISTS "version_chapter" varchar
+    `,
+  },
+  {
+    label: 'groups_chapters table',
+    run: () => sql`
+      CREATE TABLE IF NOT EXISTS "groups_chapters" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "_order" integer NOT NULL,
+        "_parent_id" integer NOT NULL,
+        "title" varchar NOT NULL,
+        "slug" varchar NOT NULL
+      )
+    `,
+  },
+  {
+    label: 'groups_chapters FK',
+    run: () => sql`
+      DO $$ BEGIN
+        ALTER TABLE "groups_chapters"
+          ADD CONSTRAINT "groups_chapters_parent_id_fk"
+          FOREIGN KEY ("_parent_id") REFERENCES "public"."groups"("id")
+          ON DELETE CASCADE ON UPDATE NO ACTION;
+      EXCEPTION WHEN duplicate_object THEN null;
+      END $$;
+    `,
+  },
+  {
+    label: 'groups_chapters_order_idx',
+    run: () => sql`
+      CREATE INDEX IF NOT EXISTS "groups_chapters_order_idx"
+        ON "groups_chapters" USING btree ("_order")
+    `,
+  },
+  {
+    label: 'groups_chapters_parent_id_idx',
+    run: () => sql`
+      CREATE INDEX IF NOT EXISTS "groups_chapters_parent_id_idx"
+        ON "groups_chapters" USING btree ("_parent_id")
+    `,
+  },
 ];
 
 let failed = false;
