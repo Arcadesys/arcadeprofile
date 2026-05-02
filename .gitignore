@@ -9,3 +9,6 @@
 .next/
 
 .vercel
+
+# TypeScript incremental build cache
+*.tsbuildinfo
