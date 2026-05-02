@@ -54,7 +54,29 @@ export const Posts: CollectionConfig = {
           try {
             const { sendBlogPostNewsletter } = await import('../lib/activecampaign');
             const subject = (doc.newsletterHeading as string) || (doc.title as string);
-            const { htmlBody, textBody } = buildPostNewsletterContent(doc as Post);
+
+            // Look up the group so the email can fall back to its image when
+            // the post has no populated meta.image of its own.
+            let group: { image?: string | null; title?: string | null } | null = null;
+            const groupSlug = typeof doc.group === 'string' ? doc.group.trim() : '';
+            if (groupSlug) {
+              const groupResult = await req.payload.find({
+                collection: 'groups',
+                where: { slug: { equals: groupSlug } },
+                depth: 0,
+                limit: 1,
+                overrideAccess: true,
+              });
+              const found = groupResult.docs[0] as { image?: string | null; title?: string | null } | undefined;
+              if (found) {
+                group = { image: found.image ?? null, title: found.title ?? null };
+              }
+            }
+
+            const { htmlBody, textBody } = buildPostNewsletterContent({
+              ...(doc as Post),
+              group,
+            });
 
             let scheduledSendAt: Date | undefined;
             const publishedRaw = doc.publishedDate;
