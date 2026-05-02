@@ -128,7 +128,6 @@ test('list_posts returns shaped post objects', async () => {
           title: 'Test Post',
           slug: 'test-post',
           group: null,
-          _status: 'published',
           publish_status: 'sent',
           publishedDate: '2026-01-01',
           excerpt: 'Excerpt here',
@@ -142,12 +141,10 @@ test('list_posts returns shaped post objects', async () => {
     assert.equal(result.content[0].type, 'text');
     const posts = JSON.parse(result.content[0].text as string) as {
       slug: string;
-      status: string;
       publish_status: string;
     }[];
     assert.equal(posts.length, 1);
     assert.equal(posts[0].slug, 'test-post');
-    assert.equal(posts[0].status, 'published');
     assert.equal(posts[0].publish_status, 'sent');
   } finally {
     restore();
@@ -196,7 +193,7 @@ test('create_post sends tags as array-of-objects to Payload', async () => {
     );
 
     // defaults to draft
-    assert.equal(capturedBody._status, 'draft');
+    assert.equal(capturedBody._status, undefined);
     assert.equal(capturedBody.publish_status, 'draft');
 
     // response text
@@ -207,7 +204,7 @@ test('create_post sends tags as array-of-objects to Payload', async () => {
   }
 });
 
-test('create_post sets _status=published when publish_status=published', async () => {
+test('create_post passes publish_status through without legacy _status', async () => {
   let capturedBody: Record<string, unknown> = {};
 
   const restore = mockFetch(async (_url, opts) => {
@@ -222,7 +219,7 @@ test('create_post sets _status=published when publish_status=published', async (
       content: 'Content.',
       publish_status: 'published',
     });
-    assert.equal(capturedBody._status, 'published');
+    assert.equal(capturedBody._status, undefined);
     assert.equal(capturedBody.publish_status, 'published');
   } finally {
     restore();
@@ -245,7 +242,7 @@ test('update_post returns not-found message when post missing', async () => {
   }
 });
 
-test('update_post syncs _status when publish_status changes', async () => {
+test('update_post passes publish_status through without legacy _status', async () => {
   let patchBody: Record<string, unknown> = {};
   let callCount = 0;
 
@@ -262,7 +259,7 @@ test('update_post syncs _status when publish_status changes', async () => {
 
   try {
     await toolHandlers.update_post({ slug: 'draft-post', publish_status: 'published' });
-    assert.equal(patchBody._status, 'published');
+    assert.equal(patchBody._status, undefined);
     assert.equal(patchBody.publish_status, 'published');
   } finally {
     restore();

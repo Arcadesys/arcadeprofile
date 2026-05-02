@@ -29,13 +29,6 @@ const statements = [
     `,
   },
   {
-    label: '_posts_v.version_newsletter_sent',
-    run: () => sql`
-      ALTER TABLE "_posts_v"
-        ADD COLUMN IF NOT EXISTS "version_newsletter_sent" boolean DEFAULT false
-    `,
-  },
-  {
     label: 'nav_items table',
     run: () => sql`
       CREATE TABLE IF NOT EXISTS "nav_items" (
@@ -55,13 +48,6 @@ const statements = [
     run: () => sql`
       ALTER TABLE "posts"
         ADD COLUMN IF NOT EXISTS "chapter" varchar
-    `,
-  },
-  {
-    label: '_posts_v.version_chapter',
-    run: () => sql`
-      ALTER TABLE "_posts_v"
-        ADD COLUMN IF NOT EXISTS "version_chapter" varchar
     `,
   },
   {

@@ -74,8 +74,8 @@ export const toolDefinitions: Tool[] = [
         limit: { type: 'number', description: 'Max results (default 50)' },
         status: {
           type: 'string',
-          enum: ['draft', 'published'],
-          description: 'Filter by _status',
+          enum: ['draft', 'scheduled', 'published', 'sent'],
+          description: 'Filter by publish_status',
         },
       },
     },
@@ -302,7 +302,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
   async list_posts(args) {
     const limit = (args.limit as number) || 50;
-    const where = args.status ? `&where[_status][equals]=${args.status}` : '';
+    const where = args.status ? `&where[publish_status][equals]=${args.status}` : '';
     const data = (await payloadFetch(
       `/posts?limit=${limit}&sort=-publishedDate&depth=0${where}`,
     )) as { docs: Record<string, unknown>[] };
@@ -311,7 +311,6 @@ export const toolHandlers: Record<string, ToolHandler> = {
       title: p.title,
       slug: p.slug,
       group: p.group,
-      status: p._status,
       publish_status: p.publish_status,
       publishedDate: p.publishedDate,
       excerpt: p.excerpt,
@@ -336,7 +335,6 @@ export const toolHandlers: Record<string, ToolHandler> = {
         .replace(/^-|-$/g, '');
 
     const publish_status = (args.publish_status as string) || 'draft';
-    const _status = publish_status === 'published' ? 'published' : 'draft';
 
     // Discoverability: default canonical_path to /blog/{slug} if not provided
     const discoverabilityIn = (args.discoverability as Record<string, unknown>) || {};
@@ -351,7 +349,6 @@ export const toolHandlers: Record<string, ToolHandler> = {
       excerpt: args.excerpt,
       content: await markdownToLexical(args.content as string),
       publishedDate: (args.publishedDate as string) || new Date().toISOString().slice(0, 10),
-      _status,
       publish_status,
     };
 
@@ -412,8 +409,6 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
     if (args.publish_status !== undefined) {
       payload.publish_status = args.publish_status;
-      // Keep _status in sync
-      payload._status = args.publish_status === 'published' ? 'published' : 'draft';
     }
 
     if (Array.isArray(args.tags)) {

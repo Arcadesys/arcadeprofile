@@ -25,9 +25,6 @@ async function publishScheduledPosts() {
     where: {
       and: [
         {
-          _status: { equals: 'draft' },
-        },
-        {
           publish_status: { equals: 'scheduled' },
         },
         {
@@ -46,12 +43,10 @@ async function publishScheduledPosts() {
         collection: 'posts',
         id: post.id,
         data: {
-          _status: 'published',
           publish_status: 'published',
           publishedDate: post.scheduledPublishDate || now,
         },
         depth: 0,
-        draft: false,
         overrideAccess: true,
       });
 

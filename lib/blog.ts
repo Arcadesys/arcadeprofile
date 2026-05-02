@@ -100,7 +100,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
   try {
     result = await payload.find({
       collection: 'posts',
-      where: { _status: { equals: 'published' } },
+      where: { publish_status: { in: ['published', 'sent'] } },
       sort: '-publishedDate',
       limit: 100,
       depth: 0,
@@ -116,7 +116,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
 
     result = await payload.find({
       collection: 'posts',
-      where: { _status: { equals: 'published' } },
+      where: { publish_status: { in: ['published', 'sent'] } },
       sort: '-publishedDate',
       limit: 100,
       depth: 0,
@@ -128,7 +128,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
 }
 
 /**
- * Published posts only, for RSS and syndication (excludes drafts).
+ * Published posts only, for RSS and syndication.
  */
 export async function getPublishedPostsForRss(): Promise<BlogPost[]> {
   const payload = await getPayloadClient();
@@ -136,7 +136,7 @@ export async function getPublishedPostsForRss(): Promise<BlogPost[]> {
   const result = await payload.find({
     collection: 'posts',
     where: {
-      _status: { equals: 'published' },
+      publish_status: { in: ['published', 'sent'] },
     },
     sort: '-publishedDate',
     limit: 100,
@@ -154,7 +154,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     where: {
       and: [
         { slug: { equals: slug } },
-        { _status: { equals: 'published' } },
+        { publish_status: { in: ['published', 'sent'] } },
       ],
     },
     limit: 1,
@@ -175,7 +175,7 @@ export async function getPostsBySlugs(slugs: string[]): Promise<BlogPost[]> {
     where: {
       and: [
         { slug: { in: uniqueSlugs } },
-        { _status: { equals: 'published' } },
+        { publish_status: { in: ['published', 'sent'] } },
       ],
     },
     limit: uniqueSlugs.length,
@@ -202,7 +202,7 @@ export async function getSamplePosts(): Promise<BlogPost[]> {
       where: {
         and: [
           { showInSamples: { equals: true } },
-          { _status: { equals: 'published' } },
+          { publish_status: { in: ['published', 'sent'] } },
         ],
       },
       sort: 'sampleOrder',
@@ -241,7 +241,7 @@ export async function getSamplePostBySlug(slug: string): Promise<BlogPost | null
         and: [
           { slug: { equals: slug } },
           { showInSamples: { equals: true } },
-          { _status: { equals: 'published' } },
+          { publish_status: { in: ['published', 'sent'] } },
         ],
       },
       limit: 1,
@@ -279,7 +279,7 @@ export async function getAllGroups(): Promise<Group[]> {
       where: {
         and: [
           { group: { equals: g.slug } },
-          { _status: { equals: 'published' } },
+          { publish_status: { in: ['published', 'sent'] } },
         ],
       },
       sort: 'order',

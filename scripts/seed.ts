@@ -171,15 +171,17 @@ async function main() {
           : undefined;
 
       const scheduleEntry = scheduleMap.get(slug);
-      let _status: 'draft' | 'published' = 'draft';
+      let publish_status: 'draft' | 'scheduled' | 'published' | 'sent' = 'draft';
       let newsletterSent = false;
       let scheduledPublishDate: string | undefined;
       if (scheduleEntry) {
-        if (scheduleEntry.status === 'published' || scheduleEntry.status === 'sent') {
-          _status = 'published';
-        }
         if (scheduleEntry.status === 'sent') {
+          publish_status = 'sent';
           newsletterSent = true;
+        } else if (scheduleEntry.status === 'published') {
+          publish_status = 'published';
+        } else if (scheduleEntry.status === 'scheduled') {
+          publish_status = 'scheduled';
         }
         if (scheduleEntry.scheduledDate) {
           scheduledPublishDate = scheduleEntry.scheduledDate;
@@ -198,7 +200,7 @@ async function main() {
           excerpt,
           content: lexicalContent as any,
           publishedDate: date,
-          _status,
+          publish_status,
           newsletterSent,
           scheduledPublishDate,
           group: group ?? '',
@@ -209,7 +211,7 @@ async function main() {
           newsletterDescription,
         },
       });
-      console.log(`  Created post: "${title}" (${slug}) [${_status}${newsletterSent ? ', sent' : ''}]`);
+      console.log(`  Created post: "${title}" (${slug}) [${publish_status}${newsletterSent ? ', sent' : ''}]`);
     }
   } else {
     console.log('No content/blog directory found, skipping blog seed.');
