@@ -10,6 +10,7 @@ import * as migration_20260502_000000_add_posts_newsletter_sent from './20260502
 import * as migration_20260502_010000_add_nav_items from './20260502_010000_add_nav_items';
 import * as migration_20260502_030000_drop_posts_drafts from './20260502_030000_drop_posts_drafts';
 import * as migration_20260502_040000_add_nav_items_locked_docs_rel from './20260502_040000_add_nav_items_locked_docs_rel';
+import * as migration_20260502_050000_fix_array_table_ids from './20260502_050000_fix_array_table_ids';
 
 export const migrations = [
   {
@@ -71,5 +72,10 @@ export const migrations = [
     up: migration_20260502_040000_add_nav_items_locked_docs_rel.up,
     down: migration_20260502_040000_add_nav_items_locked_docs_rel.down,
     name: '20260502_040000_add_nav_items_locked_docs_rel',
+  },
+  {
+    up: migration_20260502_050000_fix_array_table_ids.up,
+    down: migration_20260502_050000_fix_array_table_ids.down,
+    name: '20260502_050000_fix_array_table_ids',
   },
 ];
