@@ -20,7 +20,7 @@ export const Groups: CollectionConfig = {
       name: 'description',
       type: 'textarea',
     },
-    { name: 'image', type: 'text' },
+    { name: 'image', type: 'upload', relationTo: 'media' },
     { name: 'href', type: 'text' },
     {
       name: 'external',

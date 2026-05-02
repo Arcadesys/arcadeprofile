@@ -340,7 +340,7 @@ export interface Group {
    */
   slug: string;
   description?: string | null;
-  image?: string | null;
+  image?: (number | null) | Media;
   href?: string | null;
   /**
    * Whether `href` points off-site.
