@@ -1,7 +1,29 @@
 import Link from 'next/link';
+import { getPayload } from 'payload';
+import config from '@payload-config';
 import SubscribeCTA from '../components/SubscribeCTA';
 
-export default function HomePage() {
+export default async function HomePage() {
+  let featuredGroups: { id: string | number; title: string; description?: string | null; slug?: string | null; href?: string | null; external?: boolean | null }[] = [];
+
+  try {
+    const payload = await getPayload({ config });
+    const result = await payload.find({
+      collection: 'groups',
+      where: { homeHighlight: { equals: true } },
+      limit: 10,
+    });
+    featuredGroups = result.docs.map((doc) => ({
+      id: doc.id,
+      title: doc.title,
+      description: doc.description,
+      slug: doc.slug,
+      href: doc.href,
+      external: doc.external,
+    }));
+  } catch {
+    // fall through to empty list
+  }
   return (
     <main style={{ position: 'relative', zIndex: 1, padding: '4rem 2rem', maxWidth: '600px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'center', margin: '0 0 2rem' }}>
@@ -68,32 +90,35 @@ export default function HomePage() {
         </ul>
       </section>
 
-      {/* Try These First */}
-      <section style={{ margin: '2rem 0' }}>
-        <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Try these first</h2>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.6rem' }}>
-          <li>
-            <Link href="/bio" className="button-link" style={{ display: 'inline-block' }}>
-              &rarr; Who I am
-            </Link>
-          </li>
-          <li>
-            <Link href="/blog" className="button-link" style={{ display: 'inline-block' }}>
-              &rarr; What I write
-            </Link>
-          </li>
-          <li>
-            <Link href="/projects" className="button-link" style={{ display: 'inline-block' }}>
-              &rarr; What I build
-            </Link>
-          </li>
-          <li>
-            <Link href="/resume" className="button-link" style={{ display: 'inline-block' }}>
-              &rarr; Where I&rsquo;ve been
-            </Link>
-          </li>
-        </ul>
-      </section>
+      {/* Current Projects */}
+      {featuredGroups.length > 0 && (
+        <section style={{ margin: '2rem 0' }}>
+          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Current projects</h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.6rem' }}>
+            {featuredGroups.map((group) => {
+              const href = group.href ?? (group.slug ? `/projects/${group.slug}` : '/projects');
+              return (
+                <li key={String(group.id)}>
+                  {group.external ? (
+                    <a href={href} className="button-link" style={{ display: 'inline-block' }} target="_blank" rel="noopener noreferrer">
+                      &rarr; {group.title}
+                    </a>
+                  ) : (
+                    <Link href={href} className="button-link" style={{ display: 'inline-block' }}>
+                      &rarr; {group.title}
+                    </Link>
+                  )}
+                  {group.description && (
+                    <p style={{ margin: '0.25rem 0 0 1.25rem', fontSize: '0.875rem', color: 'var(--fg-muted)', lineHeight: 1.5 }}>
+                      {group.description}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
     </main>
   );
 }
