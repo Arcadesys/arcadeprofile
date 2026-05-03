@@ -113,7 +113,14 @@ export const Posts: CollectionConfig = {
             );
           } catch (err) {
             // Don't fail the save if newsletter send fails; log and continue
-            console.error('[newsletter] Failed to send campaign:', err);
+            const detail = (err as any)?.details;
+            const status = (err as any)?.causeStatus;
+            console.error(
+              '[newsletter] Failed to send campaign:',
+              err instanceof Error ? err.message : err,
+              ...(status !== undefined ? [`(HTTP ${status})`] : []),
+              ...(detail ? [`| AC detail: ${detail}`] : []),
+            );
           }
         }
       },

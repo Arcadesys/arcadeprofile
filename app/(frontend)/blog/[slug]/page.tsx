@@ -175,11 +175,9 @@ export default async function BlogPostPage({ params }: Props) {
             ← Back to blog
           </Link>
         </footer>
-      </main>
 
-      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 1.5rem 6rem' }}>
         <SubscribeCTA />
-      </div>
+      </main>
     </>
   );
 }
