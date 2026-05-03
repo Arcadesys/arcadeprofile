@@ -25,13 +25,13 @@ export default async function HomePage() {
     // fall through to empty list
   }
   return (
-    <main style={{ position: 'relative', zIndex: 1, padding: '4rem 2rem', maxWidth: '600px', margin: '0 auto' }}>
+    <main style={{ position: 'relative', zIndex: 1, padding: 'clamp(1.5rem, 5vw, 4rem) 1rem', maxWidth: '600px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'center', margin: '0 0 2rem' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/hero.jpg"
           alt="Austen Tucker illustration"
-          style={{ borderRadius: '12px', maxWidth: '100%', width: '320px', height: 'auto' }}
+          style={{ borderRadius: '12px', width: 'min(320px, 100%)', height: 'auto' }}
         />
       </div>
 

@@ -56,7 +56,7 @@ export default function SubscribeCTA() {
           ✓ You&apos;re in. Talk soon.
         </p>
       ) : (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <input
             type="email"
             value={email}
@@ -64,8 +64,8 @@ export default function SubscribeCTA() {
             placeholder="you@example.com"
             required
             disabled={status === 'loading'}
+            className="flex-1 min-w-0"
             style={{
-              flex: '1 1 200px',
               padding: '0.55rem 0.85rem',
               background: 'var(--bg-deep)',
               border: '1px solid var(--border-strong)',

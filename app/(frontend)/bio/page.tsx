@@ -44,11 +44,11 @@ function Tag({ label }: { label: string }) {
 
 export default function BioPage() {
   return (
-    <main style={{ maxWidth: '740px', margin: '0 auto', padding: '2rem 1rem' }}>
+    <main style={{ maxWidth: '740px', margin: '0 auto', padding: 'clamp(1rem, 4vw, 2rem) 1rem' }}>
 
       {/* Header */}
-      <section style={{ marginBottom: '2.5rem', marginTop: '2rem', textAlign: 'center' }}>
-        <h1 className="gaysparkles" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
+      <section style={{ marginBottom: '2.5rem', marginTop: '1.5rem', textAlign: 'center' }}>
+        <h1 className="gaysparkles" style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', marginBottom: '0.5rem' }}>
           Austen Tucker-Crowder
         </h1>
         <p style={{ color: 'var(--fg-muted)', fontSize: '1.05rem', margin: '0 0 0.5rem' }}>
@@ -84,7 +84,7 @@ export default function BioPage() {
       {/* What I do */}
       <section style={{ marginBottom: '2.5rem' }}>
         <h2 style={sectionHeadingStyle}>What I do</h2>
-        <ul style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', listStyle: 'none', padding: 0, margin: 0 }}>
+        <ul style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '1rem', listStyle: 'none', padding: 0, margin: 0 }}>
           {[
             {
               title: 'AI Enablement',
