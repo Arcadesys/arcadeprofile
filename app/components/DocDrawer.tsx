@@ -101,6 +101,12 @@ export default function DocDrawer({
 
   return (
     <>
+      <div
+        className={`dd-scrim${open ? ' visible' : ''}`}
+        aria-hidden="true"
+        onClick={() => setOpen(false)}
+      />
+
       <button
         id="dd-toggle"
         className="dd-toggle"
@@ -109,7 +115,7 @@ export default function DocDrawer({
         aria-controls="doc-drawer"
         onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
       >
-        ☰
+        {open ? '×' : '☰'}
       </button>
 
       <aside
