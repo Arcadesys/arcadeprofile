@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import SubscribeCTA from '../components/SubscribeCTA';
 
@@ -6,13 +5,11 @@ export default function HomePage() {
   return (
     <main style={{ position: 'relative', zIndex: 1, padding: '4rem 2rem', maxWidth: '600px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'center', margin: '0 0 2rem' }}>
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src="/images/hero.jpg"
           alt="Austen Tucker illustration"
-          width={320}
-          height={427}
-          priority
-          style={{ borderRadius: '12px', maxWidth: '100%', height: 'auto' }}
+          style={{ borderRadius: '12px', maxWidth: '100%', width: '320px', height: 'auto' }}
         />
       </div>
 
