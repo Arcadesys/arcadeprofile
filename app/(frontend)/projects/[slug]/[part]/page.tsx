@@ -165,16 +165,9 @@ export default async function ProjectPartPage({ params }: Props) {
     />
   );
 
-  const mainStyle: React.CSSProperties = {
-    maxWidth: '680px',
-    margin: '0 auto',
-    padding: '4rem 1.5rem 6rem',
-    paddingLeft: posts.length > 0 ? 'max(1.5rem, calc(280px + 2rem))' : '1.5rem',
-  };
-  const postMainStyle: React.CSSProperties = {
-    padding: '4rem 2rem 6rem',
-    paddingLeft: posts.length > 0 ? 'max(2rem, calc(280px + 2rem))' : '2rem',
-  };
+  const drawerCls = posts.length > 0 ? ' has-drawer' : '';
+  const mainCls = `dd-intro-main${drawerCls}`;
+  const postMainCls = `dd-post-main${drawerCls}`;
 
   // ── intro ──
   if (idx === 0) {
@@ -182,7 +175,7 @@ export default async function ProjectPartPage({ params }: Props) {
     return (
       <>
         {posts.length > 0 && drawer}
-        <main style={mainStyle}>
+        <main className={mainCls}>
           <nav style={{ marginBottom: '2.5rem' }}>
             <Link href="/projects" style={navLinkStyle}>← Projects</Link>
           </nav>
@@ -284,7 +277,7 @@ export default async function ProjectPartPage({ params }: Props) {
   return (
     <>
       {drawer}
-      <main style={postMainStyle}>
+      <main className={postMainCls}>
         <nav style={{ marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
           <Link href={`/projects/${slug}/00`} style={navLinkStyle}>← {project.title}</Link>
         </nav>

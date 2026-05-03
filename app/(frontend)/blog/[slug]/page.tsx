@@ -114,9 +114,9 @@ export default async function BlogPostPage({ params }: Props) {
       <main style={{
         maxWidth: '680px',
         margin: '0 auto',
-        padding: '4rem 1.5rem 6rem',
+        padding: 'clamp(2rem, 5vw, 4rem) 1rem clamp(3rem, 8vw, 6rem)',
         // Shift right when drawer is visible at wide viewports
-        paddingLeft: group ? 'max(1.5rem, calc(280px + 2rem))' : '1.5rem',
+        paddingLeft: group ? 'max(1rem, calc(280px + 2rem))' : '1rem',
       }}>
         <nav style={{ marginBottom: '2.5rem' }}>
           <Link
@@ -134,7 +134,7 @@ export default async function BlogPostPage({ params }: Props) {
         </nav>
 
         <header style={{ marginBottom: '2.5rem' }}>
-          <h1 style={{ fontSize: '2rem', lineHeight: 1.2, marginBottom: '0.75rem' }}>
+          <h1 style={{ fontSize: 'clamp(1.4rem, 5vw, 2rem)', lineHeight: 1.2, marginBottom: '0.75rem' }}>
             {post.title}
           </h1>
           <p style={{

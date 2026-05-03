@@ -720,6 +720,40 @@ hr, hr.ds-hr {
   body.dd-open .nav-wrapper { padding-left: calc(280px + var(--space-5)); }
 }
 
+/* Scrim behind the drawer on mobile */
+.dd-scrim {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 39;
+  animation: dd-fade-in 0.2s ease;
+}
+@keyframes dd-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@media (max-width: 1100px) {
+  .dd-scrim { display: block; }
+  .dd-scrim:not(.visible) { display: none; }
+}
+
+/* Main content areas for longform project pages */
+.dd-intro-main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 6rem;
+}
+.dd-post-main {
+  padding: 4rem 2rem 6rem;
+}
+/* Desktop: shift content right to clear the always-visible drawer */
+@media (min-width: 1101px) {
+  .dd-intro-main.has-drawer {
+    padding-left: max(1.5rem, calc(280px + 2rem));
+  }
+  .dd-post-main.has-drawer {
+    padding-left: max(2rem, calc(280px + 2rem));
+  }
+}
+
 /* ── Component library ──────────────────────────────────── */
 
 /* austenbox — the signature surface card */
@@ -1277,18 +1311,35 @@ html[data-contrast="high"] .site-nav a.primary {
   box-shadow: none;
 }
 
+/* Mobile nav adjustments */
+@media (max-width: 480px) {
+  .nav-wrapper {
+    padding: var(--space-2) var(--space-3);
+  }
+  .site-nav {
+    padding: 10px 14px;
+  }
+  .site-nav a:not(.nav-logo) {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+  .nav-logo img {
+    height: 24px;
+  }
+}
+
 /* ── Projects page ──────────────────────────────────────── */
 .projects-page {
   max-width: 860px;
   margin: 0 auto;
-  padding: var(--space-7) var(--space-5) var(--space-8);
+  padding: clamp(var(--space-5), 5vw, var(--space-7)) var(--space-4) var(--space-8);
 }
 
 .projects-header {
   margin-bottom: var(--space-7);
 }
 .projects-header h1 {
-  font-size: 2.5rem;
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
   font-weight: 300;
   letter-spacing: 0.06em;
   margin-bottom: var(--space-3);

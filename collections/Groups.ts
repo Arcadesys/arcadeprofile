@@ -8,7 +8,7 @@ import { adminGroups, titledAdmin } from './shared/admin';
 export const Groups: CollectionConfig = {
   slug: 'groups',
   access: publicReadAccess,
-  admin: titledAdmin(adminGroups.content, ['title', 'slug', 'category', 'featured', 'updatedAt']),
+  admin: titledAdmin(adminGroups.content, ['title', 'slug', 'category', 'featured', 'homeHighlight', 'updatedAt']),
   fields: [
     {
       name: 'title',
@@ -37,6 +37,15 @@ export const Groups: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description: 'Feature this group in the main navigation panel.',
+      },
+    },
+    {
+      name: 'homeHighlight',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Show this group in the "Current projects" section on the home page.',
       },
     },
     {

@@ -350,6 +350,10 @@ export interface Group {
    * Feature this group in the main navigation panel.
    */
   featured?: boolean | null;
+  /**
+   * Show this group in the "Current projects" section on the home page.
+   */
+  homeHighlight?: boolean | null;
   category?: ('fiction' | 'tools' | 'experiments' | 'audio-video' | 'community' | 'writing') | null;
   status?: ('active' | 'available' | 'in-progress' | 'archived') | null;
   tags?:
@@ -955,6 +959,7 @@ export interface GroupsSelect<T extends boolean = true> {
   href?: T;
   external?: T;
   featured?: T;
+  homeHighlight?: T;
   category?: T;
   status?: T;
   tags?:

@@ -26,8 +26,8 @@ export default async function BlogPage() {
   const published = posts.filter(p => p.date);
 
   return (
-    <main style={{ maxWidth: '680px', margin: '0 auto', padding: '4rem 1.5rem 6rem' }}>
-      <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>Blog</h1>
+    <main style={{ maxWidth: '680px', margin: '0 auto', padding: 'clamp(2rem, 5vw, 4rem) 1rem clamp(3rem, 8vw, 6rem)' }}>
+      <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', marginBottom: '0.25rem' }}>Blog</h1>
       <p style={{ color: 'var(--fg-muted)', marginBottom: '3rem', fontSize: '1rem' }}>
         Writing by Austen Tucker.
       </p>
