@@ -42,13 +42,13 @@ export default function SubscribeCTA() {
         textTransform: 'uppercase',
         margin: '0 0 0.5rem',
       }}>
-        Newsletter
+        Fiction by email
       </p>
       <h2 style={{ fontSize: '1.15rem', margin: '0 0 0.5rem', lineHeight: 1.3 }}>
-        Get the work in your inbox
+        Read it as it arrives
       </h2>
       <p style={{ fontSize: '0.88rem', color: 'var(--fg-muted)', margin: '0 0 1.25rem', lineHeight: 1.6 }}>
-        New posts, projects, and the occasional dispatch from the margins — no noise, no ads.
+        Monday, Wednesday, Friday — one installment at a time, straight to your inbox.
       </p>
 
       {status === 'success' ? (
