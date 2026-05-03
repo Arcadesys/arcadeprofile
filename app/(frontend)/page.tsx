@@ -1,9 +1,50 @@
+import Image from 'next/image';
 import Link from 'next/link';
+import SubscribeCTA from '../components/SubscribeCTA';
 
 export default function HomePage() {
   return (
     <main style={{ position: 'relative', zIndex: 1, padding: '4rem 2rem', maxWidth: '600px', margin: '0 auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '0 0 2rem' }}>
+        <Image
+          src="/images/hero.jpg"
+          alt="Austen Tucker illustration"
+          width={320}
+          height={427}
+          priority
+          style={{ borderRadius: '12px', maxWidth: '100%', height: 'auto' }}
+        />
+      </div>
+
       <h1 className="gaysparkles">The Arcades</h1>
+
+      {/* Manifesto */}
+      <section style={{ margin: '2rem 0' }}>
+        <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
+          I miss email lists.
+        </p>
+        <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
+          Not newsletters. Not funnels. Not algorithmic confetti.
+        </p>
+        <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
+          I mean the old kind: serialized stories in your inbox, readers replying, people gathering around the same strange little fire.
+        </p>
+        <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
+          So I&rsquo;m bringing that back.
+        </p>
+        <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
+          Subscribe to The Arcades and you&rsquo;ll get fiction every Monday, Wednesday, and Friday, delivered one installment at a time.
+        </p>
+        <p style={{ lineHeight: 1.75, marginBottom: '0.5rem' }}>
+          Read like we used to on listservs.<br />
+          Read like the Victorians did Dickens.<br />
+          Read like the internet can still be a place worth visiting.
+        </p>
+        <p style={{ lineHeight: 1.75, marginTop: '1rem', color: 'var(--fg-muted)', fontSize: '0.92rem' }}>
+          If you enjoy it, my only ask is that you share it.
+        </p>
+        <SubscribeCTA />
+      </section>
 
       {/* Strange But True */}
       <section style={{
