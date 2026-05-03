@@ -8,6 +8,7 @@ import { getGroupBySlug } from '@/lib/blog';
 import { categoryLabels } from '@/components/menu';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
+import SubscribeCTA from '@/app/components/SubscribeCTA';
 
 export const dynamic = 'force-dynamic';
 
@@ -320,6 +321,10 @@ export default async function ProjectPartPage({ params }: Props) {
           </div>
         </footer>
       </main>
+
+      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 1.5rem 6rem' }}>
+        <SubscribeCTA />
+      </div>
     </>
   );
 }
