@@ -172,6 +172,12 @@ export const Posts: CollectionConfig = {
       name: 'scheduledPublishDate',
       label: 'Scheduled Publish Date',
       type: 'date',
+      defaultValue: () => {
+        const d = new Date();
+        d.setUTCHours(13, 0, 0, 0); // 08:00 CDT
+        if (d <= new Date()) d.setUTCDate(d.getUTCDate() + 1);
+        return d.toISOString();
+      },
       admin: {
         position: 'sidebar',
         description: 'When a draft should be promoted to published by the scheduler.',
