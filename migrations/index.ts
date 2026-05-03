@@ -11,6 +11,7 @@ import * as migration_20260502_010000_add_nav_items from './20260502_010000_add_
 import * as migration_20260502_030000_drop_posts_drafts from './20260502_030000_drop_posts_drafts';
 import * as migration_20260502_040000_add_nav_items_locked_docs_rel from './20260502_040000_add_nav_items_locked_docs_rel';
 import * as migration_20260502_050000_fix_array_table_ids from './20260502_050000_fix_array_table_ids';
+import * as migration_20260503_000000_add_groups_home_highlight from './20260503_000000_add_groups_home_highlight';
 
 export const migrations = [
   {
@@ -77,5 +78,10 @@ export const migrations = [
     up: migration_20260502_050000_fix_array_table_ids.up,
     down: migration_20260502_050000_fix_array_table_ids.down,
     name: '20260502_050000_fix_array_table_ids',
+  },
+  {
+    up: migration_20260503_000000_add_groups_home_highlight.up,
+    down: migration_20260503_000000_add_groups_home_highlight.down,
+    name: '20260503_000000_add_groups_home_highlight',
   },
 ];
