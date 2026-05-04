@@ -328,15 +328,7 @@ export async function getGroupBySlug(slug: string): Promise<Group | null> {
   }
 }
 
-/** Zero-pad a part index for project URLs (intro is 00, posts start at 01). */
-export function partNum(n: number): string {
-  return String(n).padStart(2, '0');
-}
-
-/** Canonical permalink for a post within its group: /projects/<group>/<part>. */
-export function buildPostUrl(groupSlug: string, partIndex: number): string {
-  return `/projects/${groupSlug}/${partNum(partIndex)}`;
-}
+export { partNum, buildPostUrl } from './post-url';
 
 export type PostLocation = {
   groupSlug: string;

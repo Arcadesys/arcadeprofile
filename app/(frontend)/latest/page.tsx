@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import type { SerializedEditorState } from 'lexical';
 import { getAllPosts, buildPostUrl, buildPostUrlMap } from '@/lib/blog';
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext';
 
@@ -21,8 +22,25 @@ function formatDate(dateStr: string): string {
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
+// `convertLexicalToPlaintext` throws on Lexical states that contain nodes it
+// doesn't know how to walk (legacy media embeds, custom blocks, etc.). Treat
+// a failure as "no teaser available" rather than crashing the whole list page.
+function safePlaintext(content: SerializedEditorState | undefined): string {
+  if (!content) return '';
+  try {
+    return convertLexicalToPlaintext({ data: content });
+  } catch (err) {
+    console.error('[/latest] convertLexicalToPlaintext failed:', err);
+    return '';
+  }
+}
+
 export default async function LatestPage() {
-  const [posts, urlMap] = await Promise.all([getAllPosts(), buildPostUrlMap()]);
+  // Sequential rather than parallel: parallel `getPayload()` initializers
+  // can race on cold starts and surface as opaque "Server Components render"
+  // failures in production.
+  const posts = await getAllPosts();
+  const urlMap = await buildPostUrlMap();
   const published = posts.filter(p => p.date && urlMap.has(p.slug));
 
   return (
@@ -34,10 +52,8 @@ export default async function LatestPage() {
 
       <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '3rem' }}>
         {published.map(post => {
-          const rawText = post.excerpt
-            ? post.excerpt
-            : convertLexicalToPlaintext({ data: post.content });
-          const teaser = first100Words(rawText);
+          const rawText = post.excerpt ? post.excerpt : safePlaintext(post.content);
+          const teaser = rawText ? first100Words(rawText) : '';
           const loc = urlMap.get(post.slug)!;
           const href = buildPostUrl(loc.groupSlug, loc.partIndex);
 

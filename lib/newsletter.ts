@@ -1,6 +1,8 @@
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html';
 import type { SerializedEditorState } from 'lexical';
 
+import { buildPostUrl } from './post-url';
+
 type NewsletterContent = {
   htmlBody: string;
   textBody: string;
@@ -17,10 +19,6 @@ type GroupHero = {
   title?: string | null;
   partIndex?: number | null;
 };
-
-function partNum(n: number): string {
-  return String(n).padStart(2, '0');
-}
 
 type PostInput = {
   content: SerializedEditorState;
@@ -120,7 +118,7 @@ export function buildPostNewsletterContent(
   const partIndex = post.group?.partIndex;
   const postPath =
     groupSlug && typeof partIndex === 'number' && partIndex > 0
-      ? `/projects/${groupSlug}/${partNum(partIndex)}`
+      ? buildPostUrl(groupSlug, partIndex)
       : '/projects';
   const postUrl = `${siteUrl.replace(/\/+$/, '')}${postPath}`;
   const escapedTitle = escapeHtml(post.title);

@@ -1,19 +1,31 @@
-import type { CollectionAfterChangeHook } from 'payload';
+import type { CollectionAfterChangeHook, Payload } from 'payload';
 
-type PathBuilder = (doc: Record<string, unknown>) => string[];
+type PathBuilder = (
+  doc: Record<string, unknown>,
+  payload: Payload,
+) => string[] | Promise<string[]>;
 
 export function revalidatePathsFor(buildPaths: PathBuilder): CollectionAfterChangeHook {
-  return ({ doc }) => {
-    import('next/cache')
-      .then(({ revalidatePath }) => {
+  return async ({ doc, req }) => {
+    let paths: string[] = [];
+    try {
+      paths = await Promise.resolve(buildPaths(doc, req.payload));
+    } catch (err) {
+      console.error('[revalidate] path builder threw:', err);
+      return;
+    }
+
+    try {
+      const { revalidatePath } = await import('next/cache');
+      for (const path of paths) {
         try {
-          for (const path of buildPaths(doc)) {
-            revalidatePath(path);
-          }
+          revalidatePath(path);
         } catch {
           // revalidatePath may fail outside request context.
         }
-      })
-      .catch(() => {});
+      }
+    } catch {
+      // next/cache import can fail in non-Next contexts (tests, scripts).
+    }
   };
 }
