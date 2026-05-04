@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
 
-import { ActiveCampaignError, formatCampaignSendDate, sendBlogPostNewsletter } from './activecampaign';
+import {
+  ActiveCampaignError,
+  formatCampaignSendDate,
+  sendBlogPostNewsletter,
+  syncSubscriberToActiveCampaign,
+} from './activecampaign';
 
 function setAcEnv(overrides: Record<string, string | undefined> = {}) {
   const defaults: Record<string, string> = {
@@ -414,5 +419,111 @@ test('sendBlogPostNewsletter throws when message_add response is not JSON', asyn
     (err: unknown) =>
       err instanceof ActiveCampaignError &&
       err.message.includes('message_add returned non-JSON'),
+  );
+});
+
+test('syncSubscriberToActiveCampaign upserts contact then subscribes to list', async () => {
+  setAcEnv();
+
+  const calls: Array<{ url: string; body: unknown }> = [];
+  const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
+    const url = urlPath(input);
+    const body = init?.body ? JSON.parse(String(init.body)) : null;
+    calls.push({ url, body });
+    if (url.endsWith('/api/3/contact/sync')) {
+      return new Response(
+        JSON.stringify({ contact: { id: 42 } }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    }
+    if (url.endsWith('/api/3/contactLists')) {
+      return new Response(
+        JSON.stringify({ contactList: { id: 1 } }),
+        { status: 201, headers: { 'content-type': 'application/json' } },
+      );
+    }
+    throw new Error(`unexpected url ${url}`);
+  };
+
+  const result = await syncSubscriberToActiveCampaign({
+    email: 'reader@example.com',
+    fetchImpl,
+  });
+
+  assert.equal(result.contactId, '42');
+  assert.equal(calls.length, 2);
+  assert.deepEqual(calls[0].body, { contact: { email: 'reader@example.com' } });
+  assert.deepEqual(calls[1].body, {
+    contactList: { list: 3, contact: 42, status: 1 },
+  });
+});
+
+test('syncSubscriberToActiveCampaign throws when contact/sync response missing id', async () => {
+  setAcEnv();
+
+  const fetchImpl = async (): Promise<Response> =>
+    new Response(JSON.stringify({ contact: {} }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+
+  await assert.rejects(
+    () => syncSubscriberToActiveCampaign({ email: 'x@y.com', fetchImpl }),
+    (err: unknown) =>
+      err instanceof ActiveCampaignError &&
+      err.message.includes('contact/sync response missing contact id'),
+  );
+});
+
+test('syncSubscriberToActiveCampaign treats "already on list" 422 as success', async () => {
+  setAcEnv();
+
+  const fetchImpl = async (input: RequestInfo): Promise<Response> => {
+    const url = urlPath(input);
+    if (url.endsWith('/api/3/contact/sync')) {
+      return new Response(JSON.stringify({ contact: { id: 11 } }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    return new Response(
+      JSON.stringify({
+        errors: [{ title: 'Contact is already a member of the list' }],
+      }),
+      { status: 422, headers: { 'content-type': 'application/json' } },
+    );
+  };
+
+  const result = await syncSubscriberToActiveCampaign({
+    email: 'returning@example.com',
+    fetchImpl,
+  });
+  assert.equal(result.contactId, '11');
+});
+
+test('syncSubscriberToActiveCampaign surfaces contactLists failure', async () => {
+  setAcEnv();
+
+  const fetchImpl = async (input: RequestInfo): Promise<Response> => {
+    const url = urlPath(input);
+    if (url.endsWith('/api/3/contact/sync')) {
+      return new Response(JSON.stringify({ contact: { id: 7 } }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    return new Response(
+      JSON.stringify({ errors: [{ title: 'list missing', detail: 'no list 3' }] }),
+      { status: 422, headers: { 'content-type': 'application/json' } },
+    );
+  };
+
+  await assert.rejects(
+    () => syncSubscriberToActiveCampaign({ email: 'x@y.com', fetchImpl }),
+    (err: unknown) =>
+      err instanceof ActiveCampaignError &&
+      err.message.includes('contactLists failed (422)') &&
+      typeof err.details === 'string' &&
+      err.details.includes('no list 3'),
   );
 });

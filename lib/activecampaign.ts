@@ -371,6 +371,116 @@ async function createCampaign(
   return String(id);
 }
 
+type AcContactSyncResponse = {
+  contact?: { id?: number | string };
+};
+
+/**
+ * Upserts a contact in ActiveCampaign by email and subscribes them to the
+ * configured newsletter list. Used by the public subscribe form so new
+ * signups land in AC, not just in Payload.
+ *
+ * @throws ActiveCampaignError on configuration or API failures
+ */
+export async function syncSubscriberToActiveCampaign(options: {
+  email: string;
+  listIdOverride?: string;
+  fetchImpl?: typeof fetch;
+}): Promise<{ contactId: string }> {
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const baseUrl = getApiBaseUrl();
+  const apiKey = getApiKey();
+  const listId = firstNonEmpty(options.listIdOverride) ?? getNewsletterListId();
+  const listIdInt = parseNewsletterListIdAsInt(listId);
+
+  const syncRes = await fetchWithTimeout(
+    `${baseUrl}/api/3/contact/sync`,
+    {
+      method: 'POST',
+      headers: {
+        'Api-Token': apiKey,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ contact: { email: options.email } }),
+    },
+    fetchImpl,
+    REQUEST_TIMEOUT_MS,
+  );
+
+  const syncText = await syncRes.text();
+  let syncParsed: AcContactSyncResponse & AcV3Errors;
+  try {
+    syncParsed = JSON.parse(syncText) as AcContactSyncResponse & AcV3Errors;
+  } catch {
+    throw new ActiveCampaignError(
+      'ActiveCampaign contact/sync returned non-JSON',
+      syncRes.status,
+      syncText.slice(0, 200),
+    );
+  }
+  if (!syncRes.ok) {
+    throw new ActiveCampaignError(
+      `ActiveCampaign contact/sync failed (${syncRes.status})`,
+      syncRes.status,
+      formatV3ErrorBody(syncParsed, syncText.slice(0, 300)),
+    );
+  }
+  const rawId = syncParsed.contact?.id;
+  if (rawId === undefined || rawId === null || String(rawId).trim() === '') {
+    throw new ActiveCampaignError(
+      'ActiveCampaign contact/sync response missing contact id',
+      syncRes.status,
+      syncText.slice(0, 300),
+    );
+  }
+  const contactId = String(rawId);
+
+  const listRes = await fetchWithTimeout(
+    `${baseUrl}/api/3/contactLists`,
+    {
+      method: 'POST',
+      headers: {
+        'Api-Token': apiKey,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        contactList: {
+          list: listIdInt,
+          contact: Number.parseInt(contactId, 10),
+          status: 1,
+        },
+      }),
+    },
+    fetchImpl,
+    REQUEST_TIMEOUT_MS,
+  );
+  const listText = await listRes.text();
+  if (!listRes.ok) {
+    let listParsed: AcV3Errors = {};
+    try {
+      listParsed = JSON.parse(listText) as AcV3Errors;
+    } catch {
+      // fall through to text body
+    }
+    const errorBody = formatV3ErrorBody(listParsed, listText.slice(0, 300));
+    // AC returns 422 when the contact is already subscribed to the list.
+    // Re-subscribes are expected (return signups, idempotent backfills),
+    // so treat that as success rather than logging noise on every one.
+    if (listRes.status === 422 && /already.*(member|subscribed|on.*list)/i.test(errorBody)) {
+      return { contactId };
+    }
+    throw new ActiveCampaignError(
+      `ActiveCampaign contactLists failed (${listRes.status})`,
+      listRes.status,
+      errorBody,
+    );
+  }
+
+  return { contactId };
+}
+
 /**
  * Creates a single-send campaign in ActiveCampaign by posting to the legacy
  * `/admin/api.php` action endpoints. The v3 REST API cannot link a message
