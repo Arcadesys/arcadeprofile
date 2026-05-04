@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPayload } from 'payload';
 import config from '@payload-config';
+import { syncSubscriberToActiveCampaign } from '@/lib/activecampaign';
 
 const VALID_TAGS = ['fiction', 'tech', 'updates'];
 
@@ -47,6 +48,16 @@ export async function POST(request: NextRequest) {
           tags: tagArray,
         },
       });
+    }
+
+    // Push to ActiveCampaign so the contact lands in the configured list.
+    // Failures here shouldn't roll back the Payload write — Payload is the
+    // source of truth and the operator can resync from there if AC has an
+    // outage. Log loudly so production issues are visible.
+    try {
+      await syncSubscriberToActiveCampaign({ email });
+    } catch (acErr) {
+      console.error('ActiveCampaign sync failed for subscriber:', email, acErr);
     }
 
     return NextResponse.json({ ok: true });
