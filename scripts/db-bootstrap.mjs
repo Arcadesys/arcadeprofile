@@ -114,6 +114,13 @@ const statements = [
         ON "payload_locked_documents_rels" USING btree ("nav_items_id")
     `,
   },
+  {
+    label: 'groups.jacket_description',
+    run: () => sql`
+      ALTER TABLE "groups"
+        ADD COLUMN IF NOT EXISTS "jacket_description" jsonb
+    `,
+  },
 ];
 
 let failed = false;
