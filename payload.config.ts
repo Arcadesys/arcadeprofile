@@ -2,10 +2,11 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { buildConfig } from 'payload';
 import { postgresAdapter } from '@payloadcms/db-postgres';
-import { lexicalEditor } from '@payloadcms/richtext-lexical';
+import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical';
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob';
 import sharp from 'sharp';
 import { collections } from './collections';
+import { YouTubeBlock } from './blocks/YouTube';
 import { createPayloadEmailAdapter } from './lib/payload-email';
 import { getDatabaseURLForPayloadConfig } from './lib/env';
 
@@ -24,7 +25,12 @@ export default buildConfig({
     theme: 'dark',
   },
   collections,
-  editor: lexicalEditor(),
+  editor: lexicalEditor({
+    features: ({ defaultFeatures }) => [
+      ...defaultFeatures,
+      BlocksFeature({ blocks: [YouTubeBlock] }),
+    ],
+  }),
   email,
   sharp,
   secret: process.env.PAYLOAD_SECRET || 'default-secret-change-me',

@@ -1,20 +1,23 @@
 import { NextResponse } from 'next/server';
 import { getPayload } from 'payload';
 import config from '@payload-config';
+import { editorConfigFactory, getEnabledNodes } from '@payloadcms/richtext-lexical';
 import { createHeadlessEditor } from '@payloadcms/richtext-lexical/lexical/headless';
-import { $convertFromMarkdownString, TRANSFORMERS } from '@payloadcms/richtext-lexical/lexical/markdown';
-import { getEnabledNodes, editorConfigFactory } from '@payloadcms/richtext-lexical';
-import type { Klass, LexicalNode, LexicalNodeReplacement } from 'lexical';
+import { $convertFromMarkdownString } from '@payloadcms/richtext-lexical/lexical/markdown';
 
-let cachedNodes: Array<Klass<LexicalNode> | LexicalNodeReplacement> | null = null;
+const YT_URL_LINE_RE =
+  /^[ \t]*https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^\s]*&)?v=([\w-]{11})|embed\/([\w-]{11})|shorts\/([\w-]{11}))|youtu\.be\/([\w-]{11}))[^\s]*[ \t]*$/;
 
-async function getEditorNodes() {
-  if (cachedNodes) return cachedNodes;
-  const payload = await getPayload({ config });
-  const sanitizedConfig = payload.config;
-  const editorConfig = await editorConfigFactory.default({ config: sanitizedConfig });
-  cachedNodes = getEnabledNodes({ editorConfig });
-  return cachedNodes;
+function preprocessMarkdown(input: string): string {
+  return input
+    .split('\n')
+    .map((line) => {
+      const m = YT_URL_LINE_RE.exec(line);
+      if (!m) return line;
+      const id = m[1] || m[2] || m[3] || m[4];
+      return `<YouTube id="${id}"/>`;
+    })
+    .join('\n');
 }
 
 export async function POST(request: Request) {
@@ -29,11 +32,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'markdown field required' }, { status: 400 });
   }
 
-  const nodes = await getEditorNodes();
-  const editor = createHeadlessEditor({ nodes });
+  const payload = await getPayload({ config });
+  const postsCollection = payload.config.collections.find((c) => c.slug === 'posts');
+  const contentField = postsCollection?.fields.find(
+    (f) => 'name' in f && f.name === 'content',
+  );
+  if (!contentField || !('editor' in contentField) || !contentField.editor) {
+    return NextResponse.json({ error: 'posts.content editor not found' }, { status: 500 });
+  }
+  const editorConfig = editorConfigFactory.fromField({
+    field: contentField as Parameters<typeof editorConfigFactory.fromField>[0]['field'],
+  });
+  const editor = createHeadlessEditor({ nodes: getEnabledNodes({ editorConfig }) });
   editor.update(
     () => {
-      $convertFromMarkdownString(body.markdown, TRANSFORMERS);
+      $convertFromMarkdownString(
+        preprocessMarkdown(body.markdown),
+        editorConfig.features.markdownTransformers,
+      );
     },
     { discrete: true },
   );
