@@ -6,7 +6,7 @@ import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { slugField } from './fields/slug';
 import { tagArrayField } from './fields/tags';
 import { revalidatePathsFor } from './hooks/revalidate';
-import { publicReadAccess } from './shared/access';
+import { isAuthenticated, publicReadAccess } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
 
 const revalidatePostPaths = revalidatePathsFor((doc) => {
@@ -23,7 +23,12 @@ const revalidatePostPaths = revalidatePathsFor((doc) => {
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
-  access: publicReadAccess,
+  access: {
+    ...publicReadAccess,
+    create: isAuthenticated,
+    update: isAuthenticated,
+    delete: isAuthenticated,
+  },
   admin: {
     ...titledAdmin(adminGroups.publishing, [
       'title',
