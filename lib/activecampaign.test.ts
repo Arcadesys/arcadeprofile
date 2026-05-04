@@ -475,6 +475,32 @@ test('syncSubscriberToActiveCampaign throws when contact/sync response missing i
   );
 });
 
+test('syncSubscriberToActiveCampaign treats "already on list" 422 as success', async () => {
+  setAcEnv();
+
+  const fetchImpl = async (input: RequestInfo): Promise<Response> => {
+    const url = urlPath(input);
+    if (url.endsWith('/api/3/contact/sync')) {
+      return new Response(JSON.stringify({ contact: { id: 11 } }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    return new Response(
+      JSON.stringify({
+        errors: [{ title: 'Contact is already a member of the list' }],
+      }),
+      { status: 422, headers: { 'content-type': 'application/json' } },
+    );
+  };
+
+  const result = await syncSubscriberToActiveCampaign({
+    email: 'returning@example.com',
+    fetchImpl,
+  });
+  assert.equal(result.contactId, '11');
+});
+
 test('syncSubscriberToActiveCampaign surfaces contactLists failure', async () => {
   setAcEnv();
 

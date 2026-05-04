@@ -464,10 +464,17 @@ export async function syncSubscriberToActiveCampaign(options: {
     } catch {
       // fall through to text body
     }
+    const errorBody = formatV3ErrorBody(listParsed, listText.slice(0, 300));
+    // AC returns 422 when the contact is already subscribed to the list.
+    // Re-subscribes are expected (return signups, idempotent backfills),
+    // so treat that as success rather than logging noise on every one.
+    if (listRes.status === 422 && /already.*(member|subscribed|on.*list)/i.test(errorBody)) {
+      return { contactId };
+    }
     throw new ActiveCampaignError(
       `ActiveCampaign contactLists failed (${listRes.status})`,
       listRes.status,
-      formatV3ErrorBody(listParsed, listText.slice(0, 300)),
+      errorBody,
     );
   }
 
