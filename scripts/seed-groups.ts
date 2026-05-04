@@ -15,9 +15,22 @@ interface GroupSeed {
   category: 'fiction' | 'tools' | 'experiments' | 'audio-video' | 'community' | 'writing';
   status: 'active' | 'available' | 'in-progress' | 'archived';
   featured?: boolean;
+  homeHighlight?: boolean;
   tags?: string[];
   href?: string;
   external?: boolean;
+  primaryCTA?: {
+    label: string;
+    href: string;
+    type: 'preview' | 'buy' | 'experiment' | 'youtube' | 'audio' | 'repo' | 'download' | 'other';
+  };
+  resources?: Array<{
+    label: string;
+    href: string;
+    kind: 'post' | 'preview' | 'buy' | 'youtube' | 'audio' | 'experiment' | 'repo' | 'download' | 'other';
+    description?: string;
+    external?: boolean;
+  }>;
 }
 
 const groups: GroupSeed[] = [
@@ -46,6 +59,31 @@ const groups: GroupSeed[] = [
     category: 'fiction',
     status: 'active',
     tags: ['fiction', 'short-stories'],
+  },
+  {
+    title: 'Pico Panic',
+    slug: 'pico-panic',
+    description:
+      'A frantic, multiplayer real-time pyramid-stacking game built for Pico-8 — a fantasy console with 16 colors, 64k of code, and a 128x128 screen. A demake of Icehouse, born from accessibility constraints and a love of M.U.L.E.-era ambition.',
+    category: 'experiments',
+    status: 'in-progress',
+    featured: true,
+    homeHighlight: true,
+    tags: ['pico-8', 'lua', 'game-dev', 'accessibility'],
+    primaryCTA: {
+      label: 'Play in browser',
+      href: 'https://www.lexaloffle.com/bbs/widget.php?pid=picopanic',
+      type: 'experiment',
+    },
+    resources: [
+      {
+        label: 'Play Pico Panic (Lexaloffle BBS)',
+        href: 'https://www.lexaloffle.com/bbs/widget.php?pid=picopanic',
+        kind: 'experiment',
+        description: 'Playable prototype in your browser.',
+        external: true,
+      },
+    ],
   },
   // TODO: add remaining ~5 groups below — copy the shape above
 ];
@@ -76,9 +114,12 @@ async function main() {
         category: group.category,
         status: group.status,
         featured: group.featured ?? false,
+        homeHighlight: group.homeHighlight ?? false,
         external: group.external ?? false,
         href: group.href ?? '',
         tags: (group.tags ?? []).map(t => ({ tag: t })),
+        ...(group.primaryCTA ? { projectCTA: group.primaryCTA } : {}),
+        ...(group.resources ? { resources: group.resources } : {}),
       },
     });
 

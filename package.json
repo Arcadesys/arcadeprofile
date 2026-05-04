@@ -13,6 +13,7 @@
     "seed": "tsx scripts/seed-runner.mjs",
     "seed:blog": "tsx --require ./scripts/patch-next-env.cjs scripts/seed.ts",
     "seed:groups": "tsx --require ./scripts/patch-next-env.cjs scripts/seed-groups.ts",
+    "seed:pico-panic": "tsx --require ./scripts/patch-next-env.cjs scripts/seed-pico-panic.ts",
     "postmark:test": "tsx scripts/send-test-email.ts",
     "test": "tsx --test \"lib/**/*.test.ts\" \"mcp/**/*.test.ts\"",
     "mcp": "tsx mcp/payload-mcp.ts"
