@@ -5,16 +5,8 @@
  * Usage: npm run seed:pico-panic
  */
 import { getPayload } from 'payload';
-import { createHeadlessEditor } from '@payloadcms/richtext-lexical/lexical/headless';
-import {
-  $convertFromMarkdownString,
-  TRANSFORMERS,
-} from '@payloadcms/richtext-lexical/lexical/markdown';
-import {
-  getEnabledNodes,
-  editorConfigFactory,
-} from '@payloadcms/richtext-lexical';
 import configPromise from '../payload.config';
+import { createMarkdownToLexical } from './lib/markdown-to-lexical';
 
 const GROUP_SLUG = 'pico-panic';
 const POST_SLUG = 'i-made-a-game-for-a-console-that-doesnt-exist';
@@ -129,23 +121,7 @@ Play the prototype, steal the source, and let's make more weird games together.
 
 async function main() {
   const payload = await getPayload({ config: configPromise });
-
-  // Build a headless Lexical editor to convert markdown to the rich text JSON
-  // shape that the posts collection expects.
-  const sanitizedConfig = await payload.config;
-  const editorConfig = await editorConfigFactory.default({ config: sanitizedConfig });
-  const nodes = getEnabledNodes({ editorConfig });
-
-  function markdownToLexical(markdown: string): unknown {
-    const editor = createHeadlessEditor({ nodes });
-    editor.update(
-      () => {
-        $convertFromMarkdownString(markdown, TRANSFORMERS);
-      },
-      { discrete: true },
-    );
-    return editor.getEditorState().toJSON();
-  }
+  const markdownToLexical = await createMarkdownToLexical(payload);
 
   // 1. Group ─────────────────────────────────────────────────────────────────
   const existingGroup = await payload.find({
