@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { RichText } from '@payloadcms/richtext-lexical/react';
+import PostRichText from '@/app/components/PostRichText';
 import { getProjectBySlug } from '@/lib/payload';
 import { getGroupBySlug } from '@/lib/blog';
 import { categoryLabels } from '@/components/menu';
@@ -296,7 +296,7 @@ export default async function ProjectPartPage({ params }: Props) {
         </header>
 
         <div className="prose">
-          <RichText data={post.content} />
+          <PostRichText data={post.content} />
         </div>
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>

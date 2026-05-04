@@ -158,7 +158,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
       ],
     },
     limit: 1,
-    depth: 0,
+    depth: 1,
   });
 
   if (result.docs.length === 0) return null;
@@ -245,7 +245,7 @@ export async function getSamplePostBySlug(slug: string): Promise<BlogPost | null
         ],
       },
       limit: 1,
-      depth: 0,
+      depth: 1,
     });
   } catch (error) {
     if (!isMissingPostSamplesColumnError(error)) {
@@ -284,7 +284,7 @@ export async function getAllGroups(): Promise<Group[]> {
       },
       sort: 'order',
       limit: 100,
-      depth: 0,
+      depth: 1,
     });
 
     if (postResult.docs.length === 0) continue;
