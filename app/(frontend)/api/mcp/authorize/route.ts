@@ -16,7 +16,7 @@ function oauthError(redirectUri: string, state: string | undefined, error: strin
   }
 }
 
-// GET — render the authorization form
+// GET — render the confirmation page (no credential entry required)
 export async function GET(req: NextRequest): Promise<Response> {
   const p = req.nextUrl.searchParams;
   const clientId = p.get('client_id') ?? '';
@@ -61,45 +61,45 @@ export async function GET(req: NextRequest): Promise<Response> {
     }
     h1 { font-size: 1.25rem; margin: 0 0 .5rem; }
     p { color: #555; font-size: .875rem; margin: 0 0 1.5rem; line-height: 1.5; }
-    label { display: block; font-size: .8125rem; font-weight: 600; margin-bottom: .375rem; }
-    input[type=password] {
-      width: 100%;
-      padding: .5rem .75rem;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 1rem;
-      outline: none;
+    .client-id {
+      font-family: monospace;
+      font-size: .8rem;
+      background: #f3f4f6;
+      padding: .2rem .5rem;
+      border-radius: 4px;
+      word-break: break-all;
     }
-    input[type=password]:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+    .actions { display: flex; gap: .75rem; margin-top: 1.5rem; }
     button {
-      display: block;
-      width: 100%;
-      margin-top: 1rem;
+      flex: 1;
       padding: .625rem;
-      background: #6366f1;
-      color: white;
       border: none;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: .9375rem;
       font-weight: 600;
       cursor: pointer;
     }
-    button:hover { background: #4f46e5; }
+    .allow { background: #6366f1; color: white; }
+    .allow:hover { background: #4f46e5; }
+    .deny { background: #f3f4f6; color: #374151; }
+    .deny:hover { background: #e5e7eb; }
   </style>
 </head>
 <body>
   <div class="card">
     <h1>Authorize MCP Access</h1>
-    <p>Enter your MCP API key to grant Claude Code access to this server.</p>
+    <p>An MCP client wants to connect to <strong>The Arcades</strong> server.</p>
+    <p>Client: <span class="client-id">${escapeHtml(clientId)}</span></p>
     <form method="POST">
       <input type="hidden" name="client_id" value="${escapeHtml(clientId)}" />
       <input type="hidden" name="redirect_uri" value="${escapeHtml(redirectUri)}" />
       <input type="hidden" name="code_challenge" value="${escapeHtml(codeChallenge)}" />
       <input type="hidden" name="code_challenge_method" value="${escapeHtml(codeChallengeMethod)}" />
       <input type="hidden" name="state" value="${escapeHtml(state)}" />
-      <label for="key">MCP API Key</label>
-      <input type="password" id="key" name="key" autofocus required autocomplete="current-password" />
-      <button type="submit">Authorize</button>
+      <div class="actions">
+        <button type="submit" name="action" value="allow" class="allow">Allow</button>
+        <button type="submit" name="action" value="deny" class="deny">Deny</button>
+      </div>
     </form>
   </div>
 </body>
@@ -108,7 +108,7 @@ export async function GET(req: NextRequest): Promise<Response> {
   return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 }
 
-// POST — validate key and issue auth code
+// POST — issue auth code (no credential check; PKCE is the security control)
 export async function POST(req: NextRequest): Promise<Response> {
   const form = await req.formData();
   const clientId = (form.get('client_id') as string) ?? '';
@@ -116,15 +116,19 @@ export async function POST(req: NextRequest): Promise<Response> {
   const codeChallenge = (form.get('code_challenge') as string) ?? '';
   const codeChallengeMethod = (form.get('code_challenge_method') as string) ?? 'S256';
   const state = (form.get('state') as string) || undefined;
-  const key = (form.get('key') as string) ?? '';
+  const action = (form.get('action') as string) ?? 'allow';
 
   if (!clientId || !redirectUri || !codeChallenge) {
     return new Response('invalid_request', { status: 400 });
   }
 
+  if (action === 'deny') {
+    return oauthError(redirectUri, state, 'access_denied', 'User denied the request');
+  }
+
   const mcpApiKey = process.env.MCP_API_KEY;
-  if (!mcpApiKey || key !== mcpApiKey) {
-    return oauthError(redirectUri, state, 'access_denied', 'Invalid API key');
+  if (!mcpApiKey) {
+    return oauthError(redirectUri, state, 'server_error', 'Server is not configured');
   }
 
   const code = generateAuthCode(
@@ -142,24 +146,5 @@ export async function POST(req: NextRequest): Promise<Response> {
   const url = new URL(redirectUri);
   url.searchParams.set('code', code);
   if (state) url.searchParams.set('state', state);
-  const finalUrl = url.toString();
-
-  // DEBUG: show redirect target before following it
-  const debugHtml = `<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8"><title>Debug — MCP Authorize Redirect</title>
-<style>body{font-family:monospace;padding:2rem;max-width:900px;margin:0 auto}
-pre{background:#f3f4f6;padding:1rem;border-radius:6px;word-break:break-all;white-space:pre-wrap}
-a{display:inline-block;margin-top:1rem;padding:.6rem 1.2rem;background:#6366f1;color:#fff;border-radius:6px;text-decoration:none}</style>
-</head>
-<body>
-<h2>DEBUG: OAuth Redirect Target</h2>
-<p><strong>redirect_uri (raw):</strong></p>
-<pre>${escapeHtml(redirectUri)}</pre>
-<p><strong>Final redirect URL:</strong></p>
-<pre>${escapeHtml(finalUrl)}</pre>
-<a href="${escapeHtml(finalUrl)}">Follow redirect →</a>
-</body></html>`;
-
-  return new Response(debugHtml, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+  return Response.redirect(url.toString(), 302);
 }
