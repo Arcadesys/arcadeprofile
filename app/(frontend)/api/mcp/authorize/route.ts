@@ -142,5 +142,8 @@ export async function POST(req: NextRequest): Promise<Response> {
   const url = new URL(redirectUri);
   url.searchParams.set('code', code);
   if (state) url.searchParams.set('state', state);
-  return Response.redirect(url.toString(), 302);
+  const finalUrl = url.toString();
+  console.log('[mcp/authorize] redirect_uri:', redirectUri);
+  console.log('[mcp/authorize] final_redirect:', finalUrl.slice(0, 200));
+  return Response.redirect(finalUrl, 302);
 }
