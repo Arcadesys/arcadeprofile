@@ -1,5 +1,6 @@
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
+import type { SerializedEditorState } from 'lexical';
 import type { Book, Demo, Group, Media } from '@/payload-types';
 import { slugify } from '@/lib/utils';
 
@@ -34,6 +35,7 @@ export interface ProjectHub {
   slug: string;
   title: string;
   description: string;
+  jacketDescription?: SerializedEditorState | null;
   image?: string | null;
   href: string;
   external?: boolean | null;
@@ -96,6 +98,7 @@ function normalizeGroup(doc: Group, postSlugsForGroup: string[] = []): ProjectHu
     slug,
     title: doc.title,
     description: doc.description ?? '',
+    jacketDescription: (doc.jacketDescription as SerializedEditorState | null | undefined) ?? null,
     image: typeof doc.image === 'object' && doc.image !== null ? (doc.image as Media).url : null,
     href,
     external,

@@ -197,6 +197,20 @@ export default async function ProjectPartPage({ params }: Props) {
             )}
           </header>
 
+          {project.jacketDescription && (
+            <div style={{
+              marginBottom: '2.5rem',
+              padding: '1.25rem 1.5rem',
+              borderLeft: '3px solid var(--neon-pink)',
+              background: 'rgba(255,60,172,0.05)',
+              borderRadius: '0 6px 6px 0',
+            }}>
+              <div className="prose prose-jacket">
+                <PostRichText data={project.jacketDescription} />
+              </div>
+            </div>
+          )}
+
           {project.image && (
             <div style={{ marginBottom: '2.5rem' }}>
               <Image
