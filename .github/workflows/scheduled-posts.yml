@@ -4,6 +4,11 @@ on:
     # Every 15 minutes. GitHub Actions schedules can be delayed by 10+ minutes
     # under load, so a 9:00 AM post may actually publish a few minutes late —
     # but it will publish the same hour rather than waiting until the next day.
+    #
+    # Sole purpose of this job: flip due posts from `scheduled` to `published`
+    # so they appear in the public RSS feed. Email delivery is handled by an
+    # ActiveCampaign RSS-triggered campaign on the AC side — nothing in this
+    # workflow talks to AC.
     - cron: '*/15 * * * *'
   workflow_dispatch:        # adds a manual "Run workflow" button.
 
@@ -37,8 +42,8 @@ jobs:
           BODY_FILE="$(mktemp)"
           META_FILE="$(mktemp)"
 
-          # `-w` captures status + timing so we can see whether AC delays
-          # caused the request to time out vs. the post update itself failing.
+          # `-w` captures status + timing so we can distinguish a transport
+          # failure from the publish update itself failing.
           # `-o` writes the body separately so we can echo it even when the
           # response is empty or non-JSON.
           set +e
@@ -82,17 +87,13 @@ jobs:
           fi
 
           # Surface counts at the top of the log so they're visible without
-          # expanding the response section. Newsletter/ActiveCampaign sends
-          # happen inside a Payload afterChange hook on the server — failures
-          # are logged via console.error in the Next.js runtime (Vercel logs),
-          # not echoed back in this response. If `processed > 0` here but no
-          # email shows in AC, check the server logs for `[newsletter]` lines.
+          # expanding the response section. Email delivery is handled by an
+          # ActiveCampaign RSS-triggered campaign that polls the public feed —
+          # this job's only responsibility is flipping due posts from
+          # scheduled to published so they appear in the feed.
           if command -v jq >/dev/null 2>&1 && jq -e . "${BODY_FILE}" >/dev/null 2>&1; then
             DUE=$(jq -r '.due // "?"' "${BODY_FILE}")
             PROCESSED=$(jq -r '.processed // "?"' "${BODY_FILE}")
             FAILED=$(jq -r '.failed // "?"' "${BODY_FILE}")
             echo "Summary: due=${DUE} processed=${PROCESSED} failed=${FAILED}"
-            if [ "${PROCESSED}" != "0" ] && [ "${PROCESSED}" != "?" ]; then
-              echo "::notice::Posts processed=${PROCESSED}. ActiveCampaign send happens in a Payload afterChange hook — check Vercel runtime logs for '[newsletter]' entries to confirm the campaign reached AC."
-            fi
           fi
