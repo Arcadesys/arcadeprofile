@@ -168,6 +168,8 @@ test('create_post sends tags as array-of-objects to Payload', async () => {
       title: 'My Post',
       excerpt: 'Short.',
       content: 'Body text.',
+      group: 'my-group',
+      order: 3,
       tags: ['ai', 'tech'],
       skipNewsletter: true,
       meta: { title: 'SEO Title', description: 'SEO desc', keywords: 'ai,tech' },
@@ -185,11 +187,13 @@ test('create_post sends tags as array-of-objects to Payload', async () => {
     assert.equal(meta.title, 'SEO Title');
     assert.equal(meta.description, 'SEO desc');
 
-    // discoverability gets default canonical_path
+    // discoverability defaults canonical_path to the project URL when
+    // group + order are both supplied
     const disc = capturedBody.discoverability as Record<string, unknown>;
-    assert.ok(
-      (disc.canonical_path as string).startsWith('/blog/'),
-      'canonical_path should default to /blog/{slug}',
+    assert.equal(
+      disc.canonical_path,
+      '/projects/my-group/03',
+      'canonical_path should default to /projects/{group}/{NN}',
     );
 
     // defaults to draft
@@ -199,6 +203,28 @@ test('create_post sends tags as array-of-objects to Payload', async () => {
     // response text
     const item0 = result.content[0];
     assert.ok(item0.type === 'text' && item0.text.startsWith('Created post:'));
+  } finally {
+    restore();
+  }
+});
+
+test('create_post leaves canonical_path unset when group or order is missing', async () => {
+  let capturedBody: Record<string, unknown> = {};
+
+  const restore = mockFetch(async (_url, opts) => {
+    capturedBody = JSON.parse((opts?.body as string) ?? '{}') as Record<string, unknown>;
+    return jsonResponse({ doc: { slug: 'no-group' } });
+  });
+
+  try {
+    await toolHandlers.create_post({
+      title: 'No Group',
+      excerpt: 'Short.',
+      content: 'Body.',
+      discoverability: { social_hook: 'hi' },
+    });
+    const disc = capturedBody.discoverability as Record<string, unknown>;
+    assert.equal(disc.canonical_path, undefined);
   } finally {
     restore();
   }

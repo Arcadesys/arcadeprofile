@@ -163,7 +163,7 @@ This gives a very subtle neon ambient glow without a busy background image.
 const navLinks = [
   { href: '/',          label: 'Home' },
   { href: '/previews',  label: 'Books' },       // shorter label
-  { href: '/blog',      label: 'Blog' },
+  { href: '/latest',    label: 'Latest' },
   { href: '/portfolio', label: 'Tools' },        // renamed
   // Future: { href: '/about', label: 'About' },
 ];

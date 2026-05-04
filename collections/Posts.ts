@@ -10,12 +10,15 @@ import { isAuthenticated, publicReadAccess } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
 
 const revalidatePostPaths = revalidatePathsFor((doc) => {
-  const slug = doc.slug as string;
   const group = doc.group as string | undefined;
-  const paths = ['/blog', '/writing', '/samples', '/feed.xml', `/blog/${slug}`];
+  const order = doc.order as number | undefined;
+  const paths = ['/latest', '/writing', '/samples', '/feed.xml'];
 
   if (group) {
-    paths.push(`/writing/group/${group}`, `/${group}`);
+    paths.push(`/writing/group/${group}`, `/${group}`, `/projects/${group}`, `/projects/${group}/00`);
+    if (typeof order === 'number' && order > 0) {
+      paths.push(`/projects/${group}/${String(order).padStart(2, '0')}`);
+    }
   }
 
   return paths;

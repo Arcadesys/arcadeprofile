@@ -46,7 +46,7 @@ function renderPreviewPage(args: {
   subject: string;
   htmlBody: string;
   postTitle: string;
-  postSlug: string;
+  postPath: string;
 }): string {
   // The body is wrapped in an "email card" framed against a neutral background
   // so the preview reads as an email rather than a webpage. The header strip
@@ -73,7 +73,7 @@ function renderPreviewPage(args: {
 <body>
 <div class="preview-bar">
   <strong>Newsletter preview</strong>
-  <span class="slug">/blog/${escapeHtml(args.postSlug)}</span>
+  <span class="slug">${escapeHtml(args.postPath)}</span>
 </div>
 <div class="subject">
   <p class="label">Subject</p>
@@ -140,11 +140,15 @@ export async function GET(request: Request) {
   }
 
   const subject = (post.newsletterHeading ?? '').trim() || post.title;
+  const postPath =
+    group?.slug && typeof group.partIndex === 'number' && group.partIndex > 0
+      ? `/projects/${group.slug}/${String(group.partIndex).padStart(2, '0')}`
+      : '/projects';
   const page = renderPreviewPage({
     subject,
     htmlBody,
     postTitle: post.title,
-    postSlug: post.slug,
+    postPath,
   });
 
   return new Response(page, {

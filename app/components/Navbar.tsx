@@ -6,7 +6,7 @@ const DEFAULT_NAV_ITEMS: NavItem[] = [
   { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
   { id: 'bio',      label: 'Bio',      href: '/bio',      isPrimary: false },
   { id: 'resume',   label: 'Resume',   href: '/resume',   isPrimary: false },
-  { id: 'blog',     label: 'Blog',     href: '/blog',     isPrimary: false },
+  { id: 'latest',   label: 'Latest',   href: '/latest',   isPrimary: false },
   { id: 'store',    label: 'Store',    href: '/store',    isPrimary: true  },
 ];
 

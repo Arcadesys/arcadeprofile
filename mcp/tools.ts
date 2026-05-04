@@ -170,7 +170,8 @@ export const toolDefinitions: Tool[] = [
             },
             canonical_path: {
               type: 'string',
-              description: 'Canonical URL path. Defaults to /blog/{slug}.',
+              description:
+                'Canonical URL path. Defaults to /projects/{group}/{NN} when both group and order are supplied; otherwise left unset.',
             },
             featured_on_start_here: { type: 'boolean' },
             primaryCTA: {
@@ -410,12 +411,20 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
     const publish_status = (args.publish_status as string) || 'draft';
 
-    // Discoverability: default canonical_path to /blog/{slug} if not provided
+    // Discoverability: default canonical_path to /projects/{group}/{NN} when
+    // group + order are both supplied. Posts without a group skip the default
+    // (the post collection is now organized by project, not a flat /blog list).
     const discoverabilityIn = (args.discoverability as Record<string, unknown>) || {};
-    const discoverability = {
-      ...discoverabilityIn,
-      canonical_path: discoverabilityIn.canonical_path ?? `/blog/${slug}`,
-    };
+    const groupSlug = typeof args.group === 'string' ? args.group.trim() : '';
+    const orderNum = typeof args.order === 'number' ? args.order : null;
+    const defaultCanonical =
+      groupSlug && orderNum !== null && orderNum > 0
+        ? `/projects/${groupSlug}/${String(orderNum).padStart(2, '0')}`
+        : undefined;
+    const discoverability: Record<string, unknown> = { ...discoverabilityIn };
+    if (discoverability.canonical_path === undefined && defaultCanonical) {
+      discoverability.canonical_path = defaultCanonical;
+    }
 
     const body: Record<string, unknown> = {
       title: args.title,

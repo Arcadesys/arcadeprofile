@@ -1,5 +1,5 @@
 import { Feed } from 'feed';
-import { getPublishedPostsForRss } from '@/lib/blog';
+import { buildPostUrl, buildPostUrlMap, getPublishedPostsForRss } from '@/lib/blog';
 import { buildPostNewsletterContent } from '@/lib/newsletter';
 import type { Post } from '@/payload-types';
 
@@ -14,11 +14,14 @@ function getSiteUrl(): string {
 
 export async function GET() {
   const SITE_URL = getSiteUrl();
-  const posts = await getPublishedPostsForRss();
+  const [posts, urlMap] = await Promise.all([
+    getPublishedPostsForRss(),
+    buildPostUrlMap(),
+  ]);
 
   const feed = new Feed({
-    title: 'The Arcades - Blog',
-    description: 'Blog posts by Austen Tucker',
+    title: 'The Arcades — Latest',
+    description: 'Writing by Austen Tucker',
     id: SITE_URL,
     link: SITE_URL,
     language: 'en',
@@ -33,10 +36,16 @@ export async function GET() {
   });
 
   for (const post of posts) {
-    const postLink = `${SITE_URL}/blog/${post.slug}`;
+    const loc = urlMap.get(post.slug);
+    if (!loc) continue;
+
+    const postLink = `${SITE_URL}${buildPostUrl(loc.groupSlug, loc.partIndex)}`;
     const authorName = post.author?.trim() || 'Austen Tucker';
     const { htmlBody } = buildPostNewsletterContent(
-      post as unknown as Pick<Post, 'content' | 'excerpt' | 'slug' | 'title'>,
+      {
+        ...(post as unknown as Pick<Post, 'content' | 'excerpt' | 'slug' | 'title'>),
+        group: { slug: loc.groupSlug, partIndex: loc.partIndex },
+      },
       SITE_URL,
     );
 

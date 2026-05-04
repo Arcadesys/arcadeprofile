@@ -328,6 +328,38 @@ export async function getGroupBySlug(slug: string): Promise<Group | null> {
   }
 }
 
+/** Zero-pad a part index for project URLs (intro is 00, posts start at 01). */
+export function partNum(n: number): string {
+  return String(n).padStart(2, '0');
+}
+
+/** Canonical permalink for a post within its group: /projects/<group>/<part>. */
+export function buildPostUrl(groupSlug: string, partIndex: number): string {
+  return `/projects/${groupSlug}/${partNum(partIndex)}`;
+}
+
+export type PostLocation = {
+  groupSlug: string;
+  groupTitle: string;
+  partIndex: number;
+};
+
+/**
+ * Map post slug → { groupSlug, groupTitle, partIndex } across every group.
+ * partIndex is 1-based (intro is 0, the first post is 01). Posts without
+ * a group are absent from the map.
+ */
+export async function buildPostUrlMap(): Promise<Map<string, PostLocation>> {
+  const groups = await getAllGroups();
+  const map = new Map<string, PostLocation>();
+  for (const g of groups) {
+    g.posts.forEach((post, i) => {
+      map.set(post.slug, { groupSlug: g.slug, groupTitle: g.title, partIndex: i + 1 });
+    });
+  }
+  return map;
+}
+
 export interface Page {
   slug: string;
   title: string;

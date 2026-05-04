@@ -12,9 +12,15 @@ type MediaLike = {
 };
 
 type GroupHero = {
+  slug?: string | null;
   image?: string | null;
   title?: string | null;
+  partIndex?: number | null;
 };
+
+function partNum(n: number): string {
+  return String(n).padStart(2, '0');
+}
 
 type PostInput = {
   content: SerializedEditorState;
@@ -110,7 +116,13 @@ export function buildPostNewsletterContent(
   post: PostInput,
   siteUrl = process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL,
 ): NewsletterContent {
-  const postUrl = `${siteUrl}/blog/${post.slug}`;
+  const groupSlug = post.group?.slug?.trim() || '';
+  const partIndex = post.group?.partIndex;
+  const postPath =
+    groupSlug && typeof partIndex === 'number' && partIndex > 0
+      ? `/projects/${groupSlug}/${partNum(partIndex)}`
+      : '/projects';
+  const postUrl = `${siteUrl.replace(/\/+$/, '')}${postPath}`;
   const escapedTitle = escapeHtml(post.title);
   const excerpt = post.excerpt?.trim() || '';
   const escapedExcerpt = excerpt ? escapeHtml(excerpt) : '';
