@@ -1,8 +1,10 @@
 name: Publish scheduled posts
 on:
   schedule:
-    - cron: '0 9 * * *'   # 09:00 UTC daily
-    - cron: '0 13 * * *'  # 13:00 UTC daily (08:00 CDT) — catches default-scheduled posts
+    # Every 15 minutes. GitHub Actions schedules can be delayed by 10+ minutes
+    # under load, so a 9:00 AM post may actually publish a few minutes late —
+    # but it will publish the same hour rather than waiting until the next day.
+    - cron: '*/15 * * * *'
   workflow_dispatch:        # adds a manual "Run workflow" button.
 
 jobs:

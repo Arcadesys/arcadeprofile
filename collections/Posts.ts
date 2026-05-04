@@ -49,6 +49,18 @@ export const Posts: CollectionConfig = {
     ]),
   },
   hooks: {
+    beforeChange: [
+      ({ data }) => {
+        // If an editor sets a Scheduled Publish Date but leaves Workflow Status
+        // on the "Not queued" default, the cron will never pick the post up.
+        // Treat "has a scheduled date + still draft" as the editor's intent to
+        // schedule, and flip the status so the publisher actually runs.
+        if (data?.scheduledPublishDate && (!data.publish_status || data.publish_status === 'draft')) {
+          data.publish_status = 'scheduled';
+        }
+        return data;
+      },
+    ],
     afterChange: [
       revalidatePostPaths,
       async ({ doc, previousDoc, req }) => {
