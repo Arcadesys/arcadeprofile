@@ -1229,8 +1229,10 @@ sub, sup    { font-size: 0.75em; line-height: 0; }
   transition: padding-left 0.3s ease;
 }
 /* Desktop: drawer is always visible, so always push the nav right */
-body.has-doc-drawer .nav-wrapper {
-  padding-left: calc(280px + var(--space-5));
+@media (min-width: 1101px) {
+  body.has-doc-drawer .nav-wrapper {
+    padding-left: calc(280px + var(--space-5));
+  }
 }
 
 .site-nav {
