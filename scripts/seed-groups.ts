@@ -15,9 +15,22 @@ interface GroupSeed {
   category: 'fiction' | 'tools' | 'experiments' | 'audio-video' | 'community' | 'writing';
   status: 'active' | 'available' | 'in-progress' | 'archived';
   featured?: boolean;
+  homeHighlight?: boolean;
   tags?: string[];
   href?: string;
   external?: boolean;
+  projectCTA?: {
+    label: string;
+    href: string;
+    type: 'preview' | 'buy' | 'experiment' | 'youtube' | 'audio' | 'repo' | 'download' | 'other';
+  };
+  resources?: Array<{
+    label: string;
+    href: string;
+    kind: 'post' | 'preview' | 'buy' | 'youtube' | 'audio' | 'experiment' | 'repo' | 'download' | 'other';
+    description?: string;
+    external?: boolean;
+  }>;
 }
 
 const groups: GroupSeed[] = [
@@ -47,6 +60,8 @@ const groups: GroupSeed[] = [
     status: 'active',
     tags: ['fiction', 'short-stories'],
   },
+  // Pico Panic is seeded by scripts/seed-pico-panic.ts (which also seeds the
+  // launch article alongside the group).
   // TODO: add remaining ~5 groups below — copy the shape above
 ];
 
@@ -76,9 +91,12 @@ async function main() {
         category: group.category,
         status: group.status,
         featured: group.featured ?? false,
+        homeHighlight: group.homeHighlight ?? false,
         external: group.external ?? false,
         href: group.href ?? '',
         tags: (group.tags ?? []).map(t => ({ tag: t })),
+        ...(group.projectCTA ? { projectCTA: group.projectCTA } : {}),
+        ...(group.resources ? { resources: group.resources } : {}),
       },
     });
 
