@@ -700,7 +700,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const PLACEHOLDER_RE = /^!\[[^\]:]+:[^\]]+\]\(\)\s*$/;
     const LINK_RE = /(?<!\!)\[[^\]]+\]\([^)]+\)/;
     const YT_URL_GLOBAL_RE =
-      /https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^\s]*&)?v=([\w-]{11})|embed\/([\w-]{11})|shorts\/([\w-]{11}))|youtu\.be\/([\w-]{11}))[^\s\])>]*/;
+      /https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^\s]*&)?v=([\w-]{11})|embed\/([\w-]{11})|shorts\/([\w-]{11})|v\/([\w-]{11}))|youtu\.be\/([\w-]{11}))[^\s\])>]*/;
 
     const report: Array<{
       id: number;
