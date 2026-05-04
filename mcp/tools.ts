@@ -170,7 +170,8 @@ export const toolDefinitions: Tool[] = [
             },
             canonical_path: {
               type: 'string',
-              description: 'Canonical URL path. Defaults to /blog/{slug}.',
+              description:
+                'Canonical URL path. Optional — leave unset to use the post page itself; the part number is derived from the post\'s sorted position in its group at render time, so storing it here can drift out of sync if peers are reordered.',
             },
             featured_on_start_here: { type: 'boolean' },
             primaryCTA: {
@@ -410,12 +411,12 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
     const publish_status = (args.publish_status as string) || 'draft';
 
-    // Discoverability: default canonical_path to /blog/{slug} if not provided
-    const discoverabilityIn = (args.discoverability as Record<string, unknown>) || {};
-    const discoverability = {
-      ...discoverabilityIn,
-      canonical_path: discoverabilityIn.canonical_path ?? `/blog/${slug}`,
-    };
+    // Discoverability: pass through what the caller supplied. We don't default
+    // canonical_path here — the project URL part number is computed from the
+    // post's sorted position in its group, and this tool can't know that
+    // position before the post is created (and even after, raw `order` isn't
+    // the same as the part number when peers are reordered).
+    const discoverability = (args.discoverability as Record<string, unknown>) || {};
 
     const body: Record<string, unknown> = {
       title: args.title,

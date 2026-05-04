@@ -185,12 +185,11 @@ test('create_post sends tags as array-of-objects to Payload', async () => {
     assert.equal(meta.title, 'SEO Title');
     assert.equal(meta.description, 'SEO desc');
 
-    // discoverability gets default canonical_path
+    // discoverability is passed through verbatim — canonical_path is no
+    // longer auto-defaulted (raw `order` ≠ part number when peers reorder).
     const disc = capturedBody.discoverability as Record<string, unknown>;
-    assert.ok(
-      (disc.canonical_path as string).startsWith('/blog/'),
-      'canonical_path should default to /blog/{slug}',
-    );
+    assert.equal(disc.social_hook, 'Check this out');
+    assert.equal(disc.canonical_path, undefined);
 
     // defaults to draft
     assert.equal(capturedBody._status, undefined);

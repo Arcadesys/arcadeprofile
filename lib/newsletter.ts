@@ -1,6 +1,8 @@
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html';
 import type { SerializedEditorState } from 'lexical';
 
+import { buildPostUrl } from './post-url';
+
 type NewsletterContent = {
   htmlBody: string;
   textBody: string;
@@ -12,8 +14,10 @@ type MediaLike = {
 };
 
 type GroupHero = {
+  slug?: string | null;
   image?: string | null;
   title?: string | null;
+  partIndex?: number | null;
 };
 
 type PostInput = {
@@ -110,7 +114,13 @@ export function buildPostNewsletterContent(
   post: PostInput,
   siteUrl = process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL,
 ): NewsletterContent {
-  const postUrl = `${siteUrl}/blog/${post.slug}`;
+  const groupSlug = post.group?.slug?.trim() || '';
+  const partIndex = post.group?.partIndex;
+  const postPath =
+    groupSlug && typeof partIndex === 'number' && partIndex > 0
+      ? buildPostUrl(groupSlug, partIndex)
+      : '/projects';
+  const postUrl = `${siteUrl.replace(/\/+$/, '')}${postPath}`;
   const escapedTitle = escapeHtml(post.title);
   const excerpt = post.excerpt?.trim() || '';
   const escapedExcerpt = excerpt ? escapeHtml(excerpt) : '';

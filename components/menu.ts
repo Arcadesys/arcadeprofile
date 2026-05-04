@@ -15,7 +15,7 @@ export const mainMenuLinks: MenuLink[] = [
   { href: '/projects', label: 'Projects', prefixMatch: true },
   { href: '/resume', label: 'Resume' },
   { href: '/bio', label: 'Bio' },
-  { href: '/blog', label: 'Blog', prefixMatch: true },
+  { href: '/latest', label: 'Latest', prefixMatch: true },
   { href: '/store', label: 'Store' },
 ];
 
@@ -25,7 +25,7 @@ export const footerGroups: FooterGroup[] = [
     links: [
       { href: '/samples', label: 'Samples' },
       { href: '/writing', label: 'Writing hub' },
-      { href: '/blog', label: 'Blog archive' },
+      { href: '/latest', label: 'Latest' },
     ],
   },
   {
