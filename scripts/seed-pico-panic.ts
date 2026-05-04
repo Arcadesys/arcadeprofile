@@ -187,8 +187,9 @@ async function main() {
         excerpt:
           "Accessibility forced me to level up — here's how I turned frustration into a dev win, building Pico Panic for Pico-8 in two weeks.",
         content: lexicalContent as any,
-        publishedDate: '2025-05-30',
-        publish_status: 'published',
+        publishedDate: '2026-05-12',
+        publish_status: 'scheduled',
+        scheduledPublishDate: '2026-05-12T13:00:00.000Z',
         newsletterSent: false,
         group: GROUP_SLUG,
         order: 1,
