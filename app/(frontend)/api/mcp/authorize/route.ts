@@ -143,7 +143,23 @@ export async function POST(req: NextRequest): Promise<Response> {
   url.searchParams.set('code', code);
   if (state) url.searchParams.set('state', state);
   const finalUrl = url.toString();
-  console.log('[mcp/authorize] redirect_uri:', redirectUri);
-  console.log('[mcp/authorize] final_redirect:', finalUrl.slice(0, 200));
-  return Response.redirect(finalUrl, 302);
+
+  // DEBUG: show redirect target before following it
+  const debugHtml = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Debug — MCP Authorize Redirect</title>
+<style>body{font-family:monospace;padding:2rem;max-width:900px;margin:0 auto}
+pre{background:#f3f4f6;padding:1rem;border-radius:6px;word-break:break-all;white-space:pre-wrap}
+a{display:inline-block;margin-top:1rem;padding:.6rem 1.2rem;background:#6366f1;color:#fff;border-radius:6px;text-decoration:none}</style>
+</head>
+<body>
+<h2>DEBUG: OAuth Redirect Target</h2>
+<p><strong>redirect_uri (raw):</strong></p>
+<pre>${escapeHtml(redirectUri)}</pre>
+<p><strong>Final redirect URL:</strong></p>
+<pre>${escapeHtml(finalUrl)}</pre>
+<a href="${escapeHtml(finalUrl)}">Follow redirect →</a>
+</body></html>`;
+
+  return new Response(debugHtml, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 }
