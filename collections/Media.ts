@@ -1,10 +1,15 @@
 import type { CollectionConfig } from 'payload';
-import { publicReadAccess } from './shared/access';
+import { isAuthenticated, publicReadAccess } from './shared/access';
 import { adminGroups } from './shared/admin';
 
 export const Media: CollectionConfig = {
   slug: 'media',
-  access: publicReadAccess,
+  access: {
+    ...publicReadAccess,
+    create: isAuthenticated,
+    update: isAuthenticated,
+    delete: isAuthenticated,
+  },
   upload: {
     adminThumbnail: 'og',
     imageSizes: [
