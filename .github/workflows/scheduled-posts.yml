@@ -16,7 +16,83 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           CRON_TARGET_URL: ${{ secrets.CRON_TARGET_URL }}
         run: |
-          curl --fail-with-body --show-error --silent \
+          set -o pipefail
+
+          if [ -z "${CRON_TARGET_URL}" ]; then
+            echo "::error::CRON_TARGET_URL secret is not set"
+            exit 1
+          fi
+          if [ -z "${CRON_SECRET}" ]; then
+            echo "::error::CRON_SECRET secret is not set"
+            exit 1
+          fi
+
+          ENDPOINT="${CRON_TARGET_URL}/api/posts/publish-scheduled"
+          # Only the host is safe to print — never the secret or full token.
+          HOST=$(printf '%s' "${CRON_TARGET_URL}" | sed -E 's#^https?://##' | cut -d/ -f1)
+          echo "Started at:   $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          echo "Target host:  ${HOST}"
+          echo "Endpoint:     /api/posts/publish-scheduled"
+
+          BODY_FILE="$(mktemp)"
+          META_FILE="$(mktemp)"
+
+          # `-w` captures status + timing so we can see whether AC delays
+          # caused the request to time out vs. the post update itself failing.
+          # `-o` writes the body separately so we can echo it even when the
+          # response is empty or non-JSON.
+          set +e
+          curl --show-error --silent \
             -X POST \
             -H "Authorization: Bearer ${CRON_SECRET}" \
-            "${CRON_TARGET_URL}/api/posts/publish-scheduled"
+            -H "Accept: application/json" \
+            -o "${BODY_FILE}" \
+            -w 'http_code=%{http_code}\ntime_total=%{time_total}\ntime_connect=%{time_connect}\ntime_starttransfer=%{time_starttransfer}\nsize_download=%{size_download}\n' \
+            "${ENDPOINT}" \
+            > "${META_FILE}"
+          CURL_EXIT=$?
+          set -e
+
+          echo "--- curl metrics ---"
+          cat "${META_FILE}"
+          echo "--- response body ---"
+          if [ -s "${BODY_FILE}" ]; then
+            # Pretty-print when it parses as JSON; fall back to raw text otherwise.
+            if jq . "${BODY_FILE}" 2>/dev/null; then
+              :
+            else
+              cat "${BODY_FILE}"
+              echo
+            fi
+          else
+            echo "(empty body)"
+          fi
+          echo "--- end response ---"
+
+          HTTP_CODE=$(grep '^http_code=' "${META_FILE}" | cut -d= -f2)
+
+          if [ "${CURL_EXIT}" -ne 0 ]; then
+            echo "::error::curl exited with ${CURL_EXIT} (network/transport failure before HTTP response)"
+            exit "${CURL_EXIT}"
+          fi
+
+          if [ -z "${HTTP_CODE}" ] || [ "${HTTP_CODE}" -lt 200 ] || [ "${HTTP_CODE}" -ge 300 ]; then
+            echo "::error::publish-scheduled returned HTTP ${HTTP_CODE}"
+            exit 1
+          fi
+
+          # Surface counts at the top of the log so they're visible without
+          # expanding the response section. Newsletter/ActiveCampaign sends
+          # happen inside a Payload afterChange hook on the server — failures
+          # are logged via console.error in the Next.js runtime (Vercel logs),
+          # not echoed back in this response. If `processed > 0` here but no
+          # email shows in AC, check the server logs for `[newsletter]` lines.
+          if command -v jq >/dev/null 2>&1 && jq -e . "${BODY_FILE}" >/dev/null 2>&1; then
+            DUE=$(jq -r '.due // "?"' "${BODY_FILE}")
+            PROCESSED=$(jq -r '.processed // "?"' "${BODY_FILE}")
+            FAILED=$(jq -r '.failed // "?"' "${BODY_FILE}")
+            echo "Summary: due=${DUE} processed=${PROCESSED} failed=${FAILED}"
+            if [ "${PROCESSED}" != "0" ] && [ "${PROCESSED}" != "?" ]; then
+              echo "::notice::Posts processed=${PROCESSED}. ActiveCampaign send happens in a Payload afterChange hook — check Vercel runtime logs for '[newsletter]' entries to confirm the campaign reached AC."
+            fi
+          fi
