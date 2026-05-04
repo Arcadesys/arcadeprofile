@@ -28,20 +28,26 @@ export const runtime = 'nodejs';
 // Never cache this route.
 export const dynamic = 'force-dynamic';
 
-function unauthorized(): Response {
-  return new Response('Unauthorized', { status: 401 });
+function unauthorized(origin: string): Response {
+  const resourceMetadata = `${origin}/.well-known/oauth-protected-resource/api/mcp`;
+  return new Response('Unauthorized', {
+    status: 401,
+    headers: {
+      'WWW-Authenticate': `Bearer realm="${origin}", resource_metadata="${resourceMetadata}"`,
+    },
+  });
 }
 
 export async function POST(req: NextRequest): Promise<Response> {
   // ---------- Auth ----------
   const mcpApiKey = process.env.MCP_API_KEY;
+  const origin = req.nextUrl.origin;
   if (!mcpApiKey) {
-    // Refuse to serve if the key is not configured — avoids an open endpoint.
-    return unauthorized();
+    return unauthorized(origin);
   }
   const auth = req.headers.get('authorization') ?? '';
   if (auth !== `Bearer ${mcpApiKey}`) {
-    return unauthorized();
+    return unauthorized(origin);
   }
 
   // ---------- Build a fresh server + transport per request (stateless) ----------
