@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 type Variant = 'default' | 'compact';
 
@@ -22,6 +22,7 @@ export default function SubscribeCTA({
   blurb = 'Monday, Wednesday, Friday — one installment at a time, straight to your inbox.',
   buttonLabel = 'Start reading',
 }: SubscribeCTAProps) {
+  const inputId = useId();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -139,15 +140,22 @@ export default function SubscribeCTA({
           >
             {shareState === 'copied' ? '✓ Link copied' : 'Share The Arcades'}
           </button>
+          <span
+            role="status"
+            aria-live="polite"
+            style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}
+          >
+            {shareState === 'copied' ? 'Link copied to clipboard' : ''}
+          </span>
         </div>
       ) : (
         <>
           <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-            <label htmlFor={`subscribe-email-${variant}`} style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
+            <label htmlFor={inputId} style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
               Your email address
             </label>
             <input
-              id={`subscribe-email-${variant}`}
+              id={inputId}
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
