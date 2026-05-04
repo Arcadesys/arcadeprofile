@@ -26,48 +26,70 @@ export default async function HomePage() {
   }
   return (
     <main style={{ position: 'relative', zIndex: 1, padding: 'clamp(1.5rem, 5vw, 4rem) 1rem', maxWidth: '600px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'center', margin: '0 0 2rem' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/hero.jpg"
-          alt="Austen Tucker illustration"
-          style={{ borderRadius: '12px', width: 'min(320px, 100%)', height: 'auto' }}
+      {/* Hero: avatar + value-prop headline */}
+      <header style={{ textAlign: 'center', margin: '0 0 1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '0 0 1.25rem' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/hero.jpg"
+            alt=""
+            aria-hidden="true"
+            style={{
+              width: '128px',
+              height: '128px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '2px solid var(--neon-pink)',
+              boxShadow: '0 0 24px var(--glow-pink, rgba(255, 60, 172, 0.45))',
+            }}
+          />
+        </div>
+        <h1 className="gaysparkles" style={{ margin: '0 0 0.75rem' }}>The Arcades</h1>
+        <p style={{
+          fontSize: '1.05rem',
+          lineHeight: 1.5,
+          color: 'var(--fg-muted)',
+          margin: 0,
+        }}>
+          Serialized fiction in your inbox, every Monday, Wednesday, and Friday.
+        </p>
+      </header>
+
+      {/* Above-the-fold subscribe + credibility */}
+      <section style={{ margin: '0 0 2.5rem' }}>
+        <SubscribeCTA
+          eyebrow="Fiction by email · M / W / F"
+          heading="Read it as it arrives"
+          blurb="One installment at a time, the way Dickens delivered serials and the early web delivered listservs."
         />
-      </div>
+        <p style={{
+          fontSize: '0.78rem',
+          color: 'var(--fg-muted)',
+          textAlign: 'center',
+          margin: '0.85rem 0 0',
+          lineHeight: 1.5,
+        }}>
+          Ursa Major nominee · Archived in the{' '}
+          <strong style={{ color: 'var(--fg)' }}>Strong National Museum of Play</strong>
+        </p>
+      </section>
 
-      <h1 className="gaysparkles">The Arcades</h1>
-
-      {/* Manifesto */}
-      <section style={{ margin: '2rem 0' }}>
+      {/* Manifesto — tightened */}
+      <section style={{ margin: '2.5rem 0' }}>
         <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
-          I miss email lists.
+          I miss email lists. Not newsletters. Not funnels. Not algorithmic confetti.
         </p>
         <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
-          Not newsletters. Not funnels. Not algorithmic confetti.
+          I mean the old kind: serialized stories in your inbox, readers replying, people gathering around the same strange little fire. So I&rsquo;m bringing that back.
         </p>
-        <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
-          I mean the old kind: serialized stories in your inbox, readers replying, people gathering around the same strange little fire.
+        <p style={{ lineHeight: 1.75, margin: 0 }}>
+          Read like we used to on listservs. Read like the Victorians did Dickens. Read like the internet can still be a place worth visiting.
         </p>
-        <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
-          So I&rsquo;m bringing that back.
-        </p>
-        <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
-          Subscribe to The Arcades and you&rsquo;ll get fiction every Monday, Wednesday, and Friday, delivered one installment at a time.
-        </p>
-        <p style={{ lineHeight: 1.75, marginBottom: '0.5rem' }}>
-          Read like we used to on listservs.<br />
-          Read like the Victorians did Dickens.<br />
-          Read like the internet can still be a place worth visiting.
-        </p>
-        <p style={{ lineHeight: 1.75, marginTop: '1rem', color: 'var(--fg-muted)', fontSize: '0.92rem' }}>
-          If you enjoy it, my only ask is that you share it.
-        </p>
-        <SubscribeCTA />
       </section>
 
       {/* Strange But True */}
       <section style={{
-        margin: '2rem 0',
+        margin: '2.5rem 0',
         padding: '1.5rem',
         borderLeft: '3px solid var(--accent, #c084fc)',
         background: 'var(--bg-card, transparent)',
@@ -92,7 +114,7 @@ export default async function HomePage() {
 
       {/* Current Projects */}
       {featuredGroups.length > 0 && (
-        <section style={{ margin: '2rem 0' }}>
+        <section style={{ margin: '2.5rem 0' }}>
           <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Current projects</h2>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.6rem' }}>
             {featuredGroups.map((group) => {
@@ -119,6 +141,16 @@ export default async function HomePage() {
           </ul>
         </section>
       )}
+
+      {/* Closing CTA — second chance for scrollers */}
+      <section style={{ margin: '3rem 0 0' }}>
+        <SubscribeCTA
+          variant="compact"
+          heading="Still here? Then this is for you."
+          blurb="Three installments a week. Read at your own pace. Reply if something lands."
+          buttonLabel="Send me the next one"
+        />
+      </section>
     </main>
   );
 }
