@@ -12,6 +12,7 @@ import * as migration_20260502_030000_drop_posts_drafts from './20260502_030000_
 import * as migration_20260502_040000_add_nav_items_locked_docs_rel from './20260502_040000_add_nav_items_locked_docs_rel';
 import * as migration_20260502_050000_fix_array_table_ids from './20260502_050000_fix_array_table_ids';
 import * as migration_20260503_000000_add_groups_home_highlight from './20260503_000000_add_groups_home_highlight';
+import * as migration_20260504_000000_relabel_blog_nav_item_to_latest from './20260504_000000_relabel_blog_nav_item_to_latest';
 
 export const migrations = [
   {
@@ -83,5 +84,10 @@ export const migrations = [
     up: migration_20260503_000000_add_groups_home_highlight.up,
     down: migration_20260503_000000_add_groups_home_highlight.down,
     name: '20260503_000000_add_groups_home_highlight',
+  },
+  {
+    up: migration_20260504_000000_relabel_blog_nav_item_to_latest.up,
+    down: migration_20260504_000000_relabel_blog_nav_item_to_latest.down,
+    name: '20260504_000000_relabel_blog_nav_item_to_latest',
   },
 ];
