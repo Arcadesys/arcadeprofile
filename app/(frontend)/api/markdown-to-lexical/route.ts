@@ -6,7 +6,7 @@ import { createHeadlessEditor } from '@payloadcms/richtext-lexical/lexical/headl
 import { $convertFromMarkdownString } from '@payloadcms/richtext-lexical/lexical/markdown';
 
 const YT_URL_LINE_RE =
-  /^[ \t]*https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^\s]*&)?v=([\w-]{11})|embed\/([\w-]{11})|shorts\/([\w-]{11}))|youtu\.be\/([\w-]{11}))[^\s]*[ \t]*$/;
+  /^[ \t]*https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^\s]*&)?v=([\w-]{11})|embed\/([\w-]{11})|shorts\/([\w-]{11})|v\/([\w-]{11}))|youtu\.be\/([\w-]{11}))[^\s]*[ \t]*$/;
 
 function preprocessMarkdown(input: string): string {
   return input
