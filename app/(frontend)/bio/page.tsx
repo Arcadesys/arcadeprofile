@@ -135,9 +135,9 @@ export default function BioPage() {
             and deployed on Vercel — and it doubles as a sandbox where I try things out.
           </p>
           <p style={{ lineHeight: 1.8, margin: 0 }}>
-            The name comes from Walter Benjamin&apos;s <em>The Arcades Project</em> — a sprawling,
-            unfinished collection of fragments about modernity, commerce, and the passage of time.
-            It felt right for a site that&apos;s also sprawling and perpetually under construction.
+            The name is about arcades in the older, weirder sense — wonder, novelty, and the
+            cabinets crammed into the back of the room. Mine are the strange imports the owner
+            brought in for himself: the side projects, the experiments, the games nobody asked for.
           </p>
         </div>
       </section>
