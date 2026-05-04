@@ -14,7 +14,7 @@ function preprocessMarkdown(input: string): string {
     .map((line) => {
       const m = YT_URL_LINE_RE.exec(line);
       if (!m) return line;
-      const id = m[1] || m[2] || m[3] || m[4];
+      const id = m[1] || m[2] || m[3] || m[4] || m[5];
       return `<YouTube id="${id}"/>`;
     })
     .join('\n');
