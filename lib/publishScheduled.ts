@@ -50,8 +50,8 @@ export async function publishScheduledPosts(
   const dueResult = await payload.find({
     collection: 'posts',
     depth: 0,
-    limit: perRunLimit || 0,
     sort: ['scheduledPublishDate', 'order'],
+    ...(perRunLimit ? { limit: perRunLimit } : { pagination: false }),
     where: {
       and: [
         { publish_status: { equals: 'scheduled' } },
@@ -97,11 +97,19 @@ export async function publishScheduledPosts(
   const stuckResult = await payload.find({
     collection: 'posts',
     depth: 0,
-    limit: 0,
+    pagination: false,
     where: {
       and: [
         { scheduledPublishDate: { less_than: stuckThreshold } },
-        { publish_status: { not_in: ['published', 'sent'] } },
+        // `not_in` doesn't match NULL rows in Postgres, so spell out the
+        // null case explicitly — a missing publish_status with a past
+        // scheduled date is just as stuck.
+        {
+          or: [
+            { publish_status: { not_in: ['published', 'sent'] } },
+            { publish_status: { equals: null } },
+          ],
+        },
       ],
     },
   });
@@ -113,12 +121,17 @@ export async function publishScheduledPosts(
     scheduledPublishDate: post.scheduledPublishDate,
   }));
 
+  // With `pagination: false`, totalDocs may not be populated by every DB
+  // adapter, so fall back to docs.length.
+  const dueTotal = dueResult.totalDocs ?? duePosts.length;
+  const stuckTotal = stuckResult.totalDocs ?? stuckResult.docs.length;
+
   return {
-    due: dueResult.totalDocs,
+    due: dueTotal,
     processed,
     failed,
-    skipped: Math.max(dueResult.totalDocs - duePosts.length, 0),
-    stuck: stuckResult.totalDocs,
+    skipped: Math.max(dueTotal - duePosts.length, 0),
+    stuck: stuckTotal,
     results,
     stuckPosts,
   };
