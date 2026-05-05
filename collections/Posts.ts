@@ -6,6 +6,7 @@ import { buildPostUrl, computePostPartIndex } from '../lib/post-url';
 import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { slugField } from './fields/slug';
 import { tagArrayField } from './fields/tags';
+import { promoteScheduledDraftHook } from './hooks/promoteScheduledDraft';
 import { revalidatePathsFor } from './hooks/revalidate';
 import { isAuthenticated, publicReadAccess } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
@@ -49,18 +50,7 @@ export const Posts: CollectionConfig = {
     ]),
   },
   hooks: {
-    beforeChange: [
-      ({ data }) => {
-        // If an editor sets a Scheduled Publish Date but leaves Workflow Status
-        // on the "Not queued" default, the cron will never pick the post up.
-        // Treat "has a scheduled date + still draft" as the editor's intent to
-        // schedule, and flip the status so the publisher actually runs.
-        if (data?.scheduledPublishDate && (!data.publish_status || data.publish_status === 'draft')) {
-          data.publish_status = 'scheduled';
-        }
-        return data;
-      },
-    ],
+    beforeChange: [promoteScheduledDraftHook],
     afterChange: [
       revalidatePostPaths,
       async ({ doc, previousDoc, req }) => {

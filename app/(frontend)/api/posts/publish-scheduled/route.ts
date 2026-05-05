@@ -3,78 +3,32 @@ import { getPayload } from 'payload';
 
 import config from '@payload-config';
 import { authorizeCronRequest, getScheduledPostsPerRun } from '@/lib/cronAuth';
-import type { Post } from '@/payload-types';
+import { publishScheduledPosts } from '@/lib/publishScheduled';
 
-type PublishResult = {
-  id: number;
-  slug: string;
-  status: 'published' | 'failed';
-  error?: string;
-};
-
-async function publishScheduledPosts() {
+async function runPublish() {
   const payload = await getPayload({ config });
-  const now = new Date().toISOString();
-  const perRunLimit = getScheduledPostsPerRun();
-
-  const result = await payload.find({
-    collection: 'posts',
-    depth: 0,
-    limit: perRunLimit || 0,
-    sort: ['scheduledPublishDate', 'order'],
-    where: {
-      and: [
-        {
-          publish_status: { equals: 'scheduled' },
-        },
-        {
-          scheduledPublishDate: { less_than_equal: now },
-        },
-      ],
-    },
+  const summary = await publishScheduledPosts(payload, {
+    perRunLimit: getScheduledPostsPerRun(),
   });
 
-  const duePosts = result.docs as Post[];
-  const results: PublishResult[] = [];
-
-  for (const post of duePosts) {
-    try {
-      await payload.update({
-        collection: 'posts',
-        id: post.id,
-        data: {
-          publish_status: 'published',
-          publishedDate: post.scheduledPublishDate || now,
-        },
-        depth: 0,
-        overrideAccess: true,
-      });
-
-      results.push({
-        id: post.id,
-        slug: post.slug,
-        status: 'published',
-      });
-    } catch (error) {
-      results.push({
-        id: post.id,
-        slug: post.slug,
-        status: 'failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-    }
+  if (summary.stuck > 0) {
+    console.error(
+      '[publish-scheduled] stuck posts detected',
+      JSON.stringify({
+        stuck: summary.stuck,
+        stuckPosts: summary.stuckPosts,
+        processed: summary.processed,
+        failed: summary.failed,
+      }),
+    );
+    return NextResponse.json(summary, { status: 500 });
   }
 
-  const processed = results.filter((result) => result.status === 'published').length;
-  const failed = results.length - processed;
+  if (summary.failed > 0) {
+    return NextResponse.json(summary, { status: 500 });
+  }
 
-  return NextResponse.json({
-    due: result.totalDocs,
-    processed,
-    failed,
-    skipped: Math.max(result.totalDocs - duePosts.length, 0),
-    results,
-  });
+  return NextResponse.json(summary);
 }
 
 async function handleRequest(request: Request) {
@@ -84,7 +38,7 @@ async function handleRequest(request: Request) {
     return unauthorizedResponse;
   }
 
-  return publishScheduledPosts();
+  return runPublish();
 }
 
 export async function GET(request: Request) {
