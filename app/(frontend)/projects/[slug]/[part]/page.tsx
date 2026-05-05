@@ -5,6 +5,9 @@ import Image from 'next/image';
 import PostRichText from '@/app/components/PostRichText';
 import { getProjectBySlug } from '@/lib/payload';
 import { getGroupBySlug } from '@/lib/blog';
+import { resolvePostOgImageBySlug, resolveGroupOgImage } from '@/lib/post-og-image';
+import { getPayload } from 'payload';
+import payloadConfig from '@payload-config';
 import { categoryLabels } from '@/components/menu';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
@@ -74,17 +77,43 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!project) return {};
 
   if (idx === 0) {
+    const payload = await getPayload({ config: payloadConfig });
+    const og = await resolveGroupOgImage(payload, slug);
+    const title = `${project.title} — The Arcades`;
     return {
-      title: `${project.title} — The Arcades`,
+      title,
       description: project.description,
+      openGraph: og
+        ? {
+            title,
+            description: project.description ?? undefined,
+            images: [{ url: og.url, alt: og.alt ?? project.title, width: og.width, height: og.height }],
+          }
+        : undefined,
+      twitter: og
+        ? { card: 'summary_large_image', title, description: project.description ?? undefined, images: [og.url] }
+        : undefined,
     };
   }
 
   const post = group?.posts[idx - 1];
   if (!post) return {};
+  const payload = await getPayload({ config: payloadConfig });
+  const og = await resolvePostOgImageBySlug(payload, post.slug);
+  const title = `${post.title} — ${project.title}`;
   return {
-    title: `${post.title} — ${project.title}`,
+    title,
     description: post.excerpt,
+    openGraph: og
+      ? {
+          title,
+          description: post.excerpt,
+          images: [{ url: og.url, alt: og.alt ?? post.title, width: og.width, height: og.height }],
+        }
+      : undefined,
+    twitter: og
+      ? { card: 'summary_large_image', title, description: post.excerpt, images: [og.url] }
+      : undefined,
   };
 }
 
