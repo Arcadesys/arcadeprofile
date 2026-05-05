@@ -31,7 +31,7 @@ export interface SocialFanoutResult {
 const ALL_PLATFORMS: SocialPlatform[] = ['bluesky', 'facebook', 'instagram', 'linkedin'];
 
 function siteUrl(): string {
-  return (process.env.NEXT_PUBLIC_SITE_URL || 'https://thearcades.me').replace(/\/$/, '');
+  return (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/$/, '');
 }
 
 function isBlueskyConfigured(): boolean {
@@ -124,12 +124,9 @@ export async function autoPostToSocial(
   const title = post.title as string;
   const description = (post.excerpt as string | undefined) || '';
 
-  const results: SocialFanoutResult[] = [];
-
-  for (const platform of ALL_PLATFORMS) {
+  const runPlatform = async (platform: SocialPlatform): Promise<SocialFanoutResult> => {
     if (!platformConfigured(platform)) {
-      results.push({ platform, status: 'skipped', reason: 'not configured' });
-      continue;
+      return { platform, status: 'skipped', reason: 'not configured' };
     }
 
     // Idempotency: don't double-post for the same slug+platform.
@@ -147,8 +144,7 @@ export async function autoPostToSocial(
       overrideAccess: true,
     });
     if (existing.docs.length > 0) {
-      results.push({ platform, status: 'skipped', reason: 'already posted or scheduled' });
-      continue;
+      return { platform, status: 'skipped', reason: 'already posted or scheduled' };
     }
 
     try {
@@ -168,7 +164,7 @@ export async function autoPostToSocial(
         },
         overrideAccess: true,
       });
-      results.push({ platform, status: 'posted', postUrl: result.url });
+      return { platform, status: 'posted', postUrl: result.url };
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       await payload.create({
@@ -185,9 +181,18 @@ export async function autoPostToSocial(
         },
         overrideAccess: true,
       });
-      results.push({ platform, status: 'failed', reason: message });
+      return { platform, status: 'failed', reason: message };
     }
-  }
+  };
 
-  return results;
+  const settled = await Promise.allSettled(ALL_PLATFORMS.map(runPlatform));
+  return settled.map((r, i) =>
+    r.status === 'fulfilled'
+      ? r.value
+      : {
+          platform: ALL_PLATFORMS[i],
+          status: 'failed' as const,
+          reason: r.reason instanceof Error ? r.reason.message : String(r.reason),
+        },
+  );
 }
