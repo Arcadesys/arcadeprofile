@@ -1,3 +1,5 @@
+import type { Payload } from 'payload';
+
 import type { Post } from '@/payload-types';
 
 export type PublishResult = {
@@ -30,10 +32,9 @@ export type PublishScheduledResponse = {
 // to flip its due posts.
 const STUCK_GRACE_MS = 60 * 60 * 1000;
 
-type PayloadLike = {
-  find: (args: Record<string, unknown>) => Promise<{ docs: Post[]; totalDocs: number }>;
-  update: (args: Record<string, unknown>) => Promise<unknown>;
-};
+// Subset of the Payload local API we use. Typed via Pick so the route can
+// pass a real Payload instance and tests can pass a structural mock.
+export type PayloadLike = Pick<Payload, 'find' | 'update'>;
 
 type Options = {
   now?: Date;

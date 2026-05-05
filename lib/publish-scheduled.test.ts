@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { promoteScheduledDraftHook } from '../collections/hooks/promoteScheduledDraft';
-import { publishScheduledPosts } from './publishScheduled';
+import { publishScheduledPosts, type PayloadLike } from './publishScheduled';
 
 test('promoteScheduledDraftHook flips draft to scheduled when a date is set', () => {
   const data = { publish_status: 'draft', scheduledPublishDate: '2026-06-01T12:00:00.000Z' };
@@ -45,21 +45,23 @@ function makePayload(opts: {
     { docs: opts.stuck ?? [], totalDocs: (opts.stuck ?? []).length },
   ];
 
+  const mock = {
+    async find(args: FindArgs) {
+      findCalls.push(args);
+      return findResults[findIndex++];
+    },
+    async update(args: UpdateArgs) {
+      updateCalls.push(args);
+      const err = opts.updateError?.(args.id);
+      if (err) throw err;
+      return { id: args.id };
+    },
+  };
+
   return {
     findCalls,
     updateCalls,
-    payload: {
-      async find(args: FindArgs) {
-        findCalls.push(args);
-        return findResults[findIndex++];
-      },
-      async update(args: UpdateArgs) {
-        updateCalls.push(args);
-        const err = opts.updateError?.(args.id);
-        if (err) throw err;
-        return { id: args.id };
-      },
-    },
+    payload: mock as unknown as PayloadLike,
   };
 }
 
