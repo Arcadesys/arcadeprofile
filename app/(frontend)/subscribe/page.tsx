@@ -4,7 +4,7 @@ import SubscribeCTA from '@/app/components/SubscribeCTA';
 export const metadata: Metadata = {
   title: 'Subscribe — The Arcades',
   description:
-    'Early access to books, essays, and serialized fiction from Austen Tucker. Mon/Wed/Fri, straight to your inbox.',
+    'Fiction Mon/Wed/Fri, essays Tue/Thu, from Austen Tucker. All for you, all free.',
 };
 
 export default function SubscribePage() {
@@ -45,8 +45,9 @@ export default function SubscribePage() {
           makes it to the public site.
         </p>
         <p style={{ margin: '0 0 1.1rem' }}>
-          Installments arrive Monday, Wednesday, and Friday. No more, no less. No
-          tracking pixels playing dress-up as newsletters. No &ldquo;10 things&rdquo;
+          Fiction lands Monday, Wednesday, and Friday. Essays Tuesday and Thursday.
+          All for you, all free &mdash; no paywall, no tip jar with a guilt trip,
+          no tracking pixels playing dress-up as newsletters. No &ldquo;10 things&rdquo;
           lists. No upsells, no courses, no funnel. Just the writing, in the order I
           meant for you to read it, with a one-click unsubscribe at the bottom of every
           email if it ever stops being your thing.
@@ -68,7 +69,7 @@ export default function SubscribePage() {
       <SubscribeCTA
         eyebrow="Join the list"
         heading="Get it first"
-        blurb="Books, essays, and Mon/Wed/Fri fiction — to your inbox before anywhere else."
+        blurb="Fiction Mon/Wed/Fri, essays Tue/Thu. All for you, all free."
         buttonLabel="Subscribe"
       />
     </main>
