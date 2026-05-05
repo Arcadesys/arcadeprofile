@@ -60,6 +60,15 @@ export async function POST(request: NextRequest) {
       console.error('ActiveCampaign sync failed for subscriber:', email, acErr);
     }
 
+    // Also subscribe to the "In-progress drafts" list (AC list id 4) so
+    // signups from /subscribe get early-access drafts as promised on the page.
+    try {
+      const draftsListId = process.env.AC_DRAFTS_LIST_ID || '4';
+      await syncSubscriberToActiveCampaign({ email, listIdOverride: draftsListId });
+    } catch (acErr) {
+      console.error('ActiveCampaign drafts-list sync failed for subscriber:', email, acErr);
+    }
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error('Subscribe error:', err);
