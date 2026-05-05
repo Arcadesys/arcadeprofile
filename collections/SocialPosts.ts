@@ -15,7 +15,12 @@ export const SocialPosts: CollectionConfig = {
       name: 'platform',
       type: 'select',
       required: true,
-      options: [{ label: 'Bluesky', value: 'bluesky' }],
+      options: [
+        { label: 'Bluesky', value: 'bluesky' },
+        { label: 'Facebook', value: 'facebook' },
+        { label: 'Instagram', value: 'instagram' },
+        { label: 'LinkedIn', value: 'linkedin' },
+      ],
     },
     {
       name: 'variant',
@@ -103,7 +108,7 @@ export const SocialPosts: CollectionConfig = {
       admin: {
         position: 'sidebar',
         readOnly: true,
-        description: 'AT Protocol URI',
+        description: 'Platform-specific identifier (AT URI, Facebook id, LinkedIn URN, etc.)',
       },
     },
     {

@@ -709,7 +709,7 @@ export interface Subscriber {
  */
 export interface SocialPost {
   id: number;
-  platform: 'bluesky';
+  platform: 'bluesky' | 'facebook' | 'instagram' | 'linkedin';
   variant: 'short' | 'long' | 'custom';
   text: string;
   /**
@@ -724,7 +724,7 @@ export interface SocialPost {
   failedAt?: string | null;
   failureReason?: string | null;
   /**
-   * AT Protocol URI
+   * Platform-specific identifier (AT URI, Facebook id, LinkedIn URN, etc.)
    */
   postUri?: string | null;
   /**

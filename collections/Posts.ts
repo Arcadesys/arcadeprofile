@@ -139,6 +139,40 @@ export const Posts: CollectionConfig = {
           }
         }
       },
+      async ({ doc, previousDoc, req }) => {
+        // Fan out to social platforms (Bluesky, Facebook, Instagram, LinkedIn)
+        // on the same transition that fires the newsletter: first time the
+        // post enters a public state. Idempotency lives in lib/social — it
+        // checks for existing social-posts rows per (slug, platform).
+        const wasPublic =
+          previousDoc?.publish_status === 'published' ||
+          previousDoc?.publish_status === 'sent';
+        const isNowPublic =
+          doc.publish_status === 'published' || doc.publish_status === 'sent';
+
+        if (isNowPublic && !wasPublic) {
+          try {
+            const { autoPostToSocial } = await import('../lib/social');
+            // Refetch with depth: 1 so meta.image is populated for Instagram.
+            const populated = (await req.payload.findByID({
+              collection: 'posts',
+              id: doc.id as number,
+              depth: 1,
+              overrideAccess: true,
+            })) as Post;
+            const results = await autoPostToSocial(req.payload, populated);
+            console.log(
+              `[social] Fan-out complete for "${doc.title}":`,
+              JSON.stringify(results),
+            );
+          } catch (err) {
+            console.error(
+              '[social] Fan-out failed:',
+              err instanceof Error ? err.message : err,
+            );
+          }
+        }
+      },
     ],
   },
   fields: [
