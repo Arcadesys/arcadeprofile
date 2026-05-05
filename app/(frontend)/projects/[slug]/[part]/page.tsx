@@ -328,6 +328,10 @@ export default async function ProjectPartPage({ params }: Props) {
           <PostRichText data={post.content} />
         </div>
 
+        <div style={{ marginTop: '4rem' }}>
+          <SubscribeCTA />
+        </div>
+
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             {prevPartHref ? (
@@ -343,10 +347,6 @@ export default async function ProjectPartPage({ params }: Props) {
           </div>
         </footer>
       </main>
-
-      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 1.5rem 6rem' }}>
-        <SubscribeCTA />
-      </div>
     </>
   );
 }
