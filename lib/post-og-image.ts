@@ -103,7 +103,7 @@ async function findChapterSiblingImage(
   return fromMedia(media, 'chapter-sibling');
 }
 
-async function findGroupImage(payload: Payload, groupSlug: string): Promise<OgImage | null> {
+export async function resolveGroupOgImage(payload: Payload, groupSlug: string): Promise<OgImage | null> {
   const result = await payload.find({
     collection: 'groups',
     where: { slug: { equals: groupSlug } },
@@ -141,7 +141,7 @@ export async function resolvePostOgImage(
   if (sibling) return sibling;
 
   if (post.group) {
-    return findGroupImage(payload, post.group);
+    return resolveGroupOgImage(payload, post.group);
   }
 
   return null;
@@ -156,7 +156,10 @@ export async function resolvePostOgImageBySlug(
 ): Promise<OgImage | null> {
   const result = await payload.find({
     collection: 'posts',
-    where: { slug: { equals: slug } },
+    where: {
+      slug: { equals: slug },
+      publish_status: { in: ['published', 'sent'] },
+    },
     limit: 1,
     depth: 1,
     overrideAccess: true,

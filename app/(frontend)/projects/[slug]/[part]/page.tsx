@@ -5,7 +5,7 @@ import Image from 'next/image';
 import PostRichText from '@/app/components/PostRichText';
 import { getProjectBySlug } from '@/lib/payload';
 import { getGroupBySlug } from '@/lib/blog';
-import { resolvePostOgImageBySlug } from '@/lib/post-og-image';
+import { resolvePostOgImageBySlug, resolveGroupOgImage } from '@/lib/post-og-image';
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
 import { categoryLabels } from '@/components/menu';
@@ -78,8 +78,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (idx === 0) {
     const payload = await getPayload({ config: payloadConfig });
-    const intro = group?.posts[0];
-    const og = intro ? await resolvePostOgImageBySlug(payload, intro.slug) : null;
+    const og = await resolveGroupOgImage(payload, slug);
     const title = `${project.title} — The Arcades`;
     return {
       title,

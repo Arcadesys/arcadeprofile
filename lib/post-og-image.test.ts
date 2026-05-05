@@ -4,7 +4,7 @@ import test from 'node:test';
 import type { Group, Media, Post } from '@/payload-types';
 import { resolvePostOgImage } from './post-og-image';
 
-type PartialPost = Pick<Post, 'id' | 'group' | 'chapter' | 'meta'> & { id: number };
+type PartialPost = Pick<Post, 'id' | 'group' | 'chapter' | 'meta' | 'publish_status'> & { id: number };
 
 function media(overrides: Partial<Media> = {}): Media {
   return {
@@ -38,11 +38,13 @@ function makePayload(opts: {
         const chapterSlug = where?.chapter?.equals;
         const excludeId = where?.id?.not_equals;
         const requireImage = !!where?.['meta.image']?.exists;
+        const statusIn: string[] | undefined = where?.publish_status?.in;
         const docs = posts.filter((p) => {
           if (groupSlug && p.group !== groupSlug) return false;
           if (chapterSlug && p.chapter !== chapterSlug) return false;
           if (excludeId && p.id === excludeId) return false;
           if (requireImage && !p.meta?.image) return false;
+          if (statusIn && !statusIn.includes(p.publish_status ?? '')) return false;
           return true;
         });
         return { docs: docs.slice(0, limit ?? docs.length) };
@@ -67,6 +69,7 @@ test('uses post meta.image when present', async () => {
     id: 1,
     group: 'g',
     chapter: null,
+    publish_status: 'published',
     meta: { image: media({ url: 'https://cdn.example/post.jpg', sizes: { og: { url: 'https://cdn.example/post-og.jpg', width: 1200, height: 630 } } }) },
   };
   const payload = makePayload({});
