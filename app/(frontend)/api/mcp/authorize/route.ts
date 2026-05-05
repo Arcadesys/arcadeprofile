@@ -1,4 +1,5 @@
 import type { NextRequest } from 'next/server';
+import { timingSafeEqual } from 'crypto';
 import { escapeHtml, generateAuthCode } from '@/lib/mcp-oauth';
 
 export const runtime = 'nodejs';
@@ -16,7 +17,17 @@ function oauthError(redirectUri: string, state: string | undefined, error: strin
   }
 }
 
-// GET — render the confirmation page (no credential entry required)
+function checkPassword(input: string, expected: string): boolean {
+  try {
+    const a = Buffer.from(input);
+    const b = Buffer.from(expected);
+    return a.length === b.length && timingSafeEqual(a, b);
+  } catch {
+    return false;
+  }
+}
+
+// GET — render the confirmation page
 export async function GET(req: NextRequest): Promise<Response> {
   const p = req.nextUrl.searchParams;
   const clientId = p.get('client_id') ?? '';
@@ -60,7 +71,7 @@ export async function GET(req: NextRequest): Promise<Response> {
       width: 100%;
     }
     h1 { font-size: 1.25rem; margin: 0 0 .5rem; }
-    p { color: #555; font-size: .875rem; margin: 0 0 1.5rem; line-height: 1.5; }
+    p { color: #555; font-size: .875rem; margin: 0 0 1rem; line-height: 1.5; }
     .client-id {
       font-family: monospace;
       font-size: .8rem;
@@ -69,7 +80,17 @@ export async function GET(req: NextRequest): Promise<Response> {
       border-radius: 4px;
       word-break: break-all;
     }
-    .actions { display: flex; gap: .75rem; margin-top: 1.5rem; }
+    label { display: block; font-size: .8125rem; font-weight: 600; margin-bottom: .375rem; margin-top: 1rem; }
+    input[type=password] {
+      width: 100%;
+      padding: .5rem .75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+    }
+    input[type=password]:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+    .actions { display: flex; gap: .75rem; margin-top: 1.25rem; }
     button {
       flex: 1;
       padding: .625rem;
@@ -83,6 +104,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     .allow:hover { background: #4f46e5; }
     .deny { background: #f3f4f6; color: #374151; }
     .deny:hover { background: #e5e7eb; }
+    .error { color: #dc2626; font-size: .8125rem; margin-top: .5rem; }
   </style>
 </head>
 <body>
@@ -96,6 +118,8 @@ export async function GET(req: NextRequest): Promise<Response> {
       <input type="hidden" name="code_challenge" value="${escapeHtml(codeChallenge)}" />
       <input type="hidden" name="code_challenge_method" value="${escapeHtml(codeChallengeMethod)}" />
       <input type="hidden" name="state" value="${escapeHtml(state)}" />
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" autofocus required autocomplete="current-password" />
       <div class="actions">
         <button type="submit" name="action" value="allow" class="allow">Allow</button>
         <button type="submit" name="action" value="deny" class="deny">Deny</button>
@@ -108,7 +132,7 @@ export async function GET(req: NextRequest): Promise<Response> {
   return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 }
 
-// POST — issue auth code (no credential check; PKCE is the security control)
+// POST — validate password and issue auth code
 export async function POST(req: NextRequest): Promise<Response> {
   const form = await req.formData();
   const clientId = (form.get('client_id') as string) ?? '';
@@ -117,6 +141,7 @@ export async function POST(req: NextRequest): Promise<Response> {
   const codeChallengeMethod = (form.get('code_challenge_method') as string) ?? 'S256';
   const state = (form.get('state') as string) || undefined;
   const action = (form.get('action') as string) ?? 'allow';
+  const password = (form.get('password') as string) ?? '';
 
   if (!clientId || !redirectUri || !codeChallenge) {
     return new Response('invalid_request', { status: 400 });
@@ -126,9 +151,15 @@ export async function POST(req: NextRequest): Promise<Response> {
     return oauthError(redirectUri, state, 'access_denied', 'User denied the request');
   }
 
+  const authorizePassword = process.env.MCP_AUTHORIZE_PASSWORD;
   const mcpApiKey = process.env.MCP_API_KEY;
-  if (!mcpApiKey) {
+
+  if (!mcpApiKey || !authorizePassword) {
     return oauthError(redirectUri, state, 'server_error', 'Server is not configured');
+  }
+
+  if (!checkPassword(password, authorizePassword)) {
+    return oauthError(redirectUri, state, 'access_denied', 'Invalid password');
   }
 
   const code = generateAuthCode(
