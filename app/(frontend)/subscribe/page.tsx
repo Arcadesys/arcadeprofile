@@ -36,13 +36,12 @@ export default function SubscribePage() {
           color: 'var(--fg)',
           lineHeight: 1.75,
           fontSize: '1rem',
-          marginBottom: '2.5rem',
         }}
       >
         <p style={{ margin: '0 0 1.1rem' }}>
-          Here&apos;s the deal: I write serialized fiction, essays, and the occasional
+          Here&rsquo;s the deal: I write serialized fiction, essays, and the occasional
           book. Subscribers get it first &mdash; chapters as they land, drafts before
-          they&apos;re polished, and the odd note from the cutting-room floor that never
+          they&rsquo;re polished, and the odd note from the cutting-room floor that never
           makes it to the public site.
         </p>
         <p style={{ margin: '0 0 1.1rem' }}>
@@ -55,7 +54,7 @@ export default function SubscribePage() {
         <p style={{ margin: '0 0 1.1rem' }}>
           When a new book is close, subscribers get the early-access link before
           anyone else &mdash; sometimes weeks before, sometimes only hours, depending
-          on how nervous I am. Same goes for longer essays I&apos;d rather not throw at
+          on how nervous I am. Same goes for longer essays I&rsquo;d rather not throw at
           the algorithm cold.
         </p>
         <p style={{ margin: '0 0 1.1rem' }}>
