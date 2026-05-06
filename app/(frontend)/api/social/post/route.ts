@@ -14,7 +14,8 @@ const composePostSchema = z.object({
   scheduledAt: z
     .string()
     .refine((s) => !isNaN(new Date(s).getTime()), { message: 'Invalid scheduledAt date' })
-    .refine((s) => new Date(s) > new Date(), { message: 'scheduledAt must be in the future' })
+    .transform((s) => new Date(s))
+    .refine((d) => d > new Date(), { message: 'scheduledAt must be in the future' })
     .optional(),
 });
 
@@ -25,7 +26,7 @@ async function handleComposePost(body: ComposePostBody) {
   const variant = body.variant ?? 'custom';
 
   if (body.scheduledAt) {
-    const scheduledDate = new Date(body.scheduledAt);
+    const scheduledAtIso = body.scheduledAt.toISOString();
 
     const doc = await payload.create({
       collection: 'social-posts',
@@ -36,11 +37,11 @@ async function handleComposePost(body: ComposePostBody) {
         slug: body.slug || undefined,
         linkUrl: body.linkUrl,
         status: 'scheduled',
-        scheduledAt: scheduledDate.toISOString(),
+        scheduledAt: scheduledAtIso,
       },
     });
 
-    return NextResponse.json({ id: doc.id, status: 'scheduled', scheduledAt: scheduledDate.toISOString() });
+    return NextResponse.json({ id: doc.id, status: 'scheduled', scheduledAt: scheduledAtIso });
   }
 
   try {

@@ -5,21 +5,20 @@ import { getAudienceListId, syncSubscriberToActiveCampaign } from '@/lib/activec
 import { parseBody } from '@/lib/validation';
 
 const VALID_AUDIENCES = ['all', 'fiction', 'essays'] as const;
-type Audience = (typeof VALID_AUDIENCES)[number];
 
 const subscribeSchema = z.object({
   email: z.string().min(1, 'Email is required.').email('Email must be a valid address.'),
   audiences: z
     .array(z.enum(VALID_AUDIENCES))
-    .min(1, 'Pick at least one list (All, Fiction, or Essays).'),
+    .min(1, 'Pick at least one list (All, Fiction, or Essays).')
+    .transform((val) => [...new Set(val)]),
 });
 
 export async function POST(request: NextRequest) {
   const parsed = await parseBody(subscribeSchema, request);
   if (!parsed.ok) return parsed.response;
 
-  const { email } = parsed.data;
-  const audiences = Array.from(new Set<Audience>(parsed.data.audiences));
+  const { email, audiences } = parsed.data;
 
   // Reconcile: subscribe to chosen lists (status=1), unsubscribe from the
   // ones they didn't pick (status=2). Without the unsubscribe leg, switching
