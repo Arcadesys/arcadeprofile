@@ -230,7 +230,7 @@ export const Posts: CollectionConfig = {
       type: 'date',
       defaultValue: () => {
         const d = new Date();
-        d.setUTCHours(13, 0, 0, 0); // 08:00 CDT
+        d.setUTCHours(10, 0, 0, 0); // 05:00 CDT
         if (d <= new Date()) d.setUTCDate(d.getUTCDate() + 1);
         return d.toISOString();
       },
