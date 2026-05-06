@@ -11,6 +11,10 @@ async function runPublish() {
     perRunLimit: getScheduledPostsPerRun(),
   });
 
+  // Stuck posts are a *report*, not a run failure. Log loudly so we still
+  // notice in the workflow output, but don't poison the HTTP status —
+  // otherwise one stuck row makes every subsequent cron run look broken
+  // (and silently masks the fact that other due posts published fine).
   if (summary.stuck > 0) {
     console.error(
       '[publish-scheduled] stuck posts detected',
@@ -21,7 +25,6 @@ async function runPublish() {
         failed: summary.failed,
       }),
     );
-    return NextResponse.json(summary, { status: 500 });
   }
 
   if (summary.failed > 0) {
