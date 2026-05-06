@@ -74,7 +74,6 @@ export interface Config {
     demos: Demo;
     pages: Page;
     media: Media;
-    subscribers: Subscriber;
     'social-posts': SocialPost;
     'nav-items': NavItem;
     'payload-kv': PayloadKv;
@@ -91,7 +90,6 @@ export interface Config {
     demos: DemosSelect<false> | DemosSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
     'social-posts': SocialPostsSelect<false> | SocialPostsSelect<true>;
     'nav-items': NavItemsSelect<false> | NavItemsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -685,26 +683,6 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "subscribers".
- */
-export interface Subscriber {
-  id: number;
-  email: string;
-  tags?:
-    | {
-        tag: 'fiction' | 'tech' | 'updates';
-        id?: string | null;
-      }[]
-    | null;
-  subscribedAt?: string | null;
-  unsubscribed?: boolean | null;
-  unsubscribedAt?: string | null;
-  unsubscribeToken?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "social-posts".
  */
 export interface SocialPost {
@@ -813,10 +791,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
-      } | null)
-    | ({
-        relationTo: 'subscribers';
-        value: number | Subscriber;
       } | null)
     | ({
         relationTo: 'social-posts';
@@ -1176,25 +1150,6 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "subscribers_select".
- */
-export interface SubscribersSelect<T extends boolean = true> {
-  email?: T;
-  tags?:
-    | T
-    | {
-        tag?: T;
-        id?: T;
-      };
-  subscribedAt?: T;
-  unsubscribed?: T;
-  unsubscribedAt?: T;
-  unsubscribeToken?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

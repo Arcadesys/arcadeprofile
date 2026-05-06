@@ -40,9 +40,8 @@ export default function SubscribePage() {
       >
         <p style={{ margin: '0 0 1.1rem' }}>
           Here&rsquo;s the deal: I write serialized fiction, essays, and the occasional
-          book. Subscribers get it first &mdash; chapters as they land, drafts before
-          they&rsquo;re polished, and the odd note from the cutting-room floor that never
-          makes it to the public site.
+          book. Subscribers get it first &mdash; chapters as they land and the odd note
+          from the cutting-room floor that never makes it to the public site.
         </p>
         <p style={{ margin: '0 0 1.1rem' }}>
           Fiction lands Monday, Wednesday, and Friday. Essays Tuesday and Thursday.
