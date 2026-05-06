@@ -48,3 +48,20 @@ jobs:
           cache: "npm"
       - run: npm ci
       - run: npm test
+
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      # Non-blocking on the first cycle: || true keeps the step exit 0
+      # so freshly-published advisories don't fire a failed-check
+      # notification on every PR while we triage. Output stays in the
+      # job log. Drop the `|| true` after one clean week to enforce.
+      - run: npm audit --omit=dev --audit-level=high || true
