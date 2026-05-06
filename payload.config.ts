@@ -8,7 +8,7 @@ import sharp from 'sharp';
 import { collections } from './collections';
 import { YouTubeBlock } from './blocks/YouTube';
 import { createPayloadEmailAdapter } from './lib/payload-email';
-import { getDatabaseURLForPayloadConfig } from './lib/env';
+import { getDatabaseURLForPayloadConfig, getPayloadSecret } from './lib/env';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -33,7 +33,7 @@ export default buildConfig({
   }),
   email,
   sharp,
-  secret: process.env.PAYLOAD_SECRET || 'default-secret-change-me',
+  secret: getPayloadSecret(),
   db: postgresAdapter({
     // Avoid interactive Drizzle schema-push prompts during `next dev`.
     // Schema changes should be applied via explicit migrations instead.

@@ -21,9 +21,12 @@ function preprocessMarkdown(input: string): string {
 }
 
 export async function POST(request: Request) {
-  const authHeader = request.headers.get('Authorization');
   const apiKey = process.env.PAYLOAD_API_KEY;
-  if (apiKey && authHeader !== `Bearer ${apiKey}`) {
+  if (!apiKey) {
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
+  }
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader !== `Bearer ${apiKey}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
