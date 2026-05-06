@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import { getPayload } from 'payload';
 import config from '@payload-config';
 import { editorConfigFactory, getEnabledNodes } from '@payloadcms/richtext-lexical';
 import { createHeadlessEditor } from '@payloadcms/richtext-lexical/lexical/headless';
 import { $convertFromMarkdownString } from '@payloadcms/richtext-lexical/lexical/markdown';
+import { parseBody } from '@/lib/validation';
+
+const markdownToLexicalSchema = z.object({
+  markdown: z.string().min(1, 'markdown field required'),
+});
 
 const YT_URL_LINE_RE =
   /^[ \t]*https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^\s]*&)?v=([\w-]{11})|embed\/([\w-]{11})|shorts\/([\w-]{11})|v\/([\w-]{11}))|youtu\.be\/([\w-]{11}))[^\s]*[ \t]*$/;
@@ -31,10 +37,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await request.json().catch(() => null);
-  if (!body?.markdown || typeof body.markdown !== 'string') {
-    return NextResponse.json({ error: 'markdown field required' }, { status: 400 });
-  }
+  const parsed = await parseBody(markdownToLexicalSchema, request);
+  if (!parsed.ok) return parsed.response;
+  const { markdown } = parsed.data;
 
   const payload = await getPayload({ config });
   const postsCollection = payload.config.collections.find((c) => c.slug === 'posts');
@@ -51,7 +56,7 @@ export async function POST(request: Request) {
   editor.update(
     () => {
       $convertFromMarkdownString(
-        preprocessMarkdown(body.markdown),
+        preprocessMarkdown(markdown),
         editorConfig.features.markdownTransformers,
       );
     },

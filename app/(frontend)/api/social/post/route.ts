@@ -1,37 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { postToBluesky, atUriToWebUrl } from '@/lib/bluesky';
 import { getPayload } from 'payload';
 import config from '@payload-config';
+import { parseBody } from '@/lib/validation';
 
-interface ComposePostRequest {
-  text: string;
-  platform: string;
-  variant?: string;
-  slug?: string;
-  linkUrl?: string;
-  scheduledAt?: string;
-}
+const composePostSchema = z.object({
+  text: z.string().trim().min(1, 'text is required'),
+  platform: z.literal('bluesky', { message: 'Only bluesky platform is supported' }),
+  variant: z.enum(['short', 'long', 'custom']).optional(),
+  slug: z.string().optional(),
+  linkUrl: z.string().optional(),
+  scheduledAt: z
+    .string()
+    .refine((s) => !isNaN(new Date(s).getTime()), { message: 'Invalid scheduledAt date' })
+    .refine((s) => new Date(s) > new Date(), { message: 'scheduledAt must be in the future' })
+    .optional(),
+});
 
-/** Compose / schedule post from freeform text (admin social page). */
-async function handleComposePost(body: ComposePostRequest) {
-  if (!body.text?.trim()) {
-    return NextResponse.json({ error: 'text is required' }, { status: 400 });
-  }
-  if (body.platform !== 'bluesky') {
-    return NextResponse.json({ error: 'Only bluesky platform is supported' }, { status: 400 });
-  }
+type ComposePostBody = z.infer<typeof composePostSchema>;
 
+async function handleComposePost(body: ComposePostBody) {
   const payload = await getPayload({ config });
-  const variant = (body.variant || 'custom') as 'short' | 'long' | 'custom';
+  const variant = body.variant ?? 'custom';
 
   if (body.scheduledAt) {
     const scheduledDate = new Date(body.scheduledAt);
-    if (isNaN(scheduledDate.getTime())) {
-      return NextResponse.json({ error: 'Invalid scheduledAt date' }, { status: 400 });
-    }
-    if (scheduledDate <= new Date()) {
-      return NextResponse.json({ error: 'scheduledAt must be in the future' }, { status: 400 });
-    }
 
     const doc = await payload.create({
       collection: 'social-posts',
@@ -91,21 +85,7 @@ async function handleComposePost(body: ComposePostRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  let raw: Record<string, unknown>;
-  try {
-    raw = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
-  }
-
-  const body: ComposePostRequest = {
-    text: typeof raw.text === 'string' ? raw.text : '',
-    platform: typeof raw.platform === 'string' ? raw.platform : '',
-    variant: typeof raw.variant === 'string' ? raw.variant : undefined,
-    slug: typeof raw.slug === 'string' ? raw.slug : undefined,
-    linkUrl: typeof raw.linkUrl === 'string' ? raw.linkUrl : undefined,
-    scheduledAt: typeof raw.scheduledAt === 'string' ? raw.scheduledAt : undefined,
-  };
-
-  return handleComposePost(body);
+  const parsed = await parseBody(composePostSchema, request);
+  if (!parsed.ok) return parsed.response;
+  return handleComposePost(parsed.data);
 }
