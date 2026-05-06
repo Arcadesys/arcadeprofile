@@ -53,10 +53,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    # Non-blocking on the first cycle so a freshly-published advisory
-    # doesn't break unrelated PRs while we triage. Flip to blocking
-    # after one clean week.
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -64,4 +60,8 @@ jobs:
           node-version: "20"
           cache: "npm"
       - run: npm ci
-      - run: npm audit --omit=dev --audit-level=high
+      # Non-blocking on the first cycle: || true keeps the step exit 0
+      # so freshly-published advisories don't fire a failed-check
+      # notification on every PR while we triage. Output stays in the
+      # job log. Drop the `|| true` after one clean week to enforce.
+      - run: npm audit --omit=dev --audit-level=high || true
