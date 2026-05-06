@@ -107,6 +107,24 @@ test('publishScheduledPosts surfaces stuck posts past the grace window', async (
   assert.equal(result.stuckPosts[0].publish_status, 'draft');
 });
 
+test('publishScheduledPosts self-heals: publishes draft posts whose scheduled date is past', async () => {
+  // A post that should have been promoted to `scheduled` but is still
+  // `draft` (e.g. legacy row, the beforeChange hook never ran). The publish
+  // loop should still pick it up so it doesn't sit forever in the stuck list.
+  const due = [
+    { id: 42, slug: 'orphan', publish_status: 'draft', scheduledPublishDate: '2026-05-04T12:00:00.000Z' },
+  ];
+  const { payload, updateCalls } = makePayload({ due });
+  const now = new Date('2026-05-04T14:00:00.000Z');
+
+  const result = await publishScheduledPosts(payload, { now });
+
+  assert.equal(result.processed, 1);
+  assert.equal(result.failed, 0);
+  assert.equal(updateCalls.length, 1);
+  assert.equal(updateCalls[0].data.publish_status, 'published');
+});
+
 test('publishScheduledPosts uses now() as fallback publishedDate when scheduledPublishDate is absent', async () => {
   const due = [{ id: 7, slug: 'c', publish_status: 'scheduled', scheduledPublishDate: null }];
   const { payload, updateCalls } = makePayload({ due });

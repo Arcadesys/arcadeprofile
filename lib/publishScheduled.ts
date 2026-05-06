@@ -47,6 +47,10 @@ export async function publishScheduledPosts(
 ): Promise<PublishScheduledResponse> {
   const nowIso = now.toISOString();
 
+  // Include `draft` (and NULL) alongside `scheduled` so a post that has a
+  // past scheduledPublishDate but never had its publish_status promoted by
+  // the beforeChange hook (legacy rows, SQL-imported data, an admin who
+  // cleared the dropdown) still gets published instead of jamming the run.
   const dueResult = await payload.find({
     collection: 'posts',
     depth: 0,
@@ -54,8 +58,14 @@ export async function publishScheduledPosts(
     ...(perRunLimit ? { limit: perRunLimit } : { pagination: false }),
     where: {
       and: [
-        { publish_status: { equals: 'scheduled' } },
         { scheduledPublishDate: { less_than_equal: nowIso } },
+        {
+          or: [
+            { publish_status: { equals: 'scheduled' } },
+            { publish_status: { equals: 'draft' } },
+            { publish_status: { equals: null } },
+          ],
+        },
       ],
     },
   });
