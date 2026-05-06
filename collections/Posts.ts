@@ -53,33 +53,47 @@ export const Posts: CollectionConfig = {
     beforeChange: [promoteScheduledDraftHook],
     afterChange: [
       revalidatePostPaths,
-      async ({ doc, req }) => {
-        // Send newsletter while the post is in a public state and newsletterSent
-        // is still false. The newsletterSent flag — flipped only when every
-        // audience succeeds — is the idempotency gate, so a partial failure on
-        // first publish can be retried by re-saving the post. Public states
-        // are 'published' and 'sent'.
-        const isNowPublished =
+      async ({ doc, previousDoc, req }) => {
+        // On publish, fan out to (1) the newsletter and (2) social platforms.
+        // Public states are 'published' and 'sent'. The newsletterSent flag is
+        // the retry gate for the newsletter — kept false until every audience
+        // succeeds, so re-saving a published post retries any failed audiences.
+        // Social fan-out is first-transition-only (idempotency lives in
+        // social-posts rows). Both branches share a single populated doc fetch
+        // so meta.image is populated for the newsletter renderer and Instagram.
+        // Per-branch try/catch so a newsletter failure doesn't block social.
+        const wasPublic =
+          previousDoc?.publish_status === 'published' ||
+          previousDoc?.publish_status === 'sent';
+        const isNowPublic =
           doc.publish_status === 'published' || doc.publish_status === 'sent';
-        const notYetSent = !doc.newsletterSent;
 
-        if (isNowPublished && notYetSent) {
+        const needsNewsletter = isNowPublic && !doc.newsletterSent;
+        const needsSocial = isNowPublic && !wasPublic;
+
+        if (!needsNewsletter && !needsSocial) return;
+
+        let populated: Post;
+        try {
+          populated = (await req.payload.findByID({
+            collection: 'posts',
+            id: doc.id as number,
+            depth: 1,
+            overrideAccess: true,
+          })) as Post;
+        } catch (err) {
+          console.error(
+            '[publish-hooks] Failed to load populated post; skipping newsletter and social fan-out:',
+            err instanceof Error ? err.message : err,
+          );
+          return;
+        }
+
+        if (needsNewsletter) {
           try {
             const { resolveGroupHeroForPost } = await import('../lib/post-newsletter');
             const { sendPostNewsletterFanOut } = await import('../lib/post-newsletter-fanout');
             const subject = (doc.newsletterHeading as string) || (doc.title as string);
-
-            // afterChange's `doc` reflects the depth used by the triggering
-            // operation, which is often 0 — that leaves `meta.image` as a bare
-            // id and the renderer would skip the post hero, silently falling
-            // back to the group image. Refetch with depth: 1 so the Media
-            // upload is populated with `url`/`alt`.
-            const populated = (await req.payload.findByID({
-              collection: 'posts',
-              id: doc.id as number,
-              depth: 1,
-              overrideAccess: true,
-            })) as Post;
 
             const group = await resolveGroupHeroForPost(req.payload, populated);
 
@@ -155,7 +169,6 @@ export const Posts: CollectionConfig = {
               }),
             );
           } catch (err) {
-            // Don't fail the save if newsletter send fails; log and continue
             const detail = (err as any)?.details;
             const status = (err as any)?.causeStatus;
             console.error(
@@ -166,28 +179,10 @@ export const Posts: CollectionConfig = {
             );
           }
         }
-      },
-      async ({ doc, previousDoc, req }) => {
-        // Fan out to social platforms (Bluesky, Facebook, Instagram, LinkedIn)
-        // on the same transition that fires the newsletter: first time the
-        // post enters a public state. Idempotency lives in lib/social — it
-        // checks for existing social-posts rows per (slug, platform).
-        const wasPublic =
-          previousDoc?.publish_status === 'published' ||
-          previousDoc?.publish_status === 'sent';
-        const isNowPublic =
-          doc.publish_status === 'published' || doc.publish_status === 'sent';
 
-        if (isNowPublic && !wasPublic) {
+        if (needsSocial) {
           try {
             const { autoPostToSocial } = await import('../lib/social');
-            // Refetch with depth: 1 so meta.image is populated for Instagram.
-            const populated = (await req.payload.findByID({
-              collection: 'posts',
-              id: doc.id as number,
-              depth: 1,
-              overrideAccess: true,
-            })) as Post;
             const results = await autoPostToSocial(req.payload, populated);
             console.log(
               `[social] Fan-out complete for "${doc.title}":`,

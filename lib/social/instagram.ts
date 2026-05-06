@@ -74,8 +74,11 @@ export async function postToInstagram(
   }
   const published = (await publishRes.json()) as { id: string };
 
-  // Resolve the permalink for the freshly published media.
-  let url = `https://www.instagram.com/p/${published.id}/`;
+  // Resolve the permalink for the freshly published media. The Graph API
+  // returns a numeric media id, not the shortcode used in /p/{shortcode}/
+  // URLs, so there's no safe URL we can construct ourselves — leave it
+  // empty if the permalink lookup fails.
+  let url = '';
   try {
     const permalinkRes = await fetch(
       `https://graph.facebook.com/${GRAPH_VERSION}/${published.id}?fields=permalink&access_token=${encodeURIComponent(creds.pageToken)}`,
@@ -85,7 +88,7 @@ export async function postToInstagram(
       if (data.permalink) url = data.permalink;
     }
   } catch {
-    // Non-fatal — fall back to the id-based URL.
+    // Non-fatal — leave url empty.
   }
 
   return { id: published.id, url };
