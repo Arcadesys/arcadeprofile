@@ -50,6 +50,46 @@ const nextConfig = {
     config.resolve.fallback = { ...config.resolve.fallback, 'cli-color': false };
     return config;
   },
+  async headers() {
+    // Report-only on the first cycle: the policy is published but the
+    // browser only logs violations to its console rather than blocking.
+    // Tune the directive list against real preview traffic, then promote
+    // to enforcing Content-Security-Policy.
+    const csp = [
+      "default-src 'self'",
+      // 'unsafe-inline' / 'unsafe-eval' permit Payload admin and Next's
+      // hydration shims. Tighten with nonces once we measure breakage.
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://i.ytimg.com",
+      "font-src 'self' data: https://fonts.gstatic.com",
+      "connect-src 'self' https://vitals.vercel-insights.com",
+      "frame-src 'self' https://www.youtube-nocookie.com",
+      "frame-ancestors 'self'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "object-src 'none'",
+    ].join('; ');
+
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+          { key: 'Content-Security-Policy-Report-Only', value: csp },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       {
