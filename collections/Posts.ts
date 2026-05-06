@@ -54,21 +54,24 @@ export const Posts: CollectionConfig = {
     afterChange: [
       revalidatePostPaths,
       async ({ doc, previousDoc, req }) => {
-        // On the first transition into a public state, fan out to (1) the
-        // ActiveCampaign newsletter and (2) the social platforms. Public
-        // states are 'published' and 'sent'. Both branches share a single
-        // populated doc fetch — afterChange's `doc` reflects the triggering
-        // op's depth (often 0), which leaves `meta.image` as a bare id; the
-        // newsletter renderer needs the populated Media upload, and the
-        // Instagram social client needs its url. Per-branch try/catch so a
-        // newsletter failure doesn't block social, and vice versa. Neither
-        // branch fails the save.
+        // On publish, fan out to (1) the newsletter and (2) social platforms.
+        // Public states are 'published' and 'sent'. The newsletterSent flag is
+        // the retry gate for the newsletter — kept false until every audience
+        // succeeds, so re-saving a published post retries any failed audiences.
+        // Social fan-out is first-transition-only (idempotency lives in
+        // social-posts rows). Both branches share a single populated doc fetch
+        // so meta.image is populated for the newsletter renderer and Instagram.
+        // Per-branch try/catch so a newsletter failure doesn't block social.
         const wasPublic =
           previousDoc?.publish_status === 'published' ||
           previousDoc?.publish_status === 'sent';
         const isNowPublic =
           doc.publish_status === 'published' || doc.publish_status === 'sent';
-        if (!isNowPublic || wasPublic) return;
+
+        const needsNewsletter = isNowPublic && !doc.newsletterSent;
+        const needsSocial = isNowPublic && !wasPublic;
+
+        if (!needsNewsletter && !needsSocial) return;
 
         let populated: Post;
         try {
@@ -86,13 +89,27 @@ export const Posts: CollectionConfig = {
           return;
         }
 
-        if (!doc.newsletterSent) {
+        if (needsNewsletter) {
           try {
-            const { sendBlogPostNewsletter } = await import('../lib/activecampaign');
             const { resolveGroupHeroForPost } = await import('../lib/post-newsletter');
+            const { sendPostNewsletterFanOut } = await import('../lib/post-newsletter-fanout');
             const subject = (doc.newsletterHeading as string) || (doc.title as string);
 
             const group = await resolveGroupHeroForPost(req.payload, populated);
+
+            // Fiction-vs-essay routing comes from the Group's `category` field
+            // (set on the Groups collection). Posts without a group, or whose
+            // group isn't categorized as fiction, fall under Essays.
+            let groupCategory: string | null = null;
+            if (typeof doc.group === 'string' && doc.group) {
+              const groupLookup = await req.payload.find({
+                collection: 'groups',
+                where: { slug: { equals: doc.group } },
+                limit: 1,
+                overrideAccess: true,
+              });
+              groupCategory = (groupLookup.docs[0]?.category as string | undefined) ?? null;
+            }
 
             const { htmlBody, textBody } = buildPostNewsletterContent({
               ...populated,
@@ -108,30 +125,47 @@ export const Posts: CollectionConfig = {
               }
             }
 
-            const result = await sendBlogPostNewsletter({
+            const fanOut = await sendPostNewsletterFanOut({
               subject,
               htmlBody,
               textBody,
               slug: doc.slug as string,
               scheduledSendAt,
+              groupCategory,
             });
 
-            await req.payload.update({
-              collection: 'posts',
-              id: doc.id as number,
-              data: {
-                newsletterSent: true,
-                publish_status: 'sent',
-              },
-            });
+            for (const { audience, error } of fanOut.failures) {
+              const detail = (error as any)?.details;
+              const status = (error as any)?.causeStatus;
+              console.error(
+                `[newsletter] Failed to send ${audience} campaign:`,
+                error instanceof Error ? error.message : error,
+                ...(status !== undefined ? [`(HTTP ${status})`] : []),
+                ...(detail ? [`| AC detail: ${detail}`] : []),
+              );
+            }
+
+            // Only flip newsletterSent if every targeted audience succeeded —
+            // otherwise we'd silently skip the missing list on a retry.
+            if (fanOut.allSucceeded) {
+              await req.payload.update({
+                collection: 'posts',
+                id: doc.id as number,
+                data: {
+                  newsletterSent: true,
+                  publish_status: 'sent',
+                },
+              });
+            }
 
             console.log(
-              `[newsletter] ActiveCampaign campaign sent for post "${doc.title}"`,
+              `[newsletter] ActiveCampaign fan-out for post "${doc.title}"`,
               JSON.stringify({
                 postId: doc.id,
                 slug: doc.slug,
-                acMessageId: result.messageId,
-                acCampaignId: result.campaignId,
+                groupCategory,
+                results: fanOut.results,
+                failures: fanOut.failures.map((f) => f.audience),
               }),
             );
           } catch (err) {
@@ -146,18 +180,20 @@ export const Posts: CollectionConfig = {
           }
         }
 
-        try {
-          const { autoPostToSocial } = await import('../lib/social');
-          const results = await autoPostToSocial(req.payload, populated);
-          console.log(
-            `[social] Fan-out complete for "${doc.title}":`,
-            JSON.stringify(results),
-          );
-        } catch (err) {
-          console.error(
-            '[social] Fan-out failed:',
-            err instanceof Error ? err.message : err,
-          );
+        if (needsSocial) {
+          try {
+            const { autoPostToSocial } = await import('../lib/social');
+            const results = await autoPostToSocial(req.payload, populated);
+            console.log(
+              `[social] Fan-out complete for "${doc.title}":`,
+              JSON.stringify(results),
+            );
+          } catch (err) {
+            console.error(
+              '[social] Fan-out failed:',
+              err instanceof Error ? err.message : err,
+            );
+          }
         }
       },
     ],
@@ -199,16 +235,6 @@ export const Posts: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description: 'Whether this post has been sent to newsletter subscribers',
-      },
-    },
-    {
-      name: 'newsletterPreview',
-      type: 'ui',
-      admin: {
-        position: 'sidebar',
-        components: {
-          Field: '/components/admin/SendNewsletterPreview',
-        },
       },
     },
     {

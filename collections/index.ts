@@ -6,7 +6,6 @@ import { NavItems } from './NavItems';
 import { Pages } from './Pages';
 import { Posts } from './Posts';
 import { SocialPosts } from './SocialPosts';
-import { Subscribers } from './Subscribers';
 import { Users } from './Users';
 
 export const collections = [
@@ -17,7 +16,6 @@ export const collections = [
   Demos,
   Pages,
   Media,
-  Subscribers,
   SocialPosts,
   NavItems,
 ];

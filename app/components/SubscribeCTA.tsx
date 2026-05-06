@@ -3,6 +3,7 @@
 import { useId, useState } from 'react';
 
 type Variant = 'default' | 'compact';
+type Audience = 'all' | 'fiction' | 'essays';
 
 interface SubscribeCTAProps {
   variant?: Variant;
@@ -15,6 +16,12 @@ interface SubscribeCTAProps {
 const SHARE_URL = 'https://thearcades.me';
 const SHARE_TEXT = 'Serialized fiction in your inbox, Mon/Wed/Fri. Subscribe to The Arcades:';
 
+const AUDIENCE_OPTIONS: Array<{ value: Audience; label: string; hint: string }> = [
+  { value: 'all', label: 'All', hint: 'M–F, fiction & essays' },
+  { value: 'fiction', label: 'Fiction', hint: 'Mon / Wed / Fri' },
+  { value: 'essays', label: 'Essays', hint: 'Tue / Thu' },
+];
+
 export default function SubscribeCTA({
   variant = 'default',
   eyebrow = 'Fiction by email',
@@ -23,20 +30,47 @@ export default function SubscribeCTA({
   buttonLabel = 'Start reading',
 }: SubscribeCTAProps) {
   const inputId = useId();
+  const groupId = useId();
   const [email, setEmail] = useState('');
+  const [audiences, setAudiences] = useState<Set<Audience>>(() => new Set(['all']));
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle');
 
+  function toggleAudience(audience: Audience) {
+    setAudiences((prev) => {
+      const next = new Set(prev);
+      if (next.has(audience)) {
+        next.delete(audience);
+        return next;
+      }
+      // "All" is the union of Fiction and Essays — checking it clears the
+      // others, and checking either of the others clears "All".
+      if (audience === 'all') {
+        next.clear();
+        next.add('all');
+      } else {
+        next.delete('all');
+        next.add(audience);
+      }
+      return next;
+    });
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim()) return;
+    if (audiences.size === 0) {
+      setErrorMsg('Pick at least one list.');
+      setStatus('error');
+      return;
+    }
     setStatus('loading');
     try {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: email.trim(), audiences: Array.from(audiences) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Something went wrong.');
@@ -150,50 +184,101 @@ export default function SubscribeCTA({
         </div>
       ) : (
         <>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-            <label htmlFor={inputId} style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
-              Your email address
-            </label>
-            <input
-              id={inputId}
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="reader@somewhere.good"
-              required
-              autoComplete="email"
-              inputMode="email"
-              disabled={status === 'loading'}
-              className="flex-1 min-w-0"
-              style={{
-                padding: '0.55rem 0.85rem',
-                background: 'var(--bg-deep)',
-                border: '1px solid var(--border-strong)',
-                borderRadius: 'var(--radius-sm)',
-                color: 'var(--fg)',
-                fontSize: '0.9rem',
-                fontFamily: 'var(--font-mono)',
-                outline: 'none',
-              }}
-            />
-            <button
-              type="submit"
-              disabled={status === 'loading'}
-              style={{
-                padding: '0.55rem 1.25rem',
-                background: 'var(--neon-pink)',
-                color: '#000',
-                border: 'none',
-                borderRadius: 'var(--radius-sm)',
-                fontSize: '0.88rem',
-                fontFamily: 'var(--font-mono)',
-                fontWeight: 700,
-                cursor: status === 'loading' ? 'wait' : 'pointer',
-                whiteSpace: 'nowrap',
-              }}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+            <fieldset
+              aria-labelledby={`${groupId}-legend`}
+              style={{ border: 'none', padding: 0, margin: '0 0 0.25rem' }}
             >
-              {status === 'loading' ? 'Subscribing…' : buttonLabel}
-            </button>
+              <legend
+                id={`${groupId}-legend`}
+                style={{
+                  fontSize: '0.72rem',
+                  fontFamily: 'var(--font-mono)',
+                  letterSpacing: '0.08em',
+                  color: 'var(--fg-muted)',
+                  textTransform: 'uppercase',
+                  margin: '0 0 0.45rem',
+                  padding: 0,
+                }}
+              >
+                What do you want?
+              </legend>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                {AUDIENCE_OPTIONS.map((opt) => (
+                  <label
+                    key={opt.value}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'baseline',
+                      gap: '0.55rem',
+                      fontSize: '0.88rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={audiences.has(opt.value)}
+                      onChange={() => toggleAudience(opt.value)}
+                      disabled={status === 'loading'}
+                      style={{ accentColor: 'var(--neon-pink)' }}
+                    />
+                    <span>
+                      <span style={{ fontWeight: 600 }}>{opt.label}</span>{' '}
+                      <span style={{ color: 'var(--fg-muted)', fontSize: '0.8rem' }}>
+                        ({opt.hint})
+                      </span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              <label htmlFor={inputId} style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
+                Your email address
+              </label>
+              <input
+                id={inputId}
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="reader@somewhere.good"
+                required
+                autoComplete="email"
+                inputMode="email"
+                disabled={status === 'loading'}
+                className="flex-1 min-w-0"
+                style={{
+                  padding: '0.55rem 0.85rem',
+                  background: 'var(--bg-deep)',
+                  border: '1px solid var(--border-strong)',
+                  borderRadius: 'var(--radius-sm)',
+                  color: 'var(--fg)',
+                  fontSize: '0.9rem',
+                  fontFamily: 'var(--font-mono)',
+                  outline: 'none',
+                }}
+              />
+              <button
+                type="submit"
+                disabled={status === 'loading' || audiences.size === 0}
+                style={{
+                  padding: '0.55rem 1.25rem',
+                  background: 'var(--neon-pink)',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.88rem',
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: 700,
+                  cursor: status === 'loading' ? 'wait' : audiences.size === 0 ? 'not-allowed' : 'pointer',
+                  opacity: audiences.size === 0 ? 0.6 : 1,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {status === 'loading' ? 'Subscribing…' : buttonLabel}
+              </button>
+            </div>
             {status === 'error' && (
               <p style={{ width: '100%', margin: '0.4rem 0 0', fontSize: '0.82rem', color: 'var(--neon-pink)' }}>
                 {errorMsg}
