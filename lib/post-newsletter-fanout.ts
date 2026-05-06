@@ -60,11 +60,11 @@ export async function sendPostNewsletterFanOut(
   const resolveListId = deps.getAudienceListId ?? getAudienceListId;
   const audiences = resolveAudiences(input.groupCategory);
 
-  const results: PostNewsletterFanOutResult['results'] = [];
-  const failures: PostNewsletterFanOutResult['failures'] = [];
-
-  for (const audience of audiences) {
-    try {
+  // Sends are independent — fire them in parallel so a slow AC response on
+  // one list doesn't extend the request for the others. allSettled lets us
+  // collect every outcome regardless of which fail.
+  const settled = await Promise.allSettled(
+    audiences.map(async (audience) => {
       const listId = resolveListId(audience);
       const r = await send({
         subject: input.subject,
@@ -74,11 +74,20 @@ export async function sendPostNewsletterFanOut(
         scheduledSendAt: input.scheduledSendAt,
         listIdOverride: listId,
       });
-      results.push({ audience, ...r });
-    } catch (error) {
-      failures.push({ audience, error });
+      return r;
+    }),
+  );
+
+  const results: PostNewsletterFanOutResult['results'] = [];
+  const failures: PostNewsletterFanOutResult['failures'] = [];
+  settled.forEach((outcome, i) => {
+    const audience = audiences[i];
+    if (outcome.status === 'fulfilled') {
+      results.push({ audience, ...outcome.value });
+    } else {
+      failures.push({ audience, error: outcome.reason });
     }
-  }
+  });
 
   return {
     audiences,

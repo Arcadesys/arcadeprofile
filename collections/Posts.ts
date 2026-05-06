@@ -53,19 +53,17 @@ export const Posts: CollectionConfig = {
     beforeChange: [promoteScheduledDraftHook],
     afterChange: [
       revalidatePostPaths,
-      async ({ doc, previousDoc, req }) => {
-        // Send newsletter when a post first transitions into a public state
-        // and newsletterSent is false. Public states are 'published' and 'sent'.
-        const wasPublic =
-          previousDoc?.publish_status === 'published' ||
-          previousDoc?.publish_status === 'sent';
-        const isNowPublic =
+      async ({ doc, req }) => {
+        // Send newsletter while the post is in a public state and newsletterSent
+        // is still false. The newsletterSent flag — flipped only when every
+        // audience succeeds — is the idempotency gate, so a partial failure on
+        // first publish can be retried by re-saving the post. Public states
+        // are 'published' and 'sent'.
+        const isNowPublished =
           doc.publish_status === 'published' || doc.publish_status === 'sent';
-        const wasPublished = !wasPublic;
-        const isNowPublished = isNowPublic;
         const notYetSent = !doc.newsletterSent;
 
-        if (isNowPublished && wasPublished && notYetSent) {
+        if (isNowPublished && notYetSent) {
           try {
             const { resolveGroupHeroForPost } = await import('../lib/post-newsletter');
             const { sendPostNewsletterFanOut } = await import('../lib/post-newsletter-fanout');

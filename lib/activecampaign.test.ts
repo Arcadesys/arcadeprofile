@@ -501,6 +501,38 @@ test('syncSubscriberToActiveCampaign treats "already on list" 422 as success', a
   assert.equal(result.contactId, '11');
 });
 
+test('syncSubscriberToActiveCampaign forwards status=2 (unsubscribe) on the contactLists POST', async () => {
+  setAcEnv();
+
+  let sentStatus: number | undefined;
+  const fetchImpl: typeof fetch = async (input, init) => {
+    const url = urlPath(input);
+    if (url.endsWith('/api/3/contact/sync')) {
+      return new Response(JSON.stringify({ contact: { id: 7 } }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    if (url.endsWith('/api/3/contactLists')) {
+      const body = init?.body ? JSON.parse(String(init.body)) : null;
+      sentStatus = body?.contactList?.status;
+      return new Response(JSON.stringify({ contactList: { id: 1 } }), {
+        status: 201,
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+    throw new Error(`unexpected url ${url}`);
+  };
+
+  await syncSubscriberToActiveCampaign({
+    email: 'reader@example.com',
+    status: 2,
+    fetchImpl,
+  });
+
+  assert.equal(sentStatus, 2);
+});
+
 test('syncSubscriberToActiveCampaign surfaces contactLists failure', async () => {
   setAcEnv();
 

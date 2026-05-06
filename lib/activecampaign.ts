@@ -393,18 +393,22 @@ type AcContactSyncResponse = {
 };
 
 /**
- * Upserts a contact in ActiveCampaign by email and subscribes them to the
- * configured newsletter list. Used by the public subscribe form so new
- * signups land in AC, not just in Payload.
+ * Upserts a contact in ActiveCampaign by email and sets their status on the
+ * given list. `status: 1` (default) subscribes them; `status: 2` unsubscribes.
+ * Used by the public subscribe form to push new signups into AC and to
+ * reconcile (unsubscribe from) lists the user didn't pick.
  *
  * @throws ActiveCampaignError on configuration or API failures
  */
 export async function syncSubscriberToActiveCampaign(options: {
   email: string;
   listIdOverride?: string;
+  /** 1 = subscribe (default), 2 = unsubscribe. */
+  status?: 1 | 2;
   fetchImpl?: typeof fetch;
 }): Promise<{ contactId: string }> {
   const fetchImpl = options.fetchImpl ?? fetch;
+  const status = options.status ?? 1;
   const baseUrl = getApiBaseUrl();
   const apiKey = getApiKey();
   const listId = firstNonEmpty(options.listIdOverride) ?? getNewsletterListId();
@@ -466,7 +470,7 @@ export async function syncSubscriberToActiveCampaign(options: {
         contactList: {
           list: listIdInt,
           contact: Number.parseInt(contactId, 10),
-          status: 1,
+          status,
         },
       }),
     },

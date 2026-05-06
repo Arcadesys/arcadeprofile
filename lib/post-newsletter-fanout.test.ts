@@ -72,16 +72,21 @@ test('fanOut: fiction post sends to Fiction (id 9) and All (id 7) with audience-
   assert.deepEqual(result.audiences, ['fiction', 'all']);
   assert.equal(calls.length, 2);
 
-  assert.equal(calls[0].listIdOverride, '9');
-  assert.equal(calls[0].slug, 'my-slug (Fiction)');
-  assert.equal(calls[0].subject, 'New post');
-  assert.equal(calls[0].htmlBody, '<p>body</p>');
-  assert.equal(calls[0].textBody, 'body');
-  assert.equal(calls[0].scheduledSendAt?.toISOString(), '2030-01-01T12:00:00.000Z');
+  // Sends fire in parallel via Promise.allSettled, so call order isn't
+  // guaranteed — assert by membership keyed off listIdOverride.
+  const byList = new Map(calls.map((c) => [c.listIdOverride, c]));
+  const fictionCall = byList.get('9');
+  const allCall = byList.get('7');
+  assert.ok(fictionCall, 'expected a send for Fiction list 9');
+  assert.ok(allCall, 'expected a send for All list 7');
+  assert.equal(fictionCall.slug, 'my-slug (Fiction)');
+  assert.equal(fictionCall.subject, 'New post');
+  assert.equal(fictionCall.htmlBody, '<p>body</p>');
+  assert.equal(fictionCall.textBody, 'body');
+  assert.equal(fictionCall.scheduledSendAt?.toISOString(), '2030-01-01T12:00:00.000Z');
+  assert.equal(allCall.slug, 'my-slug (All)');
 
-  assert.equal(calls[1].listIdOverride, '7');
-  assert.equal(calls[1].slug, 'my-slug (All)');
-
+  // Result order mirrors the audiences array regardless of completion order.
   assert.deepEqual(
     result.results.map((r) => r.audience),
     ['fiction', 'all'],
@@ -98,11 +103,11 @@ test('fanOut: essay post (writing category) sends to Essays (id 10) and All (id 
 
   assert.equal(result.allSucceeded, true);
   assert.deepEqual(result.audiences, ['essays', 'all']);
-  assert.equal(calls.length, 2);
-  assert.equal(calls[0].listIdOverride, '10');
-  assert.equal(calls[0].slug, 'my-slug (Essays)');
-  assert.equal(calls[1].listIdOverride, '7');
-  assert.equal(calls[1].slug, 'my-slug (All)');
+  const listIds = new Set(calls.map((c) => c.listIdOverride));
+  assert.deepEqual(listIds, new Set(['10', '7']));
+  const byList = new Map(calls.map((c) => [c.listIdOverride, c]));
+  assert.equal(byList.get('10')?.slug, 'my-slug (Essays)');
+  assert.equal(byList.get('7')?.slug, 'my-slug (All)');
 });
 
 test('fanOut: post with no group falls under Essays + All', async () => {
@@ -113,10 +118,37 @@ test('fanOut: post with no group falls under Essays + All', async () => {
   );
 
   assert.equal(result.allSucceeded, true);
-  assert.deepEqual(
-    calls.map((c) => c.listIdOverride),
-    ['10', '7'],
+  assert.deepEqual(new Set(calls.map((c) => c.listIdOverride)), new Set(['10', '7']));
+});
+
+test('fanOut: sends fire in parallel, not sequentially', async () => {
+  // If the implementation awaited each send in turn, the second call would
+  // start only after the first resolves. allSettled fires both immediately.
+  const startedAt: number[] = [];
+  let resolveFirst: ((v: SendBlogPostNewsletterResult) => void) | null = null;
+  const send = (options: SendBlogPostNewsletterOptions): Promise<SendBlogPostNewsletterResult> => {
+    startedAt.push(Date.now());
+    if (options.listIdOverride === '9') {
+      return new Promise<SendBlogPostNewsletterResult>((resolve) => {
+        resolveFirst = resolve;
+      });
+    }
+    return Promise.resolve({ messageId: 'm', campaignId: 'c' });
+  };
+
+  const fanOutPromise = sendPostNewsletterFanOut(
+    { ...baseInput, groupCategory: 'fiction' },
+    { sendBlogPostNewsletter: send, getAudienceListId: makeListIdResolver() },
   );
+
+  // Yield once so both microtasks scheduled by allSettled get to run.
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(startedAt.length, 2, 'both sends should have started before either resolves');
+
+  resolveFirst!({ messageId: 'm9', campaignId: 'c9' });
+  const result = await fanOutPromise;
+  assert.equal(result.allSucceeded, true);
 });
 
 test('fanOut: one list failure does not short-circuit the other and allSucceeded is false', async () => {
