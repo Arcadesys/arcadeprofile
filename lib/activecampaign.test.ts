@@ -447,7 +447,7 @@ test('syncSubscriberToActiveCampaign upserts contact then subscribes to list', a
 
   const result = await syncSubscriberToActiveCampaign({
     email: 'reader@example.com',
-    fetchImpl,
+    fetchImpl: fetchImpl as typeof fetch,
   });
 
   assert.equal(result.contactId, '42');
@@ -496,7 +496,7 @@ test('syncSubscriberToActiveCampaign treats "already on list" 422 as success', a
 
   const result = await syncSubscriberToActiveCampaign({
     email: 'returning@example.com',
-    fetchImpl,
+    fetchImpl: fetchImpl as typeof fetch,
   });
   assert.equal(result.contactId, '11');
 });
@@ -551,7 +551,7 @@ test('syncSubscriberToActiveCampaign surfaces contactLists failure', async () =>
   };
 
   await assert.rejects(
-    () => syncSubscriberToActiveCampaign({ email: 'x@y.com', fetchImpl }),
+    () => syncSubscriberToActiveCampaign({ email: 'x@y.com', fetchImpl: fetchImpl as typeof fetch }),
     (err: unknown) =>
       err instanceof ActiveCampaignError &&
       err.message.includes('contactLists failed (422)') &&

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Bio — The Arcades',
@@ -158,7 +159,7 @@ export default function BioPage() {
           </p>
           <p style={{ margin: 0, fontSize: '0.95rem' }}>
             <strong>Site:</strong>{' '}
-            <a href="/">thearcades.me</a>
+            <Link href="/">thearcades.me</Link>
           </p>
         </div>
       </section>
