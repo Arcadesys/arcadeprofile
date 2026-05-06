@@ -1,80 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPayload } from 'payload';
-import config from '@payload-config';
-import { syncSubscriberToActiveCampaign } from '@/lib/activecampaign';
 
-const VALID_TAGS = ['fiction', 'tech', 'updates'];
+import { getAudienceListId, syncSubscriberToActiveCampaign } from '@/lib/activecampaign';
+
+const VALID_AUDIENCES = ['all', 'fiction', 'essays'] as const;
+type Audience = (typeof VALID_AUDIENCES)[number];
+
+function parseAudiences(raw: unknown): Audience[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<Audience>();
+  for (const item of raw) {
+    if (typeof item === 'string' && (VALID_AUDIENCES as readonly string[]).includes(item)) {
+      seen.add(item as Audience);
+    }
+  }
+  return Array.from(seen);
+}
 
 export async function POST(request: NextRequest) {
-  const { email, tags } = await request.json();
+  const { email, audiences: rawAudiences } = await request.json();
 
   if (!email || typeof email !== 'string') {
     return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
   }
 
-  const selectedTags: string[] = Array.isArray(tags)
-    ? tags.filter((t: unknown) => typeof t === 'string' && VALID_TAGS.includes(t))
-    : VALID_TAGS;
-
-  const tagArray = selectedTags.map((tag) => ({ tag: tag as 'fiction' | 'tech' | 'updates' }));
-
-  try {
-    const payload = await getPayload({ config });
-
-    // Check if subscriber already exists
-    const existing = await payload.find({
-      collection: 'subscribers',
-      where: { email: { equals: email } },
-      limit: 1,
-    });
-
-    if (existing.docs.length > 0) {
-      const sub = existing.docs[0];
-      // Reactivate if unsubscribed, and update tags
-      await payload.update({
-        collection: 'subscribers',
-        id: sub.id,
-        data: {
-          tags: tagArray,
-          unsubscribed: false,
-          ...(sub.unsubscribed ? { unsubscribedAt: undefined } : {}),
-        },
-      });
-    } else {
-      await payload.create({
-        collection: 'subscribers',
-        data: {
-          email,
-          tags: tagArray,
-        },
-      });
-    }
-
-    // Push to ActiveCampaign so the contact lands in the configured list.
-    // Failures here shouldn't roll back the Payload write — Payload is the
-    // source of truth and the operator can resync from there if AC has an
-    // outage. Log loudly so production issues are visible.
-    try {
-      await syncSubscriberToActiveCampaign({ email });
-    } catch (acErr) {
-      console.error('ActiveCampaign sync failed for subscriber:', email, acErr);
-    }
-
-    // Also subscribe to the "In-progress drafts" list (AC list id 4) so
-    // signups from /subscribe get early-access drafts as promised on the page.
-    try {
-      const draftsListId = process.env.AC_DRAFTS_LIST_ID || '4';
-      await syncSubscriberToActiveCampaign({ email, listIdOverride: draftsListId });
-    } catch (acErr) {
-      console.error('ActiveCampaign drafts-list sync failed for subscriber:', email, acErr);
-    }
-
-    return NextResponse.json({ ok: true });
-  } catch (err) {
-    console.error('Subscribe error:', err);
+  const audiences = parseAudiences(rawAudiences);
+  if (audiences.length === 0) {
     return NextResponse.json(
-      { error: 'Something went wrong. Please try again.' },
-      { status: 500 },
+      { error: 'Pick at least one list (All, Fiction, or Essays).' },
+      { status: 400 },
     );
   }
+
+  const failures: string[] = [];
+  for (const audience of audiences) {
+    try {
+      const listId = getAudienceListId(audience);
+      await syncSubscriberToActiveCampaign({ email, listIdOverride: listId });
+    } catch (err) {
+      console.error(`[subscribe] AC sync failed for ${audience}:`, email, err);
+      failures.push(audience);
+    }
+  }
+
+  if (failures.length === audiences.length) {
+    return NextResponse.json(
+      { error: 'Could not subscribe right now. Please try again.' },
+      { status: 502 },
+    );
+  }
+
+  return NextResponse.json({ ok: true, subscribed: audiences.filter((a) => !failures.includes(a)) });
 }

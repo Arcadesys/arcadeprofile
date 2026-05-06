@@ -67,8 +67,8 @@ export const Posts: CollectionConfig = {
 
         if (isNowPublished && wasPublished && notYetSent) {
           try {
-            const { sendBlogPostNewsletter } = await import('../lib/activecampaign');
             const { resolveGroupHeroForPost } = await import('../lib/post-newsletter');
+            const { sendPostNewsletterFanOut } = await import('../lib/post-newsletter-fanout');
             const subject = (doc.newsletterHeading as string) || (doc.title as string);
 
             // afterChange's `doc` reflects the depth used by the triggering
@@ -85,6 +85,20 @@ export const Posts: CollectionConfig = {
 
             const group = await resolveGroupHeroForPost(req.payload, populated);
 
+            // Fiction-vs-essay routing comes from the Group's `category` field
+            // (set on the Groups collection). Posts without a group, or whose
+            // group isn't categorized as fiction, fall under Essays.
+            let groupCategory: string | null = null;
+            if (typeof doc.group === 'string' && doc.group) {
+              const groupLookup = await req.payload.find({
+                collection: 'groups',
+                where: { slug: { equals: doc.group } },
+                limit: 1,
+                overrideAccess: true,
+              });
+              groupCategory = (groupLookup.docs[0]?.category as string | undefined) ?? null;
+            }
+
             const { htmlBody, textBody } = buildPostNewsletterContent({
               ...populated,
               group,
@@ -99,31 +113,47 @@ export const Posts: CollectionConfig = {
               }
             }
 
-            const result = await sendBlogPostNewsletter({
+            const fanOut = await sendPostNewsletterFanOut({
               subject,
               htmlBody,
               textBody,
               slug: doc.slug as string,
               scheduledSendAt,
+              groupCategory,
             });
 
-            // Mark as sent via the local Payload API
-            await req.payload.update({
-              collection: 'posts',
-              id: doc.id as number,
-              data: {
-                newsletterSent: true,
-                publish_status: 'sent',
-              },
-            });
+            for (const { audience, error } of fanOut.failures) {
+              const detail = (error as any)?.details;
+              const status = (error as any)?.causeStatus;
+              console.error(
+                `[newsletter] Failed to send ${audience} campaign:`,
+                error instanceof Error ? error.message : error,
+                ...(status !== undefined ? [`(HTTP ${status})`] : []),
+                ...(detail ? [`| AC detail: ${detail}`] : []),
+              );
+            }
+
+            // Only flip newsletterSent if every targeted audience succeeded —
+            // otherwise we'd silently skip the missing list on a retry.
+            if (fanOut.allSucceeded) {
+              await req.payload.update({
+                collection: 'posts',
+                id: doc.id as number,
+                data: {
+                  newsletterSent: true,
+                  publish_status: 'sent',
+                },
+              });
+            }
 
             console.log(
-              `[newsletter] ActiveCampaign campaign sent for post "${doc.title}"`,
+              `[newsletter] ActiveCampaign fan-out for post "${doc.title}"`,
               JSON.stringify({
                 postId: doc.id,
                 slug: doc.slug,
-                acMessageId: result.messageId,
-                acCampaignId: result.campaignId,
+                groupCategory,
+                results: fanOut.results,
+                failures: fanOut.failures.map((f) => f.audience),
               }),
             );
           } catch (err) {
@@ -212,16 +242,6 @@ export const Posts: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description: 'Whether this post has been sent to newsletter subscribers',
-      },
-    },
-    {
-      name: 'newsletterPreview',
-      type: 'ui',
-      admin: {
-        position: 'sidebar',
-        components: {
-          Field: '/components/admin/SendNewsletterPreview',
-        },
       },
     },
     {

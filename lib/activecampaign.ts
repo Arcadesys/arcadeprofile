@@ -91,6 +91,23 @@ function getNewsletterListId(): string {
   return id;
 }
 
+export type Audience = 'all' | 'fiction' | 'essays';
+
+const AUDIENCE_ENV: Record<Audience, string> = {
+  all: 'AC_LIST_ID_ALL',
+  fiction: 'AC_LIST_ID_FICTION',
+  essays: 'AC_LIST_ID_ESSAYS',
+};
+
+export function getAudienceListId(audience: Audience): string {
+  const envName = AUDIENCE_ENV[audience];
+  const id = firstNonEmpty(process.env[envName]);
+  if (!id) {
+    throw new ActiveCampaignError(`Missing ${envName} environment variable`);
+  }
+  return id;
+}
+
 function getFromName(): string {
   return (
     firstNonEmpty(

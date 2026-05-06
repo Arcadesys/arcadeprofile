@@ -28,3 +28,26 @@ The HTTP/SSE endpoint is live at `https://arcadeprofile.vercel.app/api/mcp`. To 
 - Payload collections live in `collections/`, registered in `payload.config.ts`
 - All API routes live under `app/api/`
 - Never commit `.env` or `.env.local`
+
+## Syncing env vars to Vercel
+
+To push a new env var to all three Vercel environments after adding it to `.env.local`:
+
+```bash
+# Production and Development work from the CLI:
+vercel env add VAR_NAME production --value "$VALUE" --yes
+vercel env add VAR_NAME development --value "$VALUE" --yes
+
+# Preview is broken in CLI 53.1.0 — the documented "all preview branches"
+# command (`vercel env add VAR preview --value V --yes`) errors with
+# `git_branch_required` even though no branch should be required. Use the
+# REST API as a workaround:
+TOKEN=$(jq -r '.token' "$HOME/Library/Application Support/com.vercel.cli/auth.json")
+ORG=$(jq -r '.orgId' .vercel/project.json)
+PROJ=$(jq -r '.projectId' .vercel/project.json)
+curl -sS -X POST "https://api.vercel.com/v10/projects/$PROJ/env?teamId=$ORG" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d "{\"key\":\"VAR_NAME\",\"value\":\"$VALUE\",\"type\":\"plain\",\"target\":[\"preview\"]}"
+```
+
+Verify with `vercel env ls`. Once the CLI bug is fixed (>53.1.0), drop the API workaround and use the CLI for all three targets.
