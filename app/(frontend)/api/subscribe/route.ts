@@ -1,35 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 import { getAudienceListId, syncSubscriberToActiveCampaign } from '@/lib/activecampaign';
+import { parseBody } from '@/lib/validation';
 
 const VALID_AUDIENCES = ['all', 'fiction', 'essays'] as const;
-type Audience = (typeof VALID_AUDIENCES)[number];
 
-function parseAudiences(raw: unknown): Audience[] {
-  if (!Array.isArray(raw)) return [];
-  const seen = new Set<Audience>();
-  for (const item of raw) {
-    if (typeof item === 'string' && (VALID_AUDIENCES as readonly string[]).includes(item)) {
-      seen.add(item as Audience);
-    }
-  }
-  return Array.from(seen);
-}
+const subscribeSchema = z.object({
+  email: z.string().min(1, 'Email is required.').email('Email must be a valid address.'),
+  audiences: z
+    .array(z.enum(VALID_AUDIENCES))
+    .min(1, 'Pick at least one list (All, Fiction, or Essays).')
+    .transform((val) => [...new Set(val)]),
+});
 
 export async function POST(request: NextRequest) {
-  const { email, audiences: rawAudiences } = await request.json();
+  const parsed = await parseBody(subscribeSchema, request);
+  if (!parsed.ok) return parsed.response;
 
-  if (!email || typeof email !== 'string') {
-    return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
-  }
-
-  const audiences = parseAudiences(rawAudiences);
-  if (audiences.length === 0) {
-    return NextResponse.json(
-      { error: 'Pick at least one list (All, Fiction, or Essays).' },
-      { status: 400 },
-    );
-  }
+  const { email, audiences } = parsed.data;
 
   // Reconcile: subscribe to chosen lists (status=1), unsubscribe from the
   // ones they didn't pick (status=2). Without the unsubscribe leg, switching
