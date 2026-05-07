@@ -1,16 +1,7 @@
 import { getPayload } from 'payload';
 import config from '@payload-config';
 
-interface SocialCredentialsDoc {
-  bluesky?: { handle?: string | null; appPassword?: string | null } | null;
-  facebook?: {
-    pageId?: string | null;
-    pageToken?: string | null;
-    graphVersion?: string | null;
-  } | null;
-  instagram?: { businessAccountId?: string | null } | null;
-  linkedin?: { accessToken?: string | null; authorUrn?: string | null } | null;
-}
+import type { SocialCredential } from '../../payload-types';
 
 export interface BlueskyCredentials {
   handle: string;
@@ -36,13 +27,24 @@ export interface LinkedInCredentials {
 
 const DEFAULT_GRAPH_VERSION = 'v21.0';
 
-async function loadGlobal(): Promise<SocialCredentialsDoc> {
-  const payload = await getPayload({ config });
-  return payload.findGlobal({
-    slug: 'social-credentials',
-    overrideAccess: true,
-    depth: 0,
-  }) as Promise<SocialCredentialsDoc>;
+// Dedupe concurrent reads (e.g. the parallel platform calls fired by
+// `autoPostToSocial`) onto a single in-flight DB query. The cache is cleared
+// once the promise settles so subsequent requests re-read fresh values.
+let inFlight: Promise<SocialCredential> | null = null;
+
+async function loadGlobal(): Promise<SocialCredential> {
+  if (inFlight) return inFlight;
+  inFlight = (async () => {
+    const payload = await getPayload({ config });
+    return payload.findGlobal({
+      slug: 'social-credentials',
+      overrideAccess: true,
+      depth: 0,
+    });
+  })().finally(() => {
+    inFlight = null;
+  }) as Promise<SocialCredential>;
+  return inFlight;
 }
 
 function trimmed(value: string | null | undefined): string | undefined {
