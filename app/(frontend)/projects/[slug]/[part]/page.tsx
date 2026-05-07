@@ -12,6 +12,9 @@ import { categoryLabels } from '@/components/menu';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
+import ShareLinks from '@/app/components/ShareLinks';
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
 export const dynamic = 'force-dynamic';
 
@@ -331,6 +334,10 @@ export default async function ProjectPartPage({ params }: Props) {
         <SubscribeCTA />
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
+          <ShareLinks
+            url={`${SITE_URL}/projects/${slug}/${partNum(idx)}`}
+            title={post.title}
+          />
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             {prevPartHref ? (
               <Link href={prevPartHref} style={{ color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '0.9rem' }}>
