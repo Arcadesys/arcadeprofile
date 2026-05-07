@@ -306,28 +306,24 @@ test('TOOL_SCOPES does not list any tool that no longer exists', () => {
   }
 });
 
-test('list_* and get_* tools are read-scoped', () => {
-  for (const tool of toolDefinitions) {
-    if (tool.name.startsWith('list_') || tool.name.startsWith('get_')) {
-      assert.equal(
-        TOOL_SCOPES[tool.name],
-        'read',
-        `Expected ${tool.name} to be read-scoped`,
-      );
-    }
-  }
-});
+// Default-to-write invariant: list_*/get_* are read; everything else MUST
+// be write. Catches drift — if someone adds e.g. delete_post or
+// summarize_post and tags it 'read' by accident, this test fails. If a
+// genuinely read-only tool with a different prefix is ever needed (e.g.
+// search_*), extend the read-prefix allowlist below explicitly so the
+// classification stays auditable.
+const READ_PREFIXES = ['list_', 'get_'];
 
-test('mutating tools are write-scoped', () => {
-  const mustBeWrite = [
-    'create_post',
-    'update_post',
-    'update_page',
-    'upload_image',
-    'upload_and_embed_image',
-    'repair_post_image_markdown',
-  ];
-  for (const name of mustBeWrite) {
-    assert.equal(TOOL_SCOPES[name], 'write', `Expected ${name} to be write-scoped`);
+test('all tools are correctly scoped (read prefix vs default-to-write)', () => {
+  for (const tool of toolDefinitions) {
+    const scope = TOOL_SCOPES[tool.name];
+    const isReadPrefix = READ_PREFIXES.some((p) => tool.name.startsWith(p));
+    assert.equal(
+      scope,
+      isReadPrefix ? 'read' : 'write',
+      isReadPrefix
+        ? `Expected ${tool.name} to be read-scoped`
+        : `Expected mutating tool '${tool.name}' to be write-scoped (or rename it with a read prefix)`,
+    );
   }
 });
