@@ -13,25 +13,32 @@ import pino, { type Logger } from 'pino';
  * — so redaction can match on property paths.
  */
 
-const REDACT_PATHS = [
+// pino's redact uses fast-redact, which supports `*` (single-level) but NOT
+// `**` (recursive). Verified: ['**.email'] silently fails to redact deeply
+// nested email properties. Each sensitive key is therefore listed at root,
+// at one level deep (`*.X`), and on the request/headers paths we actually
+// log. If we add a third level of nesting in a log payload, list it here.
+const REDACT_KEYS = [
   'email',
+  'to',
+  'from',
   'authorization',
   'cookie',
   'cookies',
   'token',
   'apiKey',
+  'api_key',
+  'accessToken',
+  'access_token',
   'password',
   'hash',
   'salt',
-  '*.email',
-  '*.authorization',
-  '*.cookie',
-  '*.cookies',
-  '*.token',
-  '*.apiKey',
-  '*.password',
-  '*.hash',
-  '*.salt',
+  'secret',
+];
+
+const REDACT_PATHS = [
+  ...REDACT_KEYS,
+  ...REDACT_KEYS.map((k) => `*.${k}`),
   'headers.authorization',
   'headers.cookie',
   'request.headers.authorization',
