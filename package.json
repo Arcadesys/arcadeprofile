@@ -41,7 +41,7 @@
     "react": "^19",
     "react-dom": "^19",
     "sharp": "^0.33.5",
-    "vercel": "^41.3.2",
+    "vercel": "^53.2.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
