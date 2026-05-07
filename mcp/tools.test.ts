@@ -39,7 +39,9 @@ process.env.PAYLOAD_API_URL = 'http://localhost:3000';
 process.env.PAYLOAD_API_KEY = 'test-api-key';
 
 // Dynamic import so env is set before module-level code runs in tools.ts
-const { toolDefinitions, toolHandlers, markdownToLexical } = await import('./tools.js');
+const { toolDefinitions, toolHandlers, markdownToLexical, TOOL_SCOPES } = await import(
+  './tools.js'
+);
 
 // ---------------------------------------------------------------------------
 // toolDefinitions
@@ -281,5 +283,47 @@ test('update_post serializes tags array-of-objects', async () => {
     assert.deepEqual(patchBody.tags, [{ tag: 'music' }, { tag: 'chicago' }]);
   } finally {
     restore();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// TOOL_SCOPES — read vs write authorization
+// ---------------------------------------------------------------------------
+
+test('TOOL_SCOPES has an entry for every defined tool', () => {
+  for (const tool of toolDefinitions) {
+    assert.ok(
+      TOOL_SCOPES[tool.name] === 'read' || TOOL_SCOPES[tool.name] === 'write',
+      `Tool '${tool.name}' is missing a TOOL_SCOPES entry. Add it.`,
+    );
+  }
+});
+
+test('TOOL_SCOPES does not list any tool that no longer exists', () => {
+  const definedNames = new Set(toolDefinitions.map((t) => t.name));
+  for (const name of Object.keys(TOOL_SCOPES)) {
+    assert.ok(definedNames.has(name), `TOOL_SCOPES references unknown tool '${name}'`);
+  }
+});
+
+// Default-to-write invariant: list_*/get_* are read; everything else MUST
+// be write. Catches drift — if someone adds e.g. delete_post or
+// summarize_post and tags it 'read' by accident, this test fails. If a
+// genuinely read-only tool with a different prefix is ever needed (e.g.
+// search_*), extend the read-prefix allowlist below explicitly so the
+// classification stays auditable.
+const READ_PREFIXES = ['list_', 'get_'];
+
+test('all tools are correctly scoped (read prefix vs default-to-write)', () => {
+  for (const tool of toolDefinitions) {
+    const scope = TOOL_SCOPES[tool.name];
+    const isReadPrefix = READ_PREFIXES.some((p) => tool.name.startsWith(p));
+    assert.equal(
+      scope,
+      isReadPrefix ? 'read' : 'write',
+      isReadPrefix
+        ? `Expected ${tool.name} to be read-scoped`
+        : `Expected mutating tool '${tool.name}' to be write-scoped (or rename it with a read prefix)`,
+    );
   }
 });

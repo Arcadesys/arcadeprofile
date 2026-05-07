@@ -369,6 +369,41 @@ export const toolDefinitions: Tool[] = [
 export type ToolHandler = (args: Record<string, unknown>) => Promise<CallToolResult>;
 
 // ---------------------------------------------------------------------------
+// Authorization scopes
+// ---------------------------------------------------------------------------
+
+/**
+ * Each tool is either 'read' or 'write'. The HTTP transport accepts a
+ * read-only bearer key (MCP_READ_KEY) that may only invoke 'read' tools,
+ * and the existing privileged key (MCP_API_KEY) that may invoke both.
+ *
+ * Audit: if you add a tool above, add it here too — TypeScript won't
+ * catch a missing entry, but the test suite asserts every tool has a
+ * scope.
+ */
+export type ToolScope = 'read' | 'write';
+
+export const TOOL_SCOPES: Record<string, ToolScope> = {
+  // Posts
+  list_posts: 'read',
+  get_post: 'read',
+  create_post: 'write',
+  update_post: 'write',
+  // Pages
+  list_pages: 'read',
+  get_page: 'read',
+  update_page: 'write',
+  // Misc reads
+  list_groups: 'read',
+  list_books: 'read',
+  list_projects: 'read',
+  // Media
+  upload_image: 'write',
+  upload_and_embed_image: 'write',
+  repair_post_image_markdown: 'write',
+};
+
+// ---------------------------------------------------------------------------
 // Tool handlers
 // ---------------------------------------------------------------------------
 

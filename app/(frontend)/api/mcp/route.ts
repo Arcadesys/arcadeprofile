@@ -4,14 +4,15 @@
  * Exposes the same tools as the stdio server (mcp/payload-mcp.ts) over
  * HTTP/SSE so claude.ai custom connectors can reach it.
  *
- * Auth: Bearer token via MCP_API_KEY env var.
+ * Auth: Bearer token via MCP_API_KEY env var (full read+write access),
+ * or the optional MCP_READ_KEY env var (read-only — list_*, get_*).
  *
  * Connecting from claude.ai:
  *   1. Deploy is live at https://arcadeprofile.vercel.app/api/mcp
  *   2. Settings → Connectors → Add custom connector
  *   3. URL: https://arcadeprofile.vercel.app/api/mcp
  *   4. Auth header name:  Authorization
- *   5. Auth header value: Bearer <MCP_API_KEY>
+ *   5. Auth header value: Bearer <MCP_API_KEY> or Bearer <MCP_READ_KEY>
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -20,7 +21,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { toolDefinitions, toolHandlers } from '@/mcp/tools';
+import { TOOL_SCOPES, toolDefinitions, toolHandlers, type ToolScope } from '@/mcp/tools';
 import type { NextRequest } from 'next/server';
 
 // Must be nodejs runtime — MCP SDK uses Node.js APIs.
@@ -32,17 +33,32 @@ function unauthorized(): Response {
   return new Response('Unauthorized', { status: 401 });
 }
 
+type Caller = { scope: ToolScope };
+
+function authenticate(req: NextRequest): Caller | null {
+  const writeKey = process.env.MCP_API_KEY;
+  const readKey = process.env.MCP_READ_KEY;
+  if (!writeKey && !readKey) return null;
+
+  const header = req.headers.get('authorization')?.trim() ?? '';
+  const [scheme, token] = header.split(/\s+/);
+  if (scheme?.toLowerCase() !== 'bearer' || !token) return null;
+
+  if (writeKey && token === writeKey) return { scope: 'write' };
+  if (readKey && token === readKey) return { scope: 'read' };
+  return null;
+}
+
+function callerCan(caller: Caller, tool: string): boolean {
+  const required = TOOL_SCOPES[tool];
+  if (!required) return false;
+  if (required === 'read') return true; // both scopes can read
+  return caller.scope === 'write';
+}
+
 export async function POST(req: NextRequest): Promise<Response> {
-  // ---------- Auth ----------
-  const mcpApiKey = process.env.MCP_API_KEY;
-  if (!mcpApiKey) {
-    // Refuse to serve if the key is not configured — avoids an open endpoint.
-    return unauthorized();
-  }
-  const auth = req.headers.get('authorization') ?? '';
-  if (auth !== `Bearer ${mcpApiKey}`) {
-    return unauthorized();
-  }
+  const caller = authenticate(req);
+  if (!caller) return unauthorized();
 
   // ---------- Build a fresh server + transport per request (stateless) ----------
   const server = new Server(
@@ -51,7 +67,7 @@ export async function POST(req: NextRequest): Promise<Response> {
   );
 
   server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: toolDefinitions,
+    tools: toolDefinitions.filter((t) => callerCan(caller, t.name)),
   }));
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -59,6 +75,14 @@ export async function POST(req: NextRequest): Promise<Response> {
     const handler = toolHandlers[name];
     if (!handler) {
       return { content: [{ type: 'text', text: `Unknown tool: ${name}` }], isError: true };
+    }
+    if (!callerCan(caller, name)) {
+      return {
+        content: [
+          { type: 'text', text: `Forbidden: tool '${name}' requires write scope.` },
+        ],
+        isError: true,
+      };
     }
     try {
       return await handler(args);
