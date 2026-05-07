@@ -114,6 +114,24 @@ const statements = [
         ON "payload_locked_documents_rels" USING btree ("nav_items_id")
     `,
   },
+  {
+    label: 'social_credentials table',
+    run: () => sql`
+      CREATE TABLE IF NOT EXISTS "social_credentials" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "bluesky_handle" varchar,
+        "bluesky_app_password" varchar,
+        "facebook_page_id" varchar,
+        "facebook_page_token" varchar,
+        "facebook_graph_version" varchar DEFAULT 'v21.0',
+        "instagram_business_account_id" varchar,
+        "linkedin_access_token" varchar,
+        "linkedin_author_urn" varchar,
+        "updated_at" timestamp(3) with time zone NOT NULL DEFAULT now(),
+        "created_at" timestamp(3) with time zone NOT NULL DEFAULT now()
+      )
+    `,
+  },
 ];
 
 let failed = false;

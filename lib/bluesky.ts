@@ -1,7 +1,11 @@
 /**
  * Bluesky AT Protocol client for posting social content.
  * Uses the public AT Protocol API directly (no SDK dependency).
+ *
+ * Credentials are loaded from the `social-credentials` Payload global.
  */
+
+import { getBlueskyCredentials } from './social/credentials';
 
 const BLUESKY_PDS = 'https://bsky.social';
 
@@ -29,20 +33,21 @@ export interface BlueskyPostResult {
   cid: string;
 }
 
-function getCredentials(): { handle: string; appPassword: string } {
-  const handle = process.env.BLUESKY_HANDLE;
-  const appPassword = process.env.BLUESKY_APP_PASSWORD;
-  if (!handle) throw new Error('Missing BLUESKY_HANDLE environment variable');
-  if (!appPassword) throw new Error('Missing BLUESKY_APP_PASSWORD environment variable');
-  return { handle, appPassword };
+export async function isBlueskyConfigured(): Promise<boolean> {
+  return (await getBlueskyCredentials()) !== null;
 }
 
 async function createSession(): Promise<BlueskySession> {
-  const { handle, appPassword } = getCredentials();
+  const creds = await getBlueskyCredentials();
+  if (!creds) {
+    throw new Error(
+      'Bluesky is not configured (set handle and app password under Globals → Social Credentials)',
+    );
+  }
   const res = await fetch(`${BLUESKY_PDS}/xrpc/com.atproto.server.createSession`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ identifier: handle, password: appPassword }),
+    body: JSON.stringify({ identifier: creds.handle, password: creds.appPassword }),
   });
   if (!res.ok) {
     const body = await res.text();

@@ -1,43 +1,45 @@
 /**
  * Facebook Page posting via Graph API.
  * Requires a Page Access Token with `pages_manage_posts` + `pages_read_engagement`.
+ *
+ * Credentials are loaded from the `social-credentials` Payload global.
  */
 
-const GRAPH_VERSION = process.env.FACEBOOK_GRAPH_VERSION || 'v21.0';
+import { getFacebookCredentials } from './credentials';
 
 export interface FacebookPostResult {
   id: string;
   url: string;
 }
 
-function getCredentials(): { pageId: string; pageToken: string } | null {
-  const pageId = process.env.FACEBOOK_PAGE_ID;
-  const pageToken = process.env.FACEBOOK_PAGE_TOKEN;
-  if (!pageId || !pageToken) return null;
-  return { pageId, pageToken };
-}
-
-export function isFacebookConfigured(): boolean {
-  return getCredentials() !== null;
+export async function isFacebookConfigured(): Promise<boolean> {
+  return (await getFacebookCredentials()) !== null;
 }
 
 export async function postToFacebook(
   message: string,
   linkUrl?: string,
 ): Promise<FacebookPostResult> {
-  const creds = getCredentials();
-  if (!creds) throw new Error('Facebook is not configured (set FACEBOOK_PAGE_ID and FACEBOOK_PAGE_TOKEN)');
+  const creds = await getFacebookCredentials();
+  if (!creds) {
+    throw new Error(
+      'Facebook is not configured (set Page ID and Page Token under Globals → Social Credentials)',
+    );
+  }
 
   const params = new URLSearchParams();
   params.set('message', message);
   if (linkUrl) params.set('link', linkUrl);
   params.set('access_token', creds.pageToken);
 
-  const res = await fetch(`https://graph.facebook.com/${GRAPH_VERSION}/${creds.pageId}/feed`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString(),
-  });
+  const res = await fetch(
+    `https://graph.facebook.com/${creds.graphVersion}/${creds.pageId}/feed`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    },
+  );
 
   if (!res.ok) {
     const body = await res.text();

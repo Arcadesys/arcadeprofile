@@ -7,33 +7,31 @@
  *
  * Instagram requires an image; text-only posts aren't supported. Caller must
  * pass a publicly reachable image URL.
+ *
+ * Credentials are loaded from the `social-credentials` Payload global. The
+ * Page Token is shared with the Facebook tab.
  */
 
-const GRAPH_VERSION = process.env.FACEBOOK_GRAPH_VERSION || 'v21.0';
+import { getInstagramCredentials } from './credentials';
 
 export interface InstagramPostResult {
   id: string;
   url: string;
 }
 
-function getCredentials(): { igUserId: string; pageToken: string } | null {
-  const igUserId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID;
-  const pageToken = process.env.FACEBOOK_PAGE_TOKEN;
-  if (!igUserId || !pageToken) return null;
-  return { igUserId, pageToken };
-}
-
-export function isInstagramConfigured(): boolean {
-  return getCredentials() !== null;
+export async function isInstagramConfigured(): Promise<boolean> {
+  return (await getInstagramCredentials()) !== null;
 }
 
 export async function postToInstagram(
   caption: string,
   imageUrl: string,
 ): Promise<InstagramPostResult> {
-  const creds = getCredentials();
+  const creds = await getInstagramCredentials();
   if (!creds) {
-    throw new Error('Instagram is not configured (set INSTAGRAM_BUSINESS_ACCOUNT_ID and FACEBOOK_PAGE_TOKEN)');
+    throw new Error(
+      'Instagram is not configured (set Business Account ID under Globals → Social Credentials, plus a Facebook Page Token)',
+    );
   }
   if (!imageUrl) throw new Error('Instagram post requires an image URL');
 
@@ -43,7 +41,7 @@ export async function postToInstagram(
   containerParams.set('access_token', creds.pageToken);
 
   const containerRes = await fetch(
-    `https://graph.facebook.com/${GRAPH_VERSION}/${creds.igUserId}/media`,
+    `https://graph.facebook.com/${creds.graphVersion}/${creds.igUserId}/media`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -61,7 +59,7 @@ export async function postToInstagram(
   publishParams.set('access_token', creds.pageToken);
 
   const publishRes = await fetch(
-    `https://graph.facebook.com/${GRAPH_VERSION}/${creds.igUserId}/media_publish`,
+    `https://graph.facebook.com/${creds.graphVersion}/${creds.igUserId}/media_publish`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -81,7 +79,7 @@ export async function postToInstagram(
   let url = '';
   try {
     const permalinkRes = await fetch(
-      `https://graph.facebook.com/${GRAPH_VERSION}/${published.id}?fields=permalink&access_token=${encodeURIComponent(creds.pageToken)}`,
+      `https://graph.facebook.com/${creds.graphVersion}/${published.id}?fields=permalink&access_token=${encodeURIComponent(creds.pageToken)}`,
     );
     if (permalinkRes.ok) {
       const data = (await permalinkRes.json()) as { permalink?: string };

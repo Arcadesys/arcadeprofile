@@ -5,7 +5,7 @@ import { postgresAdapter } from '@payloadcms/db-postgres';
 import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical';
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob';
 import sharp from 'sharp';
-import { collections } from './collections';
+import { collections, globals } from './collections';
 import { YouTubeBlock } from './blocks/YouTube';
 import { createPayloadEmailAdapter } from './lib/payload-email';
 import { getDatabaseURLForPayloadConfig, getPayloadSecret } from './lib/env';
@@ -25,6 +25,7 @@ export default buildConfig({
     theme: 'dark',
   },
   collections,
+  globals,
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [
       ...defaultFeatures,
