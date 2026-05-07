@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { authenticatedAccess } from './shared/access'
+import { isAuthenticated } from './shared/access'
 import { adminGroups } from './shared/admin'
 
 export const Users: CollectionConfig = {
@@ -12,8 +12,11 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
   },
   // No public consumer of /api/users — every read goes through Payload admin
-  // or an authenticated session. Locking read down to auth-only prevents
-  // anonymous enumeration of email addresses, hashed passwords, and API keys.
-  access: authenticatedAccess,
+  // or an authenticated session. Only override `read`; leaving create/update/
+  // delete unset keeps Payload's built-in defaults (e.g. self-update) instead
+  // of widening to "any authenticated user".
+  access: {
+    read: isAuthenticated,
+  },
   fields: [],
 }
