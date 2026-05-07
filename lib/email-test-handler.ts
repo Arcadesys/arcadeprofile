@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+import { logger } from '@/lib/logger';
 import type { PostmarkSendEmailResponse } from '@/lib/postmark';
 
 const DEFAULT_TRANSACTIONAL_STREAM = 'outbound';
@@ -79,15 +80,15 @@ export async function handleEmailTestRequest(
     const response = await deps.sendPostmarkTestEmail({ to: recipientResult.to });
     const stream = getTransactionalStream();
 
-    console.log(
-      '[postmark-test]',
-      JSON.stringify({
+    logger.info(
+      {
         to: recipientResult.to,
         messageId: response.MessageID,
         submittedAt: response.SubmittedAt,
         errorCode: response.ErrorCode,
         stream,
-      }),
+      },
+      '[postmark-test] sent',
     );
 
     return NextResponse.json({
@@ -97,7 +98,7 @@ export async function handleEmailTestRequest(
       stream,
     });
   } catch (error) {
-    console.error('[postmark-test] Failed to send test email', error);
+    logger.error({ err: error }, '[postmark-test] failed to send test email');
     return NextResponse.json(
       { error: 'Failed to send test email via Postmark.' },
       { status: 502 },

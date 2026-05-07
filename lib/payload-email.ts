@@ -1,5 +1,6 @@
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer';
 import type { PayloadEmailAdapter, SendEmailOptions } from 'payload';
+import { logger } from '@/lib/logger';
 
 const DEFAULT_FROM_EMAIL = 'austen@thearcades.me';
 const DEFAULT_FROM_NAME = 'The Arcades';
@@ -37,7 +38,7 @@ function warnMissingPostmarkTokenOnce() {
 
   globalThis.__payloadEmailWarningShown = true;
 
-  console.warn(
+  logger.warn(
     '[payload-email] POSTMARK_SERVER_TOKEN is not set. Using the console email adapter in development. Set POSTMARK_REQUIRED_IN_PROD=true to enforce this at boot in production.',
   );
 }

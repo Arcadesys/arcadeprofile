@@ -1,6 +1,7 @@
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html';
 import type { SerializedEditorState } from 'lexical';
 
+import { logger } from './logger';
 import { buildPostUrl } from './post-url';
 
 type NewsletterContent = {
@@ -68,7 +69,7 @@ function renderPostContent(content: SerializedEditorState): string {
       disableContainer: true,
     }).trim();
   } catch (error) {
-    console.error('[newsletter] Failed to convert Lexical content to HTML:', error);
+    logger.error({ err: error }, '[newsletter] failed to convert Lexical content to HTML');
     return '';
   }
 }

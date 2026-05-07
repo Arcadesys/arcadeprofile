@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getAudienceListId, syncSubscriberToActiveCampaign } from '@/lib/activecampaign';
+import { logger } from '@/lib/logger';
 import { parseBody } from '@/lib/validation';
 
 const VALID_AUDIENCES = ['all', 'fiction', 'essays'] as const;
@@ -37,10 +38,9 @@ export async function POST(request: NextRequest) {
           status: wantsIt ? 1 : 2,
         });
       } catch (err) {
-        console.error(
-          `[subscribe] AC ${wantsIt ? 'subscribe' : 'unsubscribe'} failed for ${audience}:`,
-          email,
-          err,
+        logger.error(
+          { err, audience, email, op: wantsIt ? 'subscribe' : 'unsubscribe' },
+          '[subscribe] ActiveCampaign sync failed',
         );
         (wantsIt ? subscribeFailures : unsubscribeFailures).push(audience);
       }

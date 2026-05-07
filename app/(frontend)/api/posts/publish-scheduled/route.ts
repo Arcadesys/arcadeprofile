@@ -3,6 +3,7 @@ import { getPayload } from 'payload';
 
 import config from '@payload-config';
 import { authorizeCronRequest, getScheduledPostsPerRun } from '@/lib/cronAuth';
+import { logger } from '@/lib/logger';
 import { publishScheduledPosts } from '@/lib/publishScheduled';
 
 async function runPublish() {
@@ -16,14 +17,14 @@ async function runPublish() {
   // otherwise one stuck row makes every subsequent cron run look broken
   // (and silently masks the fact that other due posts published fine).
   if (summary.stuck > 0) {
-    console.error(
-      '[publish-scheduled] stuck posts detected',
-      JSON.stringify({
+    logger.error(
+      {
         stuck: summary.stuck,
         stuckPosts: summary.stuckPosts,
         processed: summary.processed,
         failed: summary.failed,
-      }),
+      },
+      '[publish-scheduled] stuck posts detected',
     );
   }
 
