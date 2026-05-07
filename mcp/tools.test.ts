@@ -39,7 +39,9 @@ process.env.PAYLOAD_API_URL = 'http://localhost:3000';
 process.env.PAYLOAD_API_KEY = 'test-api-key';
 
 // Dynamic import so env is set before module-level code runs in tools.ts
-const { toolDefinitions, toolHandlers, markdownToLexical } = await import('./tools.js');
+const { toolDefinitions, toolHandlers, markdownToLexical, TOOL_SCOPES } = await import(
+  './tools.js'
+);
 
 // ---------------------------------------------------------------------------
 // toolDefinitions
@@ -281,5 +283,51 @@ test('update_post serializes tags array-of-objects', async () => {
     assert.deepEqual(patchBody.tags, [{ tag: 'music' }, { tag: 'chicago' }]);
   } finally {
     restore();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// TOOL_SCOPES — read vs write authorization
+// ---------------------------------------------------------------------------
+
+test('TOOL_SCOPES has an entry for every defined tool', () => {
+  for (const tool of toolDefinitions) {
+    assert.ok(
+      TOOL_SCOPES[tool.name] === 'read' || TOOL_SCOPES[tool.name] === 'write',
+      `Tool '${tool.name}' is missing a TOOL_SCOPES entry. Add it.`,
+    );
+  }
+});
+
+test('TOOL_SCOPES does not list any tool that no longer exists', () => {
+  const definedNames = new Set(toolDefinitions.map((t) => t.name));
+  for (const name of Object.keys(TOOL_SCOPES)) {
+    assert.ok(definedNames.has(name), `TOOL_SCOPES references unknown tool '${name}'`);
+  }
+});
+
+test('list_* and get_* tools are read-scoped', () => {
+  for (const tool of toolDefinitions) {
+    if (tool.name.startsWith('list_') || tool.name.startsWith('get_')) {
+      assert.equal(
+        TOOL_SCOPES[tool.name],
+        'read',
+        `Expected ${tool.name} to be read-scoped`,
+      );
+    }
+  }
+});
+
+test('mutating tools are write-scoped', () => {
+  const mustBeWrite = [
+    'create_post',
+    'update_post',
+    'update_page',
+    'upload_image',
+    'upload_and_embed_image',
+    'repair_post_image_markdown',
+  ];
+  for (const name of mustBeWrite) {
+    assert.equal(TOOL_SCOPES[name], 'write', `Expected ${name} to be write-scoped`);
   }
 });
