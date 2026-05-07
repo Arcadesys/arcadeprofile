@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { publicReadAccess } from './shared/access'
+import { isAuthenticated } from './shared/access'
 import { adminGroups } from './shared/admin'
 
 export const Users: CollectionConfig = {
@@ -11,6 +11,12 @@ export const Users: CollectionConfig = {
     group: adminGroups.system,
     useAsTitle: 'email',
   },
-  access: publicReadAccess,
+  // No public consumer of /api/users — every read goes through Payload admin
+  // or an authenticated session. Only override `read`; leaving create/update/
+  // delete unset keeps Payload's built-in defaults (e.g. self-update) instead
+  // of widening to "any authenticated user".
+  access: {
+    read: isAuthenticated,
+  },
   fields: [],
 }
