@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ShareLinksProps {
   url: string;
@@ -11,6 +11,13 @@ type ToastKind = 'copied' | 'instagram';
 
 export default function ShareLinks({ url, title }: ShareLinksProps) {
   const [toast, setToast] = useState<ToastKind | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const duration = toast === 'instagram' ? 3200 : 2400;
+    const timer = setTimeout(() => setToast(null), duration);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
@@ -56,7 +63,6 @@ export default function ShareLinks({ url, title }: ShareLinksProps) {
   async function handleCopy() {
     if (await copyToClipboard()) {
       setToast('copied');
-      setTimeout(() => setToast(null), 2400);
     }
   }
 
@@ -65,7 +71,6 @@ export default function ShareLinks({ url, title }: ShareLinksProps) {
     // paste it into their story or DM.
     if (await copyToClipboard()) {
       setToast('instagram');
-      setTimeout(() => setToast(null), 3200);
     }
   }
 
