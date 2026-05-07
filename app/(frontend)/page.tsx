@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getPayload } from 'payload';
 import config from '@payload-config';
+import StartHereCard from '../components/StartHereCard';
 import SubscribeCTA from '../components/SubscribeCTA';
 
 export default async function HomePage() {
@@ -55,8 +56,11 @@ export default async function HomePage() {
         </p>
       </header>
 
+      {/* Entry funnel — give first-time visitors a single, voice-rich on-ramp */}
+      <StartHereCard />
+
       {/* Above-the-fold subscribe + credibility */}
-      <section style={{ margin: '0 0 2.5rem' }}>
+      <section id="subscribe" style={{ margin: '0 0 2.5rem', scrollMarginTop: '5rem' }}>
         <SubscribeCTA
           eyebrow="Fiction by email · M / W / F"
           heading="Read it as it arrives"
