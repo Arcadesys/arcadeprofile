@@ -8,7 +8,7 @@ import { slugField } from './fields/slug';
 import { tagArrayField } from './fields/tags';
 import { promoteScheduledDraftHook } from './hooks/promoteScheduledDraft';
 import { revalidatePathsFor } from './hooks/revalidate';
-import { isAuthenticated, publicReadAccess } from './shared/access';
+import { isAuthenticated } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
 
 const revalidatePostPaths = revalidatePathsFor(async (doc, payload) => {
@@ -33,7 +33,15 @@ const revalidatePostPaths = revalidatePathsFor(async (doc, payload) => {
 export const Posts: CollectionConfig = {
   slug: 'posts',
   access: {
-    ...publicReadAccess,
+    // Anonymous reads through /api/posts are scoped to public-facing posts
+    // only. The renderer (lib/blog.ts) already filters by publish_status
+    // explicitly, but the bare REST endpoint previously returned drafts and
+    // scheduled posts to unauthenticated callers. Authenticated CMS users
+    // (and server-side calls with overrideAccess) still see everything.
+    read: ({ req }) => {
+      if (req.user) return true;
+      return { publish_status: { in: ['published', 'sent'] } };
+    },
     create: isAuthenticated,
     update: isAuthenticated,
     delete: isAuthenticated,
