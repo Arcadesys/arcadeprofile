@@ -7,22 +7,19 @@
  * Author URN forms:
  *   - Personal:    urn:li:person:{member-id}
  *   - Organization: urn:li:organization:{org-id}
+ *
+ * Credentials are loaded from the `social-credentials` Payload global.
  */
+
+import { getLinkedInCredentials } from './credentials';
 
 export interface LinkedInPostResult {
   id: string;
   url: string;
 }
 
-function getCredentials(): { accessToken: string; authorUrn: string } | null {
-  const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
-  const authorUrn = process.env.LINKEDIN_AUTHOR_URN;
-  if (!accessToken || !authorUrn) return null;
-  return { accessToken, authorUrn };
-}
-
-export function isLinkedInConfigured(): boolean {
-  return getCredentials() !== null;
+export async function isLinkedInConfigured(): Promise<boolean> {
+  return (await getLinkedInCredentials()) !== null;
 }
 
 export async function postToLinkedIn(
@@ -31,9 +28,11 @@ export async function postToLinkedIn(
   linkTitle?: string,
   linkDescription?: string,
 ): Promise<LinkedInPostResult> {
-  const creds = getCredentials();
+  const creds = await getLinkedInCredentials();
   if (!creds) {
-    throw new Error('LinkedIn is not configured (set LINKEDIN_ACCESS_TOKEN and LINKEDIN_AUTHOR_URN)');
+    throw new Error(
+      'LinkedIn is not configured (set access token and author URN under Globals → Social Credentials)',
+    );
   }
 
   const shareContent: Record<string, unknown> = {

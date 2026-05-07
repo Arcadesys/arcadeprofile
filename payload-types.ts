@@ -101,8 +101,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'social-credentials': SocialCredential;
+  };
+  globalsSelect: {
+    'social-credentials': SocialCredentialsSelect<false> | SocialCredentialsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -1224,6 +1228,90 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Credentials used by the auto-poster to publish blog posts to social platforms. Anyone with admin access can view these values.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-credentials".
+ */
+export interface SocialCredential {
+  id: number;
+  bluesky?: {
+    /**
+     * e.g. arcades.bsky.social
+     */
+    handle?: string | null;
+    /**
+     * App password from bsky.app → Settings → App Passwords. Not your main account password.
+     */
+    appPassword?: string | null;
+  };
+  facebook?: {
+    /**
+     * Numeric Facebook Page ID.
+     */
+    pageId?: string | null;
+    /**
+     * Page Access Token with pages_manage_posts and pages_read_engagement scopes.
+     */
+    pageToken?: string | null;
+    /**
+     * Graph API version. Defaults to v21.0.
+     */
+    graphVersion?: string | null;
+  };
+  instagram?: {
+    /**
+     * Instagram Business Account ID linked to the Facebook Page.
+     */
+    businessAccountId?: string | null;
+  };
+  linkedin?: {
+    /**
+     * OAuth access token with w_member_social (personal) or w_organization_social (org page).
+     */
+    accessToken?: string | null;
+    /**
+     * Author URN, e.g. urn:li:person:{member-id} or urn:li:organization:{org-id}.
+     */
+    authorUrn?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "social-credentials_select".
+ */
+export interface SocialCredentialsSelect<T extends boolean = true> {
+  bluesky?:
+    | T
+    | {
+        handle?: T;
+        appPassword?: T;
+      };
+  facebook?:
+    | T
+    | {
+        pageId?: T;
+        pageToken?: T;
+        graphVersion?: T;
+      };
+  instagram?:
+    | T
+    | {
+        businessAccountId?: T;
+      };
+  linkedin?:
+    | T
+    | {
+        accessToken?: T;
+        authorUrn?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

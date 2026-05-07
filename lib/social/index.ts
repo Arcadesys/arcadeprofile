@@ -13,7 +13,7 @@
 import type { Payload } from 'payload';
 
 import type { Media, Post } from '../../payload-types';
-import { atUriToWebUrl, postToBluesky } from '../bluesky';
+import { atUriToWebUrl, isBlueskyConfigured, postToBluesky } from '../bluesky';
 import { buildPostUrl, computePostPartIndex } from '../post-url';
 import { isFacebookConfigured, postToFacebook } from './facebook';
 import { isInstagramConfigured, postToInstagram } from './instagram';
@@ -34,11 +34,7 @@ function siteUrl(): string {
   return (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/$/, '');
 }
 
-function isBlueskyConfigured(): boolean {
-  return Boolean(process.env.BLUESKY_HANDLE && process.env.BLUESKY_APP_PASSWORD);
-}
-
-function platformConfigured(platform: SocialPlatform): boolean {
+function platformConfigured(platform: SocialPlatform): Promise<boolean> {
   switch (platform) {
     case 'bluesky':
       return isBlueskyConfigured();
@@ -125,7 +121,7 @@ export async function autoPostToSocial(
   const description = (post.excerpt as string | undefined) || '';
 
   const runPlatform = async (platform: SocialPlatform): Promise<SocialFanoutResult> => {
-    if (!platformConfigured(platform)) {
+    if (!(await platformConfigured(platform))) {
       return { platform, status: 'skipped', reason: 'not configured' };
     }
 
