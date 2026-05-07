@@ -6,10 +6,14 @@
  * Usage:
  *   tsx --require ./scripts/patch-next-env.cjs scripts/convert-post-markdown-to-lexical.ts <slug>
  *
- * Defaults to slug `carl` if no argument is provided. Idempotent in practice:
- * re-running on already-clean Lexical content concatenates the rendered text
- * back into markdown, but headings/styles will already match — diff before
- * applying if unsure.
+ * Defaults to slug `carl` if no argument is provided.
+ *
+ * NOT idempotent. `extractMarkdown` flattens structured Lexical blocks
+ * (headings, lists, quotes, code) back to plain text without re-adding
+ * markdown markers, so running this against an already-clean post would
+ * downgrade those blocks. As a safety net, the script aborts when it
+ * detects structured blocks in the source. Treat this as a destructive
+ * one-shot — review and back up before running.
  */
 import { getPayload } from 'payload';
 import configPromise from '../payload.config';
@@ -21,9 +25,19 @@ interface LexicalNode {
   children?: LexicalNode[];
 }
 
+const STRUCTURED_BLOCK_TYPES = new Set(['heading', 'quote', 'list', 'listitem', 'code']);
+
+function hasStructuredBlocks(node: LexicalNode | null | undefined): boolean {
+  if (!node) return false;
+  if (node.type && STRUCTURED_BLOCK_TYPES.has(node.type)) return true;
+  if (!Array.isArray(node.children)) return false;
+  return node.children.some(hasStructuredBlocks);
+}
+
 function extractMarkdown(node: LexicalNode | null | undefined): string {
   if (!node) return '';
   if (node.type === 'text' && typeof node.text === 'string') return node.text;
+  if (node.type === 'horizontalrule') return '---';
   if (!Array.isArray(node.children)) return '';
 
   // Block-level nodes get separated by a blank line so paragraph structure
@@ -41,7 +55,7 @@ function extractMarkdown(node: LexicalNode | null | undefined): string {
   const parts: string[] = [];
   for (const child of node.children) {
     const rendered = extractMarkdown(child);
-    if (!rendered && child.type !== 'horizontalrule') continue;
+    if (!rendered) continue;
     if (child.type && blockTypes.has(child.type)) {
       parts.push(rendered);
     } else {
@@ -71,6 +85,14 @@ async function main() {
   }
 
   const root = (post.content as { root?: LexicalNode } | null)?.root;
+  if (hasStructuredBlocks(root)) {
+    console.error(
+      `Post "${slug}" already contains structured Lexical blocks (heading/quote/list/code). ` +
+        `Refusing to run — this script flattens those back to plain text and would downgrade the post. ` +
+        `If you really need to re-run, edit the post manually or remove this guard intentionally.`,
+    );
+    process.exit(1);
+  }
   const markdown = extractMarkdown(root).trim();
   if (!markdown) {
     console.error(`Post "${slug}" has no extractable text in content.root.`);
