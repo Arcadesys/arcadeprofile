@@ -56,9 +56,22 @@ export default function BioPage() {
         <p style={{ color: 'var(--fg-muted)', fontSize: '1.05rem', margin: '0 0 0.5rem' }}>
           AI transformation lead &middot; program manager &middot; agile coach &middot; maker of things
         </p>
-        <p style={{ color: 'var(--fg-muted)', fontSize: '0.9rem', margin: 0 }}>
+        <p style={{ color: 'var(--fg-muted)', fontSize: '0.9rem', margin: '0 0 1rem' }}>
           Chicago, IL
         </p>
+        <Link
+          href="/resume"
+          style={{
+            display: 'inline-block',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.85rem',
+            letterSpacing: '0.04em',
+            color: 'var(--accent)',
+            textDecoration: 'none',
+          }}
+        >
+          View résumé →
+        </Link>
       </section>
 
       {/* Who I am */}
@@ -152,7 +165,7 @@ export default function BioPage() {
           magnet="story"
           variant="compact"
           heading="Want to hear from me directly?"
-          blurb="Subscribe and I'll send you a Paris noir short right now, then fiction Mon/Wed/Fri and essays Tue/Thu."
+          blurb="Subscribe and I'll send La Ligne du Marais — a Paris noir short — right now, then fiction Mon/Wed/Fri and essays Tue/Thu."
           buttonLabel="Send me the story"
         />
       </section>

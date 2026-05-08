@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import SubscribeCTA from '@/app/components/SubscribeCTA';
 
 export const metadata: Metadata = {
   title: 'Store — The Arcades',
@@ -74,6 +75,17 @@ export default function StorePage() {
           Books by Austen Tucker-Crowder. Most are available on Amazon; one lives at FurPlanet.
         </p>
 
+        <div style={{ maxWidth: '680px', margin: '0 auto 2.5rem' }}>
+          <SubscribeCTA
+            source="store-top"
+            magnet="story"
+            variant="compact"
+            heading="Not sure where to start?"
+            blurb="Join the list and I'll send La Ligne du Marais — a Paris noir short — first. If it lands, the books are waiting."
+            buttonLabel="Send the story"
+          />
+        </div>
+
         <div className="space-y-6">
           {books.map((book) => (
             <article
@@ -110,6 +122,17 @@ export default function StorePage() {
               </div>
             </article>
           ))}
+        </div>
+
+        <div style={{ maxWidth: '680px', margin: '3rem auto 0' }}>
+          <SubscribeCTA
+            source="store-bottom"
+            magnet="story"
+            variant="compact"
+            heading="Want a taste before you buy?"
+            blurb="Subscribe and I'll send La Ligne du Marais — a Paris noir short — to your inbox right now."
+            buttonLabel="Send the story"
+          />
         </div>
       </div>
     </div>

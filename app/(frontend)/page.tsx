@@ -66,7 +66,7 @@ export default async function HomePage() {
           magnet="story"
           eyebrow="Fiction by email · M / W / F"
           heading="Read it as it arrives"
-          blurb="A Paris noir short to start, then one installment at a time — the way Dickens delivered serials and the early web delivered listservs."
+          blurb="Subscribe and I'll send La Ligne du Marais — a Paris noir short — to start, then one installment at a time the way Dickens delivered serials and the early web delivered listservs."
         />
         <p style={{
           fontSize: '0.78rem',
@@ -155,7 +155,7 @@ export default async function HomePage() {
           magnet="story"
           variant="compact"
           heading="Still here? Then this is for you."
-          blurb="Three installments a week. Read at your own pace. Reply if something lands. Sign up now and I'll send a Paris noir short to kick things off."
+          blurb="Three installments a week. Read at your own pace. Reply if something lands. Sign up now and I'll send La Ligne du Marais — a Paris noir short — to kick things off."
           buttonLabel="Send me the story"
         />
       </section>
