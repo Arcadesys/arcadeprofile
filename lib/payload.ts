@@ -1,6 +1,7 @@
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
 import type { Book, Demo, Group, Media } from '@/payload-types';
+import { logger } from '@/lib/logger';
 import { slugify } from '@/lib/utils';
 
 export type ProjectResourceKind =
@@ -178,7 +179,7 @@ export async function getAllProjectHubs(): Promise<ProjectHub[]> {
     });
     groups = result.docs;
   } catch (error) {
-    console.error('[getAllProjectHubs] failed to load groups:', error);
+    logger.error({ err: error }, '[getAllProjectHubs] failed to load groups');
     groups = [];
   }
 
@@ -213,7 +214,7 @@ export async function getProjectBySlug(slug: string): Promise<ProjectHub | null>
     );
     return normalizeGroup(doc, postSlugsByGroup.get(slug) ?? []);
   } catch (error) {
-    console.error('[getProjectBySlug] failed to load group:', slug, error);
+    logger.error({ err: error, slug }, '[getProjectBySlug] failed to load group');
     return null;
   }
 }

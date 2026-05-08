@@ -1,6 +1,7 @@
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
 import type { SerializedEditorState } from 'lexical';
+import { logger } from '@/lib/logger';
 
 export interface BlogPost {
   slug: string;
@@ -110,7 +111,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
       throw error;
     }
 
-    console.warn(
+    logger.warn(
       'posts.show_in_samples is missing in the database. Falling back to legacy post query. Run `npm run migrate` to apply latest schema changes.',
     );
 
@@ -214,7 +215,7 @@ export async function getSamplePosts(): Promise<BlogPost[]> {
       throw error;
     }
 
-    console.warn(
+    logger.warn(
       'posts.show_in_samples is missing in the database. Returning no sample posts until migrations are applied (`npm run migrate`).',
     );
     return [];
@@ -252,7 +253,7 @@ export async function getSamplePostBySlug(slug: string): Promise<BlogPost | null
       throw error;
     }
 
-    console.warn(
+    logger.warn(
       'posts.show_in_samples is missing in the database. Sample post lookups are unavailable until migrations are applied (`npm run migrate`).',
     );
     return null;
@@ -323,7 +324,7 @@ export async function getGroupBySlug(slug: string): Promise<Group | null> {
     const groups = await getAllGroups();
     return groups.find((g) => g.slug === slug) ?? null;
   } catch (error) {
-    console.error('[getGroupBySlug] failed to load group:', slug, error);
+    logger.error({ err: error, slug }, '[getGroupBySlug] failed to load group');
     return null;
   }
 }

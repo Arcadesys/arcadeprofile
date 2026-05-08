@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { SerializedEditorState } from 'lexical';
 import { getAllPosts, buildPostUrl, buildPostUrlMap } from '@/lib/blog';
+import { logger } from '@/lib/logger';
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext';
 
 export const dynamic = 'force-dynamic';
@@ -30,7 +31,7 @@ function safePlaintext(content: SerializedEditorState | undefined): string {
   try {
     return convertLexicalToPlaintext({ data: content });
   } catch (err) {
-    console.error('[/latest] convertLexicalToPlaintext failed:', err);
+    logger.error({ err }, '[/latest] convertLexicalToPlaintext failed');
     return '';
   }
 }
