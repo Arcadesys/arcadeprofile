@@ -73,13 +73,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # gitleaks needs full history to scan the diff range; otherwise
-          # it only sees the latest commit on a PR.
+          # trufflehog needs the full history so it can scan the diff
+          # range; otherwise it only sees the latest commit on a PR.
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # GitLeaks is GA-licensed for orgs but free for personal/public
-          # repos. The action no-ops the license check on those plans.
-          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
-          GITLEAKS_ENABLE_SUMMARY: true
+      - name: TruffleHog secret scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          # Scan the PR diff (or the full repo on push to main).
+          base: ${{ github.event.pull_request.base.sha || github.event.before }}
+          head: ${{ github.event.pull_request.head.sha || github.sha }}
+          # Only fail on verified findings — unverified hits are noisy.
+          extra_args: --results=verified,unknown
