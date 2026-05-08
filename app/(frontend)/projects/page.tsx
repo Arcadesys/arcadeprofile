@@ -36,9 +36,10 @@ export default async function ProjectsPage({
         <div style={{ maxWidth: '680px', margin: '3rem auto 0' }}>
           <SubscribeCTA
             source="projects"
+            magnet="story"
             variant="compact"
             heading="Follow along as these ship"
-            blurb="Subscribe and you'll see new chapters, tools, and experiments before they hit the public list."
+            blurb="Subscribe and you'll see new chapters, tools, and experiments before they hit the public list. Plus a Paris noir short the moment you sign up."
             buttonLabel="Send updates"
           />
         </div>
