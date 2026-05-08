@@ -62,6 +62,7 @@ export default async function HomePage() {
       {/* Above-the-fold subscribe + credibility */}
       <section id="subscribe" style={{ margin: '0 0 2.5rem', scrollMarginTop: '5rem' }}>
         <SubscribeCTA
+          source="home-hero"
           eyebrow="Fiction by email · M / W / F"
           heading="Read it as it arrives"
           blurb="One installment at a time, the way Dickens delivered serials and the early web delivered listservs."
@@ -149,6 +150,7 @@ export default async function HomePage() {
       {/* Closing CTA — second chance for scrollers */}
       <section style={{ margin: '3rem 0 0' }}>
         <SubscribeCTA
+          source="home-bottom"
           variant="compact"
           heading="Still here? Then this is for you."
           blurb="Three installments a week. Read at your own pace. Reply if something lands."

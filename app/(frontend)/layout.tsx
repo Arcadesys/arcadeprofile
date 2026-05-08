@@ -4,6 +4,7 @@ import "../globals.css";
 import { ThemeProvider } from '../components/ThemeContext';
 import ThemeBg from '../components/ThemeBg';
 import DockStack from '../components/DockStack';
+import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 
 const inter = Inter({
@@ -55,6 +56,7 @@ export default function FrontendLayout({
             <Navbar />
           </div>
           {children}
+          <Footer />
           <DockStack />
         </ThemeProvider>
         <Analytics />
