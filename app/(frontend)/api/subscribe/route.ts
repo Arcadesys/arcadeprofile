@@ -3,23 +3,13 @@ import { z } from 'zod';
 
 import { getAudienceListId, syncSubscriberToActiveCampaign } from '@/lib/activecampaign';
 import { logger } from '@/lib/logger';
+import {
+  VALID_AUDIENCES,
+  VALID_SOURCES,
+  VALID_MAGNETS,
+  type Magnet,
+} from '@/lib/subscribe-types';
 import { parseBody } from '@/lib/validation';
-
-const VALID_AUDIENCES = ['all', 'fiction', 'essays'] as const;
-
-const VALID_SOURCES = [
-  'home-hero',
-  'home-bottom',
-  'footer',
-  'latest',
-  'projects',
-  'bio',
-  'subscribe-page',
-  'post',
-] as const;
-
-const VALID_MAGNETS = ['story'] as const;
-type Magnet = (typeof VALID_MAGNETS)[number];
 
 const MAGNETS: Record<Magnet, { files: Array<{ url: string; filename: string; label: string }> }> = {
   story: {
