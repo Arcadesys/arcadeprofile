@@ -331,7 +331,13 @@ export default async function ProjectPartPage({ params }: Props) {
           <PostRichText data={post.content} />
         </div>
 
-        <SubscribeCTA source="post" />
+        <SubscribeCTA
+          source="post"
+          magnet="story"
+          heading="Liked this? Read it as it arrives."
+          blurb="One installment at a time, Mon/Wed/Fri. Sign up and I'll send a Paris noir short to start, then the next chapter when it drops."
+          buttonLabel="Send me the story"
+        />
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
           <ShareLinks
