@@ -63,9 +63,10 @@ export default async function HomePage() {
       <section id="subscribe" style={{ margin: '0 0 2.5rem', scrollMarginTop: '5rem' }}>
         <SubscribeCTA
           source="home-hero"
+          magnet="story"
           eyebrow="Fiction by email · M / W / F"
           heading="Read it as it arrives"
-          blurb="One installment at a time, the way Dickens delivered serials and the early web delivered listservs."
+          blurb="A Paris noir short to start, then one installment at a time — the way Dickens delivered serials and the early web delivered listservs."
         />
         <p style={{
           fontSize: '0.78rem',
@@ -151,10 +152,11 @@ export default async function HomePage() {
       <section style={{ margin: '3rem 0 0' }}>
         <SubscribeCTA
           source="home-bottom"
+          magnet="story"
           variant="compact"
           heading="Still here? Then this is for you."
-          blurb="Three installments a week. Read at your own pace. Reply if something lands."
-          buttonLabel="Send me the next one"
+          blurb="Three installments a week. Read at your own pace. Reply if something lands. Sign up now and I'll send a Paris noir short to kick things off."
+          buttonLabel="Send me the story"
         />
       </section>
     </main>

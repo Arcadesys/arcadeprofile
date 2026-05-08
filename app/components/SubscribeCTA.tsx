@@ -1,19 +1,9 @@
 'use client';
 
 import { useId, useState } from 'react';
+import type { Audience, Magnet, Source } from '@/lib/subscribe-types';
 
 type Variant = 'default' | 'compact';
-type Audience = 'all' | 'fiction' | 'essays';
-type Source =
-  | 'home-hero'
-  | 'home-bottom'
-  | 'footer'
-  | 'latest'
-  | 'projects'
-  | 'bio'
-  | 'subscribe-page'
-  | 'post';
-type Magnet = 'story';
 
 interface SubscribeCTAProps {
   variant?: Variant;
@@ -51,6 +41,7 @@ export default function SubscribeCTA({
   const [errorMsg, setErrorMsg] = useState('');
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle');
   const [magnetFiles, setMagnetFiles] = useState<Array<{ url: string; filename: string; label: string }>>([]);
+  const [partialFailures, setPartialFailures] = useState<Audience[]>([]);
 
   function toggleAudience(audience: Audience) {
     setAudiences((prev) => {
@@ -97,6 +88,9 @@ export default function SubscribeCTA({
       if (Array.isArray(data.magnet?.files)) {
         setMagnetFiles(data.magnet.files);
       }
+      const requested = Array.from(audiences);
+      const subscribed: Audience[] = Array.isArray(data.subscribed) ? data.subscribed : requested;
+      setPartialFailures(requested.filter((a) => !subscribed.includes(a)));
       setStatus('success');
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.');
@@ -173,6 +167,20 @@ export default function SubscribeCTA({
           }}>
             ✓ You&apos;re in. First installment is on its way.
           </p>
+          {partialFailures.length > 0 && (
+            <p style={{
+              fontSize: '0.82rem',
+              color: 'var(--fg-muted)',
+              margin: '0 0 0.75rem',
+              lineHeight: 1.55,
+            }}>
+              Heads-up: we couldn&apos;t add you to{' '}
+              <strong style={{ color: 'var(--fg)' }}>
+                {partialFailures.map((a) => a[0].toUpperCase() + a.slice(1)).join(' + ')}
+              </strong>{' '}
+              just now. Try again in a minute, or reply to any email and I&apos;ll fix it by hand.
+            </p>
+          )}
           {magnetFiles.length > 0 && (
             <div
               style={{

@@ -126,10 +126,11 @@ export default async function LatestPage() {
       <section style={{ margin: '4rem 0 0' }}>
         <SubscribeCTA
           source="latest"
+          magnet="story"
           variant="compact"
           heading="Read one. Want the next?"
-          blurb="New installments Mon/Wed/Fri. I'll send the next one straight to you."
-          buttonLabel="Send the next one"
+          blurb="New installments Mon/Wed/Fri. Sign up and I'll send a Paris noir short right now, plus the next installment when it drops."
+          buttonLabel="Send the story"
         />
       </section>
     </main>
