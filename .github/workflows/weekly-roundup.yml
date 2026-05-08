@@ -1,0 +1,81 @@
+name: Weekly newsletter roundup
+on:
+  schedule:
+    # Sunday 13:00 UTC = 9:00am ET (EDT) / 8:00am ET (EST). GitHub Actions
+    # cron can lag 10+ minutes under load, which is fine for a weekly digest.
+    - cron: '0 13 * * 0'
+  workflow_dispatch:        # adds a manual "Run workflow" button.
+
+jobs:
+  send-roundup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger weekly-roundup endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          CRON_TARGET_URL: ${{ secrets.CRON_TARGET_URL }}
+        run: |
+          set -o pipefail
+
+          if [ -z "${CRON_TARGET_URL}" ]; then
+            echo "::error::CRON_TARGET_URL secret is not set"
+            exit 1
+          fi
+          if [ -z "${CRON_SECRET}" ]; then
+            echo "::error::CRON_SECRET secret is not set"
+            exit 1
+          fi
+
+          ENDPOINT="${CRON_TARGET_URL}/api/posts/weekly-roundup"
+          HOST=$(printf '%s' "${CRON_TARGET_URL}" | sed -E 's#^https?://##' | cut -d/ -f1)
+          echo "Started at:   $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          echo "Target host:  ${HOST}"
+          echo "Endpoint:     /api/posts/weekly-roundup"
+
+          BODY_FILE="$(mktemp)"
+          META_FILE="$(mktemp)"
+
+          set +e
+          curl --show-error --silent \
+            -X POST \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Accept: application/json" \
+            -o "${BODY_FILE}" \
+            -w 'http_code=%{http_code}\ntime_total=%{time_total}\nsize_download=%{size_download}\n' \
+            "${ENDPOINT}" \
+            > "${META_FILE}"
+          CURL_EXIT=$?
+          set -e
+
+          echo "--- curl metrics ---"
+          cat "${META_FILE}"
+          echo "--- response body ---"
+          if [ -s "${BODY_FILE}" ]; then
+            if jq . "${BODY_FILE}" 2>/dev/null; then
+              :
+            else
+              cat "${BODY_FILE}"
+              echo
+            fi
+          else
+            echo "(empty body)"
+          fi
+          echo "--- end response ---"
+
+          HTTP_CODE=$(grep '^http_code=' "${META_FILE}" | cut -d= -f2)
+
+          if [ "${CURL_EXIT}" -ne 0 ]; then
+            echo "::error::curl exited with ${CURL_EXIT} (network/transport failure)"
+            exit "${CURL_EXIT}"
+          fi
+
+          if [ -z "${HTTP_CODE}" ] || [ "${HTTP_CODE}" -lt 200 ] || [ "${HTTP_CODE}" -ge 300 ]; then
+            echo "::error::weekly-roundup returned HTTP ${HTTP_CODE}"
+            exit 1
+          fi
+
+          if command -v jq >/dev/null 2>&1 && jq -e . "${BODY_FILE}" >/dev/null 2>&1; then
+            FICTION=$(jq -r '.streams[] | select(.stream=="fiction") | .postCount' "${BODY_FILE}")
+            ESSAYS=$(jq -r '.streams[] | select(.stream=="essays") | .postCount' "${BODY_FILE}")
+            echo "Summary: fiction=${FICTION:-0} essays=${ESSAYS:-0}"
+          fi
