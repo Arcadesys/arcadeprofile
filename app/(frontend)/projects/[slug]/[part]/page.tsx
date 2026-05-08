@@ -331,7 +331,7 @@ export default async function ProjectPartPage({ params }: Props) {
           <PostRichText data={post.content} />
         </div>
 
-        <SubscribeCTA />
+        <SubscribeCTA source="post" />
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
           <ShareLinks

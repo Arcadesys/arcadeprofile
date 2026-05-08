@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import SubscribeCTA from '@/app/components/SubscribeCTA';
 
 export const metadata: Metadata = {
   title: 'Bio — The Arcades',
@@ -141,6 +142,19 @@ export default function BioPage() {
             brought in for himself: the side projects, the experiments, the games nobody asked for.
           </p>
         </div>
+      </section>
+
+      {/* Hear from me */}
+      <section style={{ marginBottom: '2.5rem' }}>
+        <h2 style={sectionHeadingStyle}>Hear from me directly</h2>
+        <SubscribeCTA
+          source="bio"
+          magnet="story"
+          variant="compact"
+          heading="Want to hear from me directly?"
+          blurb="Subscribe and I'll send you a Paris noir short right now, then fiction Mon/Wed/Fri and essays Tue/Thu."
+          buttonLabel="Send me the story"
+        />
       </section>
 
       {/* Links */}

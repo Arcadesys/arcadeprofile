@@ -4,6 +4,7 @@ import type { SerializedEditorState } from 'lexical';
 import { getAllPosts, buildPostUrl, buildPostUrlMap } from '@/lib/blog';
 import { logger } from '@/lib/logger';
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext';
+import SubscribeCTA from '@/app/components/SubscribeCTA';
 
 export const dynamic = 'force-dynamic';
 
@@ -121,6 +122,16 @@ export default async function LatestPage() {
           </li>
         )}
       </ol>
+
+      <section style={{ margin: '4rem 0 0' }}>
+        <SubscribeCTA
+          source="latest"
+          variant="compact"
+          heading="Read one. Want the next?"
+          blurb="New installments Mon/Wed/Fri. I'll send the next one straight to you."
+          buttonLabel="Send the next one"
+        />
+      </section>
     </main>
   );
 }

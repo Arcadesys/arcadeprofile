@@ -1230,7 +1230,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
- * Credentials used by the auto-poster to publish blog posts to social platforms. Anyone with admin access can view these values.
+ * Credentials used by the auto-poster to publish blog posts to social platforms. Any authenticated CMS user can view and edit these values, so treat the user list as privileged.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "social-credentials".

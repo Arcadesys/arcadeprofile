@@ -7,19 +7,44 @@ import { parseBody } from '@/lib/validation';
 
 const VALID_AUDIENCES = ['all', 'fiction', 'essays'] as const;
 
+const VALID_SOURCES = [
+  'home-hero',
+  'home-bottom',
+  'footer',
+  'latest',
+  'projects',
+  'bio',
+  'subscribe-page',
+  'post',
+] as const;
+
+const VALID_MAGNETS = ['story'] as const;
+type Magnet = (typeof VALID_MAGNETS)[number];
+
+const MAGNETS: Record<Magnet, { files: Array<{ url: string; filename: string; label: string }> }> = {
+  story: {
+    files: [
+      { url: '/lead-magnets/la-ligne-du-marais.pdf',  filename: 'la-ligne-du-marais.pdf',  label: 'PDF' },
+      { url: '/lead-magnets/la-ligne-du-marais.epub', filename: 'la-ligne-du-marais.epub', label: 'EPUB' },
+    ],
+  },
+};
+
 const subscribeSchema = z.object({
   email: z.string().min(1, 'Email is required.').email('Email must be a valid address.'),
   audiences: z
     .array(z.enum(VALID_AUDIENCES))
     .min(1, 'Pick at least one list (All, Fiction, or Essays).')
     .transform((val) => [...new Set(val)]),
+  source: z.enum(VALID_SOURCES).optional(),
+  magnet: z.enum(VALID_MAGNETS).optional(),
 });
 
 export async function POST(request: NextRequest) {
   const parsed = await parseBody(subscribeSchema, request);
   if (!parsed.ok) return parsed.response;
 
-  const { email, audiences } = parsed.data;
+  const { email, audiences, source, magnet } = parsed.data;
 
   // Reconcile: subscribe to chosen lists (status=1), unsubscribe from the
   // ones they didn't pick (status=2). Without the unsubscribe leg, switching
@@ -54,8 +79,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Surface attribution in logs so we can answer "which page is converting?"
+  // without an analytics roundtrip. Email is intentionally omitted.
+  console.log('[subscribe] ok', JSON.stringify({ source: source ?? null, magnet: magnet ?? null }));
+
   return NextResponse.json({
     ok: true,
     subscribed: audiences.filter((a) => !subscribeFailures.includes(a)),
+    ...(magnet ? { magnet: MAGNETS[magnet] } : {}),
   });
 }

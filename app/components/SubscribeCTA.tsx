@@ -4,6 +4,16 @@ import { useId, useState } from 'react';
 
 type Variant = 'default' | 'compact';
 type Audience = 'all' | 'fiction' | 'essays';
+type Source =
+  | 'home-hero'
+  | 'home-bottom'
+  | 'footer'
+  | 'latest'
+  | 'projects'
+  | 'bio'
+  | 'subscribe-page'
+  | 'post';
+type Magnet = 'story';
 
 interface SubscribeCTAProps {
   variant?: Variant;
@@ -11,6 +21,8 @@ interface SubscribeCTAProps {
   heading?: string;
   blurb?: string;
   buttonLabel?: string;
+  source?: Source;
+  magnet?: Magnet;
 }
 
 const SHARE_URL = 'https://thearcades.me';
@@ -28,6 +40,8 @@ export default function SubscribeCTA({
   heading = 'Read it as it arrives',
   blurb = 'Monday, Wednesday, Friday — one installment at a time, straight to your inbox.',
   buttonLabel = 'Start reading',
+  source,
+  magnet,
 }: SubscribeCTAProps) {
   const inputId = useId();
   const groupId = useId();
@@ -36,6 +50,7 @@ export default function SubscribeCTA({
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle');
+  const [magnetFiles, setMagnetFiles] = useState<Array<{ url: string; filename: string; label: string }>>([]);
 
   function toggleAudience(audience: Audience) {
     setAudiences((prev) => {
@@ -70,10 +85,18 @@ export default function SubscribeCTA({
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), audiences: Array.from(audiences) }),
+        body: JSON.stringify({
+          email: email.trim(),
+          audiences: Array.from(audiences),
+          ...(source ? { source } : {}),
+          ...(magnet ? { magnet } : {}),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+      if (Array.isArray(data.magnet?.files)) {
+        setMagnetFiles(data.magnet.files);
+      }
       setStatus('success');
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.');
@@ -150,6 +173,37 @@ export default function SubscribeCTA({
           }}>
             ✓ You&apos;re in. First installment is on its way.
           </p>
+          {magnetFiles.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '0.5rem',
+                marginBottom: '0.85rem',
+              }}
+            >
+              {magnetFiles.map((file) => (
+                <a
+                  key={file.url}
+                  href={file.url}
+                  download={file.filename}
+                  style={{
+                    padding: '0.55rem 1rem',
+                    background: 'var(--neon-pink)',
+                    color: '#000',
+                    border: 'none',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '0.85rem',
+                    fontFamily: 'var(--font-mono)',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                  }}
+                >
+                  {file.label === 'EPUB' ? '📖' : '📄'} Download {file.label}
+                </a>
+              ))}
+            </div>
+          )}
           <p style={{
             fontSize: '0.85rem',
             color: 'var(--fg-muted)',

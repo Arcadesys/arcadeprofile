@@ -66,10 +66,12 @@ export default function SubscribePage() {
       </section>
 
       <SubscribeCTA
+        source="subscribe-page"
+        magnet="story"
         eyebrow="Join the list"
-        heading="Get it first"
-        blurb="Fiction Mon/Wed/Fri, essays Tue/Thu. All for you, all free."
-        buttonLabel="Subscribe"
+        heading="Get a Paris noir short + all of it"
+        blurb="A Paris noir short to start, then fiction Mon/Wed/Fri and essays Tue/Thu. All for you, all free."
+        buttonLabel="Send me the story"
       />
     </main>
   );

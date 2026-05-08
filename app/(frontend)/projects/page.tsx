@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getAllProjectHubs } from '@/lib/payload';
 import ProjectsBrowser from '@/app/components/ProjectsBrowser';
+import SubscribeCTA from '@/app/components/SubscribeCTA';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +32,16 @@ export default async function ProjectsPage({
         </p>
 
         <ProjectsBrowser projects={projects} initialCategory={params?.category} />
+
+        <div style={{ maxWidth: '680px', margin: '3rem auto 0' }}>
+          <SubscribeCTA
+            source="projects"
+            variant="compact"
+            heading="Follow along as these ship"
+            blurb="Subscribe and you'll see new chapters, tools, and experiments before they hit the public list."
+            buttonLabel="Send updates"
+          />
+        </div>
       </div>
     </div>
   );
