@@ -13,7 +13,12 @@ import { getDatabaseURLForPayloadConfig, getPayloadSecret } from './lib/env';
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
-const requiresDatabaseURL = process.argv.includes('migrate');
+// Match `migrate`, `migrate:status`, `migrate:fresh`, etc. — any Payload
+// migrate subcommand needs a real DATABASE_URL to connect; failing fast
+// at config load gives a clearer error than a downstream connection error.
+const requiresDatabaseURL = process.argv.some(
+  (arg) => arg === 'migrate' || arg.startsWith('migrate:'),
+);
 const databaseURL = getDatabaseURLForPayloadConfig({ requireDatabaseURL: requiresDatabaseURL });
 const email = createPayloadEmailAdapter();
 

@@ -65,3 +65,22 @@ jobs:
       # notification on every PR while we triage. Output stays in the
       # job log. Drop the `|| true` after one clean week to enforce.
       - run: npm audit --omit=dev --audit-level=high || true
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # trufflehog needs the full history so it can scan the diff
+          # range; otherwise it only sees the latest commit on a PR.
+          fetch-depth: 0
+      - name: TruffleHog secret scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          # Scan the PR diff (or the full repo on push to main).
+          base: ${{ github.event.pull_request.base.sha || github.event.before }}
+          head: ${{ github.event.pull_request.head.sha || github.sha }}
+          # Only fail on verified findings — unverified hits are noisy.
+          extra_args: --results=verified,unknown
