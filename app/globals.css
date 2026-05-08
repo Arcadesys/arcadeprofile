@@ -26,6 +26,7 @@
   --surface-hover: #1e1e3a;
   --fg:            #e8e8ec;
   --fg-muted:      #9a9ab0;
+  --fg-faint:      #6a6a82;
   --accent:        #ff8a00;
   --neon-pink:     #ff3cac;
   --magenta:       #ff6b9d;
@@ -35,6 +36,7 @@
   --glow-orange:   rgba(255, 138, 0, 0.3);
   --border:        rgba(255, 138, 0, 0.2);
   --border-strong: rgba(255, 138, 0, 0.45);
+  --border-pink:   rgba(255, 60, 172, 0.30);
 
   --radius-sm:   4px;
   --radius:      8px;
@@ -90,11 +92,13 @@ html[data-spacing="extra"] .type-body { letter-spacing: 0.05em; word-spacing: 0.
 html[data-contrast="high"] {
   --fg:            #ffffff;
   --fg-muted:      #d4d4dc;
+  --fg-faint:      #b0b0bc;
   --bg:            #000000;
   --bg-deep:       #000000;
   --surface:       #0c0c1a;
   --border:        rgba(255, 255, 255, 0.4);
   --border-strong: rgba(255, 255, 255, 0.7);
+  --border-pink:   rgba(255, 255, 255, 0.7);
   --glow-pink:     rgba(255, 60, 172, 0);
   --glow-orange:   rgba(255, 138, 0, 0);
 }
