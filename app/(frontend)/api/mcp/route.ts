@@ -49,45 +49,51 @@ function parseKeyList(value: string | undefined): string[] {
   return value.split(',').map((s) => s.trim()).filter(Boolean);
 }
 
-/**
- * Constant-time bearer comparison. Hashes both sides so timingSafeEqual
- * always sees equal-length buffers (it throws on a length mismatch and
- * the throw itself leaks the length difference). The hash output is the
- * thing we actually compare; SHA-256 is fine here, this isn't a password
- * derivation context.
- */
-function constantTimeMatch(presented: string, expected: string): boolean {
-  const a = createHash('sha256').update(presented).digest();
-  const b = createHash('sha256').update(expected).digest();
-  return timingSafeEqual(a, b);
+function sha256(input: string): Buffer {
+  return createHash('sha256').update(input).digest();
 }
 
-function findScope(token: string, writeKeys: string[], readKeys: string[]): ToolScope | null {
-  for (const k of writeKeys) {
-    if (constantTimeMatch(token, k)) return 'write';
+/**
+ * Pre-hash configured keys at module load. Vercel bakes env vars at deploy
+ * time and the route module is fresh per deploy, so this picks them up
+ * correctly. Pre-hashing means each request hashes the presented token
+ * once — not once per configured key.
+ */
+const WRITE_KEY_HASHES: Buffer[] = [
+  ...parseKeyList(process.env.MCP_API_KEYS),
+  ...(process.env.MCP_API_KEY ? [process.env.MCP_API_KEY] : []),
+].map(sha256);
+
+const READ_KEY_HASHES: Buffer[] = [
+  ...parseKeyList(process.env.MCP_READ_KEYS),
+  ...(process.env.MCP_READ_KEY ? [process.env.MCP_READ_KEY] : []),
+].map(sha256);
+
+/**
+ * Constant-time bearer match. We compare SHA-256 hashes of equal length
+ * (32 bytes) so timingSafeEqual never throws on length mismatch — the
+ * throw itself would leak length info. SHA-256 is fine for this; it's
+ * not a password derivation context.
+ */
+function findScope(token: string): ToolScope | null {
+  const presented = sha256(token);
+  for (const hash of WRITE_KEY_HASHES) {
+    if (timingSafeEqual(presented, hash)) return 'write';
   }
-  for (const k of readKeys) {
-    if (constantTimeMatch(token, k)) return 'read';
+  for (const hash of READ_KEY_HASHES) {
+    if (timingSafeEqual(presented, hash)) return 'read';
   }
   return null;
 }
 
 function authenticate(req: NextRequest): Caller | null {
-  const writeKeys = [
-    ...parseKeyList(process.env.MCP_API_KEYS),
-    ...(process.env.MCP_API_KEY ? [process.env.MCP_API_KEY] : []),
-  ];
-  const readKeys = [
-    ...parseKeyList(process.env.MCP_READ_KEYS),
-    ...(process.env.MCP_READ_KEY ? [process.env.MCP_READ_KEY] : []),
-  ];
-  if (writeKeys.length === 0 && readKeys.length === 0) return null;
+  if (WRITE_KEY_HASHES.length === 0 && READ_KEY_HASHES.length === 0) return null;
 
   const header = req.headers.get('authorization')?.trim() ?? '';
   const [scheme, token] = header.split(/\s+/);
   if (scheme?.toLowerCase() !== 'bearer' || !token) return null;
 
-  const scope = findScope(token, writeKeys, readKeys);
+  const scope = findScope(token);
   return scope ? { scope } : null;
 }
 
