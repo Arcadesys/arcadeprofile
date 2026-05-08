@@ -10,6 +10,9 @@ export const VALID_SOURCES = [
   'bio',
   'subscribe-page',
   'post',
+  'project-hub',
+  'store-top',
+  'store-bottom',
 ] as const;
 export type Source = (typeof VALID_SOURCES)[number];
 

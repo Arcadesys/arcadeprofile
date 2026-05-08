@@ -39,7 +39,7 @@ export default async function ProjectsPage({
             magnet="story"
             variant="compact"
             heading="Follow along as these ship"
-            blurb="Subscribe and you'll see new chapters, tools, and experiments before they hit the public list. Plus a Paris noir short the moment you sign up."
+            blurb="Subscribe and you'll see new chapters, tools, and experiments before they hit the public list. Plus La Ligne du Marais — a Paris noir short — the moment you sign up."
             buttonLabel="Send updates"
           />
         </div>

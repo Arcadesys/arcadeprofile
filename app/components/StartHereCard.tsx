@@ -47,7 +47,7 @@ export default function StartHereCard() {
 
       <p
         style={{
-          margin: '0 0 1.25rem',
+          margin: '0 0 0.75rem',
           fontFamily: 'var(--font-mono)',
           fontSize: '0.78rem',
           letterSpacing: '0.04em',
@@ -55,6 +55,18 @@ export default function StartHereCard() {
         }}
       >
         {TAGS.join(' · ')}
+      </p>
+
+      <p
+        style={{
+          margin: '0 0 1.25rem',
+          fontFamily: 'var(--font-mono)',
+          fontSize: '0.72rem',
+          letterSpacing: '0.06em',
+          color: 'var(--fg-muted)',
+        }}
+      >
+        Read it in your browser. No signup.
       </p>
 
       <div

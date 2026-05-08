@@ -16,8 +16,8 @@ export default function SubscribePage() {
         padding: 'clamp(2rem, 5vw, 4rem) 1rem clamp(3rem, 8vw, 6rem)',
       }}
     >
-      <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.25rem)', marginBottom: '0.25rem' }}>
-        Subscribe
+      <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.25rem)', marginBottom: '0.5rem' }}>
+        Get the next story in your inbox.
       </h1>
       <p
         style={{
@@ -26,9 +26,12 @@ export default function SubscribePage() {
           fontSize: '1rem',
           fontFamily: 'var(--font-mono)',
           letterSpacing: '0.04em',
+          lineHeight: 1.6,
         }}
       >
-        Early access to books, essays, and the like.
+        Fiction Monday, Wednesday, Friday. Essays Tuesday and Thursday. No
+        algorithm, no paywall, no guilt trip — just the writing, sent in the
+        order I meant you to read it.
       </p>
 
       <section
@@ -69,8 +72,8 @@ export default function SubscribePage() {
         source="subscribe-page"
         magnet="story"
         eyebrow="Join the list"
-        heading="Get a Paris noir short + all of it"
-        blurb="A Paris noir short to start, then fiction Mon/Wed/Fri and essays Tue/Thu. All for you, all free."
+        heading="Get La Ligne du Marais + every installment after"
+        blurb="La Ligne du Marais — a Paris noir short — to start, then fiction Mon/Wed/Fri and essays Tue/Thu. All for you, all free."
         buttonLabel="Send me the story"
       />
     </main>
