@@ -65,3 +65,21 @@ jobs:
       # notification on every PR while we triage. Output stays in the
       # job log. Drop the `|| true` after one clean week to enforce.
       - run: npm audit --omit=dev --audit-level=high || true
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # gitleaks needs full history to scan the diff range; otherwise
+          # it only sees the latest commit on a PR.
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GitLeaks is GA-licensed for orgs but free for personal/public
+          # repos. The action no-ops the license check on those plans.
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
+          GITLEAKS_ENABLE_SUMMARY: true
