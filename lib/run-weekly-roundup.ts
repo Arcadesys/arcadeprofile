@@ -196,6 +196,10 @@ export async function runWeeklyRoundup(
       // Send immediately. AC's scheduledSendAt clamps past times to now anyway.
       scheduledSendAt: now,
       groupCategory,
+      // The Sunday roundup only delivers to the weekly cadence subscribers.
+      // Per-post subscribers get every installment as it lands via the
+      // collections/Posts.ts afterChange hook instead.
+      cadence: 'weekly',
     });
 
     if (!fanOut.allSucceeded) summary.allSucceeded = false;

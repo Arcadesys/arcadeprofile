@@ -86,6 +86,7 @@ function makeRecordingFanOut(): {
         input.groupCategory === 'fiction' ? ['fiction', 'all'] as const : ['essays', 'all'] as const;
       return {
         audiences: [...audiences],
+        cadence: input.cadence,
         results: audiences.map((a) => ({ audience: a, messageId: `m-${a}`, campaignId: `c-${a}` })),
         failures: [],
         allSucceeded: true,
@@ -149,6 +150,11 @@ test('runWeeklyRoundup: splits fiction vs non-fiction by Group.category and send
   // Slug is stream + ISO date for AC dashboard readability.
   assert.match(fictionCall.slug, /^weekly-fiction-2026-05-08$/);
   assert.match(essayCall.slug, /^weekly-essays-2026-05-08$/);
+
+  // The Sunday roundup must always target the weekly-cadence lists; per-post
+  // subscribers receive every installment via the on-publish hook instead.
+  assert.equal(fictionCall.cadence, 'weekly');
+  assert.equal(essayCall.cadence, 'weekly');
 });
 
 test('runWeeklyRoundup: stream with zero posts is skipped, not sent as an empty digest', async () => {
@@ -233,6 +239,7 @@ test('runWeeklyRoundup: surfaces fan-out failures via allSucceeded=false', async
   const sendFanOut: typeof import('./post-newsletter-fanout').sendPostNewsletterFanOut =
     async () => ({
       audiences: ['fiction', 'all'],
+      cadence: 'weekly',
       results: [{ audience: 'all', messageId: 'm', campaignId: 'c' }],
       failures: [{ audience: 'fiction', error: new Error('boom') }],
       allSucceeded: false,

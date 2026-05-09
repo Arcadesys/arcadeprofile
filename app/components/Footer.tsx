@@ -27,7 +27,7 @@ export default function Footer() {
           magnet="story"
           variant="compact"
           heading="Don't lose the thread"
-          blurb="Fiction Mon/Wed/Fri, essays Tue/Thu. New here? Grab La Ligne du Marais — a Paris noir short — when you sign up."
+          blurb="Weekly roundups of new fiction and essays, or every installment as it lands. New here? Grab La Ligne du Marais — a Paris noir short — when you sign up."
           buttonLabel="Send the next one"
         />
 

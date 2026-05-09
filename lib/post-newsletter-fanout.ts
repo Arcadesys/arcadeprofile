@@ -1,5 +1,6 @@
 import {
   type Audience,
+  type Cadence,
   getAudienceListId,
   sendBlogPostNewsletter,
   type SendBlogPostNewsletterOptions,
@@ -14,17 +15,25 @@ export interface PostNewsletterFanOutInput {
   scheduledSendAt?: Date;
   /** Group.category from the Groups collection (`null` if the post has no group). */
   groupCategory: string | null;
+  /**
+   * Which cadence's lists to target. `perpost` is used by the on-publish
+   * fan-out in collections/Posts.ts; `weekly` is used by the Sunday roundup
+   * cron. Both share the same audience-routing logic — they just resolve
+   * different list IDs.
+   */
+  cadence: Cadence;
 }
 
 export interface PostNewsletterFanOutDeps {
   sendBlogPostNewsletter?: (
     options: SendBlogPostNewsletterOptions,
   ) => Promise<SendBlogPostNewsletterResult>;
-  getAudienceListId?: (audience: Audience) => string;
+  getAudienceListId?: (audience: Audience, cadence: Cadence) => string;
 }
 
 export interface PostNewsletterFanOutResult {
   audiences: Audience[];
+  cadence: Cadence;
   results: Array<{ audience: Audience; messageId: string; campaignId: string }>;
   failures: Array<{ audience: Audience; error: unknown }>;
   allSucceeded: boolean;
@@ -45,6 +54,10 @@ function audienceLabel(audience: Audience): string {
   return audience.charAt(0).toUpperCase() + audience.slice(1);
 }
 
+function cadenceLabel(cadence: Cadence): string {
+  return cadence === 'weekly' ? 'Weekly' : 'Per-post';
+}
+
 /**
  * Send a single post out to every audience list returned by
  * `resolveAudiences`. Each list gets its own AC campaign whose internal name
@@ -59,18 +72,21 @@ export async function sendPostNewsletterFanOut(
   const send = deps.sendBlogPostNewsletter ?? sendBlogPostNewsletter;
   const resolveListId = deps.getAudienceListId ?? getAudienceListId;
   const audiences = resolveAudiences(input.groupCategory);
+  const { cadence } = input;
 
   // Sends are independent — fire them in parallel so a slow AC response on
   // one list doesn't extend the request for the others. allSettled lets us
   // collect every outcome regardless of which fail.
   const settled = await Promise.allSettled(
     audiences.map(async (audience) => {
-      const listId = resolveListId(audience);
+      const listId = resolveListId(audience, cadence);
+      // Suffix the AC campaign name with cadence + audience so fiction-perpost
+      // and fiction-weekly stay visually distinct in the AC dashboard.
       const r = await send({
         subject: input.subject,
         htmlBody: input.htmlBody,
         textBody: input.textBody,
-        slug: `${input.slug} (${audienceLabel(audience)})`,
+        slug: `${input.slug} (${audienceLabel(audience)} ${cadenceLabel(cadence)})`,
         scheduledSendAt: input.scheduledSendAt,
         listIdOverride: listId,
       });
@@ -91,6 +107,7 @@ export async function sendPostNewsletterFanOut(
 
   return {
     audiences,
+    cadence,
     results,
     failures,
     allSucceeded: failures.length === 0,

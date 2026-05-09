@@ -30,6 +30,7 @@ import {
   ActiveCampaignError,
   getAudienceListId,
   type Audience,
+  type Cadence,
 } from '../lib/activecampaign';
 import {
   resolveAudiences,
@@ -48,23 +49,34 @@ async function loadPayload() {
 }
 
 const AUDIENCES: Audience[] = ['all', 'fiction', 'essays'];
-const ENV_NAME: Record<Audience, string> = {
-  all: 'AC_LIST_ID_ALL',
-  fiction: 'AC_LIST_ID_FICTION',
-  essays: 'AC_LIST_ID_ESSAYS',
+const CADENCES: Cadence[] = ['weekly', 'perpost'];
+const ENV_NAME: Record<Cadence, Record<Audience, string>> = {
+  weekly: {
+    all: 'AC_LIST_ID_ALL_WEEKLY',
+    fiction: 'AC_LIST_ID_FICTION_WEEKLY',
+    essays: 'AC_LIST_ID_ESSAYS_WEEKLY',
+  },
+  perpost: {
+    all: 'AC_LIST_ID_ALL_PERPOST',
+    fiction: 'AC_LIST_ID_FICTION_PERPOST',
+    essays: 'AC_LIST_ID_ESSAYS_PERPOST',
+  },
 };
 
 type CliArgs = {
   live: boolean;
   slug: string | null;
+  cadence: Cadence;
 };
 
 function parseArgs(argv: string[]): CliArgs {
-  const args: CliArgs = { live: false, slug: null };
+  const args: CliArgs = { live: false, slug: null, cadence: 'perpost' };
   for (const a of argv) {
     if (a === '--live') args.live = true;
     else if (a === '--dry-run') args.live = false;
     else if (a.startsWith('--slug=')) args.slug = a.slice('--slug='.length);
+    else if (a === '--cadence=weekly') args.cadence = 'weekly';
+    else if (a === '--cadence=perpost') args.cadence = 'perpost';
   }
   return args;
 }
@@ -103,37 +115,39 @@ function pad(s: string, n: number): string {
 }
 
 async function reportListResolution(): Promise<void> {
-  console.log('AC list resolution:');
+  console.log('AC list resolution (per cadence):');
   const baseUrl = getApiBaseUrlOrNull();
   const apiKey = getApiKeyOrNull();
   const canFetchNames = Boolean(baseUrl && apiKey);
 
   const rows: Array<{ envName: string; id: string; name: string | null }> = [];
-  for (const audience of AUDIENCES) {
-    const envName = ENV_NAME[audience];
-    let id: string;
-    try {
-      id = getAudienceListId(audience);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.log(`  ${pad(envName, 20)} = (missing) — ${msg}`);
-      throw err;
-    }
-    let name: string | null = null;
-    if (canFetchNames) {
+  for (const cadence of CADENCES) {
+    for (const audience of AUDIENCES) {
+      const envName = ENV_NAME[cadence][audience];
+      let id: string;
       try {
-        name = await fetchListName(id, baseUrl!, apiKey!);
+        id = getAudienceListId(audience, cadence);
       } catch (err) {
-        name = `(fetch failed: ${err instanceof Error ? err.message : String(err)})`;
+        const msg = err instanceof Error ? err.message : String(err);
+        console.log(`  ${pad(envName, 28)} = (missing) — ${msg}`);
+        throw err;
       }
+      let name: string | null = null;
+      if (canFetchNames) {
+        try {
+          name = await fetchListName(id, baseUrl!, apiKey!);
+        } catch (err) {
+          name = `(fetch failed: ${err instanceof Error ? err.message : String(err)})`;
+        }
+      }
+      rows.push({ envName, id, name });
     }
-    rows.push({ envName, id, name });
   }
   for (const r of rows) {
     if (r.name) {
-      console.log(`  ${pad(r.envName, 20)} = ${pad(r.id, 4)} → "${r.name}"`);
+      console.log(`  ${pad(r.envName, 28)} = ${pad(r.id, 4)} → "${r.name}"`);
     } else {
-      console.log(`  ${pad(r.envName, 20)} = ${r.id}`);
+      console.log(`  ${pad(r.envName, 28)} = ${r.id}`);
     }
   }
   if (!canFetchNames) {
@@ -222,19 +236,23 @@ async function reportRoutingPreview(payload: PayloadInstance): Promise<void> {
       continue;
     }
     const audiences = resolveAudiences(found.groupCategory);
-    const routing = audiences
-      .map((a) => {
-        try {
-          return `${a} (${getAudienceListId(a)})`;
-        } catch {
-          return `${a} (missing env)`;
-        }
-      })
-      .join(', ');
-    console.log(
-      `  ${label}: "${found.post.slug}" (group: ${found.groupSlug ?? '—'}, category: ${found.groupCategory ?? '—'})`,
-    );
-    console.log(`    → [${routing}]`);
+    for (const cadence of CADENCES) {
+      const routing = audiences
+        .map((a) => {
+          try {
+            return `${a} (${getAudienceListId(a, cadence)})`;
+          } catch {
+            return `${a} (missing env)`;
+          }
+        })
+        .join(', ');
+      if (cadence === 'weekly') {
+        console.log(
+          `  ${label}: "${found.post.slug}" (group: ${found.groupSlug ?? '—'}, category: ${found.groupCategory ?? '—'})`,
+        );
+      }
+      console.log(`    → ${pad(cadence, 8)} [${routing}]`);
+    }
   }
 }
 
@@ -251,16 +269,18 @@ function reportSyntheticRouting(): void {
   ];
   for (const s of samples) {
     const audiences = resolveAudiences(s.category);
-    const routing = audiences
-      .map((a) => {
-        try {
-          return `${a} (${getAudienceListId(a)})`;
-        } catch {
-          return `${a} (missing env)`;
-        }
-      })
-      .join(', ');
-    console.log(`  category=${pad(s.label, 12)} → [${routing}]`);
+    for (const cadence of CADENCES) {
+      const routing = audiences
+        .map((a) => {
+          try {
+            return `${a} (${getAudienceListId(a, cadence)})`;
+          } catch {
+            return `${a} (missing env)`;
+          }
+        })
+        .join(', ');
+      console.log(`  category=${pad(s.label, 12)} ${pad(cadence, 8)} → [${routing}]`);
+    }
   }
 }
 
@@ -292,10 +312,11 @@ async function runDryRun(): Promise<void> {
   }
 }
 
-async function runLive(slug: string): Promise<void> {
+async function runLive(slug: string, cadence: Cadence): Promise<void> {
   console.log(`Live mode: rendering and fanning out post "${slug}" with`);
-  console.log('scheduledSendAt set 1 year out (campaigns will be created but');
-  console.log('not delivered). Inspect and delete in AC dashboard when done.\n');
+  console.log(`cadence=${cadence}, scheduledSendAt set 1 year out (campaigns`);
+  console.log('will be created but not delivered). Inspect and delete in AC');
+  console.log('dashboard when done.\n');
 
   await reportListResolution();
 
@@ -338,13 +359,14 @@ async function runLive(slug: string): Promise<void> {
     slug: post.slug as string,
     scheduledSendAt,
     groupCategory,
+    cadence,
   });
 
   console.log('\nFan-out result:');
   for (const r of result.results) {
     let listId = '?';
     try {
-      listId = getAudienceListId(r.audience);
+      listId = getAudienceListId(r.audience, cadence);
     } catch {
       // already-printed missing-env error; leave as ?
     }
@@ -380,7 +402,7 @@ async function main(): Promise<void> {
     if (!args.slug) {
       throw new Error('Live mode requires --slug=<post-slug>');
     }
-    await runLive(args.slug);
+    await runLive(args.slug, args.cadence);
   } else {
     await runDryRun();
   }

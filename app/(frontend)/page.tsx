@@ -52,7 +52,7 @@ export default async function HomePage() {
           color: 'var(--fg-muted)',
           margin: 0,
         }}>
-          Serialized fiction in your inbox, every Monday, Wednesday, and Friday.
+          Serialized fiction by email — a weekly roundup, or every installment as it lands.
         </p>
       </header>
 
@@ -64,9 +64,9 @@ export default async function HomePage() {
         <SubscribeCTA
           source="home-hero"
           magnet="story"
-          eyebrow="Fiction by email · M / W / F"
+          eyebrow="Fiction by email"
           heading="Read it as it arrives"
-          blurb="Subscribe and I'll send La Ligne du Marais — a Paris noir short — to start, then one installment at a time the way Dickens delivered serials and the early web delivered listservs."
+          blurb="Subscribe and I'll send La Ligne du Marais — a Paris noir short — to start. After that: a weekly roundup by default, or pick 'every installment' for fiction Mon/Wed/Fri and essays Tue/Thu."
         />
         <p style={{
           fontSize: '0.78rem',
@@ -155,7 +155,7 @@ export default async function HomePage() {
           magnet="story"
           variant="compact"
           heading="Still here? Then this is for you."
-          blurb="Three installments a week. Read at your own pace. Reply if something lands. Sign up now and I'll send La Ligne du Marais — a Paris noir short — to kick things off."
+          blurb="A weekly roundup by default, or every installment as it lands. Read at your own pace. Reply if something lands. Sign up and I'll send La Ligne du Marais — a Paris noir short — to kick things off."
           buttonLabel="Send me the story"
         />
       </section>

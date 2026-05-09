@@ -140,8 +140,12 @@ export function buildWeeklyRoundupContent(
       </header>
       ${postBlocks}
       <footer style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 0.9rem;">
+        <p style="margin: 0 0 0.5rem;">
+          You're receiving the weekly ${escapeHtml(label.toLowerCase())} roundup from The Arcades.
+        </p>
         <p style="margin: 0;">
-          You're receiving this because you subscribed to The Arcades' ${escapeHtml(label.toLowerCase())} stream.
+          Want every installment as it lands instead?
+          <a href="${escapeHtml(`${siteUrl.replace(/\/+$/, '')}/subscribe`)}" style="color: #111827;">Switch to per-post →</a>
         </p>
       </footer>
     </article>
@@ -152,6 +156,8 @@ export function buildWeeklyRoundupContent(
     intro,
     '',
     ...options.posts.map((p) => renderPostText(p, siteUrl)),
+    '',
+    `Want every installment as it lands instead? ${siteUrl.replace(/\/+$/, '')}/subscribe`,
   ].join('\n\n');
 
   return { subject, htmlBody, textBody };

@@ -4,7 +4,7 @@ import SubscribeCTA from '@/app/components/SubscribeCTA';
 export const metadata: Metadata = {
   title: 'Subscribe — The Arcades',
   description:
-    'Fiction Mon/Wed/Fri, essays Tue/Thu, from Austen Tucker. All for you, all free.',
+    'Serialized fiction and essays by Austen Tucker. Weekly roundup or every installment as it lands. All free.',
 };
 
 export default function SubscribePage() {
@@ -29,9 +29,9 @@ export default function SubscribePage() {
           lineHeight: 1.6,
         }}
       >
-        Fiction Monday, Wednesday, Friday. Essays Tuesday and Thursday. No
-        algorithm, no paywall, no guilt trip — just the writing, sent in the
-        order I meant you to read it.
+        Serialized fiction and essays by email. Pick a weekly roundup or
+        every installment as it lands. No algorithm, no paywall, no guilt
+        trip — just the writing, sent in the order I meant you to read it.
       </p>
 
       <section
@@ -47,11 +47,14 @@ export default function SubscribePage() {
           from the cutting-room floor that never makes it to the public site.
         </p>
         <p style={{ margin: '0 0 1.1rem' }}>
-          Fiction lands Monday, Wednesday, and Friday. Essays Tuesday and Thursday.
-          All for you, all free &mdash; no paywall, no tip jar with a guilt trip,
-          no tracking pixels playing dress-up as newsletters. No &ldquo;10 things&rdquo;
-          lists. No upsells, no courses, no funnel. Just the writing, in the order I
-          meant for you to read it, with a one-click unsubscribe at the bottom of every
+          Pick how you want it: a weekly roundup that lands Sunday with the
+          past week&rsquo;s posts, or every installment as it&rsquo;s
+          published &mdash; fiction Monday, Wednesday, Friday and essays
+          Tuesday and Thursday. All for you, all free &mdash; no paywall, no
+          tip jar with a guilt trip, no tracking pixels playing dress-up as
+          newsletters. No &ldquo;10 things&rdquo; lists. No upsells, no
+          courses, no funnel. Just the writing, in the order I meant for you
+          to read it, with a one-click unsubscribe at the bottom of every
           email if it ever stops being your thing.
         </p>
         <p style={{ margin: '0 0 1.1rem' }}>
@@ -72,8 +75,8 @@ export default function SubscribePage() {
         source="subscribe-page"
         magnet="story"
         eyebrow="Join the list"
-        heading="Get La Ligne du Marais + every installment after"
-        blurb="La Ligne du Marais — a Paris noir short — to start, then fiction Mon/Wed/Fri and essays Tue/Thu. All for you, all free."
+        heading="Get La Ligne du Marais + everything after"
+        blurb="La Ligne du Marais — a Paris noir short — to start. After that, weekly roundup by default, or pick 'every installment' for fiction Mon/Wed/Fri and essays Tue/Thu. All free."
         buttonLabel="Send me the story"
       />
     </main>

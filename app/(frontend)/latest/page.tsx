@@ -129,7 +129,7 @@ export default async function LatestPage() {
           magnet="story"
           variant="compact"
           heading="Read one. Want the next?"
-          blurb="New installments Mon/Wed/Fri. Sign up and I'll send La Ligne du Marais — a Paris noir short — right now, plus the next installment when it drops."
+          blurb="A weekly roundup of new installments, or every one as it lands. Sign up and I'll send La Ligne du Marais — a Paris noir short — right now, plus everything that follows."
           buttonLabel="Send the story"
         />
       </section>

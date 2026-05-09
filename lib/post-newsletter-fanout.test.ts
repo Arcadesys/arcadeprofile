@@ -9,6 +9,7 @@ import {
 import {
   ActiveCampaignError,
   type Audience,
+  type Cadence,
   type SendBlogPostNewsletterOptions,
   type SendBlogPostNewsletterResult,
 } from './activecampaign';
@@ -19,16 +20,18 @@ const baseInput: Omit<PostNewsletterFanOutInput, 'groupCategory'> = {
   textBody: 'body',
   slug: 'my-slug',
   scheduledSendAt: new Date('2030-01-01T12:00:00Z'),
+  cadence: 'perpost',
 };
 
-const LIST_IDS: Record<Audience, string> = {
-  all: '7',
-  fiction: '9',
-  essays: '10',
+// Test list IDs are doubled across cadences so a resolver mistake (returning
+// the wrong cadence's id) shows up as a failed assertion.
+const LIST_IDS: Record<Cadence, Record<Audience, string>> = {
+  perpost: { all: '7', fiction: '9', essays: '10' },
+  weekly: { all: '107', fiction: '109', essays: '110' },
 };
 
-function makeListIdResolver(): (audience: Audience) => string {
-  return (audience) => LIST_IDS[audience];
+function makeListIdResolver(): (audience: Audience, cadence: Cadence) => string {
+  return (audience, cadence) => LIST_IDS[cadence][audience];
 }
 
 function makeRecordingSender(): {
@@ -79,12 +82,12 @@ test('fanOut: fiction post sends to Fiction (id 9) and All (id 7) with audience-
   const allCall = byList.get('7');
   assert.ok(fictionCall, 'expected a send for Fiction list 9');
   assert.ok(allCall, 'expected a send for All list 7');
-  assert.equal(fictionCall.slug, 'my-slug (Fiction)');
+  assert.equal(fictionCall.slug, 'my-slug (Fiction Per-post)');
   assert.equal(fictionCall.subject, 'New post');
   assert.equal(fictionCall.htmlBody, '<p>body</p>');
   assert.equal(fictionCall.textBody, 'body');
   assert.equal(fictionCall.scheduledSendAt?.toISOString(), '2030-01-01T12:00:00.000Z');
-  assert.equal(allCall.slug, 'my-slug (All)');
+  assert.equal(allCall.slug, 'my-slug (All Per-post)');
 
   // Result order mirrors the audiences array regardless of completion order.
   assert.deepEqual(
@@ -106,8 +109,43 @@ test('fanOut: essay post (writing category) sends to Essays (id 10) and All (id 
   const listIds = new Set(calls.map((c) => c.listIdOverride));
   assert.deepEqual(listIds, new Set(['10', '7']));
   const byList = new Map(calls.map((c) => [c.listIdOverride, c]));
-  assert.equal(byList.get('10')?.slug, 'my-slug (Essays)');
-  assert.equal(byList.get('7')?.slug, 'my-slug (All)');
+  assert.equal(byList.get('10')?.slug, 'my-slug (Essays Per-post)');
+  assert.equal(byList.get('7')?.slug, 'my-slug (All Per-post)');
+});
+
+test('fanOut: cadence=weekly resolves the weekly-cadence list ids and labels the slug accordingly', async () => {
+  const { send, calls } = makeRecordingSender();
+  const result = await sendPostNewsletterFanOut(
+    { ...baseInput, groupCategory: 'fiction', cadence: 'weekly' },
+    { sendBlogPostNewsletter: send, getAudienceListId: makeListIdResolver() },
+  );
+
+  assert.equal(result.allSucceeded, true);
+  assert.equal(result.cadence, 'weekly');
+  assert.deepEqual(
+    new Set(calls.map((c) => c.listIdOverride)),
+    new Set(['109', '107']),
+    'expected weekly fiction (109) and weekly all (107) lists',
+  );
+  const byList = new Map(calls.map((c) => [c.listIdOverride, c]));
+  assert.equal(byList.get('109')?.slug, 'my-slug (Fiction Weekly)');
+  assert.equal(byList.get('107')?.slug, 'my-slug (All Weekly)');
+});
+
+test('fanOut: cadence=perpost and cadence=weekly resolve disjoint list ids for the same audience', async () => {
+  // A failed cadence dispatch (e.g. fiction-perpost AC list misconfigured)
+  // should never accidentally route to the weekly fiction list. This guards
+  // the resolver mapping.
+  const perpost = await sendPostNewsletterFanOut(
+    { ...baseInput, groupCategory: 'fiction', cadence: 'perpost' },
+    { sendBlogPostNewsletter: makeRecordingSender().send, getAudienceListId: makeListIdResolver() },
+  );
+  const weekly = await sendPostNewsletterFanOut(
+    { ...baseInput, groupCategory: 'fiction', cadence: 'weekly' },
+    { sendBlogPostNewsletter: makeRecordingSender().send, getAudienceListId: makeListIdResolver() },
+  );
+  assert.equal(perpost.cadence, 'perpost');
+  assert.equal(weekly.cadence, 'weekly');
 });
 
 test('fanOut: post with no group falls under Essays + All', async () => {
@@ -178,11 +216,11 @@ test('fanOut: one list failure does not short-circuit the other and allSucceeded
 
 test('fanOut: missing env var (getAudienceListId throws) is captured per-audience, not raised', async () => {
   const { send, calls } = makeRecordingSender();
-  const resolveListId = (audience: Audience): string => {
+  const resolveListId = (audience: Audience, cadence: Cadence): string => {
     if (audience === 'all') {
-      throw new ActiveCampaignError('Missing AC_LIST_ID_ALL environment variable');
+      throw new ActiveCampaignError('Missing AC_LIST_ID_ALL_PERPOST environment variable');
     }
-    return LIST_IDS[audience];
+    return LIST_IDS[cadence][audience];
   };
 
   const result = await sendPostNewsletterFanOut(
