@@ -33,36 +33,69 @@ interface GroupSeed {
   }>;
 }
 
+// Mirrors production groups (https://arcadeprofile.vercel.app/api/groups).
+// Pico Panic is seeded separately by scripts/seed-pico-panic.ts (which also
+// seeds the launch article alongside the group).
 const groups: GroupSeed[] = [
   {
     title: 'The Singularity Log',
     slug: 'the-singularity-log',
-    description: 'A serialized fiction project exploring AI, identity, and the edges of personhood.',
-    category: 'fiction',
-    status: 'active',
-    featured: true,
-    tags: ['ai', 'sci-fi', 'serial'],
-  },
-  {
-    title: 'The White Cane Chronicles',
-    slug: 'the-white-cane-chronicles',
-    description: 'Essays and stories about navigating the world with low vision — disability, access, and the gap between how things are designed and how people actually live.',
+    description: 'Essays on AI, creativity, and the collapsing scarcity model.',
     category: 'writing',
     status: 'active',
     featured: true,
-    tags: ['disability', 'memoir', 'essays'],
+    homeHighlight: true,
+    tags: ['ai', 'creativity', 'economics'],
+  },
+  {
+    title: 'It Takes a Zoo',
+    slug: 'it-takes-a-zoo',
+    description: 'A novel-in-stories about escaping the hypercapitalist grind.',
+    category: 'fiction',
+    status: 'active',
+    featured: true,
+    homeHighlight: true,
+  },
+  {
+    title: 'White Cane Chronicles',
+    slug: 'white-cane-chronicles',
+    description: 'Essays on accessibility, blindness, and neurodiversity.',
+    category: 'writing',
+    status: 'active',
+    tags: ['accessibility', 'disability', 'neurodiversity'],
+  },
+  {
+    title: 'AI Art Experiments',
+    slug: 'ai-art-experiments',
+    description: 'A catch-all for all the things I make using AI generation.',
+    category: 'audio-video',
+    status: 'active',
+    homeHighlight: true,
   },
   {
     title: 'Short Stories',
     slug: 'short-stories',
-    description: 'Standalone short fiction — queer, furry, speculative, and otherwise.',
+    description: 'Original fiction.',
     category: 'fiction',
     status: 'active',
-    tags: ['fiction', 'short-stories'],
+    tags: ['fiction'],
   },
-  // Pico Panic is seeded by scripts/seed-pico-panic.ts (which also seeds the
-  // launch article alongside the group).
-  // TODO: add remaining ~5 groups below — copy the shape above
+  {
+    title: 'On Writing',
+    slug: 'on-writing',
+    description: 'Essays on the craft of writing.',
+    category: 'writing',
+    status: 'active',
+    tags: ['writing', 'craft'],
+  },
+  {
+    title: 'Arcade Blog',
+    slug: 'arcade-blog',
+    description: 'Essays on AI productivity, engineering culture, and what the data actually says.',
+    category: 'writing',
+    status: 'active',
+    tags: ['ai', 'productivity', 'engineering', 'data'],
+  },
 ];
 
 async function main() {
