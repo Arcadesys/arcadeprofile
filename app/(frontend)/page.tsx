@@ -3,8 +3,7 @@ import { getPayload } from 'payload';
 import config from '@payload-config';
 import StartHereCard from '../components/StartHereCard';
 import SubscribeCTA from '../components/SubscribeCTA';
-import { buildPostUrlMap } from '@/lib/blog';
-import { buildPostUrl } from '@/lib/post-url';
+import { getPostLocationBySlug } from '@/lib/post-url';
 
 // TODO: confirm against production CMS — set to the slug of the post you want
 // featured at the top of the home page. If the slug doesn't resolve, the card
@@ -13,15 +12,19 @@ const START_HERE_POST_SLUG = 'carl-01';
 
 export default async function HomePage() {
   let featuredGroups: { id: string | number; title: string; description?: string | null; slug?: string | null; href?: string | null; external?: boolean | null }[] = [];
+  let startHereHref: string | null = null;
 
   try {
     const payload = await getPayload({ config });
-    const result = await payload.find({
-      collection: 'groups',
-      where: { homeHighlight: { equals: true } },
-      limit: 10,
-    });
-    featuredGroups = result.docs.map((doc) => ({
+    const [groupsResult, startHereLoc] = await Promise.all([
+      payload.find({
+        collection: 'groups',
+        where: { homeHighlight: { equals: true } },
+        limit: 10,
+      }),
+      getPostLocationBySlug(payload, START_HERE_POST_SLUG),
+    ]);
+    featuredGroups = groupsResult.docs.map((doc) => ({
       id: doc.id,
       title: doc.title,
       description: doc.description,
@@ -29,17 +32,9 @@ export default async function HomePage() {
       href: doc.href,
       external: doc.external,
     }));
+    startHereHref = startHereLoc?.url ?? null;
   } catch {
-    // fall through to empty list
-  }
-
-  let startHereHref: string | null = null;
-  try {
-    const urlMap = await buildPostUrlMap();
-    const loc = urlMap.get(START_HERE_POST_SLUG);
-    if (loc) startHereHref = buildPostUrl(loc.groupSlug, loc.partIndex);
-  } catch {
-    // fall through; card hides
+    // fall through to empty list / hidden card
   }
   return (
     <main style={{ position: 'relative', zIndex: 1, padding: 'clamp(1.5rem, 5vw, 4rem) 1rem', maxWidth: '600px', margin: '0 auto' }}>
