@@ -115,6 +115,23 @@ const statements = [
     `,
   },
   {
+    label: 'enum_groups_format',
+    run: () => sql`
+      DO $$ BEGIN
+        CREATE TYPE "enum_groups_format" AS ENUM ('serial', 'collection');
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$
+    `,
+  },
+  {
+    label: 'groups.format',
+    run: () => sql`
+      ALTER TABLE "groups"
+        ADD COLUMN IF NOT EXISTS "format" "enum_groups_format" DEFAULT 'serial'
+    `,
+  },
+  {
     label: 'social_credentials table',
     run: () => sql`
       CREATE TABLE IF NOT EXISTS "social_credentials" (
