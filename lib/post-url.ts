@@ -10,6 +10,37 @@ export function buildPostUrl(groupSlug: string, partIndex: number): string {
 }
 
 /**
+ * Resolve a post slug to its canonical { groupSlug, partIndex, url }.
+ * Returns null if the post is missing, unpublished, or has no group.
+ * Two targeted queries (one for the post, one for siblings) — does not
+ * fetch every group's posts the way `buildPostUrlMap` does.
+ */
+export async function getPostLocationBySlug(
+  payload: Payload,
+  postSlug: string,
+): Promise<{ groupSlug: string; partIndex: number; url: string } | null> {
+  if (!postSlug) return null;
+  const result = await payload.find({
+    collection: 'posts',
+    where: {
+      and: [
+        { slug: { equals: postSlug } },
+        { publish_status: { in: ['published', 'sent'] } },
+      ],
+    },
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  });
+  const post = result.docs[0];
+  const groupSlug = post?.group as string | undefined;
+  if (!groupSlug) return null;
+  const partIndex = await computePostPartIndex(payload, postSlug, groupSlug);
+  if (partIndex === null) return null;
+  return { groupSlug, partIndex, url: buildPostUrl(groupSlug, partIndex) };
+}
+
+/**
  * 1-based part index for a post within its group's published list (intro is
  * 0; the first post is 01). Returns null when the post can't be located in
  * the group. Uses the database's multi-key sort so the index matches what
