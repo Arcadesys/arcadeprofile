@@ -7,6 +7,7 @@ import * as migration_20260426_153000_fix_user_api_key_column_name from './20260
 import * as migration_20260430_000000_add_groups_fields from './20260430_000000_add_groups_fields';
 import * as migration_20260501_000000_add_chapters from './20260501_000000_add_chapters';
 import * as migration_20260502_000000_add_posts_newsletter_sent from './20260502_000000_add_posts_newsletter_sent';
+import * as migration_20260502_000000_groups_image_upload from './20260502_000000_groups_image_upload';
 import * as migration_20260502_010000_add_nav_items from './20260502_010000_add_nav_items';
 import * as migration_20260502_030000_drop_posts_drafts from './20260502_030000_drop_posts_drafts';
 import * as migration_20260502_040000_add_nav_items_locked_docs_rel from './20260502_040000_add_nav_items_locked_docs_rel';
@@ -14,6 +15,9 @@ import * as migration_20260502_050000_fix_array_table_ids from './20260502_05000
 import * as migration_20260503_000000_add_groups_home_highlight from './20260503_000000_add_groups_home_highlight';
 import * as migration_20260504_000000_relabel_blog_nav_item_to_latest from './20260504_000000_relabel_blog_nav_item_to_latest';
 import * as migration_20260505_000000_promote_scheduled_drafts from './20260505_000000_promote_scheduled_drafts';
+import * as migration_20260505_220000_drop_subscribers from './20260505_220000_drop_subscribers';
+import * as migration_20260507_000000_add_social_credentials_global from './20260507_000000_add_social_credentials_global';
+import * as migration_20260507_000000_add_subscribe_nav_item from './20260507_000000_add_subscribe_nav_item';
 
 export const migrations = [
   {
@@ -62,6 +66,11 @@ export const migrations = [
     name: '20260502_000000_add_posts_newsletter_sent',
   },
   {
+    up: migration_20260502_000000_groups_image_upload.up,
+    down: migration_20260502_000000_groups_image_upload.down,
+    name: '20260502_000000_groups_image_upload',
+  },
+  {
     up: migration_20260502_010000_add_nav_items.up,
     down: migration_20260502_010000_add_nav_items.down,
     name: '20260502_010000_add_nav_items',
@@ -95,5 +104,20 @@ export const migrations = [
     up: migration_20260505_000000_promote_scheduled_drafts.up,
     down: migration_20260505_000000_promote_scheduled_drafts.down,
     name: '20260505_000000_promote_scheduled_drafts',
+  },
+  {
+    up: migration_20260505_220000_drop_subscribers.up,
+    down: migration_20260505_220000_drop_subscribers.down,
+    name: '20260505_220000_drop_subscribers',
+  },
+  {
+    up: migration_20260507_000000_add_social_credentials_global.up,
+    down: migration_20260507_000000_add_social_credentials_global.down,
+    name: '20260507_000000_add_social_credentials_global',
+  },
+  {
+    up: migration_20260507_000000_add_subscribe_nav_item.up,
+    down: migration_20260507_000000_add_subscribe_nav_item.down,
+    name: '20260507_000000_add_subscribe_nav_item',
   },
 ];
