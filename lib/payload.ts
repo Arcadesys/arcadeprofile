@@ -42,6 +42,7 @@ export interface ProjectHub {
   featured: boolean;
   category?: string | null;
   status?: string | null;
+  format?: 'serial' | 'collection' | null;
   primaryCTA?: ProjectCTA;
   resources: ProjectResource[];
   relatedPostSlugs: string[];
@@ -76,13 +77,16 @@ function normalizeGroup(doc: Group, postSlugsForGroup: string[] = []): ProjectHu
   const href = doc.href || defaultProjectHref(slug);
   const external = Boolean(doc.external);
 
-  const projectCTA = doc.projectCTA?.href
-    ? doc.projectCTA
-    : {
-        label: external ? 'View Project' : 'Open Project',
-        href,
-        type: external ? ('other' as const) : ('experiment' as const),
-      };
+  let projectCTA: ProjectCTA | undefined;
+  if (doc.projectCTA?.href) {
+    projectCTA = doc.projectCTA;
+  } else if (external) {
+    projectCTA = {
+      label: 'View Project',
+      href,
+      type: 'other' as const,
+    };
+  }
 
   const explicitRelated = Array.isArray(doc.relatedPostSlugs)
     ? doc.relatedPostSlugs
@@ -104,6 +108,7 @@ function normalizeGroup(doc: Group, postSlugsForGroup: string[] = []): ProjectHu
     featured: Boolean(doc.featured),
     category: doc.category,
     status: doc.status,
+    format: doc.format ?? 'serial',
     primaryCTA: projectCTA,
     resources,
     relatedPostSlugs,

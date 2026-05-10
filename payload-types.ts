@@ -358,6 +358,10 @@ export interface Group {
   homeHighlight?: boolean | null;
   category?: ('fiction' | 'tools' | 'experiments' | 'audio-video' | 'community' | 'writing') | null;
   status?: ('active' | 'available' | 'in-progress' | 'archived') | null;
+  /**
+   * Serial: posts read in order (chapters). Collection: independent pieces (e.g. short stories) — the intro page shows a picker instead of a "Start reading" button.
+   */
+  format?: ('serial' | 'collection') | null;
   tags?:
     | {
         tag: string;
@@ -940,6 +944,7 @@ export interface GroupsSelect<T extends boolean = true> {
   homeHighlight?: T;
   category?: T;
   status?: T;
+  format?: T;
   tags?:
     | T
     | {
