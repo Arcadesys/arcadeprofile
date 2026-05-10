@@ -1,11 +1,25 @@
 import Link from 'next/link';
 
-const QUOTE =
+const DEFAULT_QUOTE =
   'My name is Carl and I work at Floor-Mart. I always have worked at Floor-Mart and I always will work at Floor-Mart, forever and ever, amen.';
 
-const TAGS = ['heartrending', 'queer', 'radical', 'cozy'];
+const DEFAULT_TAGS = ['heartrending', 'queer', 'radical', 'cozy'];
 
-export default function StartHereCard() {
+interface Props {
+  href: string;
+  title?: string;
+  quote?: string;
+  tags?: string[];
+  ctaLabel?: string;
+}
+
+export default function StartHereCard({
+  href,
+  title = 'Carl',
+  quote = DEFAULT_QUOTE,
+  tags = DEFAULT_TAGS,
+  ctaLabel,
+}: Props) {
   return (
     <section
       aria-labelledby="start-here-title"
@@ -42,7 +56,7 @@ export default function StartHereCard() {
           color: 'var(--fg)',
         }}
       >
-        Carl
+        {title}
       </h2>
 
       <p
@@ -54,7 +68,7 @@ export default function StartHereCard() {
           color: 'var(--fg-muted)',
         }}
       >
-        {TAGS.join(' · ')}
+        {tags.join(' · ')}
       </p>
 
       <p
@@ -89,7 +103,7 @@ export default function StartHereCard() {
             color: 'var(--fg)',
           }}
         >
-          {`“${QUOTE}”`}
+          {`“${quote}”`}
         </blockquote>
         <div
           aria-hidden="true"
@@ -113,7 +127,7 @@ export default function StartHereCard() {
         }}
       >
         <Link
-          href="/projects/short-stories/01"
+          href={href}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -129,7 +143,7 @@ export default function StartHereCard() {
             boxShadow: '0 0 18px var(--glow-pink)',
           }}
         >
-          Read Carl &rarr;
+          {ctaLabel ?? `Read ${title}`} &rarr;
         </Link>
         <a
           href="#subscribe"

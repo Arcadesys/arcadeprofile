@@ -77,6 +77,20 @@ export const Groups: CollectionConfig = {
         { label: 'Archived', value: 'archived' },
       ],
     },
+    {
+      name: 'format',
+      type: 'select',
+      defaultValue: 'serial',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Serial: posts read in order (chapters). Collection: independent pieces (e.g. short stories) — the intro page shows a picker instead of a "Start reading" button.',
+      },
+      options: [
+        { label: 'Serial', value: 'serial' },
+        { label: 'Collection', value: 'collection' },
+      ],
+    },
     tagArrayField,
     {
       name: 'projectCTA',

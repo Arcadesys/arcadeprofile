@@ -286,7 +286,35 @@ export default async function ProjectPartPage({ params }: Props) {
             </div>
           )}
 
-          {firstPost && (
+          {posts.length > 0 && project.format === 'collection' && (
+            <section style={{ borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
+              <SectionLabel>
+                {posts.length} {posts.length === 1 ? 'piece' : 'pieces'}
+              </SectionLabel>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                {posts.map((p, i) => (
+                  <li key={p.slug}>
+                    <Link
+                      href={`/projects/${slug}/${partNum(i + 1)}`}
+                      style={collectionItemStyle}
+                    >
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.15rem' }}>{p.title}</div>
+                        {p.excerpt && (
+                          <div style={{ fontSize: '0.82rem', color: 'var(--fg-muted)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+                            {p.excerpt}
+                          </div>
+                        )}
+                      </div>
+                      <span style={{ ...monoMutedStyle, whiteSpace: 'nowrap' }}>{formatDate(p.date)}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {firstPost && project.format !== 'collection' && (
             <div style={{ borderTop: '1px solid var(--border)', paddingTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <div style={monoMutedStyle}>{posts.length} {posts.length === 1 ? 'piece' : 'pieces'}</div>
@@ -414,6 +442,19 @@ const kindTagStyle: React.CSSProperties = {
   borderRadius: '4px',
   padding: '0.1rem 0.4rem',
   whiteSpace: 'nowrap',
+};
+
+const collectionItemStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  justifyContent: 'space-between',
+  gap: '1rem',
+  padding: '0.85rem 1rem',
+  border: '1px solid var(--border)',
+  borderRadius: '6px',
+  textDecoration: 'none',
+  color: 'var(--fg)',
+  background: 'var(--surface)',
 };
 
 const startReadingStyle: React.CSSProperties = {

@@ -3,6 +3,13 @@ import { getPayload } from 'payload';
 import config from '@payload-config';
 import StartHereCard from '../components/StartHereCard';
 import SubscribeCTA from '../components/SubscribeCTA';
+import { buildPostUrlMap } from '@/lib/blog';
+import { buildPostUrl } from '@/lib/post-url';
+
+// TODO: confirm against production CMS — set to the slug of the post you want
+// featured at the top of the home page. If the slug doesn't resolve, the card
+// is omitted rather than 404-linking.
+const START_HERE_POST_SLUG = 'carl-01';
 
 export default async function HomePage() {
   let featuredGroups: { id: string | number; title: string; description?: string | null; slug?: string | null; href?: string | null; external?: boolean | null }[] = [];
@@ -24,6 +31,15 @@ export default async function HomePage() {
     }));
   } catch {
     // fall through to empty list
+  }
+
+  let startHereHref: string | null = null;
+  try {
+    const urlMap = await buildPostUrlMap();
+    const loc = urlMap.get(START_HERE_POST_SLUG);
+    if (loc) startHereHref = buildPostUrl(loc.groupSlug, loc.partIndex);
+  } catch {
+    // fall through; card hides
   }
   return (
     <main style={{ position: 'relative', zIndex: 1, padding: 'clamp(1.5rem, 5vw, 4rem) 1rem', maxWidth: '600px', margin: '0 auto' }}>
@@ -57,7 +73,7 @@ export default async function HomePage() {
       </header>
 
       {/* Entry funnel — give first-time visitors a single, voice-rich on-ramp */}
-      <StartHereCard />
+      {startHereHref && <StartHereCard href={startHereHref} />}
 
       {/* Above-the-fold subscribe + credibility */}
       <section id="subscribe" style={{ margin: '0 0 2.5rem', scrollMarginTop: '5rem' }}>
