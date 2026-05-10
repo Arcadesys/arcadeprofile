@@ -118,7 +118,7 @@ export default async function ProjectHubPage({ params }: Props) {
           source="project-hub"
           magnet="story"
           heading="Want the next chapter when it drops?"
-          blurb="Read the first installment now, or subscribe and follow along by email every Mon/Wed/Fri. Sign up and I'll send La Ligne du Marais — a Paris noir short — to start."
+          blurb="Read the first installment now, or subscribe and follow along by email — a weekly roundup, or every installment as it lands. Sign up and I'll send La Ligne du Marais — a Paris noir short — to start."
           buttonLabel="Send the story"
         />
       </section>

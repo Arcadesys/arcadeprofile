@@ -92,18 +92,31 @@ function getNewsletterListId(): string {
 }
 
 export type Audience = 'all' | 'fiction' | 'essays';
+export type Cadence = 'weekly' | 'perpost';
 
-const AUDIENCE_ENV: Record<Audience, string> = {
-  all: 'AC_LIST_ID_ALL',
-  fiction: 'AC_LIST_ID_FICTION',
-  essays: 'AC_LIST_ID_ESSAYS',
+// Per-cadence env var names. The historical AC_LIST_ID_* names are kept as a
+// fallback for the `weekly` cadence so an env that hasn't been migrated yet
+// still works — the existing lists became the weekly variants when we
+// introduced the cadence dimension.
+const AUDIENCE_ENV: Record<Cadence, Record<Audience, { primary: string; fallback?: string }>> = {
+  weekly: {
+    all: { primary: 'AC_LIST_ID_ALL_WEEKLY', fallback: 'AC_LIST_ID_ALL' },
+    fiction: { primary: 'AC_LIST_ID_FICTION_WEEKLY', fallback: 'AC_LIST_ID_FICTION' },
+    essays: { primary: 'AC_LIST_ID_ESSAYS_WEEKLY', fallback: 'AC_LIST_ID_ESSAYS' },
+  },
+  perpost: {
+    all: { primary: 'AC_LIST_ID_ALL_PERPOST' },
+    fiction: { primary: 'AC_LIST_ID_FICTION_PERPOST' },
+    essays: { primary: 'AC_LIST_ID_ESSAYS_PERPOST' },
+  },
 };
 
-export function getAudienceListId(audience: Audience): string {
-  const envName = AUDIENCE_ENV[audience];
-  const id = firstNonEmpty(process.env[envName]);
+export function getAudienceListId(audience: Audience, cadence: Cadence = 'weekly'): string {
+  const { primary, fallback } = AUDIENCE_ENV[cadence][audience];
+  const id = firstNonEmpty(process.env[primary], fallback ? process.env[fallback] : undefined);
   if (!id) {
-    throw new ActiveCampaignError(`Missing ${envName} environment variable`);
+    const names = fallback ? `${primary} (or legacy ${fallback})` : primary;
+    throw new ActiveCampaignError(`Missing ${names} environment variable`);
   }
   return id;
 }

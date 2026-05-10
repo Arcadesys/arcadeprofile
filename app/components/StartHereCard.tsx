@@ -154,7 +154,7 @@ export default function StartHereCard() {
           color: 'var(--fg-muted)',
         }}
       >
-        fiction &amp; essays · mon&ndash;fri
+        fiction &amp; essays · weekly or per-post
       </p>
     </section>
   );

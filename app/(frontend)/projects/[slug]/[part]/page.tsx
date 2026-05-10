@@ -335,7 +335,7 @@ export default async function ProjectPartPage({ params }: Props) {
           source="post"
           magnet="story"
           heading="Liked this? Read it as it arrives."
-          blurb="One installment at a time, Mon/Wed/Fri. Sign up and I'll send La Ligne du Marais — a Paris noir short — to start, then the next chapter when it drops."
+          blurb="A weekly roundup of new chapters, or every installment as it lands. Sign up and I'll send La Ligne du Marais — a Paris noir short — to start, then the next chapter when it drops."
           buttonLabel="Send me the story"
         />
 
