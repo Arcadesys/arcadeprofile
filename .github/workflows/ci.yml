@@ -66,6 +66,26 @@ jobs:
       # job log. Drop the `|| true` after one clean week to enforce.
       - run: npm audit --omit=dev --audit-level=high || true
 
+  migrations-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Need both base and head commits to diff the PR range.
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Detect collection-without-migration drift
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: npm run check:migrations
+
   secret-scan:
     runs-on: ubuntu-latest
     permissions:

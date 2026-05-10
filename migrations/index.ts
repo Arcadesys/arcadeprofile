@@ -18,6 +18,7 @@ import * as migration_20260505_000000_promote_scheduled_drafts from './20260505_
 import * as migration_20260505_220000_drop_subscribers from './20260505_220000_drop_subscribers';
 import * as migration_20260507_000000_add_social_credentials_global from './20260507_000000_add_social_credentials_global';
 import * as migration_20260507_000000_add_subscribe_nav_item from './20260507_000000_add_subscribe_nav_item';
+import * as migration_20260510_000000_add_groups_format from './20260510_000000_add_groups_format';
 
 export const migrations = [
   {
@@ -119,5 +120,10 @@ export const migrations = [
     up: migration_20260507_000000_add_subscribe_nav_item.up,
     down: migration_20260507_000000_add_subscribe_nav_item.down,
     name: '20260507_000000_add_subscribe_nav_item',
+  },
+  {
+    up: migration_20260510_000000_add_groups_format.up,
+    down: migration_20260510_000000_add_groups_format.down,
+    name: '20260510_000000_add_groups_format',
   },
 ];
