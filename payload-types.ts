@@ -74,7 +74,6 @@ export interface Config {
     demos: Demo;
     pages: Page;
     media: Media;
-    'social-posts': SocialPost;
     'nav-items': NavItem;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -90,7 +89,6 @@ export interface Config {
     demos: DemosSelect<false> | DemosSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    'social-posts': SocialPostsSelect<false> | SocialPostsSelect<true>;
     'nav-items': NavItemsSelect<false> | NavItemsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -101,12 +99,8 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {
-    'social-credentials': SocialCredential;
-  };
-  globalsSelect: {
-    'social-credentials': SocialCredentialsSelect<false> | SocialCredentialsSelect<true>;
-  };
+  globals: {};
+  globalsSelect: {};
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -690,37 +684,6 @@ export interface Page {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "social-posts".
- */
-export interface SocialPost {
-  id: number;
-  platform: 'bluesky' | 'facebook' | 'instagram' | 'linkedin';
-  variant: 'short' | 'long' | 'custom';
-  text: string;
-  /**
-   * Blog post slug this social post promotes (optional)
-   */
-  slug?: string | null;
-  linkUrl?: string | null;
-  status: 'scheduled' | 'posted' | 'cancelled' | 'failed';
-  scheduledAt?: string | null;
-  postedAt?: string | null;
-  cancelledAt?: string | null;
-  failedAt?: string | null;
-  failureReason?: string | null;
-  /**
-   * Platform-specific identifier (AT URI, Facebook id, LinkedIn URN, etc.)
-   */
-  postUri?: string | null;
-  /**
-   * Web URL to live post
-   */
-  postUrl?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * Navigation bar items — control label, route, order, visibility, and which item gets the primary (highlighted) treatment.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -799,10 +762,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
-      } | null)
-    | ({
-        relationTo: 'social-posts';
-        value: number | SocialPost;
       } | null)
     | ({
         relationTo: 'nav-items';
@@ -1162,27 +1121,6 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "social-posts_select".
- */
-export interface SocialPostsSelect<T extends boolean = true> {
-  platform?: T;
-  variant?: T;
-  text?: T;
-  slug?: T;
-  linkUrl?: T;
-  status?: T;
-  scheduledAt?: T;
-  postedAt?: T;
-  cancelledAt?: T;
-  failedAt?: T;
-  failureReason?: T;
-  postUri?: T;
-  postUrl?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "nav-items_select".
  */
 export interface NavItemsSelect<T extends boolean = true> {
@@ -1233,90 +1171,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * Credentials used by the auto-poster to publish blog posts to social platforms. Any authenticated CMS user can view and edit these values, so treat the user list as privileged.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "social-credentials".
- */
-export interface SocialCredential {
-  id: number;
-  bluesky?: {
-    /**
-     * e.g. arcades.bsky.social
-     */
-    handle?: string | null;
-    /**
-     * App password from bsky.app → Settings → App Passwords. Not your main account password.
-     */
-    appPassword?: string | null;
-  };
-  facebook?: {
-    /**
-     * Numeric Facebook Page ID.
-     */
-    pageId?: string | null;
-    /**
-     * Page Access Token with pages_manage_posts and pages_read_engagement scopes.
-     */
-    pageToken?: string | null;
-    /**
-     * Graph API version. Defaults to v21.0.
-     */
-    graphVersion?: string | null;
-  };
-  instagram?: {
-    /**
-     * Instagram Business Account ID linked to the Facebook Page.
-     */
-    businessAccountId?: string | null;
-  };
-  linkedin?: {
-    /**
-     * OAuth access token with w_member_social (personal) or w_organization_social (org page).
-     */
-    accessToken?: string | null;
-    /**
-     * Author URN, e.g. urn:li:person:{member-id} or urn:li:organization:{org-id}.
-     */
-    authorUrn?: string | null;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "social-credentials_select".
- */
-export interface SocialCredentialsSelect<T extends boolean = true> {
-  bluesky?:
-    | T
-    | {
-        handle?: T;
-        appPassword?: T;
-      };
-  facebook?:
-    | T
-    | {
-        pageId?: T;
-        pageToken?: T;
-        graphVersion?: T;
-      };
-  instagram?:
-    | T
-    | {
-        businessAccountId?: T;
-      };
-  linkedin?:
-    | T
-    | {
-        accessToken?: T;
-        authorUrn?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

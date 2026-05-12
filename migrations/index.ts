@@ -16,9 +16,9 @@ import * as migration_20260503_000000_add_groups_home_highlight from './20260503
 import * as migration_20260504_000000_relabel_blog_nav_item_to_latest from './20260504_000000_relabel_blog_nav_item_to_latest';
 import * as migration_20260505_000000_promote_scheduled_drafts from './20260505_000000_promote_scheduled_drafts';
 import * as migration_20260505_220000_drop_subscribers from './20260505_220000_drop_subscribers';
-import * as migration_20260507_000000_add_social_credentials_global from './20260507_000000_add_social_credentials_global';
 import * as migration_20260507_000000_add_subscribe_nav_item from './20260507_000000_add_subscribe_nav_item';
 import * as migration_20260510_000000_add_groups_format from './20260510_000000_add_groups_format';
+import * as migration_20260512_000000_drop_social_tables from './20260512_000000_drop_social_tables';
 
 export const migrations = [
   {
@@ -112,11 +112,6 @@ export const migrations = [
     name: '20260505_220000_drop_subscribers',
   },
   {
-    up: migration_20260507_000000_add_social_credentials_global.up,
-    down: migration_20260507_000000_add_social_credentials_global.down,
-    name: '20260507_000000_add_social_credentials_global',
-  },
-  {
     up: migration_20260507_000000_add_subscribe_nav_item.up,
     down: migration_20260507_000000_add_subscribe_nav_item.down,
     name: '20260507_000000_add_subscribe_nav_item',
@@ -125,5 +120,10 @@ export const migrations = [
     up: migration_20260510_000000_add_groups_format.up,
     down: migration_20260510_000000_add_groups_format.down,
     name: '20260510_000000_add_groups_format',
+  },
+  {
+    up: migration_20260512_000000_drop_social_tables.up,
+    down: migration_20260512_000000_drop_social_tables.down,
+    name: '20260512_000000_drop_social_tables',
   },
 ];
