@@ -199,13 +199,20 @@ export const Posts: CollectionConfig = {
         // the response is sent but within the function's lifetime on Vercel;
         // outside a Next request context (seed scripts, tests) we
         // fire-and-forget instead. `newsletterSent` remains the retry gate.
-        try {
-          const { after } = await import('next/server');
-          after(runFanOut);
-        } catch {
+        const fireAndForget = () => {
           void runFanOut().catch((err) => {
             console.error('[newsletter] background fan-out crashed:', err);
           });
+        };
+        try {
+          const nextServer = await import('next/server');
+          if (typeof nextServer.after === 'function') {
+            nextServer.after(runFanOut);
+          } else {
+            fireAndForget();
+          }
+        } catch {
+          fireAndForget();
         }
       },
     ],
