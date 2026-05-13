@@ -15,13 +15,17 @@ export const SCHEDULE: Record<number, Lane> = {
 // into tomorrow's slot.
 export const SITE_TZ = process.env.SITE_TZ ?? 'America/New_York';
 
-const WEEKDAY_LABEL: Record<number, string> = {
+export const WEEKDAY_LABEL: Record<number, string> = {
   0: 'Mon',
   1: 'Tue',
   2: 'Wed',
   3: 'Thu',
   4: 'Fri',
 };
+
+function formatWeekdayLabel(weekdayMonZero: number, lane: Lane): string {
+  return `${WEEKDAY_LABEL[weekdayMonZero] ?? ''} · ${LANE_LABEL[lane]}`;
+}
 
 const LANE_LABEL: Record<Lane, string> = {
   fiction: 'Fiction',
@@ -73,7 +77,7 @@ export function weekdayLabel(date: Date, lane: Lane, tz: string = SITE_TZ): stri
 export function* slots(
   from: Date,
   tz: string = SITE_TZ,
-): Generator<{ date: Date; lane: Lane }> {
+): Generator<{ date: Date; lane: Lane; weekdayMonZero: number }> {
   // Use the date components in the site TZ as the cursor; date math stays in
   // local-Date land (where DST shifts are absorbed by Date.setDate).
   const start = partsInTz(from, tz);
@@ -82,7 +86,7 @@ export function* slots(
     const dow = (cursor.getDay() + 6) % 7;
     const lane = SCHEDULE[dow];
     if (lane) {
-      yield { date: new Date(cursor), lane };
+      yield { date: new Date(cursor), lane, weekdayMonZero: dow };
     }
     cursor.setDate(cursor.getDate() + 1);
   }
@@ -106,10 +110,10 @@ export function computeSchedule(
   while (fi < fictionIds.length || ei < essaysIds.length) {
     const next = it.next();
     if (next.done) break;
-    const { date, lane } = next.value;
+    const { date, lane, weekdayMonZero } = next.value;
     const slot = {
       date: isoFromParts({ year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() }),
-      weekdayLabel: weekdayLabel(date, lane, tz),
+      weekdayLabel: formatWeekdayLabel(weekdayMonZero, lane),
     };
     if (lane === 'fiction' && fi < fictionIds.length) {
       out.set(fictionIds[fi]!, slot);

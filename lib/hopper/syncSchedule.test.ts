@@ -57,6 +57,23 @@ test('weekdayLabel formats Mon..Fri in site TZ', () => {
   assert.equal(weekdayLabel(WED, 'fiction', TZ), 'Wed · Fiction');
 });
 
+test('computeSchedule labels match site TZ even when host TZ differs', () => {
+  const prev = process.env.TZ;
+  process.env.TZ = 'UTC';
+  try {
+    const map = computeSchedule(['a', 'b'], ['c'], WED, TZ);
+    assert.equal(map.get('a')?.date, '2026-05-13');
+    assert.equal(map.get('a')?.weekdayLabel, 'Wed · Fiction');
+    assert.equal(map.get('b')?.date, '2026-05-15');
+    assert.equal(map.get('b')?.weekdayLabel, 'Fri · Fiction');
+    assert.equal(map.get('c')?.date, '2026-05-14');
+    assert.equal(map.get('c')?.weekdayLabel, 'Thu · Essays');
+  } finally {
+    if (prev === undefined) delete process.env.TZ;
+    else process.env.TZ = prev;
+  }
+});
+
 test('todayInSiteTz returns the calendar date in the configured TZ', () => {
   // 03:00 UTC on May 14 = 23:00 ET on May 13 (EDT, UTC-4). Should report 2026-05-13.
   const lateUtc = new Date(Date.UTC(2026, 4, 14, 3, 0, 0));
