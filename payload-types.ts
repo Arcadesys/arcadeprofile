@@ -99,8 +99,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'publish-queue': PublishQueue;
+  };
+  globalsSelect: {
+    'publish-queue': PublishQueueSelect<false> | PublishQueueSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -1192,6 +1196,48 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "publish-queue".
+ */
+export interface PublishQueue {
+  id: number;
+  fictionQueue?:
+    | {
+        post: number | Post;
+        id?: string | null;
+      }[]
+    | null;
+  essaysQueue?:
+    | {
+        post: number | Post;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "publish-queue_select".
+ */
+export interface PublishQueueSelect<T extends boolean = true> {
+  fictionQueue?:
+    | T
+    | {
+        post?: T;
+        id?: T;
+      };
+  essaysQueue?:
+    | T
+    | {
+        post?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

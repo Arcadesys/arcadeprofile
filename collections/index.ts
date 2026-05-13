@@ -8,6 +8,7 @@ import { NavItems } from './NavItems';
 import { Pages } from './Pages';
 import { Posts } from './Posts';
 import { Users } from './Users';
+import { PublishQueue } from '../globals/PublishQueue';
 
 export const collections = [
   Users,
@@ -20,4 +21,4 @@ export const collections = [
   NavItems,
 ];
 
-export const globals: GlobalConfig[] = [];
+export const globals: GlobalConfig[] = [PublishQueue];
