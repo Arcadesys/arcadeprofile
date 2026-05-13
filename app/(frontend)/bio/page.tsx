@@ -165,7 +165,7 @@ export default function BioPage() {
           magnet="story"
           variant="compact"
           heading="Want to hear from me directly?"
-          blurb="Subscribe and I'll send La Ligne du Marais — a Paris noir short — right now. After that: weekly roundup, or every installment as it lands."
+          blurb="Subscribe and I'll send La Ligne du Marais — a Paris noir short — right now. After that, every installment as it lands."
           buttonLabel="Send me the story"
         />
       </section>

@@ -62,14 +62,13 @@ export const Posts: CollectionConfig = {
     afterChange: [
       revalidatePostPaths,
       async ({ doc, req }) => {
-        // On publish, fan out to per-post newsletter subscribers. The
-        // newsletter fan-out targets only the per-post-cadence AC lists;
-        // weekly-cadence subscribers receive a single Sunday digest from the
-        // roundup cron at app/(frontend)/api/posts/weekly-roundup. The
-        // newsletterSent flag is the retry gate for the per-post send — kept
-        // false until every targeted audience succeeds, so re-saving a
-        // published post retries any failed audiences. Social posting is
-        // handled externally (Later via MCP).
+        // On publish, fan out to per-post newsletter subscribers. Idempotency
+        // lives in `newsletterSends` — a per-audience record of every
+        // successful send. The fanout skips audiences already in that array,
+        // so partial-failure retries and re-saves never produce duplicate AC
+        // campaigns. `newsletterSent` is a derived rollup flipped only when
+        // every targeted audience has a record. Social posting is handled
+        // externally (Later via MCP).
         const isNowPublic =
           doc.publish_status === 'published' || doc.publish_status === 'sent';
 
@@ -111,7 +110,9 @@ export const Posts: CollectionConfig = {
 
           try {
             const { resolveGroupHeroForPost } = await import('../lib/post-newsletter');
-            const { sendPostNewsletterFanOut } = await import('../lib/post-newsletter-fanout');
+            const { sendPostNewsletterFanOut, resolveAudiences } = await import(
+              '../lib/post-newsletter-fanout'
+            );
 
             const group = await resolveGroupHeroForPost(payload, populated);
 
@@ -134,6 +135,24 @@ export const Posts: CollectionConfig = {
               group,
             });
 
+            type SendRecord = {
+              audience: 'all' | 'fiction' | 'essays';
+              sentAt?: string | null;
+              messageId?: string | null;
+              campaignId?: string | null;
+              id?: string | null;
+            };
+            const existingSends: SendRecord[] = Array.isArray(populated.newsletterSends)
+              ? (populated.newsletterSends as SendRecord[])
+              : [];
+            const alreadySent = existingSends
+              .map((r) => r.audience)
+              .filter((a): a is 'all' | 'fiction' | 'essays' =>
+                a === 'all' || a === 'fiction' || a === 'essays',
+              );
+
+            const targetAudiences = resolveAudiences(groupCategory);
+
             const fanOut = await sendPostNewsletterFanOut({
               subject,
               htmlBody,
@@ -141,25 +160,59 @@ export const Posts: CollectionConfig = {
               slug: postSlug,
               scheduledSendAt,
               groupCategory,
-              // Per-post cadence only — weekly subscribers get this post in
-              // their next Sunday roundup, sent by the cron.
-              cadence: 'perpost',
+              alreadySent,
             });
 
             for (const { audience, error } of fanOut.failures) {
               const detail = (error as { details?: unknown })?.details;
               const status = (error as { causeStatus?: number })?.causeStatus;
               console.error(
-                `[newsletter] Failed to send ${audience} per-post campaign:`,
+                `[newsletter] Failed to send ${audience} campaign:`,
                 error instanceof Error ? error.message : error,
                 ...(status !== undefined ? [`(HTTP ${status})`] : []),
                 ...(detail ? [`| AC detail: ${detail}`] : []),
               );
             }
 
-            // Only flip newsletterSent if every targeted audience succeeded —
-            // otherwise we'd silently skip the missing list on a retry.
-            if (fanOut.allSucceeded) {
+            // Append a record per successful audience BEFORE flipping the
+            // rollup flag. Each write re-reads the doc so concurrent saves
+            // don't clobber each other's records.
+            for (const r of fanOut.results) {
+              const fresh = (await payload.findByID({
+                collection: 'posts',
+                id: postId,
+                depth: 0,
+                overrideAccess: true,
+              })) as Post;
+              const freshSends: SendRecord[] = Array.isArray(fresh.newsletterSends)
+                ? (fresh.newsletterSends as SendRecord[])
+                : [];
+              if (freshSends.some((s) => s.audience === r.audience)) continue;
+              await payload.update({
+                collection: 'posts',
+                id: postId,
+                data: {
+                  newsletterSends: [
+                    ...freshSends,
+                    {
+                      audience: r.audience,
+                      sentAt: new Date().toISOString(),
+                      messageId: r.messageId,
+                      campaignId: r.campaignId,
+                    },
+                  ],
+                },
+              });
+            }
+
+            // Flip newsletterSent + publish_status='sent' only when every
+            // targeted audience has a record (pre-existing + just-sent).
+            const sentAudiences = new Set<string>([
+              ...alreadySent,
+              ...fanOut.results.map((r) => r.audience),
+            ]);
+            const allCovered = targetAudiences.every((a) => sentAudiences.has(a));
+            if (allCovered && !doc.newsletterSent) {
               await payload.update({
                 collection: 'posts',
                 id: postId,
@@ -171,13 +224,13 @@ export const Posts: CollectionConfig = {
             }
 
             console.log(
-              `[newsletter] ActiveCampaign per-post fan-out for "${postTitle}"`,
+              `[newsletter] ActiveCampaign fan-out for "${postTitle}"`,
               JSON.stringify({
                 postId,
                 slug: postSlug,
                 groupCategory,
-                cadence: fanOut.cadence,
                 results: fanOut.results,
+                skipped: fanOut.skipped,
                 failures: fanOut.failures.map((f) => f.audience),
               }),
             );
@@ -185,7 +238,7 @@ export const Posts: CollectionConfig = {
             const detail = (err as { details?: unknown })?.details;
             const status = (err as { causeStatus?: number })?.causeStatus;
             console.error(
-              '[newsletter] Failed to send per-post campaign:',
+              '[newsletter] Failed to send campaign:',
               err instanceof Error ? err.message : err,
               ...(status !== undefined ? [`(HTTP ${status})`] : []),
               ...(detail ? [`| AC detail: ${detail}`] : []),
@@ -253,8 +306,34 @@ export const Posts: CollectionConfig = {
       defaultValue: false,
       admin: {
         position: 'sidebar',
-        description: 'Whether this post has been sent to newsletter subscribers',
+        description:
+          'Derived: true once every targeted audience has a record in newsletterSends.',
       },
+    },
+    {
+      name: 'newsletterSends',
+      type: 'array',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Per-audience send log. The fanout hook skips any audience already in this list, so retries after a partial failure never produce duplicate AC campaigns.',
+        initCollapsed: true,
+      },
+      fields: [
+        {
+          name: 'audience',
+          type: 'select',
+          required: true,
+          options: [
+            { label: 'All', value: 'all' },
+            { label: 'Fiction', value: 'fiction' },
+            { label: 'Essays', value: 'essays' },
+          ],
+        },
+        { name: 'sentAt', type: 'date', admin: { date: { pickerAppearance: 'dayAndTime' } } },
+        { name: 'messageId', type: 'text' },
+        { name: 'campaignId', type: 'text' },
+      ],
     },
     {
       name: 'scheduledPublishDate',

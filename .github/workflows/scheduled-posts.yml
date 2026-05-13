@@ -6,8 +6,9 @@ on:
     # but it will publish the same hour rather than waiting until the next day.
     #
     # Sole purpose of this job: flip due posts from `scheduled` to `published`
-    # so they appear in the public RSS feed. Email delivery is handled by the
-    # weekly-roundup workflow (Sunday digest) — this job does not talk to AC.
+    # so they appear in the public RSS feed. Email delivery happens
+    # synchronously in the Posts `afterChange` hook the moment publish_status
+    # flips — this job does not talk to AC directly.
     - cron: '*/15 * * * *'
   workflow_dispatch:        # adds a manual "Run workflow" button.
 

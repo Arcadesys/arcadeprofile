@@ -51,6 +51,17 @@ function parseFormBody(init: RequestInit | undefined): URLSearchParams {
   return new URLSearchParams(String(init?.body ?? ''));
 }
 
+function emptyCampaignsResponse(): Response {
+  return new Response(JSON.stringify({ campaigns: [] }), {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
+  });
+}
+
+function isCampaignsLookup(url: string): boolean {
+  return url.includes('/api/3/campaigns?');
+}
+
 afterEach(() => {
   clearAcEnv();
 });
@@ -88,6 +99,7 @@ test('sendBlogPostNewsletter accepts legacy ACTIVECAMPAIGN_* env names', async (
 
   const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     const url = urlPath(input);
+    if (isCampaignsLookup(url)) return emptyCampaignsResponse();
     if (url.includes('api_action=message_add')) {
       assert.match(url, /\/admin\/api\.php\?/);
       assert.match(url, /api_key=legacy-key/);
@@ -128,6 +140,7 @@ test('sendBlogPostNewsletter calls message_add then campaign_create with correct
   const calls: string[] = [];
   const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     const url = urlPath(input);
+    if (isCampaignsLookup(url)) return emptyCampaignsResponse();
     if (url.includes('api_action=message_add')) {
       calls.push('message_add');
       assert.match(url, /\/admin\/api\.php\?/);
@@ -198,6 +211,7 @@ test('sendBlogPostNewsletter clamps past scheduledSendAt to now for the campaign
   setAcEnv();
   const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     const url = urlPath(input);
+    if (isCampaignsLookup(url)) return emptyCampaignsResponse();
     if (url.includes('api_action=message_add')) {
       return new Response(
         JSON.stringify({ result_code: 1, result_message: 'ok', id: '9' }),
@@ -243,11 +257,13 @@ test('sendBlogPostNewsletter clamps past scheduledSendAt to now for the campaign
 test('sendBlogPostNewsletter throws when message_add returns HTTP error', async () => {
   setAcEnv();
 
-  const fetchImpl = async (): Promise<Response> =>
-    new Response(
+  const fetchImpl: typeof fetch = async (input) => {
+    if (isCampaignsLookup(urlPath(input))) return emptyCampaignsResponse();
+    return new Response(
       JSON.stringify({ result_code: 0, result_message: 'Invalid sender' }),
       { status: 422, headers: { 'content-type': 'application/json' } },
     );
+  };
 
   await assert.rejects(
     () =>
@@ -268,11 +284,13 @@ test('sendBlogPostNewsletter throws when message_add returns HTTP error', async 
 test('sendBlogPostNewsletter throws when message_add returns result_code 0 with HTTP 200', async () => {
   setAcEnv();
 
-  const fetchImpl = async (): Promise<Response> =>
-    new Response(
+  const fetchImpl: typeof fetch = async (input) => {
+    if (isCampaignsLookup(urlPath(input))) return emptyCampaignsResponse();
+    return new Response(
       JSON.stringify({ result_code: 0, result_message: 'Bad request' }),
       { status: 200, headers: { 'content-type': 'application/json' } },
     );
+  };
 
   await assert.rejects(
     () =>
@@ -297,6 +315,7 @@ test('sendBlogPostNewsletter throws when campaign_create reports failure', async
   let step = 0;
   const fetchImpl = async (input: RequestInfo): Promise<Response> => {
     const url = urlPath(input);
+    if (isCampaignsLookup(url)) return emptyCampaignsResponse();
     if (url.includes('api_action=message_add')) {
       step += 1;
       return new Response(
@@ -337,6 +356,7 @@ test('sendBlogPostNewsletter uses listIdOverride instead of AC_NEWSLETTER_LIST_I
   let campaignListKey: string | null = null;
   const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     const url = urlPath(input);
+    if (isCampaignsLookup(url)) return emptyCampaignsResponse();
     if (url.includes('api_action=message_add')) {
       const form = parseFormBody(init);
       messageListKey = form.get('p[42]');
@@ -375,6 +395,7 @@ test('sendBlogPostNewsletter falls back to AC_NEWSLETTER_LIST_ID when listIdOver
   let campaignListKey: string | null = null;
   const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     const url = urlPath(input);
+    if (isCampaignsLookup(url)) return emptyCampaignsResponse();
     if (url.includes('api_action=message_add')) {
       return new Response(
         JSON.stringify({ result_code: 1, result_message: 'ok', id: '12' }),
@@ -407,6 +428,11 @@ test('sendBlogPostNewsletter falls back to AC_NEWSLETTER_LIST_ID when listIdOver
 test('sendBlogPostNewsletter throws when message_add response is not JSON', async () => {
   setAcEnv();
 
+  const fetchImpl: typeof fetch = async (input) => {
+    if (isCampaignsLookup(urlPath(input))) return emptyCampaignsResponse();
+    return new Response('not-json', { status: 500 });
+  };
+
   await assert.rejects(
     () =>
       sendBlogPostNewsletter({
@@ -414,12 +440,100 @@ test('sendBlogPostNewsletter throws when message_add response is not JSON', asyn
         htmlBody: '<p>Body</p>',
         textBody: 'Body',
         slug: 'x',
-        fetchImpl: async () => new Response('not-json', { status: 500 }),
+        fetchImpl,
       }),
     (err: unknown) =>
       err instanceof ActiveCampaignError &&
       err.message.includes('message_add returned non-JSON'),
   );
+});
+
+test('sendBlogPostNewsletter short-circuits when a campaign with the same name already exists in AC', async () => {
+  setAcEnv();
+
+  const calls: string[] = [];
+  const fetchImpl: typeof fetch = async (input) => {
+    const url = urlPath(input);
+    calls.push(url);
+    if (isCampaignsLookup(url)) {
+      return new Response(
+        JSON.stringify({
+          campaigns: [
+            { id: '777', name: 'Blog: my-post', messageid: '321' },
+          ],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    }
+    return assert.fail(`unexpected fetch when AC said campaign already exists: ${url}`);
+  };
+
+  const result = await sendBlogPostNewsletter({
+    subject: 'Hello',
+    htmlBody: '<p>Body</p>',
+    textBody: 'Body',
+    slug: 'my-post',
+    fetchImpl,
+  });
+
+  // No message_add / campaign_create calls — only the lookup.
+  assert.equal(calls.length, 1);
+  assert.ok(isCampaignsLookup(calls[0]));
+  assert.equal(result.campaignId, '777');
+  assert.equal(result.messageId, '321');
+});
+
+test('sendBlogPostNewsletter campaigns lookup ignores AC responses whose name only partially matches', async () => {
+  setAcEnv();
+
+  let createdMessage = false;
+  let createdCampaign = false;
+  const fetchImpl: typeof fetch = async (input, init) => {
+    const url = urlPath(input);
+    if (isCampaignsLookup(url)) {
+      // AC's `filters[name]` is a contains match — make sure we don't
+      // mistakenly short-circuit when the exact name doesn't appear.
+      return new Response(
+        JSON.stringify({
+          campaigns: [
+            { id: '99', name: 'Blog: my-post (Fiction)', messageid: '11' },
+            { id: '100', name: 'Blog: my-post-suffix', messageid: '12' },
+          ],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    }
+    if (url.includes('api_action=message_add')) {
+      createdMessage = true;
+      return new Response(
+        JSON.stringify({ result_code: 1, result_message: 'ok', id: '42' }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    }
+    if (url.includes('api_action=campaign_create')) {
+      createdCampaign = true;
+      const form = parseFormBody(init);
+      assert.equal(form.get('name'), 'Blog: my-post');
+      return new Response(
+        JSON.stringify({ result_code: 1, result_message: 'ok', id: '43' }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    }
+    assert.fail(`unexpected URL ${url}`);
+  };
+
+  const result = await sendBlogPostNewsletter({
+    subject: 'Hello',
+    htmlBody: 'b',
+    textBody: 'b',
+    slug: 'my-post',
+    fetchImpl,
+  });
+
+  assert.equal(createdMessage, true);
+  assert.equal(createdCampaign, true);
+  assert.equal(result.messageId, '42');
+  assert.equal(result.campaignId, '43');
 });
 
 test('syncSubscriberToActiveCampaign upserts contact then subscribes to list', async () => {
