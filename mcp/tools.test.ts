@@ -179,8 +179,8 @@ test('create_post sends tags as array-of-objects to Payload', async () => {
     // tags serialized correctly
     assert.deepEqual(capturedBody.tags, [{ tag: 'ai' }, { tag: 'tech' }]);
 
-    // skipNewsletter sets newsletterSent
-    assert.equal(capturedBody.newsletterSent, true);
+    // skipNewsletter sets suppressNewsletter
+    assert.equal(capturedBody.suppressNewsletter, true);
 
     // meta passes through
     const meta = capturedBody.meta as Record<string, string>;

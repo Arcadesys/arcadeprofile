@@ -992,7 +992,9 @@ It always did.`,
         discoverability: post.discoverability as never,
         newsletterHeading: post.newsletterHeading,
         newsletterDescription: post.newsletterDescription,
-        newsletterSent: true,
+        // Seed seasons-in-advance: skip the per-post fan-out so cron-promoted
+        // posts don't blast subscribers with already-scheduled content.
+        suppressNewsletter: true,
       },
     });
     console.log('✓');

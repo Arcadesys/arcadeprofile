@@ -190,7 +190,6 @@ async function main() {
         publishedDate: '2026-05-12',
         publish_status: 'scheduled',
         scheduledPublishDate: '2026-05-12T13:00:00.000Z',
-        newsletterSent: false,
         group: GROUP_SLUG,
         order: 1,
         author: 'Austen Tucker',

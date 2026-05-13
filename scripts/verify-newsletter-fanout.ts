@@ -10,8 +10,8 @@
  * for the named post and runs the production fan-out, but sets
  * `scheduledSendAt` one year in the future. AC creates the campaigns; they
  * never deliver. Inspect them in the AC dashboard to confirm list binding,
- * then delete them by hand. Live mode does NOT update `newsletterSent` on
- * the post (it bypasses the afterChange hook entirely).
+ * then delete them by hand. Live mode does NOT update `publish_status` or
+ * `newsletterSends` on the post (it bypasses the afterChange hook entirely).
  */
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
