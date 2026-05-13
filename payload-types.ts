@@ -186,9 +186,9 @@ export interface Post {
    */
   publishedDate: string;
   /**
-   * Derived: true once every targeted audience has a record in newsletterSends.
+   * When true, the fan-out hook skips sending entirely. Use for archival reposts or to override a stuck post. "All delivered" state lives in Workflow Status (sent) and the newsletterSends array — this flag is intent only.
    */
-  newsletterSent?: boolean | null;
+  suppressNewsletter?: boolean | null;
   /**
    * Per-audience send log. The fanout hook skips any audience already in this list, so retries after a partial failure never produce duplicate AC campaigns.
    */
@@ -856,7 +856,7 @@ export interface PostsSelect<T extends boolean = true> {
   excerpt?: T;
   content?: T;
   publishedDate?: T;
-  newsletterSent?: T;
+  suppressNewsletter?: T;
   newsletterSends?:
     | T
     | {

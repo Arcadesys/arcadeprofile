@@ -54,7 +54,7 @@ export const Posts: CollectionConfig = {
       'publishedDate',
       'showInSamples',
       'sampleOrder',
-      'newsletterSent',
+      'suppressNewsletter',
     ]),
   },
   hooks: {
@@ -66,13 +66,19 @@ export const Posts: CollectionConfig = {
         // lives in `newsletterSends` — a per-audience record of every
         // successful send. The fanout skips audiences already in that array,
         // so partial-failure retries and re-saves never produce duplicate AC
-        // campaigns. `newsletterSent` is a derived rollup flipped only when
-        // every targeted audience has a record. Social posting is handled
-        // externally (Later via MCP).
+        // campaigns. `publish_status === 'sent'` is the rollup state, flipped
+        // only when every targeted audience has a record. Social posting is
+        // handled externally (Later via MCP).
+        //
+        // `suppressNewsletter` is an independent intent flag — when set, the
+        // fan-out is skipped entirely (archival reposts, manual override).
+        // Unlike the old `newsletterSent` boolean, it can't drift away from
+        // delivery state because it doesn't pretend to be derived.
         const isNowPublic =
           doc.publish_status === 'published' || doc.publish_status === 'sent';
 
-        const needsNewsletter = isNowPublic && !doc.newsletterSent;
+        const needsNewsletter =
+          isNowPublic && !doc.suppressNewsletter && doc.publish_status !== 'sent';
 
         if (!needsNewsletter) return;
 
@@ -207,19 +213,20 @@ export const Posts: CollectionConfig = {
               }
             }
 
-            // Flip newsletterSent + publish_status='sent' only when every
-            // targeted audience has a record (pre-existing + just-sent).
+            // Flip publish_status='sent' only when every targeted audience
+            // has a record (pre-existing + just-sent). publish_status is now
+            // the single source of truth for "all delivered" — no separate
+            // boolean to drift out of sync.
             const sentAudiences = new Set<string>([
               ...alreadySent,
               ...fanOut.results.map((r) => r.audience),
             ]);
             const allCovered = targetAudiences.every((a) => sentAudiences.has(a));
-            if (allCovered && !doc.newsletterSent) {
+            if (allCovered && doc.publish_status !== 'sent') {
               await payload.update({
                 collection: 'posts',
                 id: postId,
                 data: {
-                  newsletterSent: true,
                   publish_status: 'sent',
                 },
               });
@@ -253,7 +260,9 @@ export const Posts: CollectionConfig = {
         // wedged the save modal. `next/server.after` runs the fan-out after
         // the response is sent but within the function's lifetime on Vercel;
         // outside a Next request context (seed scripts, tests) we
-        // fire-and-forget instead. `newsletterSent` remains the retry gate.
+        // fire-and-forget instead. `publish_status !== 'sent'` is the retry
+        // gate — partial-failure runs leave it as 'published' so a re-save
+        // retries only the missing audiences.
         const fireAndForget = () => {
           void runFanOut().catch((err) => {
             console.error('[newsletter] background fan-out crashed:', err);
@@ -303,13 +312,13 @@ export const Posts: CollectionConfig = {
       },
     },
     {
-      name: 'newsletterSent',
+      name: 'suppressNewsletter',
       type: 'checkbox',
       defaultValue: false,
       admin: {
         position: 'sidebar',
         description:
-          'Derived: true once every targeted audience has a record in newsletterSends.',
+          'When true, the fan-out hook skips sending entirely. Use for archival reposts or to override a stuck post. "All delivered" state lives in Workflow Status (sent) and the newsletterSends array — this flag is intent only.',
       },
     },
     {
