@@ -164,7 +164,12 @@ export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
 
       <ol className={styles.entries}>
         {visible.map((e, i) => {
-          const entryClass = `${styles.entry} ${e.bucket === 'active' ? styles.isActive : styles.isRecent}`;
+          const hasImage = e.bucket === 'active' && !!e.image;
+          const entryClass = [
+            styles.entry,
+            e.bucket === 'active' ? styles.isActive : styles.isRecent,
+            hasImage ? styles.hasImage : '',
+          ].filter(Boolean).join(' ');
           return (
             <li key={e.slug} className={entryClass} data-type={e.typeLetter} id={e.slug}>
               <div className={styles.entryNum}>No. {String(i + 1).padStart(2, '0')}</div>
