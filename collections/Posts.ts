@@ -77,113 +77,142 @@ export const Posts: CollectionConfig = {
 
         if (!needsNewsletter) return;
 
-        let populated: Post;
-        try {
-          populated = (await req.payload.findByID({
-            collection: 'posts',
-            id: doc.id as number,
-            depth: 1,
-            overrideAccess: true,
-          })) as Post;
-        } catch (err) {
-          console.error(
-            '[publish-hooks] Failed to load populated post; skipping newsletter fan-out:',
-            err instanceof Error ? err.message : err,
-          );
-          return;
+        const payload = req.payload;
+        const postId = doc.id as number;
+        const postSlug = doc.slug as string;
+        const postTitle = doc.title as string;
+        const postGroup = typeof doc.group === 'string' ? doc.group : '';
+        const subject = (doc.newsletterHeading as string) || postTitle;
+        let scheduledSendAt: Date | undefined;
+        const publishedRaw = doc.publishedDate;
+        if (typeof publishedRaw === 'string' && publishedRaw) {
+          const t = new Date(publishedRaw);
+          if (!Number.isNaN(t.getTime())) {
+            scheduledSendAt = t;
+          }
         }
 
-        try {
-          const { resolveGroupHeroForPost } = await import('../lib/post-newsletter');
-          const { sendPostNewsletterFanOut } = await import('../lib/post-newsletter-fanout');
-          const subject = (doc.newsletterHeading as string) || (doc.title as string);
-
-          const group = await resolveGroupHeroForPost(req.payload, populated);
-
-          // Fiction-vs-essay routing comes from the Group's `category` field
-          // (set on the Groups collection). Posts without a group, or whose
-          // group isn't categorized as fiction, fall under Essays.
-          let groupCategory: string | null = null;
-          if (typeof doc.group === 'string' && doc.group) {
-            const groupLookup = await req.payload.find({
-              collection: 'groups',
-              where: { slug: { equals: doc.group } },
-              limit: 1,
+        const runFanOut = async () => {
+          let populated: Post;
+          try {
+            populated = (await payload.findByID({
+              collection: 'posts',
+              id: postId,
+              depth: 1,
               overrideAccess: true,
-            });
-            groupCategory = (groupLookup.docs[0]?.category as string | undefined) ?? null;
-          }
-
-          const { htmlBody, textBody } = buildPostNewsletterContent({
-            ...populated,
-            group,
-          });
-
-          let scheduledSendAt: Date | undefined;
-          const publishedRaw = doc.publishedDate;
-          if (typeof publishedRaw === 'string' && publishedRaw) {
-            const t = new Date(publishedRaw);
-            if (!Number.isNaN(t.getTime())) {
-              scheduledSendAt = t;
-            }
-          }
-
-          const fanOut = await sendPostNewsletterFanOut({
-            subject,
-            htmlBody,
-            textBody,
-            slug: doc.slug as string,
-            scheduledSendAt,
-            groupCategory,
-            // Per-post cadence only — weekly subscribers get this post in
-            // their next Sunday roundup, sent by the cron.
-            cadence: 'perpost',
-          });
-
-          for (const { audience, error } of fanOut.failures) {
-            const detail = (error as { details?: unknown })?.details;
-            const status = (error as { causeStatus?: number })?.causeStatus;
+            })) as Post;
+          } catch (err) {
             console.error(
-              `[newsletter] Failed to send ${audience} per-post campaign:`,
-              error instanceof Error ? error.message : error,
+              '[publish-hooks] Failed to load populated post; skipping newsletter fan-out:',
+              err instanceof Error ? err.message : err,
+            );
+            return;
+          }
+
+          try {
+            const { resolveGroupHeroForPost } = await import('../lib/post-newsletter');
+            const { sendPostNewsletterFanOut } = await import('../lib/post-newsletter-fanout');
+
+            const group = await resolveGroupHeroForPost(payload, populated);
+
+            // Fiction-vs-essay routing comes from the Group's `category` field
+            // (set on the Groups collection). Posts without a group, or whose
+            // group isn't categorized as fiction, fall under Essays.
+            let groupCategory: string | null = null;
+            if (postGroup) {
+              const groupLookup = await payload.find({
+                collection: 'groups',
+                where: { slug: { equals: postGroup } },
+                limit: 1,
+                overrideAccess: true,
+              });
+              groupCategory = (groupLookup.docs[0]?.category as string | undefined) ?? null;
+            }
+
+            const { htmlBody, textBody } = buildPostNewsletterContent({
+              ...populated,
+              group,
+            });
+
+            const fanOut = await sendPostNewsletterFanOut({
+              subject,
+              htmlBody,
+              textBody,
+              slug: postSlug,
+              scheduledSendAt,
+              groupCategory,
+              // Per-post cadence only — weekly subscribers get this post in
+              // their next Sunday roundup, sent by the cron.
+              cadence: 'perpost',
+            });
+
+            for (const { audience, error } of fanOut.failures) {
+              const detail = (error as { details?: unknown })?.details;
+              const status = (error as { causeStatus?: number })?.causeStatus;
+              console.error(
+                `[newsletter] Failed to send ${audience} per-post campaign:`,
+                error instanceof Error ? error.message : error,
+                ...(status !== undefined ? [`(HTTP ${status})`] : []),
+                ...(detail ? [`| AC detail: ${detail}`] : []),
+              );
+            }
+
+            // Only flip newsletterSent if every targeted audience succeeded —
+            // otherwise we'd silently skip the missing list on a retry.
+            if (fanOut.allSucceeded) {
+              await payload.update({
+                collection: 'posts',
+                id: postId,
+                data: {
+                  newsletterSent: true,
+                  publish_status: 'sent',
+                },
+              });
+            }
+
+            console.log(
+              `[newsletter] ActiveCampaign per-post fan-out for "${postTitle}"`,
+              JSON.stringify({
+                postId,
+                slug: postSlug,
+                groupCategory,
+                cadence: fanOut.cadence,
+                results: fanOut.results,
+                failures: fanOut.failures.map((f) => f.audience),
+              }),
+            );
+          } catch (err) {
+            const detail = (err as { details?: unknown })?.details;
+            const status = (err as { causeStatus?: number })?.causeStatus;
+            console.error(
+              '[newsletter] Failed to send per-post campaign:',
+              err instanceof Error ? err.message : err,
               ...(status !== undefined ? [`(HTTP ${status})`] : []),
               ...(detail ? [`| AC detail: ${detail}`] : []),
             );
           }
+        };
 
-          // Only flip newsletterSent if every targeted audience succeeded —
-          // otherwise we'd silently skip the missing list on a retry.
-          if (fanOut.allSucceeded) {
-            await req.payload.update({
-              collection: 'posts',
-              id: doc.id as number,
-              data: {
-                newsletterSent: true,
-                publish_status: 'sent',
-              },
-            });
+        // Detach from the admin save: AC's createMessage + createCampaign
+        // round-trip per audience can take tens of seconds and previously
+        // wedged the save modal. `next/server.after` runs the fan-out after
+        // the response is sent but within the function's lifetime on Vercel;
+        // outside a Next request context (seed scripts, tests) we
+        // fire-and-forget instead. `newsletterSent` remains the retry gate.
+        const fireAndForget = () => {
+          void runFanOut().catch((err) => {
+            console.error('[newsletter] background fan-out crashed:', err);
+          });
+        };
+        try {
+          const nextServer = await import('next/server');
+          if (typeof nextServer.after === 'function') {
+            nextServer.after(runFanOut);
+          } else {
+            fireAndForget();
           }
-
-          console.log(
-            `[newsletter] ActiveCampaign per-post fan-out for "${doc.title}"`,
-            JSON.stringify({
-              postId: doc.id,
-              slug: doc.slug,
-              groupCategory,
-              cadence: fanOut.cadence,
-              results: fanOut.results,
-              failures: fanOut.failures.map((f) => f.audience),
-            }),
-          );
-        } catch (err) {
-          const detail = (err as { details?: unknown })?.details;
-          const status = (err as { causeStatus?: number })?.causeStatus;
-          console.error(
-            '[newsletter] Failed to send per-post campaign:',
-            err instanceof Error ? err.message : err,
-            ...(status !== undefined ? [`(HTTP ${status})`] : []),
-            ...(detail ? [`| AC detail: ${detail}`] : []),
-          );
+        } catch {
+          fireAndForget();
         }
       },
     ],
