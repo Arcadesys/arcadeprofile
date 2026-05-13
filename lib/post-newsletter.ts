@@ -15,8 +15,9 @@ export type GroupHero = {
 /**
  * Loads the post's group (by slug) and returns just the fields the email
  * renderer needs. Returns null when the post has no group or the group
- * lookup yields no match. The group's `image` is a plain text URL today,
- * so depth: 0 is intentional.
+ * lookup yields no match. The group's `image` is an upload (relation to
+ * `media`), so we populate it at depth: 1 and extract `.url` — passing the
+ * raw media id through to the renderer would crash `String#trim` on it.
  *
  * Also computes the post's 1-based position within its group's published
  * posts (sorted by `order` then `publishedDate`), so the renderer can build
@@ -32,18 +33,25 @@ export async function resolveGroupHeroForPost(
   const result = await payload.find({
     collection: 'groups',
     where: { slug: { equals: groupSlug } },
-    depth: 0,
+    depth: 1,
     limit: 1,
     overrideAccess: true,
   });
-  const found = result.docs[0] as { image?: string | null; title?: string | null } | undefined;
+  const found = result.docs[0] as
+    | { image?: { url?: string | null } | string | number | null; title?: string | null }
+    | undefined;
   if (!found) return null;
+
+  const imageUrl =
+    found.image && typeof found.image === 'object' && typeof found.image.url === 'string'
+      ? found.image.url
+      : null;
 
   const partIndex = await computePostPartIndex(payload, post.slug, groupSlug);
 
   return {
     slug: groupSlug,
-    image: found.image ?? null,
+    image: imageUrl,
     title: found.title ?? null,
     partIndex,
   };
