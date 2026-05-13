@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import SubscribeCTA from './SubscribeCTA';
+import FooterSubscribe from './FooterSubscribe';
 
 export default function Footer() {
   return (
@@ -22,14 +22,7 @@ export default function Footer() {
           gap: '1.75rem',
         }}
       >
-        <SubscribeCTA
-          source="footer"
-          magnet="story"
-          variant="compact"
-          heading="Don't lose the thread"
-          blurb="New fiction and essays delivered the moment they publish. New here? Grab La Ligne du Marais — a Paris noir short — when you sign up."
-          buttonLabel="Send the next one"
-        />
+        <FooterSubscribe />
 
         <nav
           aria-label="Footer"
