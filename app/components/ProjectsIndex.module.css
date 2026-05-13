@@ -35,7 +35,7 @@
 
 .entries { list-style: none; margin: 0; padding: 0; }
 .entry { display: grid; grid-template-columns: 56px 36px 1fr; gap: 16px; padding: 24px 0; border-bottom: 1px solid var(--border); }
-.entry.isActive { grid-template-columns: 56px 36px 140px 1fr; }
+.entry.hasImage { grid-template-columns: 56px 36px 140px 1fr; }
 .entryNum { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; color: var(--fg-faint); padding-top: 10px; }
 .entryType { padding-top: 8px; }
 .typeTag { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border); font-family: var(--font-mono); font-size: 11px; color: var(--fg-muted); background: rgba(20,20,42,.5); }
@@ -92,7 +92,7 @@
   .pulseDot::before, .metaTagLive::before { animation: none; }
 }
 @media (max-width: 720px) {
-  .entry, .entry.isActive { grid-template-columns: 36px 1fr; }
+  .entry, .entry.isActive, .entry.hasImage { grid-template-columns: 36px 1fr; }
   .entryNum { display: none; }
   .entryImage { display: none; }
   .headMeta { align-items: flex-start; }
