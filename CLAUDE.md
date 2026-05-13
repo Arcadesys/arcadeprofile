@@ -84,7 +84,13 @@ vercel env add VAR_NAME development --value "$VALUE" --yes
 `preview` is broken in Vercel CLI 53.1.0 (`git_branch_required` even with no branch). Workaround:
 
 ```bash
-TOKEN=$(jq -r '.token' "$HOME/Library/Application Support/com.vercel.cli/auth.json")
+# Vercel CLI stores auth.json under an OS-specific config dir.
+case "$(uname -s)" in
+  Darwin) AUTH="$HOME/Library/Application Support/com.vercel.cli/auth.json" ;;
+  Linux)  AUTH="${XDG_CONFIG_HOME:-$HOME/.config}/com.vercel.cli/auth.json" ;;
+  *)      AUTH="${VERCEL_AUTH_JSON:?set VERCEL_AUTH_JSON to your auth.json path}" ;;
+esac
+TOKEN=$(jq -r '.token' "$AUTH")
 ORG=$(jq -r '.orgId' .vercel/project.json)
 PROJ=$(jq -r '.projectId' .vercel/project.json)
 curl -sS -X POST "https://api.vercel.com/v10/projects/$PROJ/env?teamId=$ORG" \
