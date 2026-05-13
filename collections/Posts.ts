@@ -174,10 +174,10 @@ export const Posts: CollectionConfig = {
               );
             }
 
-            // Append a record per successful audience BEFORE flipping the
-            // rollup flag. Each write re-reads the doc so concurrent saves
-            // don't clobber each other's records.
-            for (const r of fanOut.results) {
+            // Batch all successful audiences into one update BEFORE flipping
+            // the rollup flag. Re-read the doc once so a concurrent save's
+            // newsletterSends entries aren't clobbered.
+            if (fanOut.results.length > 0) {
               const fresh = (await payload.findByID({
                 collection: 'posts',
                 id: postId,
@@ -187,22 +187,24 @@ export const Posts: CollectionConfig = {
               const freshSends: SendRecord[] = Array.isArray(fresh.newsletterSends)
                 ? (fresh.newsletterSends as SendRecord[])
                 : [];
-              if (freshSends.some((s) => s.audience === r.audience)) continue;
-              await payload.update({
-                collection: 'posts',
-                id: postId,
-                data: {
-                  newsletterSends: [
-                    ...freshSends,
-                    {
-                      audience: r.audience,
-                      sentAt: new Date().toISOString(),
-                      messageId: r.messageId,
-                      campaignId: r.campaignId,
-                    },
-                  ],
-                },
-              });
+              const now = new Date().toISOString();
+              const newSends: SendRecord[] = fanOut.results
+                .filter((r) => !freshSends.some((s) => s.audience === r.audience))
+                .map((r) => ({
+                  audience: r.audience,
+                  sentAt: now,
+                  messageId: r.messageId,
+                  campaignId: r.campaignId,
+                }));
+              if (newSends.length > 0) {
+                await payload.update({
+                  collection: 'posts',
+                  id: postId,
+                  data: {
+                    newsletterSends: [...freshSends, ...newSends],
+                  },
+                });
+              }
             }
 
             // Flip newsletterSent + publish_status='sent' only when every
