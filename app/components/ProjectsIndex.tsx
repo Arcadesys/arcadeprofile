@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
 import styles from './ProjectsIndex.module.css';
@@ -22,6 +23,7 @@ export interface IndexEntry {
   title: string;
   description: string;
   href: string;
+  image?: string | null;
   category?: string | null;
   status?: string | null;
   bucket: EntryBucket;
@@ -167,6 +169,11 @@ export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
             <li key={e.slug} className={entryClass} data-type={e.typeLetter} id={e.slug}>
               <div className={styles.entryNum}>No. {String(i + 1).padStart(2, '0')}</div>
               <div className={styles.entryType}><span className={styles.typeTag}>{e.typeLetter}</span></div>
+              {e.bucket === 'active' && e.image ? (
+                <Link href={e.href} className={styles.entryImage} aria-hidden="true" tabIndex={-1}>
+                  <Image src={e.image} alt="" width={140} height={200} sizes="140px" />
+                </Link>
+              ) : null}
               <div className={styles.entryBody}>
                 <div className={styles.entryHead}>
                   <Link href={e.href} className={styles.entryTitle}>{e.title}</Link>

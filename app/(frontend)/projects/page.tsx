@@ -81,6 +81,7 @@ export default async function ProjectsPage() {
       title: hub.title,
       description: hub.description,
       href: `/projects/${hub.slug}`,
+      image: hub.image ?? null,
       category: hub.category ?? null,
       status: hub.status ?? null,
       bucket,
