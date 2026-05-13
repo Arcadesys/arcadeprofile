@@ -23,6 +23,8 @@ interface QueueResponse {
   fiction: PostSummary[];
   essays: PostSummary[];
   unqueued: PostSummary[];
+  fictionShipped: PostSummary[];
+  essaysShipped: PostSummary[];
   today: string;
 }
 
@@ -96,6 +98,31 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
 
   const schedule = computeSchedule(fictionIds, essaysIds, new Date());
 
+  const todayIso = todayInSiteTz();
+
+  // Posts that already shipped today — surface them at the top of their lane so
+  // the editor can see "today's fiction already went out" without us re-injecting
+  // them into the writable queue. Pre-filter at the DB to a 36h window (covers
+  // any TZ offset between UTC and SITE_TZ) and then normalize each row to the
+  // site TZ for the actual "is it today" check.
+  const lookbackStart = new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString();
+  const publishedTodayRes = await payload.find({
+    collection: 'posts',
+    where: {
+      and: [
+        { publish_status: { in: ['published', 'sent'] } },
+        { publishedDate: { greater_than_equal: lookbackStart } },
+      ],
+    },
+    limit: 50,
+    depth: 0,
+    sort: '-publishedDate',
+    pagination: false,
+  });
+  const publishedToday = (publishedTodayRes.docs as Post[]).filter(
+    (p) => typeof p.publishedDate === 'string' && todayInSiteTz(new Date(p.publishedDate)) === todayIso,
+  );
+
   const unqueuedRes = await payload.find({
     collection: 'posts',
     where: {
@@ -128,6 +155,30 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
     };
   };
 
+  const toShippedSummary = (post: Post, lane: Lane): PostSummary => {
+    const id = String(post.id);
+    const publishedIso =
+      typeof post.publishedDate === 'string' ? todayInSiteTz(new Date(post.publishedDate)) : null;
+    return {
+      id,
+      slug: post.slug ?? null,
+      title: post.title ?? post.slug ?? `Post ${id}`,
+      publish_status: post.publish_status ?? 'published',
+      group: post.group ?? null,
+      audience: lane,
+      scheduledPublishDate: post.scheduledPublishDate ?? null,
+      computedPublishDate: publishedIso,
+      weekdayLabel: `Today · ${lane === 'fiction' ? 'Fiction' : 'Essays'}`,
+    };
+  };
+
+  const fictionShipped: PostSummary[] = [];
+  const essaysShipped: PostSummary[] = [];
+  for (const p of publishedToday) {
+    const lane = audienceFor(p.group, groupMap);
+    (lane === 'fiction' ? fictionShipped : essaysShipped).push(toShippedSummary(p, lane));
+  }
+
   const fictionSummaries: PostSummary[] = fictionIds
     .map((id) => queuedPosts.get(id))
     .filter((p): p is Post => !!p)
@@ -144,7 +195,9 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
     fiction: fictionSummaries,
     essays: essaysSummaries,
     unqueued: unqueuedSummaries,
-    today: todayInSiteTz(),
+    fictionShipped,
+    essaysShipped,
+    today: todayIso,
   };
 }
 

@@ -32,6 +32,8 @@ interface QueueResponse {
   fiction: PostSummary[];
   essays: PostSummary[];
   unqueued: PostSummary[];
+  fictionShipped: PostSummary[];
+  essaysShipped: PostSummary[];
   today: string;
 }
 
@@ -82,9 +84,20 @@ function moveItem(
   return next;
 }
 
-function Card({ post, dated, isOverlay }: { post: PostSummary; dated: boolean; isOverlay?: boolean }) {
+function Card({
+  post,
+  dated,
+  isOverlay,
+  isShipped,
+}: {
+  post: PostSummary;
+  dated: boolean;
+  isOverlay?: boolean;
+  isShipped?: boolean;
+}) {
   const stale =
     dated &&
+    !isShipped &&
     post.computedPublishDate &&
     post.scheduledPublishDate &&
     post.scheduledPublishDate.slice(0, 10) !== post.computedPublishDate;
@@ -97,7 +110,8 @@ function Card({ post, dated, isOverlay }: { post: PostSummary; dated: boolean; i
         padding: '10px 12px',
         marginBottom: 8,
         boxShadow: isOverlay ? '0 4px 12px rgba(0,0,0,0.15)' : '0 1px 0 rgba(0,0,0,0.02)',
-        cursor: 'grab',
+        cursor: isShipped ? 'default' : 'grab',
+        opacity: isShipped ? 0.55 : 1,
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline' }}>
@@ -157,20 +171,30 @@ function SortableCard({ post, dated }: { post: PostSummary; dated: boolean }) {
 function DroppableColumn({
   columnKey,
   items,
+  shippedItems,
   dated,
 }: {
   columnKey: ColumnKey;
   items: PostSummary[];
+  shippedItems?: PostSummary[];
   dated: boolean;
 }) {
   // We use a sentinel id to make empty columns droppable via useSortable.
   const { setNodeRef } = useSortable({ id: `__column_${columnKey}` });
   const ids = useMemo(() => items.map((p) => p.id), [items]);
+  const shipped = shippedItems ?? [];
   return (
     <div style={{ flex: 1, minWidth: 260 }}>
       <h3 style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--theme-elevation-600, #374151)', margin: '0 0 8px' }}>
         {COLUMN_LABELS[columnKey]}
       </h3>
+      {shipped.length > 0 && (
+        <div style={{ marginBottom: 8 }}>
+          {shipped.map((p) => (
+            <Card key={p.id} post={p} dated={dated} isShipped />
+          ))}
+        </div>
+      )}
       <SortableContext id={columnKey} items={ids} strategy={verticalListSortingStrategy}>
         <div
           ref={setNodeRef}
@@ -355,8 +379,18 @@ export default function HopperBoard() {
         onDragEnd={onDragEnd}
       >
         <div style={{ display: 'flex', gap: 16 }}>
-          <DroppableColumn columnKey="fiction" items={data.fiction} dated />
-          <DroppableColumn columnKey="essays" items={data.essays} dated />
+          <DroppableColumn
+            columnKey="fiction"
+            items={data.fiction}
+            shippedItems={data.fictionShipped}
+            dated
+          />
+          <DroppableColumn
+            columnKey="essays"
+            items={data.essays}
+            shippedItems={data.essaysShipped}
+            dated
+          />
         </div>
         <div style={{ marginTop: 24 }}>
           <DroppableColumn columnKey="unqueued" items={data.unqueued} dated={false} />
