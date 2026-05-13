@@ -23,6 +23,8 @@ interface QueueResponse {
   fiction: PostSummary[];
   essays: PostSummary[];
   unqueued: PostSummary[];
+  fictionShipped: PostSummary[];
+  essaysShipped: PostSummary[];
   today: string;
 }
 
@@ -96,6 +98,23 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
 
   const schedule = computeSchedule(fictionIds, essaysIds, new Date());
 
+  const todayIso = todayInSiteTz();
+
+  // Posts that already shipped today — surface them at the top of their lane so
+  // the editor can see "today's fiction already went out" without us re-injecting
+  // them into the writable queue.
+  const publishedTodayRes = await payload.find({
+    collection: 'posts',
+    where: { publish_status: { in: ['published', 'sent'] } },
+    limit: 50,
+    depth: 0,
+    sort: '-publishedDate',
+    pagination: false,
+  });
+  const publishedToday = (publishedTodayRes.docs as Post[]).filter(
+    (p) => typeof p.publishedDate === 'string' && p.publishedDate.slice(0, 10) === todayIso,
+  );
+
   const unqueuedRes = await payload.find({
     collection: 'posts',
     where: {
@@ -128,6 +147,30 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
     };
   };
 
+  const toShippedSummary = (post: Post, lane: Lane): PostSummary => {
+    const id = String(post.id);
+    const publishedIso =
+      typeof post.publishedDate === 'string' ? post.publishedDate.slice(0, 10) : null;
+    return {
+      id,
+      slug: post.slug ?? null,
+      title: post.title ?? post.slug ?? `Post ${id}`,
+      publish_status: post.publish_status ?? 'published',
+      group: post.group ?? null,
+      audience: lane,
+      scheduledPublishDate: post.scheduledPublishDate ?? null,
+      computedPublishDate: publishedIso,
+      weekdayLabel: `Today · ${lane === 'fiction' ? 'Fiction' : 'Essays'}`,
+    };
+  };
+
+  const fictionShipped: PostSummary[] = [];
+  const essaysShipped: PostSummary[] = [];
+  for (const p of publishedToday) {
+    const lane = audienceFor(p.group, groupMap);
+    (lane === 'fiction' ? fictionShipped : essaysShipped).push(toShippedSummary(p, lane));
+  }
+
   const fictionSummaries: PostSummary[] = fictionIds
     .map((id) => queuedPosts.get(id))
     .filter((p): p is Post => !!p)
@@ -144,7 +187,9 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
     fiction: fictionSummaries,
     essays: essaysSummaries,
     unqueued: unqueuedSummaries,
-    today: todayInSiteTz(),
+    fictionShipped,
+    essaysShipped,
+    today: todayIso,
   };
 }
 
