@@ -19,6 +19,7 @@ import * as migration_20260505_220000_drop_subscribers from './20260505_220000_d
 import * as migration_20260507_000000_add_subscribe_nav_item from './20260507_000000_add_subscribe_nav_item';
 import * as migration_20260510_000000_add_groups_format from './20260510_000000_add_groups_format';
 import * as migration_20260512_000000_drop_social_tables from './20260512_000000_drop_social_tables';
+import * as migration_20260513_000000_add_posts_newsletter_sends from './20260513_000000_add_posts_newsletter_sends';
 
 export const migrations = [
   {
@@ -125,5 +126,10 @@ export const migrations = [
     up: migration_20260512_000000_drop_social_tables.up,
     down: migration_20260512_000000_drop_social_tables.down,
     name: '20260512_000000_drop_social_tables',
+  },
+  {
+    up: migration_20260513_000000_add_posts_newsletter_sends.up,
+    down: migration_20260513_000000_add_posts_newsletter_sends.down,
+    name: '20260513_000000_add_posts_newsletter_sends',
   },
 ];

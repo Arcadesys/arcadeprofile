@@ -92,31 +92,18 @@ function getNewsletterListId(): string {
 }
 
 export type Audience = 'all' | 'fiction' | 'essays';
-export type Cadence = 'weekly' | 'perpost';
 
-// Per-cadence env var names. The historical AC_LIST_ID_* names are kept as a
-// fallback for the `weekly` cadence so an env that hasn't been migrated yet
-// still works — the existing lists became the weekly variants when we
-// introduced the cadence dimension.
-const AUDIENCE_ENV: Record<Cadence, Record<Audience, { primary: string; fallback?: string }>> = {
-  weekly: {
-    all: { primary: 'AC_LIST_ID_ALL_WEEKLY', fallback: 'AC_LIST_ID_ALL' },
-    fiction: { primary: 'AC_LIST_ID_FICTION_WEEKLY', fallback: 'AC_LIST_ID_FICTION' },
-    essays: { primary: 'AC_LIST_ID_ESSAYS_WEEKLY', fallback: 'AC_LIST_ID_ESSAYS' },
-  },
-  perpost: {
-    all: { primary: 'AC_LIST_ID_ALL_PERPOST' },
-    fiction: { primary: 'AC_LIST_ID_FICTION_PERPOST' },
-    essays: { primary: 'AC_LIST_ID_ESSAYS_PERPOST' },
-  },
+const AUDIENCE_ENV: Record<Audience, string> = {
+  all: 'AC_LIST_ID_ALL_PERPOST',
+  fiction: 'AC_LIST_ID_FICTION_PERPOST',
+  essays: 'AC_LIST_ID_ESSAYS_PERPOST',
 };
 
-export function getAudienceListId(audience: Audience, cadence: Cadence = 'weekly'): string {
-  const { primary, fallback } = AUDIENCE_ENV[cadence][audience];
-  const id = firstNonEmpty(process.env[primary], fallback ? process.env[fallback] : undefined);
+export function getAudienceListId(audience: Audience): string {
+  const name = AUDIENCE_ENV[audience];
+  const id = firstNonEmpty(process.env[name]);
   if (!id) {
-    const names = fallback ? `${primary} (or legacy ${fallback})` : primary;
-    throw new ActiveCampaignError(`Missing ${names} environment variable`);
+    throw new ActiveCampaignError(`Missing ${name} environment variable`);
   }
   return id;
 }
@@ -302,6 +289,87 @@ async function postLegacyAction(
   }
 
   return parsed;
+}
+
+/**
+ * Looks up an existing AC campaign by exact internal name. Used as a defense
+ * in depth before `message_add` / `campaign_create` to avoid duplicate
+ * campaigns when the caller's send-record persistence races with AC's
+ * acceptance (e.g. process crash between AC OK and Payload write).
+ *
+ * `filters[name]` on /api/3/campaigns is a contains match in some AC builds,
+ * so we filter again by exact equality client-side. `messageId` is best
+ * effort — many AC accounts return it as `campaignMessage`/`messageid` on
+ * the campaign payload, but the relationship is only guaranteed via the
+ * `campaignMessages` join. An empty string is returned if AC doesn't supply
+ * it; the caller (per-audience record) treats that as acceptable.
+ */
+async function findExistingCampaignByName(
+  baseUrl: string,
+  apiKey: string,
+  name: string,
+  fetchImpl: typeof fetch,
+): Promise<{ messageId: string; campaignId: string } | null> {
+  const url =
+    `${baseUrl}/api/3/campaigns` +
+    `?filters%5Bname%5D=${encodeURIComponent(name)}` +
+    `&limit=100`;
+  const { status, ok, text } = await fetchTextWithTimeout(
+    url,
+    {
+      method: 'GET',
+      headers: {
+        'Api-Token': apiKey,
+        Accept: 'application/json',
+      },
+    },
+    fetchImpl,
+    REQUEST_TIMEOUT_MS,
+  );
+
+  if (!ok) {
+    let parsed: AcV3Errors = {};
+    try {
+      parsed = JSON.parse(text) as AcV3Errors;
+    } catch {
+      // fall through
+    }
+    throw new ActiveCampaignError(
+      `ActiveCampaign campaigns lookup failed (${status})`,
+      status,
+      formatV3ErrorBody(parsed, text.slice(0, 300)),
+    );
+  }
+
+  let parsed: {
+    campaigns?: Array<{
+      id?: string | number;
+      name?: string;
+      messageid?: string | number;
+      campaignMessage?: string | number;
+    }>;
+  };
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new ActiveCampaignError(
+      'ActiveCampaign campaigns lookup returned non-JSON',
+      status,
+      text.slice(0, 200),
+    );
+  }
+
+  const match = (parsed.campaigns ?? []).find((c) => c.name === name);
+  if (!match || match.id === undefined || match.id === null) return null;
+
+  const rawMessageId = match.messageid ?? match.campaignMessage;
+  return {
+    campaignId: String(match.id),
+    messageId:
+      rawMessageId === undefined || rawMessageId === null
+        ? ''
+        : String(rawMessageId),
+  };
 }
 
 async function createMessage(
@@ -540,6 +608,14 @@ export async function sendBlogPostNewsletter(
   const internalName = `Blog: ${options.slug}`.slice(0, 240);
   const sendAt = resolveAcScheduledSendInstant(options.scheduledSendAt);
   const sendDate = formatCampaignSendDate(sendAt);
+
+  // Idempotency safety net: if AC already has a campaign with this exact name
+  // (Payload caller crashed between AC OK and DB write, or two concurrent
+  // hooks raced), return its ids instead of creating a duplicate.
+  const existing = await findExistingCampaignByName(baseUrl, apiKey, internalName, fetchImpl);
+  if (existing) {
+    return existing;
+  }
 
   const messageId = await createMessage(
     baseUrl,

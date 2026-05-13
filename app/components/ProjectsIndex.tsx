@@ -61,7 +61,7 @@ const FILTER_LABELS: Array<{ value: FilterValue; label: string }> = [
 ];
 
 const SUBSCRIBE_BLURB =
-  "A weekly roundup of new fiction & essays — or pick 'every installment' for fiction Mon/Wed/Fri and essays Tue/Thu. New here? Grab La Ligne du Marais — a Paris noir short — when you sign up.";
+  "New fiction & essays delivered the moment they publish — fiction Mon/Wed/Fri, essays Tue/Thu. New here? Grab La Ligne du Marais — a Paris noir short — when you sign up.";
 
 export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
   const [filter, setFilter] = useState<FilterValue>('all');

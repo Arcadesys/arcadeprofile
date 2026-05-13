@@ -1,6 +1,5 @@
 import {
   type Audience,
-  type Cadence,
   getAudienceListId,
   sendBlogPostNewsletter,
   type SendBlogPostNewsletterOptions,
@@ -16,26 +15,28 @@ export interface PostNewsletterFanOutInput {
   /** Group.category from the Groups collection (`null` if the post has no group). */
   groupCategory: string | null;
   /**
-   * Which cadence's lists to target. `perpost` is used by the on-publish
-   * fan-out in collections/Posts.ts; `weekly` is used by the Sunday roundup
-   * cron. Both share the same audience-routing logic — they just resolve
-   * different list IDs.
+   * Audiences this post has already been sent to in a prior fanout. They are
+   * skipped (no AC call made) so retries after a partial failure never produce
+   * duplicate campaigns. The caller is responsible for persisting send records
+   * and passing the up-to-date list on each invocation.
    */
-  cadence: Cadence;
+  alreadySent?: Audience[];
 }
 
 export interface PostNewsletterFanOutDeps {
   sendBlogPostNewsletter?: (
     options: SendBlogPostNewsletterOptions,
   ) => Promise<SendBlogPostNewsletterResult>;
-  getAudienceListId?: (audience: Audience, cadence: Cadence) => string;
+  getAudienceListId?: (audience: Audience) => string;
 }
 
 export interface PostNewsletterFanOutResult {
   audiences: Audience[];
-  cadence: Cadence;
   results: Array<{ audience: Audience; messageId: string; campaignId: string }>;
   failures: Array<{ audience: Audience; error: unknown }>;
+  /** Audiences that were not contacted because they were in `alreadySent`. */
+  skipped: Audience[];
+  /** True iff no failures (skipped audiences count as already-done). */
   allSucceeded: boolean;
 }
 
@@ -54,10 +55,6 @@ function audienceLabel(audience: Audience): string {
   return audience.charAt(0).toUpperCase() + audience.slice(1);
 }
 
-function cadenceLabel(cadence: Cadence): string {
-  return cadence === 'weekly' ? 'Weekly' : 'Per-post';
-}
-
 /**
  * Send a single post out to every audience list returned by
  * `resolveAudiences`. Each list gets its own AC campaign whose internal name
@@ -72,21 +69,21 @@ export async function sendPostNewsletterFanOut(
   const send = deps.sendBlogPostNewsletter ?? sendBlogPostNewsletter;
   const resolveListId = deps.getAudienceListId ?? getAudienceListId;
   const audiences = resolveAudiences(input.groupCategory);
-  const { cadence } = input;
+  const alreadySent = new Set<Audience>(input.alreadySent ?? []);
+  const toSend = audiences.filter((a) => !alreadySent.has(a));
+  const skipped = audiences.filter((a) => alreadySent.has(a));
 
   // Sends are independent — fire them in parallel so a slow AC response on
   // one list doesn't extend the request for the others. allSettled lets us
   // collect every outcome regardless of which fail.
   const settled = await Promise.allSettled(
-    audiences.map(async (audience) => {
-      const listId = resolveListId(audience, cadence);
-      // Suffix the AC campaign name with cadence + audience so fiction-perpost
-      // and fiction-weekly stay visually distinct in the AC dashboard.
+    toSend.map(async (audience) => {
+      const listId = resolveListId(audience);
       const r = await send({
         subject: input.subject,
         htmlBody: input.htmlBody,
         textBody: input.textBody,
-        slug: `${input.slug} (${audienceLabel(audience)} ${cadenceLabel(cadence)})`,
+        slug: `${input.slug} (${audienceLabel(audience)})`,
         scheduledSendAt: input.scheduledSendAt,
         listIdOverride: listId,
       });
@@ -97,7 +94,7 @@ export async function sendPostNewsletterFanOut(
   const results: PostNewsletterFanOutResult['results'] = [];
   const failures: PostNewsletterFanOutResult['failures'] = [];
   settled.forEach((outcome, i) => {
-    const audience = audiences[i];
+    const audience = toSend[i];
     if (outcome.status === 'fulfilled') {
       results.push({ audience, ...outcome.value });
     } else {
@@ -107,9 +104,9 @@ export async function sendPostNewsletterFanOut(
 
   return {
     audiences,
-    cadence,
     results,
     failures,
+    skipped,
     allSucceeded: failures.length === 0,
   };
 }

@@ -168,7 +168,7 @@ export default function StartHereCard({
           color: 'var(--fg-muted)',
         }}
       >
-        fiction &amp; essays · weekly or per-post
+        fiction &amp; essays · every installment as it lands
       </p>
     </section>
   );

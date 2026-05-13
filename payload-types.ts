@@ -186,9 +186,21 @@ export interface Post {
    */
   publishedDate: string;
   /**
-   * Whether this post has been sent to newsletter subscribers
+   * Derived: true once every targeted audience has a record in newsletterSends.
    */
   newsletterSent?: boolean | null;
+  /**
+   * Per-audience send log. The fanout hook skips any audience already in this list, so retries after a partial failure never produce duplicate AC campaigns.
+   */
+  newsletterSends?:
+    | {
+        audience: 'all' | 'fiction' | 'essays';
+        sentAt?: string | null;
+        messageId?: string | null;
+        campaignId?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * When a draft should be promoted to published by the scheduler.
    */
@@ -845,6 +857,15 @@ export interface PostsSelect<T extends boolean = true> {
   content?: T;
   publishedDate?: T;
   newsletterSent?: T;
+  newsletterSends?:
+    | T
+    | {
+        audience?: T;
+        sentAt?: T;
+        messageId?: T;
+        campaignId?: T;
+        id?: T;
+      };
   scheduledPublishDate?: T;
   group?: T;
   order?: T;

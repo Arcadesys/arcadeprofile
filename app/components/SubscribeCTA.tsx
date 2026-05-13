@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { DEFAULT_CADENCE, type Audience, type Cadence, type Magnet, type Source } from '@/lib/subscribe-types';
+import { type Audience, type Magnet, type Source } from '@/lib/subscribe-types';
 
 type Variant = 'default' | 'compact';
 
@@ -16,7 +16,9 @@ interface SubscribeCTAProps {
 }
 
 const SHARE_URL = 'https://thearcades.me';
-const SHARE_TEXT = 'Serialized fiction by email — weekly roundup or every installment as it lands. Subscribe to The Arcades:';
+const SHARE_TEXT = 'Serialized fiction by email — every installment as it lands. Subscribe to The Arcades:';
+
+const SUCCESS_COPY = '✓ You’re in. First installment is on its way.';
 
 const AUDIENCE_OPTIONS: Array<{ value: Audience; label: string; hint: string }> = [
   { value: 'all', label: 'All', hint: 'fiction & essays' },
@@ -24,47 +26,24 @@ const AUDIENCE_OPTIONS: Array<{ value: Audience; label: string; hint: string }> 
   { value: 'essays', label: 'Essays', hint: 'on writing, tools, oddities' },
 ];
 
-const CADENCE_OPTIONS: Array<{
-  value: Cadence;
-  label: string;
-  hint: string;
-  successCopy: string;
-}> = [
-  {
-    value: 'weekly',
-    label: 'Weekly roundup',
-    hint: 'one Sunday email with everything from the past week',
-    successCopy: '✓ You’re in. The next roundup drops Sunday.',
-  },
-  {
-    value: 'perpost',
-    label: 'Every installment',
-    hint: 'fiction Mon/Wed/Fri, essays Tue/Thu — as each one lands',
-    successCopy: '✓ You’re in. First installment is on its way.',
-  },
-];
-
 export default function SubscribeCTA({
   variant = 'default',
   eyebrow = 'Fiction by email',
   heading = 'Read it as it arrives',
-  blurb = 'A weekly roundup by default — or pick "every installment" and each one lands as it’s published.',
+  blurb = 'Fiction Mon/Wed/Fri, essays Tue/Thu — each one lands in your inbox the moment it publishes.',
   buttonLabel = 'Start reading',
   source,
   magnet,
 }: SubscribeCTAProps) {
   const inputId = useId();
   const groupId = useId();
-  const cadenceGroupId = useId();
   const [email, setEmail] = useState('');
   const [audiences, setAudiences] = useState<Set<Audience>>(() => new Set(['all']));
-  const [cadence, setCadence] = useState<Cadence>(DEFAULT_CADENCE);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle');
   const [magnetFiles, setMagnetFiles] = useState<Array<{ url: string; filename: string; label: string }>>([]);
   const [partialFailures, setPartialFailures] = useState<Audience[]>([]);
-  const [confirmedCadence, setConfirmedCadence] = useState<Cadence>(DEFAULT_CADENCE);
 
   function toggleAudience(audience: Audience) {
     setAudiences((prev) => {
@@ -102,7 +81,6 @@ export default function SubscribeCTA({
         body: JSON.stringify({
           email: email.trim(),
           audiences: Array.from(audiences),
-          cadence,
           ...(source ? { source } : {}),
           ...(magnet ? { magnet } : {}),
         }),
@@ -115,7 +93,6 @@ export default function SubscribeCTA({
       const requested = Array.from(audiences);
       const subscribed: Audience[] = Array.isArray(data.subscribed) ? data.subscribed : requested;
       setPartialFailures(requested.filter((a) => !subscribed.includes(a)));
-      setConfirmedCadence(typeof data.cadence === 'string' && (data.cadence === 'weekly' || data.cadence === 'perpost') ? data.cadence : cadence);
       setStatus('success');
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.');
@@ -190,7 +167,7 @@ export default function SubscribeCTA({
             fontFamily: 'var(--font-mono)',
             margin: '0 0 0.75rem',
           }}>
-            {CADENCE_OPTIONS.find((o) => o.value === confirmedCadence)?.successCopy ?? '✓ You’re in.'}
+            {SUCCESS_COPY}
           </p>
           {partialFailures.length > 0 && (
             <p style={{
@@ -306,56 +283,6 @@ export default function SubscribeCTA({
                       type="checkbox"
                       checked={audiences.has(opt.value)}
                       onChange={() => toggleAudience(opt.value)}
-                      disabled={status === 'loading'}
-                      style={{ accentColor: 'var(--neon-pink)' }}
-                    />
-                    <span>
-                      <span style={{ fontWeight: 600 }}>{opt.label}</span>{' '}
-                      <span style={{ color: 'var(--fg-muted)', fontSize: '0.8rem' }}>
-                        ({opt.hint})
-                      </span>
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-
-            <fieldset
-              aria-labelledby={`${cadenceGroupId}-legend`}
-              style={{ border: 'none', padding: 0, margin: '0 0 0.25rem' }}
-            >
-              <legend
-                id={`${cadenceGroupId}-legend`}
-                style={{
-                  fontSize: '0.72rem',
-                  fontFamily: 'var(--font-mono)',
-                  letterSpacing: '0.08em',
-                  color: 'var(--fg-muted)',
-                  textTransform: 'uppercase',
-                  margin: '0 0 0.45rem',
-                  padding: 0,
-                }}
-              >
-                How often?
-              </legend>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                {CADENCE_OPTIONS.map((opt) => (
-                  <label
-                    key={opt.value}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'baseline',
-                      gap: '0.55rem',
-                      fontSize: '0.88rem',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <input
-                      type="radio"
-                      name={cadenceGroupId}
-                      value={opt.value}
-                      checked={cadence === opt.value}
-                      onChange={() => setCadence(opt.value)}
                       disabled={status === 'loading'}
                       style={{ accentColor: 'var(--neon-pink)' }}
                     />
