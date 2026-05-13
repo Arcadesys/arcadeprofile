@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { SCHEDULE, computeSchedule, slots, weekdayLabel } from './syncSchedule';
+import { SCHEDULE, computeSchedule, slots, todayInSiteTz, weekdayLabel } from './syncSchedule';
 
-// 2026-05-13 is a Wednesday. Use noon local time to avoid TZ rollover.
-const WED = new Date(2026, 4, 13, 12, 0, 0);
+// 2026-05-13 is a Wednesday in America/New_York. Anchor at 16:00 UTC
+// (noon Eastern daylight time) so the date is unambiguous regardless of
+// the machine running the test.
+const WED = new Date(Date.UTC(2026, 4, 13, 16, 0, 0));
+const TZ = 'America/New_York';
 
 test('SCHEDULE assigns lanes Mon..Fri only', () => {
   assert.equal(SCHEDULE[0], 'fiction'); // Mon
@@ -17,24 +20,24 @@ test('SCHEDULE assigns lanes Mon..Fri only', () => {
 });
 
 test('slots() skips weekends and walks forward from Wed', () => {
-  const it = slots(WED);
+  const it = slots(WED, TZ);
   const seen = [
-    it.next().value!, // Wed (fiction)
-    it.next().value!, // Thu (essays)
-    it.next().value!, // Fri (fiction)
-    it.next().value!, // Mon next week (fiction)
-    it.next().value!, // Tue (essays)
+    it.next().value!,
+    it.next().value!,
+    it.next().value!,
+    it.next().value!,
+    it.next().value!,
   ];
   assert.deepEqual(seen.map((s) => s.lane), ['fiction', 'essays', 'fiction', 'fiction', 'essays']);
   assert.equal(seen[0]!.date.getDate(), 13);
   assert.equal(seen[1]!.date.getDate(), 14);
   assert.equal(seen[2]!.date.getDate(), 15);
-  assert.equal(seen[3]!.date.getDate(), 18); // Mon
-  assert.equal(seen[4]!.date.getDate(), 19); // Tue
+  assert.equal(seen[3]!.date.getDate(), 18);
+  assert.equal(seen[4]!.date.getDate(), 19);
 });
 
 test('computeSchedule on Wed: fiction[a,b] essays[c] → a Wed, b Fri, c Thu', () => {
-  const map = computeSchedule(['a', 'b'], ['c'], WED);
+  const map = computeSchedule(['a', 'b'], ['c'], WED, TZ);
   assert.equal(map.get('a')?.date, '2026-05-13');
   assert.equal(map.get('a')?.weekdayLabel, 'Wed · Fiction');
   assert.equal(map.get('b')?.date, '2026-05-15');
@@ -44,13 +47,20 @@ test('computeSchedule on Wed: fiction[a,b] essays[c] → a Wed, b Fri, c Thu', (
 });
 
 test('computeSchedule rolls fiction over the weekend', () => {
-  // Three fiction items from Wed: Wed, Fri, then Mon (skipping Sat/Sun).
-  const map = computeSchedule(['a', 'b', 'c'], [], WED);
+  const map = computeSchedule(['a', 'b', 'c'], [], WED, TZ);
   assert.equal(map.get('c')?.date, '2026-05-18');
 });
 
-test('weekdayLabel formats Mon..Fri', () => {
-  assert.equal(weekdayLabel(new Date(2026, 4, 18, 12, 0, 0), 'fiction'), 'Mon · Fiction');
-  assert.equal(weekdayLabel(new Date(2026, 4, 19, 12, 0, 0), 'essays'), 'Tue · Essays');
-  assert.equal(weekdayLabel(WED, 'fiction'), 'Wed · Fiction');
+test('weekdayLabel formats Mon..Fri in site TZ', () => {
+  assert.equal(weekdayLabel(new Date(Date.UTC(2026, 4, 18, 16, 0, 0)), 'fiction', TZ), 'Mon · Fiction');
+  assert.equal(weekdayLabel(new Date(Date.UTC(2026, 4, 19, 16, 0, 0)), 'essays', TZ), 'Tue · Essays');
+  assert.equal(weekdayLabel(WED, 'fiction', TZ), 'Wed · Fiction');
+});
+
+test('todayInSiteTz returns the calendar date in the configured TZ', () => {
+  // 03:00 UTC on May 14 = 23:00 ET on May 13 (EDT, UTC-4). Should report 2026-05-13.
+  const lateUtc = new Date(Date.UTC(2026, 4, 14, 3, 0, 0));
+  assert.equal(todayInSiteTz(lateUtc, TZ), '2026-05-13');
+  // 16:00 UTC on May 13 = 12:00 ET. Same day.
+  assert.equal(todayInSiteTz(WED, TZ), '2026-05-13');
 });

@@ -276,12 +276,18 @@ export default function HopperBoard() {
     const overColumn = resolveColumnFromOver(overId, data);
     const activeColumn = findColumn(data, activeId);
     if (!overColumn || !activeColumn) return;
-    if (overColumn === activeColumn) return;
     const overList = data[overColumn];
-    const overIndex = overId.startsWith('__column_')
-      ? overList.length
-      : overList.findIndex((p) => p.id === overId);
-    setData(moveItem(data, activeId, overColumn, overIndex < 0 ? overList.length : overIndex));
+    let overIndex: number;
+    if (overId.startsWith('__column_')) {
+      overIndex = overList.length;
+    } else {
+      overIndex = overList.findIndex((p) => p.id === overId);
+      if (overIndex < 0) overIndex = overList.length;
+    }
+    // Update state for both cross-column moves and intra-column reorders so
+    // siblings shift live during the drag. Persist only on drop.
+    const next = moveItem(data, activeId, overColumn, overIndex);
+    if (next !== data) setData(next);
   };
 
   const onDragEnd = (event: DragEndEvent) => {

@@ -3,7 +3,7 @@ import type { Payload } from 'payload';
 import type { Group, Post } from '@/payload-types';
 
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
-import { computeSchedule, syncQueueToPosts } from '@/lib/hopper/syncSchedule';
+import { computeSchedule, syncQueueToPosts, todayInSiteTz } from '@/lib/hopper/syncSchedule';
 
 type Lane = 'fiction' | 'essays';
 
@@ -24,11 +24,6 @@ interface QueueResponse {
   essays: PostSummary[];
   unqueued: PostSummary[];
   today: string;
-}
-
-function isoToday(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function audienceFor(groupSlug: string | null | undefined, groupMap: Map<string, Group>): Lane {
@@ -54,9 +49,11 @@ function extractQueueIds(queue: unknown): string[] {
 }
 
 async function loadGroupMap(payload: Payload): Promise<Map<string, Group>> {
+  // pagination:false + limit:0 returns every group. Hopper only stores a slug→category
+  // map, so the payload size is bounded by how many groups exist, not arbitrary.
   const groups = await payload.find({
     collection: 'groups',
-    limit: 100,
+    limit: 0,
     depth: 0,
     pagination: false,
   });
@@ -147,7 +144,7 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
     fiction: fictionSummaries,
     essays: essaysSummaries,
     unqueued: unqueuedSummaries,
-    today: isoToday(),
+    today: todayInSiteTz(),
   };
 }
 

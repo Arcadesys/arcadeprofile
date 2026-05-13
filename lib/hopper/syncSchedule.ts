@@ -10,6 +10,11 @@ export const SCHEDULE: Record<number, Lane> = {
   4: 'fiction',
 };
 
+// Vercel functions run in UTC; the editorial workflow runs in the site's local TZ.
+// Anchor "today" and weekday labels here so a 9pm Eastern reorder doesn't roll
+// into tomorrow's slot.
+export const SITE_TZ = process.env.SITE_TZ ?? 'America/New_York';
+
 const WEEKDAY_LABEL: Record<number, string> = {
   0: 'Mon',
   1: 'Tue',
@@ -23,20 +28,56 @@ const LANE_LABEL: Record<Lane, string> = {
   essays: 'Essays',
 };
 
-function isoDate(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+interface DateParts {
+  year: number;
+  month: number;
+  day: number;
+  weekdayMonZero: number; // Mon=0..Sun=6
 }
 
-export function weekdayLabel(date: Date, lane: Lane): string {
-  // getDay: Sun=0..Sat=6. Convert to Mon=0..Fri=4.
-  const dow = (date.getDay() + 6) % 7;
-  const day = WEEKDAY_LABEL[dow] ?? '';
+function partsInTz(d: Date, tz: string): DateParts {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+  });
+  const map: Record<string, string> = {};
+  for (const p of fmt.formatToParts(d)) map[p.type] = p.value;
+  const weekdayShortToMonZero: Record<string, number> = {
+    Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6,
+  };
+  return {
+    year: Number(map.year),
+    month: Number(map.month),
+    day: Number(map.day),
+    weekdayMonZero: weekdayShortToMonZero[map.weekday!] ?? 0,
+  };
+}
+
+function isoFromParts(p: Pick<DateParts, 'year' | 'month' | 'day'>): string {
+  return `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`;
+}
+
+export function todayInSiteTz(now: Date = new Date(), tz: string = SITE_TZ): string {
+  return isoFromParts(partsInTz(now, tz));
+}
+
+export function weekdayLabel(date: Date, lane: Lane, tz: string = SITE_TZ): string {
+  const { weekdayMonZero } = partsInTz(date, tz);
+  const day = WEEKDAY_LABEL[weekdayMonZero] ?? '';
   return `${day} · ${LANE_LABEL[lane]}`;
 }
 
-export function* slots(from: Date): Generator<{ date: Date; lane: Lane }> {
-  const cursor = new Date(from.getFullYear(), from.getMonth(), from.getDate());
-  // Unbounded; callers stop when both queues are consumed.
+export function* slots(
+  from: Date,
+  tz: string = SITE_TZ,
+): Generator<{ date: Date; lane: Lane }> {
+  // Use the date components in the site TZ as the cursor; date math stays in
+  // local-Date land (where DST shifts are absorbed by Date.setDate).
+  const start = partsInTz(from, tz);
+  const cursor = new Date(start.year, start.month - 1, start.day);
   while (true) {
     const dow = (cursor.getDay() + 6) % 7;
     const lane = SCHEDULE[dow];
@@ -56,20 +97,25 @@ export function computeSchedule(
   fictionIds: string[],
   essaysIds: string[],
   from: Date = new Date(),
+  tz: string = SITE_TZ,
 ): Map<string, ComputedSlot> {
   const out = new Map<string, ComputedSlot>();
   let fi = 0;
   let ei = 0;
-  const it = slots(from);
+  const it = slots(from, tz);
   while (fi < fictionIds.length || ei < essaysIds.length) {
     const next = it.next();
     if (next.done) break;
     const { date, lane } = next.value;
+    const slot = {
+      date: isoFromParts({ year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() }),
+      weekdayLabel: weekdayLabel(date, lane, tz),
+    };
     if (lane === 'fiction' && fi < fictionIds.length) {
-      out.set(fictionIds[fi]!, { date: isoDate(date), weekdayLabel: weekdayLabel(date, lane) });
+      out.set(fictionIds[fi]!, slot);
       fi++;
     } else if (lane === 'essays' && ei < essaysIds.length) {
-      out.set(essaysIds[ei]!, { date: isoDate(date), weekdayLabel: weekdayLabel(date, lane) });
+      out.set(essaysIds[ei]!, slot);
       ei++;
     }
   }
@@ -122,6 +168,11 @@ export async function syncQueueToPosts(
   const allIds = [...nextSet, ...removed];
   const posts = await loadPostsLite(payload, allIds);
 
+  // Posts.afterChange hooks are safe under concurrent updates: revalidate uses
+  // next/server.after to defer path invalidation, and newsletter fanout only
+  // fires on transitions to published/sent (Hopper writes scheduled/draft).
+  const updates: Promise<unknown>[] = [];
+
   for (const id of nextSet) {
     const post = posts.get(id);
     if (!post) continue;
@@ -131,27 +182,33 @@ export async function syncQueueToPosts(
     if (post.publish_status === 'scheduled' && post.scheduledPublishDate?.slice(0, 10) === slot.date) {
       continue;
     }
-    await payload.update({
-      collection: 'posts',
-      id,
-      data: {
-        publish_status: 'scheduled',
-        scheduledPublishDate: slot.date,
-      },
-    });
+    updates.push(
+      payload.update({
+        collection: 'posts',
+        id,
+        data: {
+          publish_status: 'scheduled',
+          scheduledPublishDate: slot.date,
+        },
+      }),
+    );
   }
 
   for (const id of removed) {
     const post = posts.get(id);
     if (!post) continue;
     if (post.publish_status !== 'scheduled') continue;
-    await payload.update({
-      collection: 'posts',
-      id,
-      data: {
-        publish_status: 'draft',
-        scheduledPublishDate: null,
-      },
-    });
+    updates.push(
+      payload.update({
+        collection: 'posts',
+        id,
+        data: {
+          publish_status: 'draft',
+          scheduledPublishDate: null,
+        },
+      }),
+    );
   }
+
+  await Promise.all(updates);
 }
