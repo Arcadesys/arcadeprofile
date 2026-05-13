@@ -3,9 +3,11 @@ import type { CollectionConfig } from 'payload';
 import type { Post } from '../payload-types';
 import { buildPostNewsletterContent } from '../lib/newsletter';
 import { buildPostUrl, computePostPartIndex } from '../lib/post-url';
+import { buildPreviewUrl } from '../lib/preview-token';
 import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { slugField } from './fields/slug';
 import { tagArrayField } from './fields/tags';
+import { ensurePreviewTokenHook } from './hooks/ensurePreviewToken';
 import { promoteScheduledDraftHook } from './hooks/promoteScheduledDraft';
 import { revalidatePathsFor } from './hooks/revalidate';
 import { isAuthenticated } from './shared/access';
@@ -56,9 +58,13 @@ export const Posts: CollectionConfig = {
       'sampleOrder',
       'suppressNewsletter',
     ]),
+    // Renders Payload's built-in "Preview" button in the document controls
+    // (top-right, next to Save). Editors click it to open the preview URL
+    // in a new tab — same URL surfaced in the sidebar field and list cell.
+    preview: (doc) => buildPreviewUrl(doc.previewToken),
   },
   hooks: {
-    beforeChange: [promoteScheduledDraftHook],
+    beforeChange: [promoteScheduledDraftHook, ensurePreviewTokenHook],
     afterChange: [
       revalidatePostPaths,
       async ({ doc, req }) => {
@@ -365,6 +371,17 @@ export const Posts: CollectionConfig = {
       },
     },
     {
+      name: 'previewUrl',
+      type: 'text',
+      virtual: true,
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: '@/components/admin/PreviewUrlField#default',
+        },
+      },
+    },
+    {
       name: 'group',
       type: 'text',
       admin: {
@@ -423,6 +440,27 @@ export const Posts: CollectionConfig = {
         position: 'sidebar',
         description:
           'Internal scheduling/newsletter workflow. Payload draft/published state lives in Status.',
+      },
+    },
+    {
+      name: 'previewToken',
+      label: 'Preview token',
+      type: 'text',
+      unique: true,
+      index: true,
+      admin: {
+        // The `previewUrl` virtual field above renders the full URL with a
+        // Copy button — that's the primary editor affordance. This raw token
+        // is kept as a collapsed sidebar field for transparency and so it
+        // can drive the list-view Cell. `disableListColumn: false` is the
+        // default; the Cell registration below makes the column useful when
+        // toggled on via Payload's column picker.
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Auto-generated. Stable across edits so shared preview links keep working.',
+        components: {
+          Cell: '@/components/admin/PreviewUrlCell#default',
+        },
       },
     },
     {
