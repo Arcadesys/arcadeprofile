@@ -81,3 +81,35 @@ test('todayInSiteTz returns the calendar date in the configured TZ', () => {
   // 16:00 UTC on May 13 = 12:00 ET. Same day.
   assert.equal(todayInSiteTz(WED, TZ), '2026-05-13');
 });
+
+test('computeSchedule skips taken dates and cascades the lane forward', () => {
+  const map = computeSchedule(['a', 'b'], [], WED, TZ, new Set(['2026-05-13']));
+  // Wed (2026-05-13) is taken → 'a' shifts to next fiction slot (Fri),
+  // 'b' shifts to the Mon after that.
+  assert.equal(map.get('a')?.date, '2026-05-15');
+  assert.equal(map.get('a')?.weekdayLabel, 'Fri · Fiction');
+  assert.equal(map.get('b')?.date, '2026-05-18');
+  assert.equal(map.get('b')?.weekdayLabel, 'Mon · Fiction');
+});
+
+test('computeSchedule taken-date in one lane does not affect the other', () => {
+  // Wed (2026-05-13) is a fiction day; blocking it should leave essays untouched.
+  const map = computeSchedule([], ['c', 'd'], WED, TZ, new Set(['2026-05-13']));
+  assert.equal(map.get('c')?.date, '2026-05-14'); // Thu
+  assert.equal(map.get('d')?.date, '2026-05-19'); // next Tue
+});
+
+test('computeSchedule cascades across multiple taken dates', () => {
+  const map = computeSchedule(['a'], [], WED, TZ, new Set(['2026-05-13', '2026-05-15']));
+  // Both Wed and Fri are blocked → first fiction slot is the following Mon.
+  assert.equal(map.get('a')?.date, '2026-05-18');
+  assert.equal(map.get('a')?.weekdayLabel, 'Mon · Fiction');
+});
+
+test('computeSchedule with empty takenDates matches the unguarded behavior', () => {
+  const guarded = computeSchedule(['a', 'b'], ['c'], WED, TZ, new Set<string>());
+  const baseline = computeSchedule(['a', 'b'], ['c'], WED, TZ);
+  assert.deepEqual(guarded.get('a'), baseline.get('a'));
+  assert.deepEqual(guarded.get('b'), baseline.get('b'));
+  assert.deepEqual(guarded.get('c'), baseline.get('c'));
+});

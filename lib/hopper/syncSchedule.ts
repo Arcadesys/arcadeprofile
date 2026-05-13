@@ -102,6 +102,7 @@ export function computeSchedule(
   essaysIds: string[],
   from: Date = new Date(),
   tz: string = SITE_TZ,
+  takenDates?: ReadonlySet<string>,
 ): Map<string, ComputedSlot> {
   const out = new Map<string, ComputedSlot>();
   let fi = 0;
@@ -115,6 +116,7 @@ export function computeSchedule(
       date: isoFromParts({ year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() }),
       weekdayLabel: formatWeekdayLabel(weekdayMonZero, lane),
     };
+    if (takenDates?.has(slot.date)) continue;
     if (lane === 'fiction' && fi < fictionIds.length) {
       out.set(fictionIds[fi]!, slot);
       fi++;
@@ -163,8 +165,9 @@ export async function syncQueueToPosts(
   prev: QueueDiffPrev,
   next: QueueDiffNext,
   from: Date = new Date(),
+  takenDates?: ReadonlySet<string>,
 ): Promise<void> {
-  const schedule = computeSchedule(next.fictionIds, next.essaysIds, from);
+  const schedule = computeSchedule(next.fictionIds, next.essaysIds, from, SITE_TZ, takenDates);
 
   const nextSet = new Set([...next.fictionIds, ...next.essaysIds]);
   const removed = [...new Set([...prev.fictionIds, ...prev.essaysIds])].filter((id) => !nextSet.has(id));
