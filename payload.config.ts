@@ -28,6 +28,15 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     theme: 'dark',
+    components: {
+      afterNavLinks: ['/views/hopper/HopperNavLink#default'],
+      views: {
+        hopper: {
+          Component: '/views/hopper/HopperView#default',
+          path: '/hopper',
+        },
+      },
+    },
   },
   collections,
   globals,
