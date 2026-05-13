@@ -102,17 +102,25 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
 
   // Posts that already shipped today — surface them at the top of their lane so
   // the editor can see "today's fiction already went out" without us re-injecting
-  // them into the writable queue.
+  // them into the writable queue. Pre-filter at the DB to a 36h window (covers
+  // any TZ offset between UTC and SITE_TZ) and then normalize each row to the
+  // site TZ for the actual "is it today" check.
+  const lookbackStart = new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString();
   const publishedTodayRes = await payload.find({
     collection: 'posts',
-    where: { publish_status: { in: ['published', 'sent'] } },
+    where: {
+      and: [
+        { publish_status: { in: ['published', 'sent'] } },
+        { publishedDate: { greater_than_equal: lookbackStart } },
+      ],
+    },
     limit: 50,
     depth: 0,
     sort: '-publishedDate',
     pagination: false,
   });
   const publishedToday = (publishedTodayRes.docs as Post[]).filter(
-    (p) => typeof p.publishedDate === 'string' && p.publishedDate.slice(0, 10) === todayIso,
+    (p) => typeof p.publishedDate === 'string' && todayInSiteTz(new Date(p.publishedDate)) === todayIso,
   );
 
   const unqueuedRes = await payload.find({
@@ -150,7 +158,7 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
   const toShippedSummary = (post: Post, lane: Lane): PostSummary => {
     const id = String(post.id);
     const publishedIso =
-      typeof post.publishedDate === 'string' ? post.publishedDate.slice(0, 10) : null;
+      typeof post.publishedDate === 'string' ? todayInSiteTz(new Date(post.publishedDate)) : null;
     return {
       id,
       slug: post.slug ?? null,
