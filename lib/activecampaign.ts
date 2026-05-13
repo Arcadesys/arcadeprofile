@@ -183,16 +183,24 @@ function parseNewsletterListIdAsInt(listId: string): number {
   return n;
 }
 
-async function fetchWithTimeout(
+/**
+ * Fetch a URL and read the response body within a single timeout window.
+ * The previous shape returned the Response and let callers read the body
+ * outside the controller's lifetime, so an AC server that sent headers and
+ * then stalled on the body would wedge the admin save indefinitely.
+ */
+async function fetchTextWithTimeout(
   url: string,
   init: RequestInit,
   fetchImpl: typeof fetch,
   timeoutMs: number,
-): Promise<Response> {
+): Promise<{ status: number; ok: boolean; text: string }> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    return await fetchImpl(url, { ...init, signal: controller.signal });
+    const response = await fetchImpl(url, { ...init, signal: controller.signal });
+    const text = await response.text();
+    return { status: response.status, ok: response.ok, text };
   } finally {
     clearTimeout(timeoutId);
   }
@@ -255,7 +263,7 @@ async function postLegacyAction(
     .map(([k, v]) => `${encodeFormKey(k)}=${encodeURIComponent(v)}`)
     .join('&');
 
-  const response = await fetchWithTimeout(
+  const { status, ok, text } = await fetchTextWithTimeout(
     url,
     {
       method: 'POST',
@@ -269,27 +277,26 @@ async function postLegacyAction(
     REQUEST_TIMEOUT_MS,
   );
 
-  const text = await response.text();
   let parsed: AcLegacyResponse & AcV3Errors;
   try {
     parsed = JSON.parse(text) as AcLegacyResponse & AcV3Errors;
   } catch {
     throw new ActiveCampaignError(
       `ActiveCampaign ${action} returned non-JSON`,
-      response.status,
+      status,
       text.slice(0, 200),
     );
   }
 
   // Action endpoints can return HTTP 200 with `result_code: 0` on failure.
   const resultCode = Number(parsed.result_code);
-  if (!response.ok || resultCode !== 1) {
+  if (!ok || resultCode !== 1) {
     const detail =
       (typeof parsed.result_message === 'string' && parsed.result_message.trim()) ||
       formatV3ErrorBody(parsed, text.slice(0, 300));
     throw new ActiveCampaignError(
-      `ActiveCampaign ${action} failed (${response.status})`,
-      response.status,
+      `ActiveCampaign ${action} failed (${status})`,
+      status,
       detail,
     );
   }
@@ -427,7 +434,7 @@ export async function syncSubscriberToActiveCampaign(options: {
   const listId = firstNonEmpty(options.listIdOverride) ?? getNewsletterListId();
   const listIdInt = parseNewsletterListIdAsInt(listId);
 
-  const syncRes = await fetchWithTimeout(
+  const sync = await fetchTextWithTimeout(
     `${baseUrl}/api/3/contact/sync`,
     {
       method: 'POST',
@@ -442,35 +449,34 @@ export async function syncSubscriberToActiveCampaign(options: {
     REQUEST_TIMEOUT_MS,
   );
 
-  const syncText = await syncRes.text();
   let syncParsed: AcContactSyncResponse & AcV3Errors;
   try {
-    syncParsed = JSON.parse(syncText) as AcContactSyncResponse & AcV3Errors;
+    syncParsed = JSON.parse(sync.text) as AcContactSyncResponse & AcV3Errors;
   } catch {
     throw new ActiveCampaignError(
       'ActiveCampaign contact/sync returned non-JSON',
-      syncRes.status,
-      syncText.slice(0, 200),
+      sync.status,
+      sync.text.slice(0, 200),
     );
   }
-  if (!syncRes.ok) {
+  if (!sync.ok) {
     throw new ActiveCampaignError(
-      `ActiveCampaign contact/sync failed (${syncRes.status})`,
-      syncRes.status,
-      formatV3ErrorBody(syncParsed, syncText.slice(0, 300)),
+      `ActiveCampaign contact/sync failed (${sync.status})`,
+      sync.status,
+      formatV3ErrorBody(syncParsed, sync.text.slice(0, 300)),
     );
   }
   const rawId = syncParsed.contact?.id;
   if (rawId === undefined || rawId === null || String(rawId).trim() === '') {
     throw new ActiveCampaignError(
       'ActiveCampaign contact/sync response missing contact id',
-      syncRes.status,
-      syncText.slice(0, 300),
+      sync.status,
+      sync.text.slice(0, 300),
     );
   }
   const contactId = String(rawId);
 
-  const listRes = await fetchWithTimeout(
+  const list = await fetchTextWithTimeout(
     `${baseUrl}/api/3/contactLists`,
     {
       method: 'POST',
@@ -490,24 +496,23 @@ export async function syncSubscriberToActiveCampaign(options: {
     fetchImpl,
     REQUEST_TIMEOUT_MS,
   );
-  const listText = await listRes.text();
-  if (!listRes.ok) {
+  if (!list.ok) {
     let listParsed: AcV3Errors = {};
     try {
-      listParsed = JSON.parse(listText) as AcV3Errors;
+      listParsed = JSON.parse(list.text) as AcV3Errors;
     } catch {
       // fall through to text body
     }
-    const errorBody = formatV3ErrorBody(listParsed, listText.slice(0, 300));
+    const errorBody = formatV3ErrorBody(listParsed, list.text.slice(0, 300));
     // AC returns 422 when the contact is already subscribed to the list.
     // Re-subscribes are expected (return signups, idempotent backfills),
     // so treat that as success rather than logging noise on every one.
-    if (listRes.status === 422 && /already.*(member|subscribed|on.*list)/i.test(errorBody)) {
+    if (list.status === 422 && /already.*(member|subscribed|on.*list)/i.test(errorBody)) {
       return { contactId };
     }
     throw new ActiveCampaignError(
-      `ActiveCampaign contactLists failed (${listRes.status})`,
-      listRes.status,
+      `ActiveCampaign contactLists failed (${list.status})`,
+      list.status,
       errorBody,
     );
   }
