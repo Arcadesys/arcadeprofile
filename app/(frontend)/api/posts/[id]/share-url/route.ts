@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
-import { getPostLocationBySlug } from '@/lib/post-url';
+import { buildPostUrl, computePostPartIndex } from '@/lib/post-url';
+import type { ShareUrlResponse } from '@/lib/post-share-url-types';
 import type { Post } from '@/payload-types';
 
 const DEFAULT_SITE_URL = 'https://thearcades.me';
@@ -9,14 +10,6 @@ const DEFAULT_SITE_URL = 'https://thearcades.me';
 function siteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim() || DEFAULT_SITE_URL;
   return raw.replace(/\/+$/, '');
-}
-
-type Reason = 'draft' | 'no-group' | 'no-slug' | 'not-found';
-
-interface ShareUrlResponse {
-  url: string | null;
-  absoluteUrl: string | null;
-  reason?: Reason;
 }
 
 export async function GET(
@@ -60,7 +53,8 @@ export async function GET(
     });
   }
 
-  if (!post.group) {
+  const groupSlug = post.group;
+  if (!groupSlug) {
     return NextResponse.json<ShareUrlResponse>({
       url: null,
       absoluteUrl: null,
@@ -68,8 +62,8 @@ export async function GET(
     });
   }
 
-  const location = await getPostLocationBySlug(payload, slug);
-  if (!location) {
+  const partIndex = await computePostPartIndex(payload, slug, groupSlug);
+  if (partIndex === null) {
     return NextResponse.json<ShareUrlResponse>({
       url: null,
       absoluteUrl: null,
@@ -77,8 +71,9 @@ export async function GET(
     });
   }
 
+  const url = buildPostUrl(groupSlug, partIndex);
   return NextResponse.json<ShareUrlResponse>({
-    url: location.url,
-    absoluteUrl: `${siteUrl()}${location.url}`,
+    url,
+    absoluteUrl: `${siteUrl()}${url}`,
   });
 }

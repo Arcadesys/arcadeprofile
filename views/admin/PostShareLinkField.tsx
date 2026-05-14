@@ -3,22 +3,16 @@
 import { useDocumentInfo } from '@payloadcms/ui';
 import { useEffect, useState } from 'react';
 
-type Reason = 'draft' | 'no-group' | 'no-slug' | 'not-found';
-
-interface ShareUrlResponse {
-  url: string | null;
-  absoluteUrl: string | null;
-  reason?: Reason;
-}
+import type { ShareUrlReason, ShareUrlResponse } from '@/lib/post-share-url-types';
 
 type State =
   | { kind: 'unsaved' }
   | { kind: 'loading' }
   | { kind: 'ready'; url: string; absoluteUrl: string }
-  | { kind: 'empty'; reason: Reason }
+  | { kind: 'empty'; reason: ShareUrlReason }
   | { kind: 'error' };
 
-const REASON_COPY: Record<Reason, string> = {
+const REASON_COPY: Record<ShareUrlReason, string> = {
   draft: 'Share URL appears after publishing.',
   'no-group': 'Post has no group — no share URL.',
   'no-slug': 'Post has no slug — no share URL.',
