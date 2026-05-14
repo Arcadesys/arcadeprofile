@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload';
 
 import type { Post } from '../payload-types';
 import { buildPostNewsletterContent } from '../lib/newsletter';
+import { resolvePostShareUrl } from '../lib/post-share-url';
 import { buildPostUrl, computePostPartIndex } from '../lib/post-url';
 import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { slugField } from './fields/slug';
@@ -56,6 +57,12 @@ export const Posts: CollectionConfig = {
       'sampleOrder',
       'suppressNewsletter',
     ]),
+    preview: async (doc, { req }) => {
+      const id = doc?.id;
+      if (typeof id !== 'number' && typeof id !== 'string') return null;
+      const { absoluteUrl } = await resolvePostShareUrl(req.payload, id);
+      return absoluteUrl;
+    },
   },
   hooks: {
     beforeChange: [promoteScheduledDraftHook],
@@ -297,16 +304,6 @@ export const Posts: CollectionConfig = {
       name: 'content',
       type: 'richText',
       required: true,
-    },
-    {
-      name: 'shareUrl',
-      type: 'ui',
-      admin: {
-        position: 'sidebar',
-        components: {
-          Field: '/views/admin/PostShareLinkField#default',
-        },
-      },
     },
     {
       name: 'publishedDate',
