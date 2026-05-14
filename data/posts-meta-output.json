@@ -1,0 +1,177 @@
+{
+  "when-noone-approves": {
+    "meta": {
+      "title": "Who Are You When Nobody Is Approving?",
+      "keywords": "learning AI tools, peer disapproval, identity, staying small to be liked, curiosity, creative practice"
+    },
+    "discoverability": {
+      "social_hook": "I got roasted for spending three years gleefully learning AI tools. What actually hurt: realizing how many people only knew how to love me if I stayed small enough to be legible.",
+      "search_summary": "On the cost of staying legible to people whose affection you want. Three years in blissful maker mode learning AI tools, and the contempt that came back — not from strangers, but from people who only knew how to love a smaller version of me. What it took to keep going anyway."
+    }
+  },
+  "ai-as-an-art-medium": {
+    "meta": {
+      "title": "AI Is an Art Medium",
+      "description": "AI is a medium, not a shortcut or threat. Like oil paint, like the camera, like Photoshop — the people exploring it now will make work we can't yet imagine.",
+      "keywords": "AI as medium, generative AI, art, creative tools, new mediums, technological change in art"
+    },
+    "discoverability": {
+      "social_hook": "Every generation builds social levees against the rising water of a new medium. The water doesn't care. AI is paint, not a thief — and the people elbow-deep in it now will make work the rest of us can't yet conceive.",
+      "search_summary": "On AI as an artistic medium — like oil paint, the camera, or Photoshop, not a shortcut or a threat. The people working through its rough early years will come out the other side making work we can't conceive of yet. This is not prediction; it's pattern."
+    }
+  },
+  "years-of-craft-dont-get-a-vote": {
+    "meta": {
+      "title": "The Years of Craft Do Not Get a Vote",
+      "description": "Craft is real, but it doesn't earn you a veto on whether the medium moves. David Byrne didn't copy his sources. He absorbed them, and what came out was him.",
+      "keywords": "craft, skill, AI tools, expertise, creative practice, generative AI, taste, David Byrne"
+    },
+    "discoverability": {
+      "social_hook": "I still believe in craft. I still believe in skill. But years of practice don't earn you a veto on whether the medium moves. David Byrne didn't copy his sources — he absorbed them, and what came out was unmistakably him.",
+      "search_summary": "On craft, expertise, and the limits of seniority when the medium changes. Years of refinement give you taste, but they don't grant you a vote on whether new tools are legitimate. The work is to absorb, not to gatekeep."
+    }
+  },
+  "after-scarcity": {
+    "meta": {
+      "title": "After Scarcity",
+      "description": "The market isn't being attacked. It's encountering a condition it was never built to survive: abundance. What replaces scarcity logic when the tools change?",
+      "keywords": "post-scarcity, AI economy, market model, abundance, creative economy, capitalism, future of work"
+    },
+    "discoverability": {
+      "social_hook": "The market model is dying — not because anyone attacked it, but because it encountered a condition it was never built to survive: abundance. What replaces scarcity logic when the tools change?",
+      "search_summary": "On the economics of the post-AI moment. The market model isn't being murdered; it's encountering abundance, a condition it was never built to handle. The next economy will be built on circulation, contribution, and community — not artificial scarcity."
+    }
+  },
+  "campfire-logic": {
+    "meta": {
+      "title": "Campfire Logic",
+      "description": "Before recording, a 'wrong' version of a song barely made sense. A tune was a process, not a product. AI returns us to logic the market professionalized away.",
+      "keywords": "folk culture, oral tradition, remix culture, AI and authorship, music history, non-market art"
+    },
+    "discoverability": {
+      "social_hook": "Before recording, a 'wrong' version of a song barely made sense. A tune was a process, not a product. AI is returning us to a logic the market spent a century professionalizing away.",
+      "search_summary": "On non-market logic for art — the folk-process model that predates copyright and persists despite it. Songs were tunes you passed around and changed. AI doesn't break this; it restores it. The question is what kind of community can hold a living-thing model of culture."
+    }
+  },
+  "the-ache": {
+    "meta": {
+      "title": "The Ache in your Heart",
+      "description": "My mentor said every story needs one ache: a singular gaping wound, explained in too many words. On theme as engine, on writing toward something that hums.",
+      "keywords": "writing craft, theme, mentorship, story structure, creative writing, the wound, fiction"
+    },
+    "discoverability": {
+      "social_hook": "My mentor said every story needs one ache — a singular gaping wound, explained in too many words. Theme is the engine. Every conflict has to rhyme with the next. All conflicts point at one truth.",
+      "search_summary": "On theme as the engine of story, and what it means to write toward an ache that hums through every conflict. A meditation on craft mentorship, on staying in the present, and on writing as a way of pointing repeatedly at one human truth."
+    }
+  },
+  "the-preciousness-problem": {
+    "meta": {
+      "title": "The Preciousness Problem",
+      "description": "Nobody painted the Mona Lisa alone. Leonardo ran a workshop. Our obsession with singular, precious authorship isn't ancient — it's a market invention, datable.",
+      "keywords": "authorship, lone genius myth, art history, collaborative art, AI authorship, copyright origins"
+    },
+    "discoverability": {
+      "social_hook": "Nobody painted the Mona Lisa alone. Leonardo ran a workshop. Our obsession with singular, precious authorship isn't ancient — it's a market invention with a date stamp.",
+      "search_summary": "On the historical invention of the lone-genius author. Workshop collaboration was the norm; singular authorship is a market construct that arrived with copyright and modern publishing. AI doesn't threaten authorship — it threatens the economic fiction we wrapped around it."
+    }
+  },
+  "rabies-capitalism": {
+    "meta": {
+      "title": "Rabies Capitalism",
+      "description": "If you have symptoms of rabies, you're already dead — you just don't know it yet. AI made capitalism so unstable it now fights anything that gets close to it.",
+      "keywords": "AI and capitalism, post-scarcity, labor, market collapse, generative AI economics, abundance"
+    },
+    "discoverability": {
+      "social_hook": "If you have symptoms of rabies, you're already dead — you just don't know it yet. AI made capitalism so unstable it now fights anything that gets close to it. This is the lurching.",
+      "search_summary": "On AI as rabies for capitalism — a system thrashing because its core assumption of scarcity just broke. The market model isn't being murdered, it's encountering a condition it was never built to survive. This is the first essay in a series on what comes after."
+    }
+  },
+  "pull-not-push": {
+    "meta": {
+      "title": "Pull, Not Push: Rebuilding My Presence Backwards",
+      "description": "I've had more names on the internet than prescription strengths. That era is over. On rebuilding so people come find the work instead of being pushed it.",
+      "keywords": "personal website, online presence, indie web, RSS, newsletter, writer's platform, pull marketing"
+    },
+    "discoverability": {
+      "social_hook": "I've had more names on the internet than prescription strengths. That era is over. I'm rebuilding so people come find the work — not get it pushed at them by an algorithm.",
+      "search_summary": "On rebuilding an online presence backwards — a permanent home for the work, RSS and newsletters as the connective tissue, and the deliberate refusal of platform metrics. Pull, not push. A writer's manifesto for the post-feed era."
+    }
+  },
+  "why-the-10-percent-productivity-plateau-should-worry-you": {
+    "meta": {
+      "title": "Why the 10% Productivity Plateau Should Worry You",
+      "description": "AI adoption hit 92.6%. AI-authored code is 26.9% of production. Productivity gains: stuck at 10%. The bottleneck was never the tools. It's everything around them.",
+      "keywords": "AI productivity, software engineering metrics, developer productivity, AI adoption, GitHub Copilot, code review bottleneck"
+    },
+    "discoverability": {
+      "social_hook": "AI adoption hit 92.6%. AI-authored code is 26.9% of all production code. Productivity gains: stuck at 10%. The bottleneck was never the tools — it's everything around them.",
+      "search_summary": "On the 10% productivity plateau showing up across every major AI-coding-tools dataset. Adoption is saturated. Output is measurable. Gains have flattened. The bottleneck was never the speed of code generation — it's review, integration, and trust at the seams."
+    }
+  },
+  "volume-is-not-velocity": {
+    "meta": {
+      "title": "Volume Is Not Velocity",
+      "description": "GitClear analyzed 211M changed lines across major tech repos. Refactoring is dropping, duplication rising. We're writing more code and quietly degrading the thing.",
+      "keywords": "code quality, AI coding tools, refactoring, code duplication, software metrics, GitClear, technical debt"
+    },
+    "discoverability": {
+      "social_hook": "GitClear analyzed 211M lines of code across Google, Microsoft, Meta, and enterprise repos. Refactoring is dropping. Duplication is rising. We're writing more code and quietly degrading the thing we're building.",
+      "search_summary": "On the GitClear 211M-line dataset showing AI-era code quality regression. Refactoring fell from 25% to under 10%; duplication rose from 8.3% to 12.3%. Volume is up. The codebase is louder, busier, and worse. Velocity is what we mean — and we are not getting it."
+    }
+  },
+  "the-hidden-tax-on-senior-engineers": {
+    "meta": {
+      "title": "The Hidden Tax on Senior Engineers",
+      "description": "AI didn't reduce demand on your best engineers. It redirected it. After Copilot: 6.5% more code reviewed, 19% less original work. The senior tax is real.",
+      "keywords": "senior engineers, AI productivity, Copilot impact, code review, engineering management, mentorship tax"
+    },
+    "discoverability": {
+      "social_hook": "AI didn't reduce demand on your best engineers. It redirected it. After Copilot: senior engineers reviewed 6.5% more code and produced 19% less original work. The tax landed on the people you can least afford to overload.",
+      "search_summary": "On the Xu et al. (2025) finding that AI coding tools redistribute workload toward senior engineers. Peripheral contributors output more; core maintainers shift to review. The tax lands on the people whose original work mattered most. A structural problem, not a temporary one."
+    }
+  },
+  "carl": {
+    "meta": {
+      "title": "Carl",
+      "description": "I'm Carl. I work at Floor-Mart. I always have, always will, forever and ever, amen. A short story about retail, androids, and being designed for a role.",
+      "keywords": "short fiction, science fiction, AI, retail dystopia, android, labor, character study"
+    },
+    "discoverability": {
+      "social_hook": "My name is Carl. I work at Floor-Mart. I always have worked at Floor-Mart and I always will work at Floor-Mart, forever and ever, amen. A short story.",
+      "search_summary": "Short fiction. Carl is an android working in a retail parking lot in the middle of winter. Androids don't get cold. They do, however, notice things. A story about labor, design, and the quiet theology of being made for a role you can't leave."
+    }
+  },
+  "why-ai-helps-juniors-and-slows-down-seniors": {
+    "meta": {
+      "title": "Why AI Helps Juniors and Slows Down Seniors",
+      "description": "Junior developers benefit more from AI than senior ones. Sometimes dramatically more. Sometimes seniors get slower. Not a glitch — the structure of expertise.",
+      "keywords": "AI productivity, senior developers, junior developers, software engineering, expertise, mental models, code review"
+    },
+    "discoverability": {
+      "social_hook": "Junior developers benefit more from AI than senior ones. Sometimes dramatically more. Sometimes seniors get slower. This isn't a temporary glitch — it's what happens when you insert a confident, fast, sometimes-wrong assistant into the middle of expertise.",
+      "search_summary": "On the experience gap in AI-assisted coding. Across every major study, juniors gain more than seniors; under certain conditions seniors lose ground. The cause is structural: expertise is exactly the thing AI can disrupt, because expertise IS the calibrated bullshit detector AI hasn't earned."
+    }
+  },
+  "the-photograph-of-a-river": {
+    "meta": {
+      "title": "The Photograph of a River",
+      "description": "Every AI productivity study is a photograph of a river. By the time you develop the film, the water has moved. Read the study, not the headline.",
+      "keywords": "AI productivity studies, METR study, research methodology, software engineering research, AI adoption, study limitations"
+    },
+    "discoverability": {
+      "social_hook": "Every AI productivity study is a photograph of a river. By the time you develop the film, the water has moved. METR found AI users took 19% longer. The number was real. It's also already old.",
+      "search_summary": "On reading AI productivity research honestly. The METR study was rigorous and its 19%-slower finding was real for its moment. The tools, the workflows, and the people have all moved since. The research is a snapshot of water — useful, but not the river."
+    }
+  },
+  "gist-memory-is-not-a-bug": {
+    "meta": {
+      "title": "I Thought I Had a Bad Memory. I Don't.",
+      "description": "Sighted people offload remembering to the world: keys by the door, cap ajar on the counter. Take the world away and the brain builds something different.",
+      "keywords": "blindness, memory, cognition, gist memory, neurodivergence, embodied cognition, white cane chronicles"
+    },
+    "discoverability": {
+      "social_hook": "I thought I had a bad memory. Turns out sighted people offload most of theirs to the world around them: cap ajar on the counter, keys by the door. Take that away and the brain builds something different. Maybe better.",
+      "search_summary": "On the gist-memory advantage of blind cognition. Sighted memory is heavily scaffolded by environment — visual confirmation of objects standing in for remembering the act. Blind cognition has to do without that scaffold, and what it builds in compensation is not a deficit but a different architecture."
+    }
+  }
+}
