@@ -82,20 +82,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (idx === 0) {
     const payload = await getPayload({ config: payloadConfig });
     const og = await resolveGroupOgImage(payload, slug);
-    const title = `${project.title} — The Arcades`;
+    const metaTitle = group?.meta?.title?.trim() || project.title;
+    const metaDescription = group?.meta?.description?.trim() || project.description || undefined;
+    const title = `${metaTitle} — The Arcades`;
+    const url = `${SITE_URL}/projects/${slug}/${part}`;
     return {
       title,
-      description: project.description,
-      openGraph: og
-        ? {
-            title,
-            description: project.description ?? undefined,
-            images: [{ url: og.url, alt: og.alt ?? project.title, width: og.width, height: og.height }],
-          }
-        : undefined,
-      twitter: og
-        ? { card: 'summary_large_image', title, description: project.description ?? undefined, images: [og.url] }
-        : undefined,
+      description: metaDescription,
+      openGraph: {
+        title,
+        description: metaDescription,
+        type: 'article',
+        url,
+        images: og
+          ? [{ url: og.url, alt: og.alt ?? metaTitle, width: og.width, height: og.height }]
+          : undefined,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description: metaDescription,
+        images: og ? [og.url] : undefined,
+      },
     };
   }
 
@@ -103,20 +111,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return {};
   const payload = await getPayload({ config: payloadConfig });
   const og = await resolvePostOgImageBySlug(payload, post.slug);
-  const title = `${post.title} — ${project.title}`;
+  const metaTitle = post.meta?.title?.trim() || post.title;
+  const metaDescription = post.meta?.description?.trim() || post.excerpt || undefined;
+  const title = `${metaTitle} — ${project.title}`;
+  const url = `${SITE_URL}/projects/${slug}/${part}`;
   return {
     title,
-    description: post.excerpt,
-    openGraph: og
-      ? {
-          title,
-          description: post.excerpt,
-          images: [{ url: og.url, alt: og.alt ?? post.title, width: og.width, height: og.height }],
-        }
-      : undefined,
-    twitter: og
-      ? { card: 'summary_large_image', title, description: post.excerpt, images: [og.url] }
-      : undefined,
+    description: metaDescription,
+    openGraph: {
+      title,
+      description: metaDescription,
+      type: 'article',
+      url,
+      images: og
+        ? [{ url: og.url, alt: og.alt ?? metaTitle, width: og.width, height: og.height }]
+        : undefined,
+    },
+    twitter: {
+      card: og ? 'summary_large_image' : 'summary',
+      title,
+      description: metaDescription,
+      images: og ? [og.url] : undefined,
+    },
   };
 }
 
