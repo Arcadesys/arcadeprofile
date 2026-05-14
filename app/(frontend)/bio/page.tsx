@@ -164,6 +164,68 @@ export default function BioPage() {
         </div>
       </section>
 
+      {/* Bibliography */}
+      <section style={{ marginBottom: '2.5rem' }}>
+        <h2 style={sectionHeadingStyle}>Bibliography</h2>
+        <div style={cardStyle}>
+          <p style={{ lineHeight: 1.8, margin: '0 0 1rem' }}>
+            A few highlights from twenty years of writing under several names:
+          </p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1rem' }}>
+            <li style={{ marginBottom: '0.6rem', lineHeight: 1.6 }}>
+              <strong>
+                <a href="https://furplanet.com/shop/item.aspx?itemid=778" target="_blank" rel="noopener noreferrer">
+                  The Painted Cat
+                </a>
+              </strong>{' '}
+              <span style={{ color: 'var(--fg-muted)' }}>(2015, Argyll Productions / FurPlanet) — novel</span>
+            </li>
+            <li style={{ marginBottom: '0.6rem', lineHeight: 1.6 }}>
+              <strong>
+                <a href="https://www.amazon.com/Fuzzy-Place-Stories-Shaped-Subculture-ebook/dp/B00H7K7EYQ" target="_blank" rel="noopener noreferrer">
+                  A Fuzzy Place
+                </a>
+              </strong>{' '}
+              <span style={{ color: 'var(--fg-muted)' }}>(2013) — short story collection</span>
+            </li>
+            <li style={{ marginBottom: '0.6rem', lineHeight: 1.6 }}>
+              <strong>
+                <a href="https://www.amazon.com/Bait-Switch-Austen-Crowder/dp/145631890X" target="_blank" rel="noopener noreferrer">
+                  Bait and Switch
+                </a>
+              </strong>{' '}
+              <span style={{ color: 'var(--fg-muted)' }}>(2010, Anthropomorphic Dreams) — novel</span>
+            </li>
+            <li style={{ marginBottom: '0.6rem', lineHeight: 1.6 }}>
+              <a href="http://bilerico.lgbtqnation.com/contributors/austen_crowder/" target="_blank" rel="noopener noreferrer">
+                106 essays at The Bilerico Project
+              </a>{' '}
+              <span style={{ color: 'var(--fg-muted)' }}>(2009–2012) — LGBTQ politics, trans issues, gaming, identity</span>
+            </li>
+            <li style={{ marginBottom: '0.6rem', lineHeight: 1.6 }}>
+              <a href="http://anthrozine.com/site/anthrology-3.html" target="_blank" rel="noopener noreferrer">
+                Short fiction and poetry in <em>Anthro</em> magazine
+              </a>{' '}
+              <span style={{ color: 'var(--fg-muted)' }}>(2006–2007) — as Slyford T. Rabbit</span>
+            </li>
+          </ul>
+          <p style={{ margin: 0, fontSize: '0.95rem' }}>
+            <Link
+              href="/bibliography"
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.85rem',
+                letterSpacing: '0.04em',
+                color: 'var(--accent)',
+                textDecoration: 'none',
+              }}
+            >
+              See the full bibliography →
+            </Link>
+          </p>
+        </div>
+      </section>
+
       {/* Hear from me */}
       <section style={{ marginBottom: '2.5rem' }}>
         <h2 style={sectionHeadingStyle}>Hear from me directly</h2>
