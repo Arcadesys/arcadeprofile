@@ -324,6 +324,10 @@ export const toolDefinitions: Tool[] = [
         alt: { type: 'string', description: 'Alt text for accessibility.' },
         caption: { type: 'string', description: 'Optional caption.' },
       },
+      oneOf: [
+        { required: ['filePath'] },
+        { required: ['fileContent', 'filename'] },
+      ],
     },
   },
   {
@@ -356,6 +360,10 @@ export const toolDefinitions: Tool[] = [
         },
       },
       required: ['slug'],
+      oneOf: [
+        { required: ['filePath'] },
+        { required: ['fileContent', 'filename'] },
+      ],
     },
   },
   {
@@ -939,12 +947,24 @@ async function uploadImageFile(opts: {
     if (!opts.filename) {
       throw new Error('`filename` is required when uploading via `fileContent`.');
     }
+    // Allow data-URI parameters (charset, name, etc.) between the mediatype
+    // and the `;base64,` marker. The non-greedy `.*?` keeps the match anchored
+    // at the first `;base64,` so we don't eat past it into the payload.
     const stripped = opts.fileContent.startsWith('data:')
-      ? opts.fileContent.replace(/^data:[^;]+;base64,/, '')
+      ? opts.fileContent.replace(/^data:.*?;base64,/, '')
       : opts.fileContent;
     fileBuffer = Buffer.from(stripped, 'base64');
     filename = basename(opts.filename);
   } else if (opts.filePath) {
+    // Refuse filePath when the MCP is deployed (Vercel sets VERCEL=1). A
+    // hosted server reading paths from a client request would let any caller
+    // with a valid API key exfiltrate .env, /etc/passwd, etc. The local
+    // stdio MCP runs without VERCEL set and keeps filePath support.
+    if (process.env.VERCEL) {
+      throw new Error(
+        '`filePath` is not supported by the hosted MCP — pass `fileContent` (base64) + `filename` instead.',
+      );
+    }
     fileBuffer = readFileSync(opts.filePath);
     filename = basename(opts.filePath);
   } else {
