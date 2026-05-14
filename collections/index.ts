@@ -6,6 +6,7 @@ import { Groups } from './Groups';
 import { Media } from './Media';
 import { NavItems } from './NavItems';
 import { Pages } from './Pages';
+import { PostReactions } from './PostReactions';
 import { Posts } from './Posts';
 import { Users } from './Users';
 import { PublishQueue } from '../globals/PublishQueue';
@@ -13,6 +14,7 @@ import { PublishQueue } from '../globals/PublishQueue';
 export const collections = [
   Users,
   Posts,
+  PostReactions,
   Groups,
   Books,
   Demos,

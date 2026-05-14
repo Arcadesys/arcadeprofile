@@ -13,6 +13,8 @@ import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
 import ShareLinks from '@/app/components/ShareLinks';
+import PostReactions from '@/app/components/PostReactions';
+import { getReactionCounts } from '@/lib/reactions';
 import { JsonLd } from '@/lib/structured-data';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
@@ -471,6 +473,9 @@ export default async function ProjectPartPage({ params }: Props) {
 
   const prevTitle = idx === 1 ? 'Introduction' : posts[idx - 2].title;
 
+  const reactionPayload = await getPayload({ config: payloadConfig });
+  const initialReactionCounts = await getReactionCounts(reactionPayload, post.id);
+
   return (
     <>
       {jsonLd && <JsonLd data={jsonLd} />}
@@ -506,6 +511,7 @@ export default async function ProjectPartPage({ params }: Props) {
         />
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
+          <PostReactions postId={post.id} initialCounts={initialReactionCounts} />
           <ShareLinks
             url={`${SITE_URL}/projects/${slug}/${partNum(idx)}`}
             title={post.title}

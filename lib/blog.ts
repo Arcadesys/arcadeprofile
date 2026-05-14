@@ -9,6 +9,7 @@ export interface BlogPostMeta {
 }
 
 export interface BlogPost {
+  id: number;
   slug: string;
   title: string;
   date: string;
@@ -54,6 +55,7 @@ export interface Group {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toPost(doc: any): BlogPost {
   return {
+    id: doc.id as number,
     slug: doc.slug as string,
     title: doc.title as string,
     date: doc.publishedDate as string,
