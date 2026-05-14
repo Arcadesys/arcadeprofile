@@ -209,6 +209,7 @@ export interface Post {
    * When a draft should be promoted to published by the scheduler.
    */
   scheduledPublishDate?: string | null;
+  previewUrl?: string | null;
   /**
    * Group/series slug (e.g. "the-singularity-log")
    */
@@ -240,6 +241,10 @@ export interface Post {
    * Internal scheduling/newsletter workflow. Payload draft/published state lives in Status.
    */
   publish_status?: ('draft' | 'scheduled' | 'published' | 'sent') | null;
+  /**
+   * Auto-generated. Stable across edits so shared preview links keep working.
+   */
+  previewToken?: string | null;
   /**
    * Show this published post on /samples.
    */
@@ -871,6 +876,7 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
       };
   scheduledPublishDate?: T;
+  previewUrl?: T;
   group?: T;
   order?: T;
   chapter?: T;
@@ -884,6 +890,7 @@ export interface PostsSelect<T extends boolean = true> {
   newsletterHeading?: T;
   newsletterDescription?: T;
   publish_status?: T;
+  previewToken?: T;
   showInSamples?: T;
   sampleOrder?: T;
   sampleLabel?: T;

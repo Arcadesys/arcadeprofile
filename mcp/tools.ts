@@ -9,6 +9,8 @@ import { readFileSync } from 'fs';
 import { basename, extname } from 'path';
 import type { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
+import { buildPreviewUrl } from '../lib/preview-token';
+
 // ---------------------------------------------------------------------------
 // Env / config (resolved at import time for stdio; injected at request time
 // for HTTP by setting process.env before the route module initialises)
@@ -424,6 +426,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
       publish_status: p.publish_status,
       publishedDate: p.publishedDate,
       excerpt: p.excerpt,
+      previewUrl: buildPreviewUrl(p.previewToken),
     }));
     return { content: [{ type: 'text', text: JSON.stringify(posts, null, 2) }] };
   },
@@ -431,9 +434,11 @@ export const toolHandlers: Record<string, ToolHandler> = {
   async get_post(args) {
     const data = (await payloadFetch(
       `/posts?where[slug][equals]=${args.slug}&limit=1&depth=0`,
-    )) as { docs: unknown[] };
+    )) as { docs: Record<string, unknown>[] };
     if (!data.docs.length) return { content: [{ type: 'text', text: 'Post not found.' }] };
-    return { content: [{ type: 'text', text: JSON.stringify(data.docs[0], null, 2) }] };
+    const doc = data.docs[0];
+    const enriched = { ...doc, previewUrl: buildPreviewUrl(doc.previewToken) };
+    return { content: [{ type: 'text', text: JSON.stringify(enriched, null, 2) }] };
   },
 
   async create_post(args) {
