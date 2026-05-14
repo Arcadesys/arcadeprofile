@@ -3,12 +3,19 @@ import Image from 'next/image';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
 
 export const metadata: Metadata = {
-  title: 'Store — The Arcades',
+  title: 'Store',
   description: 'Books by Austen Tucker-Crowder.',
+  alternates: { canonical: '/store' },
   openGraph: {
+    type: 'website',
     title: 'Store — The Arcades',
     description: 'Books by Austen Tucker-Crowder.',
-    url: 'https://thearcades.me/store',
+    url: '/store',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Store — The Arcades',
+    description: 'Books by Austen Tucker-Crowder.',
   },
 };
 

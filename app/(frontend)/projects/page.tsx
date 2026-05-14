@@ -12,12 +12,19 @@ import ProjectsIndex, {
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Projects — The Arcades',
+  title: 'Projects',
   description: 'Fiction, tools, experiments, and other things Austen is building.',
+  alternates: { canonical: '/projects' },
   openGraph: {
+    type: 'website',
     title: 'Projects — The Arcades',
     description: 'Projects and creative work by Austen Tucker-Crowder.',
-    url: 'https://thearcades.me/projects',
+    url: '/projects',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Projects — The Arcades',
+    description: 'Projects and creative work by Austen Tucker-Crowder.',
   },
 };
 

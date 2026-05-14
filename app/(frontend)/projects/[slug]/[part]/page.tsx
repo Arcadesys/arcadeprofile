@@ -13,8 +13,67 @@ import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
 import ShareLinks from '@/app/components/ShareLinks';
+import { JsonLd } from '@/lib/structured-data';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
+
+interface PostExtras {
+  canonicalPath: string | null;
+  updatedAt: string | null;
+  publishedDate: string | null;
+  author: string | null;
+}
+
+async function loadPostExtras(postSlug: string): Promise<PostExtras> {
+  try {
+    const payload = await getPayload({ config: payloadConfig });
+    const result = await payload.find({
+      collection: 'posts',
+      where: { slug: { equals: postSlug } },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    });
+    const doc = result.docs[0] as
+      | {
+          discoverability?: { canonical_path?: string };
+          updatedAt?: string;
+          publishedDate?: string;
+          author?: string;
+        }
+      | undefined;
+    return {
+      canonicalPath: doc?.discoverability?.canonical_path?.trim() || null,
+      updatedAt: doc?.updatedAt ?? null,
+      publishedDate: doc?.publishedDate ?? null,
+      author: doc?.author ?? null,
+    };
+  } catch {
+    return { canonicalPath: null, updatedAt: null, publishedDate: null, author: null };
+  }
+}
+
+async function loadGroupExtras(groupSlug: string): Promise<{ canonicalPath: string | null; updatedAt: string | null }> {
+  try {
+    const payload = await getPayload({ config: payloadConfig });
+    const result = await payload.find({
+      collection: 'groups',
+      where: { slug: { equals: groupSlug } },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    });
+    const doc = result.docs[0] as
+      | { discoverability?: { canonical_path?: string }; updatedAt?: string }
+      | undefined;
+    return {
+      canonicalPath: doc?.discoverability?.canonical_path?.trim() || null,
+      updatedAt: doc?.updatedAt ?? null,
+    };
+  } catch {
+    return { canonicalPath: null, updatedAt: null };
+  }
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -81,14 +140,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (idx === 0) {
     const payload = await getPayload({ config: payloadConfig });
-    const og = await resolveGroupOgImage(payload, slug);
+    const [og, groupExtras] = await Promise.all([
+      resolveGroupOgImage(payload, slug),
+      loadGroupExtras(slug),
+    ]);
     const metaTitle = group?.meta?.title?.trim() || project.title;
     const metaDescription = group?.meta?.description?.trim() || project.description || undefined;
     const title = `${metaTitle} — The Arcades`;
-    const url = `${SITE_URL}/projects/${slug}/${part}`;
+    const path = `/projects/${slug}/${part}`;
+    const url = `${SITE_URL}${path}`;
+    const canonical = groupExtras.canonicalPath || path;
     return {
       title,
       description: metaDescription,
+      alternates: { canonical },
       openGraph: {
         title,
         description: metaDescription,
@@ -110,14 +175,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = group?.posts[idx - 1];
   if (!post) return {};
   const payload = await getPayload({ config: payloadConfig });
-  const og = await resolvePostOgImageBySlug(payload, post.slug);
+  const [og, postExtras] = await Promise.all([
+    resolvePostOgImageBySlug(payload, post.slug),
+    loadPostExtras(post.slug),
+  ]);
   const metaTitle = post.meta?.title?.trim() || post.title;
   const metaDescription = post.meta?.description?.trim() || post.excerpt || undefined;
   const title = `${metaTitle} — ${project.title}`;
-  const url = `${SITE_URL}/projects/${slug}/${part}`;
+  const path = `/projects/${slug}/${part}`;
+  const url = `${SITE_URL}${path}`;
+  const canonical = postExtras.canonicalPath || path;
   return {
     title,
     description: metaDescription,
+    alternates: { canonical },
     openGraph: {
       title,
       description: metaDescription,
@@ -199,6 +270,55 @@ export default async function ProjectPartPage({ params }: Props) {
   const sections = buildDrawerSections(slug, project.title, postTitles, idx);
   const prevPartHref = idx > 0 ? `/projects/${slug}/${partNum(idx - 1)}` : undefined;
   const nextPartHref = idx < posts.length ? `/projects/${slug}/${partNum(idx + 1)}` : undefined;
+
+  // Structured data — Article for posts, CollectionPage for the group intro.
+  let jsonLd: Record<string, unknown> | null = null;
+  if (idx === 0) {
+    jsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: project.title,
+      description: project.description ?? undefined,
+      url: `${SITE_URL}/projects/${slug}/00`,
+      isPartOf: { '@id': `${SITE_URL}/#website` },
+      author: { '@id': `${SITE_URL}/#person` },
+    };
+  } else {
+    const post = posts[idx - 1];
+    if (post) {
+      const payload = await getPayload({ config: payloadConfig });
+      const [og, extras] = await Promise.all([
+        resolvePostOgImageBySlug(payload, post.slug),
+        loadPostExtras(post.slug),
+      ]);
+      jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: post.meta?.title?.trim() || post.title,
+        description: post.meta?.description?.trim() || post.excerpt || undefined,
+        datePublished: extras.publishedDate || post.date,
+        dateModified: extras.updatedAt || extras.publishedDate || post.date,
+        author: {
+          '@type': 'Person',
+          name: extras.author || post.author || 'Austen Tucker',
+          '@id': `${SITE_URL}/#person`,
+        },
+        publisher: { '@id': `${SITE_URL}/#person` },
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': `${SITE_URL}/projects/${slug}/${partNum(idx)}`,
+        },
+        url: `${SITE_URL}/projects/${slug}/${partNum(idx)}`,
+        isPartOf: {
+          '@type': 'CreativeWorkSeries',
+          name: project.title,
+          url: `${SITE_URL}/projects/${slug}/00`,
+        },
+        articleSection: project.category ?? undefined,
+        image: og?.url ?? undefined,
+      };
+    }
+  }
   const categoryLabel = project.category ? (categoryLabels[project.category] ?? project.category) : null;
 
   const drawer = (
@@ -222,6 +342,7 @@ export default async function ProjectPartPage({ params }: Props) {
     const firstPost = posts[0];
     return (
       <>
+        {jsonLd && <JsonLd data={jsonLd} />}
         {posts.length > 0 && drawer}
         <main className={mainCls}>
           <nav style={{ marginBottom: '2.5rem' }}>
@@ -352,6 +473,7 @@ export default async function ProjectPartPage({ params }: Props) {
 
   return (
     <>
+      {jsonLd && <JsonLd data={jsonLd} />}
       {drawer}
       <main className={postMainCls}>
         <nav style={{ marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>

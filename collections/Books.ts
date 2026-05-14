@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { discoverabilityFields } from './fields/discoverability';
+import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { publicReadAccess } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
 
@@ -15,6 +15,6 @@ export const Books: CollectionConfig = {
     { name: 'buyLink', type: 'text' },
     { name: 'hasBuyButton', type: 'checkbox', defaultValue: false },
     { name: 'hasPreview', type: 'checkbox', defaultValue: false },
-    ...discoverabilityFields,
+    ...discoverabilityAndMetaFields,
   ],
 };

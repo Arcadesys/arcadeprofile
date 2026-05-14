@@ -3,12 +3,19 @@ import Link from 'next/link';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
 
 export const metadata: Metadata = {
-  title: 'Bio — The Arcades',
+  title: 'Bio',
   description: 'Austen Tucker-Crowder: AI enablement leader, program manager, agile coach, and builder of weird things.',
+  alternates: { canonical: '/bio' },
   openGraph: {
+    type: 'profile',
     title: 'Bio — The Arcades',
     description: 'Who is Austen Tucker-Crowder? A bit of everything: AI transformation lead, facilitator, dev, writer, and maker.',
-    url: 'https://thearcades.me/bio',
+    url: '/bio',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Bio — The Arcades',
+    description: 'Who is Austen Tucker-Crowder? A bit of everything: AI transformation lead, facilitator, dev, writer, and maker.',
   },
 };
 
