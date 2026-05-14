@@ -1,13 +1,20 @@
 import { ImageResponse } from 'next/og';
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
-import { getProjectBySlug } from '@/lib/payload';
-import { getGroupBySlug } from '@/lib/blog';
 
 export const runtime = 'nodejs';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const alt = 'The Arcades';
+
+const SITE_DOMAIN = (() => {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me';
+  try {
+    return new URL(raw).host;
+  } catch {
+    return 'thearcades.me';
+  }
+})();
 
 type Props = { params: Promise<{ slug: string; part: string }> };
 
@@ -25,18 +32,68 @@ function partToIndex(part: string): number {
   return isNaN(n) ? -1 : n;
 }
 
-async function loadGroupCategory(slug: string): Promise<string | null> {
+interface OgContext {
+  groupTitle: string;
+  groupCategory: string | null;
+  groupMetaTitle: string | null;
+  groupDescription: string | null;
+  post: { title: string; metaTitle: string | null } | null;
+}
+
+async function loadOgContext(slug: string, idx: number): Promise<OgContext | null> {
   try {
     const payload = await getPayload({ config: payloadConfig });
-    const result = await payload.find({
+    const groupResult = await payload.find({
       collection: 'groups',
       where: { slug: { equals: slug } },
       limit: 1,
       depth: 0,
       overrideAccess: true,
     });
-    const cat = result.docs[0]?.category as string | undefined;
-    return cat ?? null;
+    const group = groupResult.docs[0] as
+      | {
+          title?: string;
+          category?: string;
+          description?: string;
+          meta?: { title?: string };
+        }
+      | undefined;
+    if (!group) return null;
+
+    const ctx: OgContext = {
+      groupTitle: group.title ?? slug,
+      groupCategory: group.category ?? null,
+      groupMetaTitle: group.meta?.title?.trim() || null,
+      groupDescription: group.description?.trim() || null,
+      post: null,
+    };
+
+    if (idx > 0) {
+      const postResult = await payload.find({
+        collection: 'posts',
+        where: {
+          and: [
+            { group: { equals: slug } },
+            { publish_status: { in: ['published', 'sent'] } },
+          ],
+        },
+        sort: 'order',
+        limit: 100,
+        depth: 0,
+        overrideAccess: true,
+      });
+      const post = postResult.docs[idx - 1] as
+        | { title?: string; meta?: { title?: string } }
+        | undefined;
+      if (post) {
+        ctx.post = {
+          title: post.title ?? '',
+          metaTitle: post.meta?.title?.trim() || null,
+        };
+      }
+    }
+
+    return ctx;
   } catch {
     return null;
   }
@@ -45,28 +102,24 @@ async function loadGroupCategory(slug: string): Promise<string | null> {
 export default async function OgImage({ params }: Props) {
   const { slug, part } = await params;
   const idx = partToIndex(part);
+  const ctx = await loadOgContext(slug, idx);
 
-  const [project, group, category] = await Promise.all([
-    getProjectBySlug(slug),
-    getGroupBySlug(slug),
-    loadGroupCategory(slug),
-  ]);
+  let title = ctx?.groupTitle || 'The Arcades';
+  let byline = '';
 
-  let title = project?.title || 'The Arcades';
-  let byline = project?.title || '';
-
-  if (idx === 0) {
-    title = project?.title || title;
-    byline = project?.description || '';
-  } else if (idx > 0 && group) {
-    const post = group.posts[idx - 1];
-    if (post) {
-      title = post.meta?.title?.trim() || post.title;
-      byline = group.title;
+  if (ctx) {
+    if (idx === 0) {
+      title = ctx.groupMetaTitle || ctx.groupTitle;
+      byline = ctx.groupDescription || '';
+    } else if (ctx.post) {
+      title = ctx.post.metaTitle || ctx.post.title;
+      byline = ctx.groupTitle;
     }
   }
 
-  const categoryLabel = category ? CATEGORY_LABELS[category] || category : null;
+  const categoryLabel = ctx?.groupCategory
+    ? CATEGORY_LABELS[ctx.groupCategory] || ctx.groupCategory
+    : null;
 
   return new ImageResponse(
     (
@@ -126,7 +179,7 @@ export default async function OgImage({ params }: Props) {
           }}
         >
           <div style={{ display: 'flex', maxWidth: '760px' }}>{byline}</div>
-          <div style={{ display: 'flex', fontWeight: 600, color: '#f4f5f7' }}>thearcades.me</div>
+          <div style={{ display: 'flex', fontWeight: 600, color: '#f4f5f7' }}>{SITE_DOMAIN}</div>
         </div>
       </div>
     ),

@@ -99,7 +99,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           : undefined,
       },
       twitter: {
-        card: og ? 'summary_large_image' : 'summary',
+        card: 'summary_large_image',
         title,
         description: metaDescription,
         images: og ? [og.url] : undefined,

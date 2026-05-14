@@ -552,7 +552,11 @@ async function processPost(args: {
   }
 }
 
-async function loadPosts(payload: Payload, args: CliArgs): Promise<Post[]> {
+/**
+ * Stream every post one at a time without buffering the full collection.
+ * Each page is fetched on demand and yielded post-by-post.
+ */
+async function* streamPosts(payload: Payload, args: CliArgs): AsyncGenerator<Post> {
   if (args.slug) {
     const result = await payload.find({
       collection: 'posts',
@@ -561,11 +565,12 @@ async function loadPosts(payload: Payload, args: CliArgs): Promise<Post[]> {
       depth: 0,
       overrideAccess: true,
     });
-    return result.docs as Post[];
+    for (const doc of result.docs as Post[]) yield doc;
+    return;
   }
 
-  const posts: Post[] = [];
   let page = 1;
+  let yielded = 0;
   while (true) {
     const result = await payload.find({
       collection: 'posts',
@@ -575,12 +580,14 @@ async function loadPosts(payload: Payload, args: CliArgs): Promise<Post[]> {
       sort: '-createdAt',
       overrideAccess: true,
     });
-    posts.push(...(result.docs as Post[]));
-    if (!result.hasNextPage) break;
+    for (const doc of result.docs as Post[]) {
+      yield doc;
+      yielded++;
+      if (args.limit && yielded >= args.limit) return;
+    }
+    if (!result.hasNextPage) return;
     page++;
-    if (args.limit && posts.length >= args.limit) break;
   }
-  return args.limit ? posts.slice(0, args.limit) : posts;
 }
 
 async function main() {
@@ -607,13 +614,11 @@ async function main() {
 
   const payload = await getPayload({ config: configPromise });
   const client = new Anthropic();
-  const posts = await loadPosts(payload, args);
-  console.log(`Considering ${posts.length} posts.`);
 
   const counts = { updated: 0, skipped: 0, error: 0 };
   const imageCounts = { 'image-set': 0, 'image-skipped': 0, 'image-error': 0 };
 
-  for (const post of posts) {
+  for await (const post of streamPosts(payload, args)) {
     if (!args.skipText) {
       const outcome = await processPost({ payload, client, post, dryRun: args.dryRun });
       counts[outcome]++;
