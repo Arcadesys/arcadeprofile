@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     posts: Post;
+    'post-reactions': PostReaction;
     groups: Group;
     books: Book;
     demos: Demo;
@@ -84,6 +85,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
+    'post-reactions': PostReactionsSelect<false> | PostReactionsSelect<true>;
     groups: GroupsSelect<false> | GroupsSelect<true>;
     books: BooksSelect<false> | BooksSelect<true>;
     demos: DemosSelect<false> | DemosSelect<true>;
@@ -344,6 +346,20 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * Anonymous reader reactions on posts. One row per (post, emoji, clientId).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "post-reactions".
+ */
+export interface PostReaction {
+  id: number;
+  post: number | Post;
+  emoji: string;
+  clientId: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -783,6 +799,10 @@ export interface PayloadLockedDocument {
         value: number | Post;
       } | null)
     | ({
+        relationTo: 'post-reactions';
+        value: number | PostReaction;
+      } | null)
+    | ({
         relationTo: 'groups';
         value: number | Group;
       } | null)
@@ -935,6 +955,17 @@ export interface PostsSelect<T extends boolean = true> {
         image?: T;
         keywords?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "post-reactions_select".
+ */
+export interface PostReactionsSelect<T extends boolean = true> {
+  post?: T;
+  emoji?: T;
+  clientId?: T;
   updatedAt?: T;
   createdAt?: T;
 }
