@@ -18,6 +18,7 @@
     "postmark:test": "tsx scripts/send-test-email.ts",
     "verify:newsletter-fanout": "tsx --require ./scripts/patch-next-env.cjs scripts/verify-newsletter-fanout.ts",
     "ac:migrate-weekly-to-perpost": "tsx --require ./scripts/patch-next-env.cjs scripts/migrate-weekly-to-perpost.ts",
+    "backfill:post-meta": "tsx --require ./scripts/patch-next-env.cjs scripts/backfill-post-meta.ts",
     "test": "tsx --test lib/*.test.ts mcp/*.test.ts",
     "mcp": "tsx mcp/payload-mcp.ts"
   },

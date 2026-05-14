@@ -67,7 +67,13 @@ export const Posts: CollectionConfig = {
     beforeChange: [promoteScheduledDraftHook, ensurePreviewTokenHook],
     afterChange: [
       revalidatePostPaths,
-      async ({ doc, req }) => {
+      async ({ doc, req, context }) => {
+        // Back-office scripts (e.g. SEO meta backfill) can pass
+        // `context: { skipNewsletter: true }` to update posts without
+        // triggering AC fan-out. Editorial saves never set this.
+        if ((context as { skipNewsletter?: boolean } | undefined)?.skipNewsletter) {
+          return;
+        }
         // On publish, fan out to per-post newsletter subscribers. Idempotency
         // lives in `newsletterSends` — a per-audience record of every
         // successful send. The fanout skips audiences already in that array,
