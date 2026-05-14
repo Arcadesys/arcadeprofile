@@ -305,6 +305,16 @@ export const Posts: CollectionConfig = {
       required: true,
     },
     {
+      name: 'shareUrl',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: '/views/admin/PostShareLinkField#default',
+        },
+      },
+    },
+    {
       name: 'publishedDate',
       label: 'Public Date',
       type: 'date',
