@@ -502,6 +502,10 @@ export default async function ProjectPartPage({ params }: Props) {
           <PostRichText data={post.content} />
         </div>
 
+        <div style={{ marginTop: '2.5rem' }}>
+          <PostReactions postId={post.id} initialCounts={initialReactionCounts} />
+        </div>
+
         <SubscribeCTA
           source="post"
           magnet="story"
@@ -511,7 +515,6 @@ export default async function ProjectPartPage({ params }: Props) {
         />
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
-          <PostReactions postId={post.id} initialCounts={initialReactionCounts} />
           <ShareLinks
             url={`${SITE_URL}/projects/${slug}/${partNum(idx)}`}
             title={post.title}
