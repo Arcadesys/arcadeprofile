@@ -20,7 +20,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   // Without this, the backfill DO block below fails with
   //   function gen_random_bytes(integer) does not exist
   // and the whole deploy aborts before next build runs.
-  await db.execute(sql`CREATE EXTENSION IF NOT EXISTS pgcrypto;`);
+  await db.execute(sql`CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA public;`);
 
   await db.execute(sql`
     ALTER TABLE "posts"
