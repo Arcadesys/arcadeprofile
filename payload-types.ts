@@ -509,6 +509,24 @@ export interface Book {
       description?: string | null;
     };
   };
+  meta?: {
+    /**
+     * Override the <title>. Defaults to the document title.
+     */
+    title?: string | null;
+    /**
+     * Meta description for SEO.
+     */
+    description?: string | null;
+    /**
+     * OG image for social sharing.
+     */
+    image?: (number | null) | Media;
+    /**
+     * Comma-separated keywords for SEO.
+     */
+    keywords?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1024,6 +1042,14 @@ export interface BooksSelect<T extends boolean = true> {
               href?: T;
               description?: T;
             };
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        keywords?: T;
       };
   updatedAt?: T;
   createdAt?: T;

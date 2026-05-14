@@ -2,9 +2,21 @@ import type { Metadata } from 'next';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
 
 export const metadata: Metadata = {
-  title: 'Subscribe — The Arcades',
+  title: 'Subscribe',
   description:
     'Serialized fiction and essays by Austen Tucker. Every installment as it lands. All free.',
+  alternates: { canonical: '/subscribe' },
+  openGraph: {
+    type: 'website',
+    title: 'Subscribe — The Arcades',
+    description: 'Serialized fiction and essays by Austen Tucker. Every installment as it lands. All free.',
+    url: '/subscribe',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Subscribe — The Arcades',
+    description: 'Serialized fiction and essays by Austen Tucker. Every installment as it lands. All free.',
+  },
 };
 
 export default function SubscribePage() {

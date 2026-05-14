@@ -9,8 +9,20 @@ import SubscribeCTA from '@/app/components/SubscribeCTA';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Latest — The Arcades',
-  description: 'Writing by Austen Tucker.',
+  title: 'Latest',
+  description: 'New writing from The Arcades — fiction and essays by Austen Tucker.',
+  alternates: { canonical: '/latest' },
+  openGraph: {
+    type: 'website',
+    title: 'Latest — The Arcades',
+    description: 'New writing from The Arcades — fiction and essays by Austen Tucker.',
+    url: '/latest',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Latest — The Arcades',
+    description: 'New writing from The Arcades — fiction and essays by Austen Tucker.',
+  },
 };
 
 function first100Words(text: string): string {

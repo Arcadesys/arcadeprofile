@@ -3,10 +3,17 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Resume',
   description: 'Professional resume of Austen Tucker-Crowder — AI Enablement and Transformation, Program Manager, and Agile Coach.',
+  alternates: { canonical: '/resume' },
   openGraph: {
+    type: 'profile',
     title: 'Resume — Austen Tucker-Crowder',
     description: 'AI Enablement and Transformation, Program Manager, and Agile Coach with 16+ years delivering customer-focused software solutions.',
-    url: 'https://thearcades.me/resume',
+    url: '/resume',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Resume — Austen Tucker-Crowder',
+    description: 'AI Enablement and Transformation, Program Manager, and Agile Coach with 16+ years delivering customer-focused software solutions.',
   },
 };
 
