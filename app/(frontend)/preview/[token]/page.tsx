@@ -5,14 +5,62 @@ import payloadConfig from '@payload-config';
 
 import PostRichText from '@/app/components/PostRichText';
 import { getPostLocationBySlug } from '@/lib/post-url';
+import { resolvePostOgImage } from '@/lib/post-og-image';
 import { PREVIEW_TOKEN_PATTERN } from '@/lib/preview-token';
+import type { Post } from '@/payload-types';
 import PreviewBanner from './PreviewBanner';
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(
+  /\/+$/,
+  '',
+);
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false, nocache: true },
-};
+const NOINDEX = { index: false, follow: false, nocache: true } as const;
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { token } = await params;
+  if (!PREVIEW_TOKEN_PATTERN.test(token)) return { robots: NOINDEX };
+
+  const payload = await getPayload({ config: payloadConfig });
+  const result = await payload.find({
+    collection: 'posts',
+    where: { previewToken: { equals: token } },
+    limit: 1,
+    depth: 1,
+    overrideAccess: true,
+  });
+
+  const post = result.docs[0] as Post | undefined;
+  if (!post) return { robots: NOINDEX };
+
+  const metaTitle = post.meta?.title?.trim() || (post.title as string);
+  const metaDescription = post.meta?.description?.trim() || (post.excerpt as string | undefined);
+  const og = await resolvePostOgImage(payload, post);
+  const url = `${SITE_URL}/preview/${token}`;
+
+  return {
+    title: metaTitle,
+    description: metaDescription,
+    robots: NOINDEX,
+    openGraph: {
+      title: metaTitle,
+      description: metaDescription,
+      type: 'article',
+      url,
+      images: og
+        ? [{ url: og.url, alt: og.alt ?? metaTitle, width: og.width, height: og.height }]
+        : undefined,
+    },
+    twitter: {
+      card: og ? 'summary_large_image' : 'summary',
+      title: metaTitle,
+      description: metaDescription,
+      images: og ? [og.url] : undefined,
+    },
+  };
+}
 
 type Props = { params: Promise<{ token: string }> };
 
