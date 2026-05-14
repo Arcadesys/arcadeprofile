@@ -14,8 +14,8 @@ import type { DrawerSection } from '@/app/components/DocDrawer';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
 import ShareLinks from '@/app/components/ShareLinks';
 import { JsonLd } from '@/lib/structured-data';
-
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
+import { SITE_URL } from '@/lib/site-url';
+import { cache } from 'react';
 
 interface PostExtras {
   canonicalPath: string | null;
@@ -24,7 +24,9 @@ interface PostExtras {
   author: string | null;
 }
 
-async function loadPostExtras(postSlug: string): Promise<PostExtras> {
+// React.cache memoizes per request — both generateMetadata and the page
+// component call these, so without it we'd double-query Payload per render.
+const loadPostExtras = cache(async (postSlug: string): Promise<PostExtras> => {
   try {
     const payload = await getPayload({ config: payloadConfig });
     const result = await payload.find({
@@ -51,9 +53,19 @@ async function loadPostExtras(postSlug: string): Promise<PostExtras> {
   } catch {
     return { canonicalPath: null, updatedAt: null, publishedDate: null, author: null };
   }
-}
+});
 
-async function loadGroupExtras(groupSlug: string): Promise<{ canonicalPath: string | null; updatedAt: string | null }> {
+const loadPostOgImage = cache(async (postSlug: string) => {
+  const payload = await getPayload({ config: payloadConfig });
+  return resolvePostOgImageBySlug(payload, postSlug);
+});
+
+const loadGroupOgImage = cache(async (groupSlug: string) => {
+  const payload = await getPayload({ config: payloadConfig });
+  return resolveGroupOgImage(payload, groupSlug);
+});
+
+const loadGroupExtras = cache(async (groupSlug: string): Promise<{ canonicalPath: string | null; updatedAt: string | null }> => {
   try {
     const payload = await getPayload({ config: payloadConfig });
     const result = await payload.find({
@@ -73,7 +85,7 @@ async function loadGroupExtras(groupSlug: string): Promise<{ canonicalPath: stri
   } catch {
     return { canonicalPath: null, updatedAt: null };
   }
-}
+});
 
 export const dynamic = 'force-dynamic';
 
@@ -139,9 +151,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!project) return {};
 
   if (idx === 0) {
-    const payload = await getPayload({ config: payloadConfig });
     const [og, groupExtras] = await Promise.all([
-      resolveGroupOgImage(payload, slug),
+      loadGroupOgImage(slug),
       loadGroupExtras(slug),
     ]);
     const metaTitle = group?.meta?.title?.trim() || project.title;
@@ -174,9 +185,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const post = group?.posts[idx - 1];
   if (!post) return {};
-  const payload = await getPayload({ config: payloadConfig });
   const [og, postExtras] = await Promise.all([
-    resolvePostOgImageBySlug(payload, post.slug),
+    loadPostOgImage(post.slug),
     loadPostExtras(post.slug),
   ]);
   const metaTitle = post.meta?.title?.trim() || post.title;
@@ -286,9 +296,8 @@ export default async function ProjectPartPage({ params }: Props) {
   } else {
     const post = posts[idx - 1];
     if (post) {
-      const payload = await getPayload({ config: payloadConfig });
       const [og, extras] = await Promise.all([
-        resolvePostOgImageBySlug(payload, post.slug),
+        loadPostOgImage(post.slug),
         loadPostExtras(post.slug),
       ]);
       jsonLd = {

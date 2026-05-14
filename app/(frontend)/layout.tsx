@@ -8,8 +8,8 @@ import DockStack from '../components/DockStack';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import { JsonLd } from '@/lib/structured-data';
+import { SITE_URL } from '@/lib/site-url';
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 const SITE_NAME = 'The Arcades';
 const SITE_DESCRIPTION = 'Fiction, essays, and tools by Austen Tucker.';
 

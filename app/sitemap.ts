@@ -1,10 +1,9 @@
 import type { MetadataRoute } from 'next';
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
-import { buildPostUrl, computePostPartIndex } from '@/lib/post-url';
+import { buildPostUrl } from '@/lib/post-url';
 import { logger } from '@/lib/logger';
-
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
+import { SITE_URL } from '@/lib/site-url';
 
 type Entry = MetadataRoute.Sitemap[number];
 
@@ -48,7 +47,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     }
 
-    // Posts → /projects/<group>/<part>, indexed by computed part position
+    // Posts → /projects/<group>/<part>. The DB sort matches the order used
+    // by computePostPartIndex, so we can compute the 1-based part index
+    // in-memory by tracking each group's running count, rather than firing
+    // a per-post query (N+1).
     const posts = await payload.find({
       collection: 'posts',
       where: {
@@ -59,12 +61,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       depth: 0,
       overrideAccess: true,
     });
+    const partCounters = new Map<string, number>();
     for (const p of posts.docs) {
       const slug = p.slug as string | undefined;
       const groupSlug = p.group as string | undefined;
       if (!slug || !groupSlug) continue;
-      const partIndex = await computePostPartIndex(payload, slug, groupSlug);
-      if (partIndex === null) continue;
+      const partIndex = (partCounters.get(groupSlug) ?? 0) + 1;
+      partCounters.set(groupSlug, partIndex);
       entries.push({
         url: `${SITE_URL}${buildPostUrl(groupSlug, partIndex)}`,
         lastModified: p.updatedAt ? new Date(p.updatedAt) : now,
