@@ -15,6 +15,13 @@ import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres';
  * realistic post count, but the retry keeps it bulletproof.
  */
 export async function up({ db }: MigrateUpArgs): Promise<void> {
+  // gen_random_bytes() lives in pgcrypto. Managed providers (Neon, Supabase,
+  // RDS) all ship it; IF NOT EXISTS keeps this a no-op when already enabled.
+  // Without this, the backfill DO block below fails with
+  //   function gen_random_bytes(integer) does not exist
+  // and the whole deploy aborts before next build runs.
+  await db.execute(sql`CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA public;`);
+
   await db.execute(sql`
     ALTER TABLE "posts"
       ADD COLUMN IF NOT EXISTS "preview_token" varchar;
