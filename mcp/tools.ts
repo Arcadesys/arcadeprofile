@@ -305,31 +305,50 @@ export const toolDefinitions: Tool[] = [
   {
     name: 'upload_image',
     description:
-      'Upload a local image file to the Payload Media collection (stored in Vercel Blob). Returns the media id and public URL.',
+      'Upload an image to the Payload Media collection (stored in Vercel Blob). Provide either `filePath` (when the MCP runs locally with access to the caller\'s filesystem) or `fileContent` (base64-encoded bytes) plus `filename` (when calling the hosted MCP, which has no view of the caller\'s disk). Returns the media id and public URL.',
     inputSchema: {
       type: 'object',
       properties: {
         filePath: {
           type: 'string',
-          description: 'Absolute path to the local image file to upload.',
+          description: 'Absolute path to the local image file. Use only when the MCP server can read your filesystem (stdio transport).',
+        },
+        fileContent: {
+          type: 'string',
+          description: 'Base64-encoded image bytes. Use for the hosted MCP (no filesystem access). Plain base64 or a `data:image/...;base64,...` URI both work.',
+        },
+        filename: {
+          type: 'string',
+          description: 'Original filename including extension (e.g. "moral-panic-mob.jpg"). Required when using `fileContent`; ignored when using `filePath`.',
         },
         alt: { type: 'string', description: 'Alt text for accessibility.' },
         caption: { type: 'string', description: 'Optional caption.' },
       },
-      required: ['filePath'],
+      oneOf: [
+        { required: ['filePath'] },
+        { required: ['fileContent', 'filename'] },
+      ],
     },
   },
   {
     name: 'upload_and_embed_image',
     description:
-      'One-shot: upload a local image to Media, then embed it in an existing post by appending the `![media:<id>]()` placeholder to the post markdown and re-converting the body to Lexical. Use this when you already have a published/draft post and want to add an image without manually editing the markdown.',
+      'One-shot: upload an image to Media, then embed it in an existing post by inserting an upload node at the top or bottom of the post body. Provide either `filePath` (local MCP) or `fileContent` + `filename` (hosted MCP). Use this when you already have a published/draft post and want to add an image without manually editing the markdown.',
     inputSchema: {
       type: 'object',
       properties: {
         slug: { type: 'string', description: 'Slug of the post to embed the image into.' },
         filePath: {
           type: 'string',
-          description: 'Absolute path to the local image file to upload.',
+          description: 'Absolute path to the local image file. Use only when the MCP server can read your filesystem (stdio transport).',
+        },
+        fileContent: {
+          type: 'string',
+          description: 'Base64-encoded image bytes. Use for the hosted MCP (no filesystem access). Plain base64 or a `data:image/...;base64,...` URI both work.',
+        },
+        filename: {
+          type: 'string',
+          description: 'Original filename including extension. Required when using `fileContent`.',
         },
         alt: { type: 'string', description: 'Alt text for accessibility.' },
         caption: { type: 'string', description: 'Optional caption stored on the Media doc.' },
@@ -340,7 +359,11 @@ export const toolDefinitions: Tool[] = [
             'Where to insert the image relative to the existing post body. Defaults to append.',
         },
       },
-      required: ['slug', 'filePath'],
+      required: ['slug'],
+      oneOf: [
+        { required: ['filePath'] },
+        { required: ['fileContent', 'filename'] },
+      ],
     },
   },
   {
@@ -619,7 +642,9 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
   async upload_image(args) {
     const doc = await uploadImageFile({
-      filePath: args.filePath as string,
+      filePath: args.filePath as string | undefined,
+      fileContent: args.fileContent as string | undefined,
+      filename: args.filename as string | undefined,
       alt: args.alt as string | undefined,
       caption: args.caption as string | undefined,
     });
@@ -648,7 +673,9 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const post = found.docs[0];
 
     const media = await uploadImageFile({
-      filePath: args.filePath as string,
+      filePath: args.filePath as string | undefined,
+      fileContent: args.fileContent as string | undefined,
+      filename: args.filename as string | undefined,
       alt: args.alt as string | undefined,
       caption: args.caption as string | undefined,
     });
@@ -907,12 +934,42 @@ type LexicalRoot = {
 };
 
 async function uploadImageFile(opts: {
-  filePath: string;
+  filePath?: string;
+  fileContent?: string;
+  filename?: string;
   alt?: string;
   caption?: string;
 }): Promise<{ id: number; url?: string; filename?: string; alt?: string }> {
-  const fileBuffer = readFileSync(opts.filePath);
-  const filename = basename(opts.filePath);
+  let fileBuffer: Buffer;
+  let filename: string;
+
+  if (opts.fileContent) {
+    if (!opts.filename) {
+      throw new Error('`filename` is required when uploading via `fileContent`.');
+    }
+    // Allow data-URI parameters (charset, name, etc.) between the mediatype
+    // and the `;base64,` marker. The non-greedy `.*?` keeps the match anchored
+    // at the first `;base64,` so we don't eat past it into the payload.
+    const stripped = opts.fileContent.startsWith('data:')
+      ? opts.fileContent.replace(/^data:.*?;base64,/, '')
+      : opts.fileContent;
+    fileBuffer = Buffer.from(stripped, 'base64');
+    filename = basename(opts.filename);
+  } else if (opts.filePath) {
+    // Refuse filePath when the MCP is deployed (Vercel sets VERCEL=1). A
+    // hosted server reading paths from a client request would let any caller
+    // with a valid API key exfiltrate .env, /etc/passwd, etc. The local
+    // stdio MCP runs without VERCEL set and keeps filePath support.
+    if (process.env.VERCEL) {
+      throw new Error(
+        '`filePath` is not supported by the hosted MCP — pass `fileContent` (base64) + `filename` instead.',
+      );
+    }
+    fileBuffer = readFileSync(opts.filePath);
+    filename = basename(opts.filePath);
+  } else {
+    throw new Error('Provide either `filePath` (local MCP) or `fileContent` + `filename` (hosted MCP).');
+  }
 
   const ext = extname(filename).toLowerCase();
   const mimeTypes: Record<string, string> = {
@@ -927,7 +984,7 @@ async function uploadImageFile(opts: {
   const mimeType = mimeTypes[ext] || 'application/octet-stream';
 
   const form = new FormData();
-  form.append('file', new Blob([fileBuffer], { type: mimeType }), filename);
+  form.append('file', new Blob([new Uint8Array(fileBuffer)], { type: mimeType }), filename);
   if (opts.alt) form.append('alt', opts.alt);
   if (opts.caption) form.append('caption', opts.caption);
 
