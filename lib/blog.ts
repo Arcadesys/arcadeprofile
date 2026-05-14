@@ -3,6 +3,11 @@ import configPromise from '@payload-config';
 import type { SerializedEditorState } from 'lexical';
 import { logger } from '@/lib/logger';
 
+export interface BlogPostMeta {
+  title?: string;
+  description?: string;
+}
+
 export interface BlogPost {
   slug: string;
   title: string;
@@ -27,6 +32,8 @@ export interface BlogPost {
   sampleOrder?: number;
   /** Optional CTA label for /samples. */
   sampleLabel?: string;
+  /** SEO meta overrides — used by generateMetadata for OG/Twitter tags. */
+  meta?: BlogPostMeta;
 }
 
 export interface Chapter {
@@ -41,6 +48,7 @@ export interface Group {
   tags: string[];
   chapters?: Chapter[];
   posts: BlogPost[];
+  meta?: BlogPostMeta;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,6 +68,12 @@ function toPost(doc: any): BlogPost {
     showInSamples: Boolean(doc.showInSamples),
     sampleOrder: doc.sampleOrder as number | undefined,
     sampleLabel: (doc.sampleLabel as string) || undefined,
+    meta: doc.meta
+      ? {
+          title: (doc.meta.title as string) || undefined,
+          description: (doc.meta.description as string) || undefined,
+        }
+      : undefined,
   };
 }
 
@@ -299,6 +313,7 @@ export async function getAllGroups(): Promise<Group[]> {
       return new Date(a.date).getTime() - new Date(b.date).getTime();
     });
 
+    const groupMeta = (g as { meta?: { title?: string; description?: string } | null }).meta;
     groups.push({
       slug: g.slug as string,
       title: g.title as string,
@@ -308,6 +323,12 @@ export async function getAllGroups(): Promise<Group[]> {
         ? g.chapters.map((c: { title: string; slug: string }) => ({ title: c.title, slug: c.slug }))
         : undefined,
       posts,
+      meta: groupMeta
+        ? {
+            title: groupMeta.title || undefined,
+            description: groupMeta.description || undefined,
+          }
+        : undefined,
     });
   }
 
