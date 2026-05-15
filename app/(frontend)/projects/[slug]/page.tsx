@@ -226,9 +226,11 @@ export default async function ProjectIntroPage({ params }: Props) {
             {project.title}
           </h1>
           {project.description && (
-            <p style={{ fontSize: '1.05rem', lineHeight: 1.65, color: 'var(--fg-muted)', margin: 0 }}>
-              {project.description}
-            </p>
+            <div style={{ fontSize: '1.05rem', lineHeight: 1.65, color: 'var(--fg-muted)' }}>
+              {project.description.split(/\n\s*\n/).map((para, i) => (
+                <p key={i} style={{ margin: i === 0 ? 0 : '0.85rem 0 0' }}>{para}</p>
+              ))}
+            </div>
           )}
         </header>
 
@@ -289,18 +291,28 @@ export default async function ProjectIntroPage({ params }: Props) {
           </div>
         )}
 
-        {posts.length > 0 && project.format === 'collection' && (
+        {posts.length > 0 && (
           <section style={{ borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
-            <SectionLabel>
-              {posts.length} {posts.length === 1 ? 'piece' : 'pieces'}
-            </SectionLabel>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1rem' }}>
+              <SectionLabel>
+                {posts.length} {project.format === 'collection'
+                  ? (posts.length === 1 ? 'piece' : 'pieces')
+                  : (posts.length === 1 ? 'part' : 'parts')}
+              </SectionLabel>
+              {firstPost && project.format !== 'collection' && (
+                <Link href={buildPostUrl(slug, firstPost.slug)} style={startReadingStyle}>Start reading →</Link>
+              )}
+            </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              {posts.map((p) => (
+              {posts.map((p, i) => (
                 <li key={p.slug}>
                   <Link
                     href={buildPostUrl(slug, p.slug)}
                     style={collectionItemStyle}
                   >
+                    {project.format !== 'collection' && (
+                      <span style={partLabelStyle}>Part {partNum(i + 1)}</span>
+                    )}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.15rem' }}>{p.title}</div>
                       {p.excerpt && (
@@ -315,16 +327,6 @@ export default async function ProjectIntroPage({ params }: Props) {
               ))}
             </ul>
           </section>
-        )}
-
-        {firstPost && project.format !== 'collection' && (
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <div style={monoMutedStyle}>{posts.length} {posts.length === 1 ? 'piece' : 'pieces'}</div>
-              <div style={{ fontSize: '0.9rem', color: 'var(--fg-muted)' }}>{firstPost.title}</div>
-            </div>
-            <Link href={buildPostUrl(slug, firstPost.slug)} style={startReadingStyle}>Start reading →</Link>
-          </div>
         )}
       </main>
     </>
@@ -394,6 +396,19 @@ const collectionItemStyle: React.CSSProperties = {
   textDecoration: 'none',
   color: 'var(--fg)',
   background: 'var(--surface)',
+};
+
+const partLabelStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-mono)',
+  fontSize: '0.7rem',
+  letterSpacing: '0.1em',
+  textTransform: 'uppercase',
+  color: 'var(--fg-muted)',
+  border: '1px solid var(--border)',
+  borderRadius: '4px',
+  padding: '0.15rem 0.45rem',
+  alignSelf: 'flex-start',
+  whiteSpace: 'nowrap',
 };
 
 const startReadingStyle: React.CSSProperties = {

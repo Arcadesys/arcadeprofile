@@ -50,7 +50,11 @@ const groups: GroupSeed[] = [
   {
     title: 'It Takes a Zoo',
     slug: 'it-takes-a-zoo',
-    description: 'A novel-in-stories about escaping the hypercapitalist grind.',
+    description: `A novel-in-stories about chosen family in a hypercapitalist near-future.
+
+The Zoo is a small private server that throws open its door to anyone who needs somewhere quiet, weird, and kind — rain on cobblestone, jazz in the warm dark, no advertisements, no logout button.
+
+Cold Boot, the opening arc, starts with a coworker sliding Jamie a card across a virtual cubicle and saying: I'm about to change your life. New parts post Mondays, Wednesdays, and Fridays.`,
     category: 'fiction',
     status: 'active',
     featured: true,
