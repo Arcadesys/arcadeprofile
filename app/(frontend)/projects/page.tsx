@@ -115,7 +115,7 @@ export default async function ProjectsPage() {
   const pulse: PulseItem[] = pulseSource.slice(0, PULSE_MAX).map((p) => {
     const hub = hubBySlug.get(p.group!)!;
     const loc = urlMap.get(p.slug);
-    const href = loc ? buildPostUrl(loc.groupSlug, loc.partIndex) : `/projects/${hub.slug}`;
+    const href = loc ? buildPostUrl(loc.groupSlug, p.slug) : `/projects/${hub.slug}`;
     return {
       slug: p.slug,
       title: p.title,
@@ -141,7 +141,7 @@ export default async function ProjectsPage() {
 
   function toFeedItem(post: BlogPost, hub: ProjectHub): FeedItem {
     const loc = urlMap.get(post.slug);
-    const href = loc ? buildPostUrl(loc.groupSlug, loc.partIndex) : `/projects/${hub.slug}`;
+    const href = loc ? buildPostUrl(loc.groupSlug, post.slug) : `/projects/${hub.slug}`;
     return {
       slug: post.slug,
       title: post.title,

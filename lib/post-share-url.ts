@@ -1,6 +1,9 @@
 import type { Payload } from 'payload';
 
 import { buildPostUrl, computePostPartIndex } from '@/lib/post-url';
+// `computePostPartIndex` is still used as a presence check — a post with a
+// group but no resolvable position in the published list is treated as
+// not-shareable, same as before.
 import type { ShareUrlResponse } from '@/lib/post-share-url-types';
 import type { Post } from '@/payload-types';
 
@@ -46,6 +49,6 @@ export async function resolvePostShareUrl(
     return { url: null, absoluteUrl: null, reason: 'not-found' };
   }
 
-  const url = buildPostUrl(groupSlug, partIndex);
+  const url = buildPostUrl(groupSlug, slug);
   return { url, absoluteUrl: `${siteUrl()}${url}` };
 }

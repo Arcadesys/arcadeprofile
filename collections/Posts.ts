@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload';
 
 import type { Post } from '../payload-types';
 import { buildPostNewsletterContent } from '../lib/newsletter';
-import { buildPostUrl, computePostPartIndex } from '../lib/post-url';
+import { buildPostUrl } from '../lib/post-url';
 import { buildPreviewUrl } from '../lib/preview-token';
 import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { slugField } from './fields/slug';
@@ -13,19 +13,15 @@ import { revalidatePathsFor } from './hooks/revalidate';
 import { isAuthenticated } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
 
-const revalidatePostPaths = revalidatePathsFor(async (doc, payload) => {
+const revalidatePostPaths = revalidatePathsFor(async (doc) => {
   const slug = doc.slug as string | undefined;
   const group = doc.group as string | undefined;
   const paths = ['/latest', '/writing', '/samples', '/feed.xml'];
 
   if (group) {
     paths.push(`/writing/group/${group}`, `/${group}`, `/projects/${group}`, `/projects/${group}/00`);
-    // Part number is the post's 1-based position in the sorted group, NOT the
-    // raw `order` field — non-sequential orders (10, 20, ...) would otherwise
-    // revalidate the wrong URL and leave the actual page stale.
     if (slug) {
-      const partIndex = await computePostPartIndex(payload, slug, group);
-      if (partIndex !== null) paths.push(buildPostUrl(group, partIndex));
+      paths.push(buildPostUrl(group, slug));
     }
   }
 

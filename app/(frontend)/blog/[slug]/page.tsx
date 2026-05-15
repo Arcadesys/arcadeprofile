@@ -16,5 +16,5 @@ export default async function BlogPostRedirect({ params }: Props): Promise<never
   const indexInGroup = group.posts.findIndex(p => p.slug === slug);
   if (indexInGroup < 0) notFound();
 
-  permanentRedirect(buildPostUrl(group.slug, indexInGroup + 1));
+  permanentRedirect(buildPostUrl(group.slug, slug));
 }

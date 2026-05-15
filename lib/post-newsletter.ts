@@ -1,15 +1,13 @@
 import type { Payload } from 'payload';
 
 import type { Post } from '@/payload-types';
-import { computePostPartIndex } from './post-url';
 
 export type GroupHero = {
-  /** Group slug — used by `buildPostNewsletterContent` to build /projects/<slug>/<part> URLs. */
+  /** Group slug — used by `buildPostNewsletterContent` to build
+   * /projects/<group>/<post-slug> URLs. */
   slug?: string | null;
   image?: string | null;
   title?: string | null;
-  /** 1-based index of the post within its group (intro is 0; first post is 1). */
-  partIndex?: number | null;
 };
 
 /**
@@ -18,10 +16,6 @@ export type GroupHero = {
  * lookup yields no match. The group's `image` is an upload (relation to
  * `media`), so we populate it at depth: 1 and extract `.url` — passing the
  * raw media id through to the renderer would crash `String#trim` on it.
- *
- * Also computes the post's 1-based position within its group's published
- * posts (sorted by `order` then `publishedDate`), so the renderer can build
- * the canonical /projects/<group>/<part> permalink.
  */
 export async function resolveGroupHeroForPost(
   payload: Payload,
@@ -47,12 +41,9 @@ export async function resolveGroupHeroForPost(
       ? found.image.url
       : null;
 
-  const partIndex = await computePostPartIndex(payload, post.slug, groupSlug);
-
   return {
     slug: groupSlug,
     image: imageUrl,
     title: found.title ?? null,
-    partIndex,
   };
 }

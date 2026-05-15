@@ -39,12 +39,12 @@ export async function GET() {
     const loc = urlMap.get(post.slug);
     if (!loc) continue;
 
-    const postLink = `${SITE_URL}${buildPostUrl(loc.groupSlug, loc.partIndex)}`;
+    const postLink = `${SITE_URL}${buildPostUrl(loc.groupSlug, post.slug)}`;
     const authorName = post.author?.trim() || 'Austen Tucker';
     const { htmlBody } = buildPostNewsletterContent(
       {
         ...(post as unknown as Pick<Post, 'content' | 'excerpt' | 'slug' | 'title'>),
-        group: { slug: loc.groupSlug, partIndex: loc.partIndex },
+        group: { slug: loc.groupSlug },
       },
       SITE_URL,
     );
