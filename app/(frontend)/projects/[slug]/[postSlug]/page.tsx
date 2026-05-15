@@ -16,6 +16,7 @@ import PostReactions from '@/app/components/PostReactions';
 import { getReactionCounts } from '@/lib/reactions';
 import { JsonLd } from '@/lib/structured-data';
 import { buildPostUrl, buildGroupIntroUrl, partNum, resolvePostSlugByPartIndex } from '@/lib/post-url';
+import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
@@ -73,39 +74,55 @@ async function redirectIfNumeric(groupSlug: string, segment: string): Promise<vo
   notFound();
 }
 
+function postItemState(idx: number, currentPartIndex: number) {
+  if (currentPartIndex === idx) return 'current' as const;
+  if (currentPartIndex > idx) return 'read' as const;
+  return 'unread' as const;
+}
+
 function buildDrawerSections(
   groupSlug: string,
   groupTitle: string,
-  posts: { slug: string; title: string }[],
+  chapterSections: ChapterSection[],
   currentPartIndex: number,
 ): DrawerSection[] {
-  return [
-    {
-      title: groupTitle,
-      items: [
-        {
-          num: '00',
-          label: 'Introduction',
-          href: buildGroupIntroUrl(groupSlug),
-          state: currentPartIndex === 0 ? 'current' : 'read',
-        },
-        ...posts.map((p, i) => {
-          const idx = i + 1;
-          return {
-            num: partNum(idx),
-            label: p.title,
-            href: buildPostUrl(groupSlug, p.slug),
-            state:
-              currentPartIndex === idx
-                ? ('current' as const)
-                : currentPartIndex > idx
-                ? ('read' as const)
-                : ('unread' as const),
-          };
-        }),
-      ],
-    },
-  ];
+  const introItem = {
+    num: '00',
+    label: 'Introduction',
+    href: buildGroupIntroUrl(groupSlug),
+    state: currentPartIndex === 0 ? ('current' as const) : ('read' as const),
+  };
+
+  if (chapterSections.length === 0) {
+    return [{ title: groupTitle, items: [introItem] }];
+  }
+
+  const sections: DrawerSection[] = [];
+  const [first, ...rest] = chapterSections;
+  sections.push({
+    title: first.title ?? groupTitle,
+    items: [
+      introItem,
+      ...first.posts.map((p) => ({
+        num: partNum(p.partIndex),
+        label: p.post.title,
+        href: buildPostUrl(groupSlug, p.post.slug),
+        state: postItemState(p.partIndex, currentPartIndex),
+      })),
+    ],
+  });
+  for (const section of rest) {
+    sections.push({
+      title: section.title ?? groupTitle,
+      items: section.posts.map((p) => ({
+        num: partNum(p.partIndex),
+        label: p.post.title,
+        href: buildPostUrl(groupSlug, p.post.slug),
+        state: postItemState(p.partIndex, currentPartIndex),
+      })),
+    });
+  }
+  return sections;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -183,7 +200,8 @@ export default async function ProjectPostPage({ params }: Props) {
   const partIndex = idx + 1;
   const totalCount = posts.length + 1;
 
-  const sections = buildDrawerSections(slug, project.title, posts, partIndex);
+  const chapterSections = groupPostsByChapter(group);
+  const sections = buildDrawerSections(slug, project.title, chapterSections, partIndex);
   const prevPartHref =
     partIndex === 1 ? buildGroupIntroUrl(slug) : buildPostUrl(slug, posts[idx - 1].slug);
   const nextPartHref =
