@@ -85,16 +85,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ]);
   const metaTitle = group?.meta?.title?.trim() || project.title;
   const metaDescription = group?.meta?.description?.trim() || project.description || undefined;
-  const title = `${metaTitle} — The Arcades`;
+  const titleForOg = `${metaTitle} | The Arcades`;
   const path = buildGroupIntroUrl(slug);
   const url = `${SITE_URL}${path}`;
   const canonical = groupExtras.canonicalPath || path;
   return {
-    title,
+    title: metaTitle,
     description: metaDescription,
     alternates: { canonical },
     openGraph: {
-      title,
+      title: titleForOg,
       description: metaDescription,
       type: 'article',
       url,
@@ -104,7 +104,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: titleForOg,
       description: metaDescription,
       images: og ? [og.url] : undefined,
     },
@@ -175,6 +175,20 @@ export default async function ProjectIntroPage({ params }: Props) {
     author: { '@id': `${SITE_URL}/#person` },
   };
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { name: 'Projects', item: `${SITE_URL}/projects` },
+      { name: project.title, item: `${SITE_URL}${buildGroupIntroUrl(slug)}` },
+    ].map((b, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: b.name,
+      item: b.item,
+    })),
+  };
+
   const categoryLabel = project.category ? (categoryLabels[project.category] ?? project.category) : null;
 
   const drawer = (
@@ -194,6 +208,7 @@ export default async function ProjectIntroPage({ params }: Props) {
   return (
     <>
       <JsonLd data={jsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
       {posts.length > 0 && drawer}
       <main className={mainCls}>
         <nav style={{ marginBottom: '2.5rem' }}>

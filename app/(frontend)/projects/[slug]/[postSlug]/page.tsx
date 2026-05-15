@@ -130,16 +130,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ]);
   const metaTitle = post.meta?.title?.trim() || post.title;
   const metaDescription = post.meta?.description?.trim() || post.excerpt || undefined;
-  const title = `${metaTitle} — ${project.title}`;
+  const titleForBrowser = `${metaTitle} | ${project.title}`;
+  const titleForOg = `${metaTitle} | ${project.title} | The Arcades`;
   const path = buildPostUrl(slug, postSlug);
   const url = `${SITE_URL}${path}`;
   const canonical = postExtras.canonicalPath || path;
   return {
-    title,
+    title: titleForBrowser,
     description: metaDescription,
     alternates: { canonical },
     openGraph: {
-      title,
+      title: titleForOg,
       description: metaDescription,
       type: 'article',
       url,
@@ -149,7 +150,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: og ? 'summary_large_image' : 'summary',
-      title,
+      title: titleForOg,
       description: metaDescription,
       images: og ? [og.url] : undefined,
     },
@@ -231,6 +232,21 @@ export default async function ProjectPostPage({ params }: Props) {
     image: og?.url ?? undefined,
   };
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { name: 'Projects', item: `${SITE_URL}/projects` },
+      { name: project.title, item: `${SITE_URL}${buildGroupIntroUrl(slug)}` },
+      { name: post.title, item: pageUrl },
+    ].map((b, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: b.name,
+      item: b.item,
+    })),
+  };
+
   const categoryLabel = project.category ? (categoryLabels[project.category] ?? project.category) : null;
 
   const drawer = (
@@ -251,6 +267,7 @@ export default async function ProjectPostPage({ params }: Props) {
   return (
     <>
       <JsonLd data={jsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
       {drawer}
       <main className={postMainCls}>
         <nav style={{ marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>

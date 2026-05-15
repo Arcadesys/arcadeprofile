@@ -8,14 +8,14 @@ export const metadata: Metadata = {
   alternates: { canonical: '/bibliography' },
   openGraph: {
     type: 'article',
-    title: 'Bibliography — The Arcades',
+    title: 'Bibliography | The Arcades',
     description:
       'External publishing by Austen Crowder (also Slyford T. Rabbit, Sly Rabbit) — novels, short fiction, poetry, and essays from 2005 to the present.',
     url: '/bibliography',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bibliography — The Arcades',
+    title: 'Bibliography | The Arcades',
     description: 'External publishing under Austen Crowder, Slyford T. Rabbit, and Sly Rabbit.',
   },
 };
