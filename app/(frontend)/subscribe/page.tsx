@@ -8,13 +8,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/subscribe' },
   openGraph: {
     type: 'website',
-    title: 'Subscribe — The Arcades',
+    title: 'Subscribe | The Arcades',
     description: 'Serialized fiction and essays by Austen Tucker. Every installment as it lands. All free.',
     url: '/subscribe',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Subscribe — The Arcades',
+    title: 'Subscribe | The Arcades',
     description: 'Serialized fiction and essays by Austen Tucker. Every installment as it lands. All free.',
   },
 };
