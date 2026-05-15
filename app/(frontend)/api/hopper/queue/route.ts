@@ -4,6 +4,8 @@ import type { Group, Post } from '@/payload-types';
 
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
 import { computeSchedule, syncQueueToPosts, todayInSiteTz } from '@/lib/hopper/syncSchedule';
+import { loadPublishedToday } from '@/lib/hopper/publishedToday';
+import { extractQueueIds, loadLiveQueueIds, loadPostsById } from '@/lib/hopper/loadQueue';
 
 type Lane = 'fiction' | 'essays';
 
@@ -34,22 +36,6 @@ function audienceFor(groupSlug: string | null | undefined, groupMap: Map<string,
   return g?.category === 'fiction' ? 'fiction' : 'essays';
 }
 
-function extractQueueIds(queue: unknown): string[] {
-  if (!Array.isArray(queue)) return [];
-  const ids: string[] = [];
-  for (const entry of queue) {
-    if (!entry || typeof entry !== 'object') continue;
-    const post = (entry as { post?: unknown }).post;
-    if (post == null) continue;
-    if (typeof post === 'string' || typeof post === 'number') {
-      ids.push(String(post));
-    } else if (typeof post === 'object' && post !== null && 'id' in post) {
-      ids.push(String((post as { id: string | number }).id));
-    }
-  }
-  return ids;
-}
-
 async function loadGroupMap(payload: Payload): Promise<Map<string, Group>> {
   // pagination:false + limit:0 returns every group. Hopper only stores a slug→category
   // map, so the payload size is bounded by how many groups exist, not arbitrary.
@@ -66,70 +52,8 @@ async function loadGroupMap(payload: Payload): Promise<Map<string, Group>> {
   return map;
 }
 
-async function loadPostsById(payload: Payload, ids: string[]): Promise<Map<string, Post>> {
-  if (ids.length === 0) return new Map();
-  const res = await payload.find({
-    collection: 'posts',
-    where: { id: { in: ids } },
-    limit: ids.length,
-    depth: 0,
-    pagination: false,
-  });
-  const map = new Map<string, Post>();
-  for (const p of res.docs as Post[]) {
-    map.set(String(p.id), p);
-  }
-  return map;
-}
-
-async function loadPublishedToday(
-  payload: Payload,
-): Promise<{ posts: Post[]; takenDates: Set<string>; todayIso: string }> {
-  const todayIso = todayInSiteTz();
-  // Posts that already shipped today — surface them at the top of their lane so
-  // the editor can see "today's fiction already went out" without us re-injecting
-  // them into the writable queue. Pre-filter at the DB to a 36h window (covers
-  // any TZ offset between UTC and SITE_TZ) and then normalize each row to the
-  // site TZ for the actual "is it today" check.
-  const lookbackStart = new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString();
-  const res = await payload.find({
-    collection: 'posts',
-    where: {
-      and: [
-        { publish_status: { in: ['published', 'sent'] } },
-        { publishedDate: { greater_than_equal: lookbackStart } },
-      ],
-    },
-    limit: 50,
-    depth: 0,
-    sort: '-publishedDate',
-    pagination: false,
-  });
-  const posts = (res.docs as Post[]).filter(
-    (p) => typeof p.publishedDate === 'string' && todayInSiteTz(new Date(p.publishedDate)) === todayIso,
-  );
-  const takenDates = new Set<string>();
-  for (const p of posts) {
-    if (typeof p.publishedDate === 'string') {
-      takenDates.add(todayInSiteTz(new Date(p.publishedDate)));
-    }
-  }
-  return { posts, takenDates, todayIso };
-}
-
 async function buildResponse(payload: Payload): Promise<QueueResponse> {
-  const queue = await payload.findGlobal({ slug: 'publish-queue', depth: 0 });
-  const fictionIdsRaw = extractQueueIds((queue as { fictionQueue?: unknown }).fictionQueue);
-  const essaysIdsRaw = extractQueueIds((queue as { essaysQueue?: unknown }).essaysQueue);
-
-  const queuedPosts = await loadPostsById(payload, [...new Set([...fictionIdsRaw, ...essaysIdsRaw])]);
-
-  // Filter out anything that's been promoted away — `published` or `sent` — so the queue self-cleans.
-  const isLive = (p: Post | undefined): p is Post =>
-    !!p && (p.publish_status === 'draft' || p.publish_status === 'scheduled');
-
-  const fictionIds = fictionIdsRaw.filter((id) => isLive(queuedPosts.get(id)));
-  const essaysIds = essaysIdsRaw.filter((id) => isLive(queuedPosts.get(id)));
+  const { fictionIds, essaysIds, posts: queuedPosts } = await loadLiveQueueIds(payload);
 
   const { posts: publishedToday, takenDates, todayIso } = await loadPublishedToday(payload);
 

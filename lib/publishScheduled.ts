@@ -1,6 +1,10 @@
 import type { Payload } from 'payload';
 
 import type { Post } from '@/payload-types';
+import { loadLiveQueueIds } from '@/lib/hopper/loadQueue';
+import { loadPublishedTodayTakenDates } from '@/lib/hopper/publishedToday';
+import { syncQueueToPosts } from '@/lib/hopper/syncSchedule';
+import { logger } from '@/lib/logger';
 
 export type PublishResult = {
   id: number;
@@ -34,7 +38,8 @@ const STUCK_GRACE_MS = 60 * 60 * 1000;
 
 // Subset of the Payload local API we use. Typed via Pick so the route can
 // pass a real Payload instance and tests can pass a structural mock.
-export type PayloadLike = Pick<Payload, 'find' | 'update'>;
+// findGlobal is used by the queue-sync self-heal step before the publish loop.
+export type PayloadLike = Pick<Payload, 'find' | 'update' | 'findGlobal'>;
 
 type Options = {
   now?: Date;
@@ -46,6 +51,28 @@ export async function publishScheduledPosts(
   { now = new Date(), perRunLimit = null }: Options = {},
 ): Promise<PublishScheduledResponse> {
   const nowIso = now.toISOString();
+
+  // Self-heal step. Rewrite each queued post's scheduledPublishDate from its
+  // current position in the publish-queue global, so a post whose admin-set
+  // date drifted from its queue slot (e.g. a manual sidebar date, or position
+  // drift after earlier posts shipped) becomes due this run instead of jamming
+  // indefinitely. syncQueueToPosts is idempotent — passing prev === next means
+  // no "removed" branch fires, and rows already in sync are skipped.
+  try {
+    const { fictionIds, essaysIds } = await loadLiveQueueIds(payload as Payload);
+    const takenDates = await loadPublishedTodayTakenDates(payload as Payload);
+    await syncQueueToPosts(
+      payload as Payload,
+      { fictionIds, essaysIds },
+      { fictionIds, essaysIds },
+      now,
+      takenDates,
+    );
+  } catch (err) {
+    // A sync failure must not block the publish loop — a stale row is
+    // recoverable next run, a crashed cron is not.
+    logger.error({ err }, '[publish-scheduled] queue sync failed');
+  }
 
   // Include `draft` (and NULL) alongside `scheduled` so a post that has a
   // past scheduledPublishDate but never had its publish_status promoted by
