@@ -144,7 +144,7 @@ interface PostLite {
   scheduledPublishDate?: string | null;
 }
 
-async function loadPostsLite(payload: Payload, ids: Array<string | number>): Promise<Map<string, PostLite>> {
+async function loadPostsLite(payload: Pick<Payload, 'find'>, ids: Array<string | number>): Promise<Map<string, PostLite>> {
   if (ids.length === 0) return new Map();
   const res = await payload.find({
     collection: 'posts',
@@ -161,7 +161,7 @@ async function loadPostsLite(payload: Payload, ids: Array<string | number>): Pro
 }
 
 export async function syncQueueToPosts(
-  payload: Payload,
+  payload: Pick<Payload, 'find' | 'update'>,
   prev: QueueDiffPrev,
   next: QueueDiffNext,
   from: Date = new Date(),

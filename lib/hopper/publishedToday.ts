@@ -15,9 +15,12 @@ export interface PublishedTodayResult {
 // them into the writable queue. Pre-filter at the DB to a 36h window (covers
 // any TZ offset between UTC and SITE_TZ) and then normalize each row to the
 // site TZ for the actual "is it today" check.
-export async function loadPublishedToday(payload: Payload): Promise<PublishedTodayResult> {
-  const todayIso = todayInSiteTz();
-  const lookbackStart = new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString();
+export async function loadPublishedToday(
+  payload: Pick<Payload, 'find'>,
+  now: Date = new Date(),
+): Promise<PublishedTodayResult> {
+  const todayIso = todayInSiteTz(now);
+  const lookbackStart = new Date(now.getTime() - 36 * 60 * 60 * 1000).toISOString();
   const res = await payload.find({
     collection: 'posts',
     where: {
@@ -43,7 +46,10 @@ export async function loadPublishedToday(payload: Payload): Promise<PublishedTod
   return { posts, takenDates, todayIso };
 }
 
-export async function loadPublishedTodayTakenDates(payload: Payload): Promise<Set<string>> {
-  const { takenDates } = await loadPublishedToday(payload);
+export async function loadPublishedTodayTakenDates(
+  payload: Pick<Payload, 'find'>,
+  now: Date = new Date(),
+): Promise<Set<string>> {
+  const { takenDates } = await loadPublishedToday(payload, now);
   return takenDates;
 }

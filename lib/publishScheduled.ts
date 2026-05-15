@@ -59,10 +59,10 @@ export async function publishScheduledPosts(
   // indefinitely. syncQueueToPosts is idempotent — passing prev === next means
   // no "removed" branch fires, and rows already in sync are skipped.
   try {
-    const { fictionIds, essaysIds } = await loadLiveQueueIds(payload as Payload);
-    const takenDates = await loadPublishedTodayTakenDates(payload as Payload);
+    const { fictionIds, essaysIds } = await loadLiveQueueIds(payload);
+    const takenDates = await loadPublishedTodayTakenDates(payload, now);
     await syncQueueToPosts(
-      payload as Payload,
+      payload,
       { fictionIds, essaysIds },
       { fictionIds, essaysIds },
       now,

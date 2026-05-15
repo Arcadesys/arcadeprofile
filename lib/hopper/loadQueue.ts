@@ -23,7 +23,7 @@ export function extractQueueIds(queue: unknown): string[] {
   return ids;
 }
 
-export async function loadPostsById(payload: Payload, ids: string[]): Promise<Map<string, Post>> {
+export async function loadPostsById(payload: Pick<Payload, 'find'>, ids: string[]): Promise<Map<string, Post>> {
   if (ids.length === 0) return new Map();
   const res = await payload.find({
     collection: 'posts',
@@ -43,7 +43,9 @@ export async function loadPostsById(payload: Payload, ids: string[]): Promise<Ma
 // promoted (published/sent) — those are no longer "live" queue members.
 // Returns the queue ids the cron and hopper view should both treat as the
 // source of truth for upcoming slots.
-export async function loadLiveQueueIds(payload: Payload): Promise<QueueIds & { posts: Map<string, Post> }> {
+export async function loadLiveQueueIds(
+  payload: Pick<Payload, 'find' | 'findGlobal'>,
+): Promise<QueueIds & { posts: Map<string, Post> }> {
   const queue = await payload.findGlobal({ slug: 'publish-queue', depth: 0 });
   const fictionIdsRaw = extractQueueIds((queue as { fictionQueue?: unknown }).fictionQueue);
   const essaysIdsRaw = extractQueueIds((queue as { essaysQueue?: unknown }).essaysQueue);
