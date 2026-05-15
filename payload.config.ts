@@ -29,11 +29,18 @@ export default buildConfig({
     },
     theme: 'dark',
     components: {
-      afterNavLinks: ['/views/hopper/HopperNavLink#default'],
+      afterNavLinks: [
+        '/views/hopper/HopperNavLink#default',
+        '/views/group-scenes/GroupScenesNavLink#default',
+      ],
       views: {
         hopper: {
           Component: '/views/hopper/HopperView#default',
           path: '/hopper',
+        },
+        groupScenes: {
+          Component: '/views/group-scenes/GroupScenesView#default',
+          path: '/group-scenes',
         },
       },
     },
