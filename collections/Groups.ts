@@ -11,6 +11,16 @@ export const Groups: CollectionConfig = {
   admin: titledAdmin(adminGroups.content, ['title', 'slug', 'category', 'featured', 'homeHighlight', 'updatedAt']),
   fields: [
     {
+      name: 'arrangeScenesLink',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: '@/components/admin/ArrangeScenesLink#default',
+        },
+      },
+    },
+    {
       name: 'title',
       type: 'text',
       required: true,
