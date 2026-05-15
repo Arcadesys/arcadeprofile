@@ -8,13 +8,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/store' },
   openGraph: {
     type: 'website',
-    title: 'Store — The Arcades',
+    title: 'Store | The Arcades',
     description: 'Books by Austen Tucker-Crowder.',
     url: '/store',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Store — The Arcades',
+    title: 'Store | The Arcades',
     description: 'Books by Austen Tucker-Crowder.',
   },
 };

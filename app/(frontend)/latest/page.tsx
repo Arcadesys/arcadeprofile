@@ -14,13 +14,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/latest' },
   openGraph: {
     type: 'website',
-    title: 'Latest — The Arcades',
+    title: 'Latest | The Arcades',
     description: 'New writing from The Arcades — fiction and essays by Austen Tucker.',
     url: '/latest',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Latest — The Arcades',
+    title: 'Latest | The Arcades',
     description: 'New writing from The Arcades — fiction and essays by Austen Tucker.',
   },
 };

@@ -148,16 +148,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ]);
     const metaTitle = group?.meta?.title?.trim() || project.title;
     const metaDescription = group?.meta?.description?.trim() || project.description || undefined;
-    const title = `${metaTitle} — The Arcades`;
+    const titleForOg = `${metaTitle} | The Arcades`;
     const path = `/projects/${slug}/${part}`;
     const url = `${SITE_URL}${path}`;
     const canonical = groupExtras.canonicalPath || path;
     return {
-      title,
+      title: metaTitle,
       description: metaDescription,
       alternates: { canonical },
       openGraph: {
-        title,
+        title: titleForOg,
         description: metaDescription,
         type: 'article',
         url,
@@ -167,7 +167,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
       twitter: {
         card: 'summary_large_image',
-        title,
+        title: titleForOg,
         description: metaDescription,
         images: og ? [og.url] : undefined,
       },
@@ -183,16 +183,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ]);
   const metaTitle = post.meta?.title?.trim() || post.title;
   const metaDescription = post.meta?.description?.trim() || post.excerpt || undefined;
-  const title = `${metaTitle} — ${project.title}`;
+  const titleForBrowser = `${metaTitle} | ${project.title}`;
+  const titleForOg = `${metaTitle} | ${project.title} | The Arcades`;
   const path = `/projects/${slug}/${part}`;
   const url = `${SITE_URL}${path}`;
   const canonical = postExtras.canonicalPath || path;
   return {
-    title,
+    title: titleForBrowser,
     description: metaDescription,
     alternates: { canonical },
     openGraph: {
-      title,
+      title: titleForOg,
       description: metaDescription,
       type: 'article',
       url,
@@ -202,7 +203,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: og ? 'summary_large_image' : 'summary',
-      title,
+      title: titleForOg,
       description: metaDescription,
       images: og ? [og.url] : undefined,
     },
@@ -275,6 +276,30 @@ export default async function ProjectPartPage({ params }: Props) {
 
   // Structured data — Article for posts, CollectionPage for the group intro.
   let jsonLd: Record<string, unknown> | null = null;
+  const breadcrumbItems: Array<{ name: string; item: string }> = [
+    { name: 'Projects', item: `${SITE_URL}/projects` },
+    { name: project.title, item: `${SITE_URL}/projects/${slug}/00` },
+  ];
+  if (idx > 0) {
+    const currentPost = posts[idx - 1];
+    if (currentPost) {
+      breadcrumbItems.push({
+        name: currentPost.title,
+        item: `${SITE_URL}/projects/${slug}/${partNum(idx)}`,
+      });
+    }
+  }
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems.map((b, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: b.name,
+      item: b.item,
+    })),
+  };
+
   if (idx === 0) {
     jsonLd = {
       '@context': 'https://schema.org',
@@ -345,6 +370,7 @@ export default async function ProjectPartPage({ params }: Props) {
     return (
       <>
         {jsonLd && <JsonLd data={jsonLd} />}
+        <JsonLd data={breadcrumbJsonLd} />
         {posts.length > 0 && drawer}
         <main className={mainCls}>
           <nav style={{ marginBottom: '2.5rem' }}>
@@ -479,6 +505,7 @@ export default async function ProjectPartPage({ params }: Props) {
   return (
     <>
       {jsonLd && <JsonLd data={jsonLd} />}
+      <JsonLd data={breadcrumbJsonLd} />
       {drawer}
       <main className={postMainCls}>
         <nav style={{ marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
