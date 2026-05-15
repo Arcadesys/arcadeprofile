@@ -1,0 +1,217 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+import type { Post } from '@/payload-types';
+import { publishScheduledPosts, type PayloadLike } from './publishScheduled';
+
+// Minimal in-memory Payload-like fixture covering the queries publishScheduledPosts
+// makes: findGlobal for publish-queue, find(posts) by `id in`, by published/recent,
+// by due (`scheduledPublishDate <= now` + scheduled/draft/null status), and by stuck.
+// Plus `update(posts, id, data)`. Filtering is dispatched on the shape of `where`.
+
+interface FixturePost {
+  id: number;
+  slug: string;
+  title: string;
+  publish_status: Post['publish_status'];
+  scheduledPublishDate: string | null;
+  publishedDate: string | null;
+  group: string | null;
+  order: number | null;
+}
+
+function buildFixture(initial: FixturePost[], queue: { fictionIds: number[]; essaysIds: number[] }) {
+  const store = new Map<number, FixturePost>();
+  for (const p of initial) store.set(p.id, { ...p });
+
+  const updates: Array<{ id: number; data: Record<string, unknown> }> = [];
+
+  const payload: Record<string, unknown> = {
+    findGlobal: async ({ slug }: { slug: string }) => {
+      if (slug !== 'publish-queue') throw new Error(`unexpected global: ${slug}`);
+      return {
+        fictionQueue: queue.fictionIds.map((id) => ({ post: id })),
+        essaysQueue: queue.essaysIds.map((id) => ({ post: id })),
+      };
+    },
+    find: async (args: Record<string, unknown>) => {
+      if (args.collection !== 'posts') throw new Error(`unexpected collection: ${args.collection}`);
+      const where = (args.where ?? {}) as Record<string, unknown>;
+      const all = Array.from(store.values());
+
+      // 1) `where.id.in` — used by loadPostsById in loadLiveQueueIds and syncQueueToPosts
+      const idClause = (where as { id?: { in?: Array<number | string> } }).id;
+      if (idClause?.in) {
+        const ids = new Set(idClause.in.map(String));
+        return { docs: all.filter((p) => ids.has(String(p.id))), totalDocs: ids.size };
+      }
+
+      // Everything else is an AND of clauses we recognize by shape.
+      const and = (where as { and?: Array<Record<string, unknown>> }).and ?? [];
+
+      let docs = [...all];
+      for (const clause of and) {
+        // publish_status: { in: ['published','sent'] }
+        const status = (clause as { publish_status?: { in?: string[]; equals?: string | null; not_in?: string[] } })
+          .publish_status;
+        if (status?.in) {
+          const vs = new Set(status.in);
+          docs = docs.filter((p) => p.publish_status != null && vs.has(p.publish_status));
+          continue;
+        }
+        // publishedDate: { greater_than_equal: iso }
+        const pubDate = (clause as { publishedDate?: { greater_than_equal?: string } }).publishedDate;
+        if (pubDate?.greater_than_equal) {
+          const bound = pubDate.greater_than_equal;
+          docs = docs.filter((p) => typeof p.publishedDate === 'string' && p.publishedDate >= bound);
+          continue;
+        }
+        // scheduledPublishDate: { less_than_equal: iso } OR { less_than: iso }
+        const sched = (clause as { scheduledPublishDate?: { less_than_equal?: string; less_than?: string } })
+          .scheduledPublishDate;
+        if (sched?.less_than_equal) {
+          const bound = sched.less_than_equal;
+          docs = docs.filter(
+            (p) => typeof p.scheduledPublishDate === 'string' && p.scheduledPublishDate <= bound,
+          );
+          continue;
+        }
+        if (sched?.less_than) {
+          const bound = sched.less_than;
+          docs = docs.filter(
+            (p) => typeof p.scheduledPublishDate === 'string' && p.scheduledPublishDate < bound,
+          );
+          continue;
+        }
+        // `or` clauses for publish_status (scheduled|draft|null) and (not_in published/sent | null)
+        const or = (clause as { or?: Array<Record<string, unknown>> }).or;
+        if (or) {
+          docs = docs.filter((p) => {
+            for (const sub of or) {
+              const s = (sub as { publish_status?: { equals?: string | null; not_in?: string[] } })
+                .publish_status;
+              if (s?.equals === null && p.publish_status == null) return true;
+              if (typeof s?.equals === 'string' && p.publish_status === s.equals) return true;
+              if (s?.not_in) {
+                if (p.publish_status != null && !s.not_in.includes(p.publish_status)) return true;
+              }
+            }
+            return false;
+          });
+          continue;
+        }
+      }
+
+      return { docs, totalDocs: docs.length };
+    },
+    update: async ({ id, data }: { collection: string; id: number | string; data: Record<string, unknown> }) => {
+      const numId = Number(id);
+      updates.push({ id: numId, data });
+      const existing = store.get(numId);
+      if (!existing) throw new Error(`unknown id ${id}`);
+      const merged: FixturePost = { ...existing };
+      if ('publish_status' in data) merged.publish_status = data.publish_status as FixturePost['publish_status'];
+      if ('scheduledPublishDate' in data) merged.scheduledPublishDate = (data.scheduledPublishDate as string) ?? null;
+      if ('publishedDate' in data) merged.publishedDate = (data.publishedDate as string) ?? null;
+      store.set(numId, merged);
+      return merged as unknown;
+    },
+  };
+
+  return { payload: payload as unknown as PayloadLike, store, updates };
+}
+
+test('publishScheduledPosts self-heals a queue-#1 essay with a stale stored date', async () => {
+  // Thursday 2026-05-14 noon Eastern. The essays queue's #1 post should land
+  // on this date and become due for publishing.
+  const now = new Date(Date.UTC(2026, 4, 14, 16, 0, 0));
+
+  const initial: FixturePost[] = [
+    {
+      id: 101,
+      slug: 'when-labor-gets-weird',
+      title: 'When Labor Gets Weird',
+      publish_status: 'scheduled',
+      // Stale stored date — a week in the future, ahead of `now`. Pre-fix,
+      // the cron's `<= now` filter would skip this row indefinitely.
+      scheduledPublishDate: '2026-05-21T13:00:00.000Z',
+      publishedDate: null,
+      group: 'the-singularity-log',
+      order: null,
+    },
+  ];
+
+  const fx = buildFixture(initial, { fictionIds: [], essaysIds: [101] });
+
+  const summary = await publishScheduledPosts(fx.payload, { now });
+
+  assert.equal(summary.processed, 1, 'one post should publish in a single run');
+  assert.equal(summary.failed, 0);
+  const promoted = fx.store.get(101)!;
+  assert.equal(promoted.publish_status, 'published');
+  assert.ok(promoted.publishedDate, 'publishedDate should be set');
+
+  // Two writes: first the sync rewrites scheduledPublishDate to today, then
+  // the publish loop flips publish_status.
+  const syncWrites = fx.updates.filter((u) => 'scheduledPublishDate' in u.data);
+  const publishWrites = fx.updates.filter((u) => u.data.publish_status === 'published');
+  assert.equal(syncWrites.length, 1);
+  assert.equal(publishWrites.length, 1);
+  assert.equal(String(syncWrites[0]!.data.scheduledPublishDate).slice(0, 10), '2026-05-14');
+});
+
+test('publishScheduledPosts no-ops sync when stored date already matches queue slot', async () => {
+  const now = new Date(Date.UTC(2026, 4, 14, 16, 0, 0));
+
+  // Fresh, in-sync row: stored date already today's date. The publish loop
+  // promotes it; sync should write nothing.
+  const initial: FixturePost[] = [
+    {
+      id: 102,
+      slug: 'fresh-essay',
+      title: 'Fresh Essay',
+      publish_status: 'scheduled',
+      scheduledPublishDate: '2026-05-14',
+      publishedDate: null,
+      group: null,
+      order: null,
+    },
+  ];
+
+  const fx = buildFixture(initial, { fictionIds: [], essaysIds: [102] });
+  const summary = await publishScheduledPosts(fx.payload, { now });
+
+  assert.equal(summary.processed, 1);
+  const syncWrites = fx.updates.filter(
+    (u) => 'scheduledPublishDate' in u.data && u.data.publish_status !== 'published',
+  );
+  assert.equal(syncWrites.length, 0, 'idempotent sync should write nothing');
+});
+
+test('publishScheduledPosts tolerates findGlobal failure and still publishes due rows', async () => {
+  const now = new Date(Date.UTC(2026, 4, 14, 16, 0, 0));
+
+  const initial: FixturePost[] = [
+    {
+      id: 103,
+      slug: 'manually-dated',
+      title: 'Manually Dated',
+      publish_status: 'scheduled',
+      scheduledPublishDate: '2026-05-13T00:00:00.000Z', // past
+      publishedDate: null,
+      group: null,
+      order: null,
+    },
+  ];
+
+  const fx = buildFixture(initial, { fictionIds: [], essaysIds: [] });
+  // Break findGlobal to simulate the publish-queue read failing.
+  (fx.payload as unknown as { findGlobal: () => Promise<unknown> }).findGlobal = async () => {
+    throw new Error('queue read failed');
+  };
+
+  const summary = await publishScheduledPosts(fx.payload, { now });
+
+  assert.equal(summary.processed, 1, 'publish loop must run even when sync throws');
+  assert.equal(fx.store.get(103)!.publish_status, 'published');
+});
