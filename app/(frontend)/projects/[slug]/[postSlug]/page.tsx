@@ -195,7 +195,15 @@ export default async function ProjectPostPage({ params }: Props) {
     getReactionCounts(payload, post.id),
   ]);
 
-  const canonicalUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
+  const pageUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
+  // JSON-LD url/mainEntityOfPage tracks the same canonical as the
+  // `<link rel="canonical">` tag — if an editor set a canonical_path
+  // override (cross-posted essay, etc.), both should point there.
+  const canonicalUrl = extras.canonicalPath
+    ? extras.canonicalPath.startsWith('http')
+      ? extras.canonicalPath
+      : `${SITE_URL}${extras.canonicalPath}`
+    : pageUrl;
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -279,7 +287,7 @@ export default async function ProjectPostPage({ params }: Props) {
         />
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
-          <ShareLinks url={canonicalUrl} title={post.title} />
+          <ShareLinks url={pageUrl} title={post.title} />
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             {prevPartHref ? (
               <Link href={prevPartHref} style={{ color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '0.9rem' }}>
