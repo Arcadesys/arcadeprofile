@@ -12,6 +12,7 @@ import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import { JsonLd } from '@/lib/structured-data';
 import { buildPostUrl, buildGroupIntroUrl, partNum } from '@/lib/post-url';
+import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
@@ -44,30 +45,48 @@ type Props = { params: Promise<{ slug: string }> };
 function buildDrawerSections(
   groupSlug: string,
   groupTitle: string,
-  posts: { slug: string; title: string }[],
+  chapterSections: ChapterSection[],
 ): DrawerSection[] {
-  return [
-    {
-      title: groupTitle,
-      items: [
-        {
-          num: '00',
-          label: 'Introduction',
-          href: buildGroupIntroUrl(groupSlug),
-          state: 'current',
-        },
-        ...posts.map((p, i) => {
-          const idx = i + 1;
-          return {
-            num: partNum(idx),
-            label: p.title,
-            href: buildPostUrl(groupSlug, p.slug),
-            state: 'unread' as const,
-          };
-        }),
-      ],
-    },
-  ];
+  const introItem = {
+    num: '00',
+    label: 'Introduction',
+    href: buildGroupIntroUrl(groupSlug),
+    state: 'current' as const,
+  };
+
+  if (chapterSections.length === 0) {
+    return [{ title: groupTitle, items: [introItem] }];
+  }
+
+  const sections: DrawerSection[] = [];
+  const [first, ...rest] = chapterSections;
+  const firstLabel = first.title ?? groupTitle;
+  sections.push({
+    title: firstLabel,
+    items: [
+      introItem,
+      ...first.posts.map((p) => ({
+        num: partNum(p.partIndex),
+        label: p.post.title,
+        href: buildPostUrl(groupSlug, p.post.slug),
+        state: 'unread' as const,
+      })),
+    ],
+  });
+
+  for (const section of rest) {
+    sections.push({
+      title: section.title ?? groupTitle,
+      items: section.posts.map((p) => ({
+        num: partNum(p.partIndex),
+        label: p.post.title,
+        href: buildPostUrl(groupSlug, p.post.slug),
+        state: 'unread' as const,
+      })),
+    });
+  }
+
+  return sections;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -161,8 +180,10 @@ export default async function ProjectIntroPage({ params }: Props) {
   const posts = group?.posts ?? [];
   const totalCount = posts.length + 1;
   const firstPost = posts[0];
+  const chapterSections = group ? groupPostsByChapter(group) : [];
+  const hasNamedChapters = chapterSections.some((s) => s.slug !== null);
 
-  const sections = buildDrawerSections(slug, project.title, posts);
+  const sections = buildDrawerSections(slug, project.title, chapterSections);
   const nextPartHref = firstPost ? buildPostUrl(slug, firstPost.slug) : undefined;
 
   const jsonLd: Record<string, unknown> = {
@@ -303,29 +324,38 @@ export default async function ProjectIntroPage({ params }: Props) {
                 <Link href={buildPostUrl(slug, firstPost.slug)} style={startReadingStyle}>Start reading →</Link>
               )}
             </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              {posts.map((p, i) => (
-                <li key={p.slug}>
-                  <Link
-                    href={buildPostUrl(slug, p.slug)}
-                    style={collectionItemStyle}
-                  >
-                    {project.format !== 'collection' && (
-                      <span style={partLabelStyle}>Part {partNum(i + 1)}</span>
-                    )}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.15rem' }}>{p.title}</div>
-                      {p.excerpt && (
-                        <div style={{ fontSize: '0.82rem', color: 'var(--fg-muted)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
-                          {p.excerpt}
-                        </div>
-                      )}
-                    </div>
-                    <span style={{ ...monoMutedStyle, whiteSpace: 'nowrap' }}>{formatDate(p.date)}</span>
-                  </Link>
-                </li>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              {chapterSections.map((section, sIdx) => (
+                <div key={section.slug ?? `unassigned-${sIdx}`}>
+                  {hasNamedChapters && section.title && (
+                    <h3 style={chapterHeadingStyle}>{section.title}</h3>
+                  )}
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                    {section.posts.map(({ post: p, partIndex }) => (
+                      <li key={p.slug}>
+                        <Link
+                          href={buildPostUrl(slug, p.slug)}
+                          style={collectionItemStyle}
+                        >
+                          {project.format !== 'collection' && (
+                            <span style={partLabelStyle}>Part {partNum(partIndex)}</span>
+                          )}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.15rem' }}>{p.title}</div>
+                            {p.excerpt && (
+                              <div style={{ fontSize: '0.82rem', color: 'var(--fg-muted)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+                                {p.excerpt}
+                              </div>
+                            )}
+                          </div>
+                          <span style={{ ...monoMutedStyle, whiteSpace: 'nowrap' }}>{formatDate(p.date)}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </ul>
+            </div>
           </section>
         )}
       </main>
@@ -409,6 +439,16 @@ const partLabelStyle: React.CSSProperties = {
   padding: '0.15rem 0.45rem',
   alignSelf: 'flex-start',
   whiteSpace: 'nowrap',
+};
+
+const chapterHeadingStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-mono)',
+  fontSize: '0.75rem',
+  letterSpacing: '0.14em',
+  textTransform: 'uppercase',
+  color: 'var(--neon-pink)',
+  margin: '0 0 0.75rem',
+  fontWeight: 600,
 };
 
 const startReadingStyle: React.CSSProperties = {
