@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
-import { buildPostUrl, computePostPartIndex } from '@/lib/post-url';
+import { buildPostUrl, buildGroupIntroUrl } from '@/lib/post-url';
 import { logger } from '@/lib/logger';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
@@ -30,7 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const payload = await getPayload({ config: payloadConfig });
 
-    // Groups → /projects/<slug>/00 (the intro/hub page)
+    // Groups → /projects/<slug> (the intro/hub page)
     const groups = await payload.find({
       collection: 'groups',
       limit: 500,
@@ -41,14 +41,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const slug = g.slug as string | undefined;
       if (!slug) continue;
       entries.push({
-        url: `${SITE_URL}/projects/${slug}/00`,
+        url: `${SITE_URL}${buildGroupIntroUrl(slug)}`,
         lastModified: g.updatedAt ? new Date(g.updatedAt) : now,
         changeFrequency: 'weekly',
         priority: 0.8,
       });
     }
 
-    // Posts → /projects/<group>/<part>, indexed by computed part position
+    // Posts → /projects/<group>/<post-slug>
     const posts = await payload.find({
       collection: 'posts',
       where: {
@@ -63,10 +63,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const slug = p.slug as string | undefined;
       const groupSlug = p.group as string | undefined;
       if (!slug || !groupSlug) continue;
-      const partIndex = await computePostPartIndex(payload, slug, groupSlug);
-      if (partIndex === null) continue;
       entries.push({
-        url: `${SITE_URL}${buildPostUrl(groupSlug, partIndex)}`,
+        url: `${SITE_URL}${buildPostUrl(groupSlug, slug)}`,
         lastModified: p.updatedAt ? new Date(p.updatedAt) : now,
         changeFrequency: 'monthly',
         priority: 0.7,

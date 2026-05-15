@@ -18,7 +18,6 @@ type GroupHero = {
   slug?: string | null;
   image?: string | null;
   title?: string | null;
-  partIndex?: number | null;
 };
 
 type PostInput = {
@@ -116,11 +115,8 @@ export function buildPostNewsletterContent(
   siteUrl = process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL,
 ): NewsletterContent {
   const groupSlug = post.group?.slug?.trim() || '';
-  const partIndex = post.group?.partIndex;
   const postPath =
-    groupSlug && typeof partIndex === 'number' && partIndex > 0
-      ? buildPostUrl(groupSlug, partIndex)
-      : '/projects';
+    groupSlug && post.slug ? buildPostUrl(groupSlug, post.slug) : '/projects';
   const postUrl = `${siteUrl.replace(/\/+$/, '')}${postPath}`;
   const escapedTitle = escapeHtml(post.title);
   const excerpt = post.excerpt?.trim() || '';

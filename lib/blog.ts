@@ -352,18 +352,19 @@ export async function getGroupBySlug(slug: string): Promise<Group | null> {
   }
 }
 
-export { partNum, buildPostUrl } from './post-url';
+export { partNum, buildPostUrl, buildGroupIntroUrl } from './post-url';
 
 export type PostLocation = {
   groupSlug: string;
   groupTitle: string;
+  /** 1-based position within the group (intro is 0). Kept for part labels
+   * and prev/next nav; the URL itself uses the post slug, not this index. */
   partIndex: number;
 };
 
 /**
  * Map post slug → { groupSlug, groupTitle, partIndex } across every group.
- * partIndex is 1-based (intro is 0, the first post is 01). Posts without
- * a group are absent from the map.
+ * Posts without a group are absent from the map.
  */
 export async function buildPostUrlMap(): Promise<Map<string, PostLocation>> {
   const groups = await getAllGroups();

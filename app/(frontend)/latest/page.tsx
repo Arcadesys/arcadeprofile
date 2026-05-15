@@ -69,13 +69,13 @@ export default async function LatestPage() {
           const rawText = post.excerpt ? post.excerpt : safePlaintext(post.content);
           const teaser = rawText ? first100Words(rawText) : '';
           const loc = urlMap.get(post.slug)!;
-          const href = buildPostUrl(loc.groupSlug, loc.partIndex);
+          const href = buildPostUrl(loc.groupSlug, post.slug);
 
           return (
             <li key={post.slug}>
               <article>
                 <Link
-                  href={`/projects/${loc.groupSlug}/00`}
+                  href={`/projects/${loc.groupSlug}`}
                   style={{
                     display: 'inline-block',
                     fontFamily: 'var(--font-mono)',
