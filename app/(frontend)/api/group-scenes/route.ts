@@ -71,21 +71,22 @@ async function loadGroupsList(payload: Payload): Promise<GroupListItem[]> {
     sort: 'title',
   });
 
-  const items: GroupListItem[] = [];
-  for (const g of groups.docs as Group[]) {
-    if (!g.slug) continue;
-    const count = await payload.count({
-      collection: 'posts',
-      where: { group: { equals: g.slug } },
-    });
-    items.push({
-      slug: g.slug,
-      title: g.title ?? g.slug,
-      sceneCount: count.totalDocs,
-      chapterCount: chapterSummaries(g).length,
-    });
-  }
-  return items;
+  const items = await Promise.all(
+    (groups.docs as Group[]).map(async (g): Promise<GroupListItem | null> => {
+      if (!g.slug) return null;
+      const count = await payload.count({
+        collection: 'posts',
+        where: { group: { equals: g.slug } },
+      });
+      return {
+        slug: g.slug,
+        title: g.title ?? g.slug,
+        sceneCount: count.totalDocs,
+        chapterCount: chapterSummaries(g).length,
+      };
+    }),
+  );
+  return items.filter((item): item is GroupListItem => item !== null);
 }
 
 function sceneSummary(post: Post): SceneSummary {

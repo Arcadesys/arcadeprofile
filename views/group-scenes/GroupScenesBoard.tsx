@@ -2,7 +2,9 @@
 
 import {
   DndContext,
+  KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   closestCorners,
   useSensor,
   useSensors,
@@ -10,7 +12,12 @@ import {
   type DragOverEvent,
   type DragStartEvent,
 } from '@dnd-kit/core';
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -250,7 +257,11 @@ export default function GroupScenesBoard() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   const fetchGroups = useCallback(async () => {
     setError(null);
