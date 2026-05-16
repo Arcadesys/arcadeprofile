@@ -89,18 +89,23 @@ function Card({
   dated,
   isOverlay,
   isShipped,
+  onPickDate,
 }: {
   post: PostSummary;
   dated: boolean;
   isOverlay?: boolean;
   isShipped?: boolean;
+  onPickDate?: (postId: string, date: string) => void;
 }) {
+  const [editingDate, setEditingDate] = useState(false);
+  const editable = dated && !isShipped && !!onPickDate;
   const stale =
     dated &&
     !isShipped &&
     post.computedPublishDate &&
     post.scheduledPublishDate &&
     post.scheduledPublishDate.slice(0, 10) !== post.computedPublishDate;
+  const currentDate = post.scheduledPublishDate?.slice(0, 10) ?? post.computedPublishDate ?? '';
   return (
     <div
       style={{
@@ -136,8 +141,58 @@ function Card({
         {post.group ? ` · ${post.group}` : ''}
       </div>
       {dated && post.weekdayLabel && post.computedPublishDate && (
-        <div style={{ fontSize: 12, color: 'var(--theme-text, #374151)', marginTop: 6 }}>
-          {post.weekdayLabel} · {post.computedPublishDate}
+        <div
+          style={{ fontSize: 12, color: 'var(--theme-text, #374151)', marginTop: 6 }}
+          // Prevent the drag sensor from claiming pointer events meant for the picker.
+          onPointerDown={(e) => {
+            if (editable) e.stopPropagation();
+          }}
+        >
+          {editingDate && editable ? (
+            <input
+              type="date"
+              defaultValue={currentDate}
+              autoFocus
+              onBlur={() => setEditingDate(false)}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
+                  onPickDate!(post.id, v);
+                  setEditingDate(false);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setEditingDate(false);
+              }}
+              style={{
+                fontSize: 12,
+                padding: '2px 4px',
+                border: '1px solid var(--theme-elevation-200, #d1d5db)',
+                borderRadius: 3,
+                background: 'var(--theme-elevation-0, #fff)',
+                color: 'inherit',
+              }}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => editable && setEditingDate(true)}
+              disabled={!editable}
+              title={editable ? 'Click to change date' : undefined}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                font: 'inherit',
+                color: 'inherit',
+                cursor: editable ? 'pointer' : 'default',
+                textDecoration: editable ? 'underline dotted' : 'none',
+                textUnderlineOffset: 2,
+              }}
+            >
+              {post.weekdayLabel} · {post.computedPublishDate}
+            </button>
+          )}
           {stale && <span style={{ marginLeft: 6, color: '#b45309' }}>⚠ pending sync</span>}
         </div>
       )}
@@ -150,7 +205,15 @@ function Card({
   );
 }
 
-function SortableCard({ post, dated }: { post: PostSummary; dated: boolean }) {
+function SortableCard({
+  post,
+  dated,
+  onPickDate,
+}: {
+  post: PostSummary;
+  dated: boolean;
+  onPickDate?: (postId: string, date: string) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: post.id });
   return (
     <div
@@ -163,7 +226,7 @@ function SortableCard({ post, dated }: { post: PostSummary; dated: boolean }) {
       {...attributes}
       {...listeners}
     >
-      <Card post={post} dated={dated} />
+      <Card post={post} dated={dated} onPickDate={onPickDate} />
     </div>
   );
 }
@@ -173,11 +236,13 @@ function DroppableColumn({
   items,
   shippedItems,
   dated,
+  onPickDate,
 }: {
   columnKey: ColumnKey;
   items: PostSummary[];
   shippedItems?: PostSummary[];
   dated: boolean;
+  onPickDate?: (postId: string, date: string) => void;
 }) {
   // We use a sentinel id to make empty columns droppable via useSortable.
   const { setNodeRef } = useSortable({ id: `__column_${columnKey}` });
@@ -213,7 +278,7 @@ function DroppableColumn({
             </div>
           )}
           {items.map((p) => (
-            <SortableCard key={p.id} post={p} dated={dated} />
+            <SortableCard key={p.id} post={p} dated={dated} onPickDate={onPickDate} />
           ))}
         </div>
       </SortableContext>
@@ -245,6 +310,31 @@ export default function HopperBoard() {
   useEffect(() => {
     void fetchData();
   }, [fetchData]);
+
+  const pickDate = useCallback(
+    async (postId: string, date: string) => {
+      setSaving(true);
+      setError(null);
+      try {
+        const res = await fetch('/api/hopper/post-date', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ postId, date }),
+        });
+        if (!res.ok) {
+          const json = (await res.json().catch(() => ({}))) as { error?: string };
+          setError(json.error ?? `POST failed: ${res.status}`);
+        }
+        await fetchData();
+      } catch (err) {
+        setError(`Network error: ${(err as Error).message}`);
+      } finally {
+        setSaving(false);
+      }
+    },
+    [fetchData],
+  );
 
   const persist = useCallback(
     async (snapshot: QueueResponse) => {
@@ -384,12 +474,14 @@ export default function HopperBoard() {
             items={data.fiction}
             shippedItems={data.fictionShipped}
             dated
+            onPickDate={pickDate}
           />
           <DroppableColumn
             columnKey="essays"
             items={data.essays}
             shippedItems={data.essaysShipped}
             dated
+            onPickDate={pickDate}
           />
         </div>
         <div style={{ marginTop: 24 }}>
