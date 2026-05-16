@@ -58,6 +58,16 @@ export const Posts: CollectionConfig = {
     // (top-right, next to Save). Editors click it to open the preview URL
     // in a new tab — same URL surfaced in the sidebar field and list cell.
     preview: (doc) => buildPreviewUrl(doc.previewToken),
+    components: {
+      edit: {
+        // Custom Save button that warns before a save triggers AC newsletter
+        // fan-out. The afterChange hook below sends per-post campaigns to
+        // ActiveCampaign whenever publish_status flips public and the post
+        // hasn't already covered every audience; the confirm dialog gives
+        // editors a chance to back out or set suppressNewsletter first.
+        SaveButton: '@/components/admin/PostSaveButton#default',
+      },
+    },
   },
   hooks: {
     beforeChange: [promoteScheduledDraftHook, ensurePreviewTokenHook],
