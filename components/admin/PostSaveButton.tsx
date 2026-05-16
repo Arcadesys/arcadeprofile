@@ -39,32 +39,36 @@ export default function PostSaveButton({ label: labelProp }: SaveButtonClientPro
   const ref = useRef<HTMLButtonElement>(null);
   const label = labelProp || t('general:save' as Parameters<typeof t>[0]);
 
-  const publishStatus = useFormFields(([fields]) => {
-    const v = fields?.publish_status?.value;
-    return typeof v === 'string' ? v : '';
-  });
-  const suppressNewsletter = useFormFields(
-    ([fields]) => fields?.suppressNewsletter?.value === true,
+  // Single selector to avoid running multiple field-state walks per form
+  // change. `sentAudiences` walks every key so it's especially worth keeping
+  // inside one pass.
+  const { publishStatus, suppressNewsletter, publishedDate, sentAudiences } = useFormFields(
+    ([fields]) => {
+      const f = (fields ?? {}) as Record<string, { value?: unknown }>;
+      const audiences = new Set<string>();
+      for (const key of Object.keys(f)) {
+        if (!/^newsletterSends\.\d+\.audience$/.test(key)) continue;
+        const v = f[key]?.value;
+        if (typeof v === 'string') audiences.add(v);
+      }
+      const publishStatusValue = f.publish_status?.value;
+      const publishedDateValue = f.publishedDate?.value;
+      return {
+        publishStatus: typeof publishStatusValue === 'string' ? publishStatusValue : '',
+        suppressNewsletter: f.suppressNewsletter?.value === true,
+        publishedDate: typeof publishedDateValue === 'string' ? publishedDateValue : '',
+        sentAudiences: audiences,
+      };
+    },
   );
-  const publishedDate = useFormFields(([fields]) => {
-    const v = fields?.publishedDate?.value;
-    return typeof v === 'string' ? v : '';
-  });
-  const sentAudiences = useFormFields(([fields]) => {
-    const audiences = new Set<string>();
-    for (const key of Object.keys(fields ?? {})) {
-      const m = key.match(/^newsletterSends\.(\d+)\.audience$/);
-      if (!m) continue;
-      const v = (fields as Record<string, { value?: unknown }>)[key]?.value;
-      if (typeof v === 'string') audiences.add(v);
-    }
-    return audiences;
-  });
 
   const disabled = (operation === 'update' && !modified) || uploadStatus === 'uploading';
 
   const confirmBeforeSubmit = useCallback((): boolean => {
-    const isNowPublic = publishStatus === 'published' || publishStatus === 'sent';
+    // Mirror the afterChange hook in collections/Posts.ts: it bails when
+    // publish_status === 'sent' (rollup state — all audiences already
+    // delivered), so the dialog must too. Only 'published' triggers AC calls.
+    const willPublish = publishStatus === 'published';
     // Fan-out targets 'all' plus one of ('fiction' | 'essays'). If both
     // buckets are already recorded as sent, the hook makes no AC calls. The
     // group's category isn't known client-side, so treat the save as
@@ -72,7 +76,7 @@ export default function PostSaveButton({ label: labelProp }: SaveButtonClientPro
     const allCovered =
       sentAudiences.has('all') &&
       (sentAudiences.has('fiction') || sentAudiences.has('essays'));
-    const willSchedule = isNowPublic && !suppressNewsletter && !allCovered;
+    const willSchedule = willPublish && !suppressNewsletter && !allCovered;
 
     if (!willSchedule) return true;
 
