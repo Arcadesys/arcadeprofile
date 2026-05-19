@@ -1,0 +1,597 @@
+{
+  "posts": [
+    {
+      "slug": "ai-as-an-art-medium",
+      "title": "AI Is an Art Medium",
+      "excerpt": "Every generation tries to build social levees against the rising water of a new medium. The water doesn't care.",
+      "publishedDate": "2026-04-27T00:00:00.000Z",
+      "publish_status": "scheduled",
+      "group": null,
+      "bodyExcerpt": "AI Is an Art Medium\nI believe, deep down in my heart of hearts, that AI is a new artistic medium. Not a shortcut. Not a threat. A medium. Like oil paint. Like the camera. Like the synthesizer. Like Photoshop.\nAnd I believe the people exploring it now, in its infancy, when the tools are rough and the culture hasn't caught up, will come out the other side able to create work we can't even conceive of yet.\nThis is not a prediction. It's a pattern.\nThink about what's already possible. Not in theory. Right now.\nAn artist trains a model on their own style. Not to replace themselves. To offer an affordable version of their work to people who love their art but can't afford a full commission. The artist sets the price. The artist controls the model. Fans get art that feels like their favorite crea",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "when-noone-approves",
+      "title": "Who Are You When Nobody Is Approving?",
+      "excerpt": "I spent the past three years in blissful maker mode, learning everything I could about AI tools. Not because someone told me to. Not because my job required it. Because I *love* learning new things. I love that feeling of being just competent enough to glimpse the edge of a new world. The firehose still feels like a gift.\n\nI got roasted for it. It hurt more than I wanted to admit.",
+      "publishedDate": "2026-04-23T12:00:00.000Z",
+      "publish_status": "published",
+      "group": {
+        "title": "The Singularity Log",
+        "category": "writing"
+      },
+      "bodyExcerpt": "I spent the past three years in blissful maker mode, learning everything I could about AI tools. Not because someone told me to. Not because my job required it. Because I *love* learning new things. I love that feeling of being just competent enough to glimpse the edge of a new world. The firehose still feels like a gift.\nI got roasted for it. It hurt more than I wanted to admit.\nNot because strangers on the internet said mean things. What hurt was that some of the contempt came from people whose affection still mattered to me. People I wanted closeness from.\nWhat hurt was realizing how many people only knew how to love me if I stayed small enough to be legible. Curious, but not *too* curious. Creative, but not in a way that changed the weather in the room. Weird, but in the charming way.",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": false,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": "On learning to not be small",
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "years-of-craft-dont-get-a-vote",
+      "title": "The Years of Craft Do Not Get a Vote",
+      "excerpt": "For a long time, the story I told myself about work was simple. Get better. Learn more. Become more useful. Refine your taste. Refine your craft. Build skills nobody can take away.\n\nI still believe in craft. I still believe in skill. But I do not think that story is enough anymore.",
+      "publishedDate": "2026-04-21T12:00:00.000Z",
+      "publish_status": "published",
+      "group": {
+        "title": "The Singularity Log",
+        "category": "writing"
+      },
+      "bodyExcerpt": "In 1980, David Byrne and Toni Basil went to UCLA and USC and watched archive footage of people in religious ecstasy. African tribal rituals. Japanese sects. Trance states. Southern televangelists speaking in tongues. They watched hours of it. Then Byrne went into a white room in a suit and bowtie and invented a way of moving that had never existed before.\nhttps://www.youtube.com/embed/5IsSpAOD6K8\nHe did not copy them. He absorbed them. What came out was unmistakably him (twitchy, rigid, caught between dance and seizure), but it contained the whole archive. Basil said, \"David kind of choreographed himself.\"\nI think about that video when I think about what is happening to us.\nNot because it is hidden. Because it is boring.\nIt arrives as a better autocomplete. A better search box. A chatbot t",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": "",
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "after-scarcity",
+      "title": "After Scarcity",
+      "excerpt": "The market model is dying. Not because anyone attacked it. Because the tools changed. What replaces scarcity?",
+      "publishedDate": "2026-04-20T00:00:00.000Z",
+      "publish_status": "published",
+      "group": {
+        "title": "The Singularity Log",
+        "category": "writing"
+      },
+      "bodyExcerpt": "After Scarcity\nIf campfire logic describes how creative culture survives, what kind of economy can support it now that scarcity is collapsing?\nThe market model is dying. It is not being murdered. It is encountering a condition it was never built to survive.\nThat condition is abundance.\nHere's what the first three essays built. AI is rabies for capitalism: the system is thrashing because scarcity, its core assumption, just broke. The tension around AI echoes what photography triggered in painting, what the printing press triggered in manuscript culture. The line moves. The community adapts. The art keeps getting made.\nThe lone genius myth was invented to serve the art market. Not artists. The workshop model predates it by centuries. Attribution was a guild convention. \"Who made this?\" becam",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "campfire-logic",
+      "title": "Campfire Logic",
+      "excerpt": "If preciousness is market logic, what does a non-market logic of art actually look like? Pass it around. Let it change shape.",
+      "publishedDate": "2026-04-13T00:00:00.000Z",
+      "publish_status": "published",
+      "group": {
+        "title": "The Singularity Log",
+        "category": "writing"
+      },
+      "bodyExcerpt": "Campfire Logic\nIf the last essay argued that preciousness is market logic, this one asks: what does a non-market logic of art actually look like?\nBefore the recording industry, the idea of a \"wrong\" version of a song barely made sense.\nA tune was not a product. It was a process. You heard it. You learned it. You changed it. You passed it on. The next person changed it again. Nobody owned the melody. Nobody had the definitive recording. The song was a living thing that mutated every time someone new picked it up.\nWe didn't lose this by accident. We professionalized it away.\nWestern music notation promised precision. Write down every note, every rest, every dynamic marking, and you could reproduce the composer's exact intention across centuries. That was the sales pitch. What it actually did",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "the-ache",
+      "title": "The Ache in your Heart",
+      "excerpt": "I like staying in the moment. There's something about the present that feels permanent, untouchable. That if I have food in my belly and music in my life, I can be happy.",
+      "publishedDate": "2026-04-08T12:00:00.000Z",
+      "publish_status": "published",
+      "group": {
+        "title": "The Singularity Log",
+        "category": "writing"
+      },
+      "bodyExcerpt": "My mentor taught me to write in theme first. \"Theme is the engine,\" he said in his gravelly accent, the sound harmonizing with the hum of his MG on a country Tennessee highway. Around us was nothing but open road, classic rock, and screeching cicadas in every direction.\nI drove seven hours to meet a fellow writer. To talk about writing. To be a better writer.\n\"Everything has to hum along. Every conflict rhyming with the next. All the conflicts point to one thing; one wound; one ache. One burning human truth.\n\"You have to have that ache, Austen. One singular, gaping ache explained in too many words. Otherwise, the gears catch and the spell breaks.\"\nSometimes, it's good to throw something away.\nNot because it was bad. Not because it failed. But because the cost of trying again is falling so",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "the-preciousness-problem",
+      "title": "The Preciousness Problem",
+      "excerpt": "Where did our obsession with singular, precious authorship come from? The lone genius myth is an economic invention.",
+      "publishedDate": "2026-04-06T00:00:00.000Z",
+      "publish_status": "published",
+      "group": {
+        "title": "The Singularity Log",
+        "category": "writing"
+      },
+      "bodyExcerpt": "The Preciousness Problem\nThe first essay in this series argued that AI is rabies for capitalism: that the system built on scarcity is thrashing because its core assumption just broke. This essay asks a related question: where did our obsession with singular, precious authorship come from in the first place?\nNobody painted the Mona Lisa alone.\nThat sentence bothers people. It shouldn't. Leonardo da Vinci ran a workshop. He had apprentices, assistants, specialists. Someone mixed pigments. Someone prepared panels. Someone filled in backgrounds while the master worked on hands and faces. This was not a scandal. This was Tuesday. Every major Renaissance painter operated the same way. Raphael's workshop produced so much work under his name that art historians still argue about which brushstrokes",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "rabies-capitalism",
+      "title": "Rabies Capitalism",
+      "excerpt": "On AI, Labor, and the End of the Moat",
+      "publishedDate": "2026-03-30T00:00:00.000Z",
+      "publish_status": "published",
+      "group": {
+        "title": "The Singularity Log",
+        "category": "writing"
+      },
+      "bodyExcerpt": "Consider the frothing grimace of a raccoon in your headlights. Eyes like wet glass. Jaw working on nothing. Something in your lizard brain says *wrong* before you can name why.\nIf you have symptoms of rabies, you're already dead. You just don't know it yet.\nAI, in an ironic twist of fate, has made capitalism so unstable that it now fights anything that gets close to it.\nI'm not here to argue that the free market will transform and survive. To do so requires medicine we don't have; and furthermore, why stop a good thing? Indeed, I believe we are dealing with a rabid market that is wholly unable to understand that the cost of effort and craft just crashed through the floor, making us all, as Neal Stephenson once said, \"As rich as a Pakistani bricklayer.\"\nFor millennia, the currency that powe",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "pull-not-push",
+      "title": "Pull, Not Push: Why I'm Rebuilding My Online Presence Backwards",
+      "excerpt": "I've had more names on the internet than I've had prescription strengths. That era is over",
+      "publishedDate": "2026-03-30T00:00:00.000Z",
+      "publish_status": "published",
+      "group": {
+        "title": "On Writing",
+        "category": "writing"
+      },
+      "bodyExcerpt": "I've had more names on the internet than I've had prescription strengths.\nThat's not a joke. Sly Squirrel came first — a high schooler posting furry fiction and somehow landing an Ursa Major nomination before graduation. Then Sly Rabbit. Slyford T. Rabbit. That's where I actually learned to write, chapter by chapter on ANTHRO, figuring out what a novel was by publishing one in public. Then came Carl (picked up for a community anthology and a podcast episode), and that opened the door to Bait and Switch getting published for real.\nThen I fell off the map for ten years.\nNot off the page, though. Never off the page. I just stopped publishing. The writing kept going. I'm sitting on ten novels right now, with more coming. But the public-facing part? The putting-yourself-out-there part? That wen",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "why-the-10-percent-productivity-plateau-should-worry-you",
+      "title": "Why the 10% Productivity Plateau Should Worry You",
+      "excerpt": "Adoption went up. AI-authored code went up. Gains flatlined. The bottleneck was never the tools.",
+      "publishedDate": "2026-03-29T00:00:00.000Z",
+      "publish_status": "scheduled",
+      "group": null,
+      "bodyExcerpt": "Why the 10% Productivity Plateau Should Worry You\nLaura Tacho, CTO of DX, has been tracking what might be the most important dataset in AI-assisted development. Not a lab study. Not a controlled trial. A continuous measurement across 121,000 developers at more than 450 companies, drawn from a population of approximately 4.2 million.\nHere's the trajectory. AI coding assistant adoption hit 92.6%, monthly usage at minimum. AI-authored code now accounts for 26.9% of all production code, up from 22% the prior quarter. The tools are everywhere. The output is measurable. The adoption curve is basically done.\nAnd productivity gains have flatlined at roughly 10%.\nNot declined. Not crashed. Flatlined. The number went up, hit a ceiling, and stopped moving. More adoption didn't produce more gains. Mor",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "volume-is-not-velocity",
+      "title": "Volume Is Not Velocity",
+      "excerpt": "We're writing more code than ever. We're also duplicating more, refactoring less, and quietly degrading the thing we're building.",
+      "publishedDate": "2026-03-28T00:00:00.000Z",
+      "publish_status": "draft",
+      "group": null,
+      "bodyExcerpt": "Volume Is Not Velocity\nGitClear analyzed 211 million changed lines of code across repositories owned by Google, Microsoft, Meta, and enterprise corporations. The dataset spans January 2020 through December 2024. Five years. The full before-and-after of AI coding tool adoption.\nHere's what they found.\nRefactoring dropped from 25% of changed lines in 2021 to less than 10% in 2024. Code duplication (copy/paste clones) rose from 8.3% to 12.3%. 2024 was the first year in GitClear's dataset history that duplicated code exceeded refactoring activity.\nAnd the frequency of code blocks (five or more lines) that duplicate adjacent code? Up eightfold compared to two years prior.\nWe are writing more code than ever. And the code is getting worse.\nI want to be precise about what \"worse\" means here, becau",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "the-hidden-tax-on-senior-engineers",
+      "title": "The Hidden Tax on Senior Engineers",
+      "excerpt": "AI didn't reduce the demand on your best engineers. It redirected it. 6.5% more code reviewed. 19% less original work.",
+      "publishedDate": "2026-03-27T00:00:00.000Z",
+      "publish_status": "scheduled",
+      "group": null,
+      "bodyExcerpt": "The Hidden Tax on Senior Engineers\nThere's a study that should be pinned to the wall of every engineering leader's office.\nXu et al. (2025) looked at open-source projects before and after GitHub Copilot adoption. The headline finding was what you'd expect: more code got written. Peripheral contributors, less experienced developers newer to the project, generated more output. The overall productivity curve went up.\nBut here's the number that matters. After Copilot adoption, core contributors, the senior developers who maintained these projects, reviewed 6.5% more code. And their own original code output dropped by 19%.\nThat's not a rounding error. That's a structural reallocation of the most expensive, most experienced engineering time you have.\nLet me say it differently.\nAI tools made it e",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "carl",
+      "title": "Carl",
+      "excerpt": "My name is Carl and I work at Floor Mart. I always have worked at Floor Mart and always will work at Floor Mart, forever and ever, amen.",
+      "publishedDate": "2026-03-26T00:00:00.000Z",
+      "publish_status": "published",
+      "group": {
+        "title": "Short Stories",
+        "category": "fiction"
+      },
+      "bodyExcerpt": "My name is Carl and I work at Floor-Mart.  I always have worked at Floor-Mart and I always will work at Floor-Mart, forever and ever, amen.\nIt's the middle of winter and I'm working in the parking lot.  There are carts that need to be collected every ten minutes.  I'm wearing a Floor-Mart T-shirt and the orange safety vest that the manual dictates I wear.  It’s snowing and it’s cold, but I don’t care.  Androids don’t get cold.  There are footsteps crunching in the oily snow just behind my back.  My manager Florence is walking out to see me.\nHe’s a small man, with a warm, customer-service smile and a clean combover haircut.  As I turn to face him he is walking slowly, methodically, considering his words before he even speaks them.  Tact.  The mark of a true manager.  \"Evening, Carl,\" he say",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "why-ai-helps-juniors-and-slows-down-seniors",
+      "title": "Why AI Helps Juniors and Slows Down Seniors",
+      "excerpt": "The experience gap in AI-assisted coding isn't a bug in the tools. It's a feature of expertise itself.",
+      "publishedDate": "2026-03-26T00:00:00.000Z",
+      "publish_status": "published",
+      "group": {
+        "title": "Arcade Blog",
+        "category": "writing"
+      },
+      "bodyExcerpt": "Why AI Helps Juniors and Slows Down Seniors\nHere's a finding that keeps showing up across every major study of AI-assisted development, regardless of methodology, sample size, or which tool they tested:\nJunior developers benefit more than senior ones. Sometimes dramatically more. And in certain conditions, senior developers get slower.\nThis is not a temporary glitch. This is structural. It will hold even as the tools improve. Understanding why requires thinking about what expertise actually is and what happens when you insert a confident, fast, sometimes-wrong assistant into the middle of it.\nThe data is consistent enough to be boring at this point.\nPeng et al. (2023) ran ninety-five developers through an HTTP server implementation task with and without GitHub Copilot. The Copilot group fi",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "the-photograph-of-a-river",
+      "title": "The Photograph of a River",
+      "excerpt": "Every AI productivity study is a photograph of a river. By the time you develop the film, the water has moved.",
+      "publishedDate": "2026-03-25T00:00:00.000Z",
+      "publish_status": "scheduled",
+      "group": null,
+      "bodyExcerpt": "The Photograph of a River\nIn July 2025, METR published the most rigorous study anyone had done on AI-assisted developer productivity. Sixteen experienced open-source developers. Two hundred forty-six tasks. Repos with millions of lines of code and tens of thousands of GitHub stars. Real work, real tools, real money, $150 an hour.\nThe finding: developers using AI took 19% longer to complete their tasks.\nThat number ricocheted around the internet for months. AI skeptics waved it like a flag. AI boosters called the study flawed, the sample too small, the tools outdated. Everybody had an opinion. Almost nobody asked the question that mattered.\nBy the time you're arguing about the photograph, the river has moved.\nSeven months later, METR changed their entire study design. Not because they got t",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    },
+    {
+      "slug": "gist-memory-is-not-a-bug",
+      "title": "I Thought I Had a Bad Memory. I Don't.",
+      "excerpt": "Sighted people use the world around them to help them remember thing. When you can't do that, your brain builds something different. Something that might actually be better in some cases.",
+      "publishedDate": "2026-03-19T00:00:00.000Z",
+      "publish_status": "published",
+      "group": {
+        "title": "White Cane Chronicles",
+        "category": "writing"
+      },
+      "bodyExcerpt": "Consider the pill bottle.\nEvery morning, a sighted person walks into the kitchen and their eyes sweep the counter before a single conscious thought about medication fires. The bottle is there, cap ajar, just left of the coffee maker. They \"remember\" taking the pill, not because they actually recall the act, but because the world confirms it. Cap's off. Position's right. Memory, in that moment, is visual confirmation, not memory.\nNow remove the bottle. Remove the counter. And smear vaselene on the lens of the kitchen's entire visual field.\nWhat remains?\nI can tell you what remains, because I live there.\nThe Crutch You Don't Know You're Using\nSighted people offload memory into the environment. They almost never notice they're doing it. Where something was on a page. What color the folder was",
+      "needs": {
+        "metaTitle": true,
+        "metaDescription": true,
+        "metaKeywords": true,
+        "socialHook": true,
+        "searchSummary": true
+      },
+      "existing": {
+        "meta": {
+          "title": null,
+          "description": null,
+          "image": null,
+          "keywords": null
+        },
+        "discoverability": {
+          "social_hook": null,
+          "search_summary": null,
+          "canonical_path": null,
+          "featured_on_start_here": false,
+          "primaryCTA": {
+            "label": null,
+            "href": null,
+            "description": null
+          }
+        }
+      }
+    }
+  ]
+}
