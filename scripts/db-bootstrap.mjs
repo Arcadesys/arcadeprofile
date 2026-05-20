@@ -6,17 +6,12 @@
 //
 // Every statement is `IF NOT EXISTS` so re-runs are safe.
 
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { config as loadDotenv } from 'dotenv';
+import { loadEnvConfig } from '@next/env';
 import postgres from 'postgres';
 
 // Vercel injects DATABASE_URL via project env vars, so this is a no-op in CI.
-// Local invocations rely on these dotfiles — @next/env isn't in scope here.
-for (const file of ['.env.production.local', '.env.local']) {
-  const p = resolve(process.cwd(), file);
-  if (existsSync(p)) loadDotenv({ path: p, override: false });
-}
+// Local invocations resolve .env.* with the same precedence Next.js uses.
+loadEnvConfig(process.cwd());
 
 const connectionString = process.env.DATABASE_URL || process.env.DATABASE_URI;
 if (!connectionString) {
