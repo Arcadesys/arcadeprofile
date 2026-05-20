@@ -26,6 +26,7 @@ import * as migration_20260513_030000_add_posts_preview_token from './20260513_0
 import * as migration_20260514_000000_add_books_meta_fields from './20260514_000000_add_books_meta_fields';
 import * as migration_20260514_010000_add_post_reactions from './20260514_010000_add_post_reactions';
 import * as migration_20260515_000000_add_post_reactions_locked_docs_rel from './20260515_000000_add_post_reactions_locked_docs_rel';
+import * as migration_20260520_000000_replace_newsletter_sends_with_ac_campaign from './20260520_000000_replace_newsletter_sends_with_ac_campaign';
 
 export const migrations = [
   {
@@ -167,5 +168,10 @@ export const migrations = [
     up: migration_20260515_000000_add_post_reactions_locked_docs_rel.up,
     down: migration_20260515_000000_add_post_reactions_locked_docs_rel.down,
     name: '20260515_000000_add_post_reactions_locked_docs_rel',
+  },
+  {
+    up: migration_20260520_000000_replace_newsletter_sends_with_ac_campaign.up,
+    down: migration_20260520_000000_replace_newsletter_sends_with_ac_campaign.down,
+    name: '20260520_000000_replace_newsletter_sends_with_ac_campaign',
   },
 ];

@@ -1,7 +1,5 @@
 import type { CollectionConfig } from 'payload';
 
-import type { Post } from '../payload-types';
-import { buildPostNewsletterContent } from '../lib/newsletter';
 import { buildPostUrl } from '../lib/post-url';
 import { buildPreviewUrl } from '../lib/preview-token';
 import { discoverabilityAndMetaFields } from './fields/discoverability';
@@ -10,6 +8,8 @@ import { tagArrayField } from './fields/tags';
 import { ensurePreviewTokenHook } from './hooks/ensurePreviewToken';
 import { promoteScheduledDraftHook } from './hooks/promoteScheduledDraft';
 import { revalidatePathsFor } from './hooks/revalidate';
+import { syncAcCampaignHook } from './hooks/syncAcCampaign';
+import { validateScheduledPublishDateHook } from './hooks/validateScheduledPublishDate';
 import { isAuthenticated } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
 
@@ -70,234 +70,12 @@ export const Posts: CollectionConfig = {
     },
   },
   hooks: {
-    beforeChange: [promoteScheduledDraftHook, ensurePreviewTokenHook],
-    afterChange: [
-      revalidatePostPaths,
-      async ({ doc, req, context }) => {
-        // Back-office scripts (e.g. SEO meta backfill) can pass
-        // `context: { skipNewsletter: true }` to update posts without
-        // triggering AC fan-out. Editorial saves never set this.
-        if ((context as { skipNewsletter?: boolean } | undefined)?.skipNewsletter) {
-          return;
-        }
-        // On publish, fan out to per-post newsletter subscribers. Idempotency
-        // lives in `newsletterSends` — a per-audience record of every
-        // successful send. The fanout skips audiences already in that array,
-        // so partial-failure retries and re-saves never produce duplicate AC
-        // campaigns. `publish_status === 'sent'` is the rollup state, flipped
-        // only when every targeted audience has a record. Social posting is
-        // handled externally (Later via MCP).
-        //
-        // `suppressNewsletter` is an independent intent flag — when set, the
-        // fan-out is skipped entirely (archival reposts, manual override).
-        // Unlike the old `newsletterSent` boolean, it can't drift away from
-        // delivery state because it doesn't pretend to be derived.
-        const isNowPublic =
-          doc.publish_status === 'published' || doc.publish_status === 'sent';
-
-        const needsNewsletter =
-          isNowPublic && !doc.suppressNewsletter && doc.publish_status !== 'sent';
-
-        if (!needsNewsletter) return;
-
-        const payload = req.payload;
-        const postId = doc.id as number;
-        const postSlug = doc.slug as string;
-        const postTitle = doc.title as string;
-        const postGroup = typeof doc.group === 'string' ? doc.group : '';
-        const subject = (doc.newsletterHeading as string) || postTitle;
-        let scheduledSendAt: Date | undefined;
-        const publishedRaw = doc.publishedDate;
-        if (typeof publishedRaw === 'string' && publishedRaw) {
-          const t = new Date(publishedRaw);
-          if (!Number.isNaN(t.getTime())) {
-            scheduledSendAt = t;
-          }
-        }
-
-        const runFanOut = async () => {
-          let populated: Post;
-          try {
-            populated = (await payload.findByID({
-              collection: 'posts',
-              id: postId,
-              depth: 1,
-              overrideAccess: true,
-            })) as Post;
-          } catch (err) {
-            console.error(
-              '[publish-hooks] Failed to load populated post; skipping newsletter fan-out:',
-              err instanceof Error ? err.message : err,
-            );
-            return;
-          }
-
-          try {
-            const { resolveGroupHeroForPost } = await import('../lib/post-newsletter');
-            const { sendPostNewsletterFanOut, resolveAudiences } = await import(
-              '../lib/post-newsletter-fanout'
-            );
-
-            const group = await resolveGroupHeroForPost(payload, populated);
-
-            // Fiction-vs-essay routing comes from the Group's `category` field
-            // (set on the Groups collection). Posts without a group, or whose
-            // group isn't categorized as fiction, fall under Essays.
-            let groupCategory: string | null = null;
-            if (postGroup) {
-              const groupLookup = await payload.find({
-                collection: 'groups',
-                where: { slug: { equals: postGroup } },
-                limit: 1,
-                overrideAccess: true,
-              });
-              groupCategory = (groupLookup.docs[0]?.category as string | undefined) ?? null;
-            }
-
-            const { htmlBody, textBody } = buildPostNewsletterContent({
-              ...populated,
-              group,
-            });
-
-            type SendRecord = {
-              audience: 'all' | 'fiction' | 'essays';
-              sentAt?: string | null;
-              messageId?: string | null;
-              campaignId?: string | null;
-              id?: string | null;
-            };
-            const existingSends: SendRecord[] = Array.isArray(populated.newsletterSends)
-              ? (populated.newsletterSends as SendRecord[])
-              : [];
-            const alreadySent = existingSends
-              .map((r) => r.audience)
-              .filter((a): a is 'all' | 'fiction' | 'essays' =>
-                a === 'all' || a === 'fiction' || a === 'essays',
-              );
-
-            const targetAudiences = resolveAudiences(groupCategory);
-
-            const fanOut = await sendPostNewsletterFanOut({
-              subject,
-              htmlBody,
-              textBody,
-              slug: postSlug,
-              scheduledSendAt,
-              groupCategory,
-              alreadySent,
-            });
-
-            for (const { audience, error } of fanOut.failures) {
-              const detail = (error as { details?: unknown })?.details;
-              const status = (error as { causeStatus?: number })?.causeStatus;
-              console.error(
-                `[newsletter] Failed to send ${audience} campaign:`,
-                error instanceof Error ? error.message : error,
-                ...(status !== undefined ? [`(HTTP ${status})`] : []),
-                ...(detail ? [`| AC detail: ${detail}`] : []),
-              );
-            }
-
-            // Batch all successful audiences into one update BEFORE flipping
-            // the rollup flag. Re-read the doc once so a concurrent save's
-            // newsletterSends entries aren't clobbered.
-            if (fanOut.results.length > 0) {
-              const fresh = (await payload.findByID({
-                collection: 'posts',
-                id: postId,
-                depth: 0,
-                overrideAccess: true,
-              })) as Post;
-              const freshSends: SendRecord[] = Array.isArray(fresh.newsletterSends)
-                ? (fresh.newsletterSends as SendRecord[])
-                : [];
-              const now = new Date().toISOString();
-              const newSends: SendRecord[] = fanOut.results
-                .filter((r) => !freshSends.some((s) => s.audience === r.audience))
-                .map((r) => ({
-                  audience: r.audience,
-                  sentAt: now,
-                  messageId: r.messageId,
-                  campaignId: r.campaignId,
-                }));
-              if (newSends.length > 0) {
-                await payload.update({
-                  collection: 'posts',
-                  id: postId,
-                  data: {
-                    newsletterSends: [...freshSends, ...newSends],
-                  },
-                });
-              }
-            }
-
-            // Flip publish_status='sent' only when every targeted audience
-            // has a record (pre-existing + just-sent). publish_status is now
-            // the single source of truth for "all delivered" — no separate
-            // boolean to drift out of sync.
-            const sentAudiences = new Set<string>([
-              ...alreadySent,
-              ...fanOut.results.map((r) => r.audience),
-            ]);
-            const allCovered = targetAudiences.every((a) => sentAudiences.has(a));
-            if (allCovered && doc.publish_status !== 'sent') {
-              await payload.update({
-                collection: 'posts',
-                id: postId,
-                data: {
-                  publish_status: 'sent',
-                },
-              });
-            }
-
-            console.log(
-              `[newsletter] ActiveCampaign fan-out for "${postTitle}"`,
-              JSON.stringify({
-                postId,
-                slug: postSlug,
-                groupCategory,
-                results: fanOut.results,
-                skipped: fanOut.skipped,
-                failures: fanOut.failures.map((f) => f.audience),
-              }),
-            );
-          } catch (err) {
-            const detail = (err as { details?: unknown })?.details;
-            const status = (err as { causeStatus?: number })?.causeStatus;
-            console.error(
-              '[newsletter] Failed to send campaign:',
-              err instanceof Error ? err.message : err,
-              ...(status !== undefined ? [`(HTTP ${status})`] : []),
-              ...(detail ? [`| AC detail: ${detail}`] : []),
-            );
-          }
-        };
-
-        // Detach from the admin save: AC's createMessage + createCampaign
-        // round-trip per audience can take tens of seconds and previously
-        // wedged the save modal. `next/server.after` runs the fan-out after
-        // the response is sent but within the function's lifetime on Vercel;
-        // outside a Next request context (seed scripts, tests) we
-        // fire-and-forget instead. `publish_status !== 'sent'` is the retry
-        // gate — partial-failure runs leave it as 'published' so a re-save
-        // retries only the missing audiences.
-        const fireAndForget = () => {
-          void runFanOut().catch((err) => {
-            console.error('[newsletter] background fan-out crashed:', err);
-          });
-        };
-        try {
-          const nextServer = await import('next/server');
-          if (typeof nextServer.after === 'function') {
-            nextServer.after(runFanOut);
-          } else {
-            fireAndForget();
-          }
-        } catch {
-          fireAndForget();
-        }
-      },
+    beforeChange: [
+      validateScheduledPublishDateHook,
+      promoteScheduledDraftHook,
+      ensurePreviewTokenHook,
     ],
+    afterChange: [revalidatePostPaths, syncAcCampaignHook],
   },
   fields: [
     {
@@ -336,32 +114,73 @@ export const Posts: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description:
-          'When true, the fan-out hook skips sending entirely. Use for archival reposts or to override a stuck post. "All delivered" state lives in Workflow Status (sent) and the newsletterSends array — this flag is intent only.',
+          'When true, the AC campaign sync is skipped entirely. Use for archival reposts or to override a stuck post.',
       },
     },
     {
-      name: 'newsletterSends',
-      type: 'array',
+      name: 'acCampaign',
+      type: 'group',
       admin: {
         position: 'sidebar',
         description:
-          'Per-audience send log. The fanout hook skips any audience already in this list, so retries after a partial failure never produce duplicate AC campaigns.',
-        initCollapsed: true,
+          'Synced ActiveCampaign state. Read-only — written by the on-save sync hook.',
       },
       fields: [
         {
-          name: 'audience',
-          type: 'select',
-          required: true,
-          options: [
-            { label: 'All', value: 'all' },
-            { label: 'Fiction', value: 'fiction' },
-            { label: 'Essays', value: 'essays' },
-          ],
+          name: 'campaignId',
+          type: 'text',
+          admin: { readOnly: true, description: 'AC campaign id.' },
         },
-        { name: 'sentAt', type: 'date', admin: { date: { pickerAppearance: 'dayAndTime' } } },
-        { name: 'messageId', type: 'text' },
-        { name: 'campaignId', type: 'text' },
+        {
+          name: 'messageId',
+          type: 'text',
+          admin: { readOnly: true, description: 'AC message id.' },
+        },
+        {
+          name: 'scheduledFor',
+          type: 'date',
+          admin: {
+            readOnly: true,
+            date: { pickerAppearance: 'dayAndTime' },
+            description: 'Send time persisted to AC (may be clamped to now).',
+          },
+        },
+        {
+          name: 'status',
+          type: 'select',
+          options: [
+            { label: 'Pending', value: 'pending' },
+            { label: 'Scheduled', value: 'scheduled' },
+            { label: 'Sent', value: 'sent' },
+            { label: 'Failed', value: 'failed' },
+          ],
+          admin: { readOnly: true },
+        },
+        {
+          name: 'targetedLists',
+          type: 'text',
+          admin: {
+            readOnly: true,
+            description: 'Comma-separated AC list ids attached to the campaign.',
+          },
+        },
+        {
+          name: 'lastSyncedAt',
+          type: 'date',
+          admin: {
+            readOnly: true,
+            date: { pickerAppearance: 'dayAndTime' },
+          },
+        },
+        {
+          name: 'lastError',
+          type: 'textarea',
+          admin: {
+            readOnly: true,
+            description:
+              'Most recent AC sync error message. Cleared on successful sync.',
+          },
+        },
       ],
     },
     {

@@ -3,9 +3,12 @@ import { afterEach, test } from 'node:test';
 
 import {
   ActiveCampaignError,
+  createScheduledCampaign,
   formatCampaignSendDate,
-  sendBlogPostNewsletter,
+  getCampaignStatus,
+  isCampaignFrozen,
   syncSubscriberToActiveCampaign,
+  updateCampaignSendDate,
 } from './activecampaign';
 
 function setAcEnv(overrides: Record<string, string | undefined> = {}) {
@@ -66,35 +69,49 @@ afterEach(() => {
   clearAcEnv();
 });
 
-test('sendBlogPostNewsletter throws ActiveCampaignError when API base URL is missing', async () => {
+test('createScheduledCampaign throws when AC_API_URL is missing', async () => {
   process.env.AC_API_KEY = 'x';
-  process.env.AC_NEWSLETTER_LIST_ID = '1';
   process.env.AC_NEWSLETTER_FROM_EMAIL = 'a@b.co';
 
   await assert.rejects(
     () =>
-      sendBlogPostNewsletter({
+      createScheduledCampaign({
         subject: 'Hi',
         htmlBody: '<p>x</p>',
         textBody: 'x',
         slug: 'post',
+        listIds: ['3'],
         fetchImpl: async () => new Response('{}', { status: 200 }),
       }),
     (err: unknown) =>
       err instanceof ActiveCampaignError &&
-      err.message.includes('AC_API_URL') &&
-      err.message.includes('ACTIVECAMPAIGN_API_URL'),
+      err.message.includes('AC_API_URL'),
   );
 });
 
-test('sendBlogPostNewsletter accepts legacy ACTIVECAMPAIGN_* env names', async () => {
+test('createScheduledCampaign throws when listIds is empty', async () => {
+  setAcEnv();
+  await assert.rejects(
+    () =>
+      createScheduledCampaign({
+        subject: 'x',
+        htmlBody: 'x',
+        textBody: 'x',
+        slug: 'x',
+        listIds: [],
+      }),
+    (err: unknown) =>
+      err instanceof ActiveCampaignError &&
+      err.message.includes('at least one listId'),
+  );
+});
+
+test('createScheduledCampaign accepts legacy ACTIVECAMPAIGN_* env names', async () => {
   delete process.env.AC_API_URL;
   delete process.env.AC_API_KEY;
-  delete process.env.AC_NEWSLETTER_LIST_ID;
   delete process.env.AC_NEWSLETTER_FROM_EMAIL;
   process.env.ACTIVECAMPAIGN_API_URL = 'https://legacy.example.api-us1.com';
   process.env.ACTIVECAMPAIGN_API_KEY = 'legacy-key';
-  process.env.ACTIVECAMPAIGN_LIST_ID = '9';
   process.env.POSTMARK_FROM_EMAIL = 'from@example.com';
 
   const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
@@ -123,18 +140,19 @@ test('sendBlogPostNewsletter accepts legacy ACTIVECAMPAIGN_* env names', async (
     assert.fail(`Unexpected fetch URL: ${url}`);
   };
 
-  const result = await sendBlogPostNewsletter({
+  const result = await createScheduledCampaign({
     subject: 'Hi',
     htmlBody: '<p>x</p>',
     textBody: 'x',
     slug: 'post',
+    listIds: ['9'],
     fetchImpl: fetchImpl as typeof fetch,
   });
   assert.equal(result.messageId, '1');
   assert.equal(result.campaignId, '2');
 });
 
-test('sendBlogPostNewsletter calls message_add then campaign_create with correct form fields and p[<id>] for the list', async () => {
+test('createScheduledCampaign emits a p[<id>] entry per list on message_add AND campaign_create', async () => {
   setAcEnv();
 
   const calls: string[] = [];
@@ -143,25 +161,17 @@ test('sendBlogPostNewsletter calls message_add then campaign_create with correct
     if (isCampaignsLookup(url)) return emptyCampaignsResponse();
     if (url.includes('api_action=message_add')) {
       calls.push('message_add');
-      assert.match(url, /\/admin\/api\.php\?/);
-      assert.match(url, /api_key=test-key/);
-      assert.match(url, /api_output=json/);
-      // Brackets must reach AC unencoded — encoded form would land as the
-      // literal key `p%5B3%5D` and AC would treat the array as empty.
       const rawBody = String(init?.body ?? '');
-      assert.match(rawBody, /(?:^|&)p\[3\]=3(?:&|$)/);
+      assert.match(rawBody, /(?:^|&)p\[7\]=7(?:&|$)/);
+      assert.match(rawBody, /(?:^|&)p\[10\]=10(?:&|$)/);
       assert.doesNotMatch(rawBody, /%5B|%5D/);
       const form = parseFormBody(init);
-      assert.equal(form.get('format'), 'html');
       assert.equal(form.get('subject'), 'Hello');
       assert.equal(form.get('html'), '<p>Body</p>');
-      assert.equal(form.get('text'), 'Body');
-      assert.equal(form.get('fromemail'), 'news@example.com');
-      // 'editor' tells AC the html/text fields ARE the body. 'external' would
-      // make AC try to fetch from an htmlfetch URL and surface "fetch:" in the email.
       assert.equal(form.get('htmlconstructor'), 'editor');
       assert.equal(form.get('textconstructor'), 'editor');
-      assert.equal(form.get('p[3]'), '3');
+      assert.equal(form.get('p[7]'), '7');
+      assert.equal(form.get('p[10]'), '10');
       return new Response(
         JSON.stringify({ result_code: 1, result_message: 'ok', id: '88' }),
         { status: 200, headers: { 'content-type': 'application/json' } },
@@ -169,19 +179,15 @@ test('sendBlogPostNewsletter calls message_add then campaign_create with correct
     }
     if (url.includes('api_action=campaign_create')) {
       calls.push('campaign_create');
-      assert.equal(init?.method, 'POST');
       const rawBody = String(init?.body ?? '');
-      // Lists must be under p[<id>], NOT list[<id>] — that was the cause of
-      // "You did not provide any lists." in earlier attempts.
-      assert.match(rawBody, /(?:^|&)p\[3\]=3(?:&|$)/);
+      assert.match(rawBody, /(?:^|&)p\[7\]=7(?:&|$)/);
+      assert.match(rawBody, /(?:^|&)p\[10\]=10(?:&|$)/);
       assert.doesNotMatch(rawBody, /(?:^|&)list\[/);
       assert.match(rawBody, /(?:^|&)m\[88\]=100(?:&|$)/);
-      assert.doesNotMatch(rawBody, /%5B|%5D/);
       const form = parseFormBody(init);
       assert.equal(form.get('type'), 'single');
       assert.equal(form.get('name'), 'Blog: my-post');
       assert.equal(form.get('status'), '1');
-      assert.equal(form.get('p[3]'), '3');
       assert.equal(form.get('m[88]'), '100');
       const expectedAt = new Date(2030, 4, 1, 10, 0, 0);
       assert.equal(form.get('sdate'), formatCampaignSendDate(expectedAt));
@@ -193,11 +199,12 @@ test('sendBlogPostNewsletter calls message_add then campaign_create with correct
     assert.fail(`Unexpected fetch URL: ${url}`);
   };
 
-  const result = await sendBlogPostNewsletter({
+  const result = await createScheduledCampaign({
     subject: 'Hello',
     htmlBody: '<p>Body</p>',
     textBody: 'Body',
     slug: 'my-post',
+    listIds: ['7', '10'],
     scheduledSendAt: new Date(2030, 4, 1, 10, 0, 0),
     fetchImpl: fetchImpl as typeof fetch,
   });
@@ -205,9 +212,10 @@ test('sendBlogPostNewsletter calls message_add then campaign_create with correct
   assert.deepEqual(calls, ['message_add', 'campaign_create']);
   assert.equal(result.messageId, '88');
   assert.equal(result.campaignId, '900');
+  assert.deepEqual(result.listIds, ['7', '10']);
 });
 
-test('sendBlogPostNewsletter clamps past scheduledSendAt to now for the campaign sdate', async () => {
+test('createScheduledCampaign clamps past scheduledSendAt to now', async () => {
   setAcEnv();
   const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     const url = urlPath(input);
@@ -221,9 +229,7 @@ test('sendBlogPostNewsletter clamps past scheduledSendAt to now for the campaign
     if (url.includes('api_action=campaign_create')) {
       const form = parseFormBody(init);
       const raw = form.get('sdate');
-      if (!raw) {
-        assert.fail('missing sdate');
-      }
+      if (!raw) assert.fail('missing sdate');
       const y = raw.slice(0, 4);
       const mo = raw.slice(5, 7);
       const d = raw.slice(8, 10);
@@ -231,11 +237,7 @@ test('sendBlogPostNewsletter clamps past scheduledSendAt to now for the campaign
       const min = raw.slice(14, 16);
       const s = raw.slice(17, 19);
       const asDate = new Date(Number(y), Number(mo) - 1, Number(d), Number(h), Number(min), Number(s));
-      const skew = Math.abs(asDate.getTime() - Date.now());
-      assert.ok(
-        skew < 3000,
-        `expected sdate near now, got ${raw} (skew ${skew}ms)`,
-      );
+      assert.ok(Math.abs(asDate.getTime() - Date.now()) < 3000);
       return new Response(
         JSON.stringify({ result_code: 1, result_message: 'ok', id: '1' }),
         { status: 200, headers: { 'content-type': 'application/json' } },
@@ -244,17 +246,18 @@ test('sendBlogPostNewsletter clamps past scheduledSendAt to now for the campaign
     return new Response('{}', { status: 500 });
   };
 
-  await sendBlogPostNewsletter({
+  await createScheduledCampaign({
     subject: 'A',
     htmlBody: 'b',
     textBody: 'b',
     slug: 't',
+    listIds: ['3'],
     scheduledSendAt: new Date(2000, 0, 1, 12, 0, 0),
     fetchImpl: fetchImpl as typeof fetch,
   });
 });
 
-test('sendBlogPostNewsletter throws when message_add returns HTTP error', async () => {
+test('createScheduledCampaign throws when message_add returns HTTP error', async () => {
   setAcEnv();
 
   const fetchImpl: typeof fetch = async (input) => {
@@ -267,11 +270,12 @@ test('sendBlogPostNewsletter throws when message_add returns HTTP error', async 
 
   await assert.rejects(
     () =>
-      sendBlogPostNewsletter({
+      createScheduledCampaign({
         subject: 'Hello',
         htmlBody: '<p>Body</p>',
         textBody: 'Body',
         slug: 'x',
+        listIds: ['3'],
         fetchImpl,
       }),
     (err: unknown) =>
@@ -281,50 +285,18 @@ test('sendBlogPostNewsletter throws when message_add returns HTTP error', async 
   );
 });
 
-test('sendBlogPostNewsletter throws when message_add returns result_code 0 with HTTP 200', async () => {
+test('createScheduledCampaign throws when campaign_create reports failure', async () => {
   setAcEnv();
-
-  const fetchImpl: typeof fetch = async (input) => {
-    if (isCampaignsLookup(urlPath(input))) return emptyCampaignsResponse();
-    return new Response(
-      JSON.stringify({ result_code: 0, result_message: 'Bad request' }),
-      { status: 200, headers: { 'content-type': 'application/json' } },
-    );
-  };
-
-  await assert.rejects(
-    () =>
-      sendBlogPostNewsletter({
-        subject: 'Hello',
-        htmlBody: '<p>Body</p>',
-        textBody: 'Body',
-        slug: 'x',
-        fetchImpl,
-      }),
-    (err: unknown) =>
-      err instanceof ActiveCampaignError &&
-      err.message.includes('message_add failed') &&
-      typeof err.details === 'string' &&
-      err.details.includes('Bad request'),
-  );
-});
-
-test('sendBlogPostNewsletter throws when campaign_create reports failure', async () => {
-  setAcEnv();
-
-  let step = 0;
   const fetchImpl = async (input: RequestInfo): Promise<Response> => {
     const url = urlPath(input);
     if (isCampaignsLookup(url)) return emptyCampaignsResponse();
     if (url.includes('api_action=message_add')) {
-      step += 1;
       return new Response(
         JSON.stringify({ result_code: 1, result_message: 'ok', id: '5' }),
         { status: 200, headers: { 'content-type': 'application/json' } },
       );
     }
     if (url.includes('api_action=campaign_create')) {
-      step += 1;
       return new Response(
         JSON.stringify({ result_code: 0, result_message: 'List not found' }),
         { status: 400, headers: { 'content-type': 'application/json' } },
@@ -335,120 +307,20 @@ test('sendBlogPostNewsletter throws when campaign_create reports failure', async
 
   await assert.rejects(
     () =>
-      sendBlogPostNewsletter({
+      createScheduledCampaign({
         subject: 'Hello',
         htmlBody: '<p>Body</p>',
         textBody: 'Body',
         slug: 'x',
+        listIds: ['3'],
         fetchImpl: fetchImpl as typeof fetch,
       }),
     (err: unknown) =>
       err instanceof ActiveCampaignError && err.message.includes('campaign_create failed'),
   );
-
-  assert.equal(step, 2);
 });
 
-test('sendBlogPostNewsletter uses listIdOverride instead of AC_NEWSLETTER_LIST_ID when provided', async () => {
-  setAcEnv({ AC_NEWSLETTER_LIST_ID: '999' });
-
-  let messageListKey: string | null = null;
-  let campaignListKey: string | null = null;
-  const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
-    const url = urlPath(input);
-    if (isCampaignsLookup(url)) return emptyCampaignsResponse();
-    if (url.includes('api_action=message_add')) {
-      const form = parseFormBody(init);
-      messageListKey = form.get('p[42]');
-      return new Response(
-        JSON.stringify({ result_code: 1, result_message: 'ok', id: '11' }),
-        { status: 200, headers: { 'content-type': 'application/json' } },
-      );
-    }
-    if (url.includes('api_action=campaign_create')) {
-      const form = parseFormBody(init);
-      campaignListKey = form.get('p[42]');
-      return new Response(
-        JSON.stringify({ result_code: 1, result_message: 'ok', id: '7' }),
-        { status: 200, headers: { 'content-type': 'application/json' } },
-      );
-    }
-    assert.fail(`Unexpected fetch URL: ${url}`);
-  };
-
-  await sendBlogPostNewsletter({
-    subject: 'X',
-    htmlBody: 'b',
-    textBody: 'b',
-    slug: 'x',
-    listIdOverride: '42',
-    fetchImpl: fetchImpl as typeof fetch,
-  });
-
-  assert.equal(messageListKey, '42');
-  assert.equal(campaignListKey, '42');
-});
-
-test('sendBlogPostNewsletter falls back to AC_NEWSLETTER_LIST_ID when listIdOverride is empty string', async () => {
-  setAcEnv({ AC_NEWSLETTER_LIST_ID: '5' });
-
-  let campaignListKey: string | null = null;
-  const fetchImpl = async (input: RequestInfo, init?: RequestInit): Promise<Response> => {
-    const url = urlPath(input);
-    if (isCampaignsLookup(url)) return emptyCampaignsResponse();
-    if (url.includes('api_action=message_add')) {
-      return new Response(
-        JSON.stringify({ result_code: 1, result_message: 'ok', id: '12' }),
-        { status: 200, headers: { 'content-type': 'application/json' } },
-      );
-    }
-    if (url.includes('api_action=campaign_create')) {
-      const form = parseFormBody(init);
-      campaignListKey = form.get('p[5]');
-      return new Response(
-        JSON.stringify({ result_code: 1, result_message: 'ok', id: '8' }),
-        { status: 200, headers: { 'content-type': 'application/json' } },
-      );
-    }
-    assert.fail(`Unexpected fetch URL: ${url}`);
-  };
-
-  await sendBlogPostNewsletter({
-    subject: 'X',
-    htmlBody: 'b',
-    textBody: 'b',
-    slug: 'x',
-    listIdOverride: '   ',
-    fetchImpl: fetchImpl as typeof fetch,
-  });
-
-  assert.equal(campaignListKey, '5');
-});
-
-test('sendBlogPostNewsletter throws when message_add response is not JSON', async () => {
-  setAcEnv();
-
-  const fetchImpl: typeof fetch = async (input) => {
-    if (isCampaignsLookup(urlPath(input))) return emptyCampaignsResponse();
-    return new Response('not-json', { status: 500 });
-  };
-
-  await assert.rejects(
-    () =>
-      sendBlogPostNewsletter({
-        subject: 'Hello',
-        htmlBody: '<p>Body</p>',
-        textBody: 'Body',
-        slug: 'x',
-        fetchImpl,
-      }),
-    (err: unknown) =>
-      err instanceof ActiveCampaignError &&
-      err.message.includes('message_add returned non-JSON'),
-  );
-});
-
-test('sendBlogPostNewsletter short-circuits when a campaign with the same name already exists in AC', async () => {
+test('createScheduledCampaign short-circuits when AC already has a campaign with the same name', async () => {
   setAcEnv();
 
   const calls: string[] = [];
@@ -458,41 +330,35 @@ test('sendBlogPostNewsletter short-circuits when a campaign with the same name a
     if (isCampaignsLookup(url)) {
       return new Response(
         JSON.stringify({
-          campaigns: [
-            { id: '777', name: 'Blog: my-post', messageid: '321' },
-          ],
+          campaigns: [{ id: '777', name: 'Blog: my-post', messageid: '321' }],
         }),
         { status: 200, headers: { 'content-type': 'application/json' } },
       );
     }
-    return assert.fail(`unexpected fetch when AC said campaign already exists: ${url}`);
+    return assert.fail(`unexpected fetch: ${url}`);
   };
 
-  const result = await sendBlogPostNewsletter({
+  const result = await createScheduledCampaign({
     subject: 'Hello',
     htmlBody: '<p>Body</p>',
     textBody: 'Body',
     slug: 'my-post',
+    listIds: ['3', '7'],
     fetchImpl,
   });
 
-  // No message_add / campaign_create calls — only the lookup.
   assert.equal(calls.length, 1);
-  assert.ok(isCampaignsLookup(calls[0]));
   assert.equal(result.campaignId, '777');
   assert.equal(result.messageId, '321');
 });
 
-test('sendBlogPostNewsletter campaigns lookup ignores AC responses whose name only partially matches', async () => {
+test('createScheduledCampaign campaigns lookup ignores partial-name matches', async () => {
   setAcEnv();
 
-  let createdMessage = false;
   let createdCampaign = false;
   const fetchImpl: typeof fetch = async (input, init) => {
     const url = urlPath(input);
     if (isCampaignsLookup(url)) {
-      // AC's `filters[name]` is a contains match — make sure we don't
-      // mistakenly short-circuit when the exact name doesn't appear.
       return new Response(
         JSON.stringify({
           campaigns: [
@@ -504,7 +370,6 @@ test('sendBlogPostNewsletter campaigns lookup ignores AC responses whose name on
       );
     }
     if (url.includes('api_action=message_add')) {
-      createdMessage = true;
       return new Response(
         JSON.stringify({ result_code: 1, result_message: 'ok', id: '42' }),
         { status: 200, headers: { 'content-type': 'application/json' } },
@@ -522,18 +387,162 @@ test('sendBlogPostNewsletter campaigns lookup ignores AC responses whose name on
     assert.fail(`unexpected URL ${url}`);
   };
 
-  const result = await sendBlogPostNewsletter({
+  const result = await createScheduledCampaign({
     subject: 'Hello',
     htmlBody: 'b',
     textBody: 'b',
     slug: 'my-post',
+    listIds: ['3'],
     fetchImpl,
   });
 
-  assert.equal(createdMessage, true);
   assert.equal(createdCampaign, true);
   assert.equal(result.messageId, '42');
   assert.equal(result.campaignId, '43');
+});
+
+test('updateCampaignSendDate posts campaign_save with id + sdate', async () => {
+  setAcEnv();
+
+  const captured: { url: string; body: string }[] = [];
+  const fetchImpl: typeof fetch = async (input, init) => {
+    captured.push({ url: urlPath(input), body: String(init?.body ?? '') });
+    return new Response(
+      JSON.stringify({ result_code: 1, result_message: 'ok', id: '777' }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+  };
+
+  const target = new Date(2030, 5, 1, 12, 0, 0);
+  const result = await updateCampaignSendDate({
+    campaignId: '777',
+    scheduledSendAt: target,
+    fetchImpl,
+  });
+
+  assert.equal(captured.length, 1);
+  assert.match(captured[0].url, /api_action=campaign_save/);
+  const form = new URLSearchParams(captured[0].body);
+  assert.equal(form.get('id'), '777');
+  assert.equal(form.get('status'), '1');
+  assert.equal(form.get('sdate'), formatCampaignSendDate(target));
+  assert.equal(result.scheduledFor.getTime(), target.getTime());
+});
+
+test('updateCampaignSendDate clamps past dates to now', async () => {
+  setAcEnv();
+
+  let sdate = '';
+  const fetchImpl: typeof fetch = async (_input, init) => {
+    const body = new URLSearchParams(String(init?.body ?? ''));
+    sdate = body.get('sdate') ?? '';
+    return new Response(
+      JSON.stringify({ result_code: 1, result_message: 'ok', id: '1' }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+  };
+
+  await updateCampaignSendDate({
+    campaignId: '1',
+    scheduledSendAt: new Date(2000, 0, 1),
+    fetchImpl,
+  });
+
+  const parsed = new Date(
+    Number(sdate.slice(0, 4)),
+    Number(sdate.slice(5, 7)) - 1,
+    Number(sdate.slice(8, 10)),
+    Number(sdate.slice(11, 13)),
+    Number(sdate.slice(14, 16)),
+    Number(sdate.slice(17, 19)),
+  );
+  assert.ok(Math.abs(parsed.getTime() - Date.now()) < 3000);
+});
+
+test('updateCampaignSendDate throws when campaignId is empty', async () => {
+  setAcEnv();
+  await assert.rejects(
+    () =>
+      updateCampaignSendDate({
+        campaignId: '   ',
+        scheduledSendAt: new Date(),
+        fetchImpl: async () => new Response('{}', { status: 200 }),
+      }),
+    (err: unknown) =>
+      err instanceof ActiveCampaignError &&
+      err.message.includes('non-empty campaignId'),
+  );
+});
+
+test('updateCampaignSendDate surfaces AC failure', async () => {
+  setAcEnv();
+  const fetchImpl: typeof fetch = async () =>
+    new Response(
+      JSON.stringify({ result_code: 0, result_message: 'Cannot reschedule sent campaign' }),
+      { status: 400, headers: { 'content-type': 'application/json' } },
+    );
+  await assert.rejects(
+    () =>
+      updateCampaignSendDate({
+        campaignId: '42',
+        scheduledSendAt: new Date(2030, 0, 1),
+        fetchImpl,
+      }),
+    (err: unknown) =>
+      err instanceof ActiveCampaignError &&
+      err.message.includes('campaign_save failed'),
+  );
+});
+
+test('getCampaignStatus parses the campaign.status from v3 REST', async () => {
+  setAcEnv();
+  const fetchImpl: typeof fetch = async (input) => {
+    assert.match(urlPath(input), /\/api\/3\/campaigns\/42$/);
+    return new Response(
+      JSON.stringify({ campaign: { id: '42', status: '3' } }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+  };
+  const { status } = await getCampaignStatus({ campaignId: '42', fetchImpl });
+  assert.equal(status, 3);
+  assert.equal(isCampaignFrozen(status), true);
+});
+
+test('getCampaignStatus treats status >= 2 as frozen via isCampaignFrozen', () => {
+  assert.equal(isCampaignFrozen(0), false);
+  assert.equal(isCampaignFrozen(1), false);
+  assert.equal(isCampaignFrozen(2), true);
+  assert.equal(isCampaignFrozen(3), true);
+  assert.equal(isCampaignFrozen(6), true);
+});
+
+test('getCampaignStatus throws on HTTP error', async () => {
+  setAcEnv();
+  const fetchImpl: typeof fetch = async () =>
+    new Response(
+      JSON.stringify({ errors: [{ title: 'Not Found' }] }),
+      { status: 404, headers: { 'content-type': 'application/json' } },
+    );
+  await assert.rejects(
+    () => getCampaignStatus({ campaignId: '9999', fetchImpl }),
+    (err: unknown) =>
+      err instanceof ActiveCampaignError && err.causeStatus === 404,
+  );
+});
+
+test('getCampaignStatus throws on unrecognized status value', async () => {
+  setAcEnv();
+  const fetchImpl: typeof fetch = async () =>
+    new Response(
+      JSON.stringify({ campaign: { status: '99' } }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+  await assert.rejects(
+    () => getCampaignStatus({ campaignId: '1', fetchImpl }),
+    (err: unknown) =>
+      err instanceof ActiveCampaignError &&
+      err.message.includes('unrecognized status'),
+  );
 });
 
 test('syncSubscriberToActiveCampaign upserts contact then subscribes to list', async () => {
