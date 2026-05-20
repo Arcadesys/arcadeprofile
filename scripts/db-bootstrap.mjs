@@ -6,11 +6,13 @@
 //
 // Every statement is `IF NOT EXISTS` so re-runs are safe.
 
-import { loadEnvConfig } from '@next/env';
+import nextEnv from '@next/env';
 import postgres from 'postgres';
 
 // Vercel injects DATABASE_URL via project env vars, so this is a no-op in CI.
 // Local invocations resolve .env.* with the same precedence Next.js uses.
+// @next/env is CJS — use default-import + destructure for ESM interop.
+const { loadEnvConfig } = nextEnv;
 loadEnvConfig(process.cwd());
 
 const connectionString = process.env.DATABASE_URL || process.env.DATABASE_URI;

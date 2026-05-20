@@ -1,6 +1,5 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import nextEnv from '@next/env';
 import { buildConfig } from 'payload';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical';
@@ -10,13 +9,6 @@ import { collections, globals } from './collections';
 import { YouTubeBlock } from './blocks/YouTube';
 import { createPayloadEmailAdapter } from './lib/payload-email';
 import { getDatabaseURLForPayloadConfig, getPayloadSecret } from './lib/env';
-
-// When Next.js runs this file (next dev/build/start) it already loads .env.*
-// before importing the config. But `payload migrate` and standalone scripts
-// import this file directly with no env preload, so DATABASE_URL would be
-// missing. loadEnvConfig is idempotent — calling it again under Next.js is
-// a no-op for already-set vars.
-nextEnv.loadEnvConfig(process.cwd());
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);

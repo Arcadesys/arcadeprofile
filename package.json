@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate": "payload migrate",
+    "migrate": "node scripts/migrate.mjs",
     "db:bootstrap": "node scripts/db-bootstrap.mjs",
     "check:migrations": "node scripts/check-migrations.mjs",
     "seed": "tsx scripts/seed-runner.mjs",
