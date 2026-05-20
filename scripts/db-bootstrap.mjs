@@ -131,6 +131,36 @@ const statements = [
         ADD COLUMN IF NOT EXISTS "format" "enum_groups_format" DEFAULT 'serial'
     `,
   },
+  {
+    label: 'posts.suppress_newsletter',
+    run: () => sql`
+      ALTER TABLE "posts"
+        ADD COLUMN IF NOT EXISTS "suppress_newsletter" boolean DEFAULT false NOT NULL
+    `,
+  },
+  {
+    label: 'enum_posts_ac_campaign_status',
+    run: () => sql`
+      DO $$ BEGIN
+        CREATE TYPE "enum_posts_ac_campaign_status" AS ENUM ('pending', 'scheduled', 'sent', 'failed');
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$
+    `,
+  },
+  {
+    label: 'posts.ac_campaign_*',
+    run: () => sql`
+      ALTER TABLE "posts"
+        ADD COLUMN IF NOT EXISTS "ac_campaign_campaign_id" varchar,
+        ADD COLUMN IF NOT EXISTS "ac_campaign_message_id" varchar,
+        ADD COLUMN IF NOT EXISTS "ac_campaign_scheduled_for" timestamp(3) with time zone,
+        ADD COLUMN IF NOT EXISTS "ac_campaign_status" "enum_posts_ac_campaign_status",
+        ADD COLUMN IF NOT EXISTS "ac_campaign_targeted_lists" varchar,
+        ADD COLUMN IF NOT EXISTS "ac_campaign_last_synced_at" timestamp(3) with time zone,
+        ADD COLUMN IF NOT EXISTS "ac_campaign_last_error" text
+    `,
+  },
 ];
 
 let failed = false;
