@@ -16,7 +16,7 @@
     "seed:groups": "tsx --require ./scripts/patch-next-env.cjs scripts/seed-groups.ts",
     "seed:pico-panic": "tsx --require ./scripts/patch-next-env.cjs scripts/seed-pico-panic.ts",
     "postmark:test": "tsx scripts/send-test-email.ts",
-    "verify:newsletter-fanout": "tsx --require ./scripts/patch-next-env.cjs scripts/verify-newsletter-fanout.ts",
+    "verify:ac-campaign-sync": "tsx --require ./scripts/patch-next-env.cjs scripts/verify-ac-campaign-sync.ts",
     "ac:migrate-weekly-to-perpost": "tsx --require ./scripts/patch-next-env.cjs scripts/migrate-weekly-to-perpost.ts",
     "backfill:post-meta": "tsx --require ./scripts/patch-next-env.cjs scripts/backfill-post-meta.ts",
     "dump:post-meta": "tsx --require ./scripts/patch-next-env.cjs scripts/dump-posts-for-meta.ts",

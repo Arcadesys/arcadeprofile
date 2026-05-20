@@ -192,21 +192,21 @@ export interface Post {
    */
   publishedDate: string;
   /**
-   * When true, the fan-out hook skips sending entirely. Use for archival reposts or to override a stuck post. "All delivered" state lives in Workflow Status (sent) and the newsletterSends array — this flag is intent only.
+   * When true, the AC campaign sync is skipped entirely. Use for archival reposts or to override a stuck post.
    */
   suppressNewsletter?: boolean | null;
   /**
-   * Per-audience send log. The fanout hook skips any audience already in this list, so retries after a partial failure never produce duplicate AC campaigns.
+   * Synced ActiveCampaign state. Read-only — written by the on-save sync hook.
    */
-  newsletterSends?:
-    | {
-        audience: 'all' | 'fiction' | 'essays';
-        sentAt?: string | null;
-        messageId?: string | null;
-        campaignId?: string | null;
-        id?: string | null;
-      }[]
-    | null;
+  acCampaign?: {
+    campaignId?: string | null;
+    messageId?: string | null;
+    scheduledFor?: string | null;
+    status?: ('pending' | 'scheduled' | 'sent' | 'failed') | null;
+    targetedLists?: string | null;
+    lastSyncedAt?: string | null;
+    lastError?: string | null;
+  };
   /**
    * When a draft should be promoted to published by the scheduler.
    */
@@ -904,14 +904,16 @@ export interface PostsSelect<T extends boolean = true> {
   content?: T;
   publishedDate?: T;
   suppressNewsletter?: T;
-  newsletterSends?:
+  acCampaign?:
     | T
     | {
-        audience?: T;
-        sentAt?: T;
-        messageId?: T;
         campaignId?: T;
-        id?: T;
+        messageId?: T;
+        scheduledFor?: T;
+        status?: T;
+        targetedLists?: T;
+        lastSyncedAt?: T;
+        lastError?: T;
       };
   scheduledPublishDate?: T;
   previewUrl?: T;

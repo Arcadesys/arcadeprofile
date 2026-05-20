@@ -39,59 +39,69 @@ export default function PostSaveButton({ label: labelProp }: SaveButtonClientPro
   const ref = useRef<HTMLButtonElement>(null);
   const label = labelProp || t('general:save' as Parameters<typeof t>[0]);
 
-  // Single selector to avoid running multiple field-state walks per form
-  // change. `sentAudiences` walks every key so it's especially worth keeping
-  // inside one pass.
-  const { publishStatus, suppressNewsletter, publishedDate, sentAudiences } = useFormFields(
-    ([fields]) => {
-      const f = (fields ?? {}) as Record<string, { value?: unknown }>;
-      const audiences = new Set<string>();
-      for (const key of Object.keys(f)) {
-        if (!/^newsletterSends\.\d+\.audience$/.test(key)) continue;
-        const v = f[key]?.value;
-        if (typeof v === 'string') audiences.add(v);
-      }
-      const publishStatusValue = f.publish_status?.value;
-      const publishedDateValue = f.publishedDate?.value;
-      return {
-        publishStatus: typeof publishStatusValue === 'string' ? publishStatusValue : '',
-        suppressNewsletter: f.suppressNewsletter?.value === true,
-        publishedDate: typeof publishedDateValue === 'string' ? publishedDateValue : '',
-        sentAudiences: audiences,
-      };
-    },
-  );
+  const {
+    suppressNewsletter,
+    scheduledPublishDate,
+    existingCampaignId,
+    storedScheduledFor,
+    acStatus,
+  } = useFormFields(([fields]) => {
+    const f = (fields ?? {}) as Record<string, { value?: unknown }>;
+    const scheduledRaw = f.scheduledPublishDate?.value;
+    const campaignIdRaw = f['acCampaign.campaignId']?.value;
+    const statusRaw = f['acCampaign.status']?.value;
+    const scheduledForRaw = f['acCampaign.scheduledFor']?.value;
+    return {
+      suppressNewsletter: f.suppressNewsletter?.value === true,
+      scheduledPublishDate: typeof scheduledRaw === 'string' ? scheduledRaw : '',
+      existingCampaignId:
+        typeof campaignIdRaw === 'string' && campaignIdRaw.trim() !== ''
+          ? campaignIdRaw.trim()
+          : null,
+      storedScheduledFor:
+        typeof scheduledForRaw === 'string' ? scheduledForRaw : '',
+      acStatus: typeof statusRaw === 'string' ? statusRaw : '',
+    };
+  });
 
   const disabled = (operation === 'update' && !modified) || uploadStatus === 'uploading';
 
   const confirmBeforeSubmit = useCallback((): boolean => {
-    // Mirror the afterChange hook in collections/Posts.ts: it bails when
-    // publish_status === 'sent' (rollup state — all audiences already
-    // delivered), so the dialog must too. Only 'published' triggers AC calls.
-    const willPublish = publishStatus === 'published';
-    // Fan-out targets 'all' plus one of ('fiction' | 'essays'). If both
-    // buckets are already recorded as sent, the hook makes no AC calls. The
-    // group's category isn't known client-side, so treat the save as
-    // "will send" whenever either 'all' or any category audience is missing.
-    const allCovered =
-      sentAudiences.has('all') &&
-      (sentAudiences.has('fiction') || sentAudiences.has('essays'));
-    const willSchedule = willPublish && !suppressNewsletter && !allCovered;
+    // The on-save AC sync provisions a scheduled campaign as soon as
+    // scheduledPublishDate is set. Warn the editor whenever the save will
+    // create OR reschedule an AC campaign so a misclick on the date picker
+    // doesn't silently push subscribers around.
+    if (suppressNewsletter) return true;
+    if (!scheduledPublishDate) return true;
 
-    if (!willSchedule) return true;
+    const scheduled = new Date(scheduledPublishDate);
+    if (Number.isNaN(scheduled.getTime())) return true;
 
-    let mode = 'now';
-    if (publishedDate) {
-      const ts = new Date(publishedDate).getTime();
-      if (!Number.isNaN(ts) && ts > Date.now()) {
-        mode = `scheduled for ${formatLocal(new Date(publishedDate))}`;
-      }
-    }
+    // If AC already marked the campaign sent, the sync hook is a no-op.
+    if (acStatus === 'sent') return true;
+
+    // No-op when the existing scheduled campaign already matches.
+    const dateUnchanged =
+      existingCampaignId &&
+      acStatus === 'scheduled' &&
+      storedScheduledFor &&
+      Math.abs(new Date(storedScheduledFor).getTime() - scheduled.getTime()) < 1000;
+    if (dateUnchanged) return true;
+
+    const when =
+      scheduled.getTime() > Date.now()
+        ? `scheduled for ${formatLocal(scheduled)}`
+        : 'sent immediately (AC clamps past times to now)';
+
+    const verb = existingCampaignId
+      ? 'reschedule the existing AC campaign'
+      : 'schedule a new AC campaign';
+
     const msg =
-      `Are you sure you want to do this? This will schedule an email to be sent (${mode}).\n\n` +
-      `To leave it in draft instead, set Workflow Status to "Not queued" or check "Suppress newsletter".`;
+      `This save will ${verb} (${when}).\n\n` +
+      `To skip the AC sync, check "Suppress newsletter" or clear Scheduled Publish Date.`;
     return window.confirm(msg);
-  }, [publishStatus, suppressNewsletter, publishedDate, sentAudiences]);
+  }, [suppressNewsletter, scheduledPublishDate, existingCampaignId, storedScheduledFor, acStatus]);
 
   // Cmd/Ctrl+S mirrors the default SaveButton's hotkey. We re-implement the
   // hotkey here instead of letting it fall through to the original button

@@ -20,36 +20,6 @@ export class ActiveCampaignError extends Error {
   }
 }
 
-export interface SendBlogPostNewsletterOptions {
-  /** Email subject line */
-  subject: string;
-  htmlBody: string;
-  textBody: string;
-  /** Used for internal campaign name in AC */
-  slug: string;
-  /**
-   * When the list send should be scheduled in ActiveCampaign (maps to
-   * `scheduledDate` on the campaign). Typically the post’s `publishedDate`
-   * (public go-live). Omitted = send as soon as AC allows (now). If the value
-   * is in the past, it is clamped to the current time.
-   */
-  scheduledSendAt?: Date;
-  /**
-   * Override the AC list this campaign targets. When set, takes precedence
-   * over `AC_NEWSLETTER_LIST_ID` / `ACTIVECAMPAIGN_LIST_ID`. Used by the
-   * "Send newsletter preview" admin path so previews go to a test list
-   * instead of production subscribers.
-   */
-  listIdOverride?: string;
-  /** Override fetch (tests) */
-  fetchImpl?: typeof fetch;
-}
-
-export interface SendBlogPostNewsletterResult {
-  messageId: string;
-  campaignId: string;
-}
-
 function firstNonEmpty(...values: Array<string | undefined>): string | undefined {
   for (const v of values) {
     const t = v?.trim();
@@ -79,6 +49,9 @@ function getApiKey(): string {
 }
 
 function getNewsletterListId(): string {
+  // Retained for the contact-subscribe path (`syncSubscriberToActiveCampaign`)
+  // — the campaign sync flow now passes list ids explicitly via
+  // `createScheduledCampaign`.
   const id = firstNonEmpty(
     process.env.AC_NEWSLETTER_LIST_ID,
     process.env.ACTIVECAMPAIGN_LIST_ID,
@@ -229,7 +202,7 @@ type AcLegacyResponse = {
 async function postLegacyAction(
   baseUrl: string,
   apiKey: string,
-  action: 'message_add' | 'campaign_create',
+  action: 'message_add' | 'campaign_create' | 'campaign_save',
   params: Record<string, string>,
   fetchImpl: typeof fetch,
 ): Promise<AcLegacyResponse> {
@@ -379,7 +352,7 @@ async function createMessage(
     subject: string;
     htmlBody: string;
     textBody: string;
-    listIdInt: number;
+    listIdInts: number[];
   },
   fetchImpl: typeof fetch,
 ): Promise<string> {
@@ -393,19 +366,17 @@ async function createMessage(
     charset: 'utf-8',
     encoding: 'quoted-printable',
     subject: options.subject,
-    // `htmlconstructor: 'external'` tells AC to FETCH the body from an external
-    // URL (`htmlfetch`), not "raw HTML provided inline". With no URL set, AC
-    // stores a fetch-attempt placeholder (`fetch:`) and that is what subscribers
-    // see. Use `'editor'` when providing the HTML directly via the `html` field.
     htmlconstructor: 'editor',
     html: options.htmlBody,
     textconstructor: 'editor',
     text: options.textBody,
-    // Associate the message with the target list. AC requires this on
-    // message_add, and the same `p[<list_id>]=<list_id>` shape is what the
-    // campaign uses too.
-    [`p[${options.listIdInt}]`]: String(options.listIdInt),
   };
+  // Multi-list messages get one `p[<id>]=<id>` entry per list. AC dedupes
+  // recipients across all lists at send time so a contact on both still
+  // receives a single email.
+  for (const id of options.listIdInts) {
+    params[`p[${id}]`] = String(id);
+  }
 
   const parsed = await postLegacyAction(baseUrl, apiKey, 'message_add', params, fetchImpl);
 
@@ -425,7 +396,7 @@ async function createCampaign(
   apiKey: string,
   options: {
     name: string;
-    listIdInt: number;
+    listIdInts: number[];
     messageId: string;
     scheduledDate: string;
   },
@@ -455,13 +426,14 @@ async function createCampaign(
     priority: '3',
     formid: '0',
     embed_images: '1',
-    // Lists go under `p[<list_id>]=<list_id>` (NOT `list[<list_id>]`).
-    // AC's `campaign_create` example shows `p[1]=1` for list association.
-    // Sending `list[…]` instead returns "You did not provide any lists."
-    [`p[${options.listIdInt}]`]: String(options.listIdInt),
     // Messages: `m[<message_id>]=<send_percentage>`. 100 = single send.
     [`m[${options.messageId}]`]: '100',
   };
+  // Lists: `p[<list_id>]=<list_id>` per list. Multiple entries attach the
+  // campaign to multiple lists; AC dedupes recipients across them.
+  for (const id of options.listIdInts) {
+    params[`p[${id}]`] = String(id);
+  }
 
   const parsed = await postLegacyAction(baseUrl, apiKey, 'campaign_create', params, fetchImpl);
 
@@ -588,33 +560,62 @@ export async function syncSubscriberToActiveCampaign(options: {
   return { contactId };
 }
 
+export interface CreateScheduledCampaignOptions {
+  subject: string;
+  htmlBody: string;
+  textBody: string;
+  /** Used to build the AC internal campaign name (`Blog: <slug>`). Must be
+   * stable across saves of the same post so the idempotency lookup matches. */
+  slug: string;
+  /** Target AC list ids (numeric strings). One campaign attaches to all of
+   * them; AC dedupes recipients. Order is preserved in the resulting name
+   * suffix only via `slug`, not the list set itself. */
+  listIds: string[];
+  /** When AC should fire the send. Past times are clamped to `now`. */
+  scheduledSendAt?: Date;
+  fetchImpl?: typeof fetch;
+}
+
+export interface CreateScheduledCampaignResult {
+  messageId: string;
+  campaignId: string;
+  /** The `sdate` value persisted to AC (may be clamped to now). */
+  scheduledFor: Date;
+  /** The list ids actually attached, in the order they were sent. */
+  listIds: string[];
+}
+
 /**
- * Creates a single-send campaign in ActiveCampaign by posting to the legacy
- * `/admin/api.php` action endpoints. The v3 REST API cannot link a message
- * to a campaign (confirmed by AC's own community forum), so the legacy
- * `message_add` + `campaign_create` actions are the only supported path.
+ * Provisions a single-send AC campaign targeting one OR MORE lists. AC
+ * dedupes recipients across lists, so a contact on both All and Fiction
+ * receives one email per campaign — not two.
+ *
+ * Idempotent on `slug`: a second call with the same slug finds the existing
+ * campaign via name lookup and returns its ids without creating a duplicate.
+ * It does NOT reschedule the existing campaign — use `updateCampaignSendDate`
+ * for that.
  *
  * @throws ActiveCampaignError on configuration or API failures
  */
-export async function sendBlogPostNewsletter(
-  options: SendBlogPostNewsletterOptions,
-): Promise<SendBlogPostNewsletterResult> {
+export async function createScheduledCampaign(
+  options: CreateScheduledCampaignOptions,
+): Promise<CreateScheduledCampaignResult> {
   const fetchImpl = options.fetchImpl ?? fetch;
   const baseUrl = getApiBaseUrl();
   const apiKey = getApiKey();
-  const listId = firstNonEmpty(options.listIdOverride) ?? getNewsletterListId();
-  const listIdInt = parseNewsletterListIdAsInt(listId);
+
+  if (options.listIds.length === 0) {
+    throw new ActiveCampaignError('createScheduledCampaign requires at least one listId');
+  }
+  const listIdInts = options.listIds.map(parseNewsletterListIdAsInt);
 
   const internalName = `Blog: ${options.slug}`.slice(0, 240);
   const sendAt = resolveAcScheduledSendInstant(options.scheduledSendAt);
   const sendDate = formatCampaignSendDate(sendAt);
 
-  // Idempotency safety net: if AC already has a campaign with this exact name
-  // (Payload caller crashed between AC OK and DB write, or two concurrent
-  // hooks raced), return its ids instead of creating a duplicate.
   const existing = await findExistingCampaignByName(baseUrl, apiKey, internalName, fetchImpl);
   if (existing) {
-    return existing;
+    return { ...existing, scheduledFor: sendAt, listIds: options.listIds };
   }
 
   const messageId = await createMessage(
@@ -624,7 +625,7 @@ export async function sendBlogPostNewsletter(
       subject: options.subject,
       htmlBody: options.htmlBody,
       textBody: options.textBody,
-      listIdInt,
+      listIdInts,
     },
     fetchImpl,
   );
@@ -634,12 +635,129 @@ export async function sendBlogPostNewsletter(
     apiKey,
     {
       name: internalName,
-      listIdInt,
+      listIdInts,
       messageId,
       scheduledDate: sendDate,
     },
     fetchImpl,
   );
 
-  return { messageId, campaignId };
+  return { messageId, campaignId, scheduledFor: sendAt, listIds: options.listIds };
+}
+
+/**
+ * Updates the scheduled send date of an existing AC campaign via the legacy
+ * `campaign_save` action. The legacy update endpoint sits in the same
+ * `/admin/api.php` family as `campaign_create`, takes the same params plus
+ * an `id` for the campaign to update, and unlike `PUT /api/3/campaigns/:id`
+ * reliably accepts `sdate` changes on already-scheduled campaigns.
+ *
+ * Past sendAt values are clamped to `now` to mirror create-time behavior.
+ *
+ * @throws ActiveCampaignError on configuration or API failures
+ */
+export async function updateCampaignSendDate(options: {
+  campaignId: string;
+  scheduledSendAt: Date;
+  fetchImpl?: typeof fetch;
+}): Promise<{ scheduledFor: Date }> {
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const baseUrl = getApiBaseUrl();
+  const apiKey = getApiKey();
+
+  if (!options.campaignId.trim()) {
+    throw new ActiveCampaignError('updateCampaignSendDate requires a non-empty campaignId');
+  }
+
+  const sendAt = resolveAcScheduledSendInstant(options.scheduledSendAt);
+  const sendDate = formatCampaignSendDate(sendAt);
+
+  await postLegacyAction(
+    baseUrl,
+    apiKey,
+    'campaign_save',
+    {
+      id: options.campaignId,
+      sdate: sendDate,
+      status: '1', // remains scheduled
+    },
+    fetchImpl,
+  );
+
+  return { scheduledFor: sendAt };
+}
+
+/**
+ * AC campaign status codes (v3 REST `/api/3/campaigns/:id`):
+ *   0 = draft, 1 = scheduled, 2 = sending, 3 = sent,
+ *   4 = disabled, 5 = pending, 6 = processing.
+ * Anything `>= 2` means the campaign is past the point where rescheduling is
+ * safe — `getCampaignStatus` lets the caller detect that and no-op instead.
+ */
+export type AcCampaignStatusCode = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+export async function getCampaignStatus(options: {
+  campaignId: string;
+  fetchImpl?: typeof fetch;
+}): Promise<{ status: AcCampaignStatusCode; raw: string }> {
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const baseUrl = getApiBaseUrl();
+  const apiKey = getApiKey();
+
+  if (!options.campaignId.trim()) {
+    throw new ActiveCampaignError('getCampaignStatus requires a non-empty campaignId');
+  }
+
+  const { status, ok, text } = await fetchTextWithTimeout(
+    `${baseUrl}/api/3/campaigns/${encodeURIComponent(options.campaignId)}`,
+    {
+      method: 'GET',
+      headers: { 'Api-Token': apiKey, Accept: 'application/json' },
+    },
+    fetchImpl,
+    REQUEST_TIMEOUT_MS,
+  );
+
+  if (!ok) {
+    let parsed: AcV3Errors = {};
+    try {
+      parsed = JSON.parse(text) as AcV3Errors;
+    } catch {
+      // fall through
+    }
+    throw new ActiveCampaignError(
+      `ActiveCampaign GET campaigns/${options.campaignId} failed (${status})`,
+      status,
+      formatV3ErrorBody(parsed, text.slice(0, 300)),
+    );
+  }
+
+  let parsed: { campaign?: { status?: string | number } };
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new ActiveCampaignError(
+      'ActiveCampaign campaign lookup returned non-JSON',
+      status,
+      text.slice(0, 200),
+    );
+  }
+
+  const raw = parsed.campaign?.status;
+  const code = Number(raw);
+  if (!Number.isFinite(code) || code < 0 || code > 6) {
+    throw new ActiveCampaignError(
+      `ActiveCampaign campaign lookup returned unrecognized status: ${String(raw)}`,
+      status,
+      text.slice(0, 300),
+    );
+  }
+  return { status: code as AcCampaignStatusCode, raw: String(raw) };
+}
+
+/** True when the campaign is past the point where rescheduling via
+ * `campaign_save` is safe. Mirrors the codes >= 2 (sending/sent/disabled/
+ * pending/processing). */
+export function isCampaignFrozen(status: AcCampaignStatusCode): boolean {
+  return status >= 2;
 }
