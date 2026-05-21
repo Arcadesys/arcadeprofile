@@ -50,12 +50,28 @@ export async function POST(request: Request) {
     );
   }
 
+  // Preserve the post's existing send time-of-day (UTC) so dragging only
+  // changes the calendar day. Fall back to 08:00 UTC when the post has no
+  // prior scheduledPublishDate (e.g. dragging from the drafts tray) —
+  // matches the default used elsewhere in the queue tooling.
+  const prior =
+    typeof existing.scheduledPublishDate === 'string'
+      ? new Date(existing.scheduledPublishDate)
+      : null;
+  const validPrior = prior && !Number.isNaN(prior.getTime()) ? prior : null;
+  const hh = validPrior ? validPrior.getUTCHours() : 8;
+  const mm = validPrior ? validPrior.getUTCMinutes() : 0;
+  const ss = validPrior ? validPrior.getUTCSeconds() : 0;
+  const ms = validPrior ? validPrior.getUTCMilliseconds() : 0;
+  const [y, mo, d] = date.split('-').map((n) => Number(n));
+  const scheduledIso = new Date(Date.UTC(y, mo - 1, d, hh, mm, ss, ms)).toISOString();
+
   const updated = (await payload.update({
     collection: 'posts',
     id: postId,
     data: {
       publish_status: 'scheduled',
-      scheduledPublishDate: date,
+      scheduledPublishDate: scheduledIso,
     },
   })) as Post;
 
