@@ -646,11 +646,10 @@ export async function createScheduledCampaign(
 }
 
 /**
- * Updates the scheduled send date of an existing AC campaign via the legacy
- * `campaign_save` action. The legacy update endpoint sits in the same
- * `/admin/api.php` family as `campaign_create`, takes the same params plus
- * an `id` for the campaign to update, and unlike `PUT /api/3/campaigns/:id`
- * reliably accepts `sdate` changes on already-scheduled campaigns.
+ * Updates the scheduled send date of an existing AC campaign via
+ * `PUT /api/3/campaigns/:id`. The legacy `campaign_save` action returns
+ * "You are not authorized to access this file" against current AC accounts;
+ * the v3 endpoint accepts `sdate` changes on already-scheduled campaigns.
  *
  * Past sendAt values are clamped to `now` to mirror create-time behavior.
  *
@@ -670,19 +669,35 @@ export async function updateCampaignSendDate(options: {
   }
 
   const sendAt = resolveAcScheduledSendInstant(options.scheduledSendAt);
-  const sendDate = formatCampaignSendDate(sendAt);
 
-  await postLegacyAction(
-    baseUrl,
-    apiKey,
-    'campaign_save',
+  const { status, ok, text } = await fetchTextWithTimeout(
+    `${baseUrl}/api/3/campaigns/${encodeURIComponent(options.campaignId)}`,
     {
-      id: options.campaignId,
-      sdate: sendDate,
-      status: '1', // remains scheduled
+      method: 'PUT',
+      headers: {
+        'Api-Token': apiKey,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ campaign: { sdate: sendAt.toISOString() } }),
     },
     fetchImpl,
+    REQUEST_TIMEOUT_MS,
   );
+
+  if (!ok) {
+    let parsed: AcV3Errors = {};
+    try {
+      parsed = JSON.parse(text) as AcV3Errors;
+    } catch {
+      // fall through
+    }
+    throw new ActiveCampaignError(
+      `ActiveCampaign PUT campaigns/${options.campaignId} failed (${status})`,
+      status,
+      formatV3ErrorBody(parsed, text.slice(0, 300)),
+    );
+  }
 
   return { scheduledFor: sendAt };
 }
@@ -755,9 +770,8 @@ export async function getCampaignStatus(options: {
   return { status: code as AcCampaignStatusCode, raw: String(raw) };
 }
 
-/** True when the campaign is past the point where rescheduling via
- * `campaign_save` is safe. Mirrors the codes >= 2 (sending/sent/disabled/
- * pending/processing). */
+/** True when the campaign is past the point where rescheduling is safe.
+ * Mirrors the codes >= 2 (sending/sent/disabled/pending/processing). */
 export function isCampaignFrozen(status: AcCampaignStatusCode): boolean {
   return status >= 2;
 }

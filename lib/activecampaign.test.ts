@@ -401,14 +401,19 @@ test('createScheduledCampaign campaigns lookup ignores partial-name matches', as
   assert.equal(result.campaignId, '43');
 });
 
-test('updateCampaignSendDate posts campaign_save with id + sdate', async () => {
+test('updateCampaignSendDate sends v3 PUT with sdate ISO body', async () => {
   setAcEnv();
 
-  const captured: { url: string; body: string }[] = [];
+  const captured: { url: string; method: string; body: string; headers: Headers }[] = [];
   const fetchImpl: typeof fetch = async (input, init) => {
-    captured.push({ url: urlPath(input), body: String(init?.body ?? '') });
+    captured.push({
+      url: urlPath(input),
+      method: String(init?.method ?? 'GET'),
+      body: String(init?.body ?? ''),
+      headers: new Headers(init?.headers),
+    });
     return new Response(
-      JSON.stringify({ result_code: 1, result_message: 'ok', id: '777' }),
+      JSON.stringify({ campaign: { id: '777', sdate: '2030-06-01T19:00:00-00:00', status: '1' } }),
       { status: 200, headers: { 'content-type': 'application/json' } },
     );
   };
@@ -421,11 +426,12 @@ test('updateCampaignSendDate posts campaign_save with id + sdate', async () => {
   });
 
   assert.equal(captured.length, 1);
-  assert.match(captured[0].url, /api_action=campaign_save/);
-  const form = new URLSearchParams(captured[0].body);
-  assert.equal(form.get('id'), '777');
-  assert.equal(form.get('status'), '1');
-  assert.equal(form.get('sdate'), formatCampaignSendDate(target));
+  assert.equal(captured[0].method, 'PUT');
+  assert.match(captured[0].url, /\/api\/3\/campaigns\/777$/);
+  assert.equal(captured[0].headers.get('Api-Token'), 'test-key');
+  assert.equal(captured[0].headers.get('Content-Type'), 'application/json');
+  const body = JSON.parse(captured[0].body) as { campaign?: { sdate?: string } };
+  assert.equal(body.campaign?.sdate, target.toISOString());
   assert.equal(result.scheduledFor.getTime(), target.getTime());
 });
 
@@ -434,10 +440,10 @@ test('updateCampaignSendDate clamps past dates to now', async () => {
 
   let sdate = '';
   const fetchImpl: typeof fetch = async (_input, init) => {
-    const body = new URLSearchParams(String(init?.body ?? ''));
-    sdate = body.get('sdate') ?? '';
+    const body = JSON.parse(String(init?.body ?? '{}')) as { campaign?: { sdate?: string } };
+    sdate = body.campaign?.sdate ?? '';
     return new Response(
-      JSON.stringify({ result_code: 1, result_message: 'ok', id: '1' }),
+      JSON.stringify({ campaign: { id: '1', sdate, status: '1' } }),
       { status: 200, headers: { 'content-type': 'application/json' } },
     );
   };
@@ -448,14 +454,7 @@ test('updateCampaignSendDate clamps past dates to now', async () => {
     fetchImpl,
   });
 
-  const parsed = new Date(
-    Number(sdate.slice(0, 4)),
-    Number(sdate.slice(5, 7)) - 1,
-    Number(sdate.slice(8, 10)),
-    Number(sdate.slice(11, 13)),
-    Number(sdate.slice(14, 16)),
-    Number(sdate.slice(17, 19)),
-  );
+  const parsed = new Date(sdate);
   assert.ok(Math.abs(parsed.getTime() - Date.now()) < 3000);
 });
 
@@ -478,7 +477,7 @@ test('updateCampaignSendDate surfaces AC failure', async () => {
   setAcEnv();
   const fetchImpl: typeof fetch = async () =>
     new Response(
-      JSON.stringify({ result_code: 0, result_message: 'Cannot reschedule sent campaign' }),
+      JSON.stringify({ errors: [{ title: 'Cannot reschedule sent campaign' }] }),
       { status: 400, headers: { 'content-type': 'application/json' } },
     );
   await assert.rejects(
@@ -490,7 +489,7 @@ test('updateCampaignSendDate surfaces AC failure', async () => {
       }),
     (err: unknown) =>
       err instanceof ActiveCampaignError &&
-      err.message.includes('campaign_save failed'),
+      err.message.includes('PUT campaigns/42 failed'),
   );
 });
 
