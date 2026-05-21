@@ -80,39 +80,21 @@ function Chip({
   post: CalendarPost;
   isOverlay?: boolean;
 }) {
+  const tooltip = `${post.title}${post.group ? ` · ${post.group}` : ''}`;
   return (
     <div
+      className="calendar-chip"
       style={{
-        background: 'var(--theme-elevation-0, #fff)',
-        border: '1px solid var(--theme-elevation-150, #d1d5db)',
         borderLeft: `3px solid ${statusColor(post.publish_status)}`,
-        borderRadius: 3,
-        padding: '3px 6px',
-        marginBottom: 3,
-        fontSize: 11,
-        lineHeight: 1.3,
         cursor: post.draggable ? 'grab' : 'default',
         opacity: post.draggable ? 1 : 0.7,
         boxShadow: isOverlay ? '0 4px 12px rgba(0,0,0,0.25)' : undefined,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
       }}
-      title={`${post.title}${post.group ? ` · ${post.group}` : ''}`}
+      title={tooltip}
+      data-tooltip={tooltip}
     >
-      <strong style={{ fontWeight: 600 }}>{post.title}</strong>
-      {post.group && (
-        <span
-          style={{
-            marginLeft: 4,
-            color: 'var(--theme-elevation-500, #6b7280)',
-            fontFamily: 'var(--font-mono, ui-monospace, monospace)',
-            fontSize: 10,
-          }}
-        >
-          {post.group}
-        </span>
-      )}
+      <strong className="calendar-chip__title">{post.title}</strong>
+      {post.group && <span className="calendar-chip__group">{post.group}</span>}
     </div>
   );
 }
@@ -148,37 +130,18 @@ function DayCell({
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `day-${date}` });
   const dayNum = parseInt(date.slice(8, 10), 10);
+  const classNames = [
+    'calendar-day',
+    inMonth ? 'calendar-day--in-month' : 'calendar-day--out-month',
+    isToday ? 'calendar-day--today' : '',
+    isOver ? 'calendar-day--over' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <div
-      ref={setNodeRef}
-      style={{
-        background: isOver
-          ? 'var(--theme-success-100, #dcfce7)'
-          : inMonth
-            ? 'var(--theme-elevation-0, #fff)'
-            : 'var(--theme-elevation-50, #f9fafb)',
-        border: isToday
-          ? '2px solid var(--theme-success-500, #1d4ed8)'
-          : '1px solid var(--theme-elevation-100, #e5e7eb)',
-        padding: 6,
-        minHeight: 110,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        opacity: inMonth ? 1 : 0.55,
-      }}
-    >
-      <div
-        style={{
-          fontSize: 11,
-          fontWeight: 600,
-          color: 'var(--theme-elevation-600, #4b5563)',
-          marginBottom: 2,
-        }}
-      >
-        {dayNum}
-      </div>
-      <div style={{ flex: 1, overflow: 'auto' }}>
+    <div ref={setNodeRef} className={classNames}>
+      <div className="calendar-day__num">{dayNum}</div>
+      <div className="calendar-day__list">
         {posts.map((p) => (
           <DraggableChip key={p.id} post={p} />
         ))}
@@ -192,41 +155,13 @@ function UnscheduledTray({ drafts }: { drafts: CalendarPost[] }) {
   return (
     <aside
       ref={setNodeRef}
-      style={{
-        width: 240,
-        flexShrink: 0,
-        background: isOver
-          ? 'var(--theme-elevation-100, #f3f4f6)'
-          : 'var(--theme-elevation-50, #f9fafb)',
-        border: '1px dashed var(--theme-elevation-150, #d1d5db)',
-        borderRadius: 4,
-        padding: 8,
-        maxHeight: '70vh',
-        overflow: 'auto',
-      }}
+      className={`calendar-tray${isOver ? ' calendar-tray--over' : ''}`}
     >
-      <h3
-        style={{
-          fontSize: 12,
-          textTransform: 'uppercase',
-          letterSpacing: 1,
-          margin: '0 0 8px',
-          color: 'var(--theme-elevation-600, #374151)',
-        }}
-      >
+      <h3 className="calendar-tray__heading">
         Unscheduled drafts ({drafts.length})
       </h3>
       {drafts.length === 0 && (
-        <div
-          style={{
-            color: 'var(--theme-elevation-400, #9ca3af)',
-            fontSize: 12,
-            textAlign: 'center',
-            padding: '24px 0',
-          }}
-        >
-          (none)
-        </div>
+        <div className="calendar-tray__empty">(none)</div>
       )}
       {drafts.map((p) => (
         <DraggableChip key={p.id} post={p} />
@@ -346,124 +281,65 @@ export default function CalendarBoard() {
   });
 
   return (
-    <div style={{ padding: 'var(--gutter-h, 24px)', maxWidth: 1480, margin: '0 auto' }}>
-      <header
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
-          marginBottom: 8,
-          gap: 12,
-        }}
-      >
-        <h1 style={{ margin: 0 }}>Calendar</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div className="calendar-board">
+      <style>{CALENDAR_CSS}</style>
+      <header className="calendar-header">
+        <h1 className="calendar-header__title">Calendar</h1>
+        <div className="calendar-header__controls">
           <button
             type="button"
+            className="calendar-nav-btn"
             onClick={() => setAnchor((d) => addMonths(d, -1))}
-            style={navBtnStyle}
           >
             ← Prev
           </button>
           <button
             type="button"
+            className="calendar-nav-btn"
             onClick={() => setAnchor(startOfMonth(new Date()))}
-            style={navBtnStyle}
           >
             Today
           </button>
           <button
             type="button"
+            className="calendar-nav-btn"
             onClick={() => setAnchor((d) => addMonths(d, 1))}
-            style={navBtnStyle}
           >
             Next →
           </button>
-          <div
-            style={{
-              fontSize: 14,
-              fontWeight: 600,
-              minWidth: 160,
-              textAlign: 'right',
-              color: 'var(--theme-elevation-700, #1f2937)',
-            }}
-          >
+          <div className="calendar-header__month">
             {monthLabel}
-            {saving && (
-              <span
-                style={{
-                  marginLeft: 8,
-                  fontWeight: 400,
-                  fontSize: 12,
-                  color: 'var(--theme-elevation-500, #6b7280)',
-                }}
-              >
-                saving…
-              </span>
-            )}
+            {saving && <span className="calendar-header__saving">saving…</span>}
           </div>
         </div>
       </header>
-      <p style={{ fontSize: 13, color: 'var(--theme-elevation-600, #4b5563)', marginTop: 0 }}>
+      <p className="calendar-help">
         Drag a scheduled post or draft onto a day. Drops write{' '}
         <code>scheduledPublishDate</code> and set <code>publish_status=scheduled</code>.
         Published &amp; sent posts are read-only.
+        {data && (
+          <span className="calendar-help__meta">
+            · {data.scheduled.length} on calendar, {data.drafts.length} drafts
+          </span>
+        )}
       </p>
-      {error && (
-        <div
-          style={{
-            background: 'var(--theme-error-100, #fef2f2)',
-            color: 'var(--theme-error-700, #991b1b)',
-            border: '1px solid var(--theme-error-200, #fecaca)',
-            borderRadius: 4,
-            padding: '8px 12px',
-            margin: '8px 0 16px',
-            fontSize: 13,
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <div className="calendar-error">{error}</div>}
       <DndContext
         sensors={sensors}
         collisionDetection={pointerWithin}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
-        <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(7, 1fr)',
-                gap: 0,
-                marginBottom: 4,
-              }}
-            >
+        <div className="calendar-layout">
+          <div className="calendar-grid-wrap">
+            <div className="calendar-weekdays">
               {WEEKDAY_LABELS.map((label) => (
-                <div
-                  key={label}
-                  style={{
-                    fontSize: 11,
-                    textTransform: 'uppercase',
-                    letterSpacing: 1,
-                    color: 'var(--theme-elevation-500, #6b7280)',
-                    padding: '4px 6px',
-                    textAlign: 'left',
-                  }}
-                >
+                <div key={label} className="calendar-weekdays__cell">
                   {label}
                 </div>
               ))}
             </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(7, 1fr)',
-                gridAutoRows: '1fr',
-                gap: 0,
-              }}
-            >
+            <div className="calendar-grid">
               {grid.days.map((d) => {
                 const iso = isoDay(d);
                 const inMonth = d.getMonth() === anchor.getMonth();
@@ -489,12 +365,217 @@ export default function CalendarBoard() {
   );
 }
 
-const navBtnStyle: React.CSSProperties = {
-  background: 'var(--theme-elevation-0, #fff)',
-  border: '1px solid var(--theme-elevation-200, #d1d5db)',
-  borderRadius: 3,
-  padding: '4px 10px',
-  fontSize: 12,
-  cursor: 'pointer',
-  color: 'inherit',
-};
+const CALENDAR_CSS = `
+.calendar-board {
+  padding: var(--gutter-h, 24px);
+  max-width: 1480px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.calendar-header__title { margin: 0; }
+.calendar-header__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.calendar-header__month {
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 160px;
+  text-align: right;
+  color: var(--theme-elevation-700, #1f2937);
+}
+.calendar-header__saving {
+  margin-left: 8px;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--theme-elevation-500, #6b7280);
+}
+.calendar-nav-btn {
+  background: var(--theme-elevation-0, #fff);
+  border: 1px solid var(--theme-elevation-200, #d1d5db);
+  border-radius: 3px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: inherit;
+}
+.calendar-help {
+  font-size: 13px;
+  color: var(--theme-elevation-600, #4b5563);
+  margin-top: 0;
+}
+.calendar-help__meta {
+  margin-left: 8px;
+  color: var(--theme-elevation-500, #6b7280);
+}
+.calendar-error {
+  background: var(--theme-error-100, #fef2f2);
+  color: var(--theme-error-700, #991b1b);
+  border: 1px solid var(--theme-error-200, #fecaca);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 8px 0 16px;
+  font-size: 13px;
+}
+.calendar-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.calendar-grid-wrap {
+  flex: 1;
+  min-width: 0;
+}
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px;
+}
+.calendar-weekdays__cell {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--theme-elevation-500, #6b7280);
+  padding: 4px 6px;
+  text-align: left;
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 1fr;
+}
+.calendar-day {
+  border: 1px solid var(--theme-elevation-100, #e5e7eb);
+  background: var(--theme-elevation-0, #fff);
+  padding: 6px;
+  min-height: 110px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.calendar-day--out-month {
+  background: var(--theme-elevation-50, #f9fafb);
+  opacity: 0.55;
+}
+.calendar-day--today {
+  border: 2px solid var(--theme-success-500, #1d4ed8);
+}
+.calendar-day--over {
+  background: var(--theme-success-100, #dcfce7);
+}
+.calendar-day__num {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--theme-elevation-600, #4b5563);
+  margin-bottom: 2px;
+}
+.calendar-day__list { flex: 1; min-width: 0; overflow: auto; }
+
+.calendar-tray {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--theme-elevation-50, #f9fafb);
+  border: 1px dashed var(--theme-elevation-150, #d1d5db);
+  border-radius: 4px;
+  padding: 8px;
+  max-height: 70vh;
+  overflow: auto;
+}
+.calendar-tray--over { background: var(--theme-elevation-100, #f3f4f6); }
+.calendar-tray__heading {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 8px;
+  color: var(--theme-elevation-600, #374151);
+}
+.calendar-tray__empty {
+  color: var(--theme-elevation-400, #9ca3af);
+  font-size: 12px;
+  text-align: center;
+  padding: 24px 0;
+}
+
+.calendar-chip {
+  position: relative;
+  background: var(--theme-elevation-0, #fff);
+  border: 1px solid var(--theme-elevation-150, #d1d5db);
+  border-radius: 3px;
+  padding: 3px 6px;
+  margin-bottom: 3px;
+  font-size: 11px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.calendar-chip__title { font-weight: 600; }
+.calendar-chip__group {
+  margin-left: 4px;
+  color: var(--theme-elevation-500, #6b7280);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10px;
+}
+/* Custom hover tooltip — instant, shows full title even when chip is truncated */
+.calendar-chip:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 4px;
+  z-index: 50;
+  background: var(--theme-elevation-800, #1f2937);
+  color: var(--theme-elevation-0, #fff);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 400;
+  white-space: normal;
+  max-width: 260px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+/* Responsive: at narrow viewports (or high browser zoom), drop the side tray
+   under the calendar and shrink day cells so the whole month stays visible. */
+@media (max-width: 1100px) {
+  .calendar-day { min-height: 90px; }
+}
+@media (max-width: 900px) {
+  .calendar-layout { flex-direction: column; }
+  .calendar-tray {
+    width: 100%;
+    max-height: none;
+    box-sizing: border-box;
+  }
+  .calendar-day { min-height: 80px; padding: 4px; }
+  .calendar-day__num { font-size: 10px; }
+  .calendar-chip { font-size: 10px; padding: 2px 4px; }
+  .calendar-chip__group { display: none; }
+}
+@media (max-width: 600px) {
+  .calendar-board { padding: 8px; }
+  .calendar-header__month {
+    min-width: 0;
+    text-align: left;
+    width: 100%;
+  }
+  .calendar-weekdays__cell { font-size: 9px; padding: 2px 3px; }
+  .calendar-day { min-height: 64px; padding: 3px; }
+  .calendar-day__num { font-size: 9px; }
+  .calendar-chip { font-size: 9px; padding: 1px 3px; line-height: 1.2; }
+}
+`;
