@@ -3,8 +3,9 @@
 import {
   DndContext,
   DragOverlay,
-  PointerSensor,
-  pointerWithin,
+  MouseSensor,
+  TouchSensor,
+  rectIntersection,
   useDraggable,
   useDroppable,
   useSensor,
@@ -126,7 +127,15 @@ function DraggableChip({ post }: { post: CalendarPost }) {
   return (
     <div
       ref={setNodeRef}
-      style={{ opacity: isDragging ? 0.3 : 1 }}
+      style={{
+        opacity: isDragging ? 0.3 : 1,
+        cursor: post.draggable ? 'grab' : 'default',
+        // touch-action:none lets dnd-kit's PointerSensor see touch gestures as
+        // drags instead of the browser hijacking them for scroll. Required
+        // because each day cell contains an overflow:auto scroll region.
+        touchAction: post.draggable ? 'none' : 'auto',
+        userSelect: 'none',
+      }}
       {...attributes}
       {...listeners}
     >
@@ -178,7 +187,7 @@ function DayCell({
       >
         {dayNum}
       </div>
-      <div style={{ flex: 1, overflow: 'auto' }}>
+      <div style={{ flex: 1 }}>
         {posts.map((p) => (
           <DraggableChip key={p.id} post={p} />
         ))}
@@ -243,7 +252,8 @@ export default function CalendarBoard() {
   const [activePost, setActivePost] = useState<CalendarPost | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
   );
 
   const grid = useMemo(() => buildMonthGrid(anchor), [anchor]);
@@ -408,6 +418,11 @@ export default function CalendarBoard() {
         Drag a scheduled post or draft onto a day. Drops write{' '}
         <code>scheduledPublishDate</code> and set <code>publish_status=scheduled</code>.
         Published &amp; sent posts are read-only.
+        {data && (
+          <span style={{ marginLeft: 8, color: 'var(--theme-elevation-500, #6b7280)' }}>
+            · {data.scheduled.length} on calendar, {data.drafts.length} drafts
+          </span>
+        )}
       </p>
       {error && (
         <div
@@ -426,7 +441,7 @@ export default function CalendarBoard() {
       )}
       <DndContext
         sensors={sensors}
-        collisionDetection={pointerWithin}
+        collisionDetection={rectIntersection}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
