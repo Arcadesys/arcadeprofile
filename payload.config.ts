@@ -31,12 +31,17 @@ export default buildConfig({
     components: {
       afterNavLinks: [
         '/views/hopper/HopperNavLink#default',
+        '/views/calendar/CalendarNavLink#default',
         '/views/group-scenes/GroupScenesNavLink#default',
       ],
       views: {
         hopper: {
           Component: '/views/hopper/HopperView#default',
           path: '/hopper',
+        },
+        calendar: {
+          Component: '/views/calendar/CalendarView#default',
+          path: '/calendar',
         },
         groupScenes: {
           Component: '/views/group-scenes/GroupScenesView#default',

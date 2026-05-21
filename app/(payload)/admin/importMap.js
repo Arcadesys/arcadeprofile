@@ -27,9 +27,11 @@ import { default as default_78ea7c1387d7b4e03dd8a5da1891f3f4 } from '@/component
 import { default as default_9221ff56f1af20c53e858b58b55b6ccf } from '@/components/admin/PostSaveButton'
 import { default as default_66b265d76d5373746145a85a49d90e0f } from '@/components/admin/ArrangeScenesLink'
 import { default as default_37ae607ad1e92e6621ed38bc1a1cc71f } from '../../../views/hopper/HopperNavLink'
+import { default as default_9151a28540ac27b39869e43714a859e0 } from '../../../views/calendar/CalendarNavLink'
 import { default as default_bfa8e627816aa96a610f2736df584e4b } from '../../../views/group-scenes/GroupScenesNavLink'
 import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 import { default as default_8991802aadddcd0f4508d3a620798adc } from '../../../views/hopper/HopperView'
+import { default as default_5aadf0170b2e4a6ac4a1379a4fd31d56 } from '../../../views/calendar/CalendarView'
 import { default as default_348fbacb1966829b7f5e48d72cfbf516 } from '../../../views/group-scenes/GroupScenesView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
@@ -63,9 +65,11 @@ export const importMap = {
   "@/components/admin/PostSaveButton#default": default_9221ff56f1af20c53e858b58b55b6ccf,
   "@/components/admin/ArrangeScenesLink#default": default_66b265d76d5373746145a85a49d90e0f,
   "/views/hopper/HopperNavLink#default": default_37ae607ad1e92e6621ed38bc1a1cc71f,
+  "/views/calendar/CalendarNavLink#default": default_9151a28540ac27b39869e43714a859e0,
   "/views/group-scenes/GroupScenesNavLink#default": default_bfa8e627816aa96a610f2736df584e4b,
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   "/views/hopper/HopperView#default": default_8991802aadddcd0f4508d3a620798adc,
+  "/views/calendar/CalendarView#default": default_5aadf0170b2e4a6ac4a1379a4fd31d56,
   "/views/group-scenes/GroupScenesView#default": default_348fbacb1966829b7f5e48d72cfbf516,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }
