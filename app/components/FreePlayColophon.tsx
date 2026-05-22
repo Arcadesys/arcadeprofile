@@ -24,7 +24,6 @@ function MarkSVG({ height, idPrefix }: { height: number; idPrefix: string }) {
       width={height * RATIO}
       height={height}
       style={{ display: 'block', overflow: 'visible' }}
-      role="img"
       aria-hidden="true"
     >
       <defs>
@@ -81,7 +80,6 @@ function MonoSVG({ height, idPrefix }: { height: number; idPrefix: string }) {
       width={height * RATIO}
       height={height}
       style={{ display: 'block', color: 'currentColor' }}
-      role="img"
       aria-hidden="true"
     >
       <rect x="70" y="10" width="22" height="80" rx="11" fill="none" stroke="currentColor" strokeWidth="2.5" />
@@ -138,7 +136,7 @@ export default function FreePlayColophon({
               color: '#ff3cac',
             }}
           >
-            FREE&nbsp;PLAY
+            FREE{"\u00A0"}PLAY
           </span>
           <span
             style={{
@@ -180,7 +178,7 @@ export default function FreePlayColophon({
             lineHeight: 1,
           }}
         >
-          FREE&nbsp;PLAY
+          FREE{"\u00A0"}PLAY
         </span>
         <span
           style={{
