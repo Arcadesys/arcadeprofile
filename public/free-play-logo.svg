@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 100" role="img" aria-label="Free Play Publishing">
+  <defs>
+    <linearGradient id="ic-coin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff8a00"/>
+      <stop offset="100%" stop-color="#ff3cac"/>
+    </linearGradient>
+    <linearGradient id="ic-slot" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f5d98a"/>
+      <stop offset="60%" stop-color="#e8c777"/>
+      <stop offset="100%" stop-color="#c89a3e"/>
+    </linearGradient>
+    <filter id="ic-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="ic-slot-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="0.7" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="ic-text-glow" x="-10%" y="-50%" width="120%" height="200%">
+      <feGaussianBlur stdDeviation="0.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <g>
+    <g filter="url(#ic-slot-glow)">
+      <rect x="70" y="10" width="22" height="80" rx="11" fill="#0a0a14" stroke="url(#ic-slot)" stroke-width="2.5"/>
+      <rect x="80" y="22" width="2" height="56" rx="1" fill="#000"/>
+      <rect x="80" y="22" width="1" height="56" rx="0.5" fill="#c89a3e" opacity="0.55"/>
+    </g>
+    <path d="M 81,28 A 22,22 0 1,0 81,72 L 81,28 Z" fill="#000"/>
+    <g filter="url(#ic-glow)">
+      <path d="M 81,28 A 22,22 0 1,0 81,72 A 17,17 0 1,1 81,28 Z" fill="none" stroke="url(#ic-coin)" stroke-width="2.8" opacity="0.95"/>
+      <path d="M 79,41 A 9,9 0 1,0 79,59 Z" fill="#ff8a00" opacity="0.78"/>
+    </g>
+  </g>
+
+  <g filter="url(#ic-text-glow)" font-family="'Inter','Helvetica Neue','Segoe UI',Arial,sans-serif">
+    <text x="120" y="52" font-size="22" font-weight="300" letter-spacing="4.8" fill="#ff3cac" opacity="0.95">FREE PLAY</text>
+  </g>
+  <text x="120" y="74" font-family="'Lora','Georgia',serif" font-style="italic" font-size="11" letter-spacing="0.4" fill="#9a8e6e">Publishing</text>
+</svg>
