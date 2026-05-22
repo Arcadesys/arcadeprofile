@@ -199,12 +199,27 @@ export interface Post {
    * Synced ActiveCampaign state. Read-only — written by the on-save sync hook.
    */
   acCampaign?: {
+    /**
+     * AC campaign id.
+     */
     campaignId?: string | null;
+    /**
+     * AC message id.
+     */
     messageId?: string | null;
+    /**
+     * Send time persisted to AC (may be clamped to now).
+     */
     scheduledFor?: string | null;
     status?: ('pending' | 'scheduled' | 'sent' | 'failed') | null;
+    /**
+     * Comma-separated AC list ids attached to the campaign.
+     */
     targetedLists?: string | null;
     lastSyncedAt?: string | null;
+    /**
+     * Most recent AC sync error message. Cleared on successful sync.
+     */
     lastError?: string | null;
   };
   /**
