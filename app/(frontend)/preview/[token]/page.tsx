@@ -81,7 +81,10 @@ export default async function PreviewPage({ params }: Props) {
     collection: 'posts',
     where: { previewToken: { equals: token } },
     limit: 1,
-    depth: 0,
+    // depth >= 1 so lexical upload nodes inside post.content get their
+    // Media doc populated; the default upload→JSX converter returns null
+    // when value is still just an ID, so images would otherwise vanish.
+    depth: 1,
     overrideAccess: true,
   });
 
