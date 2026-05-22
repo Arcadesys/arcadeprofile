@@ -56,7 +56,17 @@ export default async function HomePage() {
             }}
           />
         </div>
-        <h1 className="gaysparkles" style={{ margin: '0 0 0.75rem' }}>The Arcades</h1>
+        <h1 className="gaysparkles" style={{ margin: '0 0 0.5rem' }}>Free Play Publishing</h1>
+        <p style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: '0.75rem',
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
+          color: 'var(--fg-muted)',
+          margin: '0 0 0.75rem',
+        }}>
+          Stories by Austen Tucker
+        </p>
         <p style={{
           fontSize: '1.05rem',
           lineHeight: 1.5,

@@ -20,7 +20,7 @@ export async function GET() {
   ]);
 
   const feed = new Feed({
-    title: 'The Arcades — Latest',
+    title: 'Free Play Publishing — Latest',
     description: 'Writing by Austen Tucker',
     id: SITE_URL,
     link: SITE_URL,

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import FreePlayColophon from '@/app/components/FreePlayColophon';
 
 export const metadata: Metadata = {
   title: 'Bibliography',
@@ -8,14 +9,14 @@ export const metadata: Metadata = {
   alternates: { canonical: '/bibliography' },
   openGraph: {
     type: 'article',
-    title: 'Bibliography | The Arcades',
+    title: 'Bibliography | Free Play Publishing',
     description:
       'External publishing by Austen Crowder (also Slyford T. Rabbit, Sly Rabbit) — novels, short fiction, poetry, and essays from 2005 to the present.',
     url: '/bibliography',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bibliography | The Arcades',
+    title: 'Bibliography | Free Play Publishing',
     description: 'External publishing under Austen Crowder, Slyford T. Rabbit, and Sly Rabbit.',
   },
 };
@@ -69,6 +70,9 @@ export default function BibliographyPage() {
   return (
     <main style={{ maxWidth: '740px', margin: '0 auto', padding: 'clamp(1rem, 4vw, 2rem) 1rem' }}>
       <section style={{ marginBottom: '2.5rem', marginTop: '1.5rem' }}>
+        <div style={{ marginBottom: '1rem' }}>
+          <FreePlayColophon variant="lockup" size={320} />
+        </div>
         <h1 className="gaysparkles" style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', marginBottom: '0.5rem' }}>
           Bibliography
         </h1>

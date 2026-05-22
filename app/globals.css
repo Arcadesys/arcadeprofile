@@ -1267,12 +1267,12 @@ sub, sup    { font-size: 0.75em; line-height: 0; }
 .nav-logo {
   display: flex;
   align-items: center;
-  height: 30px;
+  height: 48px;
   text-shadow: none;
   color: var(--fg);
 }
 .nav-logo img {
-  height: 30px;
+  height: 48px;
   width: auto;
 }
 .nav-logo:hover {
@@ -1342,7 +1342,7 @@ html[data-contrast="high"] .site-nav a.primary {
     padding: 6px 8px;
   }
   .nav-logo img {
-    height: 24px;
+    height: 36px;
   }
 }
 

@@ -10,18 +10,18 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Latest',
-  description: 'New writing from The Arcades — fiction and essays by Austen Tucker.',
+  description: 'New writing from Free Play Publishing — fiction and essays by Austen Tucker.',
   alternates: { canonical: '/latest' },
   openGraph: {
     type: 'website',
-    title: 'Latest | The Arcades',
-    description: 'New writing from The Arcades — fiction and essays by Austen Tucker.',
+    title: 'Latest | Free Play Publishing',
+    description: 'New writing from Free Play Publishing — fiction and essays by Austen Tucker.',
     url: '/latest',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Latest | The Arcades',
-    description: 'New writing from The Arcades — fiction and essays by Austen Tucker.',
+    title: 'Latest | Free Play Publishing',
+    description: 'New writing from Free Play Publishing — fiction and essays by Austen Tucker.',
   },
 };
 

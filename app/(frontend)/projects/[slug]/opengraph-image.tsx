@@ -5,7 +5,7 @@ import { ogSize, ogContentType, renderOgCard } from '@/lib/og-template';
 export const runtime = 'nodejs';
 export const size = ogSize;
 export const contentType = ogContentType;
-export const alt = 'The Arcades';
+export const alt = 'Free Play Publishing';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -59,7 +59,7 @@ export default async function OgImage({ params }: Props) {
   const { slug } = await params;
   const ctx = await loadOgContext(slug);
 
-  const title = ctx ? (ctx.groupMetaTitle || ctx.groupTitle) : 'The Arcades';
+  const title = ctx ? (ctx.groupMetaTitle || ctx.groupTitle) : 'Free Play Publishing';
   const byline = ctx?.groupDescription || '';
   const eyebrow = ctx?.groupCategory
     ? CATEGORY_LABELS[ctx.groupCategory] || ctx.groupCategory

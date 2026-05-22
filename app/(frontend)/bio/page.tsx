@@ -8,13 +8,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/bio' },
   openGraph: {
     type: 'profile',
-    title: 'Bio | The Arcades',
+    title: 'Bio | Free Play Publishing',
     description: 'Who is Austen Tucker-Crowder? A bit of everything: AI transformation lead, facilitator, dev, writer, and maker.',
     url: '/bio',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bio | The Arcades',
+    title: 'Bio | Free Play Publishing',
     description: 'Who is Austen Tucker-Crowder? A bit of everything: AI transformation lead, facilitator, dev, writer, and maker.',
   },
 };
@@ -153,7 +153,7 @@ export default function BioPage() {
         <h2 style={sectionHeadingStyle}>About this site</h2>
         <div style={cardStyle}>
           <p style={{ lineHeight: 1.8, margin: '0 0 1rem' }}>
-            The Arcades is my personal corner of the internet. It&apos;s built with Next.js 15, Payload CMS,
+            Free Play Publishing is my personal corner of the internet. It&apos;s built with Next.js 15, Payload CMS,
             and deployed on Vercel — and it doubles as a sandbox where I try things out.
           </p>
           <p style={{ lineHeight: 1.8, margin: 0 }}>

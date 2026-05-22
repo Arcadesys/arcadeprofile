@@ -40,9 +40,9 @@ export async function sendPostmarkTestEmail(
   const subject = options.subject || `Postmark test email ${sentAt}`;
   const htmlBody =
     options.htmlBody ||
-    `<p>This is a Postmark test email from The Arcades.</p><p>Sent at ${sentAt}.</p>`;
+    `<p>This is a Postmark test email from Free Play Publishing.</p><p>Sent at ${sentAt}.</p>`;
   const textBody =
-    options.textBody || `This is a Postmark test email from The Arcades.\nSent at ${sentAt}.`;
+    options.textBody || `This is a Postmark test email from Free Play Publishing.\nSent at ${sentAt}.`;
 
   return client.sendEmail({
     From: fromEmail,

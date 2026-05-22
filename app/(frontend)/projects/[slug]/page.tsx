@@ -104,7 +104,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ]);
   const metaTitle = group?.meta?.title?.trim() || project.title;
   const metaDescription = group?.meta?.description?.trim() || project.description || undefined;
-  const titleForOg = `${metaTitle} | The Arcades`;
+  const titleForOg = `${metaTitle} | Free Play Publishing`;
   const path = buildGroupIntroUrl(slug);
   const url = `${SITE_URL}${path}`;
   const canonical = groupExtras.canonicalPath || path;

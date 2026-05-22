@@ -16,12 +16,12 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
 
   return (
     <nav className="site-nav" aria-label="Main navigation">
-      <Link href="/" className="nav-logo" aria-label="The Arcades — home">
+      <Link href="/" className="nav-logo" aria-label="Free Play Publishing — home">
         <Image
-          src="/the-arcades-logo.svg"
-          alt="The Arcades"
-          width={160}
-          height={30}
+          src="/free-play-nav.svg"
+          alt="Free Play Publishing"
+          width={173}
+          height={60}
           priority
         />
       </Link>

@@ -86,7 +86,7 @@ function getFromName(): string {
     firstNonEmpty(
       process.env.AC_NEWSLETTER_FROM_NAME,
       process.env.ACTIVECAMPAIGN_FROM_NAME,
-    ) || 'The Arcades'
+    ) || 'Free Play Publishing'
   );
 }
 

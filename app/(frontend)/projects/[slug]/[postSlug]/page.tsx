@@ -148,7 +148,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const metaTitle = post.meta?.title?.trim() || post.title;
   const metaDescription = post.meta?.description?.trim() || post.excerpt || undefined;
   const titleForBrowser = `${metaTitle} | ${project.title}`;
-  const titleForOg = `${metaTitle} | ${project.title} | The Arcades`;
+  const titleForOg = `${metaTitle} | ${project.title} | Free Play Publishing`;
   const path = buildPostUrl(slug, postSlug);
   const url = `${SITE_URL}${path}`;
   const canonical = postExtras.canonicalPath || path;
