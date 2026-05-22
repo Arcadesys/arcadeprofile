@@ -10,7 +10,8 @@ import Navbar from '../components/Navbar';
 import { JsonLd } from '@/lib/structured-data';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
-const SITE_NAME = 'The Arcades';
+const SITE_NAME = 'Free Play Publishing';
+const SITE_TITLE_DEFAULT = 'FREE PLAY PUBLISHING — Austen Tucker';
 const SITE_DESCRIPTION = 'Serialized fiction, essays on AI and creativity, and weird little worlds by Austen Tucker. New fiction Mon/Wed/Fri, essays Tue/Thu.';
 
 const inter = Inter({
@@ -37,7 +38,7 @@ const lora = Lora({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} | Serialized Fiction and Essays by Austen Tucker`,
+    default: SITE_TITLE_DEFAULT,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -48,14 +49,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: SITE_NAME,
-    title: SITE_NAME,
+    title: SITE_TITLE_DEFAULT,
     description: SITE_DESCRIPTION,
     url: SITE_URL,
     locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
-    title: SITE_NAME,
+    title: SITE_TITLE_DEFAULT,
     description: SITE_DESCRIPTION,
   },
   alternates: {
