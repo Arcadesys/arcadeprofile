@@ -20,7 +20,7 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
         <Image
           src="/free-play-nav.svg"
           alt="Free Play Publishing"
-          width={307}
+          width={400}
           height={60}
           priority
         />
