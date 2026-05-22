@@ -18,10 +18,10 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
     <nav className="site-nav" aria-label="Main navigation">
       <Link href="/" className="nav-logo" aria-label="Free Play Publishing — home">
         <Image
-          src="/free-play-logo.svg"
+          src="/free-play-nav.svg"
           alt="Free Play Publishing"
-          width={184}
-          height={40}
+          width={213}
+          height={60}
           priority
         />
       </Link>
