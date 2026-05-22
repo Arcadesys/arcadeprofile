@@ -18,7 +18,7 @@ When a Payload **post** first transitions to **published** and `newsletterSent` 
 | `AC_API_KEY` | Yes* | API token. Sent as `Api-Token` on every request. |
 | `AC_NEWSLETTER_LIST_ID` | Yes* | Numeric **List** ID for blog subscribers. |
 | `AC_NEWSLETTER_FROM_EMAIL` | Yes* | Verified From address in ActiveCampaign. |
-| `AC_NEWSLETTER_FROM_NAME` | No | Defaults to `The Arcades`. |
+| `AC_NEWSLETTER_FROM_NAME` | No | Defaults to `Free Play Publishing`. |
 | `AC_NEWSLETTER_REPLY_TO` | No | Defaults to the from email. |
 
 \*Aliases accepted: `ACTIVECAMPAIGN_API_URL`, `ACTIVECAMPAIGN_API_KEY`, `ACTIVECAMPAIGN_LIST_ID`, `ACTIVECAMPAIGN_FROM_EMAIL`, `ACTIVECAMPAIGN_FROM_NAME`, `ACTIVECAMPAIGN_REPLY_TO`. If `AC_NEWSLETTER_FROM_EMAIL` is unset, **`POSTMARK_FROM_EMAIL`** is used when present (same verified address is common).

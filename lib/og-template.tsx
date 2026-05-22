@@ -13,7 +13,7 @@ export function siteDomain(): string {
 }
 
 export interface OgCardInput {
-  /** Small uppercase chip shown top-left. Falls back to "The Arcades". */
+  /** Small uppercase chip shown top-left. Falls back to "Free Play Publishing". */
   eyebrow?: string | null;
   /** Big headline. Auto-scales smaller when long. */
   title: string;
@@ -22,7 +22,7 @@ export interface OgCardInput {
 }
 
 export function renderOgCard({ eyebrow, title, byline }: OgCardInput) {
-  const chip = eyebrow?.trim() || 'The Arcades';
+  const chip = eyebrow?.trim() || 'Free Play Publishing';
   const titleSize = title.length > 60 ? 64 : 84;
   const domain = siteDomain();
 

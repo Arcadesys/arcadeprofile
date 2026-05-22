@@ -16,7 +16,7 @@ interface SubscribeCTAProps {
 }
 
 const SHARE_URL = 'https://thearcades.me';
-const SHARE_TEXT = 'Serialized fiction by email — every installment as it lands. Subscribe to The Arcades:';
+const SHARE_TEXT = 'Serialized fiction by email — every installment as it lands. Subscribe to Free Play Publishing:';
 
 const SUCCESS_COPY = '✓ You’re in. First installment is on its way.';
 
@@ -101,7 +101,7 @@ export default function SubscribeCTA({
   }
 
   async function handleShare() {
-    const shareData = { title: 'The Arcades', text: SHARE_TEXT, url: SHARE_URL };
+    const shareData = { title: 'Free Play Publishing', text: SHARE_TEXT, url: SHARE_URL };
     if (typeof navigator !== 'undefined' && 'share' in navigator) {
       try {
         await navigator.share(shareData);
@@ -236,7 +236,7 @@ export default function SubscribeCTA({
               cursor: 'pointer',
             }}
           >
-            {shareState === 'copied' ? '✓ Link copied' : 'Share The Arcades'}
+            {shareState === 'copied' ? '✓ Link copied' : 'Share Free Play Publishing'}
           </button>
           <span
             role="status"

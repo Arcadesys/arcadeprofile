@@ -17,13 +17,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/projects' },
   openGraph: {
     type: 'website',
-    title: 'Projects | The Arcades',
+    title: 'Projects | Free Play Publishing',
     description: 'Projects and creative work by Austen Tucker-Crowder.',
     url: '/projects',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Projects | The Arcades',
+    title: 'Projects | Free Play Publishing',
     description: 'Projects and creative work by Austen Tucker-Crowder.',
   },
 };

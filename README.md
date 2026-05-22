@@ -89,7 +89,7 @@ Required env vars:
 
 - `POSTMARK_SERVER_TOKEN`
 - `POSTMARK_FROM_EMAIL`
-- `POSTMARK_FROM_NAME` (optional, defaults to `The Arcades`)
+- `POSTMARK_FROM_NAME` (optional, defaults to `Free Play Publishing`)
 - `POSTMARK_REQUIRED_IN_PROD` (optional safety rail)
 - `POSTMARK_WEBHOOK_SECRET` (optional auth token for `/api/postmark/webhook`)
 

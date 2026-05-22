@@ -52,7 +52,7 @@ export default function Footer() {
             letterSpacing: '0.04em',
           }}
         >
-          © {new Date().getFullYear()} Austen Tucker · The Arcades
+          © {new Date().getFullYear()} Austen Tucker · Free Play Publishing
         </p>
       </div>
     </footer>
