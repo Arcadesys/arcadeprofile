@@ -82,9 +82,11 @@ const websiteJsonLd = {
   '@type': 'WebSite',
   '@id': `${SITE_URL}/#website`,
   name: SITE_NAME,
+  alternateName: 'FREE PLAY PUBLISHING',
   url: SITE_URL,
   description: SITE_DESCRIPTION,
   inLanguage: 'en-US',
+  author: { '@id': `${SITE_URL}/#person` },
   publisher: { '@id': `${SITE_URL}/#person` },
 };
 
