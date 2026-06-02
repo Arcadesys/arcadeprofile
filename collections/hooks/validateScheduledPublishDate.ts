@@ -2,12 +2,17 @@ import type { CollectionBeforeChangeHook } from 'payload';
 import { ValidationError } from 'payload';
 
 /**
- * Rejects saves where `scheduledPublishDate` is in the past on any post that
- * is not a draft. Drafts pass through so editors can stage a post and only
- * fill in the date later. Anything queued ('scheduled', 'published', 'sent')
- * gets blocked because the AC campaign sync uses `scheduledPublishDate` as
- * the send time, and past dates would mean "send now" with no chance for
- * the editor to spot a misclick.
+ * Rejects saves where `scheduledPublishDate` is in the past on a post that is
+ * being *scheduled*. This catches an editor queuing a post with a past time,
+ * which the AC campaign sync would treat as "send now" with no chance to spot
+ * the misclick.
+ *
+ * Only the `scheduled` status is guarded. Drafts pass through so editors can
+ * stage a post and fill in the date later. `published` and `sent` are terminal
+ * states where a past `scheduledPublishDate` is expected and correct — notably,
+ * the publish-scheduled cron promotes a `scheduled` post to `published` exactly
+ * when its date has just elapsed, so guarding those states would block the
+ * scheduler from ever publishing anything.
  */
 export const validateScheduledPublishDateHook: CollectionBeforeChangeHook = ({ data }) => {
   if (!data) return data;
@@ -16,7 +21,7 @@ export const validateScheduledPublishDateHook: CollectionBeforeChangeHook = ({ d
     typeof (data as { publish_status?: unknown }).publish_status === 'string'
       ? (data as { publish_status: string }).publish_status
       : 'draft';
-  if (status === 'draft') return data;
+  if (status !== 'scheduled') return data;
 
   const raw = (data as { scheduledPublishDate?: unknown }).scheduledPublishDate;
   if (!raw || typeof raw !== 'string') return data;
