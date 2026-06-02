@@ -5,10 +5,13 @@ import { validateScheduledPublishDateHook } from './validateScheduledPublishDate
 
 // The hook is a Payload beforeChange hook; we only exercise `data`, so cast a
 // minimal arg through unknown rather than constructing a full hook context.
-const run = (data: Record<string, unknown>) =>
-  (validateScheduledPublishDateHook as unknown as (args: { data: Record<string, unknown> }) => unknown)(
-    { data },
-  );
+const run = (data: Record<string, unknown>, originalDoc?: Record<string, unknown>) =>
+  (
+    validateScheduledPublishDateHook as unknown as (args: {
+      data: Record<string, unknown>;
+      originalDoc?: Record<string, unknown>;
+    }) => unknown
+  )({ data, originalDoc });
 
 const past = '2020-01-01T00:00:00.000Z';
 const future = new Date(Date.now() + 60 * 60 * 1000).toISOString();
@@ -38,4 +41,13 @@ test('allows promoting to published with a now-past scheduled date', () => {
 
 test('allows sent posts with a past scheduled date', () => {
   assert.doesNotThrow(() => run({ publish_status: 'sent', scheduledPublishDate: past }));
+});
+
+// Partial update: editor moves the date to the past without re-sending
+// publish_status. Status is recovered from originalDoc so the guard still fires.
+test('blocks moving date to past on an already-scheduled post (status from originalDoc)', () => {
+  assert.throws(
+    () => run({ scheduledPublishDate: past }, { publish_status: 'scheduled' }),
+    /scheduledPublishDate/,
+  );
 });

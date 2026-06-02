@@ -14,13 +14,18 @@ import { ValidationError } from 'payload';
  * when its date has just elapsed, so guarding those states would block the
  * scheduler from ever publishing anything.
  */
-export const validateScheduledPublishDateHook: CollectionBeforeChangeHook = ({ data }) => {
+export const validateScheduledPublishDateHook: CollectionBeforeChangeHook = ({
+  data,
+  originalDoc,
+}) => {
   if (!data) return data;
 
+  // A partial update may omit publish_status; fall back to the stored value so
+  // editing only the date on an already-`scheduled` post is still guarded.
   const status =
     typeof (data as { publish_status?: unknown }).publish_status === 'string'
       ? (data as { publish_status: string }).publish_status
-      : 'draft';
+      : (originalDoc as { publish_status?: string } | undefined)?.publish_status || 'draft';
   if (status !== 'scheduled') return data;
 
   const raw = (data as { scheduledPublishDate?: unknown }).scheduledPublishDate;
