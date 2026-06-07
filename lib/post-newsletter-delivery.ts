@@ -105,8 +105,14 @@ export async function deliverPostNewsletter(
   }
 
   try {
-    const groupSlug = typeof post.group === 'string' ? post.group.trim() : '';
-    const groupCategory = await resolveGroupCategory(payload, groupSlug);
+    let groupCategory: string | null = null;
+    if (post.group) {
+      if (typeof post.group === 'object') {
+        groupCategory = (post.group.category as string | undefined) ?? null;
+      } else if (typeof post.group === 'string') {
+        groupCategory = await resolveGroupCategory(payload, post.group.trim());
+      }
+    }
     const listIds = resolveAudienceListIds(groupCategory);
     const recipients = await resolveRecipients({ listIds });
 

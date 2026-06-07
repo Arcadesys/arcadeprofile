@@ -183,7 +183,6 @@ export async function publishScheduledPosts(
       and: [
         { scheduledPublishDate: { less_than_equal: nowIso } },
         { publish_status: { equals: 'published' } },
-        { suppressNewsletter: { not_equals: true } },
         { 'newsletterSend.status': { equals: 'failed' } },
       ],
     },

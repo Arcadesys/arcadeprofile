@@ -44,30 +44,29 @@ test('sendPostmarkNewsletterEmail batches recipients and records message ids', a
   assert.equal(batches[0][0].Subject, 'New post');
 });
 
-test('sendPostmarkNewsletterEmail throws when a batch response fails', async () => {
+test('sendPostmarkNewsletterEmail does not throw when a batch response has recipient-specific failures', async () => {
   process.env.POSTMARK_FROM_EMAIL = 'news@example.com';
 
-  await assert.rejects(
-    () =>
-      sendPostmarkNewsletterEmail({
-        to: ['a@example.com'],
-        subject: 'New post',
-        htmlBody: '<p>Hello</p>',
-        textBody: 'Hello',
-        client: {
-          async sendEmailBatch() {
-            return [
-              {
-                To: 'a@example.com',
-                ErrorCode: 406,
-                Message: 'Inactive recipient',
-                MessageID: '',
-                SubmittedAt: '2026-06-06T12:00:00.000Z',
-              },
-            ];
+  const result = await sendPostmarkNewsletterEmail({
+    to: ['a@example.com'],
+    subject: 'New post',
+    htmlBody: '<p>Hello</p>',
+    textBody: 'Hello',
+    client: {
+      async sendEmailBatch() {
+        return [
+          {
+            To: 'a@example.com',
+            ErrorCode: 406,
+            Message: 'Inactive recipient',
+            MessageID: '',
+            SubmittedAt: '2026-06-06T12:00:00.000Z',
           },
-        },
-      }),
-    /Postmark batch send failed/,
-  );
+        ];
+      },
+    },
+  });
+
+  assert.deepEqual(result.messageIds, []);
+  assert.equal(result.recipientCount, 1);
 });

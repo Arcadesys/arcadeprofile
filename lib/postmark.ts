@@ -128,14 +128,14 @@ export async function sendPostmarkNewsletterEmail(
       MessageStream: messageStream,
     }));
     const responses = (await client.sendEmailBatch(messages)) as PostmarkBatchResponse[];
-    const failed = responses.find((response) => (response.ErrorCode ?? 0) !== 0);
-    if (failed) {
-      throw new Error(
-        `Postmark batch send failed for ${failed.To ?? 'unknown recipient'}: ${failed.Message ?? `ErrorCode ${failed.ErrorCode}`}`,
-      );
-    }
     for (const response of responses) {
-      if (response.MessageID) messageIds.push(response.MessageID);
+      if ((response.ErrorCode ?? 0) === 0) {
+        if (response.MessageID) messageIds.push(response.MessageID);
+      } else {
+        console.error(
+          `Postmark batch send failed for ${response.To ?? 'unknown recipient'}: ${response.Message ?? `ErrorCode ${response.ErrorCode}`}`,
+        );
+      }
     }
   }
 
