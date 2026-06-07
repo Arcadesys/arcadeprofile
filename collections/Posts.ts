@@ -8,7 +8,6 @@ import { tagArrayField } from './fields/tags';
 import { ensurePreviewTokenHook } from './hooks/ensurePreviewToken';
 import { promoteScheduledDraftHook } from './hooks/promoteScheduledDraft';
 import { revalidatePathsFor } from './hooks/revalidate';
-import { syncAcCampaignHook } from './hooks/syncAcCampaign';
 import { validateScheduledPublishDateHook } from './hooks/validateScheduledPublishDate';
 import { isAuthenticated } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
@@ -58,16 +57,6 @@ export const Posts: CollectionConfig = {
     // (top-right, next to Save). Editors click it to open the preview URL
     // in a new tab — same URL surfaced in the sidebar field and list cell.
     preview: (doc) => buildPreviewUrl(doc.previewToken),
-    components: {
-      edit: {
-        // Custom Save button that warns before a save triggers AC newsletter
-        // fan-out. The afterChange hook below sends per-post campaigns to
-        // ActiveCampaign whenever publish_status flips public and the post
-        // hasn't already covered every audience; the confirm dialog gives
-        // editors a chance to back out or set suppressNewsletter first.
-        SaveButton: '@/components/admin/PostSaveButton#default',
-      },
-    },
   },
   hooks: {
     beforeChange: [
@@ -75,7 +64,7 @@ export const Posts: CollectionConfig = {
       promoteScheduledDraftHook,
       ensurePreviewTokenHook,
     ],
-    afterChange: [revalidatePostPaths, syncAcCampaignHook],
+    afterChange: [revalidatePostPaths],
   },
   fields: [
     {
@@ -114,45 +103,31 @@ export const Posts: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description:
-          'When true, the AC campaign sync is skipped entirely. Use for archival reposts or to override a stuck post.',
+          'When true, scheduled publishing will not send a per-post newsletter.',
       },
     },
     {
-      name: 'acCampaign',
+      name: 'newsletterSend',
       type: 'group',
       admin: {
         position: 'sidebar',
         description:
-          'Synced ActiveCampaign state. Read-only — written by the on-save sync hook.',
+          'Postmark newsletter delivery state. Read-only — written by the scheduled publish job.',
       },
       fields: [
         {
-          name: 'campaignId',
-          type: 'text',
-          admin: { readOnly: true, description: 'AC campaign id.' },
-        },
-        {
           name: 'messageId',
-          type: 'text',
-          admin: { readOnly: true, description: 'AC message id.' },
-        },
-        {
-          name: 'scheduledFor',
-          type: 'date',
-          admin: {
-            readOnly: true,
-            date: { pickerAppearance: 'dayAndTime' },
-            description: 'Send time persisted to AC (may be clamped to now).',
-          },
+          type: 'textarea',
+          admin: { readOnly: true, description: 'Comma-separated Postmark message ids.' },
         },
         {
           name: 'status',
           type: 'select',
           options: [
             { label: 'Pending', value: 'pending' },
-            { label: 'Scheduled', value: 'scheduled' },
             { label: 'Sent', value: 'sent' },
             { label: 'Failed', value: 'failed' },
+            { label: 'Skipped', value: 'skipped' },
           ],
           admin: { readOnly: true },
         },
@@ -161,7 +136,23 @@ export const Posts: CollectionConfig = {
           type: 'text',
           admin: {
             readOnly: true,
-            description: 'Comma-separated AC list ids attached to the campaign.',
+            description: 'Comma-separated ActiveCampaign list ids used to resolve recipients.',
+          },
+        },
+        {
+          name: 'recipientCount',
+          type: 'number',
+          admin: {
+            readOnly: true,
+            description: 'Number of deduplicated recipients resolved from ActiveCampaign.',
+          },
+        },
+        {
+          name: 'sentAt',
+          type: 'date',
+          admin: {
+            readOnly: true,
+            date: { pickerAppearance: 'dayAndTime' },
           },
         },
         {
@@ -178,7 +169,7 @@ export const Posts: CollectionConfig = {
           admin: {
             readOnly: true,
             description:
-              'Most recent AC sync error message. Cleared on successful sync.',
+              'Most recent newsletter delivery error. Cleared on successful send.',
           },
         },
       ],

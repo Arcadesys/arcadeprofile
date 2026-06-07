@@ -4,8 +4,8 @@ import { ValidationError } from 'payload';
 /**
  * Rejects saves where `scheduledPublishDate` is in the past on a post that is
  * being *scheduled*. This catches an editor queuing a post with a past time,
- * which the AC campaign sync would treat as "send now" with no chance to spot
- * the misclick.
+ * which the scheduled publish job would otherwise publish and email on its
+ * next run with no chance to spot the misclick.
  *
  * Only the `scheduled` status is guarded. Drafts pass through so editors can
  * stage a post and fill in the date later. `published` and `sent` are terminal

@@ -5,12 +5,19 @@ import { loadLiveQueueIds } from '@/lib/hopper/loadQueue';
 import { loadPublishedTodayTakenDates } from '@/lib/hopper/publishedToday';
 import { syncQueueToPosts } from '@/lib/hopper/syncSchedule';
 import { logger } from '@/lib/logger';
+import {
+  deliverPostNewsletter,
+  type NewsletterDeliveryOutcome,
+  type NewsletterSendState,
+} from '@/lib/post-newsletter-delivery';
 
 export type PublishResult = {
   id: number;
   slug: string;
   status: 'published' | 'failed';
   error?: string;
+  newsletter?: 'sent' | 'failed' | 'skipped';
+  newsletterError?: string;
 };
 
 export type StuckPost = {
@@ -39,16 +46,52 @@ const STUCK_GRACE_MS = 60 * 60 * 1000;
 // Subset of the Payload local API we use. Typed via Pick so the route can
 // pass a real Payload instance and tests can pass a structural mock.
 // findGlobal is used by the queue-sync self-heal step before the publish loop.
-export type PayloadLike = Pick<Payload, 'find' | 'update' | 'findGlobal'>;
+export type PayloadLike = Pick<Payload, 'find' | 'findByID' | 'update' | 'findGlobal'>;
 
 type Options = {
   now?: Date;
   perRunLimit?: number | null;
+  deliverNewsletter?: typeof deliverPostNewsletter;
 };
+
+function getNewsletterError(outcome: NewsletterDeliveryOutcome): string | undefined {
+  return outcome.kind === 'failed' ? (outcome.state.lastError ?? 'Newsletter send failed') : undefined;
+}
+
+async function persistNewsletterOutcome(
+  payload: PayloadLike,
+  post: { id: number; slug: string },
+  outcome: NewsletterDeliveryOutcome,
+): Promise<Pick<PublishResult, 'newsletter' | 'newsletterError'>> {
+  if (outcome.kind === 'skipped' && outcome.reason === 'already-sent') {
+    return { newsletter: 'skipped' };
+  }
+
+  const newsletterSend = outcome.state as NewsletterSendState;
+  await payload.update({
+    collection: 'posts',
+    id: post.id,
+    data: {
+      ...(outcome.kind === 'sent' ? { publish_status: 'sent' } : {}),
+      newsletterSend,
+    },
+    depth: 0,
+    overrideAccess: true,
+  });
+
+  if (outcome.kind === 'sent') return { newsletter: 'sent' };
+  if (outcome.kind === 'failed') {
+    return {
+      newsletter: 'failed',
+      newsletterError: getNewsletterError(outcome),
+    };
+  }
+  return { newsletter: 'skipped' };
+}
 
 export async function publishScheduledPosts(
   payload: PayloadLike,
-  { now = new Date(), perRunLimit = null }: Options = {},
+  { now = new Date(), perRunLimit = null, deliverNewsletter = deliverPostNewsletter }: Options = {},
 ): Promise<PublishScheduledResponse> {
   const nowIso = now.toISOString();
 
@@ -113,13 +156,56 @@ export async function publishScheduledPosts(
         overrideAccess: true,
       });
 
-      results.push({ id: post.id, slug: post.slug, status: 'published' });
+      const newsletterOutcome = await deliverNewsletter(payload, post.id);
+      const newsletterResult = await persistNewsletterOutcome(payload, post, newsletterOutcome);
+
+      results.push({
+        id: post.id,
+        slug: post.slug,
+        status: 'published',
+        ...newsletterResult,
+      });
     } catch (error) {
       results.push({
         id: post.id,
         slug: post.slug,
         status: 'failed',
         error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
+
+  const retryResult = await payload.find({
+    collection: 'posts',
+    depth: 0,
+    pagination: false,
+    where: {
+      and: [
+        { scheduledPublishDate: { less_than_equal: nowIso } },
+        { publish_status: { equals: 'published' } },
+        { suppressNewsletter: { not_equals: true } },
+        { 'newsletterSend.status': { equals: 'failed' } },
+      ],
+    },
+  });
+
+  for (const post of retryResult.docs) {
+    try {
+      const newsletterOutcome = await deliverNewsletter(payload, post.id);
+      const newsletterResult = await persistNewsletterOutcome(payload, post, newsletterOutcome);
+      results.push({
+        id: post.id,
+        slug: post.slug,
+        status: 'published',
+        ...newsletterResult,
+      });
+    } catch (error) {
+      results.push({
+        id: post.id,
+        slug: post.slug,
+        status: 'published',
+        newsletter: 'failed',
+        newsletterError: error instanceof Error ? error.message : 'Unknown newsletter error',
       });
     }
   }
@@ -160,7 +246,7 @@ export async function publishScheduledPosts(
 
   // With `pagination: false`, totalDocs may not be populated by every DB
   // adapter, so fall back to docs.length.
-  const dueTotal = dueResult.totalDocs ?? duePosts.length;
+  const dueTotal = (dueResult.totalDocs ?? duePosts.length) + (retryResult.totalDocs ?? retryResult.docs.length);
   const stuckTotal = stuckResult.totalDocs ?? stuckResult.docs.length;
 
   return {

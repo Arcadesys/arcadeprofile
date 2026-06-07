@@ -24,7 +24,6 @@ import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { default as default_09ffd553d32d6c545b5821b7dcd0c0f1 } from '@/components/admin/PreviewUrlField'
 import { default as default_78ea7c1387d7b4e03dd8a5da1891f3f4 } from '@/components/admin/PreviewUrlCell'
-import { default as default_9221ff56f1af20c53e858b58b55b6ccf } from '@/components/admin/PostSaveButton'
 import { default as default_66b265d76d5373746145a85a49d90e0f } from '@/components/admin/ArrangeScenesLink'
 import { default as default_37ae607ad1e92e6621ed38bc1a1cc71f } from '../../../views/hopper/HopperNavLink'
 import { default as default_9151a28540ac27b39869e43714a859e0 } from '../../../views/calendar/CalendarNavLink'
@@ -62,7 +61,6 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/components/admin/PreviewUrlField#default": default_09ffd553d32d6c545b5821b7dcd0c0f1,
   "@/components/admin/PreviewUrlCell#default": default_78ea7c1387d7b4e03dd8a5da1891f3f4,
-  "@/components/admin/PostSaveButton#default": default_9221ff56f1af20c53e858b58b55b6ccf,
   "@/components/admin/ArrangeScenesLink#default": default_66b265d76d5373746145a85a49d90e0f,
   "/views/hopper/HopperNavLink#default": default_37ae607ad1e92e6621ed38bc1a1cc71f,
   "/views/calendar/CalendarNavLink#default": default_9151a28540ac27b39869e43714a859e0,
