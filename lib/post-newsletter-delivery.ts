@@ -107,10 +107,13 @@ export async function deliverPostNewsletter(
   try {
     let groupCategory: string | null = null;
     if (post.group) {
-      if (typeof post.group === 'object') {
-        groupCategory = (post.group.category as string | undefined) ?? null;
-      } else if (typeof post.group === 'string') {
-        groupCategory = await resolveGroupCategory(payload, post.group.trim());
+      // At depth:1 Payload populates group as an object at runtime, but the
+      // generated type only knows string | null — cast through unknown to access it.
+      const rawGroup = post.group as unknown;
+      if (typeof rawGroup === 'object' && rawGroup !== null) {
+        groupCategory = ((rawGroup as Record<string, unknown>).category as string | undefined) ?? null;
+      } else if (typeof rawGroup === 'string') {
+        groupCategory = await resolveGroupCategory(payload, rawGroup.trim());
       }
     }
     const listIds = resolveAudienceListIds(groupCategory);
