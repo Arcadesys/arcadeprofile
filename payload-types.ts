@@ -192,33 +192,30 @@ export interface Post {
    */
   publishedDate: string;
   /**
-   * When true, the AC campaign sync is skipped entirely. Use for archival reposts or to override a stuck post.
+   * When true, scheduled publishing will not send a per-post newsletter.
    */
   suppressNewsletter?: boolean | null;
   /**
-   * Synced ActiveCampaign state. Read-only — written by the on-save sync hook.
+   * Postmark newsletter delivery state. Read-only — written by the scheduled publish job.
    */
-  acCampaign?: {
+  newsletterSend?: {
     /**
-     * AC campaign id.
-     */
-    campaignId?: string | null;
-    /**
-     * AC message id.
+     * Comma-separated Postmark message ids.
      */
     messageId?: string | null;
+    status?: ('pending' | 'sent' | 'failed' | 'skipped') | null;
     /**
-     * Send time persisted to AC (may be clamped to now).
-     */
-    scheduledFor?: string | null;
-    status?: ('pending' | 'scheduled' | 'sent' | 'failed') | null;
-    /**
-     * Comma-separated AC list ids attached to the campaign.
+     * Comma-separated ActiveCampaign list ids used to resolve recipients.
      */
     targetedLists?: string | null;
+    /**
+     * Number of deduplicated recipients resolved from ActiveCampaign.
+     */
+    recipientCount?: number | null;
+    sentAt?: string | null;
     lastSyncedAt?: string | null;
     /**
-     * Most recent AC sync error message. Cleared on successful sync.
+     * Most recent newsletter delivery error. Cleared on successful send.
      */
     lastError?: string | null;
   };
@@ -919,14 +916,14 @@ export interface PostsSelect<T extends boolean = true> {
   content?: T;
   publishedDate?: T;
   suppressNewsletter?: T;
-  acCampaign?:
+  newsletterSend?:
     | T
     | {
-        campaignId?: T;
         messageId?: T;
-        scheduledFor?: T;
         status?: T;
         targetedLists?: T;
+        recipientCount?: T;
+        sentAt?: T;
         lastSyncedAt?: T;
         lastError?: T;
       };

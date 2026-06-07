@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { promoteScheduledDraftHook } from '../collections/hooks/promoteScheduledDraft';
+import type { NewsletterDeliveryOutcome } from './post-newsletter-delivery';
 import { publishScheduledPosts, type PayloadLike } from './publishScheduled';
 
 test('promoteScheduledDraftHook flips draft to scheduled when a date is set', () => {
@@ -34,6 +35,7 @@ type PostDoc = Record<string, unknown> & { id: number };
 
 function makePayload(opts: {
   due?: PostDoc[];
+  retry?: PostDoc[];
   stuck?: PostDoc[];
   updateError?: (id: number) => Error | undefined;
 }) {
@@ -42,6 +44,7 @@ function makePayload(opts: {
   let findIndex = 0;
   const findResults = [
     { docs: opts.due ?? [], totalDocs: (opts.due ?? []).length },
+    { docs: opts.retry ?? [], totalDocs: (opts.retry ?? []).length },
     { docs: opts.stuck ?? [], totalDocs: (opts.stuck ?? []).length },
   ];
 
@@ -56,12 +59,32 @@ function makePayload(opts: {
       if (err) throw err;
       return { id: args.id };
     },
+    async findByID(args: { id: number }) {
+      return [...(opts.due ?? []), ...(opts.retry ?? []), ...(opts.stuck ?? [])].find(
+        (post) => post.id === args.id,
+      );
+    },
   };
 
   return {
     findCalls,
     updateCalls,
     payload: mock as unknown as PayloadLike,
+  };
+}
+
+function sentNewsletter(): NewsletterDeliveryOutcome {
+  return {
+    kind: 'sent',
+    state: {
+      status: 'sent',
+      messageId: 'pm-1',
+      targetedLists: '7,9',
+      recipientCount: 1,
+      sentAt: '2026-05-04T14:00:00.000Z',
+      lastSyncedAt: '2026-05-04T14:00:00.000Z',
+      lastError: null,
+    },
   };
 }
 
@@ -73,18 +96,23 @@ test('publishScheduledPosts publishes due posts and reports zero stuck on a clea
   const { payload, updateCalls, findCalls } = makePayload({ due });
   const now = new Date('2026-05-04T14:00:00.000Z');
 
-  const result = await publishScheduledPosts(payload, { now });
+  const result = await publishScheduledPosts(payload, {
+    now,
+    deliverNewsletter: async () => sentNewsletter(),
+  });
 
   assert.equal(result.due, 2);
   assert.equal(result.processed, 2);
   assert.equal(result.failed, 0);
   assert.equal(result.stuck, 0);
   assert.deepEqual(result.stuckPosts, []);
-  assert.equal(updateCalls.length, 2);
+  assert.equal(updateCalls.length, 4);
   assert.equal(updateCalls[0].data.publish_status, 'published');
   assert.equal(updateCalls[0].data.publishedDate, '2026-05-04T12:00:00.000Z');
-  // Both find calls (due + stuck) issued.
-  assert.equal(findCalls.length, 2);
+  assert.equal(updateCalls[1].data.publish_status, 'sent');
+  assert.deepEqual(updateCalls[1].data.newsletterSend, sentNewsletter().state);
+  // Due, retry, and stuck find calls issued.
+  assert.equal(findCalls.length, 3);
 });
 
 test('publishScheduledPosts surfaces stuck posts past the grace window', async () => {
@@ -99,7 +127,10 @@ test('publishScheduledPosts surfaces stuck posts past the grace window', async (
   const { payload } = makePayload({ stuck });
   const now = new Date('2026-05-04T14:00:00.000Z');
 
-  const result = await publishScheduledPosts(payload, { now });
+  const result = await publishScheduledPosts(payload, {
+    now,
+    deliverNewsletter: async () => sentNewsletter(),
+  });
 
   assert.equal(result.stuck, 1);
   assert.equal(result.stuckPosts.length, 1);
@@ -117,12 +148,16 @@ test('publishScheduledPosts self-heals: publishes draft posts whose scheduled da
   const { payload, updateCalls } = makePayload({ due });
   const now = new Date('2026-05-04T14:00:00.000Z');
 
-  const result = await publishScheduledPosts(payload, { now });
+  const result = await publishScheduledPosts(payload, {
+    now,
+    deliverNewsletter: async () => sentNewsletter(),
+  });
 
   assert.equal(result.processed, 1);
   assert.equal(result.failed, 0);
-  assert.equal(updateCalls.length, 1);
+  assert.equal(updateCalls.length, 2);
   assert.equal(updateCalls[0].data.publish_status, 'published');
+  assert.equal(updateCalls[1].data.publish_status, 'sent');
 });
 
 test('publishScheduledPosts uses now() as fallback publishedDate when scheduledPublishDate is absent', async () => {
@@ -130,7 +165,10 @@ test('publishScheduledPosts uses now() as fallback publishedDate when scheduledP
   const { payload, updateCalls } = makePayload({ due });
   const now = new Date('2026-05-04T14:00:00.000Z');
 
-  await publishScheduledPosts(payload, { now });
+  await publishScheduledPosts(payload, {
+    now,
+    deliverNewsletter: async () => sentNewsletter(),
+  });
 
   assert.equal(updateCalls[0].data.publishedDate, now.toISOString());
 });
@@ -146,10 +184,94 @@ test('publishScheduledPosts records failed updates without aborting the batch', 
   });
   const now = new Date('2026-05-04T14:00:00.000Z');
 
-  const result = await publishScheduledPosts(payload, { now });
+  const result = await publishScheduledPosts(payload, {
+    now,
+    deliverNewsletter: async () => sentNewsletter(),
+  });
 
   assert.equal(result.processed, 1);
   assert.equal(result.failed, 1);
   const failed = result.results.find((r) => r.status === 'failed');
   assert.equal(failed?.error, 'boom');
+});
+
+test('publishScheduledPosts records skipped newsletter state for suppressed posts', async () => {
+  const due = [
+    { id: 1, slug: 'a', publish_status: 'scheduled', scheduledPublishDate: '2026-05-04T12:00:00.000Z' },
+  ];
+  const { payload, updateCalls } = makePayload({ due });
+  const now = new Date('2026-05-04T14:00:00.000Z');
+
+  const result = await publishScheduledPosts(payload, {
+    now,
+    deliverNewsletter: async () => ({
+      kind: 'skipped',
+      reason: 'suppressNewsletter',
+      state: {
+        status: 'skipped',
+        lastSyncedAt: now.toISOString(),
+        lastError: null,
+      },
+    }),
+  });
+
+  assert.equal(result.results[0].newsletter, 'skipped');
+  assert.equal(updateCalls[1].data.publish_status, undefined);
+  assert.deepEqual(updateCalls[1].data.newsletterSend, {
+    status: 'skipped',
+    lastSyncedAt: now.toISOString(),
+    lastError: null,
+  });
+});
+
+test('publishScheduledPosts leaves post published when newsletter send fails', async () => {
+  const due = [
+    { id: 1, slug: 'a', publish_status: 'scheduled', scheduledPublishDate: '2026-05-04T12:00:00.000Z' },
+  ];
+  const { payload, updateCalls } = makePayload({ due });
+  const now = new Date('2026-05-04T14:00:00.000Z');
+
+  const result = await publishScheduledPosts(payload, {
+    now,
+    deliverNewsletter: async () => ({
+      kind: 'failed',
+      state: {
+        status: 'failed',
+        lastSyncedAt: now.toISOString(),
+        lastError: 'Postmark down',
+      },
+      error: new Error('Postmark down'),
+    }),
+  });
+
+  assert.equal(result.processed, 1);
+  assert.equal(result.failed, 0);
+  assert.equal(result.results[0].newsletter, 'failed');
+  assert.equal(result.results[0].newsletterError, 'Postmark down');
+  assert.equal(updateCalls[0].data.publish_status, 'published');
+  assert.equal(updateCalls[1].data.publish_status, undefined);
+  assert.deepEqual(updateCalls[1].data.newsletterSend, {
+    status: 'failed',
+    lastSyncedAt: now.toISOString(),
+    lastError: 'Postmark down',
+  });
+});
+
+test('publishScheduledPosts retries failed newsletter sends for already-published posts', async () => {
+  const retry = [
+    { id: 9, slug: 'retry-me', publish_status: 'published', scheduledPublishDate: '2026-05-04T12:00:00.000Z' },
+  ];
+  const { payload, updateCalls } = makePayload({ retry });
+  const now = new Date('2026-05-04T14:00:00.000Z');
+
+  const result = await publishScheduledPosts(payload, {
+    now,
+    deliverNewsletter: async () => sentNewsletter(),
+  });
+
+  assert.equal(result.processed, 1);
+  assert.equal(result.results[0].id, 9);
+  assert.equal(result.results[0].newsletter, 'sent');
+  assert.equal(updateCalls.length, 1);
+  assert.equal(updateCalls[0].data.publish_status, 'sent');
 });

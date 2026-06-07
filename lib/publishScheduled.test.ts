@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import type { Post } from '@/payload-types';
+import type { NewsletterDeliveryOutcome } from './post-newsletter-delivery';
 import { publishScheduledPosts, type PayloadLike } from './publishScheduled';
 
 // Minimal in-memory Payload-like fixture covering the queries publishScheduledPosts
@@ -18,6 +19,8 @@ interface FixturePost {
   publishedDate: string | null;
   group: string | null;
   order: number | null;
+  suppressNewsletter?: boolean | null;
+  newsletterSend?: { status?: string | null } | null;
 }
 
 function buildFixture(initial: FixturePost[], queue: { fictionIds: number[]; essaysIds: number[] }) {
@@ -57,6 +60,22 @@ function buildFixture(initial: FixturePost[], queue: { fictionIds: number[]; ess
         if (status?.in) {
           const vs = new Set(status.in);
           docs = docs.filter((p) => p.publish_status != null && vs.has(p.publish_status));
+          continue;
+        }
+        if (typeof status?.equals === 'string') {
+          docs = docs.filter((p) => p.publish_status === status.equals);
+          continue;
+        }
+        const suppress = (clause as { suppressNewsletter?: { not_equals?: boolean } }).suppressNewsletter;
+        if (typeof suppress?.not_equals === 'boolean') {
+          docs = docs.filter((p) => p.suppressNewsletter !== suppress.not_equals);
+          continue;
+        }
+        const newsletterStatus = (clause as { 'newsletterSend.status'?: { equals?: string } })[
+          'newsletterSend.status'
+        ];
+        if (typeof newsletterStatus?.equals === 'string') {
+          docs = docs.filter((p) => p.newsletterSend?.status === newsletterStatus.equals);
           continue;
         }
         // publishedDate: { greater_than_equal: iso }
@@ -113,12 +132,30 @@ function buildFixture(initial: FixturePost[], queue: { fictionIds: number[]; ess
       if ('publish_status' in data) merged.publish_status = data.publish_status as FixturePost['publish_status'];
       if ('scheduledPublishDate' in data) merged.scheduledPublishDate = (data.scheduledPublishDate as string) ?? null;
       if ('publishedDate' in data) merged.publishedDate = (data.publishedDate as string) ?? null;
+      if ('newsletterSend' in data) {
+        merged.newsletterSend = data.newsletterSend as FixturePost['newsletterSend'];
+      }
       store.set(numId, merged);
       return merged as unknown;
     },
   };
 
   return { payload: payload as unknown as PayloadLike, store, updates };
+}
+
+function sentNewsletter(): NewsletterDeliveryOutcome {
+  return {
+    kind: 'sent',
+    state: {
+      status: 'sent',
+      messageId: 'pm-1',
+      targetedLists: '7,10',
+      recipientCount: 1,
+      sentAt: '2026-05-14T16:00:00.000Z',
+      lastSyncedAt: '2026-05-14T16:00:00.000Z',
+      lastError: null,
+    },
+  };
 }
 
 test('publishScheduledPosts self-heals a queue-#1 essay with a stale stored date', async () => {
@@ -143,20 +180,25 @@ test('publishScheduledPosts self-heals a queue-#1 essay with a stale stored date
 
   const fx = buildFixture(initial, { fictionIds: [], essaysIds: [101] });
 
-  const summary = await publishScheduledPosts(fx.payload, { now });
+  const summary = await publishScheduledPosts(fx.payload, {
+    now,
+    deliverNewsletter: async () => sentNewsletter(),
+  });
 
   assert.equal(summary.processed, 1, 'one post should publish in a single run');
   assert.equal(summary.failed, 0);
   const promoted = fx.store.get(101)!;
-  assert.equal(promoted.publish_status, 'published');
+  assert.equal(promoted.publish_status, 'sent');
   assert.ok(promoted.publishedDate, 'publishedDate should be set');
 
-  // Two writes: first the sync rewrites scheduledPublishDate to today, then
-  // the publish loop flips publish_status.
+  // Three writes: sync rewrites scheduledPublishDate, publish flips public,
+  // then newsletter delivery marks the row sent.
   const syncWrites = fx.updates.filter((u) => 'scheduledPublishDate' in u.data);
   const publishWrites = fx.updates.filter((u) => u.data.publish_status === 'published');
+  const newsletterWrites = fx.updates.filter((u) => u.data.publish_status === 'sent');
   assert.equal(syncWrites.length, 1);
   assert.equal(publishWrites.length, 1);
+  assert.equal(newsletterWrites.length, 1);
   assert.equal(String(syncWrites[0]!.data.scheduledPublishDate).slice(0, 10), '2026-05-14');
 });
 
@@ -179,7 +221,10 @@ test('publishScheduledPosts no-ops sync when stored date already matches queue s
   ];
 
   const fx = buildFixture(initial, { fictionIds: [], essaysIds: [102] });
-  const summary = await publishScheduledPosts(fx.payload, { now });
+  const summary = await publishScheduledPosts(fx.payload, {
+    now,
+    deliverNewsletter: async () => sentNewsletter(),
+  });
 
   assert.equal(summary.processed, 1);
   const syncWrites = fx.updates.filter(
@@ -210,8 +255,11 @@ test('publishScheduledPosts tolerates findGlobal failure and still publishes due
     throw new Error('queue read failed');
   };
 
-  const summary = await publishScheduledPosts(fx.payload, { now });
+  const summary = await publishScheduledPosts(fx.payload, {
+    now,
+    deliverNewsletter: async () => sentNewsletter(),
+  });
 
   assert.equal(summary.processed, 1, 'publish loop must run even when sync throws');
-  assert.equal(fx.store.get(103)!.publish_status, 'published');
+  assert.equal(fx.store.get(103)!.publish_status, 'sent');
 });

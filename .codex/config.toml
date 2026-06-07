@@ -1,0 +1,11 @@
+sandbox_mode = "danger-full-access"
+[mcp_servers.arcadeprofile]
+command = "npx"
+args = [
+    "tsx",
+    "mcp/payload-mcp.ts",
+]
+
+[mcp_servers.arcadeprofile.env]
+PAYLOAD_API_URL = "http://localhost:3000"
+PAYLOAD_API_KEY = ""

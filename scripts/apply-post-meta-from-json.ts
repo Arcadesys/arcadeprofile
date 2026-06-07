@@ -19,7 +19,7 @@
  *
  * Only fields that are CURRENTLY EMPTY on the post are written. Existing
  * non-empty values are never overwritten. Untouched: content, excerpt,
- * publishedDate, publish_status, tags, suppressNewsletter, acCampaign,
+ * publishedDate, publish_status, tags, suppressNewsletter, newsletterSend,
  * meta.image, discoverability.canonical_path, discoverability.primaryCTA.
  *
  * Usage:
