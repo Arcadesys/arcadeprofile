@@ -42,6 +42,7 @@ export type PublishScheduledResponse = {
 // Actions schedules can lag 10+ minutes) and the time it takes a single run
 // to flip its due posts.
 const STUCK_GRACE_MS = 60 * 60 * 1000;
+const PENDING_NEWSLETTER_RETRY_GRACE_MS = 15 * 60 * 1000;
 
 // Subset of the Payload local API we use. Typed via Pick so the route can
 // pass a real Payload instance and tests can pass a structural mock.
@@ -87,6 +88,14 @@ async function persistNewsletterOutcome(
     };
   }
   return { newsletter: 'skipped' };
+}
+
+function pendingNewsletterState(nowIso: string): NewsletterSendState {
+  return {
+    status: 'pending',
+    lastSyncedAt: nowIso,
+    lastError: null,
+  };
 }
 
 export async function publishScheduledPosts(
@@ -151,6 +160,7 @@ export async function publishScheduledPosts(
         data: {
           publish_status: 'published',
           publishedDate: post.scheduledPublishDate || nowIso,
+          newsletterSend: pendingNewsletterState(nowIso),
         },
         depth: 0,
         overrideAccess: true,
@@ -175,6 +185,7 @@ export async function publishScheduledPosts(
     }
   }
 
+  const pendingRetryBefore = new Date(now.getTime() - PENDING_NEWSLETTER_RETRY_GRACE_MS).toISOString();
   const retryResult = await payload.find({
     collection: 'posts',
     depth: 0,
@@ -183,7 +194,18 @@ export async function publishScheduledPosts(
       and: [
         { scheduledPublishDate: { less_than_equal: nowIso } },
         { publish_status: { equals: 'published' } },
-        { 'newsletterSend.status': { equals: 'failed' } },
+        {
+          or: [
+            { 'newsletterSend.status': { equals: 'failed' } },
+            {
+              and: [
+                { 'newsletterSend.status': { equals: 'pending' } },
+                { 'newsletterSend.lastSyncedAt': { less_than: pendingRetryBefore } },
+              ],
+            },
+            { 'newsletterSend.status': { equals: null } },
+          ],
+        },
       ],
     },
   });

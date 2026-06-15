@@ -20,7 +20,7 @@ interface FixturePost {
   group: string | null;
   order: number | null;
   suppressNewsletter?: boolean | null;
-  newsletterSend?: { status?: string | null } | null;
+  newsletterSend?: { status?: string | null; lastSyncedAt?: string | null } | null;
 }
 
 function buildFixture(initial: FixturePost[], queue: { fictionIds: number[]; essaysIds: number[] }) {
@@ -107,6 +107,29 @@ function buildFixture(initial: FixturePost[], queue: { fictionIds: number[]; ess
         if (or) {
           docs = docs.filter((p) => {
             for (const sub of or) {
+              const subAnd = (sub as { and?: Array<Record<string, unknown>> }).and;
+              if (subAnd) {
+                let matches = true;
+                for (const subClause of subAnd) {
+                  const ns = (subClause as { 'newsletterSend.status'?: { equals?: string | null } })[
+                    'newsletterSend.status'
+                  ];
+                  if (typeof ns?.equals === 'string' && p.newsletterSend?.status !== ns.equals) {
+                    matches = false;
+                  }
+                  const syncedAt = (subClause as { 'newsletterSend.lastSyncedAt'?: { less_than?: string } })[
+                    'newsletterSend.lastSyncedAt'
+                  ];
+                  if (
+                    syncedAt?.less_than &&
+                    (typeof p.newsletterSend?.lastSyncedAt !== 'string' ||
+                      p.newsletterSend.lastSyncedAt >= syncedAt.less_than)
+                  ) {
+                    matches = false;
+                  }
+                }
+                if (matches) return true;
+              }
               const s = (sub as { publish_status?: { equals?: string | null; not_in?: string[] } })
                 .publish_status;
               if (s?.equals === null && p.publish_status == null) return true;
@@ -114,6 +137,11 @@ function buildFixture(initial: FixturePost[], queue: { fictionIds: number[]; ess
               if (s?.not_in) {
                 if (p.publish_status != null && !s.not_in.includes(p.publish_status)) return true;
               }
+              const ns = (sub as { 'newsletterSend.status'?: { equals?: string | null } })[
+                'newsletterSend.status'
+              ];
+              if (ns?.equals === null && (p.newsletterSend?.status == null)) return true;
+              if (typeof ns?.equals === 'string' && p.newsletterSend?.status === ns.equals) return true;
             }
             return false;
           });
@@ -191,13 +219,17 @@ test('publishScheduledPosts self-heals a queue-#1 essay with a stale stored date
   assert.equal(promoted.publish_status, 'sent');
   assert.ok(promoted.publishedDate, 'publishedDate should be set');
 
-  // Three writes: sync rewrites scheduledPublishDate, publish flips public,
-  // then newsletter delivery marks the row sent.
+  // Three writes: sync rewrites scheduledPublishDate, publish flips public
+  // and marks delivery pending, then delivery marks the row sent.
   const syncWrites = fx.updates.filter((u) => 'scheduledPublishDate' in u.data);
   const publishWrites = fx.updates.filter((u) => u.data.publish_status === 'published');
+  const pendingWrites = fx.updates.filter(
+    (u) => (u.data.newsletterSend as { status?: string } | undefined)?.status === 'pending',
+  );
   const newsletterWrites = fx.updates.filter((u) => u.data.publish_status === 'sent');
   assert.equal(syncWrites.length, 1);
   assert.equal(publishWrites.length, 1);
+  assert.equal(pendingWrites.length, 1);
   assert.equal(newsletterWrites.length, 1);
   assert.equal(String(syncWrites[0]!.data.scheduledPublishDate).slice(0, 10), '2026-05-14');
 });
@@ -262,4 +294,98 @@ test('publishScheduledPosts tolerates findGlobal failure and still publishes due
 
   assert.equal(summary.processed, 1, 'publish loop must run even when sync throws');
   assert.equal(fx.store.get(103)!.publish_status, 'sent');
+});
+
+test('publishScheduledPosts retries published posts with missing newsletter state', async () => {
+  const now = new Date(Date.UTC(2026, 4, 14, 16, 0, 0));
+  const initial: FixturePost[] = [
+    {
+      id: 104,
+      slug: 'timeout-left-no-state',
+      title: 'Timeout Left No State',
+      publish_status: 'published',
+      scheduledPublishDate: '2026-05-14',
+      publishedDate: '2026-05-14',
+      group: null,
+      order: null,
+      newsletterSend: null,
+    },
+  ];
+
+  const fx = buildFixture(initial, { fictionIds: [], essaysIds: [] });
+  let deliveries = 0;
+  const summary = await publishScheduledPosts(fx.payload, {
+    now,
+    deliverNewsletter: async () => {
+      deliveries += 1;
+      return sentNewsletter();
+    },
+  });
+
+  assert.equal(deliveries, 1);
+  assert.equal(summary.processed, 1);
+  assert.equal(summary.due, 1);
+  assert.equal(fx.store.get(104)!.publish_status, 'sent');
+});
+
+test('publishScheduledPosts retries stale published posts with pending newsletter state', async () => {
+  const now = new Date(Date.UTC(2026, 4, 14, 16, 0, 0));
+  const initial: FixturePost[] = [
+    {
+      id: 105,
+      slug: 'timeout-left-pending',
+      title: 'Timeout Left Pending',
+      publish_status: 'published',
+      scheduledPublishDate: '2026-05-14',
+      publishedDate: '2026-05-14',
+      group: null,
+      order: null,
+      newsletterSend: { status: 'pending', lastSyncedAt: '2026-05-14T15:44:59.000Z' },
+    },
+  ];
+
+  const fx = buildFixture(initial, { fictionIds: [], essaysIds: [] });
+  let deliveries = 0;
+  const summary = await publishScheduledPosts(fx.payload, {
+    now,
+    deliverNewsletter: async () => {
+      deliveries += 1;
+      return sentNewsletter();
+    },
+  });
+
+  assert.equal(deliveries, 1);
+  assert.equal(summary.processed, 1);
+  assert.equal(fx.store.get(105)!.publish_status, 'sent');
+});
+
+test('publishScheduledPosts does not retry fresh pending newsletter state', async () => {
+  const now = new Date(Date.UTC(2026, 4, 14, 16, 0, 0));
+  const initial: FixturePost[] = [
+    {
+      id: 106,
+      slug: 'fresh-pending',
+      title: 'Fresh Pending',
+      publish_status: 'published',
+      scheduledPublishDate: '2026-05-14',
+      publishedDate: '2026-05-14',
+      group: null,
+      order: null,
+      newsletterSend: { status: 'pending', lastSyncedAt: '2026-05-14T15:50:00.000Z' },
+    },
+  ];
+
+  const fx = buildFixture(initial, { fictionIds: [], essaysIds: [] });
+  let deliveries = 0;
+  const summary = await publishScheduledPosts(fx.payload, {
+    now,
+    deliverNewsletter: async () => {
+      deliveries += 1;
+      return sentNewsletter();
+    },
+  });
+
+  assert.equal(deliveries, 0);
+  assert.equal(summary.processed, 0);
+  assert.equal(fx.store.get(106)!.publish_status, 'published');
 });

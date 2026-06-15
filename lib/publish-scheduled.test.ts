@@ -109,6 +109,11 @@ test('publishScheduledPosts publishes due posts and reports zero stuck on a clea
   assert.equal(updateCalls.length, 4);
   assert.equal(updateCalls[0].data.publish_status, 'published');
   assert.equal(updateCalls[0].data.publishedDate, '2026-05-04T12:00:00.000Z');
+  assert.deepEqual(updateCalls[0].data.newsletterSend, {
+    status: 'pending',
+    lastSyncedAt: now.toISOString(),
+    lastError: null,
+  });
   assert.equal(updateCalls[1].data.publish_status, 'sent');
   assert.deepEqual(updateCalls[1].data.newsletterSend, sentNewsletter().state);
   // Due, retry, and stuck find calls issued.
@@ -157,6 +162,11 @@ test('publishScheduledPosts self-heals: publishes draft posts whose scheduled da
   assert.equal(result.failed, 0);
   assert.equal(updateCalls.length, 2);
   assert.equal(updateCalls[0].data.publish_status, 'published');
+  assert.deepEqual(updateCalls[0].data.newsletterSend, {
+    status: 'pending',
+    lastSyncedAt: now.toISOString(),
+    lastError: null,
+  });
   assert.equal(updateCalls[1].data.publish_status, 'sent');
 });
 
@@ -216,6 +226,11 @@ test('publishScheduledPosts records skipped newsletter state for suppressed post
   });
 
   assert.equal(result.results[0].newsletter, 'skipped');
+  assert.deepEqual(updateCalls[0].data.newsletterSend, {
+    status: 'pending',
+    lastSyncedAt: now.toISOString(),
+    lastError: null,
+  });
   assert.equal(updateCalls[1].data.publish_status, undefined);
   assert.deepEqual(updateCalls[1].data.newsletterSend, {
     status: 'skipped',
@@ -249,6 +264,11 @@ test('publishScheduledPosts leaves post published when newsletter send fails', a
   assert.equal(result.results[0].newsletter, 'failed');
   assert.equal(result.results[0].newsletterError, 'Postmark down');
   assert.equal(updateCalls[0].data.publish_status, 'published');
+  assert.deepEqual(updateCalls[0].data.newsletterSend, {
+    status: 'pending',
+    lastSyncedAt: now.toISOString(),
+    lastError: null,
+  });
   assert.equal(updateCalls[1].data.publish_status, undefined);
   assert.deepEqual(updateCalls[1].data.newsletterSend, {
     status: 'failed',

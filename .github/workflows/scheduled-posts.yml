@@ -5,10 +5,8 @@ on:
     # under load, so a 9:00 AM post may actually publish a few minutes late —
     # but it will publish the same hour rather than waiting until the next day.
     #
-    # Sole purpose of this job: flip due posts from `scheduled` to `published`
-    # so they appear in the public RSS feed. Email delivery happens
-    # synchronously in the Posts `afterChange` hook the moment publish_status
-    # flips — this job does not talk to AC directly.
+    # Flip due posts from `scheduled` to public, then send the daily post email
+    # through Postmark. ActiveCampaign is used only as the contact/list source.
     - cron: '*/15 * * * *'
   workflow_dispatch:        # adds a manual "Run workflow" button.
 
@@ -87,10 +85,8 @@ jobs:
           fi
 
           # Surface counts at the top of the log so they're visible without
-          # expanding the response section. Email delivery is handled by an
-          # ActiveCampaign RSS-triggered campaign that polls the public feed —
-          # this job's only responsibility is flipping due posts from
-          # scheduled to published so they appear in the feed.
+          # expanding the response section. The response body also includes
+          # per-post newsletter status when a due or retryable post is found.
           if command -v jq >/dev/null 2>&1 && jq -e . "${BODY_FILE}" >/dev/null 2>&1; then
             DUE=$(jq -r '.due // "?"' "${BODY_FILE}")
             PROCESSED=$(jq -r '.processed // "?"' "${BODY_FILE}")

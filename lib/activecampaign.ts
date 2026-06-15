@@ -204,11 +204,13 @@ export async function resolveActiveCampaignRecipientsForLists(options: {
   fetchImpl?: typeof fetch;
 }): Promise<string[]> {
   const seen = new Set<string>();
-  for (const listId of options.listIds) {
-    const emails = await listActiveContactsForList({
+  const lists = await Promise.all(
+    options.listIds.map((listId) => listActiveContactsForList({
       listId,
       fetchImpl: options.fetchImpl,
-    });
+    })),
+  );
+  for (const emails of lists) {
     for (const email of emails) seen.add(email);
   }
   return [...seen].sort();
