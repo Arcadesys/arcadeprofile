@@ -89,6 +89,26 @@ async function persistNewsletterOutcome(
   return { newsletter: 'skipped' };
 }
 
+async function markNewsletterPending(
+  payload: PayloadLike,
+  post: { id: number; slug: string },
+  nowIso: string,
+): Promise<void> {
+  await payload.update({
+    collection: 'posts',
+    id: post.id,
+    data: {
+      newsletterSend: {
+        status: 'pending',
+        lastSyncedAt: nowIso,
+        lastError: null,
+      } satisfies NewsletterSendState,
+    },
+    depth: 0,
+    overrideAccess: true,
+  });
+}
+
 export async function publishScheduledPosts(
   payload: PayloadLike,
   { now = new Date(), perRunLimit = null, deliverNewsletter = deliverPostNewsletter }: Options = {},
@@ -156,6 +176,7 @@ export async function publishScheduledPosts(
         overrideAccess: true,
       });
 
+      await markNewsletterPending(payload, post, nowIso);
       const newsletterOutcome = await deliverNewsletter(payload, post.id);
       const newsletterResult = await persistNewsletterOutcome(payload, post, newsletterOutcome);
 
@@ -183,7 +204,13 @@ export async function publishScheduledPosts(
       and: [
         { scheduledPublishDate: { less_than_equal: nowIso } },
         { publish_status: { equals: 'published' } },
-        { 'newsletterSend.status': { equals: 'failed' } },
+        {
+          or: [
+            { 'newsletterSend.status': { equals: 'failed' } },
+            { 'newsletterSend.status': { equals: 'pending' } },
+            { 'newsletterSend.status': { equals: null } },
+          ],
+        },
       ],
     },
   });
