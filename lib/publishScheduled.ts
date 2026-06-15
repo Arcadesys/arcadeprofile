@@ -42,6 +42,7 @@ export type PublishScheduledResponse = {
 // Actions schedules can lag 10+ minutes) and the time it takes a single run
 // to flip its due posts.
 const STUCK_GRACE_MS = 60 * 60 * 1000;
+const PENDING_NEWSLETTER_RETRY_GRACE_MS = 15 * 60 * 1000;
 
 // Subset of the Payload local API we use. Typed via Pick so the route can
 // pass a real Payload instance and tests can pass a structural mock.
@@ -89,24 +90,12 @@ async function persistNewsletterOutcome(
   return { newsletter: 'skipped' };
 }
 
-async function markNewsletterPending(
-  payload: PayloadLike,
-  post: { id: number; slug: string },
-  nowIso: string,
-): Promise<void> {
-  await payload.update({
-    collection: 'posts',
-    id: post.id,
-    data: {
-      newsletterSend: {
-        status: 'pending',
-        lastSyncedAt: nowIso,
-        lastError: null,
-      } satisfies NewsletterSendState,
-    },
-    depth: 0,
-    overrideAccess: true,
-  });
+function pendingNewsletterState(nowIso: string): NewsletterSendState {
+  return {
+    status: 'pending',
+    lastSyncedAt: nowIso,
+    lastError: null,
+  };
 }
 
 export async function publishScheduledPosts(
@@ -171,12 +160,12 @@ export async function publishScheduledPosts(
         data: {
           publish_status: 'published',
           publishedDate: post.scheduledPublishDate || nowIso,
+          newsletterSend: pendingNewsletterState(nowIso),
         },
         depth: 0,
         overrideAccess: true,
       });
 
-      await markNewsletterPending(payload, post, nowIso);
       const newsletterOutcome = await deliverNewsletter(payload, post.id);
       const newsletterResult = await persistNewsletterOutcome(payload, post, newsletterOutcome);
 
@@ -196,6 +185,7 @@ export async function publishScheduledPosts(
     }
   }
 
+  const pendingRetryBefore = new Date(now.getTime() - PENDING_NEWSLETTER_RETRY_GRACE_MS).toISOString();
   const retryResult = await payload.find({
     collection: 'posts',
     depth: 0,
@@ -207,7 +197,12 @@ export async function publishScheduledPosts(
         {
           or: [
             { 'newsletterSend.status': { equals: 'failed' } },
-            { 'newsletterSend.status': { equals: 'pending' } },
+            {
+              and: [
+                { 'newsletterSend.status': { equals: 'pending' } },
+                { 'newsletterSend.lastSyncedAt': { less_than: pendingRetryBefore } },
+              ],
+            },
             { 'newsletterSend.status': { equals: null } },
           ],
         },
