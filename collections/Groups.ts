@@ -30,6 +30,13 @@ export const Groups: CollectionConfig = {
       name: 'description',
       type: 'textarea',
     },
+    {
+      name: 'jacketDescription',
+      type: 'richText',
+      admin: {
+        description: 'Jacket-copy blurb shown on the intro page — a short, punchy pitch for the project.',
+      },
+    },
     { name: 'image', type: 'upload', relationTo: 'media' },
     { name: 'href', type: 'text' },
     {

@@ -11,6 +11,7 @@
     "migrate": "node scripts/migrate.mjs",
     "db:bootstrap": "node scripts/db-bootstrap.mjs",
     "check:migrations": "node scripts/check-migrations.mjs",
+    "check:migration-index": "node scripts/check-migration-index.mjs",
     "seed": "tsx scripts/seed-runner.mjs",
     "seed:blog": "tsx --require ./scripts/patch-next-env.cjs scripts/seed.ts",
     "seed:groups": "tsx --require ./scripts/patch-next-env.cjs scripts/seed-groups.ts",

@@ -148,6 +148,62 @@ export const Posts: CollectionConfig = {
           },
         },
         {
+          name: 'acceptedCount',
+          type: 'number',
+          admin: {
+            readOnly: true,
+            description: 'Number of recipients accepted by Postmark.',
+          },
+        },
+        {
+          name: 'failedCount',
+          type: 'number',
+          admin: {
+            readOnly: true,
+            description: 'Number of recipient-level Postmark API failures on the latest send attempt.',
+          },
+        },
+        {
+          name: 'deliveredCount',
+          type: 'number',
+          admin: {
+            readOnly: true,
+            description: 'Number of accepted messages confirmed delivered by Postmark webhooks.',
+          },
+        },
+        {
+          name: 'bouncedCount',
+          type: 'number',
+          admin: {
+            readOnly: true,
+            description: 'Number of accepted messages that later bounced.',
+          },
+        },
+        {
+          name: 'openedCount',
+          type: 'number',
+          admin: {
+            readOnly: true,
+            description: 'Number of accepted messages with an open event when open tracking is enabled.',
+          },
+        },
+        {
+          name: 'clickedCount',
+          type: 'number',
+          admin: {
+            readOnly: true,
+            description: 'Number of accepted messages with a click event when link tracking is enabled.',
+          },
+        },
+        {
+          name: 'complainedCount',
+          type: 'number',
+          admin: {
+            readOnly: true,
+            description: 'Number of accepted messages with a spam complaint.',
+          },
+        },
+        {
           name: 'sentAt',
           type: 'date',
           admin: {
@@ -161,6 +217,15 @@ export const Posts: CollectionConfig = {
           admin: {
             readOnly: true,
             date: { pickerAppearance: 'dayAndTime' },
+          },
+        },
+        {
+          name: 'lastEventAt',
+          type: 'date',
+          admin: {
+            readOnly: true,
+            date: { pickerAppearance: 'dayAndTime' },
+            description: 'Most recent Postmark event timestamp for this post.',
           },
         },
         {
@@ -180,7 +245,7 @@ export const Posts: CollectionConfig = {
       type: 'date',
       defaultValue: () => {
         const d = new Date();
-        d.setUTCHours(13, 0, 0, 0); // 08:00 CDT
+        d.setUTCHours(10, 0, 0, 0); // 05:00 CDT
         if (d <= new Date()) d.setUTCDate(d.getUTCDate() + 1);
         return d.toISOString();
       },

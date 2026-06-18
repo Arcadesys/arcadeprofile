@@ -85,6 +85,8 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: npm run check:migrations
+      - name: Audit migrations/index.ts registration
+        run: npm run check:migration-index
 
   secret-scan:
     runs-on: ubuntu-latest

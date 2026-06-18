@@ -7,8 +7,9 @@ This repo now routes Payload CMS email through Postmark SMTP via `@payloadcms/em
 - Payload email adapter is Postmark-backed when `POSTMARK_SERVER_TOKEN` is present.
 - Optional fail-fast guard in production via `POSTMARK_REQUIRED_IN_PROD=true`.
 - In non-production, email is intentionally disabled when the token is missing.
-- Webhook endpoint: `POST /api/postmark/webhook` for bounce/complaint/subscription-change processing.
-- Optional webhook auth token via `POSTMARK_WEBHOOK_SECRET` (`x-postmark-webhook-token` header or `Authorization: Bearer ...`).
+- Webhook endpoint: `POST /api/postmark/webhook` for delivery, bounce, open, click, spam complaint, and subscription-change processing.
+- Optional webhook auth token via `POSTMARK_WEBHOOK_SECRET` (Postmark Basic Auth URL, `x-postmark-webhook-token`, or `Authorization: Bearer ...`).
+- Per-post newsletters send with Postmark `Tag` + `Metadata` so webhook events can be tied back to the originating post.
 
 ## Rollout plan
 
@@ -21,8 +22,9 @@ This repo now routes Payload CMS email through Postmark SMTP via `@payloadcms/em
    - Run this once per environment after deploy and store result in deploy logs.
 
 3. **Observability**
-   - Add Postmark webhook endpoint(s) for bounce, spam complaint, and delivery events.
-   - Correlate webhook events to user/subscriber records (email + message ID metadata).
+   - Configure Postmark modular webhooks for delivery, bounce, spam complaint, and subscription change.
+   - Enable open/click webhooks only if `POSTMARK_TRACK_OPENS` / `POSTMARK_TRACK_LINKS` are intentionally enabled.
+   - Review `postmark-events` in Payload admin when a reader reports delivery trouble.
 
 4. **Template consistency**
    - Centralize transactional template generation so Payload auth emails and custom Postmark sends share consistent branding.
@@ -36,4 +38,5 @@ This repo now routes Payload CMS email through Postmark SMTP via `@payloadcms/em
 - [ ] Payload boots in production with Postmark env vars set.
 - [ ] If desired, `POSTMARK_REQUIRED_IN_PROD=true` causes production boot to fail when `POSTMARK_SERVER_TOKEN` is absent.
 - [x] A test email can be sent through `/api/email/test` and delivered from Postmark (when credentials are set).
-- [x] Bounce/complaint webhooks are captured and logged via `/api/postmark/webhook`.
+- [x] Delivery/bounce/complaint/subscription-change webhooks are captured via `/api/postmark/webhook`.
+- [x] Postmark events are correlated to posts via message metadata and summarized into `newsletterSend`.

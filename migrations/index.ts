@@ -16,6 +16,8 @@ import * as migration_20260503_000000_add_groups_home_highlight from './20260503
 import * as migration_20260504_000000_relabel_blog_nav_item_to_latest from './20260504_000000_relabel_blog_nav_item_to_latest';
 import * as migration_20260505_000000_promote_scheduled_drafts from './20260505_000000_promote_scheduled_drafts';
 import * as migration_20260505_220000_drop_subscribers from './20260505_220000_drop_subscribers';
+import * as migration_20260506_000000_set_publish_time_to_5am from './20260506_000000_set_publish_time_to_5am';
+import * as migration_20260507_000000_add_social_credentials_global from './20260507_000000_add_social_credentials_global';
 import * as migration_20260507_000000_add_subscribe_nav_item from './20260507_000000_add_subscribe_nav_item';
 import * as migration_20260510_000000_add_groups_format from './20260510_000000_add_groups_format';
 import * as migration_20260512_000000_drop_social_tables from './20260512_000000_drop_social_tables';
@@ -28,6 +30,8 @@ import * as migration_20260514_010000_add_post_reactions from './20260514_010000
 import * as migration_20260515_000000_add_post_reactions_locked_docs_rel from './20260515_000000_add_post_reactions_locked_docs_rel';
 import * as migration_20260520_000000_replace_newsletter_sends_with_ac_campaign from './20260520_000000_replace_newsletter_sends_with_ac_campaign';
 import * as migration_20260606_000000_replace_ac_campaign_with_newsletter_send from './20260606_000000_replace_ac_campaign_with_newsletter_send';
+import * as migration_20260618_000000_add_postmark_events from './20260618_000000_add_postmark_events';
+import * as migration_20260618_010000_add_groups_jacket_description from './20260618_010000_add_groups_jacket_description';
 
 export const migrations = [
   {
@@ -121,6 +125,16 @@ export const migrations = [
     name: '20260505_220000_drop_subscribers',
   },
   {
+    up: migration_20260506_000000_set_publish_time_to_5am.up,
+    down: migration_20260506_000000_set_publish_time_to_5am.down,
+    name: '20260506_000000_set_publish_time_to_5am',
+  },
+  {
+    up: migration_20260507_000000_add_social_credentials_global.up,
+    down: migration_20260507_000000_add_social_credentials_global.down,
+    name: '20260507_000000_add_social_credentials_global',
+  },
+  {
     up: migration_20260507_000000_add_subscribe_nav_item.up,
     down: migration_20260507_000000_add_subscribe_nav_item.down,
     name: '20260507_000000_add_subscribe_nav_item',
@@ -179,5 +193,15 @@ export const migrations = [
     up: migration_20260606_000000_replace_ac_campaign_with_newsletter_send.up,
     down: migration_20260606_000000_replace_ac_campaign_with_newsletter_send.down,
     name: '20260606_000000_replace_ac_campaign_with_newsletter_send',
+  },
+  {
+    up: migration_20260618_000000_add_postmark_events.up,
+    down: migration_20260618_000000_add_postmark_events.down,
+    name: '20260618_000000_add_postmark_events',
+  },
+  {
+    up: migration_20260618_010000_add_groups_jacket_description.up,
+    down: migration_20260618_010000_add_groups_jacket_description.down,
+    name: '20260618_010000_add_groups_jacket_description'
   },
 ];

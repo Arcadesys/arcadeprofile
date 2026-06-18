@@ -38,8 +38,14 @@ export const runtime = 'nodejs';
 // Never cache this route.
 export const dynamic = 'force-dynamic';
 
-function unauthorized(): Response {
-  return new Response('Unauthorized', { status: 401 });
+function unauthorized(origin: string): Response {
+  const resourceMetadata = `${origin}/.well-known/oauth-protected-resource/api/mcp`;
+  return new Response('Unauthorized', {
+    status: 401,
+    headers: {
+      'WWW-Authenticate': `Bearer realm="${origin}", resource_metadata="${resourceMetadata}"`,
+    },
+  });
 }
 
 type Caller = { scope: ToolScope };
@@ -120,7 +126,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       { ...ctx, route: '/api/mcp' },
       '[mcp] auth failed',
     );
-    return unauthorized();
+    return unauthorized(req.nextUrl.origin);
   }
 
   // ---------- Build a fresh server + transport per request (stateless) ----------

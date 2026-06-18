@@ -1,6 +1,6 @@
 import type { Payload } from 'payload';
 
-import type { Post } from '@/payload-types';
+import type { Group, Post } from '@/payload-types';
 
 export type GroupHero = {
   /** Group slug — used by `buildPostNewsletterContent` to build
@@ -31,11 +31,11 @@ export async function resolveGroupHeroForPost(
     limit: 1,
     overrideAccess: true,
   });
-  const found = result.docs[0] as
-    | { image?: { url?: string | null } | string | number | null; title?: string | null }
-    | undefined;
+  const found = result.docs[0] as Group | undefined;
   if (!found) return null;
 
+  // Group.image is `(number | null) | Media`. After depth: 1 it's the
+  // populated Media doc; a bare number means the upload was unresolvable.
   const imageUrl =
     found.image && typeof found.image === 'object' && typeof found.image.url === 'string'
       ? found.image.url
