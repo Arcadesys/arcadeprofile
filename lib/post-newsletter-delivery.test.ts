@@ -3,6 +3,7 @@ import { afterEach, test } from 'node:test';
 
 import type { Post } from '@/payload-types';
 import { deliverPostNewsletter, type NewsletterDeliveryPayload } from './post-newsletter-delivery';
+import { PostmarkBatchSendError } from './postmark';
 
 const EMPTY_CONTENT = {
   root: {
@@ -31,9 +32,39 @@ function makePost(overrides: Partial<Post> = {}): Post {
   };
 }
 
-function makePayload(post: Post, category = 'fiction'): NewsletterDeliveryPayload {
+type EventDoc = {
+  id: number;
+  post?: number;
+  messageId: string;
+  eventType: string;
+  recipientEmail?: string;
+  occurredAt?: string;
+};
+
+function whereEquals(where: unknown, field: string): unknown {
+  if (!where || typeof where !== 'object') return undefined;
+  const record = where as Record<string, unknown>;
+  const direct = record[field];
+  if (direct && typeof direct === 'object' && 'equals' in direct) {
+    return (direct as { equals?: unknown }).equals;
+  }
+  const and = record.and;
+  if (Array.isArray(and)) {
+    for (const clause of and) {
+      const found = whereEquals(clause, field);
+      if (found !== undefined) return found;
+    }
+  }
+  return undefined;
+}
+
+function makePayload(
+  post: Post,
+  category = 'fiction',
+  events: EventDoc[] = [],
+): NewsletterDeliveryPayload {
   return {
-    async find(args: { collection: string }) {
+    async find(args: { collection: string; where?: unknown }) {
       if (args.collection === 'groups') {
         return {
           docs: [
@@ -46,10 +77,33 @@ function makePayload(post: Post, category = 'fiction'): NewsletterDeliveryPayloa
           ],
         };
       }
+      if (args.collection === 'postmark-events') {
+        const postId = whereEquals(args.where, 'post');
+        const messageId = whereEquals(args.where, 'messageId');
+        const eventType = whereEquals(args.where, 'eventType');
+        const recipientEmail = whereEquals(args.where, 'recipientEmail');
+        const docs = events.filter((event) => {
+          if (typeof postId === 'number' && event.post !== postId) return false;
+          if (typeof messageId === 'string' && event.messageId !== messageId) return false;
+          if (typeof eventType === 'string' && event.eventType !== eventType) return false;
+          if (typeof recipientEmail === 'string' && event.recipientEmail !== recipientEmail) return false;
+          return true;
+        });
+        return { docs, totalDocs: docs.length };
+      }
       return { docs: [] };
     },
     async findByID() {
       return post;
+    },
+    async create(args: { collection: string; data: Omit<EventDoc, 'id'> }) {
+      assert.equal(args.collection, 'postmark-events');
+      const doc = { id: events.length + 1, ...args.data };
+      events.push(doc);
+      return doc;
+    },
+    async update() {
+      throw new Error('unexpected update');
     },
   } as unknown as NewsletterDeliveryPayload;
 }
@@ -70,8 +124,9 @@ test('deliverPostNewsletter resolves AC recipients and sends with rendered post 
   setAudienceEnv();
   const sent: Array<{ to: string[]; subject: string }> = [];
   const now = new Date('2026-06-06T13:00:00.000Z');
+  const events: EventDoc[] = [];
 
-  const outcome = await deliverPostNewsletter(makePayload(makePost()), 1, {
+  const outcome = await deliverPostNewsletter(makePayload(makePost(), 'fiction', events), 1, {
     now: () => now,
     async resolveRecipients({ listIds }) {
       assert.deepEqual(listIds, ['7', '9']);
@@ -79,11 +134,25 @@ test('deliverPostNewsletter resolves AC recipients and sends with rendered post 
     },
     async sendEmail(options) {
       sent.push({ to: options.to, subject: options.subject });
+      assert.equal(options.tag, 'post-newsletter');
+      assert.deepEqual(options.metadata, {
+        postId: '1',
+        postSlug: 'new-post',
+        audienceListIds: '7,9',
+      });
       assert.match(options.htmlBody, /A New Post/);
       assert.match(options.textBody, /A short summary/);
       return {
         messageIds: ['pm-1'],
         recipientCount: options.to.length,
+        accepted: [
+          {
+            to: options.to[0],
+            messageId: 'pm-1',
+            submittedAt: now.toISOString(),
+            message: 'OK',
+          },
+        ],
       };
     },
   });
@@ -96,11 +165,22 @@ test('deliverPostNewsletter resolves AC recipients and sends with rendered post 
       messageId: 'pm-1',
       targetedLists: '7,9',
       recipientCount: 1,
+      acceptedCount: 1,
+      failedCount: 0,
+      deliveredCount: 0,
+      bouncedCount: 0,
+      openedCount: 0,
+      clickedCount: 0,
+      complainedCount: 0,
       sentAt: now.toISOString(),
       lastSyncedAt: now.toISOString(),
+      lastEventAt: now.toISOString(),
       lastError: null,
     });
   }
+  assert.equal(events.length, 1);
+  assert.equal(events[0].eventType, 'submitted');
+  assert.equal(events[0].recipientEmail, 'reader@example.com');
 });
 
 test('deliverPostNewsletter skips suppressed posts', async () => {
@@ -146,5 +226,99 @@ test('deliverPostNewsletter records failed send state', async () => {
     assert.equal(outcome.state.status, 'failed');
     assert.equal(outcome.state.lastSyncedAt, now.toISOString());
     assert.equal(outcome.state.lastError, 'Postmark down');
+  }
+});
+
+test('deliverPostNewsletter records partial Postmark acceptance and fails retryably', async () => {
+  setAudienceEnv();
+  const now = new Date('2026-06-06T13:00:00.000Z');
+  const events: EventDoc[] = [];
+
+  const outcome = await deliverPostNewsletter(makePayload(makePost(), 'fiction', events), 1, {
+    now: () => now,
+    async resolveRecipients() {
+      return ['accepted@example.com', 'failed@example.com'];
+    },
+    async sendEmail() {
+      throw new PostmarkBatchSendError(
+        'Postmark rejected 1 recipient',
+        [
+          {
+            to: 'accepted@example.com',
+            messageId: 'pm-accepted',
+            submittedAt: now.toISOString(),
+            message: 'OK',
+          },
+        ],
+        [
+          {
+            to: 'failed@example.com',
+            errorCode: 406,
+            message: 'Inactive recipient',
+            submittedAt: now.toISOString(),
+          },
+        ],
+        2,
+      );
+    },
+  });
+
+  assert.equal(outcome.kind, 'failed');
+  if (outcome.kind === 'failed') {
+    assert.equal(outcome.state.status, 'failed');
+    assert.equal(outcome.state.messageId, 'pm-accepted');
+    assert.equal(outcome.state.recipientCount, 2);
+    assert.equal(outcome.state.acceptedCount, 1);
+    assert.equal(outcome.state.failedCount, 1);
+    assert.match(outcome.state.lastError ?? '', /Postmark rejected 1 recipient/);
+  }
+  assert.equal(events.length, 1);
+  assert.equal(events[0].recipientEmail, 'accepted@example.com');
+});
+
+test('deliverPostNewsletter retries only recipients without submitted events', async () => {
+  setAudienceEnv();
+  const now = new Date('2026-06-06T13:00:00.000Z');
+  const events: EventDoc[] = [
+    {
+      id: 1,
+      post: 1,
+      messageId: 'pm-existing',
+      eventType: 'submitted',
+      recipientEmail: 'reader@example.com',
+      occurredAt: '2026-06-06T12:00:00.000Z',
+    },
+  ];
+  const sentTo: string[][] = [];
+
+  const outcome = await deliverPostNewsletter(makePayload(makePost(), 'fiction', events), 1, {
+    now: () => now,
+    async resolveRecipients() {
+      return ['reader@example.com', 'new@example.com'];
+    },
+    async sendEmail(options) {
+      sentTo.push(options.to);
+      return {
+        messageIds: ['pm-new'],
+        recipientCount: options.to.length,
+        accepted: [
+          {
+            to: 'new@example.com',
+            messageId: 'pm-new',
+            submittedAt: now.toISOString(),
+            message: 'OK',
+          },
+        ],
+      };
+    },
+  });
+
+  assert.equal(outcome.kind, 'sent');
+  assert.deepEqual(sentTo, [['new@example.com']]);
+  if (outcome.kind === 'sent') {
+    assert.equal(outcome.state.recipientCount, 2);
+    assert.equal(outcome.state.acceptedCount, 2);
+    assert.equal(outcome.state.failedCount, 0);
+    assert.equal(outcome.state.messageId, 'pm-existing,pm-new');
   }
 });

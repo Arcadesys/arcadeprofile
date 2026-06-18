@@ -47,7 +47,7 @@ const PENDING_NEWSLETTER_RETRY_GRACE_MS = 15 * 60 * 1000;
 // Subset of the Payload local API we use. Typed via Pick so the route can
 // pass a real Payload instance and tests can pass a structural mock.
 // findGlobal is used by the queue-sync self-heal step before the publish loop.
-export type PayloadLike = Pick<Payload, 'find' | 'findByID' | 'update' | 'findGlobal'>;
+export type PayloadLike = Pick<Payload, 'create' | 'find' | 'findByID' | 'update' | 'findGlobal'>;
 
 type Options = {
   now?: Date;
