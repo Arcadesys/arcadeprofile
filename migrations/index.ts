@@ -16,6 +16,7 @@ import * as migration_20260503_000000_add_groups_home_highlight from './20260503
 import * as migration_20260504_000000_relabel_blog_nav_item_to_latest from './20260504_000000_relabel_blog_nav_item_to_latest';
 import * as migration_20260505_000000_promote_scheduled_drafts from './20260505_000000_promote_scheduled_drafts';
 import * as migration_20260505_220000_drop_subscribers from './20260505_220000_drop_subscribers';
+import * as migration_20260506_000000_set_publish_time_to_5am from './20260506_000000_set_publish_time_to_5am';
 import * as migration_20260507_000000_add_subscribe_nav_item from './20260507_000000_add_subscribe_nav_item';
 import * as migration_20260510_000000_add_groups_format from './20260510_000000_add_groups_format';
 import * as migration_20260512_000000_drop_social_tables from './20260512_000000_drop_social_tables';
@@ -120,6 +121,11 @@ export const migrations = [
     up: migration_20260505_220000_drop_subscribers.up,
     down: migration_20260505_220000_drop_subscribers.down,
     name: '20260505_220000_drop_subscribers',
+  },
+  {
+    up: migration_20260506_000000_set_publish_time_to_5am.up,
+    down: migration_20260506_000000_set_publish_time_to_5am.down,
+    name: '20260506_000000_set_publish_time_to_5am',
   },
   {
     up: migration_20260507_000000_add_subscribe_nav_item.up,
