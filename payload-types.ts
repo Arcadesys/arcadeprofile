@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     posts: Post;
     'post-reactions': PostReaction;
+    'postmark-events': PostmarkEvent;
     groups: Group;
     books: Book;
     demos: Demo;
@@ -86,6 +87,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     'post-reactions': PostReactionsSelect<false> | PostReactionsSelect<true>;
+    'postmark-events': PostmarkEventsSelect<false> | PostmarkEventsSelect<true>;
     groups: GroupsSelect<false> | GroupsSelect<true>;
     books: BooksSelect<false> | BooksSelect<true>;
     demos: DemosSelect<false> | DemosSelect<true>;
@@ -212,8 +214,40 @@ export interface Post {
      * Number of deduplicated recipients resolved from ActiveCampaign.
      */
     recipientCount?: number | null;
+    /**
+     * Number of recipients accepted by Postmark.
+     */
+    acceptedCount?: number | null;
+    /**
+     * Number of recipient-level Postmark API failures on the latest send attempt.
+     */
+    failedCount?: number | null;
+    /**
+     * Number of accepted messages confirmed delivered by Postmark webhooks.
+     */
+    deliveredCount?: number | null;
+    /**
+     * Number of accepted messages that later bounced.
+     */
+    bouncedCount?: number | null;
+    /**
+     * Number of accepted messages with an open event when open tracking is enabled.
+     */
+    openedCount?: number | null;
+    /**
+     * Number of accepted messages with a click event when link tracking is enabled.
+     */
+    clickedCount?: number | null;
+    /**
+     * Number of accepted messages with a spam complaint.
+     */
+    complainedCount?: number | null;
     sentAt?: string | null;
     lastSyncedAt?: string | null;
+    /**
+     * Most recent Postmark event timestamp for this post.
+     */
+    lastEventAt?: string | null;
     /**
      * Most recent newsletter delivery error. Cleared on successful send.
      */
@@ -370,6 +404,73 @@ export interface PostReaction {
   post: number | Post;
   emoji: string;
   clientId: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Postmark delivery audit trail. Created from send responses and Postmark webhooks.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "postmark-events".
+ */
+export interface PostmarkEvent {
+  id: number;
+  /**
+   * Resolved from Postmark metadata or the original submitted message.
+   */
+  post?: (number | null) | Post;
+  messageId: string;
+  eventType:
+    | 'submitted'
+    | 'delivery'
+    | 'bounce'
+    | 'open'
+    | 'click'
+    | 'spam_complaint'
+    | 'subscription_change'
+    | 'smtp_api_error'
+    | 'other';
+  /**
+   * Recipient address from Postmark. Admin-only for support lookups.
+   */
+  recipientEmail?: string | null;
+  /**
+   * Postmark Tag value sent with the message or received in the webhook.
+   */
+  tag?: string | null;
+  /**
+   * Postmark message stream, e.g. broadcast or outbound.
+   */
+  messageStream?: string | null;
+  occurredAt?: string | null;
+  /**
+   * Provider response text, bounce details, delivery details, or error message.
+   */
+  details?: string | null;
+  /**
+   * Custom Postmark metadata attached to the email.
+   */
+  metadata?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Raw Postmark event payload for debugging.
+   */
+  raw?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -815,6 +916,10 @@ export interface PayloadLockedDocument {
         value: number | PostReaction;
       } | null)
     | ({
+        relationTo: 'postmark-events';
+        value: number | PostmarkEvent;
+      } | null)
+    | ({
         relationTo: 'groups';
         value: number | Group;
       } | null)
@@ -923,8 +1028,16 @@ export interface PostsSelect<T extends boolean = true> {
         status?: T;
         targetedLists?: T;
         recipientCount?: T;
+        acceptedCount?: T;
+        failedCount?: T;
+        deliveredCount?: T;
+        bouncedCount?: T;
+        openedCount?: T;
+        clickedCount?: T;
+        complainedCount?: T;
         sentAt?: T;
         lastSyncedAt?: T;
+        lastEventAt?: T;
         lastError?: T;
       };
   scheduledPublishDate?: T;
@@ -980,6 +1093,24 @@ export interface PostReactionsSelect<T extends boolean = true> {
   post?: T;
   emoji?: T;
   clientId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "postmark-events_select".
+ */
+export interface PostmarkEventsSelect<T extends boolean = true> {
+  post?: T;
+  messageId?: T;
+  eventType?: T;
+  recipientEmail?: T;
+  tag?: T;
+  messageStream?: T;
+  occurredAt?: T;
+  details?: T;
+  metadata?: T;
+  raw?: T;
   updatedAt?: T;
   createdAt?: T;
 }

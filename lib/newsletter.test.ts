@@ -108,6 +108,14 @@ test('renders no hero img when neither meta.image nor group.image is set', () =>
   assert.doesNotMatch(htmlBody, /<img/);
 });
 
+test('sets an explicit light email surface for dark-mode mail clients', () => {
+  const { htmlBody } = buildPostNewsletterContent(basePost(), SITE_URL);
+
+  assert.match(htmlBody, /background-color:#ffffff/);
+  assert.match(htmlBody, /color:#111827/);
+  assert.ok(htmlBody.indexOf('background-color:#ffffff') < htmlBody.indexOf('<article'));
+});
+
 test('escapes hero src and alt to avoid breaking the surrounding HTML', () => {
   const { htmlBody } = buildPostNewsletterContent(
     basePost({

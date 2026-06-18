@@ -3,7 +3,14 @@
  * delivery rail for transactional tests and per-post newsletter broadcasts.
  */
 
-import { ServerClient } from 'postmark';
+import { ServerClient, type Models } from 'postmark';
+
+export const LinkTrackingOptions = {
+  TextOnly: 'TextOnly' as Models.LinkTrackingOptions,
+  HtmlOnly: 'HtmlOnly' as Models.LinkTrackingOptions,
+  HtmlAndText: 'HtmlAndText' as Models.LinkTrackingOptions,
+  None: 'None' as Models.LinkTrackingOptions,
+} as const;
 
 export type PostmarkSendEmailResponse = Awaited<ReturnType<ServerClient['sendEmail']>>;
 
@@ -11,8 +18,12 @@ type PostmarkBatchMessage = {
   From: string;
   To: string;
   Subject: string;
+  Tag?: string;
   HtmlBody: string;
   TextBody: string;
+  TrackOpens?: boolean;
+  TrackLinks?: PostmarkTrackLinks;
+  Metadata?: Record<string, string>;
   MessageStream: string;
 };
 
@@ -25,6 +36,34 @@ type PostmarkBatchResponse = {
 };
 
 type PostmarkBatchClient = Pick<ServerClient, 'sendEmailBatch'>;
+
+export type PostmarkTrackLinks = Models.LinkTrackingOptions;
+
+export type PostmarkAcceptedMessage = {
+  to: string;
+  messageId: string;
+  submittedAt?: string | null;
+  message?: string | null;
+};
+
+export type PostmarkFailedMessage = {
+  to: string;
+  errorCode: number;
+  message: string;
+  submittedAt?: string | null;
+};
+
+export class PostmarkBatchSendError extends Error {
+  constructor(
+    message: string,
+    public readonly accepted: PostmarkAcceptedMessage[],
+    public readonly failures: PostmarkFailedMessage[],
+    public readonly recipientCount: number,
+  ) {
+    super(message);
+    this.name = 'PostmarkBatchSendError';
+  }
+}
 
 function getClient(): ServerClient {
   const token = process.env.POSTMARK_SERVER_TOKEN;
@@ -40,7 +79,7 @@ function getTransactionalMessageStream(): string {
   return process.env.POSTMARK_TRANSACTIONAL_STREAM || 'outbound';
 }
 
-function getBroadcastMessageStream(): string {
+export function getPostmarkBroadcastMessageStream(): string {
   return process.env.POSTMARK_BROADCAST_STREAM || process.env.POSTMARK_NEWSLETTER_STREAM || 'outbound';
 }
 
@@ -91,6 +130,10 @@ export interface SendPostmarkNewsletterOptions {
   subject: string;
   htmlBody: string;
   textBody: string;
+  tag?: string;
+  metadata?: Record<string, string>;
+  trackOpens?: boolean;
+  trackLinks?: PostmarkTrackLinks;
   client?: PostmarkBatchClient;
   batchSize?: number;
 }
@@ -98,6 +141,7 @@ export interface SendPostmarkNewsletterOptions {
 export interface SendPostmarkNewsletterResult {
   messageIds: string[];
   recipientCount: number;
+  accepted: PostmarkAcceptedMessage[];
 }
 
 function chunk<T>(items: T[], size: number): T[][] {
@@ -115,32 +159,71 @@ export async function sendPostmarkNewsletterEmail(
   const recipients = [...new Set(options.to.map((email) => email.trim().toLowerCase()).filter(Boolean))];
   const batchSize = options.batchSize ?? 500;
   const from = formatFromAddress();
-  const messageStream = getBroadcastMessageStream();
+  const messageStream = getPostmarkBroadcastMessageStream();
   const messageIds: string[] = [];
+  const accepted: PostmarkAcceptedMessage[] = [];
+  const failures: PostmarkFailedMessage[] = [];
 
   for (const recipientBatch of chunk(recipients, batchSize)) {
     const messages: PostmarkBatchMessage[] = recipientBatch.map((to) => ({
       From: from,
       To: to,
       Subject: options.subject,
+      ...(options.tag ? { Tag: options.tag } : {}),
       HtmlBody: options.htmlBody,
       TextBody: options.textBody,
+      ...(options.trackOpens !== undefined ? { TrackOpens: options.trackOpens } : {}),
+      ...(options.trackLinks ? { TrackLinks: options.trackLinks } : {}),
+      ...(options.metadata ? { Metadata: options.metadata } : {}),
       MessageStream: messageStream,
     }));
     const responses = (await client.sendEmailBatch(messages)) as PostmarkBatchResponse[];
     for (const response of responses) {
+      const to = response.To?.trim().toLowerCase() || 'unknown recipient';
       if ((response.ErrorCode ?? 0) === 0) {
-        if (response.MessageID) messageIds.push(response.MessageID);
+        if (response.MessageID) {
+          messageIds.push(response.MessageID);
+          accepted.push({
+            to,
+            messageId: response.MessageID,
+            submittedAt: response.SubmittedAt ?? null,
+            message: response.Message ?? null,
+          });
+        } else {
+          failures.push({
+            to,
+            errorCode: 0,
+            message: 'Postmark accepted the message but did not return a MessageID',
+            submittedAt: response.SubmittedAt ?? null,
+          });
+        }
       } else {
-        console.error(
-          `Postmark batch send failed for ${response.To ?? 'unknown recipient'}: ${response.Message ?? `ErrorCode ${response.ErrorCode}`}`,
-        );
+        failures.push({
+          to,
+          errorCode: response.ErrorCode ?? -1,
+          message: response.Message ?? `ErrorCode ${response.ErrorCode}`,
+          submittedAt: response.SubmittedAt ?? null,
+        });
       }
     }
+  }
+
+  if (failures.length > 0) {
+    const summary = failures
+      .slice(0, 3)
+      .map((failure) => `${failure.to}: ${failure.message}`)
+      .join('; ');
+    throw new PostmarkBatchSendError(
+      `Postmark rejected ${failures.length} of ${recipients.length} newsletter recipient(s): ${summary}`,
+      accepted,
+      failures,
+      recipients.length,
+    );
   }
 
   return {
     messageIds,
     recipientCount: recipients.length,
+    accepted,
   };
 }

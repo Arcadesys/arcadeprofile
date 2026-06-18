@@ -8,7 +8,18 @@ import {
 } from './activecampaign';
 import { buildPostNewsletterContent } from './newsletter';
 import { resolveGroupHeroForPost } from './post-newsletter';
-import { sendPostmarkNewsletterEmail } from './postmark';
+import {
+  getPostmarkBroadcastMessageStream,
+  LinkTrackingOptions,
+  PostmarkBatchSendError,
+  type PostmarkTrackLinks,
+  sendPostmarkNewsletterEmail,
+} from './postmark';
+import {
+  recordPostmarkSubmittedMessages,
+  submittedRecipientsForPost,
+  summarizePostmarkEvents,
+} from './postmark-events';
 
 export type NewsletterSendStatus = 'pending' | 'sent' | 'failed' | 'skipped';
 
@@ -17,8 +28,16 @@ export interface NewsletterSendState {
   status?: NewsletterSendStatus | null;
   targetedLists?: string | null;
   recipientCount?: number | null;
+  acceptedCount?: number | null;
+  failedCount?: number | null;
+  deliveredCount?: number | null;
+  bouncedCount?: number | null;
+  openedCount?: number | null;
+  clickedCount?: number | null;
+  complainedCount?: number | null;
   sentAt?: string | null;
   lastSyncedAt?: string | null;
+  lastEventAt?: string | null;
   lastError?: string | null;
 }
 
@@ -27,7 +46,7 @@ export type NewsletterDeliveryOutcome =
   | { kind: 'failed'; state: NewsletterSendState; error: unknown }
   | { kind: 'skipped'; reason: string; state: NewsletterSendState };
 
-export type NewsletterDeliveryPayload = Pick<Payload, 'find' | 'findByID'>;
+export type NewsletterDeliveryPayload = Pick<Payload, 'create' | 'find' | 'findByID' | 'update'>;
 
 type Deps = {
   resolveRecipients?: typeof resolveActiveCampaignRecipientsForLists;
@@ -47,6 +66,48 @@ function describeError(err: unknown): string {
 
 function joinIds(ids: string[]): string {
   return ids.join(',');
+}
+
+function getNewsletterTrackOpens(): boolean | undefined {
+  if (process.env.POSTMARK_TRACK_OPENS === 'true') return true;
+  if (process.env.POSTMARK_TRACK_OPENS === 'false') return false;
+  return undefined;
+}
+
+function getNewsletterTrackLinks(): PostmarkTrackLinks | undefined {
+  const value = process.env.POSTMARK_TRACK_LINKS;
+  if (value === 'None') return LinkTrackingOptions.None;
+  if (value === 'HtmlAndText') return LinkTrackingOptions.HtmlAndText;
+  if (value === 'HtmlOnly') return LinkTrackingOptions.HtmlOnly;
+  if (value === 'TextOnly') return LinkTrackingOptions.TextOnly;
+  return LinkTrackingOptions.None;
+}
+
+function buildNewsletterMetadata(post: Pick<Post, 'id' | 'slug'>, listIds: string[]): Record<string, string> {
+  return {
+    postId: String(post.id),
+    postSlug: post.slug,
+    audienceListIds: joinIds(listIds),
+  };
+}
+
+async function buildStateFromPostmarkEvents(
+  payload: NewsletterDeliveryPayload,
+  post: Pick<Post, 'id'>,
+  base: NewsletterSendState,
+): Promise<NewsletterSendState> {
+  const summary = await summarizePostmarkEvents(payload, post.id);
+  return {
+    ...base,
+    messageId: joinIds(summary.messageIds),
+    acceptedCount: summary.acceptedCount,
+    deliveredCount: summary.deliveredCount,
+    bouncedCount: summary.bouncedCount,
+    openedCount: summary.openedCount,
+    clickedCount: summary.clickedCount,
+    complainedCount: summary.complainedCount,
+    lastEventAt: summary.lastEventAt,
+  };
 }
 
 async function resolveGroupCategory(
@@ -118,6 +179,10 @@ export async function deliverPostNewsletter(
     }
     const listIds = resolveAudienceListIds(groupCategory);
     const recipients = await resolveRecipients({ listIds });
+    const submittedRecipients = await submittedRecipientsForPost(payload, post.id);
+    const recipientsToSend = recipients.filter(
+      (email) => !submittedRecipients.has(email.trim().toLowerCase()),
+    );
 
     if (recipients.length === 0) {
       return {
@@ -134,28 +199,87 @@ export async function deliverPostNewsletter(
       };
     }
 
+    const tag = 'post-newsletter';
+    const metadata = buildNewsletterMetadata(post, listIds);
+    const messageStream = getPostmarkBroadcastMessageStream();
+
+    if (recipientsToSend.length === 0) {
+      const sentAt = existing?.sentAt ?? nowIso;
+      const state = await buildStateFromPostmarkEvents(payload, post, {
+        status: 'sent',
+        targetedLists: joinIds(listIds),
+        recipientCount: recipients.length,
+        failedCount: 0,
+        sentAt,
+        lastSyncedAt: nowIso,
+        lastError: null,
+      });
+      return { kind: 'sent', state };
+    }
+
     const group = await resolveGroupHeroForPost(payload as Payload, post);
     const rendered = buildPostNewsletterContent({ ...post, group });
     const subject = post.newsletterHeading || post.title;
-    const result = await sendEmail({
-      to: recipients,
-      subject,
-      htmlBody: rendered.htmlBody,
-      textBody: rendered.textBody,
+    let result: Awaited<ReturnType<typeof sendPostmarkNewsletterEmail>>;
+    try {
+      result = await sendEmail({
+        to: recipientsToSend,
+        subject,
+        htmlBody: rendered.htmlBody,
+        textBody: rendered.textBody,
+        tag,
+        metadata,
+        trackOpens: getNewsletterTrackOpens(),
+        trackLinks: getNewsletterTrackLinks(),
+      });
+    } catch (err) {
+      if (err instanceof PostmarkBatchSendError) {
+        await recordPostmarkSubmittedMessages(payload, {
+          postId: post.id,
+          accepted: err.accepted,
+          tag,
+          messageStream,
+          metadata,
+        });
+        const state = await buildStateFromPostmarkEvents(payload, post, {
+          ...existing,
+          status: 'failed',
+          targetedLists: joinIds(listIds),
+          recipientCount: recipients.length,
+          failedCount: err.failures.length,
+          lastSyncedAt: nowIso,
+          lastError: describeError(err),
+        });
+        return {
+          kind: 'failed',
+          state,
+          error: err,
+        };
+      }
+      throw err;
+    }
+
+    await recordPostmarkSubmittedMessages(payload, {
+      postId: post.id,
+      accepted: result.accepted,
+      tag,
+      messageStream,
+      metadata,
     });
     const sentAt = now().toISOString();
+    const state = await buildStateFromPostmarkEvents(payload, post, {
+      status: 'sent',
+      targetedLists: joinIds(listIds),
+      recipientCount: recipients.length,
+      failedCount: 0,
+      sentAt,
+      lastSyncedAt: sentAt,
+      lastError: null,
+    });
 
     return {
       kind: 'sent',
-      state: {
-        status: 'sent',
-        messageId: joinIds(result.messageIds),
-        targetedLists: joinIds(listIds),
-        recipientCount: result.recipientCount,
-        sentAt,
-        lastSyncedAt: sentAt,
-        lastError: null,
-      },
+      state,
     };
   } catch (err) {
     return {

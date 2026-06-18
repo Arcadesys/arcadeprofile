@@ -42,6 +42,9 @@ type PostInput = {
 };
 
 const DEFAULT_SITE_URL = 'https://thearcades.me';
+const EMAIL_BACKGROUND = '#ffffff';
+const EMAIL_TEXT = '#111827';
+const EMAIL_MUTED = '#4b5563';
 
 export function escapeHtml(value: string): string {
   return value
@@ -132,15 +135,19 @@ export function buildPostNewsletterContent(
     : '';
 
   const htmlBody = `
-    <article style="font-family: Georgia, serif; color: #111827; line-height: 1.7;">
-      ${heroHtml}
-      <h1 style="font-size: 2rem; line-height: 1.2; margin-bottom: 1rem;">${escapedTitle}</h1>
-      ${escapedExcerpt ? `<p style="font-size: 1.05rem; color: #4b5563; margin-bottom: 1.5rem;">${escapedExcerpt}</p>` : ''}
-      ${contentHtml || `<p>${escapedExcerpt || escapedTitle}</p>`}
-      <p style="margin-top: 2rem;">
-        <a href="${postUrl}" style="color: #111827; font-weight: 600;">Read on the site</a>
-      </p>
-    </article>
+    <div style="margin:0; padding:24px 16px; background-color:${EMAIL_BACKGROUND}; color:${EMAIL_TEXT};">
+      <article style="max-width:600px; margin:0 auto; font-family: Georgia, serif; color:${EMAIL_TEXT}; background-color:${EMAIL_BACKGROUND}; line-height:1.7;">
+        ${heroHtml}
+        <h1 style="font-size:2rem; line-height:1.2; margin:0 0 1rem; color:${EMAIL_TEXT};">${escapedTitle}</h1>
+        ${escapedExcerpt ? `<p style="font-size:1.05rem; color:${EMAIL_MUTED}; margin:0 0 1.5rem;">${escapedExcerpt}</p>` : ''}
+        <div style="color:${EMAIL_TEXT};">
+          ${contentHtml || `<p style="color:${EMAIL_TEXT};">${escapedExcerpt || escapedTitle}</p>`}
+        </div>
+        <p style="margin-top:2rem;">
+          <a href="${postUrl}" style="color:${EMAIL_TEXT}; font-weight:600;">Read on the site</a>
+        </p>
+      </article>
+    </div>
   `.trim();
 
   const textParts = [
