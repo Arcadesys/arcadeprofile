@@ -168,6 +168,13 @@ const statements = [
         ADD COLUMN IF NOT EXISTS "ac_campaign_last_error" text
     `,
   },
+  {
+    label: 'groups.jacket_description',
+    run: () => sql`
+      ALTER TABLE "groups"
+        ADD COLUMN IF NOT EXISTS "jacket_description" jsonb
+    `,
+  },
 ];
 
 let failed = false;

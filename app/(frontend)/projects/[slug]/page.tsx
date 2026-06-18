@@ -10,6 +10,7 @@ import payloadConfig from '@payload-config';
 import { categoryLabels } from '@/components/menu';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
+import PostRichText from '@/app/components/PostRichText';
 import { JsonLd } from '@/lib/structured-data';
 import { buildPostUrl, buildGroupIntroUrl, partNum } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
@@ -254,6 +255,20 @@ export default async function ProjectIntroPage({ params }: Props) {
             </div>
           )}
         </header>
+
+        {project.jacketDescription && (
+          <div style={{
+            marginBottom: '2.5rem',
+            padding: '1.25rem 1.5rem',
+            borderLeft: '3px solid var(--neon-pink)',
+            background: 'rgba(255,60,172,0.05)',
+            borderRadius: '0 6px 6px 0',
+          }}>
+            <div className="prose prose-jacket">
+              <PostRichText data={project.jacketDescription} />
+            </div>
+          </div>
+        )}
 
         {project.image && (
           <div style={{ marginBottom: '2.5rem' }}>

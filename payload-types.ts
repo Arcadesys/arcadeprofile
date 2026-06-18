@@ -486,6 +486,24 @@ export interface Group {
    */
   slug: string;
   description?: string | null;
+  /**
+   * Jacket-copy blurb shown on the intro page — a short, punchy pitch for the project.
+   */
+  jacketDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   image?: (number | null) | Media;
   href?: string | null;
   /**
@@ -1122,6 +1140,7 @@ export interface GroupsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   description?: T;
+  jacketDescription?: T;
   image?: T;
   href?: T;
   external?: T;
