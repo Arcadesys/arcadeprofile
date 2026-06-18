@@ -145,12 +145,21 @@ function detailsForEvent(record: JsonRecord): string | undefined {
   );
 }
 
+// Thrown when an incoming webhook payload is malformed. The route maps this to
+// a 400 so Postmark won't retry an unprocessable payload in a loop.
+export class PostmarkWebhookValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PostmarkWebhookValidationError';
+  }
+}
+
 export function normalizePostmarkWebhook(input: unknown): NormalizedPostmarkEvent {
   const record = asRecord(input);
-  if (!record) throw new Error('Postmark webhook payload must be a JSON object.');
+  if (!record) throw new PostmarkWebhookValidationError('Postmark webhook payload must be a JSON object.');
 
   const messageId = stringField(record, 'MessageID');
-  if (!messageId) throw new Error('Postmark webhook payload is missing MessageID.');
+  if (!messageId) throw new PostmarkWebhookValidationError('Postmark webhook payload is missing MessageID.');
 
   const recordType = stringField(record, 'RecordType');
   const eventType = eventTypeForRecordType(recordType);
