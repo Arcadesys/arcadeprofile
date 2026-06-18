@@ -135,7 +135,7 @@ export const migrations = [
   {
     up: migration_20260510_000000_add_groups_format.up,
     down: migration_20260510_000000_add_groups_format.down,
-    name: '20260510_000000_add_groups_format',
+    name: '20260510_000000_add_groups_format'
   },
   {
     up: migration_20260512_000000_drop_social_tables.up,
