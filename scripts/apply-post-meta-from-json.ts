@@ -3,10 +3,9 @@
  * Sibling of `dump-posts-for-meta.ts` — together they let an offline author
  * generate the meta without spending Anthropic API tokens.
  *
- * Writes via Payload's local API with `context: { skipNewsletter: true }` —
- * the official escape hatch documented in collections/Posts.ts:70-76 — so the
- * afterChange newsletter fan-out is bypassed by construction. `revalidatePostPaths`
- * still runs (just Next cache invalidation, safe).
+ * Writes via Payload's local API. The update is metadata-only and cannot
+ * trigger scheduled Postmark delivery. `revalidatePostPaths` still runs
+ * (just Next cache invalidation, safe).
  *
  * Input shape (data/posts-meta-output.json):
  *   {
@@ -148,7 +147,6 @@ async function processEntry(
       id: post.id,
       data,
       overrideAccess: true,
-      context: { skipNewsletter: true },
     });
     console.log(`[write] ${slug} | filled: ${filled.join(', ')}`);
     return { slug, status: 'updated', filled, alreadySet, notProvided };

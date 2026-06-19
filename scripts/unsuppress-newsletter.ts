@@ -40,7 +40,6 @@ async function main(): Promise<void> {
     await payload.update({
       collection: 'posts',
       id: post.id,
-      context: { skipNewsletter: true },
       data: { suppressNewsletter: false },
       overrideAccess: true,
     });

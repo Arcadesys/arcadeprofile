@@ -157,7 +157,7 @@ export const toolDefinitions: Tool[] = [
         skipNewsletter: {
           type: 'boolean',
           description:
-            'If true, sets suppressNewsletter=true on create so the afterChange hook skips the per-post fan-out. Use when posting archival content or republishing.',
+            'If true, sets suppressNewsletter=true so scheduled publishing records the newsletter as skipped and does not call Postmark. Use for archival content or republishing.',
         },
         meta: {
           type: 'object',
@@ -240,7 +240,8 @@ export const toolDefinitions: Tool[] = [
         newsletterDescription: { type: 'string' },
         skipNewsletter: {
           type: 'boolean',
-          description: 'Set suppressNewsletter=true to skip the afterChange fan-out hook.',
+          description:
+            'Set suppressNewsletter=true so scheduled publishing skips Postmark delivery.',
         },
         meta: {
           type: 'object',
@@ -530,7 +531,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
       body.tags = (args.tags as string[]).map((t) => ({ tag: t }));
     }
 
-    // skipNewsletter suppresses the afterChange send hook
+    // skipNewsletter suppresses scheduled Postmark delivery.
     if (args.skipNewsletter === true) body.suppressNewsletter = true;
 
     if (args.meta) body.meta = args.meta;

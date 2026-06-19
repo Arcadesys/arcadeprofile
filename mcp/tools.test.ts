@@ -83,6 +83,19 @@ test('create_post schema includes meta and discoverability', () => {
   assert.ok(props.publish_status, 'publish_status missing from create_post schema');
 });
 
+test('skipNewsletter schema describes scheduled Postmark suppression', () => {
+  for (const toolName of ['create_post', 'update_post']) {
+    const tool = toolDefinitions.find((t) => t.name === toolName);
+    assert.ok(tool, `${toolName} tool not found`);
+    const props = (tool.inputSchema as { properties: Record<string, { description?: string }> })
+      .properties;
+    const description = props.skipNewsletter?.description ?? '';
+    assert.match(description, /suppressNewsletter=true/);
+    assert.match(description, /Postmark/);
+    assert.doesNotMatch(description, /afterChange|fan-out/);
+  }
+});
+
 test('update_post schema requires slug', () => {
   const tool = toolDefinitions.find((t) => t.name === 'update_post');
   assert.ok(tool);

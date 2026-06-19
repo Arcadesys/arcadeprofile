@@ -302,7 +302,6 @@ export async function POST(request: Request) {
           chapter: update.chapter,
           order: update.order,
         },
-        context: { skipNewsletter: true },
       }),
     ),
   );

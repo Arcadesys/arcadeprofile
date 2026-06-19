@@ -172,9 +172,8 @@ export async function syncQueueToPosts(
   const allIds = [...nextSet, ...removed];
   const posts = await loadPostsLite(payload, allIds);
 
-  // Posts.afterChange hooks are safe under concurrent updates: revalidate uses
-  // next/server.after to defer path invalidation, and newsletter fanout only
-  // fires on transitions to published/sent (Hopper writes scheduled/draft).
+  // Posts.afterChange hooks are safe under concurrent updates: revalidation
+  // uses next/server.after, and Hopper only writes scheduled/draft state.
   const updates: Promise<unknown>[] = [];
 
   for (const id of nextSet) {

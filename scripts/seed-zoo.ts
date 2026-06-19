@@ -984,8 +984,8 @@ It always did.`,
         discoverability: post.discoverability,
         newsletterHeading: post.newsletterHeading,
         newsletterDescription: post.newsletterDescription,
-        // Seed seasons-in-advance: skip the per-post fan-out so cron-promoted
-        // posts don't blast subscribers with already-scheduled content.
+        // Seed seasons-in-advance: keep cron-promoted archival posts from
+        // sending Postmark newsletters for already-scheduled content.
         suppressNewsletter: true,
       },
     });
