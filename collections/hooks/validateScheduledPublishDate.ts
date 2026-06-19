@@ -30,11 +30,35 @@ export const validateScheduledPublishDateHook: CollectionBeforeChangeHook = ({
   if (status !== 'scheduled') return data;
   if (context.allowPastScheduledPublishDate === true) return data;
 
-  const raw = (data as { scheduledPublishDate?: unknown }).scheduledPublishDate;
-  if (!raw || typeof raw !== 'string') return data;
+  const raw =
+    (data as { scheduledPublishDate?: unknown }).scheduledPublishDate ??
+    (originalDoc as { scheduledPublishDate?: unknown } | undefined)?.scheduledPublishDate;
+  if (!raw || (typeof raw !== 'string' && !(raw instanceof Date))) {
+    throw new ValidationError({
+      collection: 'posts',
+      errors: [
+        {
+          path: 'scheduledPublishDate',
+          message:
+            'Scheduled Publish Date is required when Workflow Status is "Scheduled".',
+        },
+      ],
+    });
+  }
 
-  const scheduled = new Date(raw);
-  if (Number.isNaN(scheduled.getTime())) return data;
+  const scheduled = raw instanceof Date ? raw : new Date(raw);
+  if (Number.isNaN(scheduled.getTime())) {
+    throw new ValidationError({
+      collection: 'posts',
+      errors: [
+        {
+          path: 'scheduledPublishDate',
+          message:
+            'Scheduled Publish Date must be a valid date when Workflow Status is "Scheduled".',
+        },
+      ],
+    });
+  }
 
   if (scheduled.getTime() < Date.now()) {
     throw new ValidationError({
