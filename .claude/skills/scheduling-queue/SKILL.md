@@ -17,7 +17,7 @@ Render the upcoming publishing calendar so the user can see the pipeline at a gl
 
 Query Payload for posts with `publish_status` ∈ {`'scheduled'`, `'published'`, `'sent'`} and `scheduledPublishDate` within the next 28 days, depth 1 (so `group` resolves to its category).
 
-Use the Payload MCP `posts.find` tool when available; otherwise hit `/api/posts` with the cron bearer token.
+Use the Payload MCP `list_posts` / `get_post` tools when available; otherwise hit `/api/posts` with the cron bearer token.
 
 ## Output
 

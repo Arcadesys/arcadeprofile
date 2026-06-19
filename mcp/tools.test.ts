@@ -226,7 +226,7 @@ test('create_post sends tags as array-of-objects to Payload', async () => {
 
   const restore = mockFetch(async (_url, opts) => {
     capturedBody = JSON.parse((opts?.body as string) ?? '{}') as Record<string, unknown>;
-    return jsonResponse({ doc: { slug: 'my-post' } });
+    return jsonResponse({ doc: { id: 123, slug: 'my-post' } });
   });
 
   try {
@@ -264,6 +264,8 @@ test('create_post sends tags as array-of-objects to Payload', async () => {
     // response text
     const item0 = result.content[0];
     assert.ok(item0.type === 'text' && item0.text.startsWith('Created post:'));
+    assert.ok(item0.type === 'text' && item0.text.includes('id: 123'));
+    assert.ok(item0.type === 'text' && item0.text.includes('/admin/collections/posts/123'));
   } finally {
     restore();
   }

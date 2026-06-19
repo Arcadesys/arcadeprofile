@@ -587,11 +587,16 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const data = (await payloadFetch('/posts', {
       method: 'POST',
       body: JSON.stringify(body),
-    })) as { doc?: { slug?: string } };
+    })) as { doc?: { id?: string | number; slug?: string } };
+
+    const createdSlug = data.doc?.slug ?? slug;
+    const createdId = data.doc?.id;
+    const detail = createdId === undefined ? createdSlug : `${createdSlug} (id: ${createdId})`;
+    const adminUrl = createdId === undefined ? '' : `\nAdmin URL: /admin/collections/posts/${createdId}`;
 
     return {
       content: [
-        { type: 'text', text: `Created post: ${data.doc?.slug ?? slug}` },
+        { type: 'text', text: `Created post: ${detail}${adminUrl}` },
       ],
     };
   },

@@ -38,7 +38,7 @@ For each scene-post:
 
 ## Tools
 
-Prefer the Payload MCP server (`mcp/payload-mcp.ts`) over raw HTTP — it has `posts.create` / `posts.find` and handles auth from `PAYLOAD_API_KEY`. Fall back to the REST API at `/api/posts` if MCP is unavailable.
+Prefer the Payload MCP server (`mcp/payload-mcp.ts`) over raw HTTP — use `create_post`, `update_post`, `list_posts`, and `get_post`; it handles auth from `PAYLOAD_API_KEY`. Fall back to the REST API at `/api/posts` if MCP is unavailable.
 
 ## Don't
 

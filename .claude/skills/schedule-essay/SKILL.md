@@ -27,7 +27,7 @@ For each essay:
 
 ## Tools
 
-Use the Payload MCP server (`mcp/payload-mcp.ts`) for `posts.create` / `posts.find`. Falls back to `/api/posts`.
+Use the Payload MCP server (`mcp/payload-mcp.ts`) for `create_post`, `update_post`, `list_posts`, and `get_post`. Fall back to `/api/posts`.
 
 ## Don't
 
