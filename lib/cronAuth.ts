@@ -22,17 +22,23 @@ export function authorizeCronRequest(request: Request): NextResponse | null {
 }
 
 export function getScheduledPostsPerRun(): number | null {
-  const rawValue = process.env.SCHEDULED_POSTS_PER_RUN;
+  const rawValue = process.env.SCHEDULED_POSTS_PER_RUN?.trim();
 
   if (!rawValue) {
     return null;
   }
 
-  const parsed = Number.parseInt(rawValue, 10);
-
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return null;
+  if (!/^[1-9]\d*$/.test(rawValue)) {
+    throw new Error(
+      `SCHEDULED_POSTS_PER_RUN must be a positive integer when set (got: ${rawValue})`,
+    );
   }
 
+  const parsed = Number(rawValue);
+  if (!Number.isSafeInteger(parsed)) {
+    throw new Error(
+      `SCHEDULED_POSTS_PER_RUN must be a safe integer when set (got: ${rawValue})`,
+    );
+  }
   return parsed;
 }
