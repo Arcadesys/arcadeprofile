@@ -121,6 +121,13 @@ function validateScheduledPublishDateInput(value: unknown): CallToolResult | nul
   return toolError('scheduledPublishDate must be a valid ISO datetime with timezone.');
 }
 
+function validatePublishStatusInput(value: unknown): CallToolResult | null {
+  if (value === undefined || postStatusValues.includes(value as (typeof postStatusValues)[number])) {
+    return null;
+  }
+  return toolError(`publish_status must be one of: ${postStatusValues.join(', ')}.`);
+}
+
 // ---------------------------------------------------------------------------
 // Tool definitions
 // ---------------------------------------------------------------------------
@@ -537,6 +544,9 @@ export const toolHandlers: Record<string, ToolHandler> = {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '');
 
+    const publishStatusError = validatePublishStatusInput(args.publish_status);
+    if (publishStatusError) return publishStatusError;
+
     const publish_status = (args.publish_status as string) || 'draft';
 
     // Discoverability: pass through what the caller supplied. We don't default
@@ -554,6 +564,9 @@ export const toolHandlers: Record<string, ToolHandler> = {
       args.scheduledPublishDate,
     );
     if (scheduledPublishDateError) return scheduledPublishDateError;
+    if (publish_status === 'scheduled' && args.scheduledPublishDate === undefined) {
+      return toolError('scheduledPublishDate is required when publish_status is scheduled.');
+    }
 
     const body: Record<string, unknown> = {
       title: args.title,
@@ -602,6 +615,9 @@ export const toolHandlers: Record<string, ToolHandler> = {
   },
 
   async update_post(args) {
+    const publishStatusError = validatePublishStatusInput(args.publish_status);
+    if (publishStatusError) return publishStatusError;
+
     if (args.publishedDate !== undefined) {
       const publishedDateError = validatePublishedDateInput(args.publishedDate);
       if (publishedDateError) return publishedDateError;
