@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getPayload } from 'payload';
 
 import config from '@payload-config';
+import { parsePositiveIntegerId } from '@/lib/positive-integer-id';
 import { sendPostPreview } from '@/lib/send-preview';
 
 const DEFAULT_TO = 'austen@thearcades.me';
@@ -16,8 +17,8 @@ export async function POST(
   }
 
   const { id } = await params;
-  const postId = Number(id);
-  if (!Number.isFinite(postId)) {
+  const postId = parsePositiveIntegerId(id);
+  if (postId === null) {
     return NextResponse.json({ error: 'Invalid post id' }, { status: 400 });
   }
 

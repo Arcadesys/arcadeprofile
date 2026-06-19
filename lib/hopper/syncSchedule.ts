@@ -1,4 +1,6 @@
-import type { Payload } from 'payload';
+import type { Post } from '@/payload-types';
+import { isPublicPostStatus } from '@/lib/post-status';
+import { SITE_TZ } from '@/lib/site-time';
 
 export type Lane = 'fiction' | 'essays';
 
@@ -11,9 +13,9 @@ export const SCHEDULE: Record<number, Lane> = {
 };
 
 // Vercel functions run in UTC; the editorial workflow runs in the site's local TZ.
-// Anchor "today" and weekday labels here so a 9pm Eastern reorder doesn't roll
+// Anchor "today" and weekday labels here so a late-night reorder doesn't roll
 // into tomorrow's slot.
-export const SITE_TZ = process.env.SITE_TZ ?? 'America/New_York';
+export const DEFAULT_PUBLISH_HOUR_UTC = 14;
 
 export const WEEKDAY_LABEL: Record<number, string> = {
   0: 'Mon',
@@ -94,7 +96,21 @@ export function* slots(
 
 export interface ComputedSlot {
   date: string;
+  scheduledPublishDate: string;
   weekdayLabel: string;
+}
+
+export interface ComputeScheduleOptions {
+  includePastSlots?: boolean;
+  publishHourUtc?: number;
+}
+
+export function scheduledPublishDateForSlot(
+  date: string,
+  publishHourUtc: number = DEFAULT_PUBLISH_HOUR_UTC,
+): string {
+  const [year, month, day] = date.split('-').map((part) => Number(part));
+  return new Date(Date.UTC(year, month - 1, day, publishHourUtc, 0, 0, 0)).toISOString();
 }
 
 export function computeSchedule(
@@ -103,20 +119,27 @@ export function computeSchedule(
   from: Date = new Date(),
   tz: string = SITE_TZ,
   takenDates?: ReadonlySet<string>,
+  options: ComputeScheduleOptions = {},
 ): Map<string, ComputedSlot> {
   const out = new Map<string, ComputedSlot>();
   let fi = 0;
   let ei = 0;
+  const includePastSlots = options.includePastSlots ?? true;
+  const publishHourUtc = options.publishHourUtc ?? DEFAULT_PUBLISH_HOUR_UTC;
   const it = slots(from, tz);
   while (fi < fictionIds.length || ei < essaysIds.length) {
     const next = it.next();
     if (next.done) break;
     const { date, lane, weekdayMonZero } = next.value;
+    const slotDate = isoFromParts({ year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() });
+    const scheduledPublishDate = scheduledPublishDateForSlot(slotDate, publishHourUtc);
     const slot = {
-      date: isoFromParts({ year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() }),
+      date: slotDate,
+      scheduledPublishDate,
       weekdayLabel: formatWeekdayLabel(weekdayMonZero, lane),
     };
     if (takenDates?.has(slot.date)) continue;
+    if (!includePastSlots && new Date(scheduledPublishDate).getTime() <= from.getTime()) continue;
     if (lane === 'fiction' && fi < fictionIds.length) {
       out.set(fictionIds[fi]!, slot);
       fi++;
@@ -138,13 +161,32 @@ export interface QueueDiffNext {
   essaysIds: string[];
 }
 
-interface PostLite {
-  id: string | number;
-  publish_status?: string | null;
-  scheduledPublishDate?: string | null;
+interface SyncQueueOptions extends ComputeScheduleOptions {
+  allowPastScheduledPublishDate?: boolean;
 }
 
-async function loadPostsLite(payload: Pick<Payload, 'find'>, ids: Array<string | number>): Promise<Map<string, PostLite>> {
+type QueueSyncPayload = {
+  find(args: {
+    collection: 'posts';
+    where: { id: { in: Array<string | number> } };
+    limit: number;
+    depth: 0;
+    pagination: false;
+  }): Promise<{ docs: QueueSyncPost[] }>;
+  update(args: {
+    collection: 'posts';
+    id: string | number;
+    data: {
+      publish_status?: 'scheduled' | 'draft';
+      scheduledPublishDate?: string | null;
+    };
+    context?: { allowPastScheduledPublishDate: true };
+  }): Promise<unknown>;
+};
+
+type QueueSyncPost = Pick<Post, 'id' | 'publish_status' | 'scheduledPublishDate'>;
+
+async function loadPostsLite(payload: Pick<QueueSyncPayload, 'find'>, ids: Array<string | number>): Promise<Map<string, QueueSyncPost>> {
   if (ids.length === 0) return new Map();
   const res = await payload.find({
     collection: 'posts',
@@ -153,21 +195,32 @@ async function loadPostsLite(payload: Pick<Payload, 'find'>, ids: Array<string |
     depth: 0,
     pagination: false,
   });
-  const map = new Map<string, PostLite>();
+  const map = new Map<string, QueueSyncPost>();
   for (const doc of res.docs) {
-    map.set(String((doc as { id: string | number }).id), doc as unknown as PostLite);
+    map.set(String(doc.id), doc);
   }
   return map;
 }
 
+function sameScheduledInstant(existing: string | null | undefined, expected: string): boolean {
+  if (!existing) return false;
+  const existingMs = Date.parse(existing);
+  const expectedMs = Date.parse(expected);
+  return !Number.isNaN(existingMs) && existingMs === expectedMs;
+}
+
 export async function syncQueueToPosts(
-  payload: Pick<Payload, 'find' | 'update'>,
+  payload: QueueSyncPayload,
   prev: QueueDiffPrev,
   next: QueueDiffNext,
   from: Date = new Date(),
   takenDates?: ReadonlySet<string>,
+  options: SyncQueueOptions = {},
 ): Promise<void> {
-  const schedule = computeSchedule(next.fictionIds, next.essaysIds, from, SITE_TZ, takenDates);
+  const schedule = computeSchedule(next.fictionIds, next.essaysIds, from, SITE_TZ, takenDates, {
+    includePastSlots: options.includePastSlots ?? false,
+    publishHourUtc: options.publishHourUtc,
+  });
 
   const nextSet = new Set([...next.fictionIds, ...next.essaysIds]);
   const removed = [...new Set([...prev.fictionIds, ...prev.essaysIds])].filter((id) => !nextSet.has(id));
@@ -175,18 +228,20 @@ export async function syncQueueToPosts(
   const allIds = [...nextSet, ...removed];
   const posts = await loadPostsLite(payload, allIds);
 
-  // Posts.afterChange hooks are safe under concurrent updates: revalidate uses
-  // next/server.after to defer path invalidation, and newsletter fanout only
-  // fires on transitions to published/sent (Hopper writes scheduled/draft).
+  // Posts.afterChange hooks are safe under concurrent updates: revalidation
+  // uses next/server.after, and Hopper only writes scheduled/draft state.
   const updates: Promise<unknown>[] = [];
 
   for (const id of nextSet) {
     const post = posts.get(id);
     if (!post) continue;
-    if (post.publish_status === 'published' || post.publish_status === 'sent') continue;
+    if (isPublicPostStatus(post.publish_status)) continue;
     const slot = schedule.get(id);
     if (!slot) continue;
-    if (post.publish_status === 'scheduled' && post.scheduledPublishDate?.slice(0, 10) === slot.date) {
+    if (
+      post.publish_status === 'scheduled' &&
+      sameScheduledInstant(post.scheduledPublishDate, slot.scheduledPublishDate)
+    ) {
       continue;
     }
     updates.push(
@@ -195,8 +250,11 @@ export async function syncQueueToPosts(
         id,
         data: {
           publish_status: 'scheduled',
-          scheduledPublishDate: slot.date,
+          scheduledPublishDate: slot.scheduledPublishDate,
         },
+        ...(options.allowPastScheduledPublishDate
+          ? { context: { allowPastScheduledPublishDate: true } }
+          : {}),
       }),
     );
   }

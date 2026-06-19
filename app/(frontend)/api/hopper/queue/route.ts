@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { Payload } from 'payload';
-import type { Group, Post } from '@/payload-types';
+import type { Group, Post, PublishQueue } from '@/payload-types';
 
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
 import { computeSchedule, syncQueueToPosts, todayInSiteTz } from '@/lib/hopper/syncSchedule';
 import { loadPublishedToday } from '@/lib/hopper/publishedToday';
 import { extractQueueIds, loadLiveQueueIds, loadPostsById } from '@/lib/hopper/loadQueue';
+import { isPublicPostStatus, prePublicOrMissingPostStatusClauses } from '@/lib/post-status';
 
 type Lane = 'fiction' | 'essays';
 
@@ -57,13 +58,15 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
 
   const { posts: publishedToday, takenDates, todayIso } = await loadPublishedToday(payload);
 
-  const schedule = computeSchedule(fictionIds, essaysIds, new Date(), undefined, takenDates);
+  const schedule = computeSchedule(fictionIds, essaysIds, new Date(), undefined, takenDates, {
+    includePastSlots: false,
+  });
 
   const unqueuedRes = await payload.find({
     collection: 'posts',
     where: {
       and: [
-        { publish_status: { in: ['draft', 'scheduled'] } },
+        { or: prePublicOrMissingPostStatusClauses() },
         { id: { not_in: [...fictionIds, ...essaysIds] } },
       ],
     },
@@ -200,7 +203,7 @@ export async function POST(request: Request) {
       if (!post) {
         return NextResponse.json({ error: `Unknown post id: ${id}` }, { status: 400 });
       }
-      if (post.publish_status === 'published' || post.publish_status === 'sent') {
+      if (isPublicPostStatus(post.publish_status)) {
         return NextResponse.json(
           { error: `Post ${id} is already ${post.publish_status} and cannot be queued` },
           { status: 400 },
@@ -215,12 +218,14 @@ export async function POST(request: Request) {
     essaysIds: extractQueueIds((prevGlobal as { essaysQueue?: unknown }).essaysQueue),
   };
 
+  const data = {
+    fictionQueue: fictionIds.map((id) => ({ post: Number(id) })),
+    essaysQueue: essaysIds.map((id) => ({ post: Number(id) })),
+  } satisfies Pick<PublishQueue, 'fictionQueue' | 'essaysQueue'>;
+
   await payload.updateGlobal({
     slug: 'publish-queue',
-    data: {
-      fictionQueue: fictionIds.map((id) => ({ post: Number(id) })),
-      essaysQueue: essaysIds.map((id) => ({ post: Number(id) })),
-    } as never,
+    data,
   });
 
   const { takenDates } = await loadPublishedToday(payload);

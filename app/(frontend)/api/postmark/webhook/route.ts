@@ -1,15 +1,17 @@
-import { timingSafeEqual } from 'crypto';
+import { createHash, timingSafeEqual } from 'crypto';
 import { NextResponse } from 'next/server';
 import { getPayload } from 'payload';
 
 import config from '@payload-config';
 import { logger } from '@/lib/logger';
-import { handlePostmarkWebhook } from '@/lib/postmark-events';
+import { handlePostmarkWebhook, PostmarkWebhookValidationError } from '@/lib/postmark-events';
 
+// Hash both sides to a fixed 32-byte length before comparing, so a length
+// mismatch can't short-circuit and leak the secret's length via timing.
 function safeEqual(a: string, b: string): boolean {
-  const aBuffer = Buffer.from(a);
-  const bBuffer = Buffer.from(b);
-  return aBuffer.length === bBuffer.length && timingSafeEqual(aBuffer, bBuffer);
+  const aHash = createHash('sha256').update(a).digest();
+  const bHash = createHash('sha256').update(b).digest();
+  return timingSafeEqual(aHash, bHash);
 }
 
 function tokenFromAuthorization(header: string | null): string | null {
@@ -75,6 +77,11 @@ export async function POST(request: Request) {
     const result = await handlePostmarkWebhook(payload, body);
     return NextResponse.json({ ok: true, ...result });
   } catch (err) {
+    // Malformed payload — return 400 so Postmark doesn't retry an unprocessable
+    // event. Genuine server faults still return 500 (and get retried).
+    if (err instanceof PostmarkWebhookValidationError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
     logger.error({ err }, '[postmark-webhook] failed to process event');
     return NextResponse.json({ error: 'Failed to process Postmark webhook.' }, { status: 500 });
   }

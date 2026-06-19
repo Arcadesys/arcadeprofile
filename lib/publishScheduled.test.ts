@@ -234,18 +234,18 @@ test('publishScheduledPosts self-heals a queue-#1 essay with a stale stored date
   assert.equal(String(syncWrites[0]!.data.scheduledPublishDate).slice(0, 10), '2026-05-14');
 });
 
-test('publishScheduledPosts no-ops sync when stored date already matches queue slot', async () => {
+test('publishScheduledPosts no-ops sync when stored instant already matches queue slot', async () => {
   const now = new Date(Date.UTC(2026, 4, 14, 16, 0, 0));
 
-  // Fresh, in-sync row: stored date already today's date. The publish loop
-  // promotes it; sync should write nothing.
+  // Fresh, in-sync row: stored scheduled instant already matches today's
+  // queue slot. The publish loop promotes it; sync should write nothing.
   const initial: FixturePost[] = [
     {
       id: 102,
       slug: 'fresh-essay',
       title: 'Fresh Essay',
       publish_status: 'scheduled',
-      scheduledPublishDate: '2026-05-14',
+      scheduledPublishDate: '2026-05-14T14:00:00.000Z',
       publishedDate: null,
       group: null,
       order: null,

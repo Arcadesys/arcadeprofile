@@ -7,13 +7,14 @@ import { getGroupBySlug } from '@/lib/blog';
 import { resolvePostOgImageBySlug } from '@/lib/post-og-image';
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
-import { categoryLabels } from '@/components/menu';
+import { projectCategoryLabels } from '@/lib/project-model';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
 import ShareLinks from '@/app/components/ShareLinks';
 import PostReactions from '@/app/components/PostReactions';
 import { getReactionCounts } from '@/lib/reactions';
+import { formatSiteDate } from '@/lib/site-time';
 import { JsonLd } from '@/lib/structured-data';
 import { buildPostUrl, buildGroupIntroUrl, partNum, resolvePostSlugByPartIndex } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
@@ -174,14 +175,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
 export default async function ProjectPostPage({ params }: Props) {
   const { slug, postSlug } = await params;
 
@@ -265,7 +258,7 @@ export default async function ProjectPostPage({ params }: Props) {
     })),
   };
 
-  const categoryLabel = project.category ? (categoryLabels[project.category] ?? project.category) : null;
+  const categoryLabel = project.category ? (projectCategoryLabels[project.category] ?? project.category) : null;
 
   const drawer = (
     <DocDrawer
@@ -300,7 +293,7 @@ export default async function ProjectPostPage({ params }: Props) {
             {post.title}
           </h1>
           <p style={{ fontSize: '0.8rem', color: 'var(--fg-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em', margin: 0 }}>
-            {formatDate(post.date)}
+            {formatSiteDate(post.date)}
             {post.author && ` · ${post.author}`}
           </p>
         </header>

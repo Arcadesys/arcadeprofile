@@ -2,7 +2,9 @@ import type { MetadataRoute } from 'next';
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
 import { buildPostUrl, buildGroupIntroUrl } from '@/lib/post-url';
+import { hasConfiguredDatabaseURL } from '@/lib/env';
 import { logger } from '@/lib/logger';
+import { publicPostStatusWhere } from '@/lib/post-status';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
@@ -26,6 +28,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency,
     priority,
   }));
+
+  if (!hasConfiguredDatabaseURL()) {
+    return entries;
+  }
 
   try {
     const payload = await getPayload({ config: payloadConfig });
@@ -52,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const posts = await payload.find({
       collection: 'posts',
       where: {
-        publish_status: { in: ['published', 'sent'] },
+        publish_status: publicPostStatusWhere(),
       },
       sort: ['order', 'publishedDate'],
       limit: 1000,

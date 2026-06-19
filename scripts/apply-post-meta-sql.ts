@@ -1,14 +1,9 @@
 /**
  * Apply hand-written SEO meta + discoverability fields via raw SQL.
  *
- * Why raw SQL instead of `payload.update`: Payload's update pipeline runs a
- * "locked documents" check that joins `payload_locked_documents_rels` on every
- * collection's id column. In this project's current state, that table is
- * missing `post_reactions_id` (the 20260514_010000 migration created the
- * post_reactions collection table but didn't extend the rels table), so any
- * payload.update fails before reaching the data layer. Raw UPDATE statements
- * sidestep the issue entirely — and bypass the afterChange newsletter hook
- * by definition.
+ * Why raw SQL instead of `payload.update`: this backfill can update many rows
+ * in one pass while skipping collection hooks. That means no automatic path
+ * revalidation and no interaction with scheduled newsletter delivery state.
  *
  * Trade-off: skips `revalidatePathsFor`. Next.js ISR will pick up the new
  * meta on its natural revalidation cycle, or on the next deploy. For an SEO

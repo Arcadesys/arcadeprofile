@@ -1,7 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { SCHEDULE, computeSchedule, slots, todayInSiteTz, weekdayLabel } from './syncSchedule';
+import type { Post } from '@/payload-types';
+
+import {
+  SCHEDULE,
+  computeSchedule,
+  scheduledPublishDateForSlot,
+  slots,
+  syncQueueToPosts,
+  todayInSiteTz,
+  weekdayLabel,
+} from './syncSchedule';
 
 // 2026-05-13 is a Wednesday in America/New_York. Anchor at 16:00 UTC
 // (noon Eastern daylight time) so the date is unambiguous regardless of
@@ -39,11 +49,22 @@ test('slots() skips weekends and walks forward from Wed', () => {
 test('computeSchedule on Wed: fiction[a,b] essays[c] → a Wed, b Fri, c Thu', () => {
   const map = computeSchedule(['a', 'b'], ['c'], WED, TZ);
   assert.equal(map.get('a')?.date, '2026-05-13');
+  assert.equal(map.get('a')?.scheduledPublishDate, '2026-05-13T14:00:00.000Z');
   assert.equal(map.get('a')?.weekdayLabel, 'Wed · Fiction');
   assert.equal(map.get('b')?.date, '2026-05-15');
   assert.equal(map.get('b')?.weekdayLabel, 'Fri · Fiction');
   assert.equal(map.get('c')?.date, '2026-05-14');
   assert.equal(map.get('c')?.weekdayLabel, 'Thu · Essays');
+});
+
+test('scheduledPublishDateForSlot uses the queue default publish hour', () => {
+  assert.equal(scheduledPublishDateForSlot('2026-05-13'), '2026-05-13T14:00:00.000Z');
+});
+
+test('computeSchedule can skip slots whose publish time has already passed', () => {
+  const map = computeSchedule(['a'], [], WED, TZ, undefined, { includePastSlots: false });
+  assert.equal(map.get('a')?.date, '2026-05-15');
+  assert.equal(map.get('a')?.scheduledPublishDate, '2026-05-15T14:00:00.000Z');
 });
 
 test('computeSchedule rolls fiction over the weekend', () => {
@@ -113,3 +134,125 @@ test('computeSchedule with empty takenDates matches the unguarded behavior', () 
   assert.deepEqual(guarded.get('b'), baseline.get('b'));
   assert.deepEqual(guarded.get('c'), baseline.get('c'));
 });
+
+test('syncQueueToPosts writes full scheduled datetimes and skips past slots by default', async () => {
+  const updates: Array<{ id: string | number; data: Record<string, unknown>; context?: unknown }> = [];
+  const docs: Array<Pick<Post, 'id' | 'publish_status' | 'scheduledPublishDate'>> = [
+    { id: 1, publish_status: 'draft', scheduledPublishDate: null },
+    { id: 2, publish_status: 'draft', scheduledPublishDate: null },
+  ];
+  const payload = {
+    find: async () => paginated(docs),
+    update: async (args: { id: string | number; data: Record<string, unknown>; context?: unknown }) => {
+      updates.push(args);
+      return args;
+    },
+  };
+
+  await syncQueueToPosts(
+    payload,
+    { fictionIds: [], essaysIds: [] },
+    { fictionIds: ['1', '2'], essaysIds: [] },
+    WED,
+    undefined,
+    { includePastSlots: false },
+  );
+
+  assert.equal(updates.length, 2);
+  assert.equal(updates[0]!.data.scheduledPublishDate, '2026-05-15T14:00:00.000Z');
+  assert.equal(updates[1]!.data.scheduledPublishDate, '2026-05-18T14:00:00.000Z');
+  assert.equal(updates[0]!.context, undefined);
+});
+
+test('syncQueueToPosts rewrites matching dates with the wrong scheduled instant', async () => {
+  const updates: Array<{ id: string | number; data: Record<string, unknown>; context?: unknown }> = [];
+  const docs: Array<Pick<Post, 'id' | 'publish_status' | 'scheduledPublishDate'>> = [
+    { id: 1, publish_status: 'scheduled', scheduledPublishDate: '2026-05-15' },
+  ];
+  const payload = {
+    find: async () => paginated(docs),
+    update: async (args: { id: string | number; data: Record<string, unknown>; context?: unknown }) => {
+      updates.push(args);
+      return args;
+    },
+  };
+
+  await syncQueueToPosts(
+    payload,
+    { fictionIds: [], essaysIds: [] },
+    { fictionIds: ['1'], essaysIds: [] },
+    WED,
+    undefined,
+    { includePastSlots: false },
+  );
+
+  assert.equal(updates.length, 1);
+  assert.equal(updates[0]!.data.scheduledPublishDate, '2026-05-15T14:00:00.000Z');
+});
+
+test('syncQueueToPosts no-ops when stored scheduled instant already matches', async () => {
+  const updates: Array<{ id: string | number; data: Record<string, unknown>; context?: unknown }> = [];
+  const docs: Array<Pick<Post, 'id' | 'publish_status' | 'scheduledPublishDate'>> = [
+    { id: 1, publish_status: 'scheduled', scheduledPublishDate: '2026-05-15T14:00:00Z' },
+  ];
+  const payload = {
+    find: async () => paginated(docs),
+    update: async (args: { id: string | number; data: Record<string, unknown>; context?: unknown }) => {
+      updates.push(args);
+      return args;
+    },
+  };
+
+  await syncQueueToPosts(
+    payload,
+    { fictionIds: [], essaysIds: [] },
+    { fictionIds: ['1'], essaysIds: [] },
+    WED,
+    undefined,
+    { includePastSlots: false },
+  );
+
+  assert.equal(updates.length, 0);
+});
+
+test('syncQueueToPosts can include due slots for cron self-heal with validation context', async () => {
+  const updates: Array<{ id: string | number; data: Record<string, unknown>; context?: unknown }> = [];
+  const docs: Array<Pick<Post, 'id' | 'publish_status' | 'scheduledPublishDate'>> = [
+    { id: 1, publish_status: 'draft', scheduledPublishDate: null },
+  ];
+  const payload = {
+    find: async () => paginated(docs),
+    update: async (args: { id: string | number; data: Record<string, unknown>; context?: unknown }) => {
+      updates.push(args);
+      return args;
+    },
+  };
+
+  await syncQueueToPosts(
+    payload,
+    { fictionIds: [], essaysIds: [] },
+    { fictionIds: ['1'], essaysIds: [] },
+    WED,
+    undefined,
+    { includePastSlots: true, allowPastScheduledPublishDate: true },
+  );
+
+  assert.equal(updates.length, 1);
+  assert.equal(updates[0]!.data.scheduledPublishDate, '2026-05-13T14:00:00.000Z');
+  assert.deepEqual(updates[0]!.context, { allowPastScheduledPublishDate: true });
+});
+
+function paginated<T>(docs: T[]) {
+  return {
+    docs,
+    totalDocs: docs.length,
+    limit: docs.length,
+    totalPages: 1,
+    page: 1,
+    pagingCounter: 1,
+    hasPrevPage: false,
+    hasNextPage: false,
+    prevPage: null,
+    nextPage: null,
+  };
+}

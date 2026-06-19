@@ -1,9 +1,7 @@
 import type { Payload } from 'payload';
 
 import { buildPostUrl, computePostPartIndex } from '@/lib/post-url';
-// `computePostPartIndex` is still used as a presence check — a post with a
-// group but no resolvable position in the published list is treated as
-// not-shareable, same as before.
+import { isPublicPostStatus } from '@/lib/post-status';
 import type { ShareUrlResponse } from '@/lib/post-share-url-types';
 import type { Post } from '@/payload-types';
 
@@ -30,7 +28,7 @@ export async function resolvePostShareUrl(
     return { url: null, absoluteUrl: null, reason: 'not-found' };
   }
 
-  if (post.publish_status !== 'published' && post.publish_status !== 'sent') {
+  if (!isPublicPostStatus(post.publish_status)) {
     return { url: null, absoluteUrl: null, reason: 'draft' };
   }
 
@@ -44,6 +42,8 @@ export async function resolvePostShareUrl(
     return { url: null, absoluteUrl: null, reason: 'no-group' };
   }
 
+  // `computePostPartIndex` is still used as a presence check: a post with a
+  // group but no published-list position is treated as not-shareable.
   const partIndex = await computePostPartIndex(payload, slug, groupSlug);
   if (partIndex === null) {
     return { url: null, absoluteUrl: null, reason: 'not-found' };

@@ -102,12 +102,15 @@ test('isReactionEmoji accepts the curated set and rejects everything else', () =
   assert.ok(!isReactionEmoji(42));
 });
 
-test('parsePostId rejects non-integers, zero, negatives, and junk', () => {
+test('parsePostId rejects non-integers, coercions, zero, negatives, and junk', () => {
   assert.equal(parsePostId('1'), 1);
   assert.equal(parsePostId('42'), 42);
   assert.equal(parsePostId('0'), null);
   assert.equal(parsePostId('-3'), null);
   assert.equal(parsePostId('1.5'), null);
+  assert.equal(parsePostId('0x10'), null);
+  assert.equal(parsePostId('1e3'), null);
+  assert.equal(parsePostId(String(Number.MAX_SAFE_INTEGER + 1)), null);
   assert.equal(parsePostId('abc'), null);
   assert.equal(parsePostId(''), null);
 });

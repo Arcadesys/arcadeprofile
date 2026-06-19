@@ -15,6 +15,7 @@ import { ValidationError } from 'payload';
  * scheduler from ever publishing anything.
  */
 export const validateScheduledPublishDateHook: CollectionBeforeChangeHook = ({
+  context,
   data,
   originalDoc,
 }) => {
@@ -27,6 +28,7 @@ export const validateScheduledPublishDateHook: CollectionBeforeChangeHook = ({
       ? (data as { publish_status: string }).publish_status
       : (originalDoc as { publish_status?: string } | undefined)?.publish_status || 'draft';
   if (status !== 'scheduled') return data;
+  if (context.allowPastScheduledPublishDate === true) return data;
 
   const raw = (data as { scheduledPublishDate?: unknown }).scheduledPublishDate;
   if (!raw || typeof raw !== 'string') return data;

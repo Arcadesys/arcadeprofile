@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         const listId = getAudienceListId(audience);
         await syncSubscriberToActiveCampaign({
           email,
-          listIdOverride: listId,
+          listId,
           status: wantsIt ? 1 : 2,
         });
       } catch (err) {

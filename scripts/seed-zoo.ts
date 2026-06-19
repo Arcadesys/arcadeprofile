@@ -6,30 +6,31 @@
  */
 
 import { getPayload } from 'payload';
-import { createHeadlessEditor } from '@payloadcms/richtext-lexical/lexical/headless';
-import {
-  $convertFromMarkdownString,
-  TRANSFORMERS,
-} from '@payloadcms/richtext-lexical/lexical/markdown';
-import { getEnabledNodes, editorConfigFactory } from '@payloadcms/richtext-lexical';
+
+import type { Post } from '../payload-types';
 import configPromise from '../payload.config';
+import { createMarkdownToLexical } from './lib/markdown-to-lexical';
+
+type ZooSeedPost = {
+  title: string;
+  slug: string;
+  order: number;
+  publishedDate: string;
+  scheduledPublishDate: string;
+  tags: string[];
+  excerpt: string;
+  content: string;
+  meta: NonNullable<Post['meta']>;
+  discoverability: NonNullable<Post['discoverability']>;
+  newsletterHeading: string;
+  newsletterDescription: string;
+};
 
 async function main() {
   const payload = await getPayload({ config: configPromise });
-  const sanitizedConfig = await payload.config;
-  const editorConfig = await editorConfigFactory.default({ config: sanitizedConfig });
-  const nodes = getEnabledNodes({ editorConfig });
+  const markdownToLexical = await createMarkdownToLexical(payload);
 
-  function markdownToLexical(markdown: string): unknown {
-    const editor = createHeadlessEditor({ nodes });
-    editor.update(
-      () => { $convertFromMarkdownString(markdown, TRANSFORMERS); },
-      { discrete: true },
-    );
-    return editor.getEditorState().toJSON();
-  }
-
-  const posts = [
+  const posts: ZooSeedPost[] = [
     {
       title: 'It Takes a Zoo',
       slug: 'it-takes-a-zoo',
@@ -67,7 +68,6 @@ They’ll always find a home within the Zoo.`,
       discoverability: {
         search_summary: 'Opening poem for It Takes a Zoo to Raise a Child, a serialized fiction series about chosen family, surveillance, and finding belonging in unexpected places. Written in-world by Jumpin’ Jackrabbit.',
         social_hook: 'A new serialized fiction series begins Sunday. It starts with a poem. It ends somewhere you didn’t expect. Welcome to the Zoo.',
-        canonical_path: '/projects/it-takes-a-zoo/01',
       },
       newsletterHeading: 'It Takes a Zoo',
       newsletterDescription: 'A new series begins. This is the poem that opens it — by Jumpin’ Jackrabbit, who knows a thing or two about raising a child in strange times. Cold Boot, the first chapter, starts Monday.',
@@ -163,7 +163,6 @@ Anabelle better be right about this place.`,
       discoverability: {
         search_summary: 'Opening installment of Cold Boot, a serialized cyberpunk short story about chosen family, surveillance, and finding the door that stays open. Jamie hates her virtual cubicle job. Anabelle hands her a card.',
         social_hook: "New serialized short story starts today: Cold Boot, Part 1. Jamie’s job is in hell — not capital-H Hell, that’s a different server — and her coworker just handed her a card to somewhere quiet, safe, and weird.",
-        canonical_path: '/projects/it-takes-a-zoo/02',
       },
       newsletterHeading: 'Cold Boot — Part 1: Morning',
       newsletterDescription: 'A new serialized short story starts today. Eight parts, every Monday/Wednesday/Friday. Part 1 introduces Jamie, her algorithm boss Stinky Pete, and the card that changes everything.',
@@ -265,7 +264,6 @@ And the greige world fell away, thank _fuck._`,
       discoverability: {
         search_summary: "Part 2 of Cold Boot. Jamie meets her neighbor Geoff at the building's Vend-O-Matic, panics afterward, and finally takes Anabelle up on the invitation to a private server. Stinky Pete watches from the ceiling.",
         social_hook: 'Cold Boot, Part 2 is live. Jamie sweet-talks a vending machine and accidentally short-circuits her neighbor in the process. Then Stinky Pete starts asking questions.',
-        canonical_path: '/projects/it-takes-a-zoo/03',
       },
       newsletterHeading: 'Cold Boot — Part 2: Dinner',
       newsletterDescription: "Part 2 of 8. Jamie’s kindness to a machine costs her more than she planned, and the only way out is in.",
@@ -431,7 +429,6 @@ Jack smiled, put his paws over my hands, and led me to the door. "Some answers h
       discoverability: {
         search_summary: 'Part 3 of Cold Boot. Jamie’s first visit to the Zoo: a private server that runs on rain, jazz, and a strict no-logout-button policy. She panics. Jack the proprietor shows her the door anyway.',
         social_hook: 'Cold Boot, Part 3 is live. Jamie knocks three times. The door opens to a tavern made of rain, jazz, and people who don’t have logout buttons. Then she panics.',
-        canonical_path: '/projects/it-takes-a-zoo/04',
       },
       newsletterHeading: 'Cold Boot — Part 3: Rain',
       newsletterDescription: 'Part 3 of 8. Jamie steps into the Zoo for the first time. There’s a cat behind the bar who used to be her coworker. There’s no logout button anywhere.',
@@ -541,7 +538,6 @@ Anabelle grinned, all teeth.
       discoverability: {
         search_summary: 'Part 4 of Cold Boot. Jamie returns to her surveilled apartment after the Zoo. Anabelle’s avatar calls her. They negotiate the truth of what kind of place the Zoo is, and what Jamie wants from it.',
         social_hook: 'Cold Boot, Part 4 is live. The morning after. Anabelle has explaining to do. Jamie has truths she hasn’t said out loud in years.',
-        canonical_path: '/projects/it-takes-a-zoo/05',
       },
       newsletterHeading: 'Cold Boot — Part 4: Greige. Again.',
       newsletterDescription: 'Part 4 of 8. Jamie’s back in greige reality. Stinky Pete is unhappy about her vitals. Anabelle calls.',
@@ -595,7 +591,6 @@ It was the first thing someone had offered me without asking for something back.
       discoverability: {
         search_summary: 'Part 5 of Cold Boot. Jamie comes back. The Zoo applauds. A spiky teenager named Kat slides half her cursed soda across the bar — the first thing anyone’s offered Jamie without strings attached.',
         social_hook: 'Cold Boot, Part 5 is live. Jamie comes back. The bar applauds like she scored a touchdown. Kat slides her half a cursed soda. Something inside her unwinds.',
-        canonical_path: '/projects/it-takes-a-zoo/06',
       },
       newsletterHeading: 'Cold Boot — Part 5: Warmth',
       newsletterDescription: 'Part 5 of 8. Short and warm. Jamie says yes.',
@@ -719,7 +714,6 @@ My body slid into the water like a hand into a glove, and I moved through it lik
       discoverability: {
         search_summary: 'Part 6 of Cold Boot. The transformation. Anabelle takes Jamie to a private beach behind the bar. Sand, surf, a mirror. Jamie meets the shark she’s always been.',
         social_hook: 'Cold Boot, Part 6 is live. Sand under bare feet. Salt and tangerines. The water knows her. She isn’t becoming something else — she’s making room for what was always there.',
-        canonical_path: '/projects/it-takes-a-zoo/07',
       },
       newsletterHeading: 'Cold Boot — Part 6: Tide',
       newsletterDescription: 'Part 6 of 8. The transformation chapter. Bring tissues.',
@@ -907,7 +901,6 @@ They let me cry until the tears were all gone. Then, nodding, I clicked my heels
       discoverability: {
         search_summary: 'Part 7 of Cold Boot. Bar conversation. The Kats hug Jamie. Jack notices her flinch. Vivian names what’s underneath. Jamie cracks open.',
         social_hook: 'Cold Boot, Part 7 is live. The Kats want to know how she ended up at the Zoo. Jack notices the flinch. Vivian names what’s underneath. The door stays open.',
-        canonical_path: '/projects/it-takes-a-zoo/08',
       },
       newsletterHeading: 'Cold Boot — Part 7: Later',
       newsletterDescription: 'Part 7 of 8. The longest one. Bring tissues again.',
@@ -955,7 +948,6 @@ It always did.`,
       discoverability: {
         search_summary: 'Final installment of Cold Boot. The morning after Jamie’s first night at the Zoo. A real drawing — paper, ink, marker — taped to her door. The dedication ties the whole night together. The door stays open.',
         social_hook: 'Cold Boot, Part 8 is live. The finale. Someone left her a drawing. The kind made with paper and markers that smell like supplies. The dedication ties everything together. The door stays open.',
-        canonical_path: '/projects/it-takes-a-zoo/09',
       },
       newsletterHeading: 'Cold Boot — Part 8: Knock',
       newsletterDescription: 'Part 8 of 8. The finale. Cold Boot is the first chapter of It Takes a Zoo to Raise a Child. More to come.',
@@ -981,19 +973,19 @@ It always did.`,
         title: post.title,
         slug: post.slug,
         excerpt: post.excerpt,
-        content: markdownToLexical(post.content) as never,
+        content: markdownToLexical(post.content),
         publishedDate: post.publishedDate,
         publish_status: 'scheduled',
         group: 'it-takes-a-zoo',
         order: post.order,
         scheduledPublishDate: post.scheduledPublishDate,
         tags: post.tags.map((t) => ({ tag: t })),
-        meta: post.meta as never,
-        discoverability: post.discoverability as never,
+        meta: post.meta,
+        discoverability: post.discoverability,
         newsletterHeading: post.newsletterHeading,
         newsletterDescription: post.newsletterDescription,
-        // Seed seasons-in-advance: skip the per-post fan-out so cron-promoted
-        // posts don't blast subscribers with already-scheduled content.
+        // Seed seasons-in-advance: keep cron-promoted archival posts from
+        // sending Postmark newsletters for already-scheduled content.
         suppressNewsletter: true,
       },
     });

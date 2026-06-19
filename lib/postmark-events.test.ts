@@ -141,6 +141,34 @@ test('normalizePostmarkWebhook maps delivery payload metadata', () => {
   });
 });
 
+test('normalizePostmarkWebhook does not truncate malformed post ids', () => {
+  const event = normalizePostmarkWebhook({
+    MessageID: 'pm-1',
+    Recipient: 'Reader@Example.com',
+    DeliveredAt: '2026-06-06T13:01:00.000Z',
+    RecordType: 'Delivery',
+    Metadata: {
+      postId: '1abc',
+    },
+  });
+
+  assert.equal(event.postId, undefined);
+});
+
+test('normalizePostmarkWebhook ignores unsafe integer post ids', () => {
+  const event = normalizePostmarkWebhook({
+    MessageID: 'pm-1',
+    Recipient: 'Reader@Example.com',
+    DeliveredAt: '2026-06-06T13:01:00.000Z',
+    RecordType: 'Delivery',
+    Metadata: {
+      postId: String(Number.MAX_SAFE_INTEGER + 1),
+    },
+  });
+
+  assert.equal(event.postId, undefined);
+});
+
 test('handlePostmarkWebhook records event and refreshes post newsletter summary', async () => {
   const post = makePost({
     newsletterSend: {

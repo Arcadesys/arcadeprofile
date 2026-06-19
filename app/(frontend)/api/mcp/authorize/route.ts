@@ -1,30 +1,29 @@
 import type { NextRequest } from 'next/server';
-import { timingSafeEqual } from 'crypto';
-import { escapeHtml, generateAuthCode } from '@/lib/mcp-oauth';
+import {
+  escapeHtml,
+  generateAuthCode,
+  isAllowedRedirectUri,
+  safeStringEqual,
+} from '@/lib/mcp-oauth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 function oauthError(redirectUri: string, state: string | undefined, error: string, description: string): Response {
-  try {
-    const url = new URL(redirectUri);
-    url.searchParams.set('error', error);
-    url.searchParams.set('error_description', description);
-    if (state) url.searchParams.set('state', state);
-    return Response.redirect(url.toString(), 302);
-  } catch {
-    return new Response(`${error}: ${description}`, { status: 400 });
+  // Only redirect to a validated URI — never bounce errors (which may carry a
+  // code or reveal state) to an unvetted destination.
+  if (isAllowedRedirectUri(redirectUri)) {
+    try {
+      const url = new URL(redirectUri);
+      url.searchParams.set('error', error);
+      url.searchParams.set('error_description', description);
+      if (state) url.searchParams.set('state', state);
+      return Response.redirect(url.toString(), 302);
+    } catch {
+      // fall through to plain response
+    }
   }
-}
-
-function checkPassword(input: string, expected: string): boolean {
-  try {
-    const a = Buffer.from(input);
-    const b = Buffer.from(expected);
-    return a.length === b.length && timingSafeEqual(a, b);
-  } catch {
-    return false;
-  }
+  return new Response(`${error}: ${description}`, { status: 400 });
 }
 
 // GET — render the confirmation page
@@ -42,6 +41,9 @@ export async function GET(req: NextRequest): Promise<Response> {
   }
   if (!clientId || !redirectUri || !codeChallenge) {
     return new Response('invalid_request: missing required parameters', { status: 400 });
+  }
+  if (!isAllowedRedirectUri(redirectUri)) {
+    return new Response('invalid_request: redirect_uri is not allowed', { status: 400 });
   }
 
   const html = `<!DOCTYPE html>
@@ -146,6 +148,9 @@ export async function POST(req: NextRequest): Promise<Response> {
   if (!clientId || !redirectUri || !codeChallenge) {
     return new Response('invalid_request', { status: 400 });
   }
+  if (!isAllowedRedirectUri(redirectUri)) {
+    return new Response('invalid_request: redirect_uri is not allowed', { status: 400 });
+  }
 
   if (action === 'deny') {
     return oauthError(redirectUri, state, 'access_denied', 'User denied the request');
@@ -158,7 +163,7 @@ export async function POST(req: NextRequest): Promise<Response> {
     return oauthError(redirectUri, state, 'server_error', 'Server is not configured');
   }
 
-  if (!checkPassword(password, authorizePassword)) {
+  if (!safeStringEqual(password, authorizePassword)) {
     return oauthError(redirectUri, state, 'access_denied', 'Invalid password');
   }
 

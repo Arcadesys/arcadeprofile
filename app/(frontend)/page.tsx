@@ -3,39 +3,54 @@ import { getPayload } from 'payload';
 import config from '@payload-config';
 import StartHereCard from '../components/StartHereCard';
 import SubscribeCTA from '../components/SubscribeCTA';
+import { hasConfiguredDatabaseURL } from '@/lib/env';
 import { getPostLocationBySlug } from '@/lib/post-url';
-
-// TODO: confirm against production CMS — set to the slug of the post you want
-// featured at the top of the home page. If the slug doesn't resolve, the card
-// is omitted rather than 404-linking.
-const START_HERE_POST_SLUG = 'carl-01';
+import { publicPostStatusWhere } from '@/lib/post-status';
 
 export default async function HomePage() {
   let featuredGroups: { id: string | number; title: string; description?: string | null; slug?: string | null; href?: string | null; external?: boolean | null }[] = [];
   let startHereHref: string | null = null;
 
-  try {
-    const payload = await getPayload({ config });
-    const [groupsResult, startHereLoc] = await Promise.all([
-      payload.find({
-        collection: 'groups',
-        where: { homeHighlight: { equals: true } },
-        limit: 10,
-      }),
-      getPostLocationBySlug(payload, START_HERE_POST_SLUG),
-    ]);
-    featuredGroups = groupsResult.docs.map((doc) => ({
-      id: doc.id,
-      title: doc.title,
-      description: doc.description,
-      slug: doc.slug,
-      href: doc.href,
-      external: doc.external,
-    }));
-    startHereHref = startHereLoc?.url ?? null;
-  } catch {
-    // fall through to empty list / hidden card
+  if (hasConfiguredDatabaseURL()) {
+    try {
+      const payload = await getPayload({ config });
+      const [groupsResult, startHereResult] = await Promise.all([
+        payload.find({
+          collection: 'groups',
+          where: { homeHighlight: { equals: true } },
+          limit: 10,
+        }),
+        payload.find({
+          collection: 'posts',
+          where: {
+            and: [
+              { 'discoverability.featured_on_start_here': { equals: true } },
+              { publish_status: publicPostStatusWhere() },
+            ],
+          },
+          sort: '-publishedDate',
+          limit: 1,
+          depth: 0,
+          overrideAccess: true,
+        }),
+      ]);
+      featuredGroups = groupsResult.docs.map((doc) => ({
+        id: doc.id,
+        title: doc.title,
+        description: doc.description,
+        slug: doc.slug,
+        href: doc.href,
+        external: doc.external,
+      }));
+      const startHereSlug = startHereResult.docs[0]?.slug as string | undefined;
+      if (startHereSlug) {
+        startHereHref = (await getPostLocationBySlug(payload, startHereSlug))?.url ?? null;
+      }
+    } catch {
+      // fall through to empty list / hidden card
+    }
   }
+
   return (
     <main style={{ position: 'relative', zIndex: 1, padding: 'clamp(1.5rem, 5vw, 4rem) 1rem', maxWidth: '600px', margin: '0 auto' }}>
       {/* Hero: avatar + value-prop headline */}

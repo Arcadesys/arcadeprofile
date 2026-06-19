@@ -2,13 +2,52 @@ import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
 import type { Models } from 'postmark';
 
-import { LinkTrackingOptions, PostmarkBatchSendError, sendPostmarkNewsletterEmail } from './postmark';
+import {
+  LinkTrackingOptions,
+  PostmarkBatchSendError,
+  type PostmarkSendEmailResponse,
+  sendPostmarkNewsletterEmail,
+  sendPostmarkTransactionalEmail,
+} from './postmark';
 
 afterEach(() => {
   delete process.env.POSTMARK_FROM_EMAIL;
   delete process.env.POSTMARK_FROM_NAME;
+  delete process.env.POSTMARK_TRANSACTIONAL_STREAM;
   delete process.env.POSTMARK_BROADCAST_STREAM;
   delete process.env.POSTMARK_NEWSLETTER_STREAM;
+});
+
+test('sendPostmarkTransactionalEmail uses formatted sender and transactional stream', async () => {
+  process.env.POSTMARK_FROM_EMAIL = 'news@example.com';
+  process.env.POSTMARK_FROM_NAME = 'The Arcades';
+  process.env.POSTMARK_TRANSACTIONAL_STREAM = 'transactional';
+  const sentMessages: Models.Message[] = [];
+
+  const response = await sendPostmarkTransactionalEmail({
+    to: 'reader@example.com',
+    subject: 'Preview',
+    htmlBody: '<p>Hello</p>',
+    textBody: 'Hello',
+    client: {
+      async sendEmail(message) {
+        sentMessages.push(message);
+        return {
+          ErrorCode: 0,
+          Message: 'OK',
+          MessageID: 'pm-transactional',
+          SubmittedAt: '2026-06-06T12:00:00.000Z',
+          To: message.To,
+        } as PostmarkSendEmailResponse;
+      },
+    },
+  });
+
+  assert.equal(response.MessageID, 'pm-transactional');
+  const sentMessage = sentMessages[0];
+  assert.ok(sentMessage);
+  assert.equal(sentMessage?.From, 'The Arcades <news@example.com>');
+  assert.equal(sentMessage?.MessageStream, 'transactional');
 });
 
 test('sendPostmarkNewsletterEmail batches recipients and records message ids', async () => {

@@ -7,13 +7,14 @@ import { getGroupBySlug } from '@/lib/blog';
 import { resolveGroupOgImage } from '@/lib/post-og-image';
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
-import { categoryLabels } from '@/components/menu';
+import { projectCategoryLabels, projectResourceLabels, projectStatusLabels } from '@/lib/project-model';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import PostRichText from '@/app/components/PostRichText';
 import { JsonLd } from '@/lib/structured-data';
 import { buildPostUrl, buildGroupIntroUrl, partNum } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
+import { formatSiteDate } from '@/lib/site-time';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
@@ -131,13 +132,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const statusLabels: Record<string, string> = {
-  active: 'Active',
-  available: 'Available',
-  'in-progress': 'In Progress',
-  archived: 'Archived',
-};
-
 const ctaIcons: Record<string, string> = {
   preview: '📖',
   buy: '🛒',
@@ -148,26 +142,6 @@ const ctaIcons: Record<string, string> = {
   download: '↓',
   other: '→',
 };
-
-const resourceLabels: Record<string, string> = {
-  post: 'Post',
-  preview: 'Sample',
-  buy: 'Buy',
-  youtube: 'Video',
-  audio: 'Audio',
-  experiment: 'Experiment',
-  repo: 'Repository',
-  download: 'Download',
-  other: 'Link',
-};
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
 
 export default async function ProjectIntroPage({ params }: Props) {
   const { slug } = await params;
@@ -211,7 +185,7 @@ export default async function ProjectIntroPage({ params }: Props) {
     })),
   };
 
-  const categoryLabel = project.category ? (categoryLabels[project.category] ?? project.category) : null;
+  const categoryLabel = project.category ? (projectCategoryLabels[project.category] ?? project.category) : null;
 
   const drawer = (
     <DocDrawer
@@ -241,7 +215,7 @@ export default async function ProjectIntroPage({ params }: Props) {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
             {categoryLabel && <Badge>{categoryLabel}</Badge>}
             {project.status && (
-              <Badge pink>{statusLabels[project.status] ?? project.status}</Badge>
+              <Badge pink>{projectStatusLabels[project.status] ?? project.status}</Badge>
             )}
           </div>
           <h1 style={{ fontSize: '2.25rem', lineHeight: 1.15, marginBottom: '1rem', fontWeight: 700 }}>
@@ -308,7 +282,7 @@ export default async function ProjectIntroPage({ params }: Props) {
                   rel={r.external ? 'noopener noreferrer' : undefined}
                   style={resourceRowStyle}
                 >
-                  <span style={kindTagStyle}>{resourceLabels[r.kind] ?? r.kind}</span>
+                  <span style={kindTagStyle}>{projectResourceLabels[r.kind] ?? r.kind}</span>
                   <span style={{ fontSize: '0.9rem' }}>{r.label}</span>
                   {r.description && (
                     <span style={{ fontSize: '0.8rem', color: 'var(--fg-muted)', marginLeft: 'auto' }}>
@@ -363,7 +337,7 @@ export default async function ProjectIntroPage({ params }: Props) {
                               </div>
                             )}
                           </div>
-                          <span style={{ ...monoMutedStyle, whiteSpace: 'nowrap' }}>{formatDate(p.date)}</span>
+                          <span style={{ ...monoMutedStyle, whiteSpace: 'nowrap' }}>{formatSiteDate(p.date)}</span>
                         </Link>
                       </li>
                     ))}

@@ -1,5 +1,9 @@
 import type { NextRequest } from 'next/server';
-import { verifyAuthCode, verifyPkce } from '@/lib/mcp-oauth';
+import { generateAccessToken, verifyAuthCode, verifyPkce } from '@/lib/mcp-oauth';
+
+// Access-token lifetime. Long enough for a connector session, short enough to
+// bound exposure; rotating MCP_API_KEY invalidates all outstanding tokens.
+const ACCESS_TOKEN_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -58,13 +62,22 @@ export async function POST(req: NextRequest): Promise<Response> {
     return tokenError('invalid_grant', 'PKCE verification failed');
   }
 
-  // The access token is the MCP_API_KEY itself — existing Bearer auth in the
-  // main MCP route validates it directly.
+  // Issue a short-lived, scoped token signed with MCP_API_KEY — never the
+  // master key itself. The main MCP route validates the signature + expiry.
+  const accessToken = generateAccessToken(
+    {
+      scope: 'write',
+      clientId: payload.clientId,
+      exp: Date.now() + ACCESS_TOKEN_TTL_SECONDS * 1000,
+    },
+    mcpApiKey,
+  );
+
   return Response.json(
     {
-      access_token: mcpApiKey,
+      access_token: accessToken,
       token_type: 'Bearer',
-      expires_in: 31536000, // 1 year — rotate MCP_API_KEY to revoke
+      expires_in: ACCESS_TOKEN_TTL_SECONDS,
     },
     { headers: CORS },
   );

@@ -14,7 +14,6 @@ function setAcEnv(overrides: Record<string, string | undefined> = {}) {
   const defaults: Record<string, string> = {
     AC_API_URL: 'https://example.api-us1.com',
     AC_API_KEY: 'test-key',
-    AC_NEWSLETTER_LIST_ID: '3',
     AC_LIST_ID_ALL_PERPOST: '7',
     AC_LIST_ID_FICTION_PERPOST: '9',
     AC_LIST_ID_ESSAYS_PERPOST: '10',
@@ -32,13 +31,11 @@ function clearAcEnv() {
   for (const k of [
     'AC_API_URL',
     'AC_API_KEY',
-    'AC_NEWSLETTER_LIST_ID',
     'AC_LIST_ID_ALL_PERPOST',
     'AC_LIST_ID_FICTION_PERPOST',
     'AC_LIST_ID_ESSAYS_PERPOST',
     'ACTIVECAMPAIGN_API_URL',
     'ACTIVECAMPAIGN_API_KEY',
-    'ACTIVECAMPAIGN_LIST_ID',
   ]) {
     delete process.env[k];
   }
@@ -143,6 +140,21 @@ test('listActiveContactsForList surfaces ActiveCampaign errors', async () => {
   );
 });
 
+test('listActiveContactsForList rejects malformed list ids instead of truncating them', async () => {
+  setAcEnv();
+
+  await assert.rejects(
+    () =>
+      listActiveContactsForList({
+        listId: '7abc',
+        fetchImpl: async () => {
+          throw new Error('fetch should not be called');
+        },
+      }),
+    /Newsletter list id must be a positive integer/,
+  );
+});
+
 test('syncSubscriberToActiveCampaign upserts contact then subscribes to list', async () => {
   setAcEnv();
   const requests: Array<{ url: string; body: unknown }> = [];
@@ -157,7 +169,7 @@ test('syncSubscriberToActiveCampaign upserts contact then subscribes to list', a
 
   const result = await syncSubscriberToActiveCampaign({
     email: 'reader@example.com',
-    listIdOverride: '9',
+    listId: '9',
     fetchImpl,
   });
 
@@ -187,7 +199,7 @@ test('syncSubscriberToActiveCampaign forwards unsubscribe status', async () => {
 
   await syncSubscriberToActiveCampaign({
     email: 'reader@example.com',
-    listIdOverride: '9',
+    listId: '9',
     status: 2,
     fetchImpl,
   });
@@ -199,6 +211,30 @@ test('syncSubscriberToActiveCampaign forwards unsubscribe status', async () => {
       status: 2,
     },
   });
+});
+
+test('syncSubscriberToActiveCampaign rejects malformed contact ids instead of truncating them', async () => {
+  setAcEnv();
+  const requests: Array<{ url: string; body: unknown }> = [];
+  const fetchImpl: typeof fetch = async (input, init) => {
+    const url = urlPath(input);
+    requests.push({ url, body: JSON.parse(String(init?.body ?? '{}')) });
+    if (url.endsWith('/api/3/contact/sync')) {
+      return new Response(JSON.stringify({ contact: { id: '42abc' } }), { status: 200 });
+    }
+    throw new Error('contactLists should not be called');
+  };
+
+  await assert.rejects(
+    () =>
+      syncSubscriberToActiveCampaign({
+        email: 'reader@example.com',
+        listId: '9',
+        fetchImpl,
+      }),
+    /ActiveCampaign contact id must be a positive integer/,
+  );
+  assert.equal(requests.length, 1);
 });
 
 test('syncSubscriberToActiveCampaign treats already-on-list 422 as success', async () => {
@@ -215,9 +251,25 @@ test('syncSubscriberToActiveCampaign treats already-on-list 422 as success', asy
 
   const result = await syncSubscriberToActiveCampaign({
     email: 'reader@example.com',
-    listIdOverride: '9',
+    listId: '9',
     fetchImpl,
   });
 
   assert.deepEqual(result, { contactId: '42' });
+});
+
+test('syncSubscriberToActiveCampaign requires an explicit audience list id', async () => {
+  setAcEnv();
+
+  await assert.rejects(
+    () =>
+      syncSubscriberToActiveCampaign({
+        email: 'reader@example.com',
+        listId: '',
+        fetchImpl: async () => {
+          throw new Error('fetch should not be called');
+        },
+      }),
+    /ActiveCampaign list id is required/,
+  );
 });

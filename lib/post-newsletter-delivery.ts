@@ -1,6 +1,6 @@
 import type { Payload } from 'payload';
 
-import type { Post } from '@/payload-types';
+import type { Group, Post } from '@/payload-types';
 import {
   ActiveCampaignError,
   resolveActiveCampaignRecipientsForLists,
@@ -47,6 +47,10 @@ export type NewsletterDeliveryOutcome =
   | { kind: 'skipped'; reason: string; state: NewsletterSendState };
 
 export type NewsletterDeliveryPayload = Pick<Payload, 'create' | 'find' | 'findByID' | 'update'>;
+type PopulatedPostGroup = Pick<Group, 'category' | 'slug'>;
+type NewsletterPost = Omit<Post, 'group'> & {
+  group?: Post['group'] | PopulatedPostGroup | null;
+};
 
 type Deps = {
   resolveRecipients?: typeof resolveActiveCampaignRecipientsForLists;
@@ -66,6 +70,12 @@ function describeError(err: unknown): string {
 
 function joinIds(ids: string[]): string {
   return ids.join(',');
+}
+
+function getPostGroupSlug(group: NewsletterPost['group']): string | null {
+  if (!group) return null;
+  if (typeof group === 'string') return group.trim() || null;
+  return group.slug?.trim() || null;
 }
 
 function getNewsletterTrackOpens(): boolean | undefined {
@@ -139,7 +149,7 @@ export async function deliverPostNewsletter(
     id: postId,
     depth: 1,
     overrideAccess: true,
-  })) as Post;
+  })) as NewsletterPost;
 
   const existing = (post.newsletterSend as NewsletterSendState | null | undefined) ?? null;
   const nowIso = now().toISOString();
@@ -168,13 +178,10 @@ export async function deliverPostNewsletter(
   try {
     let groupCategory: string | null = null;
     if (post.group) {
-      // At depth:1 Payload populates group as an object at runtime, but the
-      // generated type only knows string | null — cast through unknown to access it.
-      const rawGroup = post.group as unknown;
-      if (typeof rawGroup === 'object' && rawGroup !== null) {
-        groupCategory = ((rawGroup as Record<string, unknown>).category as string | undefined) ?? null;
-      } else if (typeof rawGroup === 'string') {
-        groupCategory = await resolveGroupCategory(payload, rawGroup.trim());
+      if (typeof post.group === 'object') {
+        groupCategory = post.group.category ?? null;
+      } else {
+        groupCategory = await resolveGroupCategory(payload, post.group.trim());
       }
     }
     const listIds = resolveAudienceListIds(groupCategory);
@@ -217,7 +224,10 @@ export async function deliverPostNewsletter(
       return { kind: 'sent', state };
     }
 
-    const group = await resolveGroupHeroForPost(payload as Payload, post);
+    const group = await resolveGroupHeroForPost(payload as Payload, {
+      slug: post.slug,
+      group: getPostGroupSlug(post.group),
+    });
     const rendered = buildPostNewsletterContent({ ...post, group });
     const subject = post.newsletterHeading || post.title;
     let result: Awaited<ReturnType<typeof sendPostmarkNewsletterEmail>>;

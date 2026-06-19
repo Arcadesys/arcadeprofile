@@ -73,7 +73,6 @@ export interface Config {
     'postmark-events': PostmarkEvent;
     groups: Group;
     books: Book;
-    demos: Demo;
     pages: Page;
     media: Media;
     'nav-items': NavItem;
@@ -90,7 +89,6 @@ export interface Config {
     'postmark-events': PostmarkEventsSelect<false> | PostmarkEventsSelect<true>;
     groups: GroupsSelect<false> | GroupsSelect<true>;
     books: BooksSelect<false> | BooksSelect<true>;
-    demos: DemosSelect<false> | DemosSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'nav-items': NavItemsSelect<false> | NavItemsSelect<true>;
@@ -293,18 +291,6 @@ export interface Post {
    * Auto-generated. Stable across edits so shared preview links keep working.
    */
   previewToken?: string | null;
-  /**
-   * Show this published post on /samples.
-   */
-  showInSamples?: boolean | null;
-  /**
-   * Lower numbers appear first. Posts without a value fall back to publish date.
-   */
-  sampleOrder?: number | null;
-  /**
-   * Optional button text for /samples.
-   */
-  sampleLabel?: string | null;
   /**
    * Controls how this content is surfaced and distributed.
    */
@@ -628,75 +614,9 @@ export interface Book {
   description: string;
   coverImage?: string | null;
   buyLink?: string | null;
+  buyLabel?: string | null;
   hasBuyButton?: boolean | null;
   hasPreview?: boolean | null;
-  /**
-   * Controls how this content is surfaced and distributed.
-   */
-  discoverability?: {
-    /**
-     * One-liner for social sharing (Bluesky, etc.)
-     */
-    social_hook?: string | null;
-    /**
-     * Short summary for search and AI indexing.
-     */
-    search_summary?: string | null;
-    /**
-     * Canonical URL path (e.g. /about)
-     */
-    canonical_path?: string | null;
-    /**
-     * Include on the Start Here page.
-     */
-    featured_on_start_here?: boolean | null;
-    primaryCTA?: {
-      label?: string | null;
-      href?: string | null;
-      description?: string | null;
-    };
-  };
-  meta?: {
-    /**
-     * Override the <title>. Defaults to the document title.
-     */
-    title?: string | null;
-    /**
-     * Meta description for SEO.
-     */
-    description?: string | null;
-    /**
-     * OG image for social sharing.
-     */
-    image?: (number | null) | Media;
-    /**
-     * Comma-separated keywords for SEO.
-     */
-    keywords?: string | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "demos".
- */
-export interface Demo {
-  id: number;
-  slug: string;
-  title: string;
-  description: string;
-  image?: string | null;
-  embedUrl: string;
-  tags?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
   /**
    * Controls how this content is surfaced and distributed.
    */
@@ -946,10 +866,6 @@ export interface PayloadLockedDocument {
         value: number | Book;
       } | null)
     | ({
-        relationTo: 'demos';
-        value: number | Demo;
-      } | null)
-    | ({
         relationTo: 'pages';
         value: number | Page;
       } | null)
@@ -1074,9 +990,6 @@ export interface PostsSelect<T extends boolean = true> {
   newsletterDescription?: T;
   publish_status?: T;
   previewToken?: T;
-  showInSamples?: T;
-  sampleOrder?: T;
-  sampleLabel?: T;
   discoverability?:
     | T
     | {
@@ -1221,45 +1134,9 @@ export interface BooksSelect<T extends boolean = true> {
   description?: T;
   coverImage?: T;
   buyLink?: T;
+  buyLabel?: T;
   hasBuyButton?: T;
   hasPreview?: T;
-  discoverability?:
-    | T
-    | {
-        social_hook?: T;
-        search_summary?: T;
-        canonical_path?: T;
-        featured_on_start_here?: T;
-        primaryCTA?:
-          | T
-          | {
-              label?: T;
-              href?: T;
-              description?: T;
-            };
-      };
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-        keywords?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "demos_select".
- */
-export interface DemosSelect<T extends boolean = true> {
-  slug?: T;
-  title?: T;
-  description?: T;
-  image?: T;
-  embedUrl?: T;
-  tags?: T;
   discoverability?:
     | T
     | {

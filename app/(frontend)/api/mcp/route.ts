@@ -31,6 +31,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { TOOL_SCOPES, toolDefinitions, toolHandlers, type ToolScope } from '@/mcp/tools';
 import { logger } from '@/lib/logger';
+import { verifyAccessToken } from '@/lib/mcp-oauth';
 import type { NextRequest } from 'next/server';
 
 // Must be nodejs runtime — MCP SDK uses Node.js APIs.
@@ -75,6 +76,10 @@ const READ_KEY_HASHES: Buffer[] = [
   ...(process.env.MCP_READ_KEY ? [process.env.MCP_READ_KEY] : []),
 ].map(sha256);
 
+// Secret the OAuth `/token` endpoint signs access tokens with. Same key, but
+// the signed token — not the key — is what clients hold.
+const OAUTH_TOKEN_SECRET = process.env.MCP_API_KEY ?? '';
+
 /**
  * Constant-time bearer match. We compare SHA-256 hashes of equal length
  * (32 bytes) so timingSafeEqual never throws on length mismatch — the
@@ -88,6 +93,12 @@ function findScope(token: string): ToolScope | null {
   }
   for (const hash of READ_KEY_HASHES) {
     if (timingSafeEqual(presented, hash)) return 'read';
+  }
+  // OAuth-issued tokens: short-lived, signed with MCP_API_KEY, never the key
+  // itself. Validated only when the OAuth flow's signing key is configured.
+  if (OAUTH_TOKEN_SECRET) {
+    const oauth = verifyAccessToken(token, OAUTH_TOKEN_SECRET);
+    if (oauth) return oauth.scope;
   }
   return null;
 }

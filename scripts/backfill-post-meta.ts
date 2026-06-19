@@ -483,7 +483,6 @@ async function maybeBackfillImage(args: {
       id: post.id,
       data: { meta: mergedMeta },
       overrideAccess: true,
-      context: { skipNewsletter: true },
     });
     console.log(`[write] ${post.slug} | meta.image = media#${mediaId}`);
     return 'image-set';
@@ -543,7 +542,6 @@ async function processPost(args: {
       id: post.id,
       data: patch,
       overrideAccess: true,
-      context: { skipNewsletter: true },
     });
     return 'updated';
   } catch (err) {

@@ -1,7 +1,10 @@
-import { getPayload } from 'payload';
+import { getPayload, type Payload } from 'payload';
 import configPromise from '@payload-config';
 import type { SerializedEditorState } from 'lexical';
+import type { Group as PayloadGroup, Page as PayloadPage, Post } from '@/payload-types';
 import { logger } from '@/lib/logger';
+import { comparePostsByGroupOrder, latestPostDateMs } from '@/lib/post-order';
+import { publicPostStatusWhere } from '@/lib/post-status';
 
 export interface BlogPostMeta {
   title?: string;
@@ -27,12 +30,6 @@ export interface BlogPost {
   /** Optional copy above the site footer subscribe on this post only. */
   newsletterHeading?: string;
   newsletterDescription?: string;
-  /** Whether this post appears on /samples. */
-  showInSamples?: boolean;
-  /** Explicit ordering for /samples (lower numbers first). */
-  sampleOrder?: number;
-  /** Optional CTA label for /samples. */
-  sampleLabel?: string;
   /** SEO meta overrides — used by generateMetadata for OG/Twitter tags. */
   meta?: BlogPostMeta;
 }
@@ -52,28 +49,46 @@ export interface Group {
   meta?: BlogPostMeta;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function toPost(doc: any): BlogPost {
+type BlogPayload = Pick<Payload, 'find'>;
+
+function toPost(doc: Post): BlogPost {
   return {
-    id: doc.id as number,
-    slug: doc.slug as string,
-    title: doc.title as string,
-    date: doc.publishedDate as string,
-    excerpt: doc.excerpt as string,
+    id: doc.id,
+    slug: doc.slug,
+    title: doc.title,
+    date: doc.publishedDate,
+    excerpt: doc.excerpt,
     content: doc.content as SerializedEditorState,
-    group: (doc.group as string) || undefined,
-    order: doc.order as number | undefined,
-    chapter: (doc.chapter as string) || undefined,
-    author: (doc.author as string) || undefined,
-    newsletterHeading: (doc.newsletterHeading as string) || undefined,
-    newsletterDescription: (doc.newsletterDescription as string) || undefined,
-    showInSamples: Boolean(doc.showInSamples),
-    sampleOrder: doc.sampleOrder as number | undefined,
-    sampleLabel: (doc.sampleLabel as string) || undefined,
+    group: doc.group || undefined,
+    order: doc.order ?? undefined,
+    chapter: doc.chapter || undefined,
+    author: doc.author || undefined,
+    newsletterHeading: doc.newsletterHeading || undefined,
+    newsletterDescription: doc.newsletterDescription || undefined,
     meta: doc.meta
       ? {
-          title: (doc.meta.title as string) || undefined,
-          description: (doc.meta.description as string) || undefined,
+          title: doc.meta.title || undefined,
+          description: doc.meta.description || undefined,
+        }
+      : undefined,
+  };
+}
+
+function toGroup(doc: PayloadGroup, posts: BlogPost[]): Group {
+  const groupMeta = doc.meta;
+  return {
+    slug: doc.slug,
+    title: doc.title,
+    description: doc.description || undefined,
+    tags: Array.isArray(doc.tags) ? doc.tags.map((t) => t.tag) : [],
+    chapters: Array.isArray(doc.chapters)
+      ? doc.chapters.map((c) => ({ title: c.title, slug: c.slug }))
+      : undefined,
+    posts,
+    meta: groupMeta
+      ? {
+          title: groupMeta.title || undefined,
+          description: groupMeta.description || undefined,
         }
       : undefined,
   };
@@ -83,63 +98,16 @@ async function getPayloadClient() {
   return getPayload({ config: configPromise });
 }
 
-function isMissingPostSamplesColumnError(error: unknown): boolean {
-  if (!error || typeof error !== 'object') return false;
-
-  const maybeError = error as {
-    cause?: { code?: string; message?: string };
-    message?: string;
-  };
-
-  const hasMissingColumnCode = maybeError.cause?.code === '42703';
-  const text = `${maybeError.message ?? ''} ${maybeError.cause?.message ?? ''}`;
-
-  return hasMissingColumnCode && text.includes('show_in_samples');
-}
-
-const legacyPostSelect = {
-  slug: true,
-  title: true,
-  publishedDate: true,
-  excerpt: true,
-  content: true,
-  group: true,
-  order: true,
-  author: true,
-  newsletterHeading: true,
-  newsletterDescription: true,
-} as const;
-
 export async function getAllPosts(): Promise<BlogPost[]> {
   const payload = await getPayloadClient();
 
-  let result;
-  try {
-    result = await payload.find({
-      collection: 'posts',
-      where: { publish_status: { in: ['published', 'sent'] } },
-      sort: '-publishedDate',
-      limit: 100,
-      depth: 0,
-    });
-  } catch (error) {
-    if (!isMissingPostSamplesColumnError(error)) {
-      throw error;
-    }
-
-    logger.warn(
-      'posts.show_in_samples is missing in the database. Falling back to legacy post query. Run `npm run migrate` to apply latest schema changes.',
-    );
-
-    result = await payload.find({
-      collection: 'posts',
-      where: { publish_status: { in: ['published', 'sent'] } },
-      sort: '-publishedDate',
-      limit: 100,
-      depth: 0,
-      select: legacyPostSelect,
-    });
-  }
+  const result = await payload.find({
+    collection: 'posts',
+    where: { publish_status: publicPostStatusWhere() },
+    sort: '-publishedDate',
+    limit: 100,
+    depth: 0,
+  });
 
   return result.docs.map(toPost);
 }
@@ -153,7 +121,7 @@ export async function getPublishedPostsForRss(): Promise<BlogPost[]> {
   const result = await payload.find({
     collection: 'posts',
     where: {
-      publish_status: { in: ['published', 'sent'] },
+      publish_status: publicPostStatusWhere(),
     },
     sort: '-publishedDate',
     limit: 100,
@@ -171,7 +139,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     where: {
       and: [
         { slug: { equals: slug } },
-        { publish_status: { in: ['published', 'sent'] } },
+        { publish_status: publicPostStatusWhere() },
       ],
     },
     limit: 1,
@@ -192,7 +160,7 @@ export async function getPostsBySlugs(slugs: string[]): Promise<BlogPost[]> {
     where: {
       and: [
         { slug: { in: uniqueSlugs } },
-        { publish_status: { in: ['published', 'sent'] } },
+        { publish_status: publicPostStatusWhere() },
       ],
     },
     limit: uniqueSlugs.length,
@@ -207,76 +175,6 @@ export async function getPostsBySlugs(slugs: string[]): Promise<BlogPost[]> {
   return uniqueSlugs
     .map(slug => postsBySlug.get(slug))
     .filter((post): post is BlogPost => Boolean(post));
-}
-
-export async function getSamplePosts(): Promise<BlogPost[]> {
-  const payload = await getPayloadClient();
-
-  let result;
-  try {
-    result = await payload.find({
-      collection: 'posts',
-      where: {
-        and: [
-          { showInSamples: { equals: true } },
-          { publish_status: { in: ['published', 'sent'] } },
-        ],
-      },
-      sort: 'sampleOrder',
-      limit: 100,
-      depth: 0,
-    });
-  } catch (error) {
-    if (!isMissingPostSamplesColumnError(error)) {
-      throw error;
-    }
-
-    logger.warn(
-      'posts.show_in_samples is missing in the database. Returning no sample posts until migrations are applied (`npm run migrate`).',
-    );
-    return [];
-  }
-
-  return result.docs
-    .map(toPost)
-    .sort((a, b) => {
-      const ao = a.sampleOrder ?? Infinity;
-      const bo = b.sampleOrder ?? Infinity;
-      if (ao !== bo) return ao - bo;
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
-}
-
-export async function getSamplePostBySlug(slug: string): Promise<BlogPost | null> {
-  const payload = await getPayloadClient();
-
-  let result;
-  try {
-    result = await payload.find({
-      collection: 'posts',
-      where: {
-        and: [
-          { slug: { equals: slug } },
-          { showInSamples: { equals: true } },
-          { publish_status: { in: ['published', 'sent'] } },
-        ],
-      },
-      limit: 1,
-      depth: 1,
-    });
-  } catch (error) {
-    if (!isMissingPostSamplesColumnError(error)) {
-      throw error;
-    }
-
-    logger.warn(
-      'posts.show_in_samples is missing in the database. Sample post lookups are unavailable until migrations are applied (`npm run migrate`).',
-    );
-    return null;
-  }
-
-  if (result.docs.length === 0) return null;
-  return toPost(result.docs[0]);
 }
 
 export async function getAllGroups(): Promise<Group[]> {
@@ -296,10 +194,10 @@ export async function getAllGroups(): Promise<Group[]> {
       where: {
         and: [
           { group: { equals: g.slug } },
-          { publish_status: { in: ['published', 'sent'] } },
+          { publish_status: publicPostStatusWhere() },
         ],
       },
-      sort: 'order',
+      sort: ['order', 'publishedDate'],
       limit: 100,
       depth: 1,
     });
@@ -307,45 +205,49 @@ export async function getAllGroups(): Promise<Group[]> {
     if (postResult.docs.length === 0) continue;
 
     const posts = postResult.docs.map(toPost);
-    // Secondary sort: by date ascending for posts without explicit order
-    posts.sort((a, b) => {
-      const ao = a.order ?? Infinity;
-      const bo = b.order ?? Infinity;
-      if (ao !== bo) return ao - bo;
-      return new Date(a.date).getTime() - new Date(b.date).getTime();
-    });
+    posts.sort(comparePostsByGroupOrder);
 
-    const groupMeta = (g as { meta?: { title?: string; description?: string } | null }).meta;
-    groups.push({
-      slug: g.slug as string,
-      title: g.title as string,
-      description: (g.description as string) || undefined,
-      tags: Array.isArray(g.tags) ? g.tags.map((t: { tag: string }) => t.tag) : [],
-      chapters: Array.isArray(g.chapters)
-        ? g.chapters.map((c: { title: string; slug: string }) => ({ title: c.title, slug: c.slug }))
-        : undefined,
-      posts,
-      meta: groupMeta
-        ? {
-            title: groupMeta.title || undefined,
-            description: groupMeta.description || undefined,
-          }
-        : undefined,
-    });
+    groups.push(toGroup(g, posts));
   }
 
   // Sort groups by most recent post date (newest first)
   return groups.sort((a, b) => {
-    const lastA = a.posts[a.posts.length - 1]?.date ?? '';
-    const lastB = b.posts[b.posts.length - 1]?.date ?? '';
-    return new Date(lastB).getTime() - new Date(lastA).getTime();
+    return latestPostDateMs(b.posts) - latestPostDateMs(a.posts);
   });
+}
+
+export async function loadGroupBySlug(payload: BlogPayload, slug: string): Promise<Group | null> {
+  const groupResult = await payload.find({
+    collection: 'groups',
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 0,
+  });
+  const group = groupResult.docs[0];
+  if (!group) return null;
+
+  const postResult = await payload.find({
+    collection: 'posts',
+    where: {
+      and: [
+        { group: { equals: group.slug } },
+        { publish_status: publicPostStatusWhere() },
+      ],
+    },
+    sort: ['order', 'publishedDate'],
+    limit: 100,
+    depth: 1,
+  });
+
+  const posts = postResult.docs.map(toPost);
+  posts.sort(comparePostsByGroupOrder);
+
+  return toGroup(group, posts);
 }
 
 export async function getGroupBySlug(slug: string): Promise<Group | null> {
   try {
-    const groups = await getAllGroups();
-    return groups.find((g) => g.slug === slug) ?? null;
+    return await loadGroupBySlug(await getPayloadClient(), slug);
   } catch (error) {
     logger.error({ err: error, slug }, '[getGroupBySlug] failed to load group');
     return null;
@@ -382,12 +284,9 @@ export interface Page {
   title: string;
   excerpt?: string;
   intro_label?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  intro?: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  content: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outro?: any;
+  intro?: PayloadPage['intro'];
+  content: PayloadPage['content'];
+  outro?: PayloadPage['outro'];
   byline?: string;
   footer_text?: string;
   footer_link_label?: string;
@@ -398,21 +297,25 @@ export interface Page {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function toPage(doc: any): Page {
+function toPage(doc: PayloadPage): Page {
   return {
-    slug: doc.slug as string,
-    title: doc.title as string,
-    excerpt: (doc.excerpt as string) || undefined,
-    intro_label: (doc.intro_label as string) || undefined,
+    slug: doc.slug,
+    title: doc.title,
+    excerpt: doc.excerpt || undefined,
+    intro_label: doc.intro_label || undefined,
     intro: doc.intro || undefined,
     content: doc.content,
     outro: doc.outro || undefined,
-    byline: (doc.byline as string) || undefined,
-    footer_text: (doc.footer_text as string) || undefined,
-    footer_link_label: (doc.footer_link_label as string) || undefined,
-    footer_link_href: (doc.footer_link_href as string) || undefined,
-    meta: doc.meta || undefined,
+    byline: doc.byline || undefined,
+    footer_text: doc.footer_text || undefined,
+    footer_link_label: doc.footer_link_label || undefined,
+    footer_link_href: doc.footer_link_href || undefined,
+    meta: doc.meta
+      ? {
+          title: doc.meta.title || undefined,
+          description: doc.meta.description || undefined,
+        }
+      : undefined,
   };
 }
 
@@ -454,9 +357,14 @@ export async function getUngroupedPosts(): Promise<BlogPost[]> {
   const result = await payload.find({
     collection: 'posts',
     where: {
-      or: [
-        { group: { equals: '' } },
-        { group: { exists: false } },
+      and: [
+        { publish_status: publicPostStatusWhere() },
+        {
+          or: [
+            { group: { equals: '' } },
+            { group: { exists: false } },
+          ],
+        },
       ],
     },
     sort: '-publishedDate',

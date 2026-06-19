@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { Post } from '@/payload-types';
 
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
+import { draftOrMissingPostStatusClauses, publicPostStatusWhere } from '@/lib/post-status';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -60,7 +61,7 @@ export async function GET(request: Request) {
         },
         {
           and: [
-            { publish_status: { in: ['published', 'sent'] } },
+            { publish_status: publicPostStatusWhere() },
             { publishedDate: { greater_than_equal: start } },
             { publishedDate: { less_than: endExclusiveIso } },
           ],
@@ -74,7 +75,7 @@ export async function GET(request: Request) {
 
   const draftsRes = await payload.find({
     collection: 'posts',
-    where: { publish_status: { equals: 'draft' } },
+    where: { or: draftOrMissingPostStatusClauses() },
     limit: 200,
     depth: 0,
     sort: '-updatedAt',

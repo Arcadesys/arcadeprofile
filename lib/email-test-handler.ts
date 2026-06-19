@@ -1,18 +1,15 @@
 import { NextResponse } from 'next/server';
 
 import { logger } from '@/lib/logger';
-import type { PostmarkSendEmailResponse } from '@/lib/postmark';
-
-const DEFAULT_TRANSACTIONAL_STREAM = 'outbound';
+import {
+  getPostmarkTransactionalMessageStream,
+  type PostmarkSendEmailResponse,
+} from '@/lib/postmark';
 
 type EmailTestDeps = {
   authorizeCronRequest: (request: Request) => Response | null;
   sendPostmarkTestEmail: (options: { to: string }) => Promise<PostmarkSendEmailResponse>;
 };
-
-function getTransactionalStream(): string {
-  return process.env.POSTMARK_TRANSACTIONAL_STREAM || DEFAULT_TRANSACTIONAL_STREAM;
-}
 
 function parseRecipient(value: unknown): string | null {
   if (typeof value !== 'string') {
@@ -78,7 +75,7 @@ export async function handleEmailTestRequest(
 
   try {
     const response = await deps.sendPostmarkTestEmail({ to: recipientResult.to });
-    const stream = getTransactionalStream();
+    const stream = getPostmarkTransactionalMessageStream();
 
     logger.info(
       {

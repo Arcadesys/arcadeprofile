@@ -1,6 +1,8 @@
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
 import { ogSize, ogContentType, renderOgCard } from '@/lib/og-template';
+import { publicPostStatusWhere } from '@/lib/post-status';
+import { projectCategoryLabels } from '@/lib/project-model';
 
 export const runtime = 'nodejs';
 export const size = ogSize;
@@ -8,15 +10,6 @@ export const contentType = ogContentType;
 export const alt = 'Free Play Publishing';
 
 type Props = { params: Promise<{ slug: string; postSlug: string }> };
-
-const CATEGORY_LABELS: Record<string, string> = {
-  fiction: 'Fiction',
-  tools: 'Tools',
-  experiments: 'Experiments',
-  'audio-video': 'Audio · Video',
-  community: 'Community',
-  writing: 'Writing',
-};
 
 const NUMERIC_PART_RE = /^\d+$/;
 
@@ -57,7 +50,7 @@ async function loadOgContext(groupSlug: string, postSlug: string): Promise<OgCon
         where: {
           and: [
             { group: { equals: groupSlug } },
-            { publish_status: { in: ['published', 'sent'] } },
+            { publish_status: publicPostStatusWhere() },
           ],
         },
         sort: ['order', 'publishedDate'],
@@ -83,7 +76,7 @@ async function loadOgContext(groupSlug: string, postSlug: string): Promise<OgCon
         and: [
           { slug: { equals: postSlug } },
           { group: { equals: groupSlug } },
-          { publish_status: { in: ['published', 'sent'] } },
+          { publish_status: publicPostStatusWhere() },
         ],
       },
       limit: 1,
@@ -118,7 +111,7 @@ export default async function OgImage({ params }: Props) {
   }
 
   const eyebrow = ctx?.groupCategory
-    ? CATEGORY_LABELS[ctx.groupCategory] || ctx.groupCategory
+    ? projectCategoryLabels[ctx.groupCategory] || ctx.groupCategory
     : null;
 
   return renderOgCard({ eyebrow, title, byline });

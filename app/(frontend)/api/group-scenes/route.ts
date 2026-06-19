@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { Payload } from 'payload';
 
 import type { Group, Post } from '@/payload-types';
+import { resolveGroupSceneOrderUpdates } from '@/lib/group-scenes-order';
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
 
 interface ChapterSummary {
@@ -114,7 +115,7 @@ async function buildGroupResponse(
     limit: 0,
     depth: 0,
     pagination: false,
-    sort: 'order',
+    sort: ['order', 'publishedDate'],
   });
   const posts = postsRes.docs as Post[];
 
@@ -283,33 +284,24 @@ export async function POST(request: Request) {
       );
     }
   }
-
-  // For each column, write order = index and chapter = chapterSlug. Skip writes
-  // where the current value already matches to avoid spurious afterChange runs
-  // (newsletter fan-out, revalidation).
-  const existingById = new Map<string, Post>();
-  for (const p of postsInGroup.docs as Post[]) {
-    existingById.set(String(p.id), p);
+  const missingIds = [...validIds].filter((id) => !seen.has(id));
+  if (missingIds.length > 0) {
+    return NextResponse.json(
+      { error: `Missing post id(s): ${missingIds.join(', ')}` },
+      { status: 400 },
+    );
   }
 
+  const updates = resolveGroupSceneOrderUpdates(parsed.columns, postsInGroup.docs as Post[]);
   await Promise.all(
-    parsed.columns.flatMap((col) =>
-      col.postIds.map(async (id, idx) => {
-        const current = existingById.get(id);
-        if (!current) return;
-        const nextChapter = col.chapterSlug;
-        const chapterChanged = (current.chapter ?? null) !== nextChapter;
-        const orderChanged = current.order !== idx;
-        if (!chapterChanged && !orderChanged) return;
-        await payload.update({
-          collection: 'posts',
-          id: Number(id),
-          data: {
-            chapter: nextChapter,
-            order: idx,
-          },
-          context: { skipNewsletter: true },
-        });
+    updates.map((update) =>
+      payload.update({
+        collection: 'posts',
+        id: Number(update.id),
+        data: {
+          chapter: update.chapter,
+          order: update.order,
+        },
       }),
     ),
   );

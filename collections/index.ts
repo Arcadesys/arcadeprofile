@@ -1,7 +1,6 @@
 import type { GlobalConfig } from 'payload';
 
 import { Books } from './Books';
-import { Demos } from './Demos';
 import { Groups } from './Groups';
 import { Media } from './Media';
 import { NavItems } from './NavItems';
@@ -19,7 +18,6 @@ export const collections = [
   PostmarkEvents,
   Groups,
   Books,
-  Demos,
   Pages,
   Media,
   NavItems,

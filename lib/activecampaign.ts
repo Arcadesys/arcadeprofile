@@ -3,6 +3,8 @@
  * Postmark handles newsletter delivery.
  */
 
+import { parsePositiveIntegerId as parsePositiveIntegerIdValue } from '@/lib/positive-integer-id';
+
 const REQUEST_TIMEOUT_MS = 15_000;
 
 export class ActiveCampaignError extends Error {
@@ -44,19 +46,6 @@ function getApiKey(): string {
   return key;
 }
 
-function getNewsletterListId(): string {
-  const id = firstNonEmpty(
-    process.env.AC_NEWSLETTER_LIST_ID,
-    process.env.ACTIVECAMPAIGN_LIST_ID,
-  );
-  if (!id) {
-    throw new ActiveCampaignError(
-      'Missing AC_NEWSLETTER_LIST_ID or ACTIVECAMPAIGN_LIST_ID environment variable',
-    );
-  }
-  return id;
-}
-
 export type Audience = 'all' | 'fiction' | 'essays';
 
 const AUDIENCE_ENV: Record<Audience, string> = {
@@ -79,14 +68,16 @@ export function resolveAudienceListIds(groupCategory: string | null): string[] {
   return [getAudienceListId('all'), getAudienceListId(secondary)];
 }
 
-function parseNewsletterListIdAsInt(listId: string): number {
-  const n = Number.parseInt(listId, 10);
-  if (Number.isNaN(n) || n < 1) {
-    throw new ActiveCampaignError(
-      `Newsletter list id must be a positive integer for API v3 (got: ${listId})`,
-    );
+function parsePositiveIntegerId(value: string, label: string): number {
+  const n = parsePositiveIntegerIdValue(value);
+  if (n === null) {
+    throw new ActiveCampaignError(`${label} must be a positive integer for API v3 (got: ${value})`);
   }
   return n;
+}
+
+function parseNewsletterListIdAsInt(listId: string): number {
+  return parsePositiveIntegerId(listId, 'Newsletter list id');
 }
 
 async function fetchTextWithTimeout(
@@ -226,7 +217,7 @@ type AcContactSyncResponse = {
  */
 export async function syncSubscriberToActiveCampaign(options: {
   email: string;
-  listIdOverride?: string;
+  listId: string;
   status?: 1 | 2;
   fetchImpl?: typeof fetch;
 }): Promise<{ contactId: string }> {
@@ -234,7 +225,10 @@ export async function syncSubscriberToActiveCampaign(options: {
   const status = options.status ?? 1;
   const baseUrl = getApiBaseUrl();
   const apiKey = getApiKey();
-  const listId = firstNonEmpty(options.listIdOverride) ?? getNewsletterListId();
+  const listId = firstNonEmpty(options.listId);
+  if (!listId) {
+    throw new ActiveCampaignError('ActiveCampaign list id is required');
+  }
   const listIdInt = parseNewsletterListIdAsInt(listId);
 
   const sync = await fetchTextWithTimeout(
@@ -278,6 +272,7 @@ export async function syncSubscriberToActiveCampaign(options: {
     );
   }
   const contactId = String(rawId);
+  const contactIdInt = parsePositiveIntegerId(contactId, 'ActiveCampaign contact id');
 
   const list = await fetchTextWithTimeout(
     `${baseUrl}/api/3/contactLists`,
@@ -291,7 +286,7 @@ export async function syncSubscriberToActiveCampaign(options: {
       body: JSON.stringify({
         contactList: {
           list: listIdInt,
-          contact: Number.parseInt(contactId, 10),
+          contact: contactIdInt,
           status,
         },
       }),

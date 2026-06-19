@@ -1,3 +1,5 @@
+import { formatSiteDateTime } from '@/lib/site-time';
+
 type Props = {
   status: string;
   scheduledPublishDate?: string | null;
@@ -11,17 +13,7 @@ const statusLabels: Record<string, string> = {
 };
 
 function formatScheduled(date: string): string {
-  const d = new Date(date);
-  if (Number.isNaN(d.getTime())) return date;
-  return d.toLocaleString('en-US', {
-    timeZone: 'America/Chicago',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    timeZoneName: 'short',
-  });
+  return formatSiteDateTime(date);
 }
 
 export default function PreviewBanner({ status, scheduledPublishDate }: Props) {

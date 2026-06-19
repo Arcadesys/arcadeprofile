@@ -5,6 +5,7 @@ import { loadLiveQueueIds } from '@/lib/hopper/loadQueue';
 import { loadPublishedTodayTakenDates } from '@/lib/hopper/publishedToday';
 import { syncQueueToPosts } from '@/lib/hopper/syncSchedule';
 import { logger } from '@/lib/logger';
+import { prePublicOrMissingPostStatusClauses, publicPostStatuses } from '@/lib/post-status';
 import {
   deliverPostNewsletter,
   type NewsletterDeliveryOutcome,
@@ -119,6 +120,7 @@ export async function publishScheduledPosts(
       { fictionIds, essaysIds },
       now,
       takenDates,
+      { includePastSlots: true, allowPastScheduledPublishDate: true },
     );
   } catch (err) {
     // A sync failure must not block the publish loop — a stale row is
@@ -138,13 +140,7 @@ export async function publishScheduledPosts(
     where: {
       and: [
         { scheduledPublishDate: { less_than_equal: nowIso } },
-        {
-          or: [
-            { publish_status: { equals: 'scheduled' } },
-            { publish_status: { equals: 'draft' } },
-            { publish_status: { equals: null } },
-          ],
-        },
+        { or: prePublicOrMissingPostStatusClauses() },
       ],
     },
   });
@@ -250,7 +246,7 @@ export async function publishScheduledPosts(
         // scheduled date is just as stuck.
         {
           or: [
-            { publish_status: { not_in: ['published', 'sent'] } },
+            { publish_status: { not_in: [...publicPostStatuses] } },
             { publish_status: { equals: null } },
           ],
         },

@@ -7,9 +7,12 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   // rewrite history. Only the time-of-day shifts; the UTC calendar date
   // is preserved (every existing row sits at 13:00–14:00 UTC, well within
   // the same UTC day as 10:00 UTC).
+  // Truncate in UTC explicitly so the result doesn't depend on the database
+  // session's timezone (which differs between local dev and production).
   await db.execute(sql`
     UPDATE "posts"
-      SET "scheduled_publish_date" = DATE_TRUNC('day', "scheduled_publish_date") + INTERVAL '10 hours'
+      SET "scheduled_publish_date" =
+        (DATE_TRUNC('day', "scheduled_publish_date" AT TIME ZONE 'UTC') + INTERVAL '10 hours') AT TIME ZONE 'UTC'
       WHERE "scheduled_publish_date" IS NOT NULL
         AND ("publish_status" IS NULL OR "publish_status" NOT IN ('published', 'sent'));
   `);

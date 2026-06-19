@@ -32,7 +32,7 @@ ActiveCampaign is the subscriber/list source of truth. Postmark sends the per-po
 | `POSTMARK_TRACK_LINKS` | No | `None`, `HtmlAndText`, `HtmlOnly`, or `TextOnly`. Defaults to `None`. |
 | `POSTMARK_WEBHOOK_SECRET` | Recommended | Basic Auth password for `/api/postmark/webhook` in production. |
 
-\*Aliases accepted for subscribe/list APIs: `ACTIVECAMPAIGN_API_URL`, `ACTIVECAMPAIGN_API_KEY`, and `ACTIVECAMPAIGN_LIST_ID`.
+\*Aliases accepted for the API connection: `ACTIVECAMPAIGN_API_URL` and `ACTIVECAMPAIGN_API_KEY`. Audience list IDs must use the explicit `AC_LIST_ID_*_PERPOST` names.
 
 ## Idempotency and failures
 

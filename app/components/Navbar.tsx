@@ -1,5 +1,6 @@
 import { getPayload } from 'payload';
 import config from '@payload-config';
+import { hasConfiguredDatabaseURL } from '@/lib/env';
 import NavbarClient, { type NavItem } from './NavbarClient';
 
 const DEFAULT_NAV_ITEMS: NavItem[] = [
@@ -12,6 +13,10 @@ const DEFAULT_NAV_ITEMS: NavItem[] = [
 
 export default async function Navbar() {
   let items: NavItem[] = DEFAULT_NAV_ITEMS;
+
+  if (!hasConfiguredDatabaseURL()) {
+    return <NavbarClient items={items} />;
+  }
 
   try {
     const payload = await getPayload({ config });

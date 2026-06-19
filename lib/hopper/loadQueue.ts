@@ -1,5 +1,6 @@
 import type { Payload } from 'payload';
 
+import { isPrePublicOrMissingPostStatus } from '@/lib/post-status';
 import type { Post } from '@/payload-types';
 
 export interface QueueIds {
@@ -53,7 +54,7 @@ export async function loadLiveQueueIds(
   const posts = await loadPostsById(payload, [...new Set([...fictionIdsRaw, ...essaysIdsRaw])]);
 
   const isLive = (p: Post | undefined): p is Post =>
-    !!p && (p.publish_status === 'draft' || p.publish_status === 'scheduled');
+    !!p && isPrePublicOrMissingPostStatus(p.publish_status);
 
   const fictionIds = fictionIdsRaw.filter((id) => isLive(posts.get(id)));
   const essaysIds = essaysIdsRaw.filter((id) => isLive(posts.get(id)));

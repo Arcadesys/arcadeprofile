@@ -1,5 +1,8 @@
 import type { Payload } from 'payload';
 
+import { parsePositiveIntegerId } from '@/lib/positive-integer-id';
+import { publicPostStatusWhere } from '@/lib/post-status';
+
 export const REACTION_EMOJIS = ['🔥', '❤️', '😂', '😮', '👏', '🤔'] as const;
 export type ReactionEmoji = (typeof REACTION_EMOJIS)[number];
 
@@ -27,17 +30,14 @@ function emptyCounts(): Record<string, number> {
 
 /**
  * Parse a post id from the URL param. Posts in this codebase use numeric
- * primary keys; we coerce loose query values into a number and reject NaN.
+ * primary keys, so reject decimals, signs, hex, zero, and unsafe integers.
  */
 export function parsePostId(value: string): number | null {
-  const n = Number(value);
-  if (!Number.isInteger(n) || n <= 0) return null;
-  return n;
+  return parsePositiveIntegerId(value);
 }
 
 /**
- * Confirms the post exists and is publicly visible (publish_status in
- * 'published' or 'sent'). Mirrors the read-access filter in
+ * Confirms the post exists and is publicly visible. Mirrors the read-access filter in
  * collections/Posts.ts so reactions can't be planted on drafts/scheduled
  * posts via the public endpoint.
  */
@@ -47,7 +47,7 @@ export async function isPostPubliclyVisible(payload: Payload, postId: number): P
     where: {
       and: [
         { id: { equals: postId } },
-        { publish_status: { in: ['published', 'sent'] } },
+        { publish_status: publicPostStatusWhere() },
       ],
     },
     limit: 1,

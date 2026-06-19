@@ -1,6 +1,7 @@
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
 import { ogSize, ogContentType, renderOgCard } from '@/lib/og-template';
+import { projectCategoryLabels } from '@/lib/project-model';
 
 export const runtime = 'nodejs';
 export const size = ogSize;
@@ -8,15 +9,6 @@ export const contentType = ogContentType;
 export const alt = 'Free Play Publishing';
 
 type Props = { params: Promise<{ slug: string }> };
-
-const CATEGORY_LABELS: Record<string, string> = {
-  fiction: 'Fiction',
-  tools: 'Tools',
-  experiments: 'Experiments',
-  'audio-video': 'Audio · Video',
-  community: 'Community',
-  writing: 'Writing',
-};
 
 interface OgContext {
   groupTitle: string;
@@ -62,7 +54,7 @@ export default async function OgImage({ params }: Props) {
   const title = ctx ? (ctx.groupMetaTitle || ctx.groupTitle) : 'Free Play Publishing';
   const byline = ctx?.groupDescription || '';
   const eyebrow = ctx?.groupCategory
-    ? CATEGORY_LABELS[ctx.groupCategory] || ctx.groupCategory
+    ? projectCategoryLabels[ctx.groupCategory] || ctx.groupCategory
     : null;
 
   return renderOgCard({ eyebrow, title, byline });
