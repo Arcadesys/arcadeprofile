@@ -23,6 +23,7 @@ import {
 } from '@payloadcms/richtext-lexical';
 import configPromise from '../payload.config';
 import type { Post } from '../payload-types';
+import { todayInSiteTz } from '../lib/site-time';
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
 const SCHEDULE_PATH = path.join(process.cwd(), 'data', 'schedule.json');
@@ -156,7 +157,7 @@ async function main() {
       const { data, content: markdownBody } = matter(raw);
 
       const title = (data.title as string) || slug;
-      const date = (data.date as string) || new Date().toISOString().slice(0, 10);
+      const date = (data.date as string) || todayInSiteTz();
       const excerpt =
         (data.excerpt as string) ||
         markdownBody

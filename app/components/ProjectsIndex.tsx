@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
+import { todayInSiteTz } from '@/lib/site-time';
 import styles from './ProjectsIndex.module.css';
 
 export type EntryBucket = 'active' | 'recent' | 'quiet';
@@ -291,7 +292,7 @@ function quietLabel(e: IndexEntry): string {
 function formatFeedDate(date: string): string {
   const d = new Date(date);
   if (isNaN(d.getTime())) return '';
-  const iso = d.toISOString().slice(0, 10);
+  const iso = todayInSiteTz(d);
   return `${iso} · ${relativeAgo(date)}`;
 }
 
