@@ -52,13 +52,17 @@ function stringField(record: JsonRecord, key: string): string | undefined {
   return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 }
 
+function parsePositiveIntegerId(value: string): number | undefined {
+  const trimmed = value.trim();
+  if (!/^[1-9]\d*$/.test(trimmed)) return undefined;
+  const parsed = Number(trimmed);
+  return Number.isSafeInteger(parsed) ? parsed : undefined;
+}
+
 function numberField(record: JsonRecord, key: string): number | undefined {
   const value = record[key];
-  if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value;
-  if (typeof value === 'string') {
-    const parsed = Number.parseInt(value, 10);
-    if (Number.isInteger(parsed) && parsed > 0) return parsed;
-  }
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value > 0) return value;
+  if (typeof value === 'string') return parsePositiveIntegerId(value);
   return undefined;
 }
 
@@ -78,11 +82,8 @@ function metadataField(record: JsonRecord): Record<string, string> | undefined {
 }
 
 function relationId(value: unknown): number | undefined {
-  if (typeof value === 'number' && Number.isInteger(value) && value > 0) return value;
-  if (typeof value === 'string') {
-    const parsed = Number.parseInt(value, 10);
-    if (Number.isInteger(parsed) && parsed > 0) return parsed;
-  }
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value > 0) return value;
+  if (typeof value === 'string') return parsePositiveIntegerId(value);
   const record = asRecord(value);
   if (record) return numberField(record, 'id');
   return undefined;
