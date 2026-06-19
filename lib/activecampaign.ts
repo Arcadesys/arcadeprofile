@@ -66,14 +66,20 @@ export function resolveAudienceListIds(groupCategory: string | null): string[] {
   return [getAudienceListId('all'), getAudienceListId(secondary)];
 }
 
-function parseNewsletterListIdAsInt(listId: string): number {
-  const n = Number.parseInt(listId, 10);
-  if (Number.isNaN(n) || n < 1) {
-    throw new ActiveCampaignError(
-      `Newsletter list id must be a positive integer for API v3 (got: ${listId})`,
-    );
+function parsePositiveIntegerId(value: string, label: string): number {
+  const trimmed = value.trim();
+  if (!/^[1-9]\d*$/.test(trimmed)) {
+    throw new ActiveCampaignError(`${label} must be a positive integer for API v3 (got: ${value})`);
+  }
+  const n = Number(trimmed);
+  if (!Number.isSafeInteger(n) || n < 1) {
+    throw new ActiveCampaignError(`${label} must be a positive integer for API v3 (got: ${value})`);
   }
   return n;
+}
+
+function parseNewsletterListIdAsInt(listId: string): number {
+  return parsePositiveIntegerId(listId, 'Newsletter list id');
 }
 
 async function fetchTextWithTimeout(
@@ -268,6 +274,7 @@ export async function syncSubscriberToActiveCampaign(options: {
     );
   }
   const contactId = String(rawId);
+  const contactIdInt = parsePositiveIntegerId(contactId, 'ActiveCampaign contact id');
 
   const list = await fetchTextWithTimeout(
     `${baseUrl}/api/3/contactLists`,
@@ -281,7 +288,7 @@ export async function syncSubscriberToActiveCampaign(options: {
       body: JSON.stringify({
         contactList: {
           list: listIdInt,
-          contact: Number.parseInt(contactId, 10),
+          contact: contactIdInt,
           status,
         },
       }),

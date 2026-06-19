@@ -140,6 +140,21 @@ test('listActiveContactsForList surfaces ActiveCampaign errors', async () => {
   );
 });
 
+test('listActiveContactsForList rejects malformed list ids instead of truncating them', async () => {
+  setAcEnv();
+
+  await assert.rejects(
+    () =>
+      listActiveContactsForList({
+        listId: '7abc',
+        fetchImpl: async () => {
+          throw new Error('fetch should not be called');
+        },
+      }),
+    /Newsletter list id must be a positive integer/,
+  );
+});
+
 test('syncSubscriberToActiveCampaign upserts contact then subscribes to list', async () => {
   setAcEnv();
   const requests: Array<{ url: string; body: unknown }> = [];
@@ -196,6 +211,30 @@ test('syncSubscriberToActiveCampaign forwards unsubscribe status', async () => {
       status: 2,
     },
   });
+});
+
+test('syncSubscriberToActiveCampaign rejects malformed contact ids instead of truncating them', async () => {
+  setAcEnv();
+  const requests: Array<{ url: string; body: unknown }> = [];
+  const fetchImpl: typeof fetch = async (input, init) => {
+    const url = urlPath(input);
+    requests.push({ url, body: JSON.parse(String(init?.body ?? '{}')) });
+    if (url.endsWith('/api/3/contact/sync')) {
+      return new Response(JSON.stringify({ contact: { id: '42abc' } }), { status: 200 });
+    }
+    throw new Error('contactLists should not be called');
+  };
+
+  await assert.rejects(
+    () =>
+      syncSubscriberToActiveCampaign({
+        email: 'reader@example.com',
+        listId: '9',
+        fetchImpl,
+      }),
+    /ActiveCampaign contact id must be a positive integer/,
+  );
+  assert.equal(requests.length, 1);
 });
 
 test('syncSubscriberToActiveCampaign treats already-on-list 422 as success', async () => {
