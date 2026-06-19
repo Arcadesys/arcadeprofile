@@ -4,6 +4,11 @@ import { comparePostsByGroupOrder } from './post-order';
 import { publicPostStatusWhere } from './post-status';
 
 const NUMERIC_PART_SEGMENT_RE = /^\d+$/;
+type PublicGroupPost = {
+  slug?: string | null;
+  order?: number | null;
+  publishedDate?: string | null;
+};
 
 export function partNum(n: number): string {
   return String(n).padStart(2, '0');
@@ -57,6 +62,26 @@ export async function getPostLocationBySlug(
   return { groupSlug, partIndex, url: buildPostUrl(groupSlug, postSlug) };
 }
 
+async function loadPublishedGroupPosts(
+  payload: Payload,
+  groupSlug: string,
+): Promise<PublicGroupPost[]> {
+  const result = await payload.find({
+    collection: 'posts',
+    where: {
+      and: [
+        { group: { equals: groupSlug } },
+        { publish_status: publicPostStatusWhere() },
+      ],
+    },
+    sort: ['order', 'publishedDate'],
+    pagination: false,
+    depth: 0,
+    overrideAccess: true,
+  });
+  return [...result.docs].sort(comparePostsByGroupOrder);
+}
+
 /**
  * 1-based part index for a post within its group's published list (intro is
  * 0; the first post is 1). Returns null when the post can't be located in
@@ -70,20 +95,7 @@ export async function computePostPartIndex(
   groupSlug: string,
 ): Promise<number | null> {
   if (!groupSlug || !postSlug) return null;
-  const siblings = await payload.find({
-    collection: 'posts',
-    where: {
-      and: [
-        { group: { equals: groupSlug } },
-        { publish_status: publicPostStatusWhere() },
-      ],
-    },
-    sort: ['order', 'publishedDate'],
-    limit: 200,
-    depth: 0,
-    overrideAccess: true,
-  });
-  const ordered = [...siblings.docs].sort(comparePostsByGroupOrder);
+  const ordered = await loadPublishedGroupPosts(payload, groupSlug);
   const idx = ordered.findIndex((p) => (p.slug as string) === postSlug);
   return idx >= 0 ? idx + 1 : null;
 }
@@ -100,20 +112,7 @@ export async function resolvePostSlugByPartIndex(
   partIndex: number,
 ): Promise<string | null> {
   if (!groupSlug || partIndex < 1) return null;
-  const siblings = await payload.find({
-    collection: 'posts',
-    where: {
-      and: [
-        { group: { equals: groupSlug } },
-        { publish_status: publicPostStatusWhere() },
-      ],
-    },
-    sort: ['order', 'publishedDate'],
-    limit: 200,
-    depth: 0,
-    overrideAccess: true,
-  });
-  const ordered = [...siblings.docs].sort(comparePostsByGroupOrder);
+  const ordered = await loadPublishedGroupPosts(payload, groupSlug);
   const post = ordered[partIndex - 1];
   return (post?.slug as string | undefined) ?? null;
 }
