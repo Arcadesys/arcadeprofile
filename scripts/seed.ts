@@ -209,6 +209,9 @@ async function main() {
           newsletterHeading,
           newsletterDescription,
         },
+        ...(publish_status === 'scheduled'
+          ? { context: { allowPastScheduledPublishDate: true } }
+          : {}),
       });
       console.log(`  Created post: "${title}" (${slug}) [${publish_status}]`);
     }

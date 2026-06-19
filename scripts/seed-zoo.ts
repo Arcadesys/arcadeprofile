@@ -988,6 +988,7 @@ It always did.`,
         // sending Postmark newsletters for already-scheduled content.
         suppressNewsletter: true,
       },
+      context: { allowPastScheduledPublishDate: true },
     });
     console.log('✓');
   }
