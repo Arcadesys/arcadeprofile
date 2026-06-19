@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { SerializedEditorState } from 'lexical';
 import { getAllPosts, buildPostUrl, buildPostUrlMap } from '@/lib/blog';
 import { logger } from '@/lib/logger';
+import { formatSiteDate } from '@/lib/site-time';
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
 
@@ -29,11 +30,6 @@ function first100Words(text: string): string {
   const words = text.trim().split(/\s+/);
   if (words.length <= 100) return text.trim();
   return words.slice(0, 100).join(' ') + '…';
-}
-
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 // `convertLexicalToPlaintext` throws on Lexical states that contain nodes it
@@ -105,7 +101,7 @@ export default async function LatestPage() {
                   letterSpacing: '0.04em',
                   marginBottom: '0.85rem',
                 }}>
-                  {formatDate(post.date)}
+                  {formatSiteDate(post.date)}
                   {post.author && post.author !== 'Austen Tucker' && ` · ${post.author}`}
                 </p>
                 <p style={{ color: 'var(--fg)', lineHeight: 1.7, margin: '0 0 0.85rem' }}>

@@ -14,6 +14,7 @@ import PostRichText from '@/app/components/PostRichText';
 import { JsonLd } from '@/lib/structured-data';
 import { buildPostUrl, buildGroupIntroUrl, partNum } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
+import { formatSiteDate } from '@/lib/site-time';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
@@ -141,14 +142,6 @@ const ctaIcons: Record<string, string> = {
   download: '↓',
   other: '→',
 };
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
 
 export default async function ProjectIntroPage({ params }: Props) {
   const { slug } = await params;
@@ -344,7 +337,7 @@ export default async function ProjectIntroPage({ params }: Props) {
                               </div>
                             )}
                           </div>
-                          <span style={{ ...monoMutedStyle, whiteSpace: 'nowrap' }}>{formatDate(p.date)}</span>
+                          <span style={{ ...monoMutedStyle, whiteSpace: 'nowrap' }}>{formatSiteDate(p.date)}</span>
                         </Link>
                       </li>
                     ))}

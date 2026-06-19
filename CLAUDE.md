@@ -77,7 +77,7 @@ When adding a tool, register it in `mcp/tools.ts` so both transports pick it up;
 
 ### Env & secrets
 
-All env vars are documented in `.env.example`. The repo loads `.env.local` in dev. `lib/env.ts` exposes `getDatabaseURLForPayloadConfig({ requireDatabaseURL })` and `getPayloadSecret()` — `payload.config.ts` only requires `DATABASE_URL` when running a migrate subcommand, so dev boots even without a DB configured. Both `DATABASE_URL` and `DATABASE_URI` are accepted.
+All env vars are documented in `.env.example`. The repo loads `.env.local` in dev. `SITE_TZ` controls site-local publish queue labels and preview timestamps, defaulting to `America/Chicago`. `lib/env.ts` exposes `getDatabaseURLForPayloadConfig({ requireDatabaseURL })` and `getPayloadSecret()` — `payload.config.ts` only requires `DATABASE_URL` when running a migrate subcommand, so dev boots even without a DB configured. Both `DATABASE_URL` and `DATABASE_URI` are accepted.
 
 Never commit `.env*`. CI runs TruffleHog on PR diffs.
 

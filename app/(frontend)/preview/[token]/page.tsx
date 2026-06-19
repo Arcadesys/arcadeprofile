@@ -8,6 +8,7 @@ import { getPostLocationBySlug } from '@/lib/post-url';
 import { resolvePostOgImage } from '@/lib/post-og-image';
 import { isPublicPostStatus } from '@/lib/post-status';
 import { PREVIEW_TOKEN_PATTERN } from '@/lib/preview-token';
+import { formatSiteDate } from '@/lib/site-time';
 import type { Post } from '@/payload-types';
 import PreviewBanner from './PreviewBanner';
 
@@ -64,14 +65,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 type Props = { params: Promise<{ token: string }> };
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
 
 export default async function PreviewPage({ params }: Props) {
   const { token } = await params;
@@ -130,7 +123,7 @@ export default async function PreviewPage({ params }: Props) {
               margin: 0,
             }}
           >
-            {publishedDate ? formatDate(publishedDate) : 'Unscheduled'}
+            {publishedDate ? formatSiteDate(publishedDate) : 'Unscheduled'}
             {post.author ? ` · ${post.author as string}` : ''}
           </p>
           {post.excerpt ? (

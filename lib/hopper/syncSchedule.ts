@@ -1,5 +1,6 @@
 import type { Post } from '@/payload-types';
 import { isPublicPostStatus } from '@/lib/post-status';
+import { SITE_TZ } from '@/lib/site-time';
 
 export type Lane = 'fiction' | 'essays';
 
@@ -12,9 +13,8 @@ export const SCHEDULE: Record<number, Lane> = {
 };
 
 // Vercel functions run in UTC; the editorial workflow runs in the site's local TZ.
-// Anchor "today" and weekday labels here so a 9pm Eastern reorder doesn't roll
+// Anchor "today" and weekday labels here so a late-night reorder doesn't roll
 // into tomorrow's slot.
-export const SITE_TZ = process.env.SITE_TZ ?? 'America/New_York';
 export const DEFAULT_PUBLISH_HOUR_UTC = 14;
 
 export const WEEKDAY_LABEL: Record<number, string> = {
