@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { computePostPartIndex, resolvePostSlugByPartIndex } from './post-url';
+import { computePostPartIndex, parsePostPartSegment, resolvePostSlugByPartIndex } from './post-url';
 
 type PostUrlPayload = Parameters<typeof computePostPartIndex>[0];
 
@@ -37,4 +37,13 @@ test('resolvePostSlugByPartIndex uses shared group ordering for numeric redirect
   assert.equal(await resolvePostSlugByPartIndex(payload, 'g', 1), 'first');
   assert.equal(await resolvePostSlugByPartIndex(payload, 'g', 2), 'second');
   assert.equal(await resolvePostSlugByPartIndex(payload, 'g', 3), 'unordered-late');
+});
+
+test('parsePostPartSegment accepts padded legacy parts but rejects unsafe integers', () => {
+  assert.equal(parsePostPartSegment('0'), 0);
+  assert.equal(parsePostPartSegment('01'), 1);
+  assert.equal(parsePostPartSegment('12'), 12);
+  assert.equal(parsePostPartSegment(''), null);
+  assert.equal(parsePostPartSegment('12abc'), null);
+  assert.equal(parsePostPartSegment('9007199254740993'), null);
 });

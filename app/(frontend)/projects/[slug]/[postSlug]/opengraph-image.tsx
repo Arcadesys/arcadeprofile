@@ -3,6 +3,7 @@ import payloadConfig from '@payload-config';
 import { ogSize, ogContentType, renderOgCard } from '@/lib/og-template';
 import { publicPostStatusWhere } from '@/lib/post-status';
 import { projectCategoryLabels } from '@/lib/project-model';
+import { parsePostPartSegment } from '@/lib/post-url';
 
 export const runtime = 'nodejs';
 export const size = ogSize;
@@ -10,8 +11,6 @@ export const contentType = ogContentType;
 export const alt = 'Free Play Publishing';
 
 type Props = { params: Promise<{ slug: string; postSlug: string }> };
-
-const NUMERIC_PART_RE = /^\d+$/;
 
 interface OgContext {
   groupTitle: string;
@@ -42,8 +41,8 @@ async function loadOgContext(groupSlug: string, postSlug: string): Promise<OgCon
 
     // Legacy numeric paths still render an OG card for scrapers that hit
     // the URL before following the redirect.
-    if (NUMERIC_PART_RE.test(postSlug)) {
-      const idx = parseInt(postSlug, 10);
+    const idx = parsePostPartSegment(postSlug);
+    if (idx !== null) {
       if (idx <= 0) return ctx;
       const postResult = await payload.find({
         collection: 'posts',
