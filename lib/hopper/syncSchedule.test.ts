@@ -61,6 +61,13 @@ test('scheduledPublishDateForSlot uses the queue default publish hour', () => {
   assert.equal(scheduledPublishDateForSlot('2026-05-13'), '2026-05-13T14:00:00.000Z');
 });
 
+test('scheduledPublishDateForSlot rejects impossible dates instead of rolling them', () => {
+  assert.throws(
+    () => scheduledPublishDateForSlot('2026-02-29'),
+    /Invalid slot date: 2026-02-29/,
+  );
+});
+
 test('computeSchedule can skip slots whose publish time has already passed', () => {
   const map = computeSchedule(['a'], [], WED, TZ, undefined, { includePastSlots: false });
   assert.equal(map.get('a')?.date, '2026-05-15');

@@ -1,4 +1,5 @@
 import type { Post } from '@/payload-types';
+import { isoDateOnlyToScheduledIso } from '@/lib/iso-date';
 import { isPublicPostStatus } from '@/lib/post-status';
 import { SITE_TZ } from '@/lib/site-time';
 
@@ -109,8 +110,11 @@ export function scheduledPublishDateForSlot(
   date: string,
   publishHourUtc: number = DEFAULT_PUBLISH_HOUR_UTC,
 ): string {
-  const [year, month, day] = date.split('-').map((part) => Number(part));
-  return new Date(Date.UTC(year, month - 1, day, publishHourUtc, 0, 0, 0)).toISOString();
+  const scheduledIso = isoDateOnlyToScheduledIso(date, publishHourUtc);
+  if (!scheduledIso) {
+    throw new Error(`Invalid slot date: ${date}`);
+  }
+  return scheduledIso;
 }
 
 export function computeSchedule(

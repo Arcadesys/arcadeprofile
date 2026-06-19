@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { Post } from '@/payload-types';
 
+import { isIsoDateOnly, isoDateOnlyToUtcDate, parseIsoDateOnly } from '@/lib/iso-date';
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
 import { draftOrMissingPostStatusClauses, publicPostStatusWhere } from '@/lib/post-status';
-
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 interface CalendarPost {
   id: string;
@@ -25,7 +24,7 @@ interface CalendarResponse {
 
 function toIsoDay(value: string | null | undefined): string | null {
   if (!value) return null;
-  if (ISO_DATE.test(value)) return value;
+  if (parseIsoDateOnly(value)) return value;
   return value.slice(0, 10);
 }
 
@@ -37,14 +36,20 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const start = url.searchParams.get('start');
   const end = url.searchParams.get('end');
-  if (!start || !ISO_DATE.test(start) || !end || !ISO_DATE.test(end)) {
+  if (!isIsoDateOnly(start) || !isIsoDateOnly(end)) {
     return NextResponse.json(
-      { error: 'start and end query params (YYYY-MM-DD) are required' },
+      { error: 'valid start and end query params (YYYY-MM-DD) are required' },
       { status: 400 },
     );
   }
   // Inclusive end: convert to start-of-next-day for less-than comparison.
-  const endExclusive = new Date(`${end}T00:00:00.000Z`);
+  const endExclusive = isoDateOnlyToUtcDate(end);
+  if (!endExclusive) {
+    return NextResponse.json(
+      { error: 'valid start and end query params (YYYY-MM-DD) are required' },
+      { status: 400 },
+    );
+  }
   endExclusive.setUTCDate(endExclusive.getUTCDate() + 1);
   const endExclusiveIso = endExclusive.toISOString();
 
