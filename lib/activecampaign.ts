@@ -3,6 +3,8 @@
  * Postmark handles newsletter delivery.
  */
 
+import { parsePositiveIntegerId as parsePositiveIntegerIdValue } from '@/lib/positive-integer-id';
+
 const REQUEST_TIMEOUT_MS = 15_000;
 
 export class ActiveCampaignError extends Error {
@@ -67,12 +69,8 @@ export function resolveAudienceListIds(groupCategory: string | null): string[] {
 }
 
 function parsePositiveIntegerId(value: string, label: string): number {
-  const trimmed = value.trim();
-  if (!/^[1-9]\d*$/.test(trimmed)) {
-    throw new ActiveCampaignError(`${label} must be a positive integer for API v3 (got: ${value})`);
-  }
-  const n = Number(trimmed);
-  if (!Number.isSafeInteger(n) || n < 1) {
+  const n = parsePositiveIntegerIdValue(value);
+  if (n === null) {
     throw new ActiveCampaignError(`${label} must be a positive integer for API v3 (got: ${value})`);
   }
   return n;
