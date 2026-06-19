@@ -1,7 +1,7 @@
-import { getPayload } from 'payload';
+import { getPayload, type Payload } from 'payload';
 import configPromise from '@payload-config';
 import type { SerializedEditorState } from 'lexical';
-import type { Page as PayloadPage, Post } from '@/payload-types';
+import type { Group as PayloadGroup, Page as PayloadPage, Post } from '@/payload-types';
 import { logger } from '@/lib/logger';
 import { comparePostsByGroupOrder, latestPostDateMs } from '@/lib/post-order';
 import { publicPostStatusWhere } from '@/lib/post-status';
@@ -49,6 +49,8 @@ export interface Group {
   meta?: BlogPostMeta;
 }
 
+type BlogPayload = Pick<Payload, 'find'>;
+
 function toPost(doc: Post): BlogPost {
   return {
     id: doc.id,
@@ -67,6 +69,26 @@ function toPost(doc: Post): BlogPost {
       ? {
           title: doc.meta.title || undefined,
           description: doc.meta.description || undefined,
+        }
+      : undefined,
+  };
+}
+
+function toGroup(doc: PayloadGroup, posts: BlogPost[]): Group {
+  const groupMeta = doc.meta;
+  return {
+    slug: doc.slug,
+    title: doc.title,
+    description: doc.description || undefined,
+    tags: Array.isArray(doc.tags) ? doc.tags.map((t) => t.tag) : [],
+    chapters: Array.isArray(doc.chapters)
+      ? doc.chapters.map((c) => ({ title: c.title, slug: c.slug }))
+      : undefined,
+    posts,
+    meta: groupMeta
+      ? {
+          title: groupMeta.title || undefined,
+          description: groupMeta.description || undefined,
         }
       : undefined,
   };
@@ -185,23 +207,7 @@ export async function getAllGroups(): Promise<Group[]> {
     const posts = postResult.docs.map(toPost);
     posts.sort(comparePostsByGroupOrder);
 
-    const groupMeta = g.meta;
-    groups.push({
-      slug: g.slug,
-      title: g.title,
-      description: g.description || undefined,
-      tags: Array.isArray(g.tags) ? g.tags.map((t) => t.tag) : [],
-      chapters: Array.isArray(g.chapters)
-        ? g.chapters.map((c) => ({ title: c.title, slug: c.slug }))
-        : undefined,
-      posts,
-      meta: groupMeta
-        ? {
-            title: groupMeta.title || undefined,
-            description: groupMeta.description || undefined,
-          }
-        : undefined,
-    });
+    groups.push(toGroup(g, posts));
   }
 
   // Sort groups by most recent post date (newest first)
@@ -210,10 +216,38 @@ export async function getAllGroups(): Promise<Group[]> {
   });
 }
 
+export async function loadGroupBySlug(payload: BlogPayload, slug: string): Promise<Group | null> {
+  const groupResult = await payload.find({
+    collection: 'groups',
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 0,
+  });
+  const group = groupResult.docs[0];
+  if (!group) return null;
+
+  const postResult = await payload.find({
+    collection: 'posts',
+    where: {
+      and: [
+        { group: { equals: group.slug } },
+        { publish_status: publicPostStatusWhere() },
+      ],
+    },
+    sort: ['order', 'publishedDate'],
+    limit: 100,
+    depth: 1,
+  });
+
+  const posts = postResult.docs.map(toPost);
+  posts.sort(comparePostsByGroupOrder);
+
+  return toGroup(group, posts);
+}
+
 export async function getGroupBySlug(slug: string): Promise<Group | null> {
   try {
-    const groups = await getAllGroups();
-    return groups.find((g) => g.slug === slug) ?? null;
+    return await loadGroupBySlug(await getPayloadClient(), slug);
   } catch (error) {
     logger.error({ err: error, slug }, '[getGroupBySlug] failed to load group');
     return null;
