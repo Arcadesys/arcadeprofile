@@ -1,5 +1,7 @@
 import type { Payload } from 'payload';
 
+import { publicPostStatusWhere } from '@/lib/post-status';
+
 export const REACTION_EMOJIS = ['🔥', '❤️', '😂', '😮', '👏', '🤔'] as const;
 export type ReactionEmoji = (typeof REACTION_EMOJIS)[number];
 
@@ -36,8 +38,7 @@ export function parsePostId(value: string): number | null {
 }
 
 /**
- * Confirms the post exists and is publicly visible (publish_status in
- * 'published' or 'sent'). Mirrors the read-access filter in
+ * Confirms the post exists and is publicly visible. Mirrors the read-access filter in
  * collections/Posts.ts so reactions can't be planted on drafts/scheduled
  * posts via the public endpoint.
  */
@@ -47,7 +48,7 @@ export async function isPostPubliclyVisible(payload: Payload, postId: number): P
     where: {
       and: [
         { id: { equals: postId } },
-        { publish_status: { in: ['published', 'sent'] } },
+        { publish_status: publicPostStatusWhere() },
       ],
     },
     limit: 1,

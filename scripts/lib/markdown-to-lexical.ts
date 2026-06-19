@@ -1,5 +1,4 @@
 import type { Payload } from 'payload';
-import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical';
 import { createHeadlessEditor } from '@payloadcms/richtext-lexical/lexical/headless';
 import {
   $convertFromMarkdownString,
@@ -9,15 +8,16 @@ import {
   getEnabledNodes,
   editorConfigFactory,
 } from '@payloadcms/richtext-lexical';
+import type { Post } from '../../payload-types';
 
 export async function createMarkdownToLexical(
   payload: Payload,
-): Promise<(markdown: string) => SerializedEditorState> {
+): Promise<(markdown: string) => Post['content']> {
   const sanitizedConfig = await payload.config;
   const editorConfig = await editorConfigFactory.default({ config: sanitizedConfig });
   const nodes = getEnabledNodes({ editorConfig });
 
-  return (markdown: string): SerializedEditorState => {
+  return (markdown: string): Post['content'] => {
     const editor = createHeadlessEditor({ nodes });
     editor.update(
       () => {
@@ -25,6 +25,6 @@ export async function createMarkdownToLexical(
       },
       { discrete: true },
     );
-    return editor.getEditorState().toJSON() as SerializedEditorState;
+    return editor.getEditorState().toJSON() as Post['content'];
   };
 }

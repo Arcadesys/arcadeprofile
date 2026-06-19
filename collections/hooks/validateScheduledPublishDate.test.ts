@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
+import { Posts } from '../Posts';
+import { promoteScheduledDraftHook } from './promoteScheduledDraft';
 import { validateScheduledPublishDateHook } from './validateScheduledPublishDate';
 
 // The hook is a Payload beforeChange hook; we only exercise `data`, so cast a
@@ -29,6 +31,20 @@ test('allows scheduling a post with a future date', () => {
 
 test('allows drafts with a past date (editor staging)', () => {
   assert.doesNotThrow(() => run({ publish_status: 'draft', scheduledPublishDate: past }));
+});
+
+test('posts run scheduled promotion before scheduled date validation', () => {
+  const hooks = Posts.hooks?.beforeChange ?? [];
+  assert.equal(hooks[0], promoteScheduledDraftHook);
+  assert.equal(hooks[1], validateScheduledPublishDateHook);
+});
+
+test('blocks draft plus past scheduled date once collection hooks promote it', () => {
+  const data = { publish_status: 'draft', scheduledPublishDate: past };
+  const promoted = promoteScheduledDraftHook({ data });
+
+  assert.equal(promoted.publish_status, 'scheduled');
+  assert.throws(() => run(promoted), /scheduledPublishDate/);
 });
 
 // Regression: the publish-scheduled cron promotes a `scheduled` post to

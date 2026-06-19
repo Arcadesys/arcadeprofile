@@ -1,5 +1,8 @@
 import type { Payload } from 'payload';
 
+import type { Post } from '@/payload-types';
+import { isPublicPostStatus } from '@/lib/post-status';
+
 export type Lane = 'fiction' | 'essays';
 
 export const SCHEDULE: Record<number, Lane> = {
@@ -138,13 +141,7 @@ export interface QueueDiffNext {
   essaysIds: string[];
 }
 
-interface PostLite {
-  id: string | number;
-  publish_status?: string | null;
-  scheduledPublishDate?: string | null;
-}
-
-async function loadPostsLite(payload: Pick<Payload, 'find'>, ids: Array<string | number>): Promise<Map<string, PostLite>> {
+async function loadPostsLite(payload: Pick<Payload, 'find'>, ids: Array<string | number>): Promise<Map<string, Post>> {
   if (ids.length === 0) return new Map();
   const res = await payload.find({
     collection: 'posts',
@@ -153,9 +150,9 @@ async function loadPostsLite(payload: Pick<Payload, 'find'>, ids: Array<string |
     depth: 0,
     pagination: false,
   });
-  const map = new Map<string, PostLite>();
-  for (const doc of res.docs) {
-    map.set(String((doc as { id: string | number }).id), doc as unknown as PostLite);
+  const map = new Map<string, Post>();
+  for (const doc of res.docs as Post[]) {
+    map.set(String(doc.id), doc);
   }
   return map;
 }
@@ -183,7 +180,7 @@ export async function syncQueueToPosts(
   for (const id of nextSet) {
     const post = posts.get(id);
     if (!post) continue;
-    if (post.publish_status === 'published' || post.publish_status === 'sent') continue;
+    if (isPublicPostStatus(post.publish_status)) continue;
     const slot = schedule.get(id);
     if (!slot) continue;
     if (post.publish_status === 'scheduled' && post.scheduledPublishDate?.slice(0, 10) === slot.date) {

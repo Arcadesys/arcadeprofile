@@ -108,7 +108,7 @@ async function main() {
   await payload.update({
     collection: 'posts',
     id: post.id,
-    data: { content: lexical as unknown as Record<string, unknown> },
+    data: { content: lexical },
     overrideAccess: true,
   });
 

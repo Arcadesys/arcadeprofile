@@ -7,7 +7,7 @@ import { getGroupBySlug } from '@/lib/blog';
 import { resolvePostOgImageBySlug } from '@/lib/post-og-image';
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
-import { categoryLabels } from '@/components/menu';
+import { projectCategoryLabels } from '@/lib/project-model';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
@@ -265,7 +265,7 @@ export default async function ProjectPostPage({ params }: Props) {
     })),
   };
 
-  const categoryLabel = project.category ? (categoryLabels[project.category] ?? project.category) : null;
+  const categoryLabel = project.category ? (projectCategoryLabels[project.category] ?? project.category) : null;
 
   const drawer = (
     <DocDrawer

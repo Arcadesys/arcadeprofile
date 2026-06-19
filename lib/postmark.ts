@@ -35,6 +35,7 @@ type PostmarkBatchResponse = {
   Message?: string;
 };
 
+type PostmarkSingleClient = Pick<ServerClient, 'sendEmail'>;
 type PostmarkBatchClient = Pick<ServerClient, 'sendEmailBatch'>;
 
 export type PostmarkTrackLinks = Models.LinkTrackingOptions;
@@ -75,7 +76,7 @@ function getFromEmail(): string {
   return process.env.POSTMARK_FROM_EMAIL || 'austen@thearcades.me';
 }
 
-function getTransactionalMessageStream(): string {
+export function getPostmarkTransactionalMessageStream(): string {
   return process.env.POSTMARK_TRANSACTIONAL_STREAM || 'outbound';
 }
 
@@ -98,30 +99,50 @@ export interface PostmarkTestEmailOptions {
   subject?: string;
   htmlBody?: string;
   textBody?: string;
-  client?: Pick<ServerClient, 'sendEmail'>;
+  client?: PostmarkSingleClient;
+}
+
+export interface SendPostmarkTransactionalEmailOptions {
+  to: string;
+  subject: string;
+  htmlBody: string;
+  textBody: string;
+  client?: PostmarkSingleClient;
+  messageStream?: string;
+}
+
+export async function sendPostmarkTransactionalEmail(
+  options: SendPostmarkTransactionalEmailOptions,
+): Promise<PostmarkSendEmailResponse> {
+  const client = options.client ?? getClient();
+  return client.sendEmail({
+    From: formatFromAddress(),
+    To: options.to,
+    Subject: options.subject,
+    HtmlBody: options.htmlBody,
+    TextBody: options.textBody,
+    MessageStream: options.messageStream ?? getPostmarkTransactionalMessageStream(),
+  });
 }
 
 export async function sendPostmarkTestEmail(
   options: PostmarkTestEmailOptions,
 ): Promise<PostmarkSendEmailResponse> {
-  const { to, client = getClient() } = options;
+  const { to, client } = options;
   const sentAt = new Date().toISOString();
-  const fromEmail = getFromEmail();
-  const messageStream = getTransactionalMessageStream();
   const subject = options.subject || `Postmark test email ${sentAt}`;
   const htmlBody =
     options.htmlBody ||
-    `<p>This is a Postmark test email from Free Play Publishing.</p><p>Sent at ${sentAt}.</p>`;
+    `<p>This is a Postmark test email from The Arcades.</p><p>Sent at ${sentAt}.</p>`;
   const textBody =
-    options.textBody || `This is a Postmark test email from Free Play Publishing.\nSent at ${sentAt}.`;
+    options.textBody || `This is a Postmark test email from The Arcades.\nSent at ${sentAt}.`;
 
-  return client.sendEmail({
-    From: fromEmail,
-    To: to,
-    Subject: subject,
-    HtmlBody: htmlBody,
-    TextBody: textBody,
-    MessageStream: messageStream,
+  return sendPostmarkTransactionalEmail({
+    to,
+    subject,
+    htmlBody,
+    textBody,
+    client,
   });
 }
 

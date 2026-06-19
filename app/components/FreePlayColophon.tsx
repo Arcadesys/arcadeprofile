@@ -73,7 +73,7 @@ function MarkSVG({ height, idPrefix }: { height: number; idPrefix: string }) {
   );
 }
 
-function MonoSVG({ height, idPrefix }: { height: number; idPrefix: string }) {
+function MonoSVG({ height }: { height: number }) {
   return (
     <svg
       viewBox="0 0 130 100"
@@ -111,7 +111,7 @@ export default function FreePlayColophon({
   if (variant === 'mono') {
     return (
       <span className={className} style={{ display: 'inline-block', ...style }} aria-label={ariaLabel} role="img">
-        <MonoSVG height={size} idPrefix={idPrefix} />
+        <MonoSVG height={size} />
       </span>
     );
   }

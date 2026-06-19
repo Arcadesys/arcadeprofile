@@ -13,6 +13,7 @@ export const Books: CollectionConfig = {
     { name: 'description', type: 'textarea', required: true },
     { name: 'coverImage', type: 'text' },
     { name: 'buyLink', type: 'text' },
+    { name: 'buyLabel', type: 'text' },
     { name: 'hasBuyButton', type: 'checkbox', defaultValue: false },
     { name: 'hasPreview', type: 'checkbox', defaultValue: false },
     ...discoverabilityAndMetaFields,

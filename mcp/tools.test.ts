@@ -1,7 +1,7 @@
 /**
  * Unit tests for mcp/tools.ts
  *
- * Run with: pnpm exec tsx --test "mcp/**\/*.test.ts"
+ * Run with: npx tsx --test mcp/*.test.ts
  *
  * fetch is monkey-patched per test so no real HTTP requests are made.
  */
@@ -39,9 +39,8 @@ process.env.PAYLOAD_API_URL = 'http://localhost:3000';
 process.env.PAYLOAD_API_KEY = 'test-api-key';
 
 // Dynamic import so env is set before module-level code runs in tools.ts
-const { toolDefinitions, toolHandlers, markdownToLexical, TOOL_SCOPES } = await import(
-  './tools.js'
-);
+const { toolDefinitions, toolHandlers, markdownToLexical, payloadQueryPath, TOOL_SCOPES } =
+  await import('./tools.js');
 
 // ---------------------------------------------------------------------------
 // toolDefinitions
@@ -118,6 +117,23 @@ test('markdownToLexical wraps paragraphs in root node', async () => {
 });
 
 // ---------------------------------------------------------------------------
+// payloadQueryPath
+// ---------------------------------------------------------------------------
+
+test('payloadQueryPath encodes nested where query values', () => {
+  const path = payloadQueryPath('posts', {
+    'where[slug][equals]': 'one & two',
+    limit: 1,
+    depth: 0,
+  });
+
+  assert.equal(
+    path,
+    '/posts?where%5Bslug%5D%5Bequals%5D=one+%26+two&limit=1&depth=0',
+  );
+});
+
+// ---------------------------------------------------------------------------
 // list_posts handler
 // ---------------------------------------------------------------------------
 
@@ -148,6 +164,41 @@ test('list_posts returns shaped post objects', async () => {
     assert.equal(posts.length, 1);
     assert.equal(posts[0].slug, 'test-post');
     assert.equal(posts[0].publish_status, 'sent');
+  } finally {
+    restore();
+  }
+});
+
+test('list_posts encodes status filter through structured query helper', async () => {
+  let capturedUrl = '';
+  const restore = mockFetch(async (url) => {
+    capturedUrl = String(url);
+    return jsonResponse({ docs: [] });
+  });
+
+  try {
+    await toolHandlers.list_posts({ status: 'sent' });
+    const parsed = new URL(capturedUrl);
+    assert.equal(parsed.pathname, '/api/posts');
+    assert.equal(parsed.searchParams.get('where[publish_status][equals]'), 'sent');
+  } finally {
+    restore();
+  }
+});
+
+test('get_post encodes slugs before querying Payload', async () => {
+  let capturedUrl = '';
+  const restore = mockFetch(async (url) => {
+    capturedUrl = String(url);
+    return jsonResponse({ docs: [] });
+  });
+
+  try {
+    await toolHandlers.get_post({ slug: 'odd & slug' });
+    const parsed = new URL(capturedUrl);
+    assert.equal(parsed.pathname, '/api/posts');
+    assert.equal(parsed.searchParams.get('where[slug][equals]'), 'odd & slug');
+    assert.equal(parsed.searchParams.get('limit'), '1');
   } finally {
     restore();
   }

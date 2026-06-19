@@ -6,6 +6,7 @@ import payloadConfig from '@payload-config';
 import PostRichText from '@/app/components/PostRichText';
 import { getPostLocationBySlug } from '@/lib/post-url';
 import { resolvePostOgImage } from '@/lib/post-og-image';
+import { isPublicPostStatus } from '@/lib/post-status';
 import { PREVIEW_TOKEN_PATTERN } from '@/lib/preview-token';
 import type { Post } from '@/payload-types';
 import PreviewBanner from './PreviewBanner';
@@ -92,7 +93,7 @@ export default async function PreviewPage({ params }: Props) {
   if (!post) notFound();
 
   const status = (post.publish_status as string | undefined) ?? 'draft';
-  const isPublic = status === 'published' || status === 'sent';
+  const isPublic = isPublicPostStatus(status);
 
   if (isPublic) {
     const location = await getPostLocationBySlug(payload, post.slug as string);

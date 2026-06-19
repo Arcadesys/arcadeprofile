@@ -1,4 +1,11 @@
 import type { CollectionConfig } from 'payload';
+import {
+  projectCategoryOptions,
+  projectCtaTypeOptions,
+  projectFormatOptions,
+  projectResourceKindOptions,
+  projectStatusOptions,
+} from '@/lib/project-model';
 import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { slugField } from './fields/slug';
 import { tagArrayField } from './fields/tags';
@@ -71,14 +78,7 @@ export const Groups: CollectionConfig = {
       admin: {
         position: 'sidebar',
       },
-      options: [
-        { label: 'Fiction', value: 'fiction' },
-        { label: 'Tools', value: 'tools' },
-        { label: 'Experiments', value: 'experiments' },
-        { label: 'Audio/Video', value: 'audio-video' },
-        { label: 'Community', value: 'community' },
-        { label: 'Writing', value: 'writing' },
-      ],
+      options: [...projectCategoryOptions],
     },
     {
       name: 'status',
@@ -87,12 +87,7 @@ export const Groups: CollectionConfig = {
       admin: {
         position: 'sidebar',
       },
-      options: [
-        { label: 'Active', value: 'active' },
-        { label: 'Available', value: 'available' },
-        { label: 'In Progress', value: 'in-progress' },
-        { label: 'Archived', value: 'archived' },
-      ],
+      options: [...projectStatusOptions],
     },
     {
       name: 'format',
@@ -103,10 +98,7 @@ export const Groups: CollectionConfig = {
         description:
           'Serial: posts read in order (chapters). Collection: independent pieces (e.g. short stories) — the intro page shows a picker instead of a "Start reading" button.',
       },
-      options: [
-        { label: 'Serial', value: 'serial' },
-        { label: 'Collection', value: 'collection' },
-      ],
+      options: [...projectFormatOptions],
     },
     tagArrayField,
     {
@@ -121,16 +113,7 @@ export const Groups: CollectionConfig = {
         {
           name: 'type',
           type: 'select',
-          options: [
-            { label: 'Sample', value: 'preview' },
-            { label: 'Buy', value: 'buy' },
-            { label: 'Experiment', value: 'experiment' },
-            { label: 'Video', value: 'youtube' },
-            { label: 'Audio', value: 'audio' },
-            { label: 'Repository', value: 'repo' },
-            { label: 'Download', value: 'download' },
-            { label: 'Other', value: 'other' },
-          ],
+          options: [...projectCtaTypeOptions],
         },
       ],
     },
@@ -144,17 +127,7 @@ export const Groups: CollectionConfig = {
           name: 'kind',
           type: 'select',
           required: true,
-          options: [
-            { label: 'Post', value: 'post' },
-            { label: 'Sample', value: 'preview' },
-            { label: 'Buy', value: 'buy' },
-            { label: 'YouTube', value: 'youtube' },
-            { label: 'Audio', value: 'audio' },
-            { label: 'Experiment', value: 'experiment' },
-            { label: 'Repository', value: 'repo' },
-            { label: 'Download', value: 'download' },
-            { label: 'Other', value: 'other' },
-          ],
+          options: [...projectResourceKindOptions],
         },
         { name: 'description', type: 'textarea' },
         { name: 'external', type: 'checkbox', defaultValue: false },

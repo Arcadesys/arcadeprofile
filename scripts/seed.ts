@@ -1,6 +1,6 @@
 /**
  * One-time seed script: seeds blog posts/groups from MDX files, then seeds
- * books and demos from static data files. Groups are the canonical "project"
+ * books from static data files. Groups are the canonical "project"
  * entity — see collections/Groups.ts.
  *
  * Usage: npm run seed
@@ -22,6 +22,7 @@ import {
   editorConfigFactory,
 } from '@payloadcms/richtext-lexical';
 import configPromise from '../payload.config';
+import type { Post } from '../payload-types';
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
 const SCHEDULE_PATH = path.join(process.cwd(), 'data', 'schedule.json');
@@ -51,7 +52,7 @@ async function main() {
   });
   const nodes = getEnabledNodes({ editorConfig });
 
-  function markdownToLexical(markdown: string): unknown {
+  function markdownToLexical(markdown: string): Post['content'] {
     const editor = createHeadlessEditor({ nodes });
     editor.update(
       () => {
@@ -59,7 +60,7 @@ async function main() {
       },
       { discrete: true },
     );
-    return editor.getEditorState().toJSON();
+    return editor.getEditorState().toJSON() as Post['content'];
   }
 
   // --- Seed blog groups ---
@@ -196,7 +197,7 @@ async function main() {
           title,
           slug,
           excerpt,
-          content: lexicalContent as any,
+          content: lexicalContent,
           publishedDate: date,
           publish_status,
           scheduledPublishDate,
@@ -288,14 +289,14 @@ Pull, not push. The door doesn't move.
       data: {
         title: 'About',
         slug: 'about',
-        content: aboutContent as any,
+        content: aboutContent,
         _status: 'published',
         meta: {
           title: 'About | The Arcades',
           description:
             'The story of Austen Tucker — novelist, cat herder, builder — as told by Kai, the content writer who learned to write like them.',
         },
-      } as any,
+      },
     });
     console.log('  [created] about');
   }
@@ -323,40 +324,12 @@ Pull, not push. The door doesn't move.
         description: book.description,
         coverImage: book.coverImage || null,
         buyLink: book.buyLink || null,
+        buyLabel: book.buyLabel || null,
         hasBuyButton: book.hasBuyButton ?? false,
         hasPreview: book.hasPreview ?? false,
       },
     });
     console.log(`  [created] ${key}`);
-  }
-
-  // --- Seed demos ---
-  console.log('\n--- Seeding Demos ---');
-  const { demos } = await import('../data/demos');
-
-  for (const demo of demos) {
-    const existing = await payload.find({
-      collection: 'demos',
-      where: { slug: { equals: demo.slug } },
-    });
-
-    if (existing.docs.length > 0) {
-      console.log(`  [skip] ${demo.slug} (already exists)`);
-      continue;
-    }
-
-    await payload.create({
-      collection: 'demos',
-      data: {
-        slug: demo.slug,
-        title: demo.title,
-        description: demo.description,
-        image: demo.image || null,
-        embedUrl: demo.embedUrl,
-        tags: demo.tags || [],
-      },
-    });
-    console.log(`  [created] ${demo.slug}`);
   }
 
   console.log('\nSeed complete.');

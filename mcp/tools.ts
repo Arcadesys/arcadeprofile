@@ -9,6 +9,7 @@ import { readFileSync } from 'fs';
 import { basename, extname } from 'path';
 import type { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
+import { postStatusValues } from '../lib/post-status';
 import { buildPreviewUrl } from '../lib/preview-token';
 
 // ---------------------------------------------------------------------------
@@ -33,6 +34,22 @@ export function apiHeaders(): Record<string, string> {
   const key = getApiKey();
   if (key) h['Authorization'] = `users API-Key ${key}`;
   return h;
+}
+
+type QueryParamValue = string | number | boolean | null | undefined;
+
+export function payloadQueryPath(
+  collectionPath: string,
+  params: Record<string, QueryParamValue>,
+): string {
+  const path = collectionPath.startsWith('/') ? collectionPath : `/${collectionPath}`;
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null) continue;
+    search.set(key, String(value));
+  }
+  const query = search.toString();
+  return query ? `${path}?${query}` : path;
 }
 
 export async function payloadFetch(path: string, options?: RequestInit): Promise<unknown> {
@@ -81,7 +98,7 @@ export const toolDefinitions: Tool[] = [
         limit: { type: 'number', description: 'Max results (default 50)' },
         status: {
           type: 'string',
-          enum: ['draft', 'scheduled', 'published', 'sent'],
+          enum: [...postStatusValues],
           description: 'Filter by publish_status',
         },
       },
@@ -128,7 +145,7 @@ export const toolDefinitions: Tool[] = [
         author: { type: 'string', description: 'Defaults to Austen Tucker' },
         publish_status: {
           type: 'string',
-          enum: ['draft', 'scheduled', 'published', 'sent'],
+          enum: [...postStatusValues],
           description: 'Newsletter workflow status. Defaults to draft.',
         },
         scheduledPublishDate: {
@@ -216,7 +233,7 @@ export const toolDefinitions: Tool[] = [
         author: { type: 'string' },
         publish_status: {
           type: 'string',
-          enum: ['draft', 'scheduled', 'published', 'sent'],
+          enum: [...postStatusValues],
         },
         scheduledPublishDate: { type: 'string' },
         newsletterHeading: { type: 'string' },
@@ -437,9 +454,14 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
   async list_posts(args) {
     const limit = (args.limit as number) || 50;
-    const where = args.status ? `&where[publish_status][equals]=${args.status}` : '';
     const data = (await payloadFetch(
-      `/posts?limit=${limit}&sort=-publishedDate&depth=0${where}`,
+      payloadQueryPath('posts', {
+        limit,
+        sort: '-publishedDate',
+        depth: 0,
+        'where[publish_status][equals]':
+          typeof args.status === 'string' ? args.status : undefined,
+      }),
     )) as { docs: Record<string, unknown>[] };
     const posts = data.docs.map((p) => ({
       id: p.id,
@@ -456,7 +478,11 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
   async get_post(args) {
     const data = (await payloadFetch(
-      `/posts?where[slug][equals]=${args.slug}&limit=1&depth=0`,
+      payloadQueryPath('posts', {
+        'where[slug][equals]': args.slug as string,
+        limit: 1,
+        depth: 0,
+      }),
     )) as { docs: Record<string, unknown>[] };
     if (!data.docs.length) return { content: [{ type: 'text', text: 'Post not found.' }] };
     const doc = data.docs[0];
@@ -524,7 +550,11 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
   async update_post(args) {
     const found = (await payloadFetch(
-      `/posts?where[slug][equals]=${args.slug}&limit=1&depth=0`,
+      payloadQueryPath('posts', {
+        'where[slug][equals]': args.slug as string,
+        limit: 1,
+        depth: 0,
+      }),
     )) as { docs: { id: number }[] };
     if (!found.docs.length) return { content: [{ type: 'text', text: 'Post not found.' }] };
 
@@ -568,7 +598,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Pages ----
 
   async list_pages() {
-    const data = (await payloadFetch('/pages?limit=50&depth=0')) as {
+    const data = (await payloadFetch(payloadQueryPath('pages', { limit: 50, depth: 0 }))) as {
       docs: Record<string, unknown>[];
     };
     const pages = data.docs.map((p) => ({
@@ -583,7 +613,11 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
   async get_page(args) {
     const data = (await payloadFetch(
-      `/pages?where[slug][equals]=${args.slug}&limit=1&depth=0`,
+      payloadQueryPath('pages', {
+        'where[slug][equals]': args.slug as string,
+        limit: 1,
+        depth: 0,
+      }),
     )) as { docs: unknown[] };
     if (!data.docs.length) return { content: [{ type: 'text', text: 'Page not found.' }] };
     return { content: [{ type: 'text', text: JSON.stringify(data.docs[0], null, 2) }] };
@@ -591,7 +625,11 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
   async update_page(args) {
     const found = (await payloadFetch(
-      `/pages?where[slug][equals]=${args.slug}&limit=1&depth=0`,
+      payloadQueryPath('pages', {
+        'where[slug][equals]': args.slug as string,
+        limit: 1,
+        depth: 0,
+      }),
     )) as { docs: { id: number }[] };
     if (!found.docs.length) return { content: [{ type: 'text', text: 'Page not found.' }] };
 
@@ -611,7 +649,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Groups ----
 
   async list_groups() {
-    const data = (await payloadFetch('/groups?limit=50&depth=0')) as {
+    const data = (await payloadFetch(payloadQueryPath('groups', { limit: 50, depth: 0 }))) as {
       docs: Record<string, unknown>[];
     };
     const groups = data.docs.map((g) => ({
@@ -627,14 +665,18 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Books ----
 
   async list_books() {
-    const data = (await payloadFetch('/books?limit=50&depth=0')) as { docs: unknown[] };
+    const data = (await payloadFetch(payloadQueryPath('books', { limit: 50, depth: 0 }))) as {
+      docs: unknown[];
+    };
     return { content: [{ type: 'text', text: JSON.stringify(data.docs, null, 2) }] };
   },
 
   // ---- Projects ----
 
   async list_projects() {
-    const data = (await payloadFetch('/groups?limit=50&depth=0')) as { docs: unknown[] };
+    const data = (await payloadFetch(payloadQueryPath('groups', { limit: 50, depth: 0 }))) as {
+      docs: unknown[];
+    };
     return { content: [{ type: 'text', text: JSON.stringify(data.docs, null, 2) }] };
   },
 
@@ -667,7 +709,11 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const position = (args.position as 'append' | 'prepend') ?? 'append';
 
     const found = (await payloadFetch(
-      `/posts?where[slug][equals]=${slug}&limit=1&depth=0`,
+      payloadQueryPath('posts', {
+        'where[slug][equals]': slug,
+        limit: 1,
+        depth: 0,
+      }),
     )) as { docs: { id: number; content?: LexicalRoot }[] };
     if (!found.docs.length) return { content: [{ type: 'text', text: 'Post not found.' }] };
     const post = found.docs[0];
@@ -733,7 +779,11 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const posts: { id: number; slug: string; content?: LexicalRoot }[] = [];
     if (onlySlug) {
       const found = (await payloadFetch(
-        `/posts?where[slug][equals]=${onlySlug}&limit=1&depth=0`,
+        payloadQueryPath('posts', {
+          'where[slug][equals]': onlySlug,
+          limit: 1,
+          depth: 0,
+        }),
       )) as { docs: { id: number; slug: string; content?: LexicalRoot }[] };
       if (!found.docs.length) return { content: [{ type: 'text', text: 'Post not found.' }] };
       posts.push(found.docs[0]);
@@ -741,7 +791,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
       let page = 1;
       while (true) {
         const data = (await payloadFetch(
-          `/posts?limit=50&page=${page}&depth=0`,
+          payloadQueryPath('posts', { limit: 50, page, depth: 0 }),
         )) as {
           docs: { id: number; slug: string; content?: LexicalRoot }[];
           hasNextPage: boolean;
@@ -756,7 +806,11 @@ export const toolHandlers: Record<string, ToolHandler> = {
     async function lookupMedia(filename: string): Promise<number | null> {
       if (mediaCache.has(filename)) return mediaCache.get(filename)!;
       const data = (await payloadFetch(
-        `/media?where[filename][equals]=${encodeURIComponent(filename)}&limit=1&depth=0`,
+        payloadQueryPath('media', {
+          'where[filename][equals]': filename,
+          limit: 1,
+          depth: 0,
+        }),
       )) as { docs: { id: number }[] };
       const id = data.docs[0]?.id ?? null;
       mediaCache.set(filename, id);

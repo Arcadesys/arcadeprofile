@@ -1,20 +1,12 @@
 import { getPayload } from 'payload';
 import configPromise from '@payload-config';
 import type { SerializedEditorState } from 'lexical';
-import type { Book, Demo, Group, Media } from '@/payload-types';
+import type { Group, Media } from '@/payload-types';
 import { logger } from '@/lib/logger';
+import { publicPostStatusWhere } from '@/lib/post-status';
+import { buildGroupIntroUrl } from '@/lib/post-url';
+import type { ProjectFormat, ProjectResourceKind } from '@/lib/project-model';
 import { slugify } from '@/lib/utils';
-
-export type ProjectResourceKind =
-  | 'post'
-  | 'preview'
-  | 'buy'
-  | 'youtube'
-  | 'audio'
-  | 'experiment'
-  | 'repo'
-  | 'download'
-  | 'other';
 
 export interface ProjectResource {
   label: string;
@@ -44,7 +36,7 @@ export interface ProjectHub {
   featured: boolean;
   category?: string | null;
   status?: string | null;
-  format?: 'serial' | 'collection' | null;
+  format?: ProjectFormat | null;
   primaryCTA?: ProjectCTA;
   resources: ProjectResource[];
   relatedPostSlugs: string[];
@@ -69,14 +61,10 @@ function normalizeStringArray(value: unknown): string[] {
     .filter(Boolean);
 }
 
-function defaultProjectHref(slug: string): string {
-  return `/projects/${slug}`;
-}
-
 function normalizeGroup(doc: Group, postSlugsForGroup: string[] = []): ProjectHub {
   const slug = doc.slug || slugify(doc.title);
   const resources = Array.isArray(doc.resources) ? doc.resources : [];
-  const href = doc.href || defaultProjectHref(slug);
+  const href = doc.href || buildGroupIntroUrl(slug);
   const external = Boolean(doc.external);
 
   let projectCTA: ProjectCTA | undefined;
@@ -120,37 +108,6 @@ function normalizeGroup(doc: Group, postSlugsForGroup: string[] = []): ProjectHu
   };
 }
 
-export async function getAllBooks(): Promise<Book[]> {
-  const payload = await getPayloadClient();
-  const result = await payload.find({
-    collection: 'books',
-    limit: 100,
-    depth: 0,
-  });
-  return result.docs;
-}
-
-export async function getAllDemos(): Promise<Demo[]> {
-  const payload = await getPayloadClient();
-  const result = await payload.find({
-    collection: 'demos',
-    limit: 100,
-    depth: 0,
-  });
-  return result.docs;
-}
-
-export async function getDemoBySlug(slug: string): Promise<Demo | null> {
-  const payload = await getPayloadClient();
-  const result = await payload.find({
-    collection: 'demos',
-    where: { slug: { equals: slug } },
-    limit: 1,
-    depth: 0,
-  });
-  return result.docs[0] ?? null;
-}
-
 async function fetchPostSlugsByGroup(slugs: string[]): Promise<Map<string, string[]>> {
   const map = new Map<string, string[]>();
   if (slugs.length === 0) return map;
@@ -158,8 +115,13 @@ async function fetchPostSlugsByGroup(slugs: string[]): Promise<Map<string, strin
   const payload = await getPayloadClient();
   const result = await payload.find({
     collection: 'posts',
-    where: { group: { in: slugs } },
-    sort: 'order',
+    where: {
+      and: [
+        { group: { in: slugs } },
+        { publish_status: publicPostStatusWhere() },
+      ],
+    },
+    sort: ['order', 'publishedDate'],
     limit: 500,
     depth: 0,
   });

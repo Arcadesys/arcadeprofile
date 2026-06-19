@@ -3,7 +3,7 @@ import type { PayloadEmailAdapter, SendEmailOptions } from 'payload';
 import { logger } from '@/lib/logger';
 
 const DEFAULT_FROM_EMAIL = 'austen@thearcades.me';
-const DEFAULT_FROM_NAME = 'Free Play Publishing';
+const DEFAULT_FROM_NAME = 'The Arcades';
 
 declare global {
   var __payloadEmailWarningShown: boolean | undefined;

@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload';
 
-import { buildPostUrl } from '../lib/post-url';
+import { postStatusOptions, publicPostStatusWhere } from '../lib/post-status';
+import { buildGroupIntroUrl, buildPostUrl } from '../lib/post-url';
 import { buildPreviewUrl } from '../lib/preview-token';
 import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { slugField } from './fields/slug';
@@ -15,10 +16,10 @@ import { adminGroups, titledAdmin } from './shared/admin';
 const revalidatePostPaths = revalidatePathsFor(async (doc) => {
   const slug = doc.slug as string | undefined;
   const group = doc.group as string | undefined;
-  const paths = ['/latest', '/writing', '/samples', '/feed.xml'];
+  const paths = ['/latest', '/projects', '/feed.xml'];
 
   if (group) {
-    paths.push(`/writing/group/${group}`, `/${group}`, `/projects/${group}`, `/projects/${group}/00`);
+    paths.push(buildGroupIntroUrl(group));
     if (slug) {
       paths.push(buildPostUrl(group, slug));
     }
@@ -37,7 +38,7 @@ export const Posts: CollectionConfig = {
     // (and server-side calls with overrideAccess) still see everything.
     read: ({ req }) => {
       if (req.user) return true;
-      return { publish_status: { in: ['published', 'sent'] } };
+      return { publish_status: publicPostStatusWhere() };
     },
     create: isAuthenticated,
     update: isAuthenticated,
@@ -49,8 +50,6 @@ export const Posts: CollectionConfig = {
       'publish_status',
       'scheduledPublishDate',
       'publishedDate',
-      'showInSamples',
-      'sampleOrder',
       'suppressNewsletter',
     ]),
     // Renders Payload's built-in "Preview" button in the document controls
@@ -60,8 +59,8 @@ export const Posts: CollectionConfig = {
   },
   hooks: {
     beforeChange: [
-      validateScheduledPublishDateHook,
       promoteScheduledDraftHook,
+      validateScheduledPublishDateHook,
       ensurePreviewTokenHook,
     ],
     afterChange: [revalidatePostPaths],
@@ -243,12 +242,6 @@ export const Posts: CollectionConfig = {
       name: 'scheduledPublishDate',
       label: 'Scheduled Publish Date',
       type: 'date',
-      defaultValue: () => {
-        const d = new Date();
-        d.setUTCHours(10, 0, 0, 0); // 05:00 CDT
-        if (d <= new Date()) d.setUTCDate(d.getUTCDate() + 1);
-        return d.toISOString();
-      },
       admin: {
         position: 'sidebar',
         description: 'When a draft should be promoted to published by the scheduler.',
@@ -316,12 +309,7 @@ export const Posts: CollectionConfig = {
       name: 'publish_status',
       label: 'Workflow Status',
       type: 'select',
-      options: [
-        { label: 'Not queued', value: 'draft' },
-        { label: 'Scheduled publish', value: 'scheduled' },
-        { label: 'Published by scheduler', value: 'published' },
-        { label: 'Newsletter sent', value: 'sent' },
-      ],
+      options: postStatusOptions,
       defaultValue: 'draft',
       admin: {
         position: 'sidebar',
@@ -349,38 +337,6 @@ export const Posts: CollectionConfig = {
           Cell: '@/components/admin/PreviewUrlCell#default',
         },
       },
-    },
-    {
-      type: 'collapsible',
-      label: 'Samples',
-      admin: {
-        description: 'Controls whether this post appears in the public Samples funnel.',
-      },
-      fields: [
-        {
-          name: 'showInSamples',
-          type: 'checkbox',
-          defaultValue: false,
-          admin: {
-            description: 'Show this published post on /samples.',
-          },
-        },
-        {
-          name: 'sampleOrder',
-          type: 'number',
-          admin: {
-            description: 'Lower numbers appear first. Posts without a value fall back to publish date.',
-          },
-        },
-        {
-          name: 'sampleLabel',
-          type: 'text',
-          admin: {
-            description: 'Optional button text for /samples.',
-            placeholder: 'Read Sample',
-          },
-        },
-      ],
     },
     ...discoverabilityAndMetaFields,
   ],

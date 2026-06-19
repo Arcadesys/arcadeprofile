@@ -14,7 +14,6 @@ function setAcEnv(overrides: Record<string, string | undefined> = {}) {
   const defaults: Record<string, string> = {
     AC_API_URL: 'https://example.api-us1.com',
     AC_API_KEY: 'test-key',
-    AC_NEWSLETTER_LIST_ID: '3',
     AC_LIST_ID_ALL_PERPOST: '7',
     AC_LIST_ID_FICTION_PERPOST: '9',
     AC_LIST_ID_ESSAYS_PERPOST: '10',
@@ -32,13 +31,11 @@ function clearAcEnv() {
   for (const k of [
     'AC_API_URL',
     'AC_API_KEY',
-    'AC_NEWSLETTER_LIST_ID',
     'AC_LIST_ID_ALL_PERPOST',
     'AC_LIST_ID_FICTION_PERPOST',
     'AC_LIST_ID_ESSAYS_PERPOST',
     'ACTIVECAMPAIGN_API_URL',
     'ACTIVECAMPAIGN_API_KEY',
-    'ACTIVECAMPAIGN_LIST_ID',
   ]) {
     delete process.env[k];
   }
@@ -157,7 +154,7 @@ test('syncSubscriberToActiveCampaign upserts contact then subscribes to list', a
 
   const result = await syncSubscriberToActiveCampaign({
     email: 'reader@example.com',
-    listIdOverride: '9',
+    listId: '9',
     fetchImpl,
   });
 
@@ -187,7 +184,7 @@ test('syncSubscriberToActiveCampaign forwards unsubscribe status', async () => {
 
   await syncSubscriberToActiveCampaign({
     email: 'reader@example.com',
-    listIdOverride: '9',
+    listId: '9',
     status: 2,
     fetchImpl,
   });
@@ -215,9 +212,25 @@ test('syncSubscriberToActiveCampaign treats already-on-list 422 as success', asy
 
   const result = await syncSubscriberToActiveCampaign({
     email: 'reader@example.com',
-    listIdOverride: '9',
+    listId: '9',
     fetchImpl,
   });
 
   assert.deepEqual(result, { contactId: '42' });
+});
+
+test('syncSubscriberToActiveCampaign requires an explicit audience list id', async () => {
+  setAcEnv();
+
+  await assert.rejects(
+    () =>
+      syncSubscriberToActiveCampaign({
+        email: 'reader@example.com',
+        listId: '',
+        fetchImpl: async () => {
+          throw new Error('fetch should not be called');
+        },
+      }),
+    /ActiveCampaign list id is required/,
+  );
 });

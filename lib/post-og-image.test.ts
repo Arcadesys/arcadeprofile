@@ -34,11 +34,13 @@ function makePayload(opts: {
   return {
     async find({ collection, where, limit }: any) {
       if (collection === 'posts') {
-        const groupSlug = where?.group?.equals;
-        const chapterSlug = where?.chapter?.equals;
-        const excludeId = where?.id?.not_equals;
-        const requireImage = !!where?.['meta.image']?.exists;
-        const statusIn: string[] | undefined = where?.publish_status?.in;
+        const clauses = Array.isArray(where?.and) ? where.and : [where];
+        const groupSlug = clauses.find((clause: any) => clause?.group?.equals)?.group?.equals;
+        const chapterSlug = clauses.find((clause: any) => clause?.chapter?.equals)?.chapter?.equals;
+        const excludeId = clauses.find((clause: any) => clause?.id?.not_equals)?.id?.not_equals;
+        const requireImage = clauses.some((clause: any) => !!clause?.['meta.image']?.exists);
+        const statusIn: string[] | undefined = clauses.find((clause: any) => clause?.publish_status?.in)
+          ?.publish_status?.in;
         const docs = posts.filter((p) => {
           if (groupSlug && p.group !== groupSlug) return false;
           if (chapterSlug && p.chapter !== chapterSlug) return false;
@@ -89,6 +91,7 @@ test('falls back to a chapter sibling when post has no image', async () => {
     group: 'g',
     chapter: 'c1',
     updatedAt: '',
+    publish_status: 'published',
     meta: { image: media({ id: 5, url: 'https://cdn.example/sib.jpg', sizes: { og: { url: 'https://cdn.example/sib-og.jpg', width: 1200, height: 630 } } }) },
   } as Post;
   const post: PartialPost = { id: 1, group: 'g', chapter: 'c1', meta: {} };
@@ -96,6 +99,72 @@ test('falls back to a chapter sibling when post has no image', async () => {
   const og = await resolvePostOgImage(payload, post as Post);
   assert.equal(og?.source, 'chapter-sibling');
   assert.equal(og?.url, 'https://cdn.example/sib-og.jpg');
+});
+
+test('chooses the earliest public sibling image by shared group order', async () => {
+  const unorderedSibling: Post = {
+    id: 2,
+    title: 'unordered sib',
+    slug: 'unordered-sib',
+    excerpt: '',
+    content: {} as any,
+    publishedDate: '2026-01-03',
+    group: 'g',
+    chapter: 'c1',
+    updatedAt: '',
+    publish_status: 'published',
+    meta: { image: media({ id: 5, sizes: { og: { url: 'https://cdn.example/unordered-og.jpg', width: 1200, height: 630 } } }) },
+  } as Post;
+  const orderedSibling: Post = {
+    id: 3,
+    title: 'ordered sib',
+    slug: 'ordered-sib',
+    excerpt: '',
+    content: {} as any,
+    order: 1,
+    publishedDate: '2026-01-01',
+    group: 'g',
+    chapter: 'c1',
+    updatedAt: '',
+    publish_status: 'published',
+    meta: { image: media({ id: 6, sizes: { og: { url: 'https://cdn.example/ordered-og.jpg', width: 1200, height: 630 } } }) },
+  } as Post;
+  const post: PartialPost = { id: 1, group: 'g', chapter: 'c1', meta: {} };
+  const payload = makePayload({ posts: [unorderedSibling, orderedSibling] });
+  const og = await resolvePostOgImage(payload, post as Post);
+
+  assert.equal(og?.source, 'chapter-sibling');
+  assert.equal(og?.url, 'https://cdn.example/ordered-og.jpg');
+});
+
+test('ignores draft sibling images for public OG fallback', async () => {
+  const draftSibling: Post = {
+    id: 2,
+    title: 'draft sib',
+    slug: 'draft-sib',
+    excerpt: '',
+    content: {} as any,
+    publishedDate: '2026-01-01',
+    group: 'g',
+    chapter: 'c1',
+    updatedAt: '',
+    publish_status: 'draft',
+    meta: { image: media({ id: 5, url: 'https://cdn.example/draft.jpg' }) },
+  } as Post;
+  const group: Group = {
+    id: 1,
+    title: 'G',
+    slug: 'g',
+    updatedAt: '',
+    createdAt: '',
+    image: media({ id: 9, sizes: { og: { url: 'https://cdn.example/group-og.jpg', width: 1200, height: 630 } } }),
+  } as Group;
+  const post: PartialPost = { id: 1, group: 'g', chapter: 'c1', meta: {} };
+  const payload = makePayload({ posts: [draftSibling], groups: [group] });
+  const og = await resolvePostOgImage(payload, post as Post);
+
+  assert.equal(og?.source, 'group');
+  assert.equal(og?.url, 'https://cdn.example/group-og.jpg');
 });
 
 test('falls back to group meta.image when no sibling has one', async () => {

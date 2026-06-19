@@ -44,19 +44,6 @@ function getApiKey(): string {
   return key;
 }
 
-function getNewsletterListId(): string {
-  const id = firstNonEmpty(
-    process.env.AC_NEWSLETTER_LIST_ID,
-    process.env.ACTIVECAMPAIGN_LIST_ID,
-  );
-  if (!id) {
-    throw new ActiveCampaignError(
-      'Missing AC_NEWSLETTER_LIST_ID or ACTIVECAMPAIGN_LIST_ID environment variable',
-    );
-  }
-  return id;
-}
-
 export type Audience = 'all' | 'fiction' | 'essays';
 
 const AUDIENCE_ENV: Record<Audience, string> = {
@@ -226,7 +213,7 @@ type AcContactSyncResponse = {
  */
 export async function syncSubscriberToActiveCampaign(options: {
   email: string;
-  listIdOverride?: string;
+  listId: string;
   status?: 1 | 2;
   fetchImpl?: typeof fetch;
 }): Promise<{ contactId: string }> {
@@ -234,7 +221,10 @@ export async function syncSubscriberToActiveCampaign(options: {
   const status = options.status ?? 1;
   const baseUrl = getApiBaseUrl();
   const apiKey = getApiKey();
-  const listId = firstNonEmpty(options.listIdOverride) ?? getNewsletterListId();
+  const listId = firstNonEmpty(options.listId);
+  if (!listId) {
+    throw new ActiveCampaignError('ActiveCampaign list id is required');
+  }
   const listIdInt = parseNewsletterListIdAsInt(listId);
 
   const sync = await fetchTextWithTimeout(

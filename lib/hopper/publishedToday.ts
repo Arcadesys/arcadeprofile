@@ -1,5 +1,6 @@
 import type { Payload } from 'payload';
 
+import { publicPostStatusWhere } from '@/lib/post-status';
 import type { Post } from '@/payload-types';
 
 import { todayInSiteTz } from './syncSchedule';
@@ -25,7 +26,7 @@ export async function loadPublishedToday(
     collection: 'posts',
     where: {
       and: [
-        { publish_status: { in: ['published', 'sent'] } },
+        { publish_status: publicPostStatusWhere() },
         { publishedDate: { greater_than_equal: lookbackStart } },
       ],
     },

@@ -1,6 +1,8 @@
 import type { Payload, Where } from 'payload';
 
 import type { Group, Media, Post } from '@/payload-types';
+import { comparePostsByGroupOrder } from '@/lib/post-order';
+import { publicPostStatusWhere } from '@/lib/post-status';
 
 export interface OgImage {
   url: string;
@@ -79,24 +81,30 @@ async function findChapterSiblingImage(
   if (!post.group) return null;
 
   const where: Where = {
-    group: { equals: post.group },
-    'meta.image': { exists: true },
-    id: { not_equals: post.id },
+    and: [
+      { group: { equals: post.group } },
+      { 'meta.image': { exists: true } },
+      { id: { not_equals: post.id } },
+      { publish_status: publicPostStatusWhere() },
+    ],
   };
   if (post.chapter) {
-    where.chapter = { equals: post.chapter };
+    where.and = [
+      ...(Array.isArray(where.and) ? where.and : []),
+      { chapter: { equals: post.chapter } },
+    ];
   }
 
   const result = await payload.find({
     collection: 'posts',
     where,
     sort: ['order', 'publishedDate'],
-    limit: 1,
+    limit: 50,
     depth: 1,
     overrideAccess: true,
   });
 
-  const sibling = result.docs[0] as Post | undefined;
+  const sibling = [...result.docs].sort(comparePostsByGroupOrder)[0] as Post | undefined;
   if (!sibling?.meta?.image) return null;
 
   const media = await resolveMediaRef(payload, sibling.meta.image);
@@ -158,7 +166,7 @@ export async function resolvePostOgImageBySlug(
     collection: 'posts',
     where: {
       slug: { equals: slug },
-      publish_status: { in: ['published', 'sent'] },
+      publish_status: publicPostStatusWhere(),
     },
     limit: 1,
     depth: 1,

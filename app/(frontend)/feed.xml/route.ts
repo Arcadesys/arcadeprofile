@@ -1,7 +1,6 @@
 import { Feed } from 'feed';
 import { buildPostUrl, buildPostUrlMap, getPublishedPostsForRss } from '@/lib/blog';
 import { buildPostNewsletterContent } from '@/lib/newsletter';
-import type { Post } from '@/payload-types';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,7 +42,10 @@ export async function GET() {
     const authorName = post.author?.trim() || 'Austen Tucker';
     const { htmlBody } = buildPostNewsletterContent(
       {
-        ...(post as unknown as Pick<Post, 'content' | 'excerpt' | 'slug' | 'title'>),
+        content: post.content,
+        excerpt: post.excerpt,
+        slug: post.slug,
+        title: post.title,
         group: { slug: loc.groupSlug },
       },
       SITE_URL,

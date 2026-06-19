@@ -25,6 +25,7 @@ import { dirname } from 'path';
 import { getPayload, type Payload } from 'payload';
 import configPromise from '../payload.config';
 import type { Post } from '../payload-types';
+import { isPublicPostStatus } from '../lib/post-status';
 
 interface CliArgs {
   onlyNeeded: boolean;
@@ -114,7 +115,7 @@ async function main() {
   const out: Array<Record<string, unknown>> = [];
   for (const p of posts) {
     const status = p.publish_status as string | null | undefined;
-    if (args.publishedOnly && status !== 'published' && status !== 'sent') continue;
+    if (args.publishedOnly && !isPublicPostStatus(status)) continue;
 
     const meta = (p.meta ?? {}) as Record<string, unknown>;
     const disc = (p.discoverability ?? {}) as Record<string, unknown>;

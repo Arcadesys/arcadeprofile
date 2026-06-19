@@ -1,42 +1,50 @@
-# Postmark + Payload wiring plan
+# Postmark + Payload operations
 
-This repo now routes Payload CMS email through Postmark SMTP via `@payloadcms/email-nodemailer` in `lib/payload-email.ts` and `payload.config.ts`.
+Postmark is the outbound email delivery layer for this repo. ActiveCampaign owns contacts, audience lists, subscription state, segmentation, consent, and marketing automation state; it does not send site newsletters.
 
-## Current state
+## Delivery paths
 
-- Payload email adapter is Postmark-backed when `POSTMARK_SERVER_TOKEN` is present.
-- Optional fail-fast guard in production via `POSTMARK_REQUIRED_IN_PROD=true`.
-- In non-production, email is intentionally disabled when the token is missing.
-- Webhook endpoint: `POST /api/postmark/webhook` for delivery, bounce, open, click, spam complaint, and subscription-change processing.
-- Optional webhook auth token via `POSTMARK_WEBHOOK_SECRET` (Postmark Basic Auth URL, `x-postmark-webhook-token`, or `Authorization: Bearer ...`).
-- Per-post newsletters send with Postmark `Tag` + `Metadata` so webhook events can be tied back to the originating post.
+- Payload CMS email uses Postmark SMTP through `@payloadcms/email-nodemailer` in `lib/payload-email.ts` and `payload.config.ts`.
+- Per-post newsletters send through the Postmark API in `lib/postmark.ts`.
+- Preview and transactional test sends use Postmark directly.
+- ActiveCampaign list membership is read only to resolve newsletter recipients before Postmark delivery.
 
-## Rollout plan
+## Environment
 
-1. **Environment hardening**
-   - Set `POSTMARK_SERVER_TOKEN`, `POSTMARK_FROM_EMAIL`, and optional `POSTMARK_FROM_NAME` in each environment (local, preview, production).
-   - Verify sender signature/domain in Postmark for `POSTMARK_FROM_EMAIL`.
+- `POSTMARK_SERVER_TOKEN` enables Postmark sending.
+- `POSTMARK_FROM_EMAIL` should be a verified Postmark sender.
+- `POSTMARK_FROM_NAME` is optional and defaults to `The Arcades`.
+- `POSTMARK_REQUIRED_IN_PROD=true` makes production boot fail if `POSTMARK_SERVER_TOKEN` is missing.
+- `POSTMARK_BROADCAST_STREAM` selects the message stream for per-post newsletters; it falls back to `POSTMARK_NEWSLETTER_STREAM`, then `outbound`.
+- `POSTMARK_TRANSACTIONAL_STREAM` selects the message stream for transactional/test sends; it defaults to `outbound`.
+- `POSTMARK_WEBHOOK_SECRET` protects `/api/postmark/webhook` in production.
 
-2. **Payload smoke test path**
-   - Add/keep a small route or script that calls Payload email send and confirms a 200 response from Postmark.
-   - Run this once per environment after deploy and store result in deploy logs.
+In non-production, Payload email intentionally falls back to a console/no-op adapter when the token is missing so local development can boot without email credentials.
 
-3. **Observability**
-   - Configure Postmark modular webhooks for delivery, bounce, spam complaint, and subscription change.
-   - Enable open/click webhooks only if `POSTMARK_TRACK_OPENS` / `POSTMARK_TRACK_LINKS` are intentionally enabled.
-   - Review `postmark-events` in Payload admin when a reader reports delivery trouble.
+## Webhooks
 
-4. **Template consistency**
-   - Centralize transactional template generation so Payload auth emails and custom Postmark sends share consistent branding.
-   - Consider moving high-value transactional messages to Postmark Templates and send by template alias.
+`POST /api/postmark/webhook` records delivery, bounce, open, click, spam complaint, and subscription-change events in `postmark-events`, then refreshes aggregate counts on `posts.newsletterSend`.
 
-5. **Optional future cleanup**
-   - Evaluate replacing SMTP transport with a direct Postmark API adapter for Payload if/when Payload exposes a first-party Postmark adapter that fits this codebase.
+Configure Postmark modular webhooks on the newsletter stream for:
 
-## Acceptance checklist
+- Delivery
+- Bounce
+- Spam complaint
+- Subscription change
+- Open, only when `POSTMARK_TRACK_OPENS=true`
+- Click, only when `POSTMARK_TRACK_LINKS` is enabled
 
-- [ ] Payload boots in production with Postmark env vars set.
-- [ ] If desired, `POSTMARK_REQUIRED_IN_PROD=true` causes production boot to fail when `POSTMARK_SERVER_TOKEN` is absent.
-- [x] A test email can be sent through `/api/email/test` and delivered from Postmark (when credentials are set).
-- [x] Delivery/bounce/complaint/subscription-change webhooks are captured via `/api/postmark/webhook`.
-- [x] Postmark events are correlated to posts via message metadata and summarized into `newsletterSend`.
+The webhook route accepts `POSTMARK_WEBHOOK_SECRET` via Postmark Basic Auth URL, `x-postmark-webhook-token`, or `Authorization: Bearer ...`.
+
+## Smoke Tests
+
+- `npm run postmark:test -- reader@example.com` sends a direct Postmark test message.
+- `POST /api/email/test` sends a protected test message through the same handler used by the route.
+- `npm test` covers Postmark request shaping, webhook normalization, and newsletter delivery retry behavior with mocked clients.
+
+## Operational Notes
+
+- Accepted Postmark sends create `postmark-events` rows with `eventType: submitted`.
+- `newsletterSend.status: sent` is terminal for per-post delivery retries.
+- `newsletterSend.status: failed` is retryable by later scheduled publish runs.
+- `suppressNewsletter` records `newsletterSend.status: skipped` and does not call Postmark.

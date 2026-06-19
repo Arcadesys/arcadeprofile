@@ -1,5 +1,8 @@
 import type { Payload } from 'payload';
 
+import { comparePostsByGroupOrder } from './post-order';
+import { publicPostStatusWhere } from './post-status';
+
 export function partNum(n: number): string {
   return String(n).padStart(2, '0');
 }
@@ -31,7 +34,7 @@ export async function getPostLocationBySlug(
     where: {
       and: [
         { slug: { equals: postSlug } },
-        { publish_status: { in: ['published', 'sent'] } },
+        { publish_status: publicPostStatusWhere() },
       ],
     },
     limit: 1,
@@ -49,9 +52,8 @@ export async function getPostLocationBySlug(
 /**
  * 1-based part index for a post within its group's published list (intro is
  * 0; the first post is 1). Returns null when the post can't be located in
- * the group. Uses the database's multi-key sort so the index matches what
- * `getAllGroups` and the projects route compute at render time. No longer
- * used to build URLs, but still needed for part numbering in the drawer,
+ * the group. Sorts with the same JS helper used by public group rendering so
+ * null `order` values and date tie-breakers behave consistently across pages,
  * email content, and the numeric → slug redirect.
  */
 export async function computePostPartIndex(
@@ -65,7 +67,7 @@ export async function computePostPartIndex(
     where: {
       and: [
         { group: { equals: groupSlug } },
-        { publish_status: { in: ['published', 'sent'] } },
+        { publish_status: publicPostStatusWhere() },
       ],
     },
     sort: ['order', 'publishedDate'],
@@ -73,7 +75,8 @@ export async function computePostPartIndex(
     depth: 0,
     overrideAccess: true,
   });
-  const idx = siblings.docs.findIndex((p) => (p.slug as string) === postSlug);
+  const ordered = [...siblings.docs].sort(comparePostsByGroupOrder);
+  const idx = ordered.findIndex((p) => (p.slug as string) === postSlug);
   return idx >= 0 ? idx + 1 : null;
 }
 
@@ -94,7 +97,7 @@ export async function resolvePostSlugByPartIndex(
     where: {
       and: [
         { group: { equals: groupSlug } },
-        { publish_status: { in: ['published', 'sent'] } },
+        { publish_status: publicPostStatusWhere() },
       ],
     },
     sort: ['order', 'publishedDate'],
@@ -102,6 +105,7 @@ export async function resolvePostSlugByPartIndex(
     depth: 0,
     overrideAccess: true,
   });
-  const post = siblings.docs[partIndex - 1];
+  const ordered = [...siblings.docs].sort(comparePostsByGroupOrder);
+  const post = ordered[partIndex - 1];
   return (post?.slug as string | undefined) ?? null;
 }

@@ -31,7 +31,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## MCP Server
 
-The repo ships a Payload CMS MCP server that exposes Posts, Pages, Groups, Books, and Projects as tools. It works over **stdio** (Claude Code / CLI) and **HTTP/SSE** (claude.ai web/mobile).
+The repo ships a Payload CMS MCP server that exposes Posts, Pages, Groups, and Books as tools. The `list_projects` tool is a compatibility alias over Groups, because Groups are the canonical project entity. It works over **stdio** (Claude Code / CLI) and **HTTP/SSE** (claude.ai web/mobile).
 
 ### Claude Code (stdio)
 
@@ -89,10 +89,10 @@ Required env vars:
 
 - `POSTMARK_SERVER_TOKEN`
 - `POSTMARK_FROM_EMAIL`
-- `POSTMARK_FROM_NAME` (optional, defaults to `Free Play Publishing`)
+- `POSTMARK_FROM_NAME` (optional, defaults to `The Arcades`)
 - `POSTMARK_REQUIRED_IN_PROD` (optional safety rail)
 - `POSTMARK_WEBHOOK_SECRET` (optional auth token for `/api/postmark/webhook`)
 
-`/api/postmark/webhook` captures Postmark bounce/spam complaint/subscription-change events and marks matching subscribers as unsubscribed.
+`/api/postmark/webhook` captures Postmark delivery, bounce, complaint, open, click, and subscription-change events, records them in Payload, and refreshes post-level newsletter counts.
 
-See `docs/postmark-payload-wiring-plan.md` for rollout details.
+See `docs/postmark-payload-wiring-plan.md` for Postmark operations.

@@ -1,15 +1,21 @@
 import type { Payload } from 'payload';
-import { ServerClient } from 'postmark';
 
-import { resolveAudienceListIds } from './activecampaign';
+import { ActiveCampaignError, resolveAudienceListIds } from './activecampaign';
 import { buildPostNewsletterContent } from './newsletter';
 import { resolveGroupHeroForPost } from './post-newsletter';
+import { sendPostmarkTransactionalEmail } from './postmark';
 import type { Post } from '@/payload-types';
+
+type PreviewDeps = {
+  resolveTargetedLists?: typeof resolveAudienceListIds;
+  sendEmail?: typeof sendPostmarkTransactionalEmail;
+};
 
 export interface SendPreviewOptions {
   postId: number;
   to: string;
   payload: Payload;
+  deps?: PreviewDeps;
 }
 
 export interface SendPreviewResult {
@@ -19,13 +25,28 @@ export interface SendPreviewResult {
   messageId: string;
 }
 
+function resolvePreviewTargetedLists(
+  groupCategory: string | null,
+  resolveTargetedLists: typeof resolveAudienceListIds,
+): string[] {
+  try {
+    return resolveTargetedLists(groupCategory);
+  } catch (err) {
+    if (err instanceof ActiveCampaignError && /^Missing AC_LIST_ID_/.test(err.message)) {
+      return [];
+    }
+    throw err;
+  }
+}
+
 export async function sendPostPreview({
   postId,
   to,
   payload,
+  deps = {},
 }: SendPreviewOptions): Promise<SendPreviewResult> {
-  const token = process.env.POSTMARK_SERVER_TOKEN;
-  if (!token) throw new Error('Missing POSTMARK_SERVER_TOKEN');
+  const resolveTargetedLists = deps.resolveTargetedLists ?? resolveAudienceListIds;
+  const sendEmail = deps.sendEmail ?? sendPostmarkTransactionalEmail;
 
   const post = (await payload.findByID({
     collection: 'posts',
@@ -52,21 +73,15 @@ export async function sendPostPreview({
   const group = await resolveGroupHeroForPost(payload, post);
   const { htmlBody, textBody } = buildPostNewsletterContent({ ...post, group });
 
-  const targetedLists = resolveAudienceListIds(groupCategory);
+  const targetedLists = resolvePreviewTargetedLists(groupCategory, resolveTargetedLists);
   const audienceLabel = groupCategory === 'fiction' ? 'Fiction' : 'Essays';
   const subject = `[Preview — ${audienceLabel}] ${post.title}`;
 
-  const client = new ServerClient(token);
-  const fromEmail = process.env.POSTMARK_FROM_EMAIL || 'austen@thearcades.me';
-  const messageStream = process.env.POSTMARK_TRANSACTIONAL_STREAM || 'outbound';
-
-  const result = await client.sendEmail({
-    From: fromEmail,
-    To: to,
-    Subject: subject,
-    HtmlBody: htmlBody,
-    TextBody: textBody,
-    MessageStream: messageStream,
+  const result = await sendEmail({
+    to,
+    subject,
+    htmlBody,
+    textBody,
   });
 
   return {

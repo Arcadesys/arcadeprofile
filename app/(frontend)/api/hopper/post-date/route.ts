@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { Post } from '@/payload-types';
 
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
+import { isPublicPostStatus } from '@/lib/post-status';
 
 interface PostBody {
   postId?: unknown;
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Unknown post id: ${postId}` }, { status: 404 });
   }
 
-  if (existing.publish_status === 'published' || existing.publish_status === 'sent') {
+  if (isPublicPostStatus(existing.publish_status)) {
     return NextResponse.json(
       { error: `Post ${postId} is already ${existing.publish_status}` },
       { status: 400 },

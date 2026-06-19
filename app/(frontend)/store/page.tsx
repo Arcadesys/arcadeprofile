@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
+import { books as bookData } from '@/data/books';
 
 export const metadata: Metadata = {
   title: 'Store',
@@ -28,47 +29,17 @@ type Book = {
   buyLabel: string;
 };
 
-const books: Book[] = [
-  {
-    key: 'baitandswitch',
-    title: 'Bait and Switch',
-    description:
-      "In Fenton's world, some kids are toons. Some think the change is biological. Others think the change is social. But some kids turn into toons, and Fenton's father just wants it to stop. He's even built a Realist movement to ban toons from the real world, hoping that it will keep his own children from following in their estranged mother's cartoon footsteps. Tensions rise as the Realists lobby to get their ban set into law, and toons fight for their right to be themselves. Fenton's father knows he can count on his two boys to stand behind him and his dream of building a safe, toon-free reality. It's just too bad that Fenton's becoming a toon. Cover artwork by Dustin Friend.",
-    coverImage: '/images/books/baitandswitch.jpg',
-    buyLink:
-      'https://www.amazon.com/Bait-Switch-Austen-Crowder/dp/145631890X',
-    buyLabel: 'Buy on Amazon',
-  },
-  {
-    key: 'thepaintedcat',
-    title: 'The Painted Cat',
-    description:
-      "Janet lives in two worlds. In one, she is Miss Perch, teacher at a small school deep in the corn grids, helping kids who are turning into cartoon find their way out of town. In the other, she is Bunny Cat, and paints herself up to be the very same type of cartoon cat her small town has grown to hate. The wall separating those two worlds is starting to break down. Between rekindling a relationship with an old college flame and discovering how much she loves being Bunny Cat, her two worlds are starting to merge. When kids start getting sent away for turning toon she knows she can't stand on the sideline any longer.",
-    coverImage: '/images/books/thepaintedcat.jpg',
-    buyLink: 'https://furplanet.com/shop/item.aspx?itemid=778',
-    buyLabel: 'Buy from FurPlanet',
-  },
-  {
-    key: 'afuzzyplace',
-    title: 'A Fuzzy Place',
-    description:
-      "A collection of furry fiction spanning ten years in and out of the fandom. Revised works from high school, stories from long nights at college, pieces that helped me escape the stresses of teaching, and even some memoir. These stories let me find my way through some tough times, express feelings I didn't want to admit were there, and ultimately find peace with an identity as a trans woman.",
-    coverImage: '/images/books/afuzzyplace.jpg',
-    buyLink:
-      'https://www.amazon.com/Fuzzy-Place-Stories-Shaped-Subculture-ebook/dp/B00H7K7EYQ',
-    buyLabel: 'Buy on Amazon',
-  },
-  {
-    key: 'closetcats',
-    title: 'Closet Cats',
-    description:
-      "Three romantic short stories about lesbians, trans people, catgirls, and dragons. Ginny's Magic: Evelyn lands a date with the catgirl from the next world over, and they take a little trip through Chicago's Boystown. Dragons in the Middle: Dave lands himself in a pickle after a one-night stand with a wishing dragoness. Closet Cat: stuck in a rut, Charlie's marriage depends on a collar and cat ears provided by a witch he knew in college.",
-    coverImage: '/images/books/closetcats.jpg',
-    buyLink:
-      'https://www.amazon.com/Closet-Cats-Austen-Tucker-ebook/dp/B0B311T8P1',
-    buyLabel: 'Buy on Amazon',
-  },
-];
+const books: Book[] = Object.entries(bookData).flatMap(([key, book]) => {
+  if (!book.hasBuyButton || !book.buyLink || !book.coverImage) return [];
+  return [{
+    key,
+    title: book.title,
+    description: book.description,
+    coverImage: book.coverImage,
+    buyLink: book.buyLink,
+    buyLabel: book.buyLabel ?? 'Buy',
+  }];
+});
 
 export default function StorePage() {
   return (

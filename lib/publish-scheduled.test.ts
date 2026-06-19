@@ -43,12 +43,17 @@ function makePayload(opts: {
   const updateCalls: UpdateArgs[] = [];
   let findIndex = 0;
   const findResults = [
+    { docs: [], totalDocs: 0 },
     { docs: opts.due ?? [], totalDocs: (opts.due ?? []).length },
     { docs: opts.retry ?? [], totalDocs: (opts.retry ?? []).length },
     { docs: opts.stuck ?? [], totalDocs: (opts.stuck ?? []).length },
   ];
 
   const mock = {
+    async findGlobal(args: { slug: string }) {
+      assert.equal(args.slug, 'publish-queue');
+      return { fictionQueue: [], essaysQueue: [] };
+    },
     async find(args: FindArgs) {
       findCalls.push(args);
       return findResults[findIndex++];
@@ -116,8 +121,8 @@ test('publishScheduledPosts publishes due posts and reports zero stuck on a clea
   });
   assert.equal(updateCalls[1].data.publish_status, 'sent');
   assert.deepEqual(updateCalls[1].data.newsletterSend, sentNewsletter().state);
-  // Due, retry, and stuck find calls issued.
-  assert.equal(findCalls.length, 3);
+  // Published-today preflight plus due, retry, and stuck find calls issued.
+  assert.equal(findCalls.length, 4);
 });
 
 test('publishScheduledPosts surfaces stuck posts past the grace window', async () => {
