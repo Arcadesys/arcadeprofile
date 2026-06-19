@@ -291,6 +291,54 @@ test('create_post passes publish_status through without legacy _status', async (
   }
 });
 
+test('create_post rejects malformed publishedDate before any network call', async () => {
+  let callCount = 0;
+
+  const restore = mockFetch(async () => {
+    callCount++;
+    return jsonResponse({});
+  });
+
+  try {
+    const result = await toolHandlers.create_post({
+      title: 'Bad Date',
+      excerpt: 'Nope.',
+      content: 'Content.',
+      publishedDate: '2026-02-29',
+    });
+    assert.equal(result.isError, true);
+    assert.equal(result.content[0].type, 'text');
+    assert.match(result.content[0].text as string, /publishedDate/);
+    assert.equal(callCount, 0);
+  } finally {
+    restore();
+  }
+});
+
+test('create_post rejects scheduledPublishDate without timezone', async () => {
+  let callCount = 0;
+
+  const restore = mockFetch(async () => {
+    callCount++;
+    return jsonResponse({});
+  });
+
+  try {
+    const result = await toolHandlers.create_post({
+      title: 'Bad Schedule',
+      excerpt: 'Nope.',
+      content: 'Content.',
+      scheduledPublishDate: '2026-05-14T14:00:00',
+    });
+    assert.equal(result.isError, true);
+    assert.equal(result.content[0].type, 'text');
+    assert.match(result.content[0].text as string, /scheduledPublishDate/);
+    assert.equal(callCount, 0);
+  } finally {
+    restore();
+  }
+});
+
 // ---------------------------------------------------------------------------
 // update_post handler
 // ---------------------------------------------------------------------------
@@ -326,6 +374,28 @@ test('update_post passes publish_status through without legacy _status', async (
     await toolHandlers.update_post({ slug: 'draft-post', publish_status: 'published' });
     assert.equal(patchBody._status, undefined);
     assert.equal(patchBody.publish_status, 'published');
+  } finally {
+    restore();
+  }
+});
+
+test('update_post rejects invalid date fields before lookup', async () => {
+  let callCount = 0;
+
+  const restore = mockFetch(async () => {
+    callCount++;
+    return jsonResponse({ docs: [{ id: 42 }] });
+  });
+
+  try {
+    const result = await toolHandlers.update_post({
+      slug: 'draft-post',
+      scheduledPublishDate: '2026-13-01T14:00:00Z',
+    });
+    assert.equal(result.isError, true);
+    assert.equal(result.content[0].type, 'text');
+    assert.match(result.content[0].text as string, /scheduledPublishDate/);
+    assert.equal(callCount, 0);
   } finally {
     restore();
   }

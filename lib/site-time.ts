@@ -16,6 +16,48 @@ export function resolveSiteTimeZone(value: string | undefined): string {
 
 export const SITE_TZ = resolveSiteTimeZone(process.env.SITE_TZ);
 
+export interface SiteDateParts {
+  year: number;
+  month: number;
+  day: number;
+  weekdayMonZero: number;
+}
+
+export function datePartsInTimeZone(date: Date, timeZone: string = SITE_TZ): SiteDateParts {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+  });
+  const map: Record<string, string> = {};
+  for (const part of fmt.formatToParts(date)) map[part.type] = part.value;
+  const weekdayShortToMonZero: Record<string, number> = {
+    Mon: 0,
+    Tue: 1,
+    Wed: 2,
+    Thu: 3,
+    Fri: 4,
+    Sat: 5,
+    Sun: 6,
+  };
+  return {
+    year: Number(map.year),
+    month: Number(map.month),
+    day: Number(map.day),
+    weekdayMonZero: weekdayShortToMonZero[map.weekday!] ?? 0,
+  };
+}
+
+export function isoDateFromParts(parts: Pick<SiteDateParts, 'year' | 'month' | 'day'>): string {
+  return `${parts.year}-${String(parts.month).padStart(2, '0')}-${String(parts.day).padStart(2, '0')}`;
+}
+
+export function todayInSiteTz(now: Date = new Date(), timeZone: string = SITE_TZ): string {
+  return isoDateFromParts(datePartsInTimeZone(now, timeZone));
+}
+
 function parseDate(input: string | Date): Date | null {
   const date = input instanceof Date ? input : new Date(input);
   return Number.isNaN(date.getTime()) ? null : date;

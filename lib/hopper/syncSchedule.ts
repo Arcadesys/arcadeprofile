@@ -1,7 +1,9 @@
 import type { Post } from '@/payload-types';
 import { isoDateOnlyToScheduledIso } from '@/lib/iso-date';
 import { isPublicPostStatus } from '@/lib/post-status';
-import { SITE_TZ } from '@/lib/site-time';
+import { SITE_TZ, datePartsInTimeZone, isoDateFromParts } from '@/lib/site-time';
+
+export { todayInSiteTz } from '@/lib/site-time';
 
 export type Lane = 'fiction' | 'essays';
 
@@ -43,32 +45,7 @@ interface DateParts {
 }
 
 function partsInTz(d: Date, tz: string): DateParts {
-  const fmt = new Intl.DateTimeFormat('en-US', {
-    timeZone: tz,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    weekday: 'short',
-  });
-  const map: Record<string, string> = {};
-  for (const p of fmt.formatToParts(d)) map[p.type] = p.value;
-  const weekdayShortToMonZero: Record<string, number> = {
-    Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6,
-  };
-  return {
-    year: Number(map.year),
-    month: Number(map.month),
-    day: Number(map.day),
-    weekdayMonZero: weekdayShortToMonZero[map.weekday!] ?? 0,
-  };
-}
-
-function isoFromParts(p: Pick<DateParts, 'year' | 'month' | 'day'>): string {
-  return `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`;
-}
-
-export function todayInSiteTz(now: Date = new Date(), tz: string = SITE_TZ): string {
-  return isoFromParts(partsInTz(now, tz));
+  return datePartsInTimeZone(d, tz);
 }
 
 export function weekdayLabel(date: Date, lane: Lane, tz: string = SITE_TZ): string {
@@ -135,7 +112,11 @@ export function computeSchedule(
     const next = it.next();
     if (next.done) break;
     const { date, lane, weekdayMonZero } = next.value;
-    const slotDate = isoFromParts({ year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() });
+    const slotDate = isoDateFromParts({
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      day: date.getDate(),
+    });
     const scheduledPublishDate = scheduledPublishDateForSlot(slotDate, publishHourUtc);
     const slot = {
       date: slotDate,
