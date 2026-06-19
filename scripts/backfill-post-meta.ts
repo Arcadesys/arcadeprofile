@@ -23,6 +23,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { getPayload, type Payload } from 'payload';
 import configPromise from '../payload.config';
 import type { Post } from '../payload-types';
+import { parsePositiveIntegerId } from '../lib/positive-integer-id';
 
 interface CliArgs {
   dryRun: boolean;
@@ -43,9 +44,16 @@ function parseArgs(argv: string[]): CliArgs {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--dry-run') args.dryRun = true;
-    else if (a === '--limit') args.limit = parseInt(argv[++i], 10);
-    else if (a === '--slug') args.slug = argv[++i];
-    else if (a === '--images') args.images = true;
+    else if (a === '--limit') {
+      const value = argv[++i];
+      const limit = value ? parsePositiveIntegerId(value) : null;
+      if (limit === null) throw new Error('--limit must be a positive integer');
+      args.limit = limit;
+    } else if (a === '--slug') {
+      const value = argv[++i];
+      if (!value) throw new Error('--slug requires a value');
+      args.slug = value;
+    } else if (a === '--images') args.images = true;
     else if (a === '--skip-text') args.skipText = true;
     else if (a === '--help' || a === '-h') {
       console.log(
