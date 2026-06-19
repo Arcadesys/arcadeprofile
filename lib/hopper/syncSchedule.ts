@@ -202,6 +202,13 @@ async function loadPostsLite(payload: Pick<QueueSyncPayload, 'find'>, ids: Array
   return map;
 }
 
+function sameScheduledInstant(existing: string | null | undefined, expected: string): boolean {
+  if (!existing) return false;
+  const existingMs = Date.parse(existing);
+  const expectedMs = Date.parse(expected);
+  return !Number.isNaN(existingMs) && existingMs === expectedMs;
+}
+
 export async function syncQueueToPosts(
   payload: QueueSyncPayload,
   prev: QueueDiffPrev,
@@ -231,7 +238,10 @@ export async function syncQueueToPosts(
     if (isPublicPostStatus(post.publish_status)) continue;
     const slot = schedule.get(id);
     if (!slot) continue;
-    if (post.publish_status === 'scheduled' && post.scheduledPublishDate?.slice(0, 10) === slot.date) {
+    if (
+      post.publish_status === 'scheduled' &&
+      sameScheduledInstant(post.scheduledPublishDate, slot.scheduledPublishDate)
+    ) {
       continue;
     }
     updates.push(

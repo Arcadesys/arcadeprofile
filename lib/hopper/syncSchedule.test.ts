@@ -164,6 +164,57 @@ test('syncQueueToPosts writes full scheduled datetimes and skips past slots by d
   assert.equal(updates[0]!.context, undefined);
 });
 
+test('syncQueueToPosts rewrites matching dates with the wrong scheduled instant', async () => {
+  const updates: Array<{ id: string | number; data: Record<string, unknown>; context?: unknown }> = [];
+  const docs: Array<Pick<Post, 'id' | 'publish_status' | 'scheduledPublishDate'>> = [
+    { id: 1, publish_status: 'scheduled', scheduledPublishDate: '2026-05-15' },
+  ];
+  const payload = {
+    find: async () => paginated(docs),
+    update: async (args: { id: string | number; data: Record<string, unknown>; context?: unknown }) => {
+      updates.push(args);
+      return args;
+    },
+  };
+
+  await syncQueueToPosts(
+    payload,
+    { fictionIds: [], essaysIds: [] },
+    { fictionIds: ['1'], essaysIds: [] },
+    WED,
+    undefined,
+    { includePastSlots: false },
+  );
+
+  assert.equal(updates.length, 1);
+  assert.equal(updates[0]!.data.scheduledPublishDate, '2026-05-15T14:00:00.000Z');
+});
+
+test('syncQueueToPosts no-ops when stored scheduled instant already matches', async () => {
+  const updates: Array<{ id: string | number; data: Record<string, unknown>; context?: unknown }> = [];
+  const docs: Array<Pick<Post, 'id' | 'publish_status' | 'scheduledPublishDate'>> = [
+    { id: 1, publish_status: 'scheduled', scheduledPublishDate: '2026-05-15T14:00:00Z' },
+  ];
+  const payload = {
+    find: async () => paginated(docs),
+    update: async (args: { id: string | number; data: Record<string, unknown>; context?: unknown }) => {
+      updates.push(args);
+      return args;
+    },
+  };
+
+  await syncQueueToPosts(
+    payload,
+    { fictionIds: [], essaysIds: [] },
+    { fictionIds: ['1'], essaysIds: [] },
+    WED,
+    undefined,
+    { includePastSlots: false },
+  );
+
+  assert.equal(updates.length, 0);
+});
+
 test('syncQueueToPosts can include due slots for cron self-heal with validation context', async () => {
   const updates: Array<{ id: string | number; data: Record<string, unknown>; context?: unknown }> = [];
   const docs: Array<Pick<Post, 'id' | 'publish_status' | 'scheduledPublishDate'>> = [
