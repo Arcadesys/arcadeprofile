@@ -58,7 +58,9 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
 
   const { posts: publishedToday, takenDates, todayIso } = await loadPublishedToday(payload);
 
-  const schedule = computeSchedule(fictionIds, essaysIds, new Date(), undefined, takenDates);
+  const schedule = computeSchedule(fictionIds, essaysIds, new Date(), undefined, takenDates, {
+    includePastSlots: false,
+  });
 
   const unqueuedRes = await payload.find({
     collection: 'posts',

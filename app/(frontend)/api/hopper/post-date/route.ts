@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { Post } from '@/payload-types';
 
+import { DEFAULT_PUBLISH_HOUR_UTC } from '@/lib/hopper/syncSchedule';
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
 import { isPublicPostStatus } from '@/lib/post-status';
 
@@ -52,15 +53,14 @@ export async function POST(request: Request) {
   }
 
   // Preserve the post's existing send time-of-day (UTC) so dragging only
-  // changes the calendar day. Fall back to 08:00 UTC when the post has no
-  // prior scheduledPublishDate (e.g. dragging from the drafts tray) —
-  // matches the default used elsewhere in the queue tooling.
+  // changes the calendar day. Fall back to the queue default when the post has
+  // no prior scheduledPublishDate (e.g. dragging from the drafts tray).
   const prior =
     typeof existing.scheduledPublishDate === 'string'
       ? new Date(existing.scheduledPublishDate)
       : null;
   const validPrior = prior && !Number.isNaN(prior.getTime()) ? prior : null;
-  const hh = validPrior ? validPrior.getUTCHours() : 8;
+  const hh = validPrior ? validPrior.getUTCHours() : DEFAULT_PUBLISH_HOUR_UTC;
   const mm = validPrior ? validPrior.getUTCMinutes() : 0;
   const ss = validPrior ? validPrior.getUTCSeconds() : 0;
   const ms = validPrior ? validPrior.getUTCMilliseconds() : 0;

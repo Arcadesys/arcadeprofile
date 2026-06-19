@@ -5,15 +5,20 @@ import { Posts } from '../Posts';
 import { promoteScheduledDraftHook } from './promoteScheduledDraft';
 import { validateScheduledPublishDateHook } from './validateScheduledPublishDate';
 
-// The hook is a Payload beforeChange hook; we only exercise `data`, so cast a
-// minimal arg through unknown rather than constructing a full hook context.
-const run = (data: Record<string, unknown>, originalDoc?: Record<string, unknown>) =>
+// The hook is a Payload beforeChange hook; we only exercise a minimal arg, so
+// cast through unknown rather than constructing a full hook context.
+const run = (
+  data: Record<string, unknown>,
+  originalDoc?: Record<string, unknown>,
+  context: Record<string, unknown> = {},
+) =>
   (
     validateScheduledPublishDateHook as unknown as (args: {
+      context: Record<string, unknown>;
       data: Record<string, unknown>;
       originalDoc?: Record<string, unknown>;
     }) => unknown
-  )({ data, originalDoc });
+  )({ context, data, originalDoc });
 
 const past = '2020-01-01T00:00:00.000Z';
 const future = new Date(Date.now() + 60 * 60 * 1000).toISOString();
@@ -65,5 +70,15 @@ test('blocks moving date to past on an already-scheduled post (status from origi
   assert.throws(
     () => run({ scheduledPublishDate: past }, { publish_status: 'scheduled' }),
     /scheduledPublishDate/,
+  );
+});
+
+test('allows cron queue self-heal to intentionally write a due scheduled date', () => {
+  assert.doesNotThrow(() =>
+    run(
+      { publish_status: 'scheduled', scheduledPublishDate: past },
+      undefined,
+      { allowPastScheduledPublishDate: true },
+    ),
   );
 });

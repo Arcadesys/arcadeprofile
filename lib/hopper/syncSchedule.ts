@@ -1,5 +1,3 @@
-import type { Payload } from 'payload';
-
 import type { Post } from '@/payload-types';
 import { isPublicPostStatus } from '@/lib/post-status';
 
@@ -17,6 +15,7 @@ export const SCHEDULE: Record<number, Lane> = {
 // Anchor "today" and weekday labels here so a 9pm Eastern reorder doesn't roll
 // into tomorrow's slot.
 export const SITE_TZ = process.env.SITE_TZ ?? 'America/New_York';
+export const DEFAULT_PUBLISH_HOUR_UTC = 14;
 
 export const WEEKDAY_LABEL: Record<number, string> = {
   0: 'Mon',
@@ -97,7 +96,21 @@ export function* slots(
 
 export interface ComputedSlot {
   date: string;
+  scheduledPublishDate: string;
   weekdayLabel: string;
+}
+
+export interface ComputeScheduleOptions {
+  includePastSlots?: boolean;
+  publishHourUtc?: number;
+}
+
+export function scheduledPublishDateForSlot(
+  date: string,
+  publishHourUtc: number = DEFAULT_PUBLISH_HOUR_UTC,
+): string {
+  const [year, month, day] = date.split('-').map((part) => Number(part));
+  return new Date(Date.UTC(year, month - 1, day, publishHourUtc, 0, 0, 0)).toISOString();
 }
 
 export function computeSchedule(
@@ -106,20 +119,27 @@ export function computeSchedule(
   from: Date = new Date(),
   tz: string = SITE_TZ,
   takenDates?: ReadonlySet<string>,
+  options: ComputeScheduleOptions = {},
 ): Map<string, ComputedSlot> {
   const out = new Map<string, ComputedSlot>();
   let fi = 0;
   let ei = 0;
+  const includePastSlots = options.includePastSlots ?? true;
+  const publishHourUtc = options.publishHourUtc ?? DEFAULT_PUBLISH_HOUR_UTC;
   const it = slots(from, tz);
   while (fi < fictionIds.length || ei < essaysIds.length) {
     const next = it.next();
     if (next.done) break;
     const { date, lane, weekdayMonZero } = next.value;
+    const slotDate = isoFromParts({ year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() });
+    const scheduledPublishDate = scheduledPublishDateForSlot(slotDate, publishHourUtc);
     const slot = {
-      date: isoFromParts({ year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() }),
+      date: slotDate,
+      scheduledPublishDate,
       weekdayLabel: formatWeekdayLabel(weekdayMonZero, lane),
     };
     if (takenDates?.has(slot.date)) continue;
+    if (!includePastSlots && new Date(scheduledPublishDate).getTime() <= from.getTime()) continue;
     if (lane === 'fiction' && fi < fictionIds.length) {
       out.set(fictionIds[fi]!, slot);
       fi++;
@@ -141,7 +161,32 @@ export interface QueueDiffNext {
   essaysIds: string[];
 }
 
-async function loadPostsLite(payload: Pick<Payload, 'find'>, ids: Array<string | number>): Promise<Map<string, Post>> {
+interface SyncQueueOptions extends ComputeScheduleOptions {
+  allowPastScheduledPublishDate?: boolean;
+}
+
+type QueueSyncPayload = {
+  find(args: {
+    collection: 'posts';
+    where: { id: { in: Array<string | number> } };
+    limit: number;
+    depth: 0;
+    pagination: false;
+  }): Promise<{ docs: QueueSyncPost[] }>;
+  update(args: {
+    collection: 'posts';
+    id: string | number;
+    data: {
+      publish_status?: 'scheduled' | 'draft';
+      scheduledPublishDate?: string | null;
+    };
+    context?: { allowPastScheduledPublishDate: true };
+  }): Promise<unknown>;
+};
+
+type QueueSyncPost = Pick<Post, 'id' | 'publish_status' | 'scheduledPublishDate'>;
+
+async function loadPostsLite(payload: Pick<QueueSyncPayload, 'find'>, ids: Array<string | number>): Promise<Map<string, QueueSyncPost>> {
   if (ids.length === 0) return new Map();
   const res = await payload.find({
     collection: 'posts',
@@ -150,21 +195,25 @@ async function loadPostsLite(payload: Pick<Payload, 'find'>, ids: Array<string |
     depth: 0,
     pagination: false,
   });
-  const map = new Map<string, Post>();
-  for (const doc of res.docs as Post[]) {
+  const map = new Map<string, QueueSyncPost>();
+  for (const doc of res.docs) {
     map.set(String(doc.id), doc);
   }
   return map;
 }
 
 export async function syncQueueToPosts(
-  payload: Pick<Payload, 'find' | 'update'>,
+  payload: QueueSyncPayload,
   prev: QueueDiffPrev,
   next: QueueDiffNext,
   from: Date = new Date(),
   takenDates?: ReadonlySet<string>,
+  options: SyncQueueOptions = {},
 ): Promise<void> {
-  const schedule = computeSchedule(next.fictionIds, next.essaysIds, from, SITE_TZ, takenDates);
+  const schedule = computeSchedule(next.fictionIds, next.essaysIds, from, SITE_TZ, takenDates, {
+    includePastSlots: options.includePastSlots ?? false,
+    publishHourUtc: options.publishHourUtc,
+  });
 
   const nextSet = new Set([...next.fictionIds, ...next.essaysIds]);
   const removed = [...new Set([...prev.fictionIds, ...prev.essaysIds])].filter((id) => !nextSet.has(id));
@@ -191,8 +240,11 @@ export async function syncQueueToPosts(
         id,
         data: {
           publish_status: 'scheduled',
-          scheduledPublishDate: slot.date,
+          scheduledPublishDate: slot.scheduledPublishDate,
         },
+        ...(options.allowPastScheduledPublishDate
+          ? { context: { allowPastScheduledPublishDate: true } }
+          : {}),
       }),
     );
   }

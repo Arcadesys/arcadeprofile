@@ -120,6 +120,7 @@ export async function publishScheduledPosts(
       { fictionIds, essaysIds },
       now,
       takenDates,
+      { includePastSlots: true, allowPastScheduledPublishDate: true },
     );
   } catch (err) {
     // A sync failure must not block the publish loop — a stale row is
