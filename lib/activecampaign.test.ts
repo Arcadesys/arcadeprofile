@@ -155,6 +155,24 @@ test('listActiveContactsForList rejects malformed list ids instead of truncating
   );
 });
 
+test('listActiveContactsForList rejects invalid page limits before fetching', async () => {
+  setAcEnv();
+
+  for (const limit of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+    await assert.rejects(
+      () =>
+        listActiveContactsForList({
+          listId: '7',
+          limit,
+          fetchImpl: async () => {
+            throw new Error('fetch should not be called');
+          },
+        }),
+      /contacts page limit must be a positive integer/,
+    );
+  }
+});
+
 test('syncSubscriberToActiveCampaign upserts contact then subscribes to list', async () => {
   setAcEnv();
   const requests: Array<{ url: string; body: unknown }> = [];

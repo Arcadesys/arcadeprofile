@@ -132,6 +132,9 @@ export async function listActiveContactsForList(options: {
   const apiKey = getApiKey();
   const listIdInt = parseNewsletterListIdAsInt(options.listId);
   const limit = options.limit ?? 100;
+  if (!Number.isSafeInteger(limit) || limit < 1) {
+    throw new ActiveCampaignError('ActiveCampaign contacts page limit must be a positive integer');
+  }
   const emails: string[] = [];
   let offset = 0;
 
