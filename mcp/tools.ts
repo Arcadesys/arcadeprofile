@@ -144,7 +144,7 @@ export const toolDefinitions: Tool[] = [
   // ---- Posts ----
   {
     name: 'list_posts',
-    description: 'List all blog posts with title, slug, group, status, and date.',
+    description: 'List recent blog posts with title, slug, group, status, and date.',
     inputSchema: {
       type: 'object',
       properties: {
