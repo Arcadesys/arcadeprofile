@@ -26,13 +26,17 @@ function makePayload(opts: {
   posts?: Post[];
   groups?: Group[];
   media?: Record<number, Media>;
+  calls?: unknown[];
 }) {
   const posts = opts.posts ?? [];
   const groups = opts.groups ?? [];
   const mediaById = opts.media ?? {};
+  const calls = opts.calls;
   /* eslint-disable @typescript-eslint/no-explicit-any */
   return {
-    async find({ collection, where, limit }: any) {
+    async find(args: any) {
+      calls?.push(args);
+      const { collection, where, limit } = args;
       if (collection === 'posts') {
         const clauses = Array.isArray(where?.and) ? where.and : [where];
         const groupSlug = clauses.find((clause: any) => clause?.group?.equals)?.group?.equals;
@@ -135,6 +139,69 @@ test('chooses the earliest public sibling image by shared group order', async ()
 
   assert.equal(og?.source, 'chapter-sibling');
   assert.equal(og?.url, 'https://cdn.example/ordered-og.jpg');
+});
+
+test('skips stale sibling image refs and uses the next valid sibling image', async () => {
+  const staleSibling: Post = {
+    id: 2,
+    title: 'stale sib',
+    slug: 'stale-sib',
+    excerpt: '',
+    content: {} as any,
+    order: 1,
+    publishedDate: '2026-01-01',
+    group: 'g',
+    chapter: 'c1',
+    updatedAt: '',
+    publish_status: 'published',
+    meta: { image: 404 },
+  } as Post;
+  const validSibling: Post = {
+    id: 3,
+    title: 'valid sib',
+    slug: 'valid-sib',
+    excerpt: '',
+    content: {} as any,
+    order: 2,
+    publishedDate: '2026-01-02',
+    group: 'g',
+    chapter: 'c1',
+    updatedAt: '',
+    publish_status: 'published',
+    meta: { image: media({ id: 6, sizes: { og: { url: 'https://cdn.example/valid-og.jpg', width: 1200, height: 630 } } }) },
+  } as Post;
+  const post: PartialPost = { id: 1, group: 'g', chapter: 'c1', meta: {} };
+  const payload = makePayload({ posts: [staleSibling, validSibling] });
+  const og = await resolvePostOgImage(payload, post as Post);
+
+  assert.equal(og?.source, 'chapter-sibling');
+  assert.equal(og?.url, 'https://cdn.example/valid-og.jpg');
+});
+
+test('checks every sibling image candidate without a fixed cap', async () => {
+  const posts = Array.from({ length: 75 }, (_, i) => ({
+    id: i + 2,
+    title: `sib ${i + 1}`,
+    slug: `sib-${i + 1}`,
+    excerpt: '',
+    content: {} as any,
+    order: i + 1,
+    publishedDate: '2026-01-01',
+    group: 'g',
+    chapter: 'c1',
+    updatedAt: '',
+    publish_status: 'published',
+    meta: { image: i === 74 ? media({ id: 6, sizes: { og: { url: 'https://cdn.example/last-og.jpg', width: 1200, height: 630 } } }) : 404 },
+  })) as Post[];
+  const calls: unknown[] = [];
+  const post: PartialPost = { id: 1, group: 'g', chapter: 'c1', meta: {} };
+  const payload = makePayload({ posts, calls });
+  const og = await resolvePostOgImage(payload, post as Post);
+
+  assert.equal(og?.source, 'chapter-sibling');
+  assert.equal(og?.url, 'https://cdn.example/last-og.jpg');
+  assert.equal((calls[0] as { pagination?: unknown }).pagination, false);
+  assert.equal('limit' in (calls[0] as Record<string, unknown>), false);
 });
 
 test('ignores draft sibling images for public OG fallback', async () => {

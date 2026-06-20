@@ -99,16 +99,19 @@ async function findChapterSiblingImage(
     collection: 'posts',
     where,
     sort: ['order', 'publishedDate'],
-    limit: 50,
+    pagination: false,
     depth: 1,
     overrideAccess: true,
   });
 
-  const sibling = [...result.docs].sort(comparePostsByGroupOrder)[0] as Post | undefined;
-  if (!sibling?.meta?.image) return null;
-
-  const media = await resolveMediaRef(payload, sibling.meta.image);
-  return fromMedia(media, 'chapter-sibling');
+  const siblings = [...result.docs].sort(comparePostsByGroupOrder) as Post[];
+  for (const sibling of siblings) {
+    if (!sibling.meta?.image) continue;
+    const media = await resolveMediaRef(payload, sibling.meta.image);
+    const ogImage = fromMedia(media, 'chapter-sibling');
+    if (ogImage) return ogImage;
+  }
+  return null;
 }
 
 export async function resolveGroupOgImage(payload: Payload, groupSlug: string): Promise<OgImage | null> {
