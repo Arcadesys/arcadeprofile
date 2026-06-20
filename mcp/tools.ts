@@ -691,7 +691,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Pages ----
 
   async list_pages() {
-    const data = (await payloadFetch(payloadQueryPath('pages', { limit: 50, depth: 0 }))) as {
+    const data = (await payloadFetch(payloadQueryPath('pages', { pagination: false, depth: 0 }))) as {
       docs: Record<string, unknown>[];
     };
     const pages = data.docs.map((p) => ({
@@ -742,7 +742,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Groups ----
 
   async list_groups() {
-    const data = (await payloadFetch(payloadQueryPath('groups', { limit: 50, depth: 0 }))) as {
+    const data = (await payloadFetch(payloadQueryPath('groups', { pagination: false, depth: 0 }))) as {
       docs: Record<string, unknown>[];
     };
     const groups = data.docs.map((g) => ({
@@ -758,7 +758,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Books ----
 
   async list_books() {
-    const data = (await payloadFetch(payloadQueryPath('books', { limit: 50, depth: 0 }))) as {
+    const data = (await payloadFetch(payloadQueryPath('books', { pagination: false, depth: 0 }))) as {
       docs: unknown[];
     };
     return { content: [{ type: 'text', text: JSON.stringify(data.docs, null, 2) }] };
@@ -767,7 +767,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Projects ----
 
   async list_projects() {
-    const data = (await payloadFetch(payloadQueryPath('groups', { limit: 50, depth: 0 }))) as {
+    const data = (await payloadFetch(payloadQueryPath('groups', { pagination: false, depth: 0 }))) as {
       docs: unknown[];
     };
     return { content: [{ type: 'text', text: JSON.stringify(data.docs, null, 2) }] };

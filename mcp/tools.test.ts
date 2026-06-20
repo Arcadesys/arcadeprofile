@@ -263,6 +263,31 @@ test('get_post encodes slugs before querying Payload', async () => {
   }
 });
 
+test('no-argument list tools request complete collections', async () => {
+  for (const [toolName, expectedPath] of [
+    ['list_pages', '/api/pages'],
+    ['list_groups', '/api/groups'],
+    ['list_books', '/api/books'],
+    ['list_projects', '/api/groups'],
+  ] as const) {
+    let capturedUrl = '';
+    const restore = mockFetch(async (url) => {
+      capturedUrl = String(url);
+      return jsonResponse({ docs: [] });
+    });
+
+    try {
+      await toolHandlers[toolName]({});
+      const parsed = new URL(capturedUrl);
+      assert.equal(parsed.pathname, expectedPath);
+      assert.equal(parsed.searchParams.get('pagination'), 'false');
+      assert.equal(parsed.searchParams.get('limit'), null);
+    } finally {
+      restore();
+    }
+  }
+});
+
 // ---------------------------------------------------------------------------
 // create_post handler
 // ---------------------------------------------------------------------------
