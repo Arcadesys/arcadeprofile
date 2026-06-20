@@ -9,7 +9,7 @@ import { tagArrayField } from './fields/tags';
 import { ensurePreviewTokenHook } from './hooks/ensurePreviewToken';
 import { promoteScheduledDraftHook } from './hooks/promoteScheduledDraft';
 import type { RevalidationDoc } from './hooks/revalidate';
-import { revalidatePathsFor } from './hooks/revalidate';
+import { revalidateDeletedPathsFor, revalidatePathsFor } from './hooks/revalidate';
 import { validateScheduledPublishDateHook } from './hooks/validateScheduledPublishDate';
 import { isAuthenticated } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
@@ -37,6 +37,9 @@ export function buildPostRevalidationPaths(
 
 const revalidatePostPaths = revalidatePathsFor(async (doc, _payload, previousDoc) => {
   return buildPostRevalidationPaths(doc, previousDoc);
+});
+const revalidateDeletedPostPaths = revalidateDeletedPathsFor(async (doc) => {
+  return buildPostRevalidationPaths(doc);
 });
 
 export const Posts: CollectionConfig = {
@@ -75,6 +78,7 @@ export const Posts: CollectionConfig = {
       ensurePreviewTokenHook,
     ],
     afterChange: [revalidatePostPaths],
+    afterDelete: [revalidateDeletedPostPaths],
   },
   fields: [
     {

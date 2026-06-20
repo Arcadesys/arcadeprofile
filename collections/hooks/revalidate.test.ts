@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { buildPageRevalidationPaths } from '../Pages';
-import { buildPostRevalidationPaths } from '../Posts';
+import { buildPageRevalidationPaths, Pages } from '../Pages';
+import { buildPostRevalidationPaths, Posts } from '../Posts';
 import { uniqueRevalidationPaths } from './revalidate';
 
 test('post revalidation includes current and previous canonical URLs', () => {
@@ -51,4 +51,9 @@ test('revalidation path normalization removes duplicates and empty paths', () =>
     uniqueRevalidationPaths(['/latest', '', '/latest', '/projects']),
     ['/latest', '/projects'],
   );
+});
+
+test('public content collections revalidate paths after delete', () => {
+  assert.equal(Posts.hooks?.afterDelete?.length, 1);
+  assert.equal(Pages.hooks?.afterDelete?.length, 1);
 });

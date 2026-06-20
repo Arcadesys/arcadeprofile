@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload';
 import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { slugField } from './fields/slug';
 import type { RevalidationDoc } from './hooks/revalidate';
-import { revalidatePathsFor } from './hooks/revalidate';
+import { revalidateDeletedPathsFor, revalidatePathsFor } from './hooks/revalidate';
 import { publicReadAccess } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
 
@@ -22,16 +22,20 @@ export function buildPageRevalidationPaths(
   return Array.from(paths);
 }
 
+const revalidatePagePaths = revalidatePathsFor((doc, _payload, previousDoc) =>
+  buildPageRevalidationPaths(doc, previousDoc),
+);
+const revalidateDeletedPagePaths = revalidateDeletedPathsFor((doc) =>
+  buildPageRevalidationPaths(doc),
+);
+
 export const Pages: CollectionConfig = {
   slug: 'pages',
   access: publicReadAccess,
   admin: titledAdmin(adminGroups.content, ['title', 'slug', '_status', 'updatedAt']),
   hooks: {
-    afterChange: [
-      revalidatePathsFor((doc, _payload, previousDoc) =>
-        buildPageRevalidationPaths(doc, previousDoc),
-      ),
-    ],
+    afterChange: [revalidatePagePaths],
+    afterDelete: [revalidateDeletedPagePaths],
   },
   versions: {
     drafts: true,
