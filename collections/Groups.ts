@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, Payload } from 'payload';
 import {
   projectCategoryOptions,
   projectCtaTypeOptions,
@@ -6,16 +6,111 @@ import {
   projectResourceKindOptions,
   projectStatusOptions,
 } from '@/lib/project-model';
+import { publicPostStatusWhere } from '@/lib/post-status';
+import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
 import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { slugField } from './fields/slug';
 import { tagArrayField } from './fields/tags';
+import type { RevalidationDoc } from './hooks/revalidate';
+import { revalidateDeletedPathsFor, revalidatePathsFor } from './hooks/revalidate';
 import { publicReadAccess } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
+
+type GroupRevalidationPayload = Pick<Payload, 'find'>;
+
+function getGroupRevalidationSlug(doc?: RevalidationDoc): string | null {
+  const slug = doc?.slug;
+  return typeof slug === 'string' && slug.length > 0 ? slug : null;
+}
+
+function isString(value: string | null): value is string {
+  return value !== null;
+}
+
+function groupRevalidationSlugs(
+  doc: RevalidationDoc,
+  previousDoc?: RevalidationDoc,
+): string[] {
+  return Array.from(
+    new Set([getGroupRevalidationSlug(doc), getGroupRevalidationSlug(previousDoc)].filter(isString)),
+  );
+}
+
+export async function loadGroupPostSlugsForRevalidation(
+  payload: GroupRevalidationPayload,
+  groupSlugs: string[],
+): Promise<Map<string, string[]>> {
+  const slugs = Array.from(new Set(groupSlugs.filter(Boolean)));
+  const postSlugsByGroup = new Map<string, string[]>();
+  if (slugs.length === 0) return postSlugsByGroup;
+
+  const result = await payload.find({
+    collection: 'posts',
+    where: {
+      and: [
+        { group: { in: slugs } },
+        { publish_status: publicPostStatusWhere() },
+      ],
+    },
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+  });
+
+  for (const post of result.docs) {
+    const group = post.group as string | undefined;
+    const slug = post.slug as string | undefined;
+    if (!group || !slug) continue;
+    const postSlugs = postSlugsByGroup.get(group) ?? [];
+    postSlugs.push(slug);
+    postSlugsByGroup.set(group, postSlugs);
+  }
+
+  return postSlugsByGroup;
+}
+
+export function buildGroupRevalidationPaths(
+  doc: RevalidationDoc,
+  previousDoc?: RevalidationDoc,
+  postSlugsByGroup: Map<string, string[]> = new Map(),
+): string[] {
+  const paths = new Set(['/', '/latest', '/projects', '/feed.xml', '/sitemap.xml']);
+
+  for (const groupSlug of groupRevalidationSlugs(doc, previousDoc)) {
+    paths.add(buildGroupIntroUrl(groupSlug));
+    for (const postSlug of postSlugsByGroup.get(groupSlug) ?? []) {
+      paths.add(buildPostUrl(groupSlug, postSlug));
+    }
+  }
+
+  return Array.from(paths);
+}
+
+async function buildGroupRevalidationPathsWithPosts(
+  payload: GroupRevalidationPayload,
+  doc: RevalidationDoc,
+  previousDoc?: RevalidationDoc,
+): Promise<string[]> {
+  const slugs = groupRevalidationSlugs(doc, previousDoc);
+  const postSlugsByGroup = await loadGroupPostSlugsForRevalidation(payload, slugs);
+  return buildGroupRevalidationPaths(doc, previousDoc, postSlugsByGroup);
+}
+
+const revalidateGroupPaths = revalidatePathsFor(async (doc, payload, previousDoc) =>
+  buildGroupRevalidationPathsWithPosts(payload, doc, previousDoc),
+);
+const revalidateDeletedGroupPaths = revalidateDeletedPathsFor(async (doc, payload) =>
+  buildGroupRevalidationPathsWithPosts(payload, doc),
+);
 
 export const Groups: CollectionConfig = {
   slug: 'groups',
   access: publicReadAccess,
   admin: titledAdmin(adminGroups.content, ['title', 'slug', 'category', 'featured', 'homeHighlight', 'updatedAt']),
+  hooks: {
+    afterChange: [revalidateGroupPaths],
+    afterDelete: [revalidateDeletedGroupPaths],
+  },
   fields: [
     {
       name: 'arrangeScenesLink',
