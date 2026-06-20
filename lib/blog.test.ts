@@ -53,7 +53,7 @@ function group(overrides: Partial<PayloadGroup> = {}): PayloadGroup {
 }
 
 test('loadGroupBySlug returns an existing group even when it has no posts', async () => {
-  const calls: Array<{ collection: string; where?: unknown }> = [];
+  const calls: Array<{ collection: string; where?: unknown; limit?: unknown; pagination?: unknown }> = [];
   const payload = {
     find: async (args: { collection: string; where?: unknown }) => {
       calls.push(args);
@@ -84,7 +84,7 @@ test('loadGroupBySlug loads and orders public group posts', async () => {
     post({ id: 2, slug: 'second', group: 'project-hub', order: 2, publishedDate: '2026-01-01T00:00:00.000Z' }),
     post({ id: 3, slug: 'first', group: 'project-hub', order: 1, publishedDate: '2026-01-02T00:00:00.000Z' }),
   ];
-  const calls: Array<{ collection: string; where?: unknown }> = [];
+  const calls: Array<{ collection: string; where?: unknown; limit?: unknown; pagination?: unknown }> = [];
   const payload = {
     find: async (args: { collection: string; where?: unknown }) => {
       calls.push(args);
@@ -103,4 +103,34 @@ test('loadGroupBySlug loads and orders public group posts', async () => {
       { publish_status: { in: ['published', 'sent'] } },
     ],
   });
+  assert.equal(calls[1]!.pagination, false);
+  assert.equal('limit' in calls[1]!, false);
+});
+
+test('loadGroupBySlug includes every public group post without a fixed cap', async () => {
+  const posts = Array.from({ length: 125 }, (_, i) =>
+    post({
+      id: i + 1,
+      slug: `part-${i + 1}`,
+      group: 'project-hub',
+      order: i + 1,
+      publishedDate: '2026-01-01T00:00:00.000Z',
+    }),
+  );
+  const calls: Array<{ collection: string; where?: unknown; limit?: unknown; pagination?: unknown }> = [];
+  const payload = {
+    find: async (args: { collection: string; where?: unknown; limit?: unknown; pagination?: unknown }) => {
+      calls.push(args);
+      if (args.collection === 'groups') return paginated([group()]);
+      if (args.collection === 'posts') return paginated(posts);
+      throw new Error(`Unexpected collection: ${args.collection}`);
+    },
+  } as Pick<Payload, 'find'>;
+
+  const result = await loadGroupBySlug(payload, 'project-hub');
+
+  assert.equal(result?.posts.length, 125);
+  assert.equal(result?.posts.at(-1)?.slug, 'part-125');
+  assert.equal(calls[1]!.pagination, false);
+  assert.equal('limit' in calls[1]!, false);
 });

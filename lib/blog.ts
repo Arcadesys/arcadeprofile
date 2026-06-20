@@ -182,31 +182,15 @@ export async function getAllGroups(): Promise<Group[]> {
 
   const groupDocs = await payload.find({
     collection: 'groups',
-    limit: 100,
     depth: 0,
+    pagination: false,
   });
 
   const groups: Group[] = [];
 
   for (const g of groupDocs.docs) {
-    const postResult = await payload.find({
-      collection: 'posts',
-      where: {
-        and: [
-          { group: { equals: g.slug } },
-          { publish_status: publicPostStatusWhere() },
-        ],
-      },
-      sort: ['order', 'publishedDate'],
-      limit: 100,
-      depth: 1,
-    });
-
-    if (postResult.docs.length === 0) continue;
-
-    const posts = postResult.docs.map(toPost);
-    posts.sort(comparePostsByGroupOrder);
-
+    const posts = await loadPublicPostsForGroup(payload, g.slug);
+    if (posts.length === 0) continue;
     groups.push(toGroup(g, posts));
   }
 
@@ -214,6 +198,28 @@ export async function getAllGroups(): Promise<Group[]> {
   return groups.sort((a, b) => {
     return latestPostDateMs(b.posts) - latestPostDateMs(a.posts);
   });
+}
+
+async function loadPublicPostsForGroup(
+  payload: BlogPayload,
+  groupSlug: string,
+): Promise<BlogPost[]> {
+  const postResult = await payload.find({
+    collection: 'posts',
+    where: {
+      and: [
+        { group: { equals: groupSlug } },
+        { publish_status: publicPostStatusWhere() },
+      ],
+    },
+    sort: ['order', 'publishedDate'],
+    depth: 1,
+    pagination: false,
+  });
+
+  const posts = postResult.docs.map(toPost);
+  posts.sort(comparePostsByGroupOrder);
+  return posts;
 }
 
 export async function loadGroupBySlug(payload: BlogPayload, slug: string): Promise<Group | null> {
@@ -226,22 +232,7 @@ export async function loadGroupBySlug(payload: BlogPayload, slug: string): Promi
   const group = groupResult.docs[0];
   if (!group) return null;
 
-  const postResult = await payload.find({
-    collection: 'posts',
-    where: {
-      and: [
-        { group: { equals: group.slug } },
-        { publish_status: publicPostStatusWhere() },
-      ],
-    },
-    sort: ['order', 'publishedDate'],
-    limit: 100,
-    depth: 1,
-  });
-
-  const posts = postResult.docs.map(toPost);
-  posts.sort(comparePostsByGroupOrder);
-
+  const posts = await loadPublicPostsForGroup(payload, group.slug);
   return toGroup(group, posts);
 }
 
