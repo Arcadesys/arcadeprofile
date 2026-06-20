@@ -3,7 +3,7 @@ import payloadConfig from '@payload-config';
 import { ogSize, ogContentType, renderOgCard } from '@/lib/og-template';
 import { publicPostStatusWhere } from '@/lib/post-status';
 import { projectCategoryLabels } from '@/lib/project-model';
-import { parsePostPartSegment } from '@/lib/post-url';
+import { parsePostPartSegment, resolvePostSlugByPartIndex } from '@/lib/post-url';
 
 export const runtime = 'nodejs';
 export const size = ogSize;
@@ -42,38 +42,19 @@ async function loadOgContext(groupSlug: string, postSlug: string): Promise<OgCon
     // Legacy numeric paths still render an OG card for scrapers that hit
     // the URL before following the redirect.
     const idx = parsePostPartSegment(postSlug);
+    let lookupSlug = postSlug;
     if (idx !== null) {
       if (idx <= 0) return ctx;
-      const postResult = await payload.find({
-        collection: 'posts',
-        where: {
-          and: [
-            { group: { equals: groupSlug } },
-            { publish_status: publicPostStatusWhere() },
-          ],
-        },
-        sort: ['order', 'publishedDate'],
-        limit: 200,
-        depth: 0,
-        overrideAccess: true,
-      });
-      const post = postResult.docs[idx - 1] as
-        | { title?: string; meta?: { title?: string } }
-        | undefined;
-      if (post) {
-        ctx.post = {
-          title: post.title ?? '',
-          metaTitle: post.meta?.title?.trim() || null,
-        };
-      }
-      return ctx;
+      const resolvedSlug = await resolvePostSlugByPartIndex(payload, groupSlug, idx);
+      if (!resolvedSlug) return ctx;
+      lookupSlug = resolvedSlug;
     }
 
     const postResult = await payload.find({
       collection: 'posts',
       where: {
         and: [
-          { slug: { equals: postSlug } },
+          { slug: { equals: lookupSlug } },
           { group: { equals: groupSlug } },
           { publish_status: publicPostStatusWhere() },
         ],

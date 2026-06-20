@@ -81,7 +81,6 @@ export async function GET(request: Request) {
   const draftsRes = await payload.find({
     collection: 'posts',
     where: { or: draftOrMissingPostStatusClauses() },
-    limit: 200,
     depth: 0,
     sort: '-updatedAt',
     pagination: false,

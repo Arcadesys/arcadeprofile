@@ -71,7 +71,6 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
         { id: { not_in: [...fictionIds, ...essaysIds] } },
       ],
     },
-    limit: 200,
     depth: 0,
     sort: '-updatedAt',
     pagination: false,
