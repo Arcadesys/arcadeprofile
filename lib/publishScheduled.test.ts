@@ -328,6 +328,47 @@ test('publishScheduledPosts retries published posts with missing newsletter stat
   assert.equal(fx.store.get(104)!.publish_status, 'sent');
 });
 
+test('publishScheduledPosts does not retry a newly failed newsletter in the same run', async () => {
+  const now = new Date(Date.UTC(2026, 4, 14, 16, 0, 0));
+  const initial: FixturePost[] = [
+    {
+      id: 107,
+      slug: 'newly-failed',
+      title: 'Newly Failed',
+      publish_status: 'scheduled',
+      scheduledPublishDate: '2026-05-14T14:00:00.000Z',
+      publishedDate: null,
+      group: null,
+      order: null,
+    },
+  ];
+
+  const fx = buildFixture(initial, { fictionIds: [], essaysIds: [107] });
+  let deliveries = 0;
+  const summary = await publishScheduledPosts(fx.payload, {
+    now,
+    deliverNewsletter: async () => {
+      deliveries += 1;
+      return {
+        kind: 'failed',
+        state: {
+          status: 'failed',
+          lastSyncedAt: now.toISOString(),
+          lastError: 'Postmark down',
+        },
+        error: new Error('Postmark down'),
+      };
+    },
+  });
+
+  assert.equal(deliveries, 1);
+  assert.equal(summary.processed, 1);
+  assert.equal(summary.results.length, 1);
+  assert.equal(summary.results[0]?.newsletter, 'failed');
+  assert.equal(fx.store.get(107)!.publish_status, 'published');
+  assert.equal(fx.store.get(107)!.newsletterSend?.status, 'failed');
+});
+
 test('publishScheduledPosts retries stale published posts with pending newsletter state', async () => {
   const now = new Date(Date.UTC(2026, 4, 14, 16, 0, 0));
   const initial: FixturePost[] = [

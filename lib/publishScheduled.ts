@@ -146,6 +146,7 @@ export async function publishScheduledPosts(
   });
 
   const duePosts = dueResult.docs;
+  const duePostIds = new Set(duePosts.map((post) => post.id));
   const results: PublishResult[] = [];
 
   for (const post of duePosts) {
@@ -207,6 +208,7 @@ export async function publishScheduledPosts(
   });
 
   for (const post of retryResult.docs) {
+    if (duePostIds.has(post.id)) continue;
     try {
       const newsletterOutcome = await deliverNewsletter(payload, post.id);
       const newsletterResult = await persistNewsletterOutcome(payload, post, newsletterOutcome);
