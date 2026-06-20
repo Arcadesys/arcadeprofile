@@ -2,11 +2,19 @@ import { createHash, createHmac, randomBytes, timingSafeEqual } from 'crypto';
 
 export interface AuthCodePayload {
   codeChallenge: string;
-  codeChallengeMethod: string;
+  codeChallengeMethod: PkceCodeChallengeMethod;
   clientId: string;
   redirectUri: string;
   state?: string;
   exp: number;
+}
+
+export type PkceCodeChallengeMethod = 'S256';
+
+export function isSupportedPkceCodeChallengeMethod(
+  value: unknown,
+): value is PkceCodeChallengeMethod {
+  return value === 'S256';
 }
 
 // Stateless signed auth code — no server-side session storage needed.
@@ -39,10 +47,8 @@ export function verifyAuthCode(code: string, secret: string): AuthCodePayload | 
 }
 
 export function verifyPkce(verifier: string, challenge: string, method: string): boolean {
-  if (method === 'S256') {
-    return createHash('sha256').update(verifier).digest('base64url') === challenge;
-  }
-  return verifier === challenge;
+  if (!isSupportedPkceCodeChallengeMethod(method)) return false;
+  return createHash('sha256').update(verifier).digest('base64url') === challenge;
 }
 
 /**

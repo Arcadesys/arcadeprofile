@@ -3,6 +3,7 @@ import {
   escapeHtml,
   generateAuthCode,
   isAllowedRedirectUri,
+  isSupportedPkceCodeChallengeMethod,
   safeStringEqual,
 } from '@/lib/mcp-oauth';
 
@@ -41,6 +42,9 @@ export async function GET(req: NextRequest): Promise<Response> {
   }
   if (!clientId || !redirectUri || !codeChallenge) {
     return new Response('invalid_request: missing required parameters', { status: 400 });
+  }
+  if (!isSupportedPkceCodeChallengeMethod(codeChallengeMethod)) {
+    return new Response('invalid_request: unsupported code_challenge_method', { status: 400 });
   }
   if (!isAllowedRedirectUri(redirectUri)) {
     return new Response('invalid_request: redirect_uri is not allowed', { status: 400 });
@@ -147,6 +151,14 @@ export async function POST(req: NextRequest): Promise<Response> {
 
   if (!clientId || !redirectUri || !codeChallenge) {
     return new Response('invalid_request', { status: 400 });
+  }
+  if (!isSupportedPkceCodeChallengeMethod(codeChallengeMethod)) {
+    return oauthError(
+      redirectUri,
+      state,
+      'invalid_request',
+      'unsupported code_challenge_method',
+    );
   }
   if (!isAllowedRedirectUri(redirectUri)) {
     return new Response('invalid_request: redirect_uri is not allowed', { status: 400 });
