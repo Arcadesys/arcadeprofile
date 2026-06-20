@@ -3,7 +3,6 @@ import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { slugField } from './fields/slug';
 import type { RevalidationDoc } from './hooks/revalidate';
 import { revalidateDeletedPathsFor, revalidatePathsFor } from './hooks/revalidate';
-import { publicReadAccess } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
 
 function addPageRevalidationPath(paths: Set<string>, doc?: RevalidationDoc): void {
@@ -31,7 +30,12 @@ const revalidateDeletedPagePaths = revalidateDeletedPathsFor((doc) =>
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
-  access: publicReadAccess,
+  access: {
+    read: ({ req }) => {
+      if (req.user) return true;
+      return { _status: { equals: 'published' } };
+    },
+  },
   admin: titledAdmin(adminGroups.content, ['title', 'slug', '_status', 'updatedAt']),
   hooks: {
     afterChange: [revalidatePagePaths],

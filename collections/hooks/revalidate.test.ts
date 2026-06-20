@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import type { Payload } from 'payload';
+import type { Access, Payload } from 'payload';
 
 import {
   buildGroupRevalidationPaths,
@@ -24,6 +24,12 @@ function result<T>(docs: T[]) {
     prevPage: null,
     nextPage: null,
   };
+}
+
+function pagesReadAccess(): Access {
+  const read = Pages.access?.read;
+  assert.equal(typeof read, 'function');
+  return read as Access;
 }
 
 test('post revalidation includes current and previous canonical URLs', () => {
@@ -65,6 +71,26 @@ test('page revalidation includes current and previous slug paths', () => {
     buildPageRevalidationPaths({ slug: 'new-page' }, { slug: 'old-page' }),
     ['/new-page', '/old-page'],
   );
+});
+
+test('pages expose only published docs to anonymous readers', async () => {
+  const read = pagesReadAccess();
+
+  const result = await read({
+    req: { user: null },
+  } as Parameters<typeof read>[0]);
+
+  assert.deepEqual(result, { _status: { equals: 'published' } });
+});
+
+test('authenticated readers can see all pages in Payload admin and tools', async () => {
+  const read = pagesReadAccess();
+
+  const result = await read({
+    req: { user: { id: 1 } },
+  } as Parameters<typeof read>[0]);
+
+  assert.equal(result, true);
 });
 
 test('group revalidation includes indexes, old/new group pages, and related post pages', () => {
