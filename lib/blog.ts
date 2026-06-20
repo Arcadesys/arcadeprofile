@@ -335,12 +335,15 @@ export async function getPageBySlug(slug: string): Promise<Page | null> {
 
 export async function getAllPages(): Promise<Page[]> {
   const payload = await getPayloadClient();
+  return loadAllPages(payload);
+}
 
+export async function loadAllPages(payload: BlogPayload): Promise<Page[]> {
   const result = await payload.find({
     collection: 'pages',
     where: { _status: { equals: 'published' } },
-    limit: 100,
     depth: 0,
+    pagination: false,
   });
 
   return result.docs.map(toPage);
@@ -348,7 +351,10 @@ export async function getAllPages(): Promise<Page[]> {
 
 export async function getUngroupedPosts(): Promise<BlogPost[]> {
   const payload = await getPayloadClient();
+  return loadUngroupedPosts(payload);
+}
 
+export async function loadUngroupedPosts(payload: BlogPayload): Promise<BlogPost[]> {
   const result = await payload.find({
     collection: 'posts',
     where: {
@@ -363,8 +369,8 @@ export async function getUngroupedPosts(): Promise<BlogPost[]> {
       ],
     },
     sort: '-publishedDate',
-    limit: 100,
     depth: 0,
+    pagination: false,
   });
 
   return result.docs.map(toPost);
