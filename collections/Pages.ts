@@ -1,16 +1,37 @@
 import type { CollectionConfig } from 'payload';
 import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { slugField } from './fields/slug';
+import type { RevalidationDoc } from './hooks/revalidate';
 import { revalidatePathsFor } from './hooks/revalidate';
 import { publicReadAccess } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
+
+function addPageRevalidationPath(paths: Set<string>, doc?: RevalidationDoc): void {
+  const slug = doc?.slug as string | undefined;
+  if (!slug) return;
+  paths.add(`/${slug}`);
+}
+
+export function buildPageRevalidationPaths(
+  doc: RevalidationDoc,
+  previousDoc?: RevalidationDoc,
+): string[] {
+  const paths = new Set<string>();
+  addPageRevalidationPath(paths, doc);
+  addPageRevalidationPath(paths, previousDoc);
+  return Array.from(paths);
+}
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
   access: publicReadAccess,
   admin: titledAdmin(adminGroups.content, ['title', 'slug', '_status', 'updatedAt']),
   hooks: {
-    afterChange: [revalidatePathsFor((doc) => [`/${doc.slug}`])],
+    afterChange: [
+      revalidatePathsFor((doc, _payload, previousDoc) =>
+        buildPageRevalidationPaths(doc, previousDoc),
+      ),
+    ],
   },
   versions: {
     drafts: true,

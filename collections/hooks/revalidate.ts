@@ -1,15 +1,24 @@
 import type { CollectionAfterChangeHook, Payload } from 'payload';
 
+export type RevalidationDoc = Record<string, unknown>;
+
 type PathBuilder = (
-  doc: Record<string, unknown>,
+  doc: RevalidationDoc,
   payload: Payload,
+  previousDoc?: RevalidationDoc,
 ) => string[] | Promise<string[]>;
 
+export function uniqueRevalidationPaths(paths: string[]): string[] {
+  return Array.from(new Set(paths.filter((path) => path.length > 0)));
+}
+
 export function revalidatePathsFor(buildPaths: PathBuilder): CollectionAfterChangeHook {
-  return async ({ doc, req }) => {
+  return async ({ doc, previousDoc, req }) => {
     let paths: string[] = [];
     try {
-      paths = await Promise.resolve(buildPaths(doc, req.payload));
+      paths = uniqueRevalidationPaths(
+        await Promise.resolve(buildPaths(doc, req.payload, previousDoc)),
+      );
     } catch (err) {
       console.error('[revalidate] path builder threw:', err);
       return;

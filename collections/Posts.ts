@@ -8,24 +8,35 @@ import { slugField } from './fields/slug';
 import { tagArrayField } from './fields/tags';
 import { ensurePreviewTokenHook } from './hooks/ensurePreviewToken';
 import { promoteScheduledDraftHook } from './hooks/promoteScheduledDraft';
+import type { RevalidationDoc } from './hooks/revalidate';
 import { revalidatePathsFor } from './hooks/revalidate';
 import { validateScheduledPublishDateHook } from './hooks/validateScheduledPublishDate';
 import { isAuthenticated } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
 
-const revalidatePostPaths = revalidatePathsFor(async (doc) => {
-  const slug = doc.slug as string | undefined;
-  const group = doc.group as string | undefined;
-  const paths = ['/latest', '/projects', '/feed.xml'];
+function addPostRevalidationPaths(paths: Set<string>, doc?: RevalidationDoc): void {
+  const slug = doc?.slug as string | undefined;
+  const group = doc?.group as string | undefined;
 
-  if (group) {
-    paths.push(buildGroupIntroUrl(group));
-    if (slug) {
-      paths.push(buildPostUrl(group, slug));
-    }
+  if (!group) return;
+  paths.add(buildGroupIntroUrl(group));
+  if (slug) {
+    paths.add(buildPostUrl(group, slug));
   }
+}
 
-  return paths;
+export function buildPostRevalidationPaths(
+  doc: RevalidationDoc,
+  previousDoc?: RevalidationDoc,
+): string[] {
+  const paths = new Set(['/latest', '/projects', '/feed.xml']);
+  addPostRevalidationPaths(paths, doc);
+  addPostRevalidationPaths(paths, previousDoc);
+  return Array.from(paths);
+}
+
+const revalidatePostPaths = revalidatePathsFor(async (doc, _payload, previousDoc) => {
+  return buildPostRevalidationPaths(doc, previousDoc);
 });
 
 export const Posts: CollectionConfig = {
