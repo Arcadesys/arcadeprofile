@@ -12,6 +12,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { todayInSiteTz } from '../lib/site-time';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -87,7 +88,7 @@ function ensureUniqueSlug(slug: string, existingSlugs: Set<string>): string {
 function buildBlogMdx(entry: ManifestEntry, body: string): string {
   const title = entry.title || extractTitle(body, path.basename(entry.source));
   const excerpt = entry.excerpt || generateExcerpt(body);
-  const date = entry.date || new Date().toISOString().split('T')[0];
+  const date = entry.date || todayInSiteTz();
   const content = stripFrontmatter(body);
 
   let frontmatter = `---\ntitle: "${title.replace(/"/g, '\\"')}"\ndate: "${date}"\nexcerpt: "${excerpt.replace(/"/g, '\\"')}"`;
@@ -133,7 +134,7 @@ function migrateStory(entry: ManifestEntry, body: string, dryRun: boolean, slugs
   }
 
   const title = entry.title || extractTitle(body, path.basename(entry.source));
-  const date = entry.date || new Date().toISOString().split('T')[0];
+  const date = entry.date || todayInSiteTz();
 
   if (!dryRun) {
     // Write a single-file story; user can run chunk-story.ts later for splitting

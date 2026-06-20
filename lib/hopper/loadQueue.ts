@@ -1,5 +1,6 @@
 import type { Payload } from 'payload';
 
+import { parsePositiveIntegerId } from '@/lib/positive-integer-id';
 import { isPrePublicOrMissingPostStatus } from '@/lib/post-status';
 import type { Post } from '@/payload-types';
 
@@ -11,14 +12,21 @@ export interface QueueIds {
 export function extractQueueIds(queue: unknown): string[] {
   if (!Array.isArray(queue)) return [];
   const ids: string[] = [];
+  const pushId = (value: string | number) => {
+    const parsed = parsePositiveIntegerId(String(value));
+    if (parsed !== null) ids.push(String(parsed));
+  };
   for (const entry of queue) {
     if (!entry || typeof entry !== 'object') continue;
     const post = (entry as { post?: unknown }).post;
     if (post == null) continue;
     if (typeof post === 'string' || typeof post === 'number') {
-      ids.push(String(post));
+      pushId(post);
     } else if (typeof post === 'object' && post !== null && 'id' in post) {
-      ids.push(String((post as { id: string | number }).id));
+      const id = (post as { id?: unknown }).id;
+      if (typeof id === 'string' || typeof id === 'number') {
+        pushId(id);
+      }
     }
   }
   return ids;

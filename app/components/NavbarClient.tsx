@@ -4,12 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 
-export type NavItem = {
-  id: string;
-  label: string;
-  href: string;
-  isPrimary: boolean;
-};
+import type { NavItem } from '@/lib/nav-items';
+
+export type { NavItem };
 
 export default function NavbarClient({ items }: { items: NavItem[] }) {
   const pathname = usePathname();

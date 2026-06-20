@@ -31,17 +31,18 @@ For each scene-post:
    - `group` — the fiction group slug.
    - `order` — next integer after the current max `order` in that group.
    - `publish_status` — `'scheduled'`.
-   - `scheduledPublishDate` — next available **Mon/Wed/Fri at 08:00 UTC** that doesn't already have a fiction post queued. (08:00 UTC sits an hour before the 09:00 UTC cron, so the post drops that morning.)
+   - `scheduledPublishDate` — next available **Mon/Wed/Fri at 14:00 UTC** that doesn't already have a fiction post queued. The GitHub Actions scheduled-publish job runs every 15 minutes and will publish due posts.
    - `publishedDate` — same calendar date as `scheduledPublishDate`.
 3. Skip any date already occupied by a queued or published post in any fiction group — fiction shares the M/W/F lane across groups.
 4. After creating each post, print `<date> <slug>` so the user can scan the lineup.
 
 ## Tools
 
-Prefer the Payload MCP server (`mcp/payload-mcp.ts`) over raw HTTP — it has `posts.create` / `posts.find` and handles auth from `PAYLOAD_API_KEY`. Fall back to the REST API at `/api/posts` if MCP is unavailable.
+Prefer the Payload MCP server (`mcp/payload-mcp.ts`) over raw HTTP — use `create_post`, `update_post`, `list_posts`, and `get_post`; it handles auth from `PAYLOAD_API_KEY`. Fall back to the REST API at `/api/posts` if MCP is unavailable.
 
 ## Don't
 
-- Don't publish directly. Always go through `publish_status: 'scheduled'` so the daily cron handles the flip and the newsletter/social fan-out fires correctly.
-- Don't set `newsletterSent`. The afterChange hook owns that.
+- Don't publish directly. Always go through `publish_status: 'scheduled'` so the scheduled-publish job handles the `published`/`sent` transitions.
+- Don't set `newsletterSend` by hand. The scheduled-publish job writes pending/skipped/failed/sent state, sends via Postmark, and records accepted messages in `postmark-events`.
+- Don't create ActiveCampaign campaigns for per-post newsletters. ActiveCampaign owns contacts, list membership, and audience state; Postmark is the delivery rail.
 - Don't backdate `scheduledPublishDate`; the cron treats anything in the past as immediately due.

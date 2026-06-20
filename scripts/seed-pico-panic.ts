@@ -201,6 +201,7 @@ async function main() {
           { tag: 'lua' },
         ],
       },
+      context: { allowPastScheduledPublishDate: true },
     });
     console.log(`[created] post: ${POST_SLUG}`);
   } else {

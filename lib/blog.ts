@@ -100,13 +100,16 @@ async function getPayloadClient() {
 
 export async function getAllPosts(): Promise<BlogPost[]> {
   const payload = await getPayloadClient();
+  return loadAllPosts(payload);
+}
 
+export async function loadAllPosts(payload: BlogPayload): Promise<BlogPost[]> {
   const result = await payload.find({
     collection: 'posts',
     where: { publish_status: publicPostStatusWhere() },
     sort: '-publishedDate',
-    limit: 100,
     depth: 0,
+    pagination: false,
   });
 
   return result.docs.map(toPost);
@@ -124,6 +127,7 @@ export async function getPublishedPostsForRss(): Promise<BlogPost[]> {
       publish_status: publicPostStatusWhere(),
     },
     sort: '-publishedDate',
+    // RSS intentionally exposes the latest batch, not the full archive.
     limit: 100,
     depth: 0,
   });
@@ -182,31 +186,15 @@ export async function getAllGroups(): Promise<Group[]> {
 
   const groupDocs = await payload.find({
     collection: 'groups',
-    limit: 100,
     depth: 0,
+    pagination: false,
   });
 
   const groups: Group[] = [];
 
   for (const g of groupDocs.docs) {
-    const postResult = await payload.find({
-      collection: 'posts',
-      where: {
-        and: [
-          { group: { equals: g.slug } },
-          { publish_status: publicPostStatusWhere() },
-        ],
-      },
-      sort: ['order', 'publishedDate'],
-      limit: 100,
-      depth: 1,
-    });
-
-    if (postResult.docs.length === 0) continue;
-
-    const posts = postResult.docs.map(toPost);
-    posts.sort(comparePostsByGroupOrder);
-
+    const posts = await loadPublicPostsForGroup(payload, g.slug);
+    if (posts.length === 0) continue;
     groups.push(toGroup(g, posts));
   }
 
@@ -214,6 +202,28 @@ export async function getAllGroups(): Promise<Group[]> {
   return groups.sort((a, b) => {
     return latestPostDateMs(b.posts) - latestPostDateMs(a.posts);
   });
+}
+
+async function loadPublicPostsForGroup(
+  payload: BlogPayload,
+  groupSlug: string,
+): Promise<BlogPost[]> {
+  const postResult = await payload.find({
+    collection: 'posts',
+    where: {
+      and: [
+        { group: { equals: groupSlug } },
+        { publish_status: publicPostStatusWhere() },
+      ],
+    },
+    sort: ['order', 'publishedDate'],
+    depth: 1,
+    pagination: false,
+  });
+
+  const posts = postResult.docs.map(toPost);
+  posts.sort(comparePostsByGroupOrder);
+  return posts;
 }
 
 export async function loadGroupBySlug(payload: BlogPayload, slug: string): Promise<Group | null> {
@@ -226,22 +236,7 @@ export async function loadGroupBySlug(payload: BlogPayload, slug: string): Promi
   const group = groupResult.docs[0];
   if (!group) return null;
 
-  const postResult = await payload.find({
-    collection: 'posts',
-    where: {
-      and: [
-        { group: { equals: group.slug } },
-        { publish_status: publicPostStatusWhere() },
-      ],
-    },
-    sort: ['order', 'publishedDate'],
-    limit: 100,
-    depth: 1,
-  });
-
-  const posts = postResult.docs.map(toPost);
-  posts.sort(comparePostsByGroupOrder);
-
+  const posts = await loadPublicPostsForGroup(payload, group.slug);
   return toGroup(group, posts);
 }
 
@@ -340,12 +335,15 @@ export async function getPageBySlug(slug: string): Promise<Page | null> {
 
 export async function getAllPages(): Promise<Page[]> {
   const payload = await getPayloadClient();
+  return loadAllPages(payload);
+}
 
+export async function loadAllPages(payload: BlogPayload): Promise<Page[]> {
   const result = await payload.find({
     collection: 'pages',
     where: { _status: { equals: 'published' } },
-    limit: 100,
     depth: 0,
+    pagination: false,
   });
 
   return result.docs.map(toPage);
@@ -353,7 +351,10 @@ export async function getAllPages(): Promise<Page[]> {
 
 export async function getUngroupedPosts(): Promise<BlogPost[]> {
   const payload = await getPayloadClient();
+  return loadUngroupedPosts(payload);
+}
 
+export async function loadUngroupedPosts(payload: BlogPayload): Promise<BlogPost[]> {
   const result = await payload.find({
     collection: 'posts',
     where: {
@@ -368,8 +369,8 @@ export async function getUngroupedPosts(): Promise<BlogPost[]> {
       ],
     },
     sort: '-publishedDate',
-    limit: 100,
     depth: 0,
+    pagination: false,
   });
 
   return result.docs.map(toPost);

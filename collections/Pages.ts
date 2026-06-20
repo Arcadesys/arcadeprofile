@@ -1,16 +1,45 @@
 import type { CollectionConfig } from 'payload';
 import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { slugField } from './fields/slug';
-import { revalidatePathsFor } from './hooks/revalidate';
-import { publicReadAccess } from './shared/access';
+import type { RevalidationDoc } from './hooks/revalidate';
+import { revalidateDeletedPathsFor, revalidatePathsFor } from './hooks/revalidate';
 import { adminGroups, titledAdmin } from './shared/admin';
+
+function addPageRevalidationPath(paths: Set<string>, doc?: RevalidationDoc): void {
+  const slug = doc?.slug as string | undefined;
+  if (!slug) return;
+  paths.add(`/${slug}`);
+}
+
+export function buildPageRevalidationPaths(
+  doc: RevalidationDoc,
+  previousDoc?: RevalidationDoc,
+): string[] {
+  const paths = new Set<string>();
+  addPageRevalidationPath(paths, doc);
+  addPageRevalidationPath(paths, previousDoc);
+  return Array.from(paths);
+}
+
+const revalidatePagePaths = revalidatePathsFor((doc, _payload, previousDoc) =>
+  buildPageRevalidationPaths(doc, previousDoc),
+);
+const revalidateDeletedPagePaths = revalidateDeletedPathsFor((doc) =>
+  buildPageRevalidationPaths(doc),
+);
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
-  access: publicReadAccess,
+  access: {
+    read: ({ req }) => {
+      if (req.user) return true;
+      return { _status: { equals: 'published' } };
+    },
+  },
   admin: titledAdmin(adminGroups.content, ['title', 'slug', '_status', 'updatedAt']),
   hooks: {
-    afterChange: [revalidatePathsFor((doc) => [`/${doc.slug}`])],
+    afterChange: [revalidatePagePaths],
+    afterDelete: [revalidateDeletedPagePaths],
   },
   versions: {
     drafts: true,

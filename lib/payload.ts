@@ -1,4 +1,4 @@
-import { getPayload } from 'payload';
+import { getPayload, type Payload } from 'payload';
 import configPromise from '@payload-config';
 import type { SerializedEditorState } from 'lexical';
 import type { Group, Media } from '@/payload-types';
@@ -7,6 +7,8 @@ import { publicPostStatusWhere } from '@/lib/post-status';
 import { buildGroupIntroUrl } from '@/lib/post-url';
 import type { ProjectFormat, ProjectResourceKind } from '@/lib/project-model';
 import { slugify } from '@/lib/utils';
+
+type ProjectPayload = Pick<Payload, 'find'>;
 
 export interface ProjectResource {
   label: string;
@@ -108,11 +110,13 @@ function normalizeGroup(doc: Group, postSlugsForGroup: string[] = []): ProjectHu
   };
 }
 
-async function fetchPostSlugsByGroup(slugs: string[]): Promise<Map<string, string[]>> {
+async function fetchPostSlugsByGroup(
+  payload: ProjectPayload,
+  slugs: string[],
+): Promise<Map<string, string[]>> {
   const map = new Map<string, string[]>();
   if (slugs.length === 0) return map;
 
-  const payload = await getPayloadClient();
   const result = await payload.find({
     collection: 'posts',
     where: {
@@ -122,8 +126,8 @@ async function fetchPostSlugsByGroup(slugs: string[]): Promise<Map<string, strin
       ],
     },
     sort: ['order', 'publishedDate'],
-    limit: 500,
     depth: 0,
+    pagination: false,
   });
 
   for (const doc of result.docs) {
@@ -138,25 +142,19 @@ async function fetchPostSlugsByGroup(slugs: string[]): Promise<Map<string, strin
   return map;
 }
 
-export async function getAllProjectHubs(): Promise<ProjectHub[]> {
-  let groups: Group[] = [];
-  try {
-    const payload = await getPayloadClient();
-    const result = await payload.find({
-      collection: 'groups',
-      limit: 200,
-      depth: 1,
-    });
-    groups = result.docs;
-  } catch (error) {
-    logger.error({ err: error }, '[getAllProjectHubs] failed to load groups');
-    groups = [];
-  }
-
+export async function loadProjectHubs(payload: ProjectPayload): Promise<ProjectHub[]> {
+  const result = await payload.find({
+    collection: 'groups',
+    depth: 1,
+    pagination: false,
+  });
+  const groups = result.docs;
   if (groups.length === 0) return [];
 
   const slugs = groups.map(g => g.slug || slugify(g.title)).filter(Boolean);
-  const postSlugsByGroup = await fetchPostSlugsByGroup(slugs).catch(() => new Map<string, string[]>());
+  const postSlugsByGroup = await fetchPostSlugsByGroup(payload, slugs).catch(
+    () => new Map<string, string[]>(),
+  );
 
   return groups
     .map(group => {
@@ -164,6 +162,16 @@ export async function getAllProjectHubs(): Promise<ProjectHub[]> {
       return normalizeGroup(group, postSlugsByGroup.get(slug) ?? []);
     })
     .sort((a, b) => a.title.localeCompare(b.title));
+}
+
+export async function getAllProjectHubs(): Promise<ProjectHub[]> {
+  try {
+    const payload = await getPayloadClient();
+    return await loadProjectHubs(payload);
+  } catch (error) {
+    logger.error({ err: error }, '[getAllProjectHubs] failed to load groups');
+    return [];
+  }
 }
 
 export async function getProjectBySlug(slug: string): Promise<ProjectHub | null> {
@@ -179,7 +187,7 @@ export async function getProjectBySlug(slug: string): Promise<ProjectHub | null>
     const doc = result.docs[0];
     if (!doc) return null;
 
-    const postSlugsByGroup = await fetchPostSlugsByGroup([slug]).catch(
+    const postSlugsByGroup = await fetchPostSlugsByGroup(payload, [slug]).catch(
       () => new Map<string, string[]>(),
     );
     return normalizeGroup(doc, postSlugsByGroup.get(slug) ?? []);

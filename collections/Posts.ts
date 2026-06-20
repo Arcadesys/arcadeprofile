@@ -8,24 +8,38 @@ import { slugField } from './fields/slug';
 import { tagArrayField } from './fields/tags';
 import { ensurePreviewTokenHook } from './hooks/ensurePreviewToken';
 import { promoteScheduledDraftHook } from './hooks/promoteScheduledDraft';
-import { revalidatePathsFor } from './hooks/revalidate';
+import type { RevalidationDoc } from './hooks/revalidate';
+import { revalidateDeletedPathsFor, revalidatePathsFor } from './hooks/revalidate';
 import { validateScheduledPublishDateHook } from './hooks/validateScheduledPublishDate';
 import { isAuthenticated } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
 
-const revalidatePostPaths = revalidatePathsFor(async (doc) => {
-  const slug = doc.slug as string | undefined;
-  const group = doc.group as string | undefined;
-  const paths = ['/latest', '/projects', '/feed.xml'];
+function addPostRevalidationPaths(paths: Set<string>, doc?: RevalidationDoc): void {
+  const slug = doc?.slug as string | undefined;
+  const group = doc?.group as string | undefined;
 
-  if (group) {
-    paths.push(buildGroupIntroUrl(group));
-    if (slug) {
-      paths.push(buildPostUrl(group, slug));
-    }
+  if (!group) return;
+  paths.add(buildGroupIntroUrl(group));
+  if (slug) {
+    paths.add(buildPostUrl(group, slug));
   }
+}
 
-  return paths;
+export function buildPostRevalidationPaths(
+  doc: RevalidationDoc,
+  previousDoc?: RevalidationDoc,
+): string[] {
+  const paths = new Set(['/latest', '/projects', '/feed.xml']);
+  addPostRevalidationPaths(paths, doc);
+  addPostRevalidationPaths(paths, previousDoc);
+  return Array.from(paths);
+}
+
+const revalidatePostPaths = revalidatePathsFor(async (doc, _payload, previousDoc) => {
+  return buildPostRevalidationPaths(doc, previousDoc);
+});
+const revalidateDeletedPostPaths = revalidateDeletedPathsFor(async (doc) => {
+  return buildPostRevalidationPaths(doc);
 });
 
 export const Posts: CollectionConfig = {
@@ -64,6 +78,7 @@ export const Posts: CollectionConfig = {
       ensurePreviewTokenHook,
     ],
     afterChange: [revalidatePostPaths],
+    afterDelete: [revalidateDeletedPostPaths],
   },
   fields: [
     {
@@ -314,7 +329,7 @@ export const Posts: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description:
-          'Internal scheduling/newsletter workflow. Payload draft/published state lives in Status.',
+          'Internal scheduling/newsletter workflow for posts. Public posts are Published by scheduler or Newsletter sent.',
       },
     },
     {

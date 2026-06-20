@@ -2,15 +2,15 @@ import { NextResponse } from 'next/server';
 import type { Post } from '@/payload-types';
 
 import { DEFAULT_PUBLISH_HOUR_UTC } from '@/lib/hopper/syncSchedule';
+import { isIsoDateOnly, isoDateOnlyToScheduledIso } from '@/lib/iso-date';
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
 import { isPublicPostStatus } from '@/lib/post-status';
+import { parsePositiveIntegerId } from '@/lib/positive-integer-id';
 
 interface PostBody {
   postId?: unknown;
   date?: unknown;
 }
-
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function POST(request: Request) {
   const auth = await requirePayloadUser(request);
@@ -27,10 +27,13 @@ export async function POST(request: Request) {
   if (typeof body.postId !== 'string' && typeof body.postId !== 'number') {
     return NextResponse.json({ error: 'postId is required' }, { status: 400 });
   }
-  const postId = String(body.postId);
+  const postId = parsePositiveIntegerId(String(body.postId));
+  if (postId === null) {
+    return NextResponse.json({ error: 'postId must be a positive integer' }, { status: 400 });
+  }
 
-  if (typeof body.date !== 'string' || !ISO_DATE.test(body.date)) {
-    return NextResponse.json({ error: 'date must be a YYYY-MM-DD string' }, { status: 400 });
+  if (!isIsoDateOnly(body.date)) {
+    return NextResponse.json({ error: 'date must be a valid YYYY-MM-DD string' }, { status: 400 });
   }
   const date = body.date;
 
@@ -64,8 +67,10 @@ export async function POST(request: Request) {
   const mm = validPrior ? validPrior.getUTCMinutes() : 0;
   const ss = validPrior ? validPrior.getUTCSeconds() : 0;
   const ms = validPrior ? validPrior.getUTCMilliseconds() : 0;
-  const [y, mo, d] = date.split('-').map((n) => Number(n));
-  const scheduledIso = new Date(Date.UTC(y, mo - 1, d, hh, mm, ss, ms)).toISOString();
+  const scheduledIso = isoDateOnlyToScheduledIso(date, hh, mm, ss, ms);
+  if (!scheduledIso) {
+    return NextResponse.json({ error: 'date must be a valid YYYY-MM-DD string' }, { status: 400 });
+  }
 
   const updated = (await payload.update({
     collection: 'posts',

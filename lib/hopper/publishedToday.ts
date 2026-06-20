@@ -30,7 +30,6 @@ export async function loadPublishedToday(
         { publishedDate: { greater_than_equal: lookbackStart } },
       ],
     },
-    limit: 50,
     depth: 0,
     sort: '-publishedDate',
     pagination: false,

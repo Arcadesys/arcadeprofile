@@ -54,9 +54,15 @@ function matches(doc: Record<string, unknown>, where: WhereClause | undefined): 
 function makeFakePayload(initial: {
   posts?: Post[];
   reactions?: Reaction[];
-} = {}): { payload: Payload; posts: Post[]; reactions: Reaction[] } {
+} = {}): {
+  payload: Payload;
+  posts: Post[];
+  reactions: Reaction[];
+  calls: Array<{ collection: string; where?: WhereClause; limit?: number; pagination?: unknown }>;
+} {
   const posts: Post[] = [...(initial.posts ?? [])];
   const reactions: Reaction[] = [...(initial.reactions ?? [])];
+  const calls: Array<{ collection: string; where?: WhereClause; limit?: number; pagination?: unknown }> = [];
   let nextReactionId = (reactions.at(-1)?.id ?? 0) + 1;
 
   const payload = {
@@ -64,7 +70,9 @@ function makeFakePayload(initial: {
       collection: string;
       where?: WhereClause;
       limit?: number;
+      pagination?: unknown;
     }) => {
+      calls.push(args);
       const source =
         args.collection === 'posts'
           ? (posts as unknown as Record<string, unknown>[])
@@ -90,7 +98,7 @@ function makeFakePayload(initial: {
     },
   } as unknown as Payload;
 
-  return { payload, posts, reactions };
+  return { payload, posts, reactions, calls };
 }
 
 test('isReactionEmoji accepts the curated set and rejects everything else', () => {
@@ -154,6 +162,23 @@ test('getReactionCounts groups by emoji and scopes by postId', async () => {
   const counts2 = await getReactionCounts(payload, 2);
   assert.equal(counts2['🔥'], 1);
   assert.equal(counts2['❤️'], 0);
+});
+
+test('getReactionCounts includes every reaction without a fixed cap', async () => {
+  const { payload, calls } = makeFakePayload({
+    reactions: Array.from({ length: 10_001 }, (_, i) => ({
+      id: i + 1,
+      post: 1,
+      emoji: '🔥',
+      clientId: `client-${i + 1}`,
+    })),
+  });
+
+  const counts = await getReactionCounts(payload, 1);
+
+  assert.equal(counts['🔥'], 10_001);
+  assert.equal(calls[0]!.pagination, false);
+  assert.equal('limit' in calls[0]!, false);
 });
 
 test('getMyReactions returns only the emojis this clientId has reacted with', async () => {

@@ -9,8 +9,10 @@ import { readFileSync } from 'fs';
 import { basename, extname } from 'path';
 import type { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
+import { isIsoDateOnly, parseIsoDateOnly } from '../lib/iso-date';
 import { postStatusValues } from '../lib/post-status';
 import { buildPreviewUrl } from '../lib/preview-token';
+import { todayInSiteTz } from '../lib/site-time';
 
 // ---------------------------------------------------------------------------
 // Env / config (resolved at import time for stdio; injected at request time
@@ -83,6 +85,57 @@ export async function markdownToLexical(markdown: string): Promise<unknown> {
   return lexical;
 }
 
+function toolError(message: string): CallToolResult {
+  return { content: [{ type: 'text', text: message }], isError: true };
+}
+
+const ISO_DATETIME_WITH_ZONE_RE =
+  /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
+
+function isIsoDateTimeWithZone(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  const match = ISO_DATETIME_WITH_ZONE_RE.exec(value);
+  if (!match || !parseIsoDateOnly(match[1])) return false;
+
+  const hour = Number(match[2]);
+  const minute = Number(match[3]);
+  const second = match[4] === undefined ? 0 : Number(match[4]);
+  if (hour > 23 || minute > 59 || second > 59) return false;
+
+  const zone = match[5];
+  if (zone !== 'Z') {
+    const [offsetHour, offsetMinute] = zone.slice(1).split(':').map(Number);
+    if (Number.isNaN(offsetHour) || Number.isNaN(offsetMinute) || offsetHour > 23 || offsetMinute > 59) return false;
+  }
+
+  return !Number.isNaN(Date.parse(value));
+}
+
+function validatePublishedDateInput(value: unknown): CallToolResult | null {
+  if (isIsoDateOnly(value)) return null;
+  return toolError('publishedDate must be a valid YYYY-MM-DD date.');
+}
+
+function validateScheduledPublishDateInput(value: unknown): CallToolResult | null {
+  if (value === undefined || value === null || isIsoDateTimeWithZone(value)) return null;
+  return toolError('scheduledPublishDate must be a valid ISO datetime with timezone.');
+}
+
+function validatePublishStatusInput(value: unknown): CallToolResult | null {
+  if (value === undefined || postStatusValues.includes(value as (typeof postStatusValues)[number])) {
+    return null;
+  }
+  return toolError(`publish_status must be one of: ${postStatusValues.join(', ')}.`);
+}
+
+function validatePositiveIntegerInput(fieldName: string, value: unknown): CallToolResult | null {
+  if (value === undefined) return null;
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 1) {
+    return toolError(`${fieldName} must be a positive safe integer.`);
+  }
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Tool definitions
 // ---------------------------------------------------------------------------
@@ -91,7 +144,7 @@ export const toolDefinitions: Tool[] = [
   // ---- Posts ----
   {
     name: 'list_posts',
-    description: 'List all blog posts with title, slug, group, status, and date.',
+    description: 'List recent blog posts with title, slug, group, status, and date.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -454,6 +507,12 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Posts ----
 
   async list_posts(args) {
+    const publishStatusError = validatePublishStatusInput(args.status);
+    if (publishStatusError) return publishStatusError;
+
+    const limitError = validatePositiveIntegerInput('limit', args.limit);
+    if (limitError) return limitError;
+
     const limit = (args.limit as number) || 50;
     const data = (await payloadFetch(
       payloadQueryPath('posts', {
@@ -499,6 +558,9 @@ export const toolHandlers: Record<string, ToolHandler> = {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '');
 
+    const publishStatusError = validatePublishStatusInput(args.publish_status);
+    if (publishStatusError) return publishStatusError;
+
     const publish_status = (args.publish_status as string) || 'draft';
 
     // Discoverability: pass through what the caller supplied. We don't default
@@ -508,12 +570,24 @@ export const toolHandlers: Record<string, ToolHandler> = {
     // the same as the part number when peers are reordered).
     const discoverability = (args.discoverability as Record<string, unknown>) || {};
 
+    const publishedDate = args.publishedDate ?? todayInSiteTz();
+    const publishedDateError = validatePublishedDateInput(publishedDate);
+    if (publishedDateError) return publishedDateError;
+
+    const scheduledPublishDateError = validateScheduledPublishDateInput(
+      args.scheduledPublishDate,
+    );
+    if (scheduledPublishDateError) return scheduledPublishDateError;
+    if (publish_status === 'scheduled' && args.scheduledPublishDate === undefined) {
+      return toolError('scheduledPublishDate is required when publish_status is scheduled.');
+    }
+
     const body: Record<string, unknown> = {
       title: args.title,
       slug,
       excerpt: args.excerpt,
       content: await markdownToLexical(args.content as string),
-      publishedDate: (args.publishedDate as string) || new Date().toISOString().slice(0, 10),
+      publishedDate,
       publish_status,
     };
 
@@ -540,16 +614,34 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const data = (await payloadFetch('/posts', {
       method: 'POST',
       body: JSON.stringify(body),
-    })) as { doc?: { slug?: string } };
+    })) as { doc?: { id?: string | number; slug?: string } };
+
+    const createdSlug = data.doc?.slug ?? slug;
+    const createdId = data.doc?.id;
+    const detail = createdId === undefined ? createdSlug : `${createdSlug} (id: ${createdId})`;
+    const adminUrl = createdId === undefined ? '' : `\nAdmin URL: /admin/collections/posts/${createdId}`;
 
     return {
       content: [
-        { type: 'text', text: `Created post: ${data.doc?.slug ?? slug}` },
+        { type: 'text', text: `Created post: ${detail}${adminUrl}` },
       ],
     };
   },
 
   async update_post(args) {
+    const publishStatusError = validatePublishStatusInput(args.publish_status);
+    if (publishStatusError) return publishStatusError;
+
+    if (args.publishedDate !== undefined) {
+      const publishedDateError = validatePublishedDateInput(args.publishedDate);
+      if (publishedDateError) return publishedDateError;
+    }
+
+    const scheduledPublishDateError = validateScheduledPublishDateInput(
+      args.scheduledPublishDate,
+    );
+    if (scheduledPublishDateError) return scheduledPublishDateError;
+
     const found = (await payloadFetch(
       payloadQueryPath('posts', {
         'where[slug][equals]': args.slug as string,
@@ -599,7 +691,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Pages ----
 
   async list_pages() {
-    const data = (await payloadFetch(payloadQueryPath('pages', { limit: 50, depth: 0 }))) as {
+    const data = (await payloadFetch(payloadQueryPath('pages', { pagination: false, depth: 0 }))) as {
       docs: Record<string, unknown>[];
     };
     const pages = data.docs.map((p) => ({
@@ -650,7 +742,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Groups ----
 
   async list_groups() {
-    const data = (await payloadFetch(payloadQueryPath('groups', { limit: 50, depth: 0 }))) as {
+    const data = (await payloadFetch(payloadQueryPath('groups', { pagination: false, depth: 0 }))) as {
       docs: Record<string, unknown>[];
     };
     const groups = data.docs.map((g) => ({
@@ -666,7 +758,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Books ----
 
   async list_books() {
-    const data = (await payloadFetch(payloadQueryPath('books', { limit: 50, depth: 0 }))) as {
+    const data = (await payloadFetch(payloadQueryPath('books', { pagination: false, depth: 0 }))) as {
       docs: unknown[];
     };
     return { content: [{ type: 'text', text: JSON.stringify(data.docs, null, 2) }] };
@@ -675,7 +767,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Projects ----
 
   async list_projects() {
-    const data = (await payloadFetch(payloadQueryPath('groups', { limit: 50, depth: 0 }))) as {
+    const data = (await payloadFetch(payloadQueryPath('groups', { pagination: false, depth: 0 }))) as {
       docs: unknown[];
     };
     return { content: [{ type: 'text', text: JSON.stringify(data.docs, null, 2) }] };

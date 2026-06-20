@@ -7,6 +7,7 @@ import { computeSchedule, syncQueueToPosts, todayInSiteTz } from '@/lib/hopper/s
 import { loadPublishedToday } from '@/lib/hopper/publishedToday';
 import { extractQueueIds, loadLiveQueueIds, loadPostsById } from '@/lib/hopper/loadQueue';
 import { isPublicPostStatus, prePublicOrMissingPostStatusClauses } from '@/lib/post-status';
+import { parsePositiveIntegerId } from '@/lib/positive-integer-id';
 
 type Lane = 'fiction' | 'essays';
 
@@ -70,7 +71,6 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
         { id: { not_in: [...fictionIds, ...essaysIds] } },
       ],
     },
-    limit: 200,
     depth: 0,
     sort: '-updatedAt',
     pagination: false,
@@ -162,7 +162,11 @@ function parseIds(value: unknown, fieldName: string): { ok: true; ids: string[] 
     if (typeof item !== 'string' && typeof item !== 'number') {
       return { ok: false, error: `${fieldName} entries must be strings or numbers` };
     }
-    ids.push(String(item));
+    const parsed = parsePositiveIntegerId(String(item));
+    if (parsed === null) {
+      return { ok: false, error: `${fieldName} entries must be positive integer post ids` };
+    }
+    ids.push(String(parsed));
   }
   return { ok: true, ids };
 }

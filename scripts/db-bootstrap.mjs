@@ -99,7 +99,7 @@ const statements = [
     label: 'groups_chapters table',
     run: () => sql`
       CREATE TABLE IF NOT EXISTS "groups_chapters" (
-        "id" serial PRIMARY KEY NOT NULL,
+        "id" varchar PRIMARY KEY NOT NULL,
         "_order" integer NOT NULL,
         "_parent_id" integer NOT NULL,
         "title" varchar NOT NULL,

@@ -3,6 +3,7 @@ import type { Payload } from 'payload';
 
 import type { Group, Post } from '@/payload-types';
 import { resolveGroupSceneOrderUpdates } from '@/lib/group-scenes-order';
+import { comparePostsByGroupOrder } from '@/lib/post-order';
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
 
 interface ChapterSummary {
@@ -130,12 +131,7 @@ async function buildGroupResponse(
     if (arr) arr.push(p);
   }
   for (const [key, arr] of buckets) {
-    arr.sort((a, b) => {
-      const ao = typeof a.order === 'number' ? a.order : Number.POSITIVE_INFINITY;
-      const bo = typeof b.order === 'number' ? b.order : Number.POSITIVE_INFINITY;
-      if (ao !== bo) return ao - bo;
-      return String(a.id).localeCompare(String(b.id));
-    });
+    arr.sort(comparePostsByGroupOrder);
     buckets.set(key, arr);
   }
 

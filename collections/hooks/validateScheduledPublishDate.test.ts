@@ -23,6 +23,11 @@ const run = (
 const past = '2020-01-01T00:00:00.000Z';
 const future = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
+function hasValidationMessage(err: unknown, message: RegExp): boolean {
+  const cause = (err as { cause?: { errors?: Array<{ message?: string }> } }).cause;
+  return cause?.errors?.some((error) => message.test(error.message ?? '')) ?? false;
+}
+
 test('blocks scheduling a post with a past date', () => {
   assert.throws(
     () => run({ publish_status: 'scheduled', scheduledPublishDate: past }),
@@ -32,6 +37,26 @@ test('blocks scheduling a post with a past date', () => {
 
 test('allows scheduling a post with a future date', () => {
   assert.doesNotThrow(() => run({ publish_status: 'scheduled', scheduledPublishDate: future }));
+});
+
+test('blocks scheduling a post without a date', () => {
+  assert.throws(
+    () => run({ publish_status: 'scheduled' }),
+    (err) => hasValidationMessage(err, /Scheduled Publish Date is required/),
+  );
+});
+
+test('blocks scheduling a post with an invalid date', () => {
+  assert.throws(
+    () => run({ publish_status: 'scheduled', scheduledPublishDate: 'not-a-date' }),
+    (err) => hasValidationMessage(err, /Scheduled Publish Date must be a valid date/),
+  );
+});
+
+test('uses original scheduled date when validating partial scheduled edits', () => {
+  assert.doesNotThrow(() =>
+    run({ title: 'Edited title' }, { publish_status: 'scheduled', scheduledPublishDate: future }),
+  );
 });
 
 test('allows drafts with a past date (editor staging)', () => {

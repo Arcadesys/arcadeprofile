@@ -4,7 +4,7 @@ import config from '@payload-config';
 import StartHereCard from '../components/StartHereCard';
 import SubscribeCTA from '../components/SubscribeCTA';
 import { hasConfiguredDatabaseURL } from '@/lib/env';
-import { getPostLocationBySlug } from '@/lib/post-url';
+import { buildGroupIntroUrl, getPostLocationBySlug } from '@/lib/post-url';
 import { publicPostStatusWhere } from '@/lib/post-status';
 
 export default async function HomePage() {
@@ -160,7 +160,7 @@ export default async function HomePage() {
           <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Current projects</h2>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.6rem' }}>
             {featuredGroups.map((group) => {
-              const href = group.href ?? (group.slug ? `/projects/${group.slug}` : '/projects');
+              const href = group.href ?? (group.slug ? buildGroupIntroUrl(group.slug) : '/projects');
               return (
                 <li key={String(group.id)}>
                   {group.external ? (

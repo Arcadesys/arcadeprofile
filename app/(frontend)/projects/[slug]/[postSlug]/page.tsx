@@ -16,12 +16,16 @@ import PostReactions from '@/app/components/PostReactions';
 import { getReactionCounts } from '@/lib/reactions';
 import { formatSiteDate } from '@/lib/site-time';
 import { JsonLd } from '@/lib/structured-data';
-import { buildPostUrl, buildGroupIntroUrl, partNum, resolvePostSlugByPartIndex } from '@/lib/post-url';
+import {
+  buildPostUrl,
+  buildGroupIntroUrl,
+  parsePostPartSegment,
+  partNum,
+  resolvePostSlugByPartIndex,
+} from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
-
-const NUMERIC_PART_RE = /^\d+$/;
 
 interface PostExtras {
   canonicalPath: string | null;
@@ -64,8 +68,8 @@ export const dynamic = 'force-dynamic';
 type Props = { params: Promise<{ slug: string; postSlug: string }> };
 
 async function redirectIfNumeric(groupSlug: string, segment: string): Promise<void> {
-  if (!NUMERIC_PART_RE.test(segment)) return;
-  const idx = parseInt(segment, 10);
+  const idx = parsePostPartSegment(segment);
+  if (idx === null) return;
   if (idx === 0) {
     permanentRedirect(buildGroupIntroUrl(groupSlug));
   }
@@ -129,7 +133,7 @@ function buildDrawerSections(
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, postSlug } = await params;
 
-  if (NUMERIC_PART_RE.test(postSlug)) return {};
+  if (parsePostPartSegment(postSlug) !== null) return {};
 
   const [project, group] = await Promise.all([
     getProjectBySlug(slug),

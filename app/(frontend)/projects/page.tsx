@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getAllProjectHubs, type ProjectHub } from '@/lib/payload';
 import { getAllPosts, buildPostUrlMap, type BlogPost } from '@/lib/blog';
-import { buildPostUrl } from '@/lib/post-url';
+import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
 import ProjectsIndex, {
   type IndexEntry,
   type PulseItem,
@@ -87,7 +87,7 @@ export default async function ProjectsPage() {
       slug: hub.slug,
       title: hub.title,
       description: hub.description,
-      href: `/projects/${hub.slug}`,
+      href: buildGroupIntroUrl(hub.slug),
       image: hub.image ?? null,
       category: hub.category ?? null,
       status: hub.status ?? null,
@@ -115,13 +115,13 @@ export default async function ProjectsPage() {
   const pulse: PulseItem[] = pulseSource.slice(0, PULSE_MAX).map((p) => {
     const hub = hubBySlug.get(p.group!)!;
     const loc = urlMap.get(p.slug);
-    const href = loc ? buildPostUrl(loc.groupSlug, p.slug) : `/projects/${hub.slug}`;
+    const href = loc ? buildPostUrl(loc.groupSlug, p.slug) : buildGroupIntroUrl(hub.slug);
     return {
       slug: p.slug,
       title: p.title,
       href,
       groupTitle: pulseGroupShort(hub.title),
-      groupHref: `/projects/${hub.slug}`,
+      groupHref: buildGroupIntroUrl(hub.slug),
       date: p.date,
       relative: relativeShort(p.date, now),
     };
@@ -141,7 +141,7 @@ export default async function ProjectsPage() {
 
   function toFeedItem(post: BlogPost, hub: ProjectHub): FeedItem {
     const loc = urlMap.get(post.slug);
-    const href = loc ? buildPostUrl(loc.groupSlug, post.slug) : `/projects/${hub.slug}`;
+    const href = loc ? buildPostUrl(loc.groupSlug, post.slug) : buildGroupIntroUrl(hub.slug);
     return {
       slug: post.slug,
       title: post.title,

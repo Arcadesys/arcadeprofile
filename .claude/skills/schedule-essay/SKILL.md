@@ -21,15 +21,17 @@ For each essay:
    - `group` — essay group slug.
    - `order` — next integer after the current max `order` in that group.
    - `publish_status` — `'scheduled'`.
-   - `scheduledPublishDate` — next available **Tue/Thu at 08:00 UTC** with no essay queued. (Essays share the T/Th lane across groups; check all essay groups, not just the target one.)
+   - `scheduledPublishDate` — next available **Tue/Thu at 14:00 UTC** with no essay queued. Essays share the T/Th lane across groups; check all essay groups, not just the target one. The GitHub Actions scheduled-publish job runs every 15 minutes and will publish due posts.
    - `publishedDate` — same calendar date.
 3. Print `<date> <slug>` per created post.
 
 ## Tools
 
-Use the Payload MCP server (`mcp/payload-mcp.ts`) for `posts.create` / `posts.find`. Falls back to `/api/posts`.
+Use the Payload MCP server (`mcp/payload-mcp.ts`) for `create_post`, `update_post`, `list_posts`, and `get_post`. Fall back to `/api/posts`.
 
 ## Don't
 
 - Don't queue an essay onto a Mon/Wed/Fri slot — those belong to fiction.
-- Don't publish directly; let the cron promote `scheduled` → `published` so the newsletter and social fan-out fire.
+- Don't publish directly; let the scheduled-publish job promote `scheduled` → `published`, send per-post newsletters through Postmark, and then move successfully delivered posts to `sent`.
+- Don't set `newsletterSend` manually. The scheduled-publish job owns pending/skipped/failed/sent state and Postmark audit records.
+- Don't create ActiveCampaign campaigns for per-post newsletters. ActiveCampaign owns contacts, list membership, and audience state; Postmark sends the mail.

@@ -83,6 +83,14 @@ test('create_post schema includes meta and discoverability', () => {
   assert.ok(props.publish_status, 'publish_status missing from create_post schema');
 });
 
+test('list_posts schema restricts status to workflow values', () => {
+  const tool = toolDefinitions.find((t) => t.name === 'list_posts');
+  assert.ok(tool, 'list_posts tool not found');
+  const props = (tool.inputSchema as { properties: Record<string, { enum?: string[] }> })
+    .properties;
+  assert.deepEqual(props.status?.enum, ['draft', 'scheduled', 'published', 'sent']);
+});
+
 test('skipNewsletter schema describes scheduled Postmark suppression', () => {
   for (const toolName of ['create_post', 'update_post']) {
     const tool = toolDefinitions.find((t) => t.name === toolName);
@@ -199,6 +207,44 @@ test('list_posts encodes status filter through structured query helper', async (
   }
 });
 
+test('list_posts rejects invalid status before any network call', async () => {
+  let callCount = 0;
+  const restore = mockFetch(async () => {
+    callCount++;
+    return jsonResponse({ docs: [] });
+  });
+
+  try {
+    const result = await toolHandlers.list_posts({ status: 'queued' });
+    assert.equal(result.isError, true);
+    assert.equal(result.content[0].type, 'text');
+    assert.match(result.content[0].text as string, /publish_status/);
+    assert.equal(callCount, 0);
+  } finally {
+    restore();
+  }
+});
+
+test('list_posts rejects invalid limits before any network call', async () => {
+  for (const limit of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1, '10']) {
+    let callCount = 0;
+    const restore = mockFetch(async () => {
+      callCount++;
+      return jsonResponse({ docs: [] });
+    });
+
+    try {
+      const result = await toolHandlers.list_posts({ limit });
+      assert.equal(result.isError, true);
+      assert.equal(result.content[0].type, 'text');
+      assert.match(result.content[0].text as string, /limit/);
+      assert.equal(callCount, 0);
+    } finally {
+      restore();
+    }
+  }
+});
+
 test('get_post encodes slugs before querying Payload', async () => {
   let capturedUrl = '';
   const restore = mockFetch(async (url) => {
@@ -217,6 +263,31 @@ test('get_post encodes slugs before querying Payload', async () => {
   }
 });
 
+test('no-argument list tools request complete collections', async () => {
+  for (const [toolName, expectedPath] of [
+    ['list_pages', '/api/pages'],
+    ['list_groups', '/api/groups'],
+    ['list_books', '/api/books'],
+    ['list_projects', '/api/groups'],
+  ] as const) {
+    let capturedUrl = '';
+    const restore = mockFetch(async (url) => {
+      capturedUrl = String(url);
+      return jsonResponse({ docs: [] });
+    });
+
+    try {
+      await toolHandlers[toolName]({});
+      const parsed = new URL(capturedUrl);
+      assert.equal(parsed.pathname, expectedPath);
+      assert.equal(parsed.searchParams.get('pagination'), 'false');
+      assert.equal(parsed.searchParams.get('limit'), null);
+    } finally {
+      restore();
+    }
+  }
+});
+
 // ---------------------------------------------------------------------------
 // create_post handler
 // ---------------------------------------------------------------------------
@@ -226,7 +297,7 @@ test('create_post sends tags as array-of-objects to Payload', async () => {
 
   const restore = mockFetch(async (_url, opts) => {
     capturedBody = JSON.parse((opts?.body as string) ?? '{}') as Record<string, unknown>;
-    return jsonResponse({ doc: { slug: 'my-post' } });
+    return jsonResponse({ doc: { id: 123, slug: 'my-post' } });
   });
 
   try {
@@ -264,6 +335,8 @@ test('create_post sends tags as array-of-objects to Payload', async () => {
     // response text
     const item0 = result.content[0];
     assert.ok(item0.type === 'text' && item0.text.startsWith('Created post:'));
+    assert.ok(item0.type === 'text' && item0.text.includes('id: 123'));
+    assert.ok(item0.type === 'text' && item0.text.includes('/admin/collections/posts/123'));
   } finally {
     restore();
   }
@@ -286,6 +359,102 @@ test('create_post passes publish_status through without legacy _status', async (
     });
     assert.equal(capturedBody._status, undefined);
     assert.equal(capturedBody.publish_status, 'published');
+  } finally {
+    restore();
+  }
+});
+
+test('create_post rejects invalid publish_status before any network call', async () => {
+  let callCount = 0;
+
+  const restore = mockFetch(async () => {
+    callCount++;
+    return jsonResponse({});
+  });
+
+  try {
+    const result = await toolHandlers.create_post({
+      title: 'Bad Status',
+      excerpt: 'Nope.',
+      content: 'Content.',
+      publish_status: 'publshed',
+    });
+    assert.equal(result.isError, true);
+    assert.equal(result.content[0].type, 'text');
+    assert.match(result.content[0].text as string, /publish_status/);
+    assert.equal(callCount, 0);
+  } finally {
+    restore();
+  }
+});
+
+test('create_post requires scheduledPublishDate for explicit scheduled status', async () => {
+  let callCount = 0;
+
+  const restore = mockFetch(async () => {
+    callCount++;
+    return jsonResponse({});
+  });
+
+  try {
+    const result = await toolHandlers.create_post({
+      title: 'Missing Schedule',
+      excerpt: 'Nope.',
+      content: 'Content.',
+      publish_status: 'scheduled',
+    });
+    assert.equal(result.isError, true);
+    assert.equal(result.content[0].type, 'text');
+    assert.match(result.content[0].text as string, /scheduledPublishDate/);
+    assert.equal(callCount, 0);
+  } finally {
+    restore();
+  }
+});
+
+test('create_post rejects malformed publishedDate before any network call', async () => {
+  let callCount = 0;
+
+  const restore = mockFetch(async () => {
+    callCount++;
+    return jsonResponse({});
+  });
+
+  try {
+    const result = await toolHandlers.create_post({
+      title: 'Bad Date',
+      excerpt: 'Nope.',
+      content: 'Content.',
+      publishedDate: '2026-02-29',
+    });
+    assert.equal(result.isError, true);
+    assert.equal(result.content[0].type, 'text');
+    assert.match(result.content[0].text as string, /publishedDate/);
+    assert.equal(callCount, 0);
+  } finally {
+    restore();
+  }
+});
+
+test('create_post rejects scheduledPublishDate without timezone', async () => {
+  let callCount = 0;
+
+  const restore = mockFetch(async () => {
+    callCount++;
+    return jsonResponse({});
+  });
+
+  try {
+    const result = await toolHandlers.create_post({
+      title: 'Bad Schedule',
+      excerpt: 'Nope.',
+      content: 'Content.',
+      scheduledPublishDate: '2026-05-14T14:00:00',
+    });
+    assert.equal(result.isError, true);
+    assert.equal(result.content[0].type, 'text');
+    assert.match(result.content[0].text as string, /scheduledPublishDate/);
+    assert.equal(callCount, 0);
   } finally {
     restore();
   }
@@ -326,6 +495,50 @@ test('update_post passes publish_status through without legacy _status', async (
     await toolHandlers.update_post({ slug: 'draft-post', publish_status: 'published' });
     assert.equal(patchBody._status, undefined);
     assert.equal(patchBody.publish_status, 'published');
+  } finally {
+    restore();
+  }
+});
+
+test('update_post rejects invalid publish_status before lookup', async () => {
+  let callCount = 0;
+
+  const restore = mockFetch(async () => {
+    callCount++;
+    return jsonResponse({ docs: [{ id: 42 }] });
+  });
+
+  try {
+    const result = await toolHandlers.update_post({
+      slug: 'draft-post',
+      publish_status: 'queued',
+    });
+    assert.equal(result.isError, true);
+    assert.equal(result.content[0].type, 'text');
+    assert.match(result.content[0].text as string, /publish_status/);
+    assert.equal(callCount, 0);
+  } finally {
+    restore();
+  }
+});
+
+test('update_post rejects invalid date fields before lookup', async () => {
+  let callCount = 0;
+
+  const restore = mockFetch(async () => {
+    callCount++;
+    return jsonResponse({ docs: [{ id: 42 }] });
+  });
+
+  try {
+    const result = await toolHandlers.update_post({
+      slug: 'draft-post',
+      scheduledPublishDate: '2026-13-01T14:00:00Z',
+    });
+    assert.equal(result.isError, true);
+    assert.equal(result.content[0].type, 'text');
+    assert.match(result.content[0].text as string, /scheduledPublishDate/);
+    assert.equal(callCount, 0);
   } finally {
     restore();
   }

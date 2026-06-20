@@ -1,7 +1,22 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { loadLiveQueueIds } from './loadQueue';
+import { extractQueueIds, loadLiveQueueIds } from './loadQueue';
+
+test('extractQueueIds normalizes strict numeric post ids', () => {
+  assert.deepEqual(
+    extractQueueIds([
+      { post: '001' },
+      { post: { id: 2 } },
+      { post: '3.5' },
+      { post: '0x10' },
+      { post: 4 },
+      { post: { id: '5e2' } },
+      { post: { id: '6' } },
+    ]),
+    ['2', '4', '6'],
+  );
+});
 
 test('loadLiveQueueIds keeps queued legacy posts with missing publish_status', async () => {
   const posts = [

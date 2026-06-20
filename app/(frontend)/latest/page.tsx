@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { SerializedEditorState } from 'lexical';
 import { getAllPosts, buildPostUrl, buildPostUrlMap } from '@/lib/blog';
 import { logger } from '@/lib/logger';
+import { buildGroupIntroUrl } from '@/lib/post-url';
 import { formatSiteDate } from '@/lib/site-time';
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
@@ -71,7 +72,7 @@ export default async function LatestPage() {
             <li key={post.slug}>
               <article>
                 <Link
-                  href={`/projects/${loc.groupSlug}`}
+                  href={buildGroupIntroUrl(loc.groupSlug)}
                   style={{
                     display: 'inline-block',
                     fontFamily: 'var(--font-mono)',

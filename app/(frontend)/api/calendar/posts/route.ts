@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { Post } from '@/payload-types';
 
+import { parseIsoDateOnly } from '@/lib/iso-date';
+import { parseCalendarWindow } from '@/lib/calendar-window';
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
 import { draftOrMissingPostStatusClauses, publicPostStatusWhere } from '@/lib/post-status';
-
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 interface CalendarPost {
   id: string;
@@ -25,7 +25,7 @@ interface CalendarResponse {
 
 function toIsoDay(value: string | null | undefined): string | null {
   if (!value) return null;
-  if (ISO_DATE.test(value)) return value;
+  if (parseIsoDateOnly(value)) return value;
   return value.slice(0, 10);
 }
 
@@ -35,18 +35,14 @@ export async function GET(request: Request) {
   const { payload } = auth.ctx;
 
   const url = new URL(request.url);
-  const start = url.searchParams.get('start');
-  const end = url.searchParams.get('end');
-  if (!start || !ISO_DATE.test(start) || !end || !ISO_DATE.test(end)) {
-    return NextResponse.json(
-      { error: 'start and end query params (YYYY-MM-DD) are required' },
-      { status: 400 },
-    );
+  const parsedWindow = parseCalendarWindow(
+    url.searchParams.get('start'),
+    url.searchParams.get('end'),
+  );
+  if (!parsedWindow.ok) {
+    return NextResponse.json({ error: parsedWindow.error }, { status: 400 });
   }
-  // Inclusive end: convert to start-of-next-day for less-than comparison.
-  const endExclusive = new Date(`${end}T00:00:00.000Z`);
-  endExclusive.setUTCDate(endExclusive.getUTCDate() + 1);
-  const endExclusiveIso = endExclusive.toISOString();
+  const { start, end, endExclusiveIso } = parsedWindow.window;
 
   const inRange = await payload.find({
     collection: 'posts',
@@ -76,7 +72,6 @@ export async function GET(request: Request) {
   const draftsRes = await payload.find({
     collection: 'posts',
     where: { or: draftOrMissingPostStatusClauses() },
-    limit: 200,
     depth: 0,
     sort: '-updatedAt',
     pagination: false,
