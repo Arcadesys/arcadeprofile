@@ -1,15 +1,8 @@
 import { getPayload } from 'payload';
 import config from '@payload-config';
 import { hasConfiguredDatabaseURL } from '@/lib/env';
-import NavbarClient, { type NavItem } from './NavbarClient';
-
-const DEFAULT_NAV_ITEMS: NavItem[] = [
-  { id: 'projects',  label: 'Projects',  href: '/projects',  isPrimary: false },
-  { id: 'bio',       label: 'Bio',       href: '/bio',       isPrimary: false },
-  { id: 'latest',    label: 'Latest',    href: '/latest',    isPrimary: false },
-  { id: 'subscribe', label: 'Subscribe', href: '/subscribe', isPrimary: false },
-  { id: 'store',     label: 'Store',     href: '/store',     isPrimary: true  },
-];
+import { DEFAULT_NAV_ITEMS, loadVisibleNavItems, type NavItem } from '@/lib/nav-items';
+import NavbarClient from './NavbarClient';
 
 export default async function Navbar() {
   let items: NavItem[] = DEFAULT_NAV_ITEMS;
@@ -20,21 +13,8 @@ export default async function Navbar() {
 
   try {
     const payload = await getPayload({ config });
-    const result = await payload.find({
-      collection: 'nav-items',
-      where: { visible: { equals: true } },
-      sort: 'order',
-      limit: 20,
-    });
-
-    if (result.docs.length > 0) {
-      items = result.docs.map((doc) => ({
-        id:        String(doc.id),
-        label:     doc.label,
-        href:      doc.href,
-        isPrimary: Boolean(doc.isPrimary),
-      }));
-    }
+    const cmsItems = await loadVisibleNavItems(payload);
+    if (cmsItems.length > 0) items = cmsItems;
   } catch {
     // Fall back to defaults if Payload is unavailable (build time, etc.)
   }
