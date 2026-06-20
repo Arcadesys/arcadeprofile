@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { Post } from '@/payload-types';
 
-import { isIsoDateOnly, isoDateOnlyToUtcDate, parseIsoDateOnly } from '@/lib/iso-date';
+import { parseIsoDateOnly } from '@/lib/iso-date';
+import { parseCalendarWindow } from '@/lib/calendar-window';
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
 import { draftOrMissingPostStatusClauses, publicPostStatusWhere } from '@/lib/post-status';
 
@@ -34,24 +35,14 @@ export async function GET(request: Request) {
   const { payload } = auth.ctx;
 
   const url = new URL(request.url);
-  const start = url.searchParams.get('start');
-  const end = url.searchParams.get('end');
-  if (!isIsoDateOnly(start) || !isIsoDateOnly(end)) {
-    return NextResponse.json(
-      { error: 'valid start and end query params (YYYY-MM-DD) are required' },
-      { status: 400 },
-    );
+  const parsedWindow = parseCalendarWindow(
+    url.searchParams.get('start'),
+    url.searchParams.get('end'),
+  );
+  if (!parsedWindow.ok) {
+    return NextResponse.json({ error: parsedWindow.error }, { status: 400 });
   }
-  // Inclusive end: convert to start-of-next-day for less-than comparison.
-  const endExclusive = isoDateOnlyToUtcDate(end);
-  if (!endExclusive) {
-    return NextResponse.json(
-      { error: 'valid start and end query params (YYYY-MM-DD) are required' },
-      { status: 400 },
-    );
-  }
-  endExclusive.setUTCDate(endExclusive.getUTCDate() + 1);
-  const endExclusiveIso = endExclusive.toISOString();
+  const { start, end, endExclusiveIso } = parsedWindow.window;
 
   const inRange = await payload.find({
     collection: 'posts',
