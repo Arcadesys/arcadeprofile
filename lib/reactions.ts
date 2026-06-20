@@ -64,7 +64,6 @@ export async function getReactionCounts(
   const result = await payload.find({
     collection: 'post-reactions',
     where: { post: { equals: postId } },
-    limit: 10_000,
     depth: 0,
     pagination: false,
     overrideAccess: true,
