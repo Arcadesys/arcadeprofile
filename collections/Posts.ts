@@ -329,7 +329,7 @@ export const Posts: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description:
-          'Internal scheduling/newsletter workflow. Payload draft/published state lives in Status.',
+          'Internal scheduling/newsletter workflow for posts. Public posts are Published by scheduler or Newsletter sent.',
       },
     },
     {
