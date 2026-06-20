@@ -105,7 +105,7 @@ function isIsoDateTimeWithZone(value: unknown): value is string {
   const zone = match[5];
   if (zone !== 'Z') {
     const [offsetHour, offsetMinute] = zone.slice(1).split(':').map(Number);
-    if (offsetHour > 23 || offsetMinute > 59) return false;
+    if (Number.isNaN(offsetHour) || Number.isNaN(offsetMinute) || offsetHour > 23 || offsetMinute > 59) return false;
   }
 
   return !Number.isNaN(Date.parse(value));
