@@ -128,6 +128,14 @@ function validatePublishStatusInput(value: unknown): CallToolResult | null {
   return toolError(`publish_status must be one of: ${postStatusValues.join(', ')}.`);
 }
 
+function validatePositiveIntegerInput(fieldName: string, value: unknown): CallToolResult | null {
+  if (value === undefined) return null;
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 1) {
+    return toolError(`${fieldName} must be a positive safe integer.`);
+  }
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Tool definitions
 // ---------------------------------------------------------------------------
@@ -499,6 +507,12 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // ---- Posts ----
 
   async list_posts(args) {
+    const publishStatusError = validatePublishStatusInput(args.status);
+    if (publishStatusError) return publishStatusError;
+
+    const limitError = validatePositiveIntegerInput('limit', args.limit);
+    if (limitError) return limitError;
+
     const limit = (args.limit as number) || 50;
     const data = (await payloadFetch(
       payloadQueryPath('posts', {

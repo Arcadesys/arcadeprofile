@@ -83,6 +83,14 @@ test('create_post schema includes meta and discoverability', () => {
   assert.ok(props.publish_status, 'publish_status missing from create_post schema');
 });
 
+test('list_posts schema restricts status to workflow values', () => {
+  const tool = toolDefinitions.find((t) => t.name === 'list_posts');
+  assert.ok(tool, 'list_posts tool not found');
+  const props = (tool.inputSchema as { properties: Record<string, { enum?: string[] }> })
+    .properties;
+  assert.deepEqual(props.status?.enum, ['draft', 'scheduled', 'published', 'sent']);
+});
+
 test('skipNewsletter schema describes scheduled Postmark suppression', () => {
   for (const toolName of ['create_post', 'update_post']) {
     const tool = toolDefinitions.find((t) => t.name === toolName);
@@ -196,6 +204,44 @@ test('list_posts encodes status filter through structured query helper', async (
     assert.equal(parsed.searchParams.get('where[publish_status][equals]'), 'sent');
   } finally {
     restore();
+  }
+});
+
+test('list_posts rejects invalid status before any network call', async () => {
+  let callCount = 0;
+  const restore = mockFetch(async () => {
+    callCount++;
+    return jsonResponse({ docs: [] });
+  });
+
+  try {
+    const result = await toolHandlers.list_posts({ status: 'queued' });
+    assert.equal(result.isError, true);
+    assert.equal(result.content[0].type, 'text');
+    assert.match(result.content[0].text as string, /publish_status/);
+    assert.equal(callCount, 0);
+  } finally {
+    restore();
+  }
+});
+
+test('list_posts rejects invalid limits before any network call', async () => {
+  for (const limit of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1, '10']) {
+    let callCount = 0;
+    const restore = mockFetch(async () => {
+      callCount++;
+      return jsonResponse({ docs: [] });
+    });
+
+    try {
+      const result = await toolHandlers.list_posts({ limit });
+      assert.equal(result.isError, true);
+      assert.equal(result.content[0].type, 'text');
+      assert.match(result.content[0].text as string, /limit/);
+      assert.equal(callCount, 0);
+    } finally {
+      restore();
+    }
   }
 });
 
