@@ -4,7 +4,7 @@ import type { Payload } from 'payload';
 
 import type { Group as PayloadGroup, Post } from '@/payload-types';
 
-import { loadGroupBySlug } from './blog';
+import { loadAllPosts, loadGroupBySlug } from './blog';
 
 function paginated<T>(docs: T[]) {
   return {
@@ -133,4 +133,30 @@ test('loadGroupBySlug includes every public group post without a fixed cap', asy
   assert.equal(result?.posts.at(-1)?.slug, 'part-125');
   assert.equal(calls[1]!.pagination, false);
   assert.equal('limit' in calls[1]!, false);
+});
+
+test('loadAllPosts includes every public post without a fixed cap', async () => {
+  const posts = Array.from({ length: 125 }, (_, i) =>
+    post({
+      id: i + 1,
+      slug: `post-${i + 1}`,
+      group: `group-${(i % 3) + 1}`,
+      publishedDate: `2026-01-${String((i % 28) + 1).padStart(2, '0')}T00:00:00.000Z`,
+    }),
+  );
+  const calls: Array<{ collection: string; where?: unknown; limit?: unknown; pagination?: unknown }> = [];
+  const payload = {
+    find: async (args: { collection: string; where?: unknown; limit?: unknown; pagination?: unknown }) => {
+      calls.push(args);
+      if (args.collection === 'posts') return paginated(posts);
+      throw new Error(`Unexpected collection: ${args.collection}`);
+    },
+  } as Pick<Payload, 'find'>;
+
+  const result = await loadAllPosts(payload);
+
+  assert.equal(result.length, 125);
+  assert.equal(result.at(-1)?.slug, 'post-125');
+  assert.equal(calls[0]!.pagination, false);
+  assert.equal('limit' in calls[0]!, false);
 });

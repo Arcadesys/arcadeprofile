@@ -100,13 +100,16 @@ async function getPayloadClient() {
 
 export async function getAllPosts(): Promise<BlogPost[]> {
   const payload = await getPayloadClient();
+  return loadAllPosts(payload);
+}
 
+export async function loadAllPosts(payload: BlogPayload): Promise<BlogPost[]> {
   const result = await payload.find({
     collection: 'posts',
     where: { publish_status: publicPostStatusWhere() },
     sort: '-publishedDate',
-    limit: 100,
     depth: 0,
+    pagination: false,
   });
 
   return result.docs.map(toPost);
@@ -124,6 +127,7 @@ export async function getPublishedPostsForRss(): Promise<BlogPost[]> {
       publish_status: publicPostStatusWhere(),
     },
     sort: '-publishedDate',
+    // RSS intentionally exposes the latest batch, not the full archive.
     limit: 100,
     depth: 0,
   });
