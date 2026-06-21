@@ -728,9 +728,9 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
     const id = found.docs[0].id;
     const payload: Record<string, unknown> = {};
-    if (args.title) payload.title = args.title;
-    if (args.excerpt) payload.excerpt = args.excerpt;
-    if (args.content) payload.content = await markdownToLexical(args.content as string);
+    if (args.title !== undefined) payload.title = args.title;
+    if (args.excerpt !== undefined) payload.excerpt = args.excerpt;
+    if (args.content !== undefined) payload.content = await markdownToLexical(args.content as string);
 
     await payloadFetch(`/pages/${id}`, {
       method: 'PATCH',

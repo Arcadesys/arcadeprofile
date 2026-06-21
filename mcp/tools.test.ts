@@ -563,6 +563,25 @@ test('update_post serializes tags array-of-objects', async () => {
   }
 });
 
+test('update_page honors explicit empty string fields', async () => {
+  let patchBody: Record<string, unknown> = {};
+  let callCount = 0;
+
+  const restore = mockFetch(async (_url, opts) => {
+    callCount++;
+    if (callCount === 1) return jsonResponse({ docs: [{ id: 5 }] });
+    patchBody = JSON.parse((opts?.body as string) ?? '{}') as Record<string, unknown>;
+    return jsonResponse({ doc: { slug: 'about' } });
+  });
+
+  try {
+    await toolHandlers.update_page({ slug: 'about', excerpt: '' });
+    assert.equal(patchBody.excerpt, '');
+  } finally {
+    restore();
+  }
+});
+
 test('repair_post_image_markdown preserves youtu.be video ids', async () => {
   let patchBody: Record<string, unknown> = {};
   let callCount = 0;
