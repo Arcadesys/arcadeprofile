@@ -983,7 +983,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
             else if (allChildrenAreText) {
               const yt = YT_URL_GLOBAL_RE.exec(trimmed);
               if (yt) {
-                const videoId = yt[1] || yt[2] || yt[3] || yt[4];
+                const videoId = yt[1] || yt[2] || yt[3] || yt[4] || yt[5];
                 let captionRaw = (trimmed.slice(0, yt.index) + trimmed.slice(yt.index + yt[0].length)).trim();
                 captionRaw = captionRaw
                   .replace(/^\[+\s*/, '')
