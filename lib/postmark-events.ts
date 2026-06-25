@@ -2,7 +2,12 @@ import type { Payload, Where } from 'payload';
 
 import { parsePositiveIntegerId } from '@/lib/positive-integer-id';
 import type { Post } from '@/payload-types';
+import { deriveSubmittedStatus, type NewsletterSendStatus } from './newsletter-status';
 import type { PostmarkAcceptedMessage } from './postmark';
+
+// Metadata key carrying the send-attempt id, stamped onto every outbound
+// message and therefore echoed back on delivery/bounce/open webhooks.
+export const ATTEMPT_ID_METADATA_KEY = 'attemptId';
 
 export type PostmarkEventType =
   | 'submitted'
@@ -39,7 +44,21 @@ type EventDoc = {
   eventType?: PostmarkEventType | null;
   recipientEmail?: string | null;
   occurredAt?: string | null;
+  metadata?: Record<string, unknown> | null;
 };
+
+function eventAttemptId(event: EventDoc): string | undefined {
+  const value = event.metadata?.[ATTEMPT_ID_METADATA_KEY];
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+// Filter events to a single send attempt. When `attemptId` is provided, only
+// events stamped with that attempt count — legacy/stale rows (no attemptId, or
+// a different one) are ignored, so they can never poison status or dedup.
+function scopeToAttempt(events: EventDoc[], attemptId?: string): EventDoc[] {
+  if (!attemptId) return events;
+  return events.filter((event) => eventAttemptId(event) === attemptId);
+}
 
 function asRecord(value: unknown): JsonRecord | null {
   if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -264,6 +283,7 @@ function latestEventAt(events: EventDoc[]): string | null {
 export async function summarizePostmarkEvents(
   payload: PostmarkEventsPayload,
   postId: number,
+  attemptId?: string,
 ): Promise<{
   messageIds: string[];
   acceptedCount: number;
@@ -281,7 +301,8 @@ export async function summarizePostmarkEvents(
     overrideAccess: true,
     where: { post: { equals: postId } },
   });
-  const events = result.docs as EventDoc[];
+  // Scope to the current attempt so stale/legacy events can't inflate counts.
+  const events = scopeToAttempt(result.docs as EventDoc[], attemptId);
   const messageIds = [...new Set(events
     .filter((event) => event.eventType === 'submitted' && event.messageId)
     .map((event) => event.messageId as string))]
@@ -303,17 +324,35 @@ export async function refreshPostNewsletterEventSummary(
   payload: PostmarkEventsPayload,
   postId: number,
 ): Promise<void> {
-  const [post, summary] = await Promise.all([
-    payload.findByID({
-      collection: 'posts',
-      id: postId,
-      depth: 0,
-      overrideAccess: true,
-    }) as Promise<Post>,
-    summarizePostmarkEvents(payload, postId),
-  ]);
+  const post = (await payload.findByID({
+    collection: 'posts',
+    id: postId,
+    depth: 0,
+    overrideAccess: true,
+  })) as Post;
+  const attemptId =
+    typeof post.newsletterSend?.attemptId === 'string' ? post.newsletterSend.attemptId : undefined;
+  const summary = await summarizePostmarkEvents(payload, postId, attemptId);
 
-  const existing = post.newsletterSend ?? {};
+  const existing = (post.newsletterSend ?? {}) as {
+    status?: NewsletterSendStatus | null;
+    undeliveredAt?: string | null;
+    [key: string]: unknown;
+  };
+
+  // Advance an in-flight attempt to `delivered` once every accepted message
+  // has a terminal Postmark outcome. Never clobber deliberate non-send states
+  // (suppressed/skipped) or a pending/failed attempt that hasn't been submitted.
+  let status = existing.status ?? null;
+  let undeliveredAt = existing.undeliveredAt ?? null;
+  if ((status === 'submitted' || status === 'undelivered') && summary.acceptedCount > 0) {
+    const derived = deriveSubmittedStatus(summary);
+    if (derived === 'delivered') {
+      status = 'delivered';
+      undeliveredAt = null;
+    }
+  }
+
   await payload.update({
     collection: 'posts',
     id: postId,
@@ -322,6 +361,8 @@ export async function refreshPostNewsletterEventSummary(
     data: {
       newsletterSend: {
         ...existing,
+        status,
+        undeliveredAt,
         messageId: summary.messageIds.join(','),
         acceptedCount: summary.acceptedCount,
         deliveredCount: summary.deliveredCount,
@@ -374,9 +415,16 @@ export async function recordPostmarkSubmittedMessages(
   }
 }
 
-export async function submittedRecipientsForPost(
+/**
+ * Recipients already accepted by Postmark **for the given attempt**. Used for
+ * crash-safe resume within a single send attempt. Events from other/legacy
+ * attempts are ignored (filtered by attempt id), so stale rows can't trick the
+ * orchestrator into skipping a real send.
+ */
+export async function submittedRecipientsForAttempt(
   payload: PostmarkEventsPayload,
   postId: number,
+  attemptId: string,
 ): Promise<Set<string>> {
   const result = await payload.find({
     collection: 'postmark-events',
@@ -391,7 +439,7 @@ export async function submittedRecipientsForPost(
     },
   });
   const recipients = new Set<string>();
-  for (const event of result.docs as EventDoc[]) {
+  for (const event of scopeToAttempt(result.docs as EventDoc[], attemptId)) {
     const email = normalizeEmail(event.recipientEmail ?? undefined);
     if (email) recipients.add(email);
   }

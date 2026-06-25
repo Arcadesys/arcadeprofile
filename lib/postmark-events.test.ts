@@ -172,7 +172,7 @@ test('normalizePostmarkWebhook ignores unsafe integer post ids', () => {
 test('handlePostmarkWebhook records event and refreshes post newsletter summary', async () => {
   const post = makePost({
     newsletterSend: {
-      status: 'sent',
+      status: 'submitted',
       recipientCount: 1,
       sentAt: '2026-06-06T13:00:00.000Z',
       lastSyncedAt: '2026-06-06T13:00:00.000Z',
@@ -210,4 +210,6 @@ test('handlePostmarkWebhook records event and refreshes post newsletter summary'
   assert.equal(post.newsletterSend?.deliveredCount, 1);
   assert.equal(post.newsletterSend?.bouncedCount, 0);
   assert.equal(post.newsletterSend?.lastEventAt, '2026-06-06T13:01:00.000Z');
+  // Every accepted message now has a terminal outcome → advance to delivered.
+  assert.equal(post.newsletterSend?.status, 'delivered');
 });

@@ -28,6 +28,18 @@ async function runPublish() {
     );
   }
 
+  // Undelivered newsletters (submitted, but Postmark has no record) are a
+  // report, not a run failure — log loudly without poisoning the HTTP status.
+  if (summary.undelivered > 0) {
+    logger.error(
+      {
+        undelivered: summary.undelivered,
+        undeliveredPosts: summary.undeliveredPosts,
+      },
+      '[publish-scheduled] undelivered newsletters detected',
+    );
+  }
+
   if (summary.failed > 0) {
     return NextResponse.json(summary, { status: 500 });
   }
