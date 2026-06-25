@@ -78,11 +78,16 @@ async function pm(path: string, token: string, init?: RequestInit) {
     },
   });
   const text = await res.text();
-  const body = text ? JSON.parse(text) : {};
+  // Check status before parsing: a 502/503 from a proxy is often an HTML page,
+  // and JSON.parse would mask the real status with a SyntaxError.
   if (!res.ok) {
     throw new Error(`Postmark ${path} failed (${res.status}): ${text.slice(0, 300)}`);
   }
-  return body;
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch {
+    throw new Error(`Postmark ${path} returned invalid JSON: ${text.slice(0, 300)}`);
+  }
 }
 
 function sameTarget(existingUrl: string, desiredUrl: string): boolean {

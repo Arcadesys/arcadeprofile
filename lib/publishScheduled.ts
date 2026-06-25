@@ -200,7 +200,9 @@ export async function publishScheduledPosts(
   const retryResult = await payload.find({
     collection: 'posts',
     depth: 0,
-    pagination: false,
+    // Cap retries per run so a large failed/pending backlog (e.g. after a
+    // transient Postmark outage) doesn't make one cron run unbounded.
+    ...(perRunLimit ? { limit: perRunLimit } : { pagination: false }),
     where: {
       and: [
         { publish_status: { equals: 'published' } },

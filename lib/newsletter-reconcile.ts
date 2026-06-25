@@ -66,31 +66,38 @@ async function defaultFetchMessageStatus(messageId: string): Promise<ReconcileMe
   const token = getPostmarkServerToken();
   if (!token) return { kind: 'queued' }; // can't verify without a token; try again later
 
-  const response = await fetch(`${POSTMARK_API_BASE}/messages/outbound/${messageId}/details`, {
-    headers: { 'X-Postmark-Server-Token': token, Accept: 'application/json' },
-  });
+  try {
+    const response = await fetch(`${POSTMARK_API_BASE}/messages/outbound/${messageId}/details`, {
+      headers: { 'X-Postmark-Server-Token': token, Accept: 'application/json' },
+    });
 
-  if (response.status === 404) return { kind: 'not-found' };
-  if (!response.ok) return { kind: 'queued' }; // transient API error; re-check next run
+    if (response.status === 404) return { kind: 'not-found' };
+    if (!response.ok) return { kind: 'queued' }; // transient API error; re-check next run
 
-  const body = (await response.json()) as {
-    MessageID?: string;
-    Recipients?: string[];
-    Metadata?: Record<string, string>;
-    MessageEvents?: { Type?: string; ReceivedAt?: string }[];
-  };
+    const body = (await response.json()) as {
+      MessageID?: string;
+      Recipients?: string[];
+      Metadata?: Record<string, string>;
+      MessageEvents?: { Type?: string; ReceivedAt?: string }[];
+    };
 
-  // Postmark returns null fields for an unknown id rather than a clean 404.
-  if (!body.MessageID) return { kind: 'not-found' };
+    // Postmark returns null fields for an unknown id rather than a clean 404.
+    if (!body.MessageID) return { kind: 'not-found' };
 
-  const events = body.MessageEvents ?? [];
-  const recipient = body.Recipients?.[0];
-  const metadata = body.Metadata;
-  const bounced = events.find((e) => e.Type === 'Bounced');
-  if (bounced) return { kind: 'bounced', occurredAt: bounced.ReceivedAt, recipient, metadata };
-  const delivered = events.find((e) => e.Type === 'Delivered');
-  if (delivered) return { kind: 'delivered', occurredAt: delivered.ReceivedAt, recipient, metadata };
-  return { kind: 'queued' };
+    const events = body.MessageEvents ?? [];
+    const recipient = body.Recipients?.[0];
+    const metadata = body.Metadata;
+    const bounced = events.find((e) => e.Type === 'Bounced');
+    if (bounced) return { kind: 'bounced', occurredAt: bounced.ReceivedAt, recipient, metadata };
+    const delivered = events.find((e) => e.Type === 'Delivered');
+    if (delivered) return { kind: 'delivered', occurredAt: delivered.ReceivedAt, recipient, metadata };
+    return { kind: 'queued' };
+  } catch (err) {
+    // Network failure or non-JSON (proxy/CDN error page): treat as transient
+    // and re-check next run rather than crashing the reconciler loop.
+    logger.error({ err, messageId }, '[newsletter-reconcile] failed to fetch message status from Postmark');
+    return { kind: 'queued' };
+  }
 }
 
 /** Synthesize a Postmark-webhook-shaped payload so confirmed events flow
@@ -126,7 +133,9 @@ export async function reconcileNewsletters(
   const result = await payload.find({
     collection: 'posts',
     depth: 0,
-    pagination: false,
+    // Cap per run so a large `submitted` backlog (e.g. during a webhook
+    // outage) can't blow up cron execution time; the rest are picked up next run.
+    limit: 50,
     overrideAccess: true,
     where: {
       and: [
@@ -146,24 +155,27 @@ export async function reconcileNewsletters(
     if (messageIds.length === 0) continue;
 
     let anyFound = false;
-    let confirmedTerminal = false;
+    let allTerminal = true;
     for (const messageId of messageIds) {
       const status = await fetchMessageStatus(messageId);
       if (status.kind === 'queued') {
         anyFound = true;
+        allTerminal = false;
         continue;
       }
-      if (status.kind === 'not-found') continue;
-      // delivered | bounced
+      if (status.kind === 'not-found') {
+        allTerminal = false;
+        continue;
+      }
+      // delivered | bounced — record it; the post advances to `delivered` only
+      // once EVERY accepted message reaches a terminal outcome.
       anyFound = true;
-      confirmedTerminal = true;
       const synthetic = syntheticWebhookPayload(messageId, status);
       if (synthetic) await handleEvent(payload, synthetic);
     }
 
-    if (confirmedTerminal) {
-      // handleEvent refreshed the summary; status advances to `delivered` once
-      // every accepted message reaches a terminal outcome.
+    if (allTerminal && anyFound) {
+      // handleEvent refreshed the summary; the post's status is now `delivered`.
       out.delivered += 1;
       continue;
     }
