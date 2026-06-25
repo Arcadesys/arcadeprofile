@@ -173,12 +173,27 @@ function chunk<T>(items: T[], size: number): T[][] {
   return chunks;
 }
 
+function failureFromBatchResponse(
+  response: PostmarkBatchResponse,
+  message: string,
+): PostmarkFailedMessage {
+  return {
+    to: response.To?.trim().toLowerCase() || 'unknown recipient',
+    errorCode: response.ErrorCode ?? -1,
+    message,
+    submittedAt: response.SubmittedAt ?? null,
+  };
+}
+
 export async function sendPostmarkNewsletterEmail(
   options: SendPostmarkNewsletterOptions,
 ): Promise<SendPostmarkNewsletterResult> {
   const client = options.client ?? getClient();
   const recipients = [...new Set(options.to.map((email) => email.trim().toLowerCase()).filter(Boolean))];
   const batchSize = options.batchSize ?? 500;
+  if (!Number.isSafeInteger(batchSize) || batchSize < 1) {
+    throw new Error('Postmark newsletter batchSize must be a positive integer');
+  }
   const from = formatFromAddress();
   const messageStream = getPostmarkBroadcastMessageStream();
   const messageIds: string[] = [];
@@ -199,8 +214,19 @@ export async function sendPostmarkNewsletterEmail(
       MessageStream: messageStream,
     }));
     const responses = (await client.sendEmailBatch(messages)) as PostmarkBatchResponse[];
+    const pendingRecipients = new Set(recipientBatch);
     for (const response of responses) {
-      const to = response.To?.trim().toLowerCase() || 'unknown recipient';
+      const to = response.To?.trim().toLowerCase();
+      if (!to || !pendingRecipients.has(to)) {
+        failures.push(failureFromBatchResponse(
+          response,
+          to
+            ? 'Postmark returned a response for an unexpected recipient'
+            : 'Postmark returned a response without a recipient',
+        ));
+        continue;
+      }
+      pendingRecipients.delete(to);
       if ((response.ErrorCode ?? 0) === 0) {
         if (response.MessageID) {
           messageIds.push(response.MessageID);
@@ -226,6 +252,14 @@ export async function sendPostmarkNewsletterEmail(
           submittedAt: response.SubmittedAt ?? null,
         });
       }
+    }
+    for (const to of pendingRecipients) {
+      failures.push({
+        to,
+        errorCode: -1,
+        message: 'Postmark did not return a response for this recipient',
+        submittedAt: null,
+      });
     }
   }
 

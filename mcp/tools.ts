@@ -728,9 +728,9 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
     const id = found.docs[0].id;
     const payload: Record<string, unknown> = {};
-    if (args.title) payload.title = args.title;
-    if (args.excerpt) payload.excerpt = args.excerpt;
-    if (args.content) payload.content = await markdownToLexical(args.content as string);
+    if (args.title !== undefined) payload.title = args.title;
+    if (args.excerpt !== undefined) payload.excerpt = args.excerpt;
+    if (args.content !== undefined) payload.content = await markdownToLexical(args.content as string);
 
     await payloadFetch(`/pages/${id}`, {
       method: 'PATCH',
@@ -983,7 +983,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
             else if (allChildrenAreText) {
               const yt = YT_URL_GLOBAL_RE.exec(trimmed);
               if (yt) {
-                const videoId = yt[1] || yt[2] || yt[3] || yt[4];
+                const videoId = yt[1] || yt[2] || yt[3] || yt[4] || yt[5];
                 let captionRaw = (trimmed.slice(0, yt.index) + trimmed.slice(yt.index + yt[0].length)).trim();
                 captionRaw = captionRaw
                   .replace(/^\[+\s*/, '')

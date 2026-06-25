@@ -563,6 +563,82 @@ test('update_post serializes tags array-of-objects', async () => {
   }
 });
 
+test('update_page honors explicit empty string fields', async () => {
+  let patchBody: Record<string, unknown> = {};
+  let callCount = 0;
+
+  const restore = mockFetch(async (_url, opts) => {
+    callCount++;
+    if (callCount === 1) return jsonResponse({ docs: [{ id: 5 }] });
+    patchBody = JSON.parse((opts?.body as string) ?? '{}') as Record<string, unknown>;
+    return jsonResponse({ doc: { slug: 'about' } });
+  });
+
+  try {
+    await toolHandlers.update_page({ slug: 'about', excerpt: '' });
+    assert.equal(patchBody.excerpt, '');
+  } finally {
+    restore();
+  }
+});
+
+test('repair_post_image_markdown preserves youtu.be video ids', async () => {
+  let patchBody: Record<string, unknown> = {};
+  let callCount = 0;
+
+  const postContent = {
+    root: {
+      type: 'root',
+      version: 1,
+      direction: null,
+      format: '',
+      indent: 0,
+      children: [
+        {
+          type: 'paragraph',
+          children: [
+            {
+              type: 'text',
+              text: 'Watch this https://youtu.be/dQw4w9WgXcQ',
+            },
+          ],
+        },
+      ],
+    },
+  };
+
+  const restore = mockFetch(async (_url, opts) => {
+    callCount++;
+    if (callCount === 1) {
+      return jsonResponse({ docs: [{ id: 7, slug: 'video-post', content: postContent }] });
+    }
+    patchBody = JSON.parse((opts?.body as string) ?? '{}') as Record<string, unknown>;
+    return jsonResponse({ doc: { slug: 'video-post' } });
+  });
+
+  try {
+    const result = await toolHandlers.repair_post_image_markdown({ slug: 'video-post' });
+    const patchedContent = patchBody.content as {
+      root: { children: Array<{ type?: string; fields?: Record<string, unknown> }> };
+    };
+    assert.equal(patchedContent.root.children[0]?.type, 'block');
+    assert.equal(patchedContent.root.children[0]?.fields?.blockType, 'youtube');
+    assert.equal(patchedContent.root.children[0]?.fields?.videoId, 'dQw4w9WgXcQ');
+
+    const reportItem = result.content[0];
+    assert.equal(reportItem.type, 'text');
+    if (reportItem.type !== 'text') return;
+    const report = JSON.parse(reportItem.text) as {
+      totals: { youtube: number };
+      posts: Array<{ youtube: Array<{ videoId: string }> }>;
+    };
+    assert.equal(report.totals.youtube, 1);
+    assert.equal(report.posts[0]?.youtube[0]?.videoId, 'dQw4w9WgXcQ');
+  } finally {
+    restore();
+  }
+});
+
 // ---------------------------------------------------------------------------
 // TOOL_SCOPES — read vs write authorization
 // ---------------------------------------------------------------------------

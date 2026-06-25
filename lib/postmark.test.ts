@@ -145,3 +145,71 @@ test('sendPostmarkNewsletterEmail throws with accepted and failed recipients', a
     },
   );
 });
+
+test('sendPostmarkNewsletterEmail fails recipients missing from the batch response', async () => {
+  process.env.POSTMARK_FROM_EMAIL = 'news@example.com';
+
+  await assert.rejects(
+    () => sendPostmarkNewsletterEmail({
+      to: ['a@example.com', 'b@example.com'],
+      subject: 'New post',
+      htmlBody: '<p>Hello</p>',
+      textBody: 'Hello',
+      client: {
+        async sendEmailBatch() {
+          return [
+            {
+              To: 'a@example.com',
+              ErrorCode: 0,
+              Message: 'OK',
+              MessageID: 'pm-1',
+              SubmittedAt: '2026-06-06T12:00:00.000Z',
+            },
+          ];
+        },
+      },
+    }),
+    (err) => {
+      assert.ok(err instanceof PostmarkBatchSendError);
+      assert.deepEqual(err.accepted, [
+        {
+          to: 'a@example.com',
+          messageId: 'pm-1',
+          submittedAt: '2026-06-06T12:00:00.000Z',
+          message: 'OK',
+        },
+      ]);
+      assert.deepEqual(err.failures, [
+        {
+          to: 'b@example.com',
+          errorCode: -1,
+          message: 'Postmark did not return a response for this recipient',
+          submittedAt: null,
+        },
+      ]);
+      return true;
+    },
+  );
+});
+
+test('sendPostmarkNewsletterEmail rejects invalid batch sizes before sending', async () => {
+  process.env.POSTMARK_FROM_EMAIL = 'news@example.com';
+
+  for (const batchSize of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+    await assert.rejects(
+      () => sendPostmarkNewsletterEmail({
+        to: ['a@example.com'],
+        subject: 'New post',
+        htmlBody: '<p>Hello</p>',
+        textBody: 'Hello',
+        batchSize,
+        client: {
+          async sendEmailBatch() {
+            throw new Error('sendEmailBatch should not be called');
+          },
+        },
+      }),
+      /batchSize must be a positive integer/,
+    );
+  }
+});

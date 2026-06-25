@@ -1,10 +1,13 @@
+import crypto from 'node:crypto';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   generateAccessToken,
+  isSupportedPkceCodeChallengeMethod,
   isAllowedRedirectUri,
   safeStringEqual,
   verifyAccessToken,
+  verifyPkce,
 } from './mcp-oauth';
 
 const SECRET = 'test-mcp-api-key';
@@ -49,6 +52,19 @@ test('access token rejects wrong secret, expiry, and tampering', () => {
   assert.equal(verifyAccessToken(good + 'x', SECRET), null);
   assert.equal(verifyAccessToken('mcpt_garbage', SECRET), null);
   assert.equal(verifyAccessToken(SECRET, SECRET), null); // raw key is not a valid token
+});
+
+test('PKCE only supports the advertised S256 challenge method', () => {
+  const verifier = 'correct horse battery staple';
+  const challenge = Buffer.from(
+    crypto.createHash('sha256').update(verifier).digest(),
+  ).toString('base64url');
+
+  assert.equal(isSupportedPkceCodeChallengeMethod('S256'), true);
+  assert.equal(isSupportedPkceCodeChallengeMethod('plain'), false);
+  assert.equal(verifyPkce(verifier, challenge, 'S256'), true);
+  assert.equal(verifyPkce(verifier, verifier, 'plain'), false);
+  assert.equal(verifyPkce(verifier, verifier, 'made-up-method'), false);
 });
 
 test('safeStringEqual compares without leaking on length mismatch', () => {
