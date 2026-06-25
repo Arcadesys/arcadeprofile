@@ -227,11 +227,11 @@ export const migrations = [
   {
     up: migration_20260618_050000_drop_projects_table.up,
     down: migration_20260618_050000_drop_projects_table.down,
-    name: '20260618_050000_drop_projects_table'
+    name: '20260618_050000_drop_projects_table',
   },
   {
     up: migration_20260624_000000_newsletter_send_state_machine.up,
     down: migration_20260624_000000_newsletter_send_state_machine.down,
-    name: '20260624_000000_newsletter_send_state_machine',
+    name: '20260624_000000_newsletter_send_state_machine'
   },
 ];
