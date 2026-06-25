@@ -203,7 +203,11 @@ export interface Post {
      * Comma-separated Postmark message ids.
      */
     messageId?: string | null;
-    status?: ('pending' | 'sent' | 'failed' | 'skipped') | null;
+    status?: ('pending' | 'suppressed' | 'skipped' | 'submitted' | 'delivered' | 'failed' | 'undelivered') | null;
+    /**
+     * Idempotency key for the current send attempt. Postmark events are scoped to this id; stale events from other attempts are ignored.
+     */
+    attemptId?: string | null;
     /**
      * Comma-separated ActiveCampaign list ids used to resolve recipients.
      */
@@ -240,7 +244,14 @@ export interface Post {
      * Number of accepted messages with a spam complaint.
      */
     complainedCount?: number | null;
+    /**
+     * When the batch was accepted by Postmark (submitted, not yet confirmed delivered).
+     */
     sentAt?: string | null;
+    /**
+     * Set when the reconciler flagged this attempt as undelivered (submitted, grace elapsed, no Postmark confirmation). Requires a manual decision; not auto-resent.
+     */
+    undeliveredAt?: string | null;
     lastSyncedAt?: string | null;
     /**
      * Most recent Postmark event timestamp for this post.
@@ -284,7 +295,7 @@ export interface Post {
    */
   newsletterDescription?: string | null;
   /**
-   * Internal scheduling/newsletter workflow. Payload draft/published state lives in Status.
+   * Internal scheduling/newsletter workflow for posts. Public posts are Published by scheduler or Newsletter sent.
    */
   publish_status?: ('draft' | 'scheduled' | 'published' | 'sent') | null;
   /**
@@ -960,6 +971,7 @@ export interface PostsSelect<T extends boolean = true> {
     | {
         messageId?: T;
         status?: T;
+        attemptId?: T;
         targetedLists?: T;
         recipientCount?: T;
         acceptedCount?: T;
@@ -970,6 +982,7 @@ export interface PostsSelect<T extends boolean = true> {
         clickedCount?: T;
         complainedCount?: T;
         sentAt?: T;
+        undeliveredAt?: T;
         lastSyncedAt?: T;
         lastEventAt?: T;
         lastError?: T;

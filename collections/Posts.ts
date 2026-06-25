@@ -1,11 +1,13 @@
 import type { CollectionConfig } from 'payload';
 
+import { NEWSLETTER_SEND_STATUS_OPTIONS as newsletterSendStatusOptions } from '../lib/newsletter-status';
 import { postStatusOptions, publicPostStatusWhere } from '../lib/post-status';
 import { buildGroupIntroUrl, buildPostUrl } from '../lib/post-url';
 import { buildPreviewUrl } from '../lib/preview-token';
 import { discoverabilityAndMetaFields } from './fields/discoverability';
 import { slugField } from './fields/slug';
 import { tagArrayField } from './fields/tags';
+import { auditSuppressNewsletterHook } from './hooks/auditSuppressNewsletter';
 import { ensurePreviewTokenHook } from './hooks/ensurePreviewToken';
 import { promoteScheduledDraftHook } from './hooks/promoteScheduledDraft';
 import type { RevalidationDoc } from './hooks/revalidate';
@@ -77,7 +79,7 @@ export const Posts: CollectionConfig = {
       validateScheduledPublishDateHook,
       ensurePreviewTokenHook,
     ],
-    afterChange: [revalidatePostPaths],
+    afterChange: [revalidatePostPaths, auditSuppressNewsletterHook],
     afterDelete: [revalidateDeletedPostPaths],
   },
   fields: [
@@ -137,13 +139,18 @@ export const Posts: CollectionConfig = {
         {
           name: 'status',
           type: 'select',
-          options: [
-            { label: 'Pending', value: 'pending' },
-            { label: 'Sent', value: 'sent' },
-            { label: 'Failed', value: 'failed' },
-            { label: 'Skipped', value: 'skipped' },
-          ],
+          options: newsletterSendStatusOptions,
           admin: { readOnly: true },
+        },
+        {
+          name: 'attemptId',
+          type: 'text',
+          admin: {
+            readOnly: true,
+            description:
+              'Idempotency key for the current send attempt. Postmark events are scoped to this id; ' +
+              'stale events from other attempts are ignored.',
+          },
         },
         {
           name: 'targetedLists',
@@ -220,9 +227,22 @@ export const Posts: CollectionConfig = {
         {
           name: 'sentAt',
           type: 'date',
+          label: 'Submitted at',
           admin: {
             readOnly: true,
             date: { pickerAppearance: 'dayAndTime' },
+            description: 'When the batch was accepted by Postmark (submitted, not yet confirmed delivered).',
+          },
+        },
+        {
+          name: 'undeliveredAt',
+          type: 'date',
+          admin: {
+            readOnly: true,
+            date: { pickerAppearance: 'dayAndTime' },
+            description:
+              'Set when the reconciler flagged this attempt as undelivered (submitted, grace elapsed, ' +
+              'no Postmark confirmation). Requires a manual decision; not auto-resent.',
           },
         },
         {

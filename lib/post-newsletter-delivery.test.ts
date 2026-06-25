@@ -39,6 +39,7 @@ type EventDoc = {
   eventType: string;
   recipientEmail?: string;
   occurredAt?: string;
+  metadata?: Record<string, unknown> | null;
 };
 
 function whereEquals(where: unknown, field: string): unknown {
@@ -67,14 +68,7 @@ function makePayload(
     async find(args: { collection: string; where?: unknown }) {
       if (args.collection === 'groups') {
         return {
-          docs: [
-            {
-              slug: 'story-group',
-              title: 'Story Group',
-              category,
-              image: null,
-            },
-          ],
+          docs: [{ slug: 'story-group', title: 'Story Group', category, image: null }],
         };
       }
       if (args.collection === 'postmark-events') {
@@ -118,7 +112,10 @@ afterEach(() => {
   delete process.env.AC_LIST_ID_ALL_PERPOST;
   delete process.env.AC_LIST_ID_FICTION_PERPOST;
   delete process.env.AC_LIST_ID_ESSAYS_PERPOST;
+  delete process.env.POSTMARK_REQUIRED_IN_PROD;
 });
+
+const FIXED_ATTEMPT = () => 'attempt-test';
 
 test('deliverPostNewsletter resolves AC recipients and sends with rendered post content', async () => {
   setAudienceEnv();
@@ -128,6 +125,7 @@ test('deliverPostNewsletter resolves AC recipients and sends with rendered post 
 
   const outcome = await deliverPostNewsletter(makePayload(makePost(), 'fiction', events), 1, {
     now: () => now,
+    generateAttemptId: FIXED_ATTEMPT,
     async resolveRecipients({ listIds }) {
       assert.deepEqual(listIds, ['7', '9']);
       return ['reader@example.com'];
@@ -139,6 +137,7 @@ test('deliverPostNewsletter resolves AC recipients and sends with rendered post 
         postId: '1',
         postSlug: 'new-post',
         audienceListIds: '7,9',
+        attemptId: 'attempt-test',
       });
       assert.match(options.htmlBody, /A New Post/);
       assert.match(options.textBody, /A short summary/);
@@ -146,12 +145,7 @@ test('deliverPostNewsletter resolves AC recipients and sends with rendered post 
         messageIds: ['pm-1'],
         recipientCount: options.to.length,
         accepted: [
-          {
-            to: options.to[0],
-            messageId: 'pm-1',
-            submittedAt: now.toISOString(),
-            message: 'OK',
-          },
+          { to: options.to[0], messageId: 'pm-1', submittedAt: now.toISOString(), message: 'OK' },
         ],
       };
     },
@@ -160,8 +154,10 @@ test('deliverPostNewsletter resolves AC recipients and sends with rendered post 
   assert.equal(outcome.kind, 'sent');
   assert.deepEqual(sent, [{ to: ['reader@example.com'], subject: 'A New Post' }]);
   if (outcome.kind === 'sent') {
+    // One accepted, zero delivered → status is `submitted`, not `delivered`.
     assert.deepEqual(outcome.state, {
-      status: 'sent',
+      attemptId: 'attempt-test',
+      status: 'submitted',
       messageId: 'pm-1',
       targetedLists: '7,9',
       recipientCount: 1,
@@ -175,6 +171,7 @@ test('deliverPostNewsletter resolves AC recipients and sends with rendered post 
       sentAt: now.toISOString(),
       lastSyncedAt: now.toISOString(),
       lastEventAt: now.toISOString(),
+      undeliveredAt: null,
       lastError: null,
     });
   }
@@ -203,7 +200,7 @@ test('deliverPostNewsletter skips suppressed posts', async () => {
   assert.equal(outcome.kind, 'skipped');
   if (outcome.kind === 'skipped') {
     assert.equal(outcome.reason, 'suppressNewsletter');
-    assert.equal(outcome.state.status, 'skipped');
+    assert.equal(outcome.state.status, 'suppressed');
     assert.equal(outcome.state.lastSyncedAt, now.toISOString());
   }
 });
@@ -213,6 +210,7 @@ test('deliverPostNewsletter records failed send state', async () => {
   const now = new Date('2026-06-06T13:00:00.000Z');
   const outcome = await deliverPostNewsletter(makePayload(makePost()), 1, {
     now: () => now,
+    generateAttemptId: FIXED_ATTEMPT,
     async resolveRecipients() {
       return ['reader@example.com'];
     },
@@ -229,6 +227,28 @@ test('deliverPostNewsletter records failed send state', async () => {
   }
 });
 
+test('deliverPostNewsletter fails loudly on missing config instead of sending', async () => {
+  // No audience env set; require config in this run.
+  process.env.POSTMARK_REQUIRED_IN_PROD = 'true';
+  const now = new Date('2026-06-06T13:00:00.000Z');
+  const outcome = await deliverPostNewsletter(makePayload(makePost()), 1, {
+    now: () => now,
+    generateAttemptId: FIXED_ATTEMPT,
+    async resolveRecipients() {
+      throw new Error('should not resolve recipients when config is invalid');
+    },
+    async sendEmail() {
+      throw new Error('should not send when config is invalid');
+    },
+  });
+
+  assert.equal(outcome.kind, 'failed');
+  if (outcome.kind === 'failed') {
+    assert.equal(outcome.state.status, 'failed');
+    assert.match(outcome.state.lastError ?? '', /misconfigured|missing env/i);
+  }
+});
+
 test('deliverPostNewsletter records partial Postmark acceptance and fails retryably', async () => {
   setAudienceEnv();
   const now = new Date('2026-06-06T13:00:00.000Z');
@@ -236,28 +256,15 @@ test('deliverPostNewsletter records partial Postmark acceptance and fails retrya
 
   const outcome = await deliverPostNewsletter(makePayload(makePost(), 'fiction', events), 1, {
     now: () => now,
+    generateAttemptId: FIXED_ATTEMPT,
     async resolveRecipients() {
       return ['accepted@example.com', 'failed@example.com'];
     },
     async sendEmail() {
       throw new PostmarkBatchSendError(
         'Postmark rejected 1 recipient',
-        [
-          {
-            to: 'accepted@example.com',
-            messageId: 'pm-accepted',
-            submittedAt: now.toISOString(),
-            message: 'OK',
-          },
-        ],
-        [
-          {
-            to: 'failed@example.com',
-            errorCode: 406,
-            message: 'Inactive recipient',
-            submittedAt: now.toISOString(),
-          },
-        ],
+        [{ to: 'accepted@example.com', messageId: 'pm-accepted', submittedAt: now.toISOString(), message: 'OK' }],
+        [{ to: 'failed@example.com', errorCode: 406, message: 'Inactive recipient', submittedAt: now.toISOString() }],
         2,
       );
     },
@@ -276,9 +283,55 @@ test('deliverPostNewsletter records partial Postmark acceptance and fails retrya
   assert.equal(events[0].recipientEmail, 'accepted@example.com');
 });
 
-test('deliverPostNewsletter retries only recipients without submitted events', async () => {
+test('REGRESSION: stale submitted events from another attempt do NOT short-circuit the send', async () => {
   setAudienceEnv();
   const now = new Date('2026-06-06T13:00:00.000Z');
+  // A pre-existing "submitted" row from a *different* (or legacy) attempt.
+  // This is the production poisoning bug: such rows must be ignored.
+  const events: EventDoc[] = [
+    {
+      id: 1,
+      post: 1,
+      messageId: 'pm-phantom',
+      eventType: 'submitted',
+      recipientEmail: 'reader@example.com',
+      occurredAt: '2026-06-01T12:00:00.000Z',
+      metadata: { attemptId: 'OLD-attempt' },
+    },
+  ];
+  const sentTo: string[][] = [];
+
+  const outcome = await deliverPostNewsletter(makePayload(makePost(), 'fiction', events), 1, {
+    now: () => now,
+    generateAttemptId: () => 'attempt-new',
+    async resolveRecipients() {
+      return ['reader@example.com'];
+    },
+    async sendEmail(options) {
+      sentTo.push(options.to);
+      return {
+        messageIds: ['pm-real'],
+        recipientCount: options.to.length,
+        accepted: [{ to: options.to[0], messageId: 'pm-real', submittedAt: now.toISOString(), message: 'OK' }],
+      };
+    },
+  });
+
+  // The stale row is ignored → Postmark IS called for the recipient.
+  assert.equal(outcome.kind, 'sent');
+  assert.deepEqual(sentTo, [['reader@example.com']]);
+  if (outcome.kind === 'sent') {
+    assert.equal(outcome.state.attemptId, 'attempt-new');
+    // Only this attempt's event counts toward acceptedCount.
+    assert.equal(outcome.state.acceptedCount, 1);
+    assert.equal(outcome.state.messageId, 'pm-real');
+  }
+});
+
+test('crash-resume within the same attempt skips already-accepted recipients', async () => {
+  setAudienceEnv();
+  const now = new Date('2026-06-06T13:00:00.000Z');
+  // Same attempt id on both the post and the existing event → verified resume.
   const events: EventDoc[] = [
     {
       id: 1,
@@ -287,11 +340,13 @@ test('deliverPostNewsletter retries only recipients without submitted events', a
       eventType: 'submitted',
       recipientEmail: 'reader@example.com',
       occurredAt: '2026-06-06T12:00:00.000Z',
+      metadata: { attemptId: 'attempt-resume' },
     },
   ];
   const sentTo: string[][] = [];
+  const post = makePost({ newsletterSend: { attemptId: 'attempt-resume', status: 'submitted' } });
 
-  const outcome = await deliverPostNewsletter(makePayload(makePost(), 'fiction', events), 1, {
+  const outcome = await deliverPostNewsletter(makePayload(post, 'fiction', events), 1, {
     now: () => now,
     async resolveRecipients() {
       return ['reader@example.com', 'new@example.com'];
@@ -301,24 +356,62 @@ test('deliverPostNewsletter retries only recipients without submitted events', a
       return {
         messageIds: ['pm-new'],
         recipientCount: options.to.length,
-        accepted: [
-          {
-            to: 'new@example.com',
-            messageId: 'pm-new',
-            submittedAt: now.toISOString(),
-            message: 'OK',
-          },
-        ],
+        accepted: [{ to: 'new@example.com', messageId: 'pm-new', submittedAt: now.toISOString(), message: 'OK' }],
       };
     },
   });
 
   assert.equal(outcome.kind, 'sent');
+  // Only the not-yet-accepted recipient is sent; the resumed one is skipped.
   assert.deepEqual(sentTo, [['new@example.com']]);
   if (outcome.kind === 'sent') {
+    assert.equal(outcome.state.attemptId, 'attempt-resume');
     assert.equal(outcome.state.recipientCount, 2);
     assert.equal(outcome.state.acceptedCount, 2);
-    assert.equal(outcome.state.failedCount, 0);
     assert.equal(outcome.state.messageId, 'pm-existing,pm-new');
+  }
+});
+
+test('deliverPostNewsletter derives delivered when every accepted message is confirmed', async () => {
+  setAudienceEnv();
+  const now = new Date('2026-06-06T13:00:00.000Z');
+  // Resume where the single accepted message already has a delivery event.
+  const events: EventDoc[] = [
+    {
+      id: 1,
+      post: 1,
+      messageId: 'pm-1',
+      eventType: 'submitted',
+      recipientEmail: 'reader@example.com',
+      occurredAt: '2026-06-06T12:00:00.000Z',
+      metadata: { attemptId: 'attempt-done' },
+    },
+    {
+      id: 2,
+      post: 1,
+      messageId: 'pm-1',
+      eventType: 'delivery',
+      recipientEmail: 'reader@example.com',
+      occurredAt: '2026-06-06T12:05:00.000Z',
+      metadata: { attemptId: 'attempt-done' },
+    },
+  ];
+  const post = makePost({ newsletterSend: { attemptId: 'attempt-done', status: 'submitted' } });
+
+  const outcome = await deliverPostNewsletter(makePayload(post, 'fiction', events), 1, {
+    now: () => now,
+    async resolveRecipients() {
+      return ['reader@example.com'];
+    },
+    async sendEmail() {
+      throw new Error('should not send — already accepted this attempt');
+    },
+  });
+
+  assert.equal(outcome.kind, 'sent');
+  if (outcome.kind === 'sent') {
+    assert.equal(outcome.state.status, 'delivered');
+    assert.equal(outcome.state.acceptedCount, 1);
+    assert.equal(outcome.state.deliveredCount, 1);
   }
 });

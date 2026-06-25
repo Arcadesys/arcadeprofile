@@ -11,6 +11,7 @@ import {
   type NewsletterDeliveryOutcome,
   type NewsletterSendState,
 } from '@/lib/post-newsletter-delivery';
+import { reconcileNewsletters, type ReconcileResult } from '@/lib/newsletter-reconcile';
 
 export type PublishResult = {
   id: number;
@@ -34,8 +35,10 @@ export type PublishScheduledResponse = {
   failed: number;
   skipped: number;
   stuck: number;
+  undelivered: number;
   results: PublishResult[];
   stuckPosts: StuckPost[];
+  undeliveredPosts: ReconcileResult['undeliveredPosts'];
 };
 
 // Posts whose scheduled date is older than this and still aren't public are
@@ -54,6 +57,7 @@ type Options = {
   now?: Date;
   perRunLimit?: number | null;
   deliverNewsletter?: typeof deliverPostNewsletter;
+  reconcile?: typeof reconcileNewsletters;
 };
 
 function getNewsletterError(outcome: NewsletterDeliveryOutcome): string | undefined {
@@ -65,7 +69,7 @@ async function persistNewsletterOutcome(
   post: { id: number; slug: string },
   outcome: NewsletterDeliveryOutcome,
 ): Promise<Pick<PublishResult, 'newsletter' | 'newsletterError'>> {
-  if (outcome.kind === 'skipped' && outcome.reason === 'already-sent') {
+  if (outcome.kind === 'skipped' && outcome.reason === 'already-delivered') {
     return { newsletter: 'skipped' };
   }
 
@@ -101,7 +105,12 @@ function pendingNewsletterState(nowIso: string): NewsletterSendState {
 
 export async function publishScheduledPosts(
   payload: PayloadLike,
-  { now = new Date(), perRunLimit = null, deliverNewsletter = deliverPostNewsletter }: Options = {},
+  {
+    now = new Date(),
+    perRunLimit = null,
+    deliverNewsletter = deliverPostNewsletter,
+    reconcile = reconcileNewsletters,
+  }: Options = {},
 ): Promise<PublishScheduledResponse> {
   const nowIso = now.toISOString();
 
@@ -181,6 +190,12 @@ export async function publishScheduledPosts(
     }
   }
 
+  // Retry newsletters for already-published posts. Intentionally NOT gated on
+  // `scheduledPublishDate` — a post published with no scheduled date (admin
+  // immediate publish, legacy row) must still get its newsletter. Only `failed`
+  // and stale `pending`/null are auto-retried; `undelivered` is left for the
+  // reconciler + manual decision (fix-forward), and `submitted`/`delivered`/
+  // `suppressed`/`skipped` are terminal here.
   const pendingRetryBefore = new Date(now.getTime() - PENDING_NEWSLETTER_RETRY_GRACE_MS).toISOString();
   const retryResult = await payload.find({
     collection: 'posts',
@@ -188,7 +203,6 @@ export async function publishScheduledPosts(
     pagination: false,
     where: {
       and: [
-        { scheduledPublishDate: { less_than_equal: nowIso } },
         { publish_status: { equals: 'published' } },
         {
           or: [
@@ -261,6 +275,21 @@ export async function publishScheduledPosts(
     scheduledPublishDate: post.scheduledPublishDate,
   }));
 
+  // Reconcile in-flight `submitted` attempts against Postmark's reality: confirm
+  // delivery (self-heal to `delivered`) or flag phantom sends as `undelivered`.
+  // Like stuck posts, undelivered is a *report* — it must not fail the run.
+  let reconcileResult: ReconcileResult = {
+    checked: 0,
+    delivered: 0,
+    undelivered: 0,
+    undeliveredPosts: [],
+  };
+  try {
+    reconcileResult = await reconcile(payload, { now: () => now });
+  } catch (err) {
+    logger.error({ err }, '[publish-scheduled] newsletter reconcile failed');
+  }
+
   // With `pagination: false`, totalDocs may not be populated by every DB
   // adapter, so fall back to docs.length.
   const dueTotal = (dueResult.totalDocs ?? duePosts.length) + (retryResult.totalDocs ?? retryResult.docs.length);
@@ -272,7 +301,9 @@ export async function publishScheduledPosts(
     failed,
     skipped: Math.max(dueTotal - duePosts.length, 0),
     stuck: stuckTotal,
+    undelivered: reconcileResult.undelivered,
     results,
     stuckPosts,
+    undeliveredPosts: reconcileResult.undeliveredPosts,
   };
 }

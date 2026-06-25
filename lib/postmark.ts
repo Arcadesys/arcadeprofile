@@ -5,6 +5,17 @@
 
 import { ServerClient, type Models } from 'postmark';
 
+import {
+  formatFromAddress,
+  getPostmarkBroadcastMessageStream,
+  getPostmarkServerToken,
+  getPostmarkTransactionalMessageStream,
+} from './postmark-config';
+
+// Re-exported for back-compat with existing importers (e.g. the delivery
+// orchestrator). Canonical definitions live in ./postmark-config.
+export { getPostmarkBroadcastMessageStream, getPostmarkTransactionalMessageStream };
+
 export const LinkTrackingOptions = {
   TextOnly: 'TextOnly' as Models.LinkTrackingOptions,
   HtmlOnly: 'HtmlOnly' as Models.LinkTrackingOptions,
@@ -67,31 +78,9 @@ export class PostmarkBatchSendError extends Error {
 }
 
 function getClient(): ServerClient {
-  const token = process.env.POSTMARK_SERVER_TOKEN;
+  const token = getPostmarkServerToken();
   if (!token) throw new Error('Missing POSTMARK_SERVER_TOKEN environment variable');
   return new ServerClient(token);
-}
-
-function getFromEmail(): string {
-  return process.env.POSTMARK_FROM_EMAIL || 'austen@thearcades.me';
-}
-
-export function getPostmarkTransactionalMessageStream(): string {
-  return process.env.POSTMARK_TRANSACTIONAL_STREAM || 'outbound';
-}
-
-export function getPostmarkBroadcastMessageStream(): string {
-  return process.env.POSTMARK_BROADCAST_STREAM || process.env.POSTMARK_NEWSLETTER_STREAM || 'outbound';
-}
-
-function getFromName(): string {
-  return process.env.POSTMARK_FROM_NAME || 'The Arcades';
-}
-
-function formatFromAddress(): string {
-  const email = getFromEmail();
-  const name = getFromName().trim();
-  return name ? `${name} <${email}>` : email;
 }
 
 export interface PostmarkTestEmailOptions {

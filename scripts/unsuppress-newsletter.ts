@@ -1,6 +1,8 @@
 /**
- * One-shot: clear `suppressNewsletter` on a fixed list of post slugs.
- * Used to recover from accidental skipNewsletter=true sets via MCP.
+ * Clear `suppressNewsletter` on the post slugs passed as CLI args.
+ * Recovers from accidental skipNewsletter=true sets via MCP.
+ *
+ *   npx tsx scripts/unsuppress-newsletter.ts <slug> [<slug> ...]
  */
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -11,14 +13,12 @@ if (existsSync(productionEnvPath)) {
   loadDotenv({ path: productionEnvPath, override: false });
 }
 
-const SLUGS = [
-  'gallery-view-5-breadcrumbs',
-  'gallery-view-6-stack-trace',
-  'gallery-view-7-gallery-view',
-  'ive-been-waiting-for-this-my-whole-life',
-  'disposable-art-is-still-art',
-  'my-brain-was-built-for-this',
-];
+const SLUGS = process.argv.slice(2).filter(Boolean);
+
+if (SLUGS.length === 0) {
+  console.error('Usage: tsx scripts/unsuppress-newsletter.ts <slug> [<slug> ...]');
+  process.exit(1);
+}
 
 async function main(): Promise<void> {
   const { getPayload } = await import('payload');

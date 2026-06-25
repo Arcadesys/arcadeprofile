@@ -47,6 +47,8 @@ function makePayload(opts: {
     { docs: opts.due ?? [], totalDocs: (opts.due ?? []).length },
     { docs: opts.retry ?? [], totalDocs: (opts.retry ?? []).length },
     { docs: opts.stuck ?? [], totalDocs: (opts.stuck ?? []).length },
+    // Reconcile pass: query for in-flight `submitted` posts (none by default).
+    { docs: [], totalDocs: 0 },
   ];
 
   const mock = {
@@ -82,7 +84,7 @@ function sentNewsletter(): NewsletterDeliveryOutcome {
   return {
     kind: 'sent',
     state: {
-      status: 'sent',
+      status: 'submitted',
       messageId: 'pm-1',
       targetedLists: '7,9',
       recipientCount: 1,
@@ -121,8 +123,8 @@ test('publishScheduledPosts publishes due posts and reports zero stuck on a clea
   });
   assert.equal(updateCalls[1].data.publish_status, 'sent');
   assert.deepEqual(updateCalls[1].data.newsletterSend, sentNewsletter().state);
-  // Published-today preflight plus due, retry, and stuck find calls issued.
-  assert.equal(findCalls.length, 4);
+  // Published-today preflight plus due, retry, stuck, and reconcile find calls.
+  assert.equal(findCalls.length, 5);
 });
 
 test('publishScheduledPosts surfaces stuck posts past the grace window', async () => {

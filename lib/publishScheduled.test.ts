@@ -175,7 +175,7 @@ function sentNewsletter(): NewsletterDeliveryOutcome {
   return {
     kind: 'sent',
     state: {
-      status: 'sent',
+      status: 'submitted',
       messageId: 'pm-1',
       targetedLists: '7,10',
       recipientCount: 1,
