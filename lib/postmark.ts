@@ -89,6 +89,7 @@ export interface PostmarkTestEmailOptions {
   htmlBody?: string;
   textBody?: string;
   client?: PostmarkSingleClient;
+  messageStream?: string;
 }
 
 export interface SendPostmarkTransactionalEmailOptions {
@@ -132,6 +133,7 @@ export async function sendPostmarkTestEmail(
     htmlBody,
     textBody,
     client,
+    messageStream: options.messageStream,
   });
 }
 
