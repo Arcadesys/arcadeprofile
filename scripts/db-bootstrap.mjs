@@ -413,46 +413,53 @@ const statements = [
     `,
   },
   {
+    // The postgres driver sends each sql`` tag as a prepared statement, which
+    // rejects multiple commands — run one statement per call.
     label: 'drop legacy posts sample fields',
-    run: () => sql`
-      ALTER TABLE IF EXISTS "_posts_v"
-        DROP COLUMN IF EXISTS "version_sample_label",
-        DROP COLUMN IF EXISTS "version_sample_order",
-        DROP COLUMN IF EXISTS "version_show_in_samples";
-
-      ALTER TABLE IF EXISTS "posts"
-        DROP COLUMN IF EXISTS "sample_label",
-        DROP COLUMN IF EXISTS "sample_order",
-        DROP COLUMN IF EXISTS "show_in_samples"
-    `,
+    run: async () => {
+      await sql`
+        ALTER TABLE IF EXISTS "_posts_v"
+          DROP COLUMN IF EXISTS "version_sample_label",
+          DROP COLUMN IF EXISTS "version_sample_order",
+          DROP COLUMN IF EXISTS "version_show_in_samples"
+      `;
+      await sql`
+        ALTER TABLE IF EXISTS "posts"
+          DROP COLUMN IF EXISTS "sample_label",
+          DROP COLUMN IF EXISTS "sample_order",
+          DROP COLUMN IF EXISTS "show_in_samples"
+      `;
+    },
   },
   {
     label: 'drop legacy demos table',
-    run: () => sql`
-      ALTER TABLE "payload_locked_documents_rels"
-        DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_demos_fk";
-
-      DROP INDEX IF EXISTS "payload_locked_documents_rels_demos_id_idx";
-
-      ALTER TABLE "payload_locked_documents_rels"
-        DROP COLUMN IF EXISTS "demos_id";
-
-      DROP TABLE IF EXISTS "demos" CASCADE
-    `,
+    run: async () => {
+      await sql`
+        ALTER TABLE "payload_locked_documents_rels"
+          DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_demos_fk"
+      `;
+      await sql`DROP INDEX IF EXISTS "payload_locked_documents_rels_demos_id_idx"`;
+      await sql`
+        ALTER TABLE "payload_locked_documents_rels"
+          DROP COLUMN IF EXISTS "demos_id"
+      `;
+      await sql`DROP TABLE IF EXISTS "demos" CASCADE`;
+    },
   },
   {
     label: 'drop legacy projects table',
-    run: () => sql`
-      ALTER TABLE "payload_locked_documents_rels"
-        DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_projects_fk";
-
-      DROP INDEX IF EXISTS "payload_locked_documents_rels_projects_id_idx";
-
-      ALTER TABLE "payload_locked_documents_rels"
-        DROP COLUMN IF EXISTS "projects_id";
-
-      DROP TABLE IF EXISTS "projects" CASCADE
-    `,
+    run: async () => {
+      await sql`
+        ALTER TABLE "payload_locked_documents_rels"
+          DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_projects_fk"
+      `;
+      await sql`DROP INDEX IF EXISTS "payload_locked_documents_rels_projects_id_idx"`;
+      await sql`
+        ALTER TABLE "payload_locked_documents_rels"
+          DROP COLUMN IF EXISTS "projects_id"
+      `;
+      await sql`DROP TABLE IF EXISTS "projects" CASCADE`;
+    },
   },
 ];
 
