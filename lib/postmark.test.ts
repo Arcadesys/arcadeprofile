@@ -92,6 +92,77 @@ test('sendPostmarkNewsletterEmail batches recipients and records message ids', a
   assert.equal(batches[0][0].TrackLinks, 'None');
 });
 
+test('sendPostmarkNewsletterEmail reports acceptances per batch via onBatchAccepted', async () => {
+  process.env.POSTMARK_FROM_EMAIL = 'news@example.com';
+  const reported: string[][] = [];
+
+  await sendPostmarkNewsletterEmail({
+    to: ['a@example.com', 'b@example.com', 'c@example.com'],
+    subject: 'New post',
+    htmlBody: '<p>Hello</p>',
+    textBody: 'Hello',
+    batchSize: 2,
+    onBatchAccepted(accepted) {
+      reported.push(accepted.map((message) => message.to));
+    },
+    client: {
+      async sendEmailBatch(messages) {
+        return messages.map((message, index) => ({
+          To: message.To,
+          ErrorCode: 0,
+          Message: 'OK',
+          MessageID: `pm-${message.To ?? index}`,
+          SubmittedAt: '2026-06-06T12:00:00.000Z',
+        }));
+      },
+    },
+  });
+
+  // Two batches (2 + 1) → callback fires once per batch, in order.
+  assert.deepEqual(reported, [['a@example.com', 'b@example.com'], ['c@example.com']]);
+});
+
+test('sendPostmarkNewsletterEmail reports accepted messages via onBatchAccepted even when the send throws', async () => {
+  process.env.POSTMARK_FROM_EMAIL = 'news@example.com';
+  const reported: string[][] = [];
+
+  await assert.rejects(
+    () => sendPostmarkNewsletterEmail({
+      to: ['ok@example.com', 'rejected@example.com'],
+      subject: 'New post',
+      htmlBody: '<p>Hello</p>',
+      textBody: 'Hello',
+      onBatchAccepted(accepted) {
+        reported.push(accepted.map((message) => message.to));
+      },
+      client: {
+        async sendEmailBatch() {
+          return [
+            {
+              To: 'ok@example.com',
+              ErrorCode: 0,
+              Message: 'OK',
+              MessageID: 'pm-ok',
+              SubmittedAt: '2026-06-06T12:00:00.000Z',
+            },
+            {
+              To: 'rejected@example.com',
+              ErrorCode: 406,
+              Message: 'Inactive recipient',
+              MessageID: '',
+              SubmittedAt: '2026-06-06T12:00:00.000Z',
+            },
+          ];
+        },
+      },
+    }),
+    PostmarkBatchSendError,
+  );
+
+  // The accepted half of the mixed batch was still reported before the throw.
+  assert.deepEqual(reported, [['ok@example.com']]);
+});
+
 test('sendPostmarkNewsletterEmail throws with accepted and failed recipients', async () => {
   process.env.POSTMARK_FROM_EMAIL = 'news@example.com';
 

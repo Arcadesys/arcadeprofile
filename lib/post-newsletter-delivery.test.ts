@@ -59,10 +59,13 @@ function whereEquals(where: unknown, field: string): unknown {
   return undefined;
 }
 
+type PostUpdate = { id: number | string; data: Record<string, unknown> };
+
 function makePayload(
   post: Post,
   category = 'fiction',
   events: EventDoc[] = [],
+  updates: PostUpdate[] = [],
 ): NewsletterDeliveryPayload {
   return {
     async find(args: { collection: string; where?: unknown }) {
@@ -96,8 +99,10 @@ function makePayload(
       events.push(doc);
       return doc;
     },
-    async update() {
-      throw new Error('unexpected update');
+    async update(args: { collection: string; id: number | string; data: Record<string, unknown> }) {
+      assert.equal(args.collection, 'posts');
+      updates.push({ id: args.id, data: args.data });
+      return { ...post, ...args.data };
     },
   } as unknown as NewsletterDeliveryPayload;
 }
@@ -369,6 +374,93 @@ test('crash-resume within the same attempt skips already-accepted recipients', a
     assert.equal(outcome.state.recipientCount, 2);
     assert.equal(outcome.state.acceptedCount, 2);
     assert.equal(outcome.state.messageId, 'pm-existing,pm-new');
+  }
+});
+
+test('REGRESSION: attemptId is persisted to the post BEFORE the first Postmark call', async () => {
+  setAudienceEnv();
+  const now = new Date('2026-06-06T13:00:00.000Z');
+  const updates: PostUpdate[] = [];
+  let attemptIdPersistedBeforeSend = false;
+
+  const outcome = await deliverPostNewsletter(makePayload(makePost(), 'fiction', [], updates), 1, {
+    now: () => now,
+    generateAttemptId: FIXED_ATTEMPT,
+    async resolveRecipients() {
+      return ['reader@example.com'];
+    },
+    async sendEmail(options) {
+      // If the process died right here, the persisted attemptId is what lets
+      // the retry resume this attempt instead of re-sending to everyone.
+      attemptIdPersistedBeforeSend = updates.some((update) => {
+        const send = update.data.newsletterSend as { attemptId?: string } | undefined;
+        return send?.attemptId === 'attempt-test';
+      });
+      return {
+        messageIds: ['pm-1'],
+        recipientCount: options.to.length,
+        accepted: [{ to: options.to[0], messageId: 'pm-1', submittedAt: now.toISOString(), message: 'OK' }],
+      };
+    },
+  });
+
+  assert.equal(outcome.kind, 'sent');
+  assert.ok(attemptIdPersistedBeforeSend, 'attemptId must be written to the post before sendEmail runs');
+});
+
+test('REGRESSION: acceptances recorded per batch survive a crash mid-send and resume skips them', async () => {
+  setAudienceEnv();
+  const now = new Date('2026-06-06T13:00:00.000Z');
+  const events: EventDoc[] = [];
+  const updates: PostUpdate[] = [];
+
+  // First run: Postmark accepts batch 1 (reported via onBatchAccepted), then
+  // the send dies with a generic error before completing.
+  const first = await deliverPostNewsletter(makePayload(makePost(), 'fiction', events, updates), 1, {
+    now: () => now,
+    generateAttemptId: FIXED_ATTEMPT,
+    async resolveRecipients() {
+      return ['accepted@example.com', 'pending@example.com'];
+    },
+    async sendEmail(options) {
+      await options.onBatchAccepted?.([
+        { to: 'accepted@example.com', messageId: 'pm-batch-1', submittedAt: now.toISOString(), message: 'OK' },
+      ]);
+      throw new Error('process crashed mid-send');
+    },
+  });
+
+  assert.equal(first.kind, 'failed');
+  // The accepted recipient's submitted event was recorded before the crash.
+  assert.equal(events.filter((event) => event.eventType === 'submitted').length, 1);
+
+  // Second run: same attempt (as the pre-send persist guarantees in prod).
+  const resumedPost = makePost({
+    newsletterSend: { attemptId: 'attempt-test', status: 'failed' },
+  });
+  const sentTo: string[][] = [];
+  const second = await deliverPostNewsletter(makePayload(resumedPost, 'fiction', events, updates), 1, {
+    now: () => now,
+    generateAttemptId: () => 'attempt-should-not-be-used',
+    async resolveRecipients() {
+      return ['accepted@example.com', 'pending@example.com'];
+    },
+    async sendEmail(options) {
+      sentTo.push(options.to);
+      return {
+        messageIds: ['pm-batch-2'],
+        recipientCount: options.to.length,
+        accepted: [{ to: options.to[0], messageId: 'pm-batch-2', submittedAt: now.toISOString(), message: 'OK' }],
+      };
+    },
+  });
+
+  assert.equal(second.kind, 'sent');
+  // Only the recipient Postmark never accepted is retried — no duplicate email.
+  assert.deepEqual(sentTo, [['pending@example.com']]);
+  if (second.kind === 'sent') {
+    assert.equal(second.state.attemptId, 'attempt-test');
+    assert.equal(second.state.acceptedCount, 2);
   }
 });
 

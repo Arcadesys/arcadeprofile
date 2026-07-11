@@ -146,6 +146,13 @@ export interface SendPostmarkNewsletterOptions {
   trackLinks?: PostmarkTrackLinks;
   client?: PostmarkBatchClient;
   batchSize?: number;
+  /**
+   * Called after each batch with the messages Postmark accepted in it, so
+   * callers can durably record acceptances as the send progresses. Without
+   * this, a crash mid-send loses every completed batch's acceptance and a
+   * resume re-sends to recipients who already got the email.
+   */
+  onBatchAccepted?: (accepted: PostmarkAcceptedMessage[]) => void | Promise<void>;
 }
 
 export interface SendPostmarkNewsletterResult {
@@ -204,6 +211,7 @@ export async function sendPostmarkNewsletterEmail(
     }));
     const responses = (await client.sendEmailBatch(messages)) as PostmarkBatchResponse[];
     const pendingRecipients = new Set(recipientBatch);
+    const batchAccepted: PostmarkAcceptedMessage[] = [];
     for (const response of responses) {
       const to = response.To?.trim().toLowerCase();
       if (!to || !pendingRecipients.has(to)) {
@@ -219,12 +227,14 @@ export async function sendPostmarkNewsletterEmail(
       if ((response.ErrorCode ?? 0) === 0) {
         if (response.MessageID) {
           messageIds.push(response.MessageID);
-          accepted.push({
+          const acceptedMessage: PostmarkAcceptedMessage = {
             to,
             messageId: response.MessageID,
             submittedAt: response.SubmittedAt ?? null,
             message: response.Message ?? null,
-          });
+          };
+          accepted.push(acceptedMessage);
+          batchAccepted.push(acceptedMessage);
         } else {
           failures.push({
             to,
@@ -249,6 +259,9 @@ export async function sendPostmarkNewsletterEmail(
         message: 'Postmark did not return a response for this recipient',
         submittedAt: null,
       });
+    }
+    if (batchAccepted.length > 0 && options.onBatchAccepted) {
+      await options.onBatchAccepted(batchAccepted);
     }
   }
 
