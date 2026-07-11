@@ -144,3 +144,27 @@ test('reconcile leaves still-queued messages as submitted', async () => {
   assert.equal(result.undelivered, 0);
   assert.equal(updates.length, 0);
 });
+
+test('defaultFetchMessageStatus treats Postmark 422/ErrorCode 701 as not-found', async (t) => {
+  process.env.POSTMARK_SERVER_TOKEN = 'test-token';
+  const originalFetch = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  const respond = (status: number, body: unknown) => async () =>
+    new Response(JSON.stringify(body), { status });
+
+  const { defaultFetchMessageStatus } = await import('./newsletter-reconcile');
+
+  // Postmark reports unknown message ids as 422 + ErrorCode 701, not 404.
+  globalThis.fetch = respond(422, { ErrorCode: 701, Message: 'This message was not found.' });
+  assert.deepEqual(await defaultFetchMessageStatus('pm-unknown'), { kind: 'not-found' });
+
+  // Other 422s stay transient so a real API hiccup is re-checked next run.
+  globalThis.fetch = respond(422, { ErrorCode: 300, Message: 'Invalid request.' });
+  assert.deepEqual(await defaultFetchMessageStatus('pm-invalid'), { kind: 'queued' });
+
+  globalThis.fetch = respond(404, {});
+  assert.deepEqual(await defaultFetchMessageStatus('pm-404'), { kind: 'not-found' });
+});

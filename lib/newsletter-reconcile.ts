@@ -61,8 +61,9 @@ function parseMessageIds(value: string | null | undefined): string[] {
   return [...new Set(value.split(',').map((id) => id.trim()).filter(Boolean))];
 }
 
-/** Default Postmark Messages API lookup for a single outbound message. */
-async function defaultFetchMessageStatus(messageId: string): Promise<ReconcileMessageStatus> {
+/** Default Postmark Messages API lookup for a single outbound message.
+ * Exported for tests; production callers go through reconcileNewsletters. */
+export async function defaultFetchMessageStatus(messageId: string): Promise<ReconcileMessageStatus> {
   const token = getPostmarkServerToken();
   if (!token) return { kind: 'queued' }; // can't verify without a token; try again later
 
@@ -72,6 +73,13 @@ async function defaultFetchMessageStatus(messageId: string): Promise<ReconcileMe
     });
 
     if (response.status === 404) return { kind: 'not-found' };
+    if (response.status === 422) {
+      // Postmark reports an unknown message id as HTTP 422 with ErrorCode 701
+      // ("This message was not found"), not a 404.
+      const body = (await response.json().catch(() => null)) as { ErrorCode?: number } | null;
+      if (body?.ErrorCode === 701) return { kind: 'not-found' };
+      return { kind: 'queued' };
+    }
     if (!response.ok) return { kind: 'queued' }; // transient API error; re-check next run
 
     const body = (await response.json()) as {
