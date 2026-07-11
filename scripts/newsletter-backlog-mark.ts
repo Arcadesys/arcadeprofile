@@ -30,6 +30,12 @@ async function postmarkHasMessage(messageId: string, token: string): Promise<boo
     headers: { 'X-Postmark-Server-Token': token, Accept: 'application/json' },
   });
   if (res.status === 404) return false;
+  if (res.status === 422) {
+    // Postmark reports an unknown message id as HTTP 422 with ErrorCode 701
+    // ("This message was not found"), not a 404.
+    const body = (await res.json().catch(() => null)) as { ErrorCode?: number } | null;
+    return body?.ErrorCode !== 701;
+  }
   if (!res.ok) return true; // transient/uncertain — don't flag as phantom
   const body = (await res.json()) as { MessageID?: string };
   return Boolean(body.MessageID);
