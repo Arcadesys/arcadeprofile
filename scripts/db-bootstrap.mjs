@@ -268,15 +268,22 @@ const statements = [
     `,
   },
   {
+    // One statement per sql`` call — prepared statements reject multiple commands.
     label: 'post_reactions indexes',
-    run: () => sql`
-      CREATE INDEX IF NOT EXISTS "post_reactions_post_id_idx"
-        ON "post_reactions" USING btree ("post_id");
-      CREATE INDEX IF NOT EXISTS "post_reactions_client_id_idx"
-        ON "post_reactions" USING btree ("client_id");
-      CREATE UNIQUE INDEX IF NOT EXISTS "post_reactions_post_emoji_client_unique_idx"
-        ON "post_reactions" ("post_id", "emoji", "client_id")
-    `,
+    run: async () => {
+      await sql`
+        CREATE INDEX IF NOT EXISTS "post_reactions_post_id_idx"
+          ON "post_reactions" USING btree ("post_id")
+      `;
+      await sql`
+        CREATE INDEX IF NOT EXISTS "post_reactions_client_id_idx"
+          ON "post_reactions" USING btree ("client_id")
+      `;
+      await sql`
+        CREATE UNIQUE INDEX IF NOT EXISTS "post_reactions_post_emoji_client_unique_idx"
+          ON "post_reactions" ("post_id", "emoji", "client_id")
+      `;
+    },
   },
   {
     label: 'payload_locked_documents_rels.post_reactions_id',
@@ -358,19 +365,30 @@ const statements = [
     `,
   },
   {
+    // One statement per sql`` call — prepared statements reject multiple commands.
     label: 'postmark_events indexes',
-    run: () => sql`
-      CREATE INDEX IF NOT EXISTS "postmark_events_post_id_idx"
-        ON "postmark_events" USING btree ("post_id");
-      CREATE INDEX IF NOT EXISTS "postmark_events_message_id_idx"
-        ON "postmark_events" USING btree ("message_id");
-      CREATE INDEX IF NOT EXISTS "postmark_events_event_type_idx"
-        ON "postmark_events" USING btree ("event_type");
-      CREATE INDEX IF NOT EXISTS "postmark_events_recipient_email_idx"
-        ON "postmark_events" USING btree ("recipient_email");
-      CREATE INDEX IF NOT EXISTS "postmark_events_occurred_at_idx"
-        ON "postmark_events" USING btree ("occurred_at")
-    `,
+    run: async () => {
+      await sql`
+        CREATE INDEX IF NOT EXISTS "postmark_events_post_id_idx"
+          ON "postmark_events" USING btree ("post_id")
+      `;
+      await sql`
+        CREATE INDEX IF NOT EXISTS "postmark_events_message_id_idx"
+          ON "postmark_events" USING btree ("message_id")
+      `;
+      await sql`
+        CREATE INDEX IF NOT EXISTS "postmark_events_event_type_idx"
+          ON "postmark_events" USING btree ("event_type")
+      `;
+      await sql`
+        CREATE INDEX IF NOT EXISTS "postmark_events_recipient_email_idx"
+          ON "postmark_events" USING btree ("recipient_email")
+      `;
+      await sql`
+        CREATE INDEX IF NOT EXISTS "postmark_events_occurred_at_idx"
+          ON "postmark_events" USING btree ("occurred_at")
+      `;
+    },
   },
   {
     label: 'payload_locked_documents_rels.postmark_events_id',
