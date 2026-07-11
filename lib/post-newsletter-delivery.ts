@@ -272,6 +272,27 @@ export async function deliverPostNewsletter(
       return { kind: 'sent', state };
     }
 
+    // Durably claim the attempt BEFORE Postmark can accept anything. If the
+    // process dies mid-send, the retry loads this attempt id and resumes via
+    // submittedRecipientsForAttempt; without it, the retry would mint a fresh
+    // attempt id, see zero accepted recipients, and re-send to the entire
+    // audience.
+    if (existing?.attemptId !== attemptId) {
+      await payload.update({
+        collection: 'posts',
+        id: post.id,
+        depth: 0,
+        overrideAccess: true,
+        data: {
+          newsletterSend: {
+            ...existing,
+            attemptId,
+            lastSyncedAt: nowIso,
+          },
+        },
+      });
+    }
+
     const group = await resolveGroupHeroForPost(payload as Payload, {
       slug: post.slug,
       group: getPostGroupSlug(post.group),
@@ -289,6 +310,18 @@ export async function deliverPostNewsletter(
         metadata,
         trackOpens: getNewsletterTrackOpens(),
         trackLinks: getNewsletterTrackLinks(),
+        // Record acceptances as each batch lands so a crash mid-send can
+        // resume this attempt without re-sending to already-accepted
+        // recipients. The post-send record calls below are idempotent (the
+        // event ledger dedups), so fakes that ignore this callback still work.
+        onBatchAccepted: (accepted) =>
+          recordPostmarkSubmittedMessages(payload, {
+            postId: post.id,
+            accepted,
+            tag,
+            messageStream,
+            metadata,
+          }),
       });
     } catch (err) {
       if (err instanceof PostmarkBatchSendError) {
