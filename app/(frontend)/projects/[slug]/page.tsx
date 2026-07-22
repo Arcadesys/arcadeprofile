@@ -330,12 +330,7 @@ export default async function ProjectIntroPage({ params }: Props) {
                             <span style={partLabelStyle}>Part {partNum(partIndex)}</span>
                           )}
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.15rem' }}>{p.title}</div>
-                            {p.excerpt && (
-                              <div style={{ fontSize: '0.82rem', color: 'var(--fg-muted)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
-                                {p.excerpt}
-                              </div>
-                            )}
+                            <div style={{ fontSize: '0.95rem', fontWeight: 600 }}>{p.title}</div>
                           </div>
                           <span style={{ ...monoMutedStyle, whiteSpace: 'nowrap' }}>{formatSiteDate(p.date)}</span>
                         </Link>
