@@ -128,7 +128,7 @@ export default function SubscribeCTA({
       margin,
       padding,
       background: 'var(--surface)',
-      border: '1px solid var(--border-strong)',
+      border: '1px solid var(--border)',
       borderRadius: '12px',
     }}>
       {!isCompact && (
