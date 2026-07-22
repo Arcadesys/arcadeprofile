@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { getPayload } from 'payload';
 import config from '@payload-config';
 import StartHereCard from '../components/StartHereCard';
-import SubscribeCTA from '../components/SubscribeCTA';
 import ContinueReadingBanner from '../components/ContinueReadingBanner';
 import { hasConfiguredDatabaseURL } from '@/lib/env';
 import { buildGroupIntroUrl, buildPostUrl, getPostLocationBySlug } from '@/lib/post-url';
@@ -113,93 +112,17 @@ export default async function HomePage() {
         </p>
       </header>
 
+      {/* Resume prompt for readers mid-series — highest priority for a returning
+          visitor, so it sits above even the new-visitor on-ramp. */}
+      <ContinueReadingBanner />
+
       {/* Entry funnel — give first-time visitors a single, voice-rich on-ramp */}
       {startHereHref && <StartHereCard href={startHereHref} />}
 
-      {/* Above-the-fold subscribe + credibility */}
-      <section id="subscribe" style={{ margin: '0 0 2.5rem', scrollMarginTop: '5rem' }}>
-        <SubscribeCTA
-          source="home-hero"
-          magnet="story"
-          eyebrow="Fiction by email"
-          heading="Read it as it arrives"
-          blurb="Subscribe and I'll send La Ligne du Marais — a Paris noir short — to start. After that, every installment as it publishes: fiction Mon/Wed/Fri, essays Tue/Thu."
-        />
-        <p style={{
-          fontSize: '0.78rem',
-          color: 'var(--fg-muted)',
-          textAlign: 'center',
-          margin: '0.85rem 0 0',
-          lineHeight: 1.5,
-        }}>
-          Ursa Major nominee · Archived in the{' '}
-          <strong style={{ color: 'var(--fg)' }}>Strong National Museum of Play</strong>
-        </p>
-      </section>
-
-      {/* Resume prompt for readers mid-series — client-only, localStorage-driven */}
-      <ContinueReadingBanner />
-
-      {/* Recently published — gives returning visitors something new to see */}
-      {recentPosts.length > 0 && (
-        <section style={{ margin: '2.5rem 0' }}>
-          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Recently published</h2>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.6rem' }}>
-            {recentPosts.map((post) => (
-              <li key={post.slug}>
-                <Link href={post.href} className="button-link" style={{ display: 'inline-block' }}>
-                  &rarr; {post.title}
-                </Link>
-                <p style={{ margin: '0.25rem 0 0 1.25rem', fontSize: '0.875rem', color: 'var(--fg-muted)', lineHeight: 1.5 }}>
-                  {post.groupTitle} · {formatSiteDate(post.date)}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Manifesto — tightened */}
-      <section style={{ margin: '2.5rem 0' }}>
-        <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
-          I miss email lists. Not newsletters. Not funnels. Not algorithmic confetti.
-        </p>
-        <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
-          I mean the old kind: serialized stories in your inbox, readers replying, people gathering around the same strange little fire. So I&rsquo;m bringing that back.
-        </p>
-        <p style={{ lineHeight: 1.75, margin: 0 }}>
-          Read like we used to on listservs. Read like the Victorians did Dickens. Read like the internet can still be a place worth visiting.
-        </p>
-      </section>
-
-      {/* Strange But True */}
-      <section style={{
-        margin: '2.5rem 0',
-        padding: '1.5rem',
-        borderLeft: '3px solid var(--accent, #c084fc)',
-        background: 'var(--bg-card, transparent)',
-        borderRadius: '0.5rem',
-      }}>
-        <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Strange but true</h2>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.75rem' }}>
-          <li style={{ lineHeight: 1.5 }}>
-            I published some of the earliest &ldquo;furry&rdquo; fiction to reach print &mdash; before the genre had a shelf to sit on.
-          </li>
-          <li style={{ lineHeight: 1.5 }}>
-            I helped define what people now call &ldquo;eggfic&rdquo; years before the term existed.
-          </li>
-          <li style={{ lineHeight: 1.5 }}>
-            Nominated for an Ursa Major Award while still in high school.
-          </li>
-          <li style={{ lineHeight: 1.5 }}>
-            My writing is archived in the <strong>Strong National Museum of Play</strong>.
-          </li>
-        </ul>
-      </section>
-
-      {/* Current Projects */}
+      {/* Current Projects — the big picture before the ask: what's actually
+          ongoing, so "subscribe" isn't the first thing a visitor sees. */}
       {featuredGroups.length > 0 && (
-        <section style={{ margin: '2.5rem 0' }}>
+        <section style={{ margin: '0 0 2.5rem' }}>
           <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Current projects</h2>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.6rem' }}>
             {featuredGroups.map((group) => {
@@ -227,16 +150,78 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Closing CTA — second chance for scrollers */}
-      <section style={{ margin: '3rem 0 0' }}>
-        <SubscribeCTA
-          source="home-bottom"
-          magnet="story"
-          variant="compact"
-          heading="Still here? Then this is for you."
-          blurb="Every installment as it lands. Read at your own pace. Reply if something lands. Sign up and I'll send La Ligne du Marais — a Paris noir short — to kick things off."
-          buttonLabel="Send me the story"
-        />
+      {/* Recently published — concrete, dated proof of momentum */}
+      {recentPosts.length > 0 && (
+        <section style={{ margin: '0 0 2.5rem' }}>
+          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Recently published</h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.6rem' }}>
+            {recentPosts.map((post) => (
+              <li key={post.slug}>
+                <Link href={post.href} className="button-link" style={{ display: 'inline-block' }}>
+                  &rarr; {post.title}
+                </Link>
+                <p style={{ margin: '0.25rem 0 0 1.25rem', fontSize: '0.875rem', color: 'var(--fg-muted)', lineHeight: 1.5 }}>
+                  {post.groupTitle} · {formatSiteDate(post.date)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Credibility facts — the subscribe ask itself now lives only in the
+          footer (one form per page instead of three), but these bio facts
+          stay as a standalone block. */}
+      <section style={{ margin: '0 0 2.5rem' }}>
+        <ul style={{
+          listStyle: 'none',
+          padding: 0,
+          margin: 0,
+          display: 'grid',
+          gap: '0.4rem',
+          fontSize: '0.78rem',
+          color: 'var(--fg-muted)',
+          textAlign: 'center',
+          lineHeight: 1.5,
+        }}>
+          <li>
+            Published some of the earliest &ldquo;furry&rdquo; fiction in print &mdash; before the genre had a shelf.
+          </li>
+          <li>
+            Helped define &ldquo;eggfic,&rdquo; years before the term existed.
+          </li>
+          <li>
+            Ursa Major Award nominee, while still in high school.
+          </li>
+          <li>
+            Archived in the{' '}
+            <strong style={{ color: 'var(--fg)' }}>Strong National Museum of Play</strong>.
+          </li>
+        </ul>
+      </section>
+
+      {/* Manifesto — de-emphasized: still here for anyone reading this far,
+          but no longer the first thing after the hero. */}
+      <section style={{ margin: '2.5rem 0' }}>
+        <h2 style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: '0.75rem',
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'var(--fg-muted)',
+          marginBottom: '1rem',
+        }}>
+          Why
+        </h2>
+        <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
+          I miss email lists. Not newsletters. Not funnels. Not algorithmic confetti.
+        </p>
+        <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
+          I mean the old kind: serialized stories in your inbox, readers replying, people gathering around the same strange little fire. So I&rsquo;m bringing that back.
+        </p>
+        <p style={{ lineHeight: 1.75, margin: 0 }}>
+          Read like we used to on listservs. Read like the Victorians did Dickens. Read like the internet can still be a place worth visiting.
+        </p>
       </section>
     </main>
   );

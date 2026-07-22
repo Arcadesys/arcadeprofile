@@ -146,7 +146,7 @@ export default function StartHereCard({
           {ctaLabel ?? `Read ${title}`} &rarr;
         </Link>
         <a
-          href="#subscribe"
+          href="/subscribe"
           className="button-link"
           style={{
             display: 'inline-flex',
