@@ -11,6 +11,7 @@ function fakePost(slug: string, chapter?: string): BlogPost {
     date: '2026-01-01',
     excerpt: '',
     content: { root: { type: 'root', children: [], direction: null, format: '', indent: 0, version: 1 } } as unknown as BlogPost['content'],
+    tags: [],
     chapter,
   };
 }

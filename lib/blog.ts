@@ -27,6 +27,8 @@ export interface BlogPost {
   chapter?: string;
   /** Display author (Payload `posts.author`). */
   author?: string;
+  /** Freeform tags (Payload `posts.tags`), used for related-post matching. */
+  tags: string[];
   /** Optional copy above the site footer subscribe on this post only. */
   newsletterHeading?: string;
   newsletterDescription?: string;
@@ -63,6 +65,7 @@ function toPost(doc: Post): BlogPost {
     order: doc.order ?? undefined,
     chapter: doc.chapter || undefined,
     author: doc.author || undefined,
+    tags: Array.isArray(doc.tags) ? doc.tags.map((t) => t.tag) : [],
     newsletterHeading: doc.newsletterHeading || undefined,
     newsletterDescription: doc.newsletterDescription || undefined,
     meta: doc.meta
