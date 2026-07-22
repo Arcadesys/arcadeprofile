@@ -192,16 +192,16 @@ export default async function HomePage() {
           lineHeight: 1.5,
         }}>
           <li>
-            I published some of the earliest &ldquo;furry&rdquo; fiction to reach print &mdash; before the genre had a shelf to sit on.
+            Published some of the earliest &ldquo;furry&rdquo; fiction in print &mdash; before the genre had a shelf.
           </li>
           <li>
-            I helped define what people now call &ldquo;eggfic&rdquo; years before the term existed.
+            Helped define &ldquo;eggfic,&rdquo; years before the term existed.
           </li>
           <li>
-            Nominated for an Ursa Major Award while still in high school.
+            Ursa Major Award nominee, while still in high school.
           </li>
           <li>
-            My writing is archived in the{' '}
+            Archived in the{' '}
             <strong style={{ color: 'var(--fg)' }}>Strong National Museum of Play</strong>.
           </li>
         </ul>
