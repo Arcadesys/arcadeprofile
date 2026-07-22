@@ -180,16 +180,31 @@ export default async function HomePage() {
           heading="Read it as it arrives"
           blurb="Subscribe and I'll send La Ligne du Marais — a Paris noir short — to start. After that, every installment as it publishes: fiction Mon/Wed/Fri, essays Tue/Thu."
         />
-        <p style={{
+        <ul style={{
+          listStyle: 'none',
+          padding: 0,
+          margin: '0.85rem 0 0',
+          display: 'grid',
+          gap: '0.4rem',
           fontSize: '0.78rem',
           color: 'var(--fg-muted)',
           textAlign: 'center',
-          margin: '0.85rem 0 0',
           lineHeight: 1.5,
         }}>
-          Ursa Major nominee · Archived in the{' '}
-          <strong style={{ color: 'var(--fg)' }}>Strong National Museum of Play</strong>
-        </p>
+          <li>
+            I published some of the earliest &ldquo;furry&rdquo; fiction to reach print &mdash; before the genre had a shelf to sit on.
+          </li>
+          <li>
+            I helped define what people now call &ldquo;eggfic&rdquo; years before the term existed.
+          </li>
+          <li>
+            Nominated for an Ursa Major Award while still in high school.
+          </li>
+          <li>
+            My writing is archived in the{' '}
+            <strong style={{ color: 'var(--fg)' }}>Strong National Museum of Play</strong>.
+          </li>
+        </ul>
       </section>
 
       {/* Manifesto — de-emphasized: still here for anyone reading this far,
@@ -214,31 +229,6 @@ export default async function HomePage() {
         <p style={{ lineHeight: 1.75, margin: 0 }}>
           Read like we used to on listservs. Read like the Victorians did Dickens. Read like the internet can still be a place worth visiting.
         </p>
-      </section>
-
-      {/* Strange But True */}
-      <section style={{
-        margin: '2.5rem 0',
-        padding: '1.5rem',
-        borderLeft: '3px solid var(--accent, #c084fc)',
-        background: 'var(--bg-card, transparent)',
-        borderRadius: '0.5rem',
-      }}>
-        <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Strange but true</h2>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.75rem' }}>
-          <li style={{ lineHeight: 1.5 }}>
-            I published some of the earliest &ldquo;furry&rdquo; fiction to reach print &mdash; before the genre had a shelf to sit on.
-          </li>
-          <li style={{ lineHeight: 1.5 }}>
-            I helped define what people now call &ldquo;eggfic&rdquo; years before the term existed.
-          </li>
-          <li style={{ lineHeight: 1.5 }}>
-            Nominated for an Ursa Major Award while still in high school.
-          </li>
-          <li style={{ lineHeight: 1.5 }}>
-            My writing is archived in the <strong>Strong National Museum of Play</strong>.
-          </li>
-        </ul>
       </section>
 
       {/* Closing CTA — second chance for scrollers */}
