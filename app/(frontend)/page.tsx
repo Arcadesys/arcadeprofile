@@ -113,10 +113,65 @@ export default async function HomePage() {
         </p>
       </header>
 
+      {/* Resume prompt for readers mid-series — highest priority for a returning
+          visitor, so it sits above even the new-visitor on-ramp. */}
+      <ContinueReadingBanner />
+
       {/* Entry funnel — give first-time visitors a single, voice-rich on-ramp */}
       {startHereHref && <StartHereCard href={startHereHref} />}
 
-      {/* Above-the-fold subscribe + credibility */}
+      {/* Current Projects — the big picture before the ask: what's actually
+          ongoing, so "subscribe" isn't the first thing a visitor sees. */}
+      {featuredGroups.length > 0 && (
+        <section style={{ margin: '0 0 2.5rem' }}>
+          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Current projects</h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.6rem' }}>
+            {featuredGroups.map((group) => {
+              const href = group.href ?? (group.slug ? buildGroupIntroUrl(group.slug) : '/projects');
+              return (
+                <li key={String(group.id)}>
+                  {group.external ? (
+                    <a href={href} className="button-link" style={{ display: 'inline-block' }} target="_blank" rel="noopener noreferrer">
+                      &rarr; {group.title}
+                    </a>
+                  ) : (
+                    <Link href={href} className="button-link" style={{ display: 'inline-block' }}>
+                      &rarr; {group.title}
+                    </Link>
+                  )}
+                  {group.description && (
+                    <p style={{ margin: '0.25rem 0 0 1.25rem', fontSize: '0.875rem', color: 'var(--fg-muted)', lineHeight: 1.5 }}>
+                      {group.description}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {/* Recently published — concrete, dated proof of momentum */}
+      {recentPosts.length > 0 && (
+        <section style={{ margin: '0 0 2.5rem' }}>
+          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Recently published</h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.6rem' }}>
+            {recentPosts.map((post) => (
+              <li key={post.slug}>
+                <Link href={post.href} className="button-link" style={{ display: 'inline-block' }}>
+                  &rarr; {post.title}
+                </Link>
+                <p style={{ margin: '0.25rem 0 0 1.25rem', fontSize: '0.875rem', color: 'var(--fg-muted)', lineHeight: 1.5 }}>
+                  {post.groupTitle} · {formatSiteDate(post.date)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Primary subscribe ask — now positioned after the visitor has seen
+          real evidence of ongoing output, not before it. */}
       <section id="subscribe" style={{ margin: '0 0 2.5rem', scrollMarginTop: '5rem' }}>
         <SubscribeCTA
           source="home-hero"
@@ -137,30 +192,19 @@ export default async function HomePage() {
         </p>
       </section>
 
-      {/* Resume prompt for readers mid-series — client-only, localStorage-driven */}
-      <ContinueReadingBanner />
-
-      {/* Recently published — gives returning visitors something new to see */}
-      {recentPosts.length > 0 && (
-        <section style={{ margin: '2.5rem 0' }}>
-          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Recently published</h2>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.6rem' }}>
-            {recentPosts.map((post) => (
-              <li key={post.slug}>
-                <Link href={post.href} className="button-link" style={{ display: 'inline-block' }}>
-                  &rarr; {post.title}
-                </Link>
-                <p style={{ margin: '0.25rem 0 0 1.25rem', fontSize: '0.875rem', color: 'var(--fg-muted)', lineHeight: 1.5 }}>
-                  {post.groupTitle} · {formatSiteDate(post.date)}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Manifesto — tightened */}
+      {/* Manifesto — de-emphasized: still here for anyone reading this far,
+          but no longer the first thing after the hero. */}
       <section style={{ margin: '2.5rem 0' }}>
+        <h2 style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: '0.75rem',
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'var(--fg-muted)',
+          marginBottom: '1rem',
+        }}>
+          Why
+        </h2>
         <p style={{ lineHeight: 1.75, marginBottom: '1rem' }}>
           I miss email lists. Not newsletters. Not funnels. Not algorithmic confetti.
         </p>
@@ -196,36 +240,6 @@ export default async function HomePage() {
           </li>
         </ul>
       </section>
-
-      {/* Current Projects */}
-      {featuredGroups.length > 0 && (
-        <section style={{ margin: '2.5rem 0' }}>
-          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Current projects</h2>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.6rem' }}>
-            {featuredGroups.map((group) => {
-              const href = group.href ?? (group.slug ? buildGroupIntroUrl(group.slug) : '/projects');
-              return (
-                <li key={String(group.id)}>
-                  {group.external ? (
-                    <a href={href} className="button-link" style={{ display: 'inline-block' }} target="_blank" rel="noopener noreferrer">
-                      &rarr; {group.title}
-                    </a>
-                  ) : (
-                    <Link href={href} className="button-link" style={{ display: 'inline-block' }}>
-                      &rarr; {group.title}
-                    </Link>
-                  )}
-                  {group.description && (
-                    <p style={{ margin: '0.25rem 0 0 1.25rem', fontSize: '0.875rem', color: 'var(--fg-muted)', lineHeight: 1.5 }}>
-                      {group.description}
-                    </p>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      )}
 
       {/* Closing CTA — second chance for scrollers */}
       <section style={{ margin: '3rem 0 0' }}>
