@@ -13,7 +13,11 @@ import type { DrawerSection } from '@/app/components/DocDrawer';
 import SubscribeCTA from '@/app/components/SubscribeCTA';
 import ShareLinks from '@/app/components/ShareLinks';
 import PostReactions from '@/app/components/PostReactions';
+import RelatedPosts from '@/app/components/RelatedPosts';
+import ReadingProgressTracker from '@/app/components/ReadingProgressTracker';
 import { getReactionCounts } from '@/lib/reactions';
+import { getRelatedPosts } from '@/lib/related-posts';
+import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
 import { JsonLd } from '@/lib/structured-data';
 import {
@@ -205,11 +209,14 @@ export default async function ProjectPostPage({ params }: Props) {
     partIndex < posts.length ? buildPostUrl(slug, posts[idx + 1].slug) : undefined;
 
   const payload = await getPayload({ config: payloadConfig });
-  const [og, extras, initialReactionCounts] = await Promise.all([
+  const [og, extras, initialReactionCounts, allPosts, urlMap] = await Promise.all([
     resolvePostOgImageBySlug(payload, post.slug),
     loadPostExtras(post.slug),
     getReactionCounts(payload, post.id),
+    getAllPosts(),
+    buildPostUrlMap(),
   ]);
+  const relatedPosts = getRelatedPosts(allPosts, post, urlMap);
 
   const pageUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
   // JSON-LD url/mainEntityOfPage tracks the same canonical as the
@@ -284,6 +291,14 @@ export default async function ProjectPostPage({ params }: Props) {
       <JsonLd data={jsonLd} />
       <JsonLd data={breadcrumbJsonLd} />
       {drawer}
+      <ReadingProgressTracker
+        groupSlug={slug}
+        groupTitle={project.title}
+        postSlug={post.slug}
+        postTitle={post.title}
+        partIndex={partIndex}
+        totalParts={posts.length}
+      />
       <main className={postMainCls}>
         <nav style={{ marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
           <Link href={buildGroupIntroUrl(slug)} style={navLinkStyle}>← {project.title}</Link>
@@ -309,6 +324,8 @@ export default async function ProjectPostPage({ params }: Props) {
         <div style={{ marginTop: '2.5rem' }}>
           <PostReactions postId={post.id} initialCounts={initialReactionCounts} />
         </div>
+
+        <RelatedPosts items={relatedPosts} />
 
         <SubscribeCTA
           source="post"

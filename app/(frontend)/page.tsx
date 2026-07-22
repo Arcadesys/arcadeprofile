@@ -3,18 +3,24 @@ import { getPayload } from 'payload';
 import config from '@payload-config';
 import StartHereCard from '../components/StartHereCard';
 import SubscribeCTA from '../components/SubscribeCTA';
+import ContinueReadingBanner from '../components/ContinueReadingBanner';
 import { hasConfiguredDatabaseURL } from '@/lib/env';
-import { buildGroupIntroUrl, getPostLocationBySlug } from '@/lib/post-url';
+import { buildGroupIntroUrl, buildPostUrl, getPostLocationBySlug } from '@/lib/post-url';
 import { publicPostStatusWhere } from '@/lib/post-status';
+import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
+import { formatSiteDate } from '@/lib/site-time';
+
+const RECENT_POSTS_MAX = 4;
 
 export default async function HomePage() {
   let featuredGroups: { id: string | number; title: string; description?: string | null; slug?: string | null; href?: string | null; external?: boolean | null }[] = [];
   let startHereHref: string | null = null;
+  let recentPosts: { slug: string; title: string; date: string; href: string; groupTitle: string }[] = [];
 
   if (hasConfiguredDatabaseURL()) {
     try {
       const payload = await getPayload({ config });
-      const [groupsResult, startHereResult] = await Promise.all([
+      const [groupsResult, startHereResult, allPosts, urlMap] = await Promise.all([
         payload.find({
           collection: 'groups',
           where: { homeHighlight: { equals: true } },
@@ -33,6 +39,8 @@ export default async function HomePage() {
           depth: 0,
           overrideAccess: true,
         }),
+        getAllPosts(),
+        buildPostUrlMap(),
       ]);
       featuredGroups = groupsResult.docs.map((doc) => ({
         id: doc.id,
@@ -46,6 +54,19 @@ export default async function HomePage() {
       if (startHereSlug) {
         startHereHref = (await getPostLocationBySlug(payload, startHereSlug))?.url ?? null;
       }
+      recentPosts = allPosts
+        .filter((post) => urlMap.has(post.slug))
+        .slice(0, RECENT_POSTS_MAX)
+        .map((post) => {
+          const loc = urlMap.get(post.slug)!;
+          return {
+            slug: post.slug,
+            title: post.title,
+            date: post.date,
+            href: buildPostUrl(loc.groupSlug, post.slug),
+            groupTitle: loc.groupTitle,
+          };
+        });
     } catch {
       // fall through to empty list / hidden card
     }
@@ -115,6 +136,28 @@ export default async function HomePage() {
           <strong style={{ color: 'var(--fg)' }}>Strong National Museum of Play</strong>
         </p>
       </section>
+
+      {/* Resume prompt for readers mid-series — client-only, localStorage-driven */}
+      <ContinueReadingBanner />
+
+      {/* Recently published — gives returning visitors something new to see */}
+      {recentPosts.length > 0 && (
+        <section style={{ margin: '2.5rem 0' }}>
+          <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Recently published</h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.6rem' }}>
+            {recentPosts.map((post) => (
+              <li key={post.slug}>
+                <Link href={post.href} className="button-link" style={{ display: 'inline-block' }}>
+                  &rarr; {post.title}
+                </Link>
+                <p style={{ margin: '0.25rem 0 0 1.25rem', fontSize: '0.875rem', color: 'var(--fg-muted)', lineHeight: 1.5 }}>
+                  {post.groupTitle} · {formatSiteDate(post.date)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Manifesto — tightened */}
       <section style={{ margin: '2.5rem 0' }}>
