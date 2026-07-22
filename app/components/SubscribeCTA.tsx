@@ -120,17 +120,10 @@ export default function SubscribeCTA({
   }
 
   const isCompact = variant === 'compact';
-  const padding = isCompact ? '1.25rem' : '1.75rem';
   const margin = isCompact ? '0' : '3rem 0 0';
 
   return (
-    <aside style={{
-      margin,
-      padding,
-      background: 'var(--surface)',
-      border: '1px solid var(--border)',
-      borderRadius: '12px',
-    }}>
+    <aside style={{ margin }}>
       {!isCompact && (
         <p style={{
           fontSize: '0.7rem',
@@ -314,9 +307,9 @@ export default function SubscribeCTA({
                 className="flex-1 min-w-0"
                 style={{
                   padding: '0.55rem 0.85rem',
-                  background: 'var(--bg-deep)',
-                  border: '1px solid var(--border-strong)',
-                  borderRadius: 'var(--radius-sm)',
+                  background: 'var(--btn-bg)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius)',
                   color: 'var(--fg)',
                   fontSize: '0.9rem',
                   fontFamily: 'var(--font-mono)',
@@ -325,14 +318,9 @@ export default function SubscribeCTA({
               />
               <button
                 type="submit"
+                className="buy-button"
                 disabled={status === 'loading' || audiences.size === 0}
                 style={{
-                  padding: '0.55rem 1.25rem',
-                  background: 'var(--neon-pink)',
-                  color: '#000',
-                  border: 'none',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '0.88rem',
                   fontFamily: 'var(--font-mono)',
                   fontWeight: 700,
                   cursor: status === 'loading' ? 'wait' : audiences.size === 0 ? 'not-allowed' : 'pointer',
