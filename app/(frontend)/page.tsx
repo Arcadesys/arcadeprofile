@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { getPayload } from 'payload';
 import config from '@payload-config';
 import StartHereCard from '../components/StartHereCard';
-import SubscribeCTA from '../components/SubscribeCTA';
 import ContinueReadingBanner from '../components/ContinueReadingBanner';
 import { hasConfiguredDatabaseURL } from '@/lib/env';
 import { buildGroupIntroUrl, buildPostUrl, getPostLocationBySlug } from '@/lib/post-url';
@@ -170,20 +169,14 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Primary subscribe ask — now positioned after the visitor has seen
-          real evidence of ongoing output, not before it. */}
-      <section id="subscribe" style={{ margin: '0 0 2.5rem', scrollMarginTop: '5rem' }}>
-        <SubscribeCTA
-          source="home-hero"
-          magnet="story"
-          eyebrow="Fiction by email"
-          heading="Read it as it arrives"
-          blurb="Subscribe and I'll send La Ligne du Marais — a Paris noir short — to start. After that, every installment as it publishes: fiction Mon/Wed/Fri, essays Tue/Thu."
-        />
+      {/* Credibility facts — the subscribe ask itself now lives only in the
+          footer (one form per page instead of three), but these bio facts
+          stay as a standalone block. */}
+      <section style={{ margin: '0 0 2.5rem' }}>
         <ul style={{
           listStyle: 'none',
           padding: 0,
-          margin: '0.85rem 0 0',
+          margin: 0,
           display: 'grid',
           gap: '0.4rem',
           fontSize: '0.78rem',
@@ -229,18 +222,6 @@ export default async function HomePage() {
         <p style={{ lineHeight: 1.75, margin: 0 }}>
           Read like we used to on listservs. Read like the Victorians did Dickens. Read like the internet can still be a place worth visiting.
         </p>
-      </section>
-
-      {/* Closing CTA — second chance for scrollers */}
-      <section style={{ margin: '3rem 0 0' }}>
-        <SubscribeCTA
-          source="home-bottom"
-          magnet="story"
-          variant="compact"
-          heading="Still here? Then this is for you."
-          blurb="Every installment as it lands. Read at your own pace. Reply if something lands. Sign up and I'll send La Ligne du Marais — a Paris noir short — to kick things off."
-          buttonLabel="Send me the story"
-        />
       </section>
     </main>
   );
