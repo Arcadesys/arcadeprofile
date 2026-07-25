@@ -36,14 +36,20 @@ export default function ToysPage() {
             <li key={toy.id}>
               <Link className={styles.toyLink} href={toy.href}>
                 <div className={styles.cover}>
-                  <Image
-                    alt={toy.image.alt}
-                    height={toy.image.height}
-                    priority={index === 0}
-                    sizes="(max-width: 700px) 100vw, 420px"
-                    src={toy.image.src}
-                    width={toy.image.width}
-                  />
+                  {toy.image ? (
+                    <Image
+                      alt={toy.image.alt}
+                      height={toy.image.height}
+                      priority={index === 0}
+                      sizes="(max-width: 700px) 100vw, 420px"
+                      src={toy.image.src}
+                      width={toy.image.width}
+                    />
+                  ) : (
+                    <span aria-hidden="true" className={styles.coverFallback}>
+                      {toy.title}
+                    </span>
+                  )}
                 </div>
                 <div className={styles.toyCopy}>
                   <div className={styles.toyMeta}>

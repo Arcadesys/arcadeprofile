@@ -5,7 +5,11 @@ export type ToyCatalogEntry = {
   kind: string;
   status: string;
   description: string;
-  image: {
+  /**
+   * Optional cover art. Toys without artwork fall back to a typographic cover
+   * built from the title, so a story can ship before its art does.
+   */
+  image?: {
     src: string;
     alt: string;
     width: number;
@@ -13,7 +17,7 @@ export type ToyCatalogEntry = {
   };
 };
 
-export const TOY_CATALOG = [
+export const TOY_CATALOG: readonly ToyCatalogEntry[] = [
   {
     id: 'interspecies-dating-is-hard',
     title: 'Interspecies Dating is Hard',
@@ -29,4 +33,13 @@ export const TOY_CATALOG = [
       height: 560,
     },
   },
-] as const satisfies readonly ToyCatalogEntry[];
+  {
+    id: 'butterfly-exe',
+    title: 'Butterfly.exe',
+    href: '/toys/butterfly-exe',
+    kind: 'Interactive fiction',
+    status: 'Playable now',
+    description:
+      'Sherry uploads tonight. You get one last evening with the body she is leaving behind.',
+  },
+];
