@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "slug": "justice-porn",
+  "title": "Justice Porn",
+  "author": "Austen Crowder",
+  "start": "Start",
+  "source": {
+    "format": "Twine 1 / Jonah 2.2",
+    "importedFrom": "/Users/arcades/Documents/GitHub/writing-archive/_archive/twine/justiceporn.html"
+  },
+  "passages": [
+    {
+      "id": "eventually",
+      "text": "You look to the defense attorney now standing in the same smock and gloves. A brief, cold exchange of glances cross between you both. \"I hate this part,\" she says, and you can only offer a sympathetic shrug of the shoulders. \n\nLaw is law. At one point you knew justice was separate from this, outsourced to the prison guards and executioners and jailhouse rapists. Once the guilty left the room you knew they got what they deserved. Now, however, Law was justice and justice was law. No reason to stretch the process to too many stakeholders. \n\nThe bailiff nods. You step forward and pull back the [[hammer]] on the .38."
+    },
+    {
+      "id": "didn't waste time",
+      "text": "\"I find the defendant guilty. Bailiff and counsel are excused to chambers.\" \n\nThe gavel falls. The room breathes a single, synchronous gasp. A single smile breaks through the din and spreads as pestilence. A galley member begins to clap until the judge glares with the threat of contempt of court. One does not risk contempt in this environment. \n\nThe defendant's family breaks into a low, moaning hymn. Steal Away. You recognize it from when you used to go to church. Hands laid on foreheads, hugs, shoulders moist from teary heads on shoulders. The bailiff does not rush them; at least this court maintains a level of [[humanity]]."
+    },
+    {
+      "id": "drain",
+      "text": "Many US courts had to be modified to accommodate the new [[sentencing procedures]]. Drains, glass tiling, automated bleach showers, even improvised bleachers for teeming throngs looking for their dose of justice porn. You don a smock and latex gloves while the bailiff reads the guilty party their rights. They plead for mercy. The bailiff reminds them that they refused your plea. \n\nThis person could have killed someone. You keep mumbling it, as if it were a mantra. This person would kill someone, [[eventually]]."
+    },
+    {
+      "id": "sentencing procedures",
+      "text": "On a positive note, prison crowding is nonexistent and felony charges are at an all-time low. Punishment is finally a deterrent enough to keep people from risking anything. Prisons are in-and-out affairs - a place for jaywalkers and shoplifters. Justice is swift, plucking the bad apples before they could rot and [[ruin the bushel.|drain]]"
+    },
+    {
+      "id": "mercy",
+      "text": "The defense attorney is quick with her half of the duty. She reaches in to the man's neck, slides her finger into the brains and blood and muck, and feels for a pulse. This is a formality, of course. Nobody could survive a wound like this. Still her fingers touch the lifeless neck and look to her watch. She [[calls a time]]. The bailiff takes note.\n\nIn the galley people are vomiting. They always vomit, and the leavings find their way under strategically placed grates."
+    },
+    {
+      "id": "service pistol",
+      "text": "It is a .38. By police standards the gun is an anachronism; no one would be caught on the streets carrying such a weak weapon. The cops long since moved onto larger calibers, higher powered rounds, militarized tactics to combat gangs in body armor and steel-plated Mercedes sedans. For a district attorney on the job the .38 did just fine. Simple, impossible to jam, with a hollow-point bullet that bounced inside of flesh instead of penetrating the walls beyond your target. It only takes one shot. \n\nThe defense attorney is crying. She's a younger lady, bright and full of fire. She'd make a hell of a lawyer once she took her lumps. An even better person if the job didn't get to her first. Her eyes were already starting to harden and show signs of cynicism, acceptance. \n\nShe was growing as accustomed to [[sentencing]] as you are, and you weren't sure if that was a good thing."
+    },
+    {
+      "id": "buck the system",
+      "text": "This man could have killed somebody. They all could have killed somebody, and we have no room to safely keep them away from the people they could have killed. \n\nThis isn't murder. This is [[mercy]]."
+    },
+    {
+      "id": "putting bullets in faces",
+      "text": "She doesn't wait for the answer. Instead her eyes go dead and distant as she retreats down, down, deep into herself. The smock comes off. She shakes brain from her heels and storms out of chambers. Remnants of the galley stare at her with angry eyes while they wipe strands of snot from their lips. \n\nYou reholster your gun and saunter into the hall, ready for an early afternoon bail hearing. Shoplifter. Bail will be too high, of course, and the girl will be put into a holding cell on the assembly line of instant justice. But sometimes formality is just formality. \n\nJustice must be served."
+    },
+    {
+      "id": "killed somebody",
+      "text": "[[This man could have killed somebody]]."
+    },
+    {
+      "id": "This man could have killed somebody",
+      "text": "The defendant's family sings: \n\nMy Lord he calls me \nHe calls me by the thunder \nThe trumpet sounds within my soul\n\n\n\nThe hammer [[falls]]."
+    },
+    {
+      "id": "Start",
+      "text": "The perp pulled a gun on the gas station clerk. It's clear on the video; the idiot didn't even bother to wear a mask. The defense attorney tried, bless her heart, but your job was far too easy. Show a video, call a cop to the stand, and rest the case.\n\nThe judge [[didn't waste time]]."
+    },
+    {
+      "id": "calls a time",
+      "text": "\"At least felony sentencing is faster now,\" the defense attorney says. Her voice is hollow, a marionette controlled by some far-off puppetmaster. \"No haggling or horse-trading over sentencing. No outstanding debts to society. Just this. Always this.\" \n\n\"I guess so.\" \n\n\"Is this what you wanted to do?\" she asked. \"Back in law school. Back before prison reform. Back before we became a perfect society. Did you want to spend your days [[putting bullets in faces]] in the name of the law?\""
+    },
+    {
+      "id": "sentencing",
+      "text": "The windows around you began to fill with members of the galley. Their eyes were fresh, thirsty. Some openly rubbed their hands in delight. You remember the Romans and their lions as they pile in, person on person, some kneeling so those behind them could see. \n\nThe guilty man is on his knees. Eyes open, staring to some point beyond space and time. \n\nThe bailiff opens the floor's [[drain]]."
+    },
+    {
+      "id": "falls",
+      "text": "The room rings. You close your eyes and imagine you're back home, humming some tune in your tile shower while hot water sprays across your body. A nice, relaxing shower, tiles and glass, and you're just humming along and trying not to think about the mess of blood and brains now sliding down your plastic apron, the smoke from your gun, the sound of eerie silence from a man that had just been begging for you to [[buck the system]]."
+    },
+    {
+      "id": "hammer",
+      "text": "The bailiff tells the guilty to stare at the ground but they never do. They meet you, eye to eye, with the gaze of sadness, guilt, longing. Without words they plead for clemency. Mercy. They mention their children, their wives, their God. Swear to disappear from the world and never trouble you again. \n\n[[This person could have killed somebody.|killed somebody]]"
+    },
+    {
+      "id": "humanity",
+      "text": "We are better than them, after all. Better than the scum brought to justice. \n\nThis man pulled a gun and then beat someone to within an inch of their life. You keep this in mind as you unbutton your suit coat and finger the cold, polished steel of your [[service pistol]]."
+    }
+  ]
+}

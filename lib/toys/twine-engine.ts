@@ -41,6 +41,7 @@ const CONDITIONAL_PATTERN =
   /<<if\s+([^>]+)>>([\s\S]*?)(?:<<else>>([\s\S]*?))?<<endif>>/g;
 const SET_PATTERN = /<<set\s+\$(\w+)\s*(?:=|eq)\s*([^>]+)>>/g;
 const PRINT_PATTERN = /<<print\s+\$(\w+)\s*>>/g;
+const DISPLAY_PATTERN = /<<display\s+["']([^"']+)["']\s*>>/g;
 const INTERNAL_LINK_PATTERN = /\[\[([^\]|]*?)(?:\|([^\]]+))?\]\]/g;
 const EXTERNAL_LINK_PATTERN =
   /<a\s+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
@@ -142,6 +143,25 @@ function selectConditionalText(
   return result;
 }
 
+function expandDisplayMacros(
+  story: RawTwineStory,
+  source: string,
+  depth = 0,
+): string {
+  if (depth > 8) {
+    throw new Error('Twine display macro recursion limit exceeded.');
+  }
+
+  return source.replace(DISPLAY_PATTERN, (_match, passageId: string) => {
+    const displayed = story.passages.find(({ id }) => id === passageId);
+    if (!displayed) {
+      throw new Error(`Unknown displayed Twine passage: ${passageId}`);
+    }
+
+    return expandDisplayMacros(story, displayed.text, depth + 1);
+  });
+}
+
 function applySetMacros(
   source: string,
   variables: TwineVariables,
@@ -170,6 +190,7 @@ function cleanBody(source: string, choices: StoryChoice[]): string {
     .replaceAll('<<silently>>', '')
     .replaceAll('<<endsilently>>', '')
     .replace(/<<[^>]+>>/g, '')
+    .replace(/<img\b[^>]*>/gi, '')
     .split('\n')
     .filter((line) => !choiceLabels.has(line.trim()))
     .join('\n')
@@ -191,7 +212,8 @@ export function enterPassage(
     throw new Error(`Unknown Twine passage: ${passageId}`);
   }
 
-  const selectedText = selectConditionalText(rawPassage.text, variables);
+  const expandedText = expandDisplayMacros(story, rawPassage.text);
+  const selectedText = selectConditionalText(expandedText, variables);
   const withSetsApplied = applySetMacros(selectedText, variables);
   const externalLinks: ExternalStoryLink[] = [];
   const choices: StoryChoice[] = [];

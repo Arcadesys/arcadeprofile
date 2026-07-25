@@ -19,6 +19,7 @@ const excludedIds = new Set(['StoryTitle', 'StoryAuthor', ...excludeArgs]);
 const inputPath = resolve(inputArg);
 const outputPath = resolve(outputArg);
 const html = readFileSync(inputPath, 'utf8');
+const formatMatch = html.match(/<!--\s*([A-Za-z]+)\s+([0-9.]+)\s+is based on:/);
 
 function decodePassageText(value) {
   return value
@@ -61,7 +62,9 @@ const story = {
   author: author ?? null,
   start: 'Start',
   source: {
-    format: 'Twine 1 / Sugarcane',
+    format: formatMatch
+      ? `Twine 1 / ${formatMatch[1]} ${formatMatch[2]}`
+      : 'Twine 1',
     importedFrom: inputPath,
   },
   passages: storyPassages,

@@ -3,13 +3,15 @@ import test from 'node:test';
 
 import { TOY_CATALOG } from '@/data/toys/catalog';
 
-test('uses public Vercel Blob artwork for every catalog card that has art', () => {
+test('uses public Vercel Blob artwork for catalog cards', () => {
   for (const toy of TOY_CATALOG) {
     if (!toy.image) continue;
 
-    assert.match(
-      toy.image.src,
-      /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//,
+    assert.ok(
+      /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//.test(
+        toy.image.src,
+      ),
+      `unsupported image source for ${toy.id}: ${toy.image.src}`,
     );
   }
 });
