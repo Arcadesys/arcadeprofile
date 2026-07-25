@@ -1,0 +1,122 @@
+.panel {
+  display: grid;
+  gap: 1rem;
+  max-width: 680px;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(10, 10, 24, 0.94);
+  border: 2px solid var(--toy-primary, var(--toy-pink, var(--neon-pink)));
+  border-radius: var(--radius-lg);
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--toy-primary, var(--toy-pink, var(--neon-pink)));
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  line-height: 1.08;
+}
+
+.progress {
+  margin: 0;
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.primaryAction,
+.secondaryAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 58px;
+  padding: 0.8rem 1rem;
+  color: #05050e;
+  text-align: center;
+  background: var(--toy-primary, var(--toy-pink, var(--neon-pink)));
+  border: 2px solid var(--toy-primary, var(--toy-pink, var(--neon-pink)));
+  border-radius: var(--radius);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.secondaryAction {
+  color: #fff;
+  background: transparent;
+}
+
+.nextToy {
+  display: grid;
+  gap: 0.2rem;
+  min-height: 76px;
+  padding: 1rem 1.1rem;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+
+.nextToy span {
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nextToy strong {
+  color: var(--toy-primary, var(--toy-pink, var(--neon-pink)));
+  font-size: 1.15rem;
+}
+
+.quietLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+}
+
+.quietLinks a {
+  min-height: 44px;
+  padding: 0.6rem 0;
+  color: var(--fg-muted);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+@media (max-width: 620px) {
+  .panel {
+    padding: 1.15rem;
+  }
+
+  .actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+:global(html[data-contrast='high']) .panel {
+  background: #000;
+  border-color: #fff;
+}

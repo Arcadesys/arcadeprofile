@@ -9,6 +9,7 @@ import IllustratedTwineGame, {
 } from './IllustratedTwineGame';
 
 const story = storyJson as RawTwineStory;
+const versePassages = new Set(['Poem']);
 
 const sherry: ToyCharacter = {
   src: 'https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/butterfly-exe/sherry-Q2JPNwmCJLzh4BW8cpigGjMszyh8jS.webp',
@@ -115,7 +116,7 @@ export default function ButterflyGame() {
         'Three endings wait on the other side.',
       ]}
       story={story}
-      versePassages={new Set(['Poem'])}
+      versePassages={versePassages}
     />
   );
 }

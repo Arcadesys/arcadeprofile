@@ -12,6 +12,7 @@ import {
 } from 'react';
 
 import storyJson from '@/data/toys/interspecies-dating-is-hard.json';
+import { TOY_CATALOG } from '@/data/toys/catalog';
 import {
   enterPassage,
   type PreparedPassage,
@@ -26,17 +27,37 @@ import {
   getGertrudeReaction,
   type GertrudeReaction,
 } from '@/lib/toys/interspecies-dating-reactions';
+import { trackToyEvent } from '@/lib/toys/toy-analytics';
+import {
+  readToyPassport,
+  saveToyProgress,
+} from '@/lib/toys/toy-passport';
 import styles from './InterspeciesDatingGame.module.css';
+import ToyEndingPanel from './ToyEndingPanel';
 
 const story = storyJson as RawTwineStory;
+const outcomeCount =
+  TOY_CATALOG.find(({ id }) => id === story.slug)?.outcomeCount ?? 1;
+const endingTitles: Readonly<Record<string, string>> = {
+  'Meet at Quorum Mall': 'Standing alone at Quorum Mall',
+  'Quorum Park Date': 'A walk in Quorum Park',
+  'Lakeside Date': 'Lakeside Ink',
+  'QWC Date': 'A night at the movies',
+  'Misteak Date': 'Dinner at Misteak',
+  'JANM Date': 'Robot battle night',
+  Victory: 'The perfect date',
+};
 
 type GameSnapshot = {
   passage: PreparedPassage;
   variables: TwineVariables;
+  entryVariables: TwineVariables;
 };
 
 type GameState = GameSnapshot & {
   history: GameSnapshot[];
+  seenEndings: string[];
+  visited: string[];
 };
 
 const PLAN_FLAGS = [
@@ -47,9 +68,15 @@ const PLAN_FLAGS = [
   ['QWCDate', 'Movie tickets'],
 ] as const;
 
-function createInitialGame(): GameState {
+function createInitialGame(seenEndings: string[] = []): GameState {
   const entered = enterPassage(story, story.start, {});
-  return { ...entered, history: [] };
+  return {
+    ...entered,
+    entryVariables: {},
+    history: [],
+    seenEndings,
+    visited: [story.start],
+  };
 }
 
 function ChevronIcon() {
@@ -140,11 +167,83 @@ function PassageArtwork({
 
 export default function InterspeciesDatingGame() {
   const [game, setGame] = useState<GameState>(createInitialGame);
+  const [passportReady, setPassportReady] = useState(false);
   const passageHeadingRef = useRef<HTMLHeadingElement>(null);
+  const hydratedRef = useRef(false);
+  const trackedEndingsRef = useRef(new Set<string>());
+  const ending =
+    game.passage.choices.length === 0 ? game.passage.id : undefined;
 
   useEffect(() => {
     passageHeadingRef.current?.focus();
   }, [game.passage.id]);
+
+  useEffect(() => {
+    if (hydratedRef.current) return;
+    hydratedRef.current = true;
+
+    const saved = readToyPassport().games[story.slug];
+    const canResume =
+      saved &&
+      story.passages.some(({ id }) => id === saved.currentPassageId);
+
+    if (canResume) {
+      const entered = enterPassage(
+        story,
+        saved.currentPassageId,
+        saved.entryVariables,
+      );
+      trackedEndingsRef.current = new Set(saved.endingIds);
+      setGame({
+        ...entered,
+        entryVariables: saved.entryVariables,
+        history: [],
+        seenEndings: saved.endingIds,
+        visited: saved.visitedPassageIds,
+      });
+    }
+
+    trackToyEvent('toy_started', story.slug, { resumed: Boolean(canResume) });
+    setPassportReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!ending) return;
+
+    setGame((current) => {
+      if (current.seenEndings.includes(ending)) return current;
+
+      if (!trackedEndingsRef.current.has(ending)) {
+        trackedEndingsRef.current.add(ending);
+        trackToyEvent('toy_completed', story.slug, {
+          ending,
+          visited: current.visited.length,
+        });
+      }
+
+      return { ...current, seenEndings: [...current.seenEndings, ending] };
+    });
+  }, [ending]);
+
+  useEffect(() => {
+    if (!passportReady) return;
+
+    saveToyProgress(story.slug, {
+      currentPassageId: game.passage.id,
+      entryVariables: game.entryVariables,
+      visitedPassageIds: game.visited,
+      endingIds: game.seenEndings,
+      atEnding: Boolean(ending),
+      updatedAt: new Date().toISOString(),
+    });
+  }, [
+    ending,
+    game.entryVariables,
+    game.passage.id,
+    game.seenEndings,
+    game.visited,
+    passportReady,
+  ]);
 
   const purchasedPlans = PLAN_FLAGS.filter(
     ([flag]) => game.variables[flag] === true,
@@ -159,13 +258,28 @@ export default function InterspeciesDatingGame() {
 
   function choose(target: string) {
     setGame((current) => {
-      const next = enterPassage(story, target, current.variables);
+      const entryVariables = current.variables;
+      const next = enterPassage(story, target, entryVariables);
+
+      if (current.visited.length === 1) {
+        trackToyEvent('first_choice_made', story.slug, { target });
+      }
+
       return {
+        ...current,
         ...next,
+        entryVariables,
         history: [
           ...current.history,
-          { passage: current.passage, variables: current.variables },
+          {
+            passage: current.passage,
+            variables: current.variables,
+            entryVariables: current.entryVariables,
+          },
         ],
+        visited: current.visited.includes(target)
+          ? current.visited
+          : [...current.visited, target],
       };
     });
   }
@@ -176,6 +290,7 @@ export default function InterspeciesDatingGame() {
       if (!previous) return current;
 
       return {
+        ...current,
         ...previous,
         history: current.history.slice(0, -1),
       };
@@ -183,7 +298,10 @@ export default function InterspeciesDatingGame() {
   }
 
   function restart() {
-    setGame(createInitialGame());
+    trackToyEvent('toy_restarted', story.slug, {
+      endingsFound: game.seenEndings.length,
+    });
+    setGame(createInitialGame(game.seenEndings));
   }
 
   return (
@@ -230,65 +348,70 @@ export default function InterspeciesDatingGame() {
             {game.passage.id === 'Start' ? 'Tonight' : game.passage.id}
           </h2>
 
-          {location ? (
-            <PassageArtwork
-              key={`${location.id}-${reaction.id}`}
-              location={location}
-              reaction={reaction}
-            />
-          ) : null}
+          <div className={styles.passageLayout}>
+            {location ? (
+              <PassageArtwork
+                key={`${location.id}-${reaction.id}`}
+                location={location}
+                reaction={reaction}
+              />
+            ) : null}
 
-          <PassageText body={game.passage.body} />
+            <div className={styles.narrativeColumn}>
+              <PassageText body={game.passage.body} />
 
-          {game.passage.externalLinks.length > 0 ? (
-            <div className={styles.referenceLinks}>
-              {game.passage.externalLinks.map((link) => (
-                <a
-                  href={link.href}
-                  key={link.href}
-                  rel="noreferrer"
-                  target="_blank"
+              {game.passage.externalLinks.length > 0 ? (
+                <div className={styles.referenceLinks}>
+                  {game.passage.externalLinks.map((link) => (
+                    <a
+                      href={link.href}
+                      key={link.href}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      {link.label} <span aria-hidden="true">↗</span>
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+
+              {game.passage.choices.length > 0 ? (
+                <div
+                  aria-label="What do you do?"
+                  className={styles.choices}
+                  role="group"
                 >
-                  {link.label} <span aria-hidden="true">↗</span>
-                </a>
-              ))}
+                  {game.passage.choices.map((choice, index) => (
+                    <button
+                      className={styles.choiceButton}
+                      key={`${choice.target}-${choice.label}`}
+                      onClick={() => choose(choice.target)}
+                      type="button"
+                    >
+                      <span className={styles.choiceNumber} aria-hidden="true">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span>{choice.label}</span>
+                      <ChevronIcon />
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <ToyEndingPanel
+                  endingTitle={
+                    endingTitles[game.passage.id] ?? game.passage.id
+                  }
+                  endingsFound={game.seenEndings.length}
+                  onRestart={() =>
+                    setGame((current) =>
+                      createInitialGame(current.seenEndings),
+                    )
+                  }
+                  toyId={story.slug}
+                />
+              )}
             </div>
-          ) : null}
-
-          {game.passage.choices.length > 0 ? (
-            <div
-              aria-label="What do you do?"
-              className={styles.choices}
-              role="group"
-            >
-              {game.passage.choices.map((choice, index) => (
-                <button
-                  className={styles.choiceButton}
-                  key={`${choice.target}-${choice.label}`}
-                  onClick={() => choose(choice.target)}
-                  type="button"
-                >
-                  <span className={styles.choiceNumber} aria-hidden="true">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span>{choice.label}</span>
-                  <ChevronIcon />
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className={styles.endingActions}>
-              <p>The story ends here.</p>
-              <button
-                className={styles.choiceButton}
-                onClick={restart}
-                type="button"
-              >
-                <span>Play again</span>
-                <ChevronIcon />
-              </button>
-            </div>
-          )}
+          </div>
         </article>
 
         <aside aria-label="Date plan status" className={styles.statusRail}>
@@ -335,6 +458,11 @@ export default function InterspeciesDatingGame() {
                 </li>
               ) : null}
             </ul>
+          </section>
+
+          <section>
+            <h2>Outcomes found</h2>
+            <p>{game.seenEndings.length}/{outcomeCount}</p>
           </section>
         </aside>
       </div>

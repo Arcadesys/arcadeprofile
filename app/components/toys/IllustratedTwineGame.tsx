@@ -12,6 +12,12 @@ import {
   type ReactNode,
 } from 'react';
 
+import { TOY_CATALOG } from '@/data/toys/catalog';
+import { trackToyEvent } from '@/lib/toys/toy-analytics';
+import {
+  readToyPassport,
+  saveToyProgress,
+} from '@/lib/toys/toy-passport';
 import {
   enterPassage,
   type PreparedPassage,
@@ -19,6 +25,7 @@ import {
   type TwineVariables,
 } from '@/lib/toys/twine-engine';
 import styles from './IllustratedTwineGame.module.css';
+import ToyEndingPanel from './ToyEndingPanel';
 
 export type ToyCharacter = {
   src: string;
@@ -49,6 +56,7 @@ export type ToyPassageMedia = {
 type GameSnapshot = {
   passage: PreparedPassage;
   variables: TwineVariables;
+  entryVariables: TwineVariables;
 };
 
 type GameState = GameSnapshot & {
@@ -84,6 +92,7 @@ function createInitialGame(
   const entered = enterPassage(story, story.start, {});
   return {
     ...entered,
+    entryVariables: {},
     history: [],
     seenEndings,
     visited: [story.start],
@@ -187,10 +196,14 @@ export default function IllustratedTwineGame({
   sideNotes = [],
 }: IllustratedTwineGameProps) {
   const [game, setGame] = useState<GameState>(() => createInitialGame(story));
+  const [passportReady, setPassportReady] = useState(false);
   const passageHeadingRef = useRef<HTMLHeadingElement>(null);
+  const hydratedRef = useRef(false);
+  const trackedEndingsRef = useRef(new Set<string>());
 
   const ending =
     game.passage.choices.length === 0 ? game.passage.id : undefined;
+  const catalogEntry = TOY_CATALOG.find(({ id }) => id === story.slug);
   const scene =
     scenes.find(({ passages }) => passages.includes(game.passage.id)) ??
     scenes[0];
@@ -203,24 +216,93 @@ export default function IllustratedTwineGame({
   }, [game.passage.id]);
 
   useEffect(() => {
+    if (hydratedRef.current) return;
+    hydratedRef.current = true;
+
+    const saved = readToyPassport().games[story.slug];
+    const canResume =
+      saved &&
+      story.passages.some(({ id }) => id === saved.currentPassageId);
+
+    if (canResume) {
+      const entered = enterPassage(
+        story,
+        saved.currentPassageId,
+        saved.entryVariables,
+      );
+      trackedEndingsRef.current = new Set(saved.endingIds);
+      setGame({
+        ...entered,
+        entryVariables: saved.entryVariables,
+        history: [],
+        seenEndings: saved.endingIds,
+        visited: saved.visitedPassageIds,
+      });
+    }
+
+    trackToyEvent('toy_started', story.slug, { resumed: Boolean(canResume) });
+    setPassportReady(true);
+  }, [story]);
+
+  useEffect(() => {
     if (!ending) return;
 
-    setGame((current) =>
-      current.seenEndings.includes(ending)
-        ? current
-        : { ...current, seenEndings: [...current.seenEndings, ending] },
-    );
-  }, [ending]);
+    setGame((current) => {
+      if (current.seenEndings.includes(ending)) return current;
+
+      if (!trackedEndingsRef.current.has(ending)) {
+        trackedEndingsRef.current.add(ending);
+        trackToyEvent('toy_completed', story.slug, {
+          ending,
+          visited: current.visited.length,
+        });
+      }
+
+      return { ...current, seenEndings: [...current.seenEndings, ending] };
+    });
+  }, [ending, story.slug]);
+
+  useEffect(() => {
+    if (!passportReady) return;
+
+    saveToyProgress(story.slug, {
+      currentPassageId: game.passage.id,
+      entryVariables: game.entryVariables,
+      visitedPassageIds: game.visited,
+      endingIds: game.seenEndings,
+      atEnding: Boolean(ending),
+      updatedAt: new Date().toISOString(),
+    });
+  }, [
+    ending,
+    game.entryVariables,
+    game.passage.id,
+    game.seenEndings,
+    game.visited,
+    passportReady,
+    story.slug,
+  ]);
 
   function choose(target: string) {
     setGame((current) => {
-      const next = enterPassage(story, target, current.variables);
+      const entryVariables = current.variables;
+      const next = enterPassage(story, target, entryVariables);
+
+      if (current.visited.length === 1) {
+        trackToyEvent('first_choice_made', story.slug, { target });
+      }
+
       return {
         ...current,
         ...next,
+        entryVariables,
         history: [
           ...current.history,
-          { passage: current.passage, variables: current.variables },
+          {
+            passage: current.passage,
+            variables: current.variables,
+            entryVariables: current.entryVariables,
+          },
         ],
         visited: current.visited.includes(target)
           ? current.visited
@@ -243,6 +325,9 @@ export default function IllustratedTwineGame({
   }
 
   function restart() {
+    trackToyEvent('toy_restarted', story.slug, {
+      endingsFound: game.seenEndings.length,
+    });
     setGame((current) => createInitialGame(story, current.seenEndings));
   }
 
@@ -298,82 +383,81 @@ export default function IllustratedTwineGame({
               : game.passage.id}
           </h2>
 
-          {scene ? <SceneArtwork key={scene.id} scene={scene} /> : null}
+          <div className={styles.passageLayout}>
+            {scene ? <SceneArtwork key={scene.id} scene={scene} /> : null}
 
-          <PassageText
-            body={game.passage.body}
-            verse={versePassages.has(game.passage.id)}
-          />
-
-          {passageMedia ? (
-            <figure className={styles.passageMedia}>
-              <Image
-                alt={passageMedia.alt}
-                height={passageMedia.height}
-                src={passageMedia.src}
-                width={passageMedia.width}
+            <div className={styles.narrativeColumn}>
+              <PassageText
+                body={game.passage.body}
+                verse={versePassages.has(game.passage.id)}
               />
-              {passageMedia.caption ? (
-                <figcaption>{passageMedia.caption}</figcaption>
+
+              {passageMedia ? (
+                <figure className={styles.passageMedia}>
+                  <Image
+                    alt={passageMedia.alt}
+                    height={passageMedia.height}
+                    src={passageMedia.src}
+                    width={passageMedia.width}
+                  />
+                  {passageMedia.caption ? (
+                    <figcaption>{passageMedia.caption}</figcaption>
+                  ) : null}
+                </figure>
               ) : null}
-            </figure>
-          ) : null}
 
-          {game.passage.externalLinks.length > 0 ? (
-            <div className={styles.referenceLinks}>
-              {game.passage.externalLinks.map((link) => (
-                <a
-                  href={link.href}
-                  key={link.href}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  {link.label} <span aria-hidden="true">↗</span>
-                </a>
-              ))}
-            </div>
-          ) : null}
+              {game.passage.externalLinks.length > 0 ? (
+                <div className={styles.referenceLinks}>
+                  {game.passage.externalLinks.map((link) => (
+                    <a
+                      href={link.href}
+                      key={link.href}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      {link.label} <span aria-hidden="true">↗</span>
+                    </a>
+                  ))}
+                </div>
+              ) : null}
 
-          {game.passage.choices.length > 0 ? (
-            <div
-              aria-label="What do you do?"
-              className={styles.choices}
-              role="group"
-            >
-              {game.passage.choices.map((choice, index) => (
-                <button
-                  className={styles.choiceButton}
-                  key={`${choice.target}-${choice.label}`}
-                  onClick={() => choose(choice.target)}
-                  type="button"
+              {game.passage.choices.length > 0 ? (
+                <div
+                  aria-label="What do you do?"
+                  className={styles.choices}
+                  role="group"
                 >
-                  <span className={styles.choiceNumber} aria-hidden="true">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span>{choice.label}</span>
-                  <ChevronIcon />
-                </button>
-              ))}
+                  {game.passage.choices.map((choice, index) => (
+                    <button
+                      className={styles.choiceButton}
+                      key={`${choice.target}-${choice.label}`}
+                      onClick={() => choose(choice.target)}
+                      type="button"
+                    >
+                      <span className={styles.choiceNumber} aria-hidden="true">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span>{choice.label}</span>
+                      <ChevronIcon />
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <ToyEndingPanel
+                  endingTitle={
+                    endingTitles[game.passage.id] ?? game.passage.id
+                  }
+                  endingsFound={game.seenEndings.length}
+                  onRestart={() =>
+                    setGame((current) =>
+                      createInitialGame(story, current.seenEndings),
+                    )
+                  }
+                  toyId={story.slug}
+                />
+              )}
             </div>
-          ) : (
-            <div className={styles.endingActions}>
-              <p className={styles.endingLabel}>
-                Ending — {endingTitles[game.passage.id] ?? game.passage.id}
-              </p>
-              <p className={styles.endingCount}>
-                {game.seenEndings.length} ending
-                {game.seenEndings.length === 1 ? '' : 's'} found
-              </p>
-              <button
-                className={styles.choiceButton}
-                onClick={restart}
-                type="button"
-              >
-                <span>Start over</span>
-                <ChevronIcon />
-              </button>
-            </div>
-          )}
+          </div>
         </article>
 
         <aside aria-label="Story status" className={styles.statusRail}>
@@ -405,8 +489,18 @@ export default function IllustratedTwineGame({
           ) : null}
 
           <section>
-            <h2>Endings found</h2>
-            <p>{game.seenEndings.length || 'None yet.'}</p>
+            <h2>
+              {catalogEntry?.completionMode === 'linear'
+                ? 'Completion'
+                : 'Outcomes found'}
+            </h2>
+            <p>
+              {catalogEntry?.completionMode === 'linear'
+                ? game.seenEndings.length > 0
+                  ? 'Complete'
+                  : 'In progress'
+                : `${game.seenEndings.length}/${catalogEntry?.outcomeCount ?? 1}`}
+            </p>
           </section>
         </aside>
       </div>
