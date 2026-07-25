@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { loadVisibleNavItems } from './nav-items';
+import { ensureToysNavItem, loadVisibleNavItems } from './nav-items';
 
 type NavPayload = Parameters<typeof loadVisibleNavItems>[0];
 
@@ -37,4 +37,21 @@ test('loadVisibleNavItems reads every visible nav item without a fixed cap', asy
     depth: 0,
     pagination: false,
   });
+});
+
+test('ensureToysNavItem inserts Toys after Projects when CMS navigation omits it', () => {
+  const items = ensureToysNavItem([
+    { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
+    { id: 'bio', label: 'Bio', href: '/bio', isPrimary: false },
+  ]);
+
+  assert.deepEqual(items.map((item) => item.href), ['/projects', '/toys', '/bio']);
+});
+
+test('ensureToysNavItem does not duplicate a CMS-managed Toys entry', () => {
+  const items = [
+    { id: 'toys', label: 'Playthings', href: '/toys', isPrimary: true },
+  ];
+
+  assert.strictEqual(ensureToysNavItem(items), items);
 });
