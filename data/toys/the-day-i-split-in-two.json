@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "slug": "the-day-i-split-in-two",
+  "title": "The Day I Split in Two",
+  "author": "Austen Crowder",
+  "start": "Start",
+  "source": {
+    "format": "Twine 1 / Sugarcane 1.2",
+    "importedFrom": "/Users/arcades/Documents/GitHub/writing-archive/_archive/twine/splitintwo.html"
+  },
+  "passages": [
+    {
+      "id": "Mental breaks",
+      "text": "She and I speak of many things: of past histories, of magic and auras. We play with fronting: I learn how to ask for control of the body, and she learns how to jump up and take my place when I need a little extra sass. She and I begin a long, internal dialogue about transition, family, hiring.  \n \nI ask her: \"Is all of this real?\" \n \nShe responds: \"[[Does it matter?]]\""
+    },
+    {
+      "id": "Two",
+      "text": "I think of my mother. We haven't spoken for four months. I call and leave messages. Sometimes, when I'm lucky, I hear about all the things I'm missing because I ran off and turned into a girl. Sometimes the family jokes that the golden child has fallen away from any hope. They're right. That's why I'm laying on the ground being hypnotized by someone I met four months ago. \n \nSomewhere in the hazy future I'll find myself sitting in this a plush chair in Uptown, Chicago. I'll spend a couple hundred dollars - a handsome sum to past-me! - to justify feeling angry, frustrated, and disappointed. This will cause problems of their own someday, the sensation of listlessness and the sting of having no roots, but for now it's just so much radio silence. A voice in my life once vibrant has gone cold and dead and I am left wanting.\n\n[[One]]."
+    },
+    {
+      "id": "without revealing my hand",
+      "text": "In time family stopped calling, and I learned how not to care. To this day I say \"I'm a terrible person\" as a mantra. Family is a reminder that, when circumstances aren't jovial, I am capable of coldness, callusness, even long-standing resentment. \n \nThat's what Tally gave to me. Confidence to face the cognitive dissonance of disapproval. That was when I split. [[God help me.]]"
+    },
+    {
+      "id": "Fox",
+      "text": "She calls herself Tally. A white, two-tailed fox. She calls herself Kitsune. Where she walks the mist parts to reveal starry galaxies, spirals of worlds I could never, ever visit. The backside of her paw brushes my face and the smell of fresh spring field fills my nostrils. \n \n\"About time you found me,\" she says. \n \n[[\"You aren't real.\"|Real]]"
+    },
+    {
+      "id": "Three",
+      "text": "I think of the strange dreams I've been having. Every night I go back to my past and relive some major event. College. Wrestling meets. Vacations. Each time I'm a woman, or at least in transition. I dream of houses being emptied, people leaving, showing up to school naked and unprepared. I dream of humiliation, transition phases.\n\n[[Two]]."
+    },
+    {
+      "id": "another story.",
+      "text": "I mean, Tally gave me confidence. Freedom, even! But for everything she helpted build, for all the better my months-long stint with severe mental schisms made me, it broke things.\n\nFor the family who do work to maintain a relationship I keep Tally down. She wants to rage at every misgendered pronoun, every awkward moment. She rages at past wrongs, seethes at historical context. They try hard but it just doesn't click. The fight is draining. Tally wants to yell. I find myself getting quieter, revealing less of my personal life. \n \nBit by bit, little by little, Tally tears what remains of an already tenous family house to base blocks and masonry dust.\n\n[[We rebuilt together.]]"
+    },
+    {
+      "id": "Start",
+      "text": "I am in a comfortable chair in Uptown, Chicago because I have scars. They're ugly scars; the type that make me reach for rhetorical mirrors when people ask questions about my transition. When they pry I'm always there to deflect the topic onto one of my brighter moments: the first time I passed, the time I helped make a story about discrimination break into the national news, the first time I felt at home in my skin.\n\nStill, here I am, trying to turn the mirror on myself. The true stories I usually tell try to inspire. They show people at their greatest, overcoming great odds to become a better person. These are the stories that inspire us to be better people. The stories that show us that everyone is capable of greatness. \n\n[[This is not one of those true stories.|Puberty]]"
+    },
+    {
+      "id": "Terror",
+      "text": "For the first time in my life I'm not in control of my own destiny. I know the statistics, I know the odds are against the trans girl getting the job, a fact my family and friends made painfully clear. I feel like I have to make this work on my own; the last thing I wanted was for the family to be proved right.\n\nI'm far past crying. Crying comes easy to a girl just recently introduced to estrogen. I do it at the drop of a hat. At this point we've moved past pity, past tragedy. There comes a time when [[excessive stress|This Year]] teleports you to steeled resistance."
+    },
+    {
+      "id": "One",
+      "text": "I am really, truly [[lonely.|Going Under]]"
+    },
+    {
+      "id": "Real",
+      "text": "I try to thrash and wake up but she's holding me there, deep in the purple mist. \n \n\"Who says?\" she says. When her hand falls on my chest I feel its warmth, the pressure of a paw against my breast. \"Science? Your friends? Family? Everything that held you in place is gone now, honey. Rules have changed.\"\n \nIt is about this point that I realize how much [[trouble|Trouble]] I'm in."
+    },
+    {
+      "id": "Puberty",
+      "text": "Transition is sort of like repeating puberty at the wrong point in your life. I can tell you for fact that the awkward, identity-seeking behaviors of teens are not one bit appropriate on a twentysomething. I went through some weird, weird shit along the way. Some of it I'm not proud of. \n\n[[Scene: Indianapolis, Spring 2009.|The Room]]"
+    },
+    {
+      "id": "She takes over while I rage.",
+      "text": "I've never been good with family. Everyone else in the family seems to manage fine, but me? I fall to pieces over it. I don't get even the most basic things about family: sending cards, celebrating births, checking in. I'm disinterested and remote, and the divide has only grown greater now that I'm a girl. \n \nFor these Tally was cold and angry. She was in control when I walked out of a family argument for the first time ever. Watching past-me storm out of Mom's house still gives present-me chills. Tally stepped in and drew the line. It's the last time I leave that house for three years. The next time I see her I am invited to dinner before my trip to Thailand. Prior meetings were forgotten. Tally, too, but that was [[another story.]]"
+    },
+    {
+      "id": "anger",
+      "text": "I tore down the house. They helped, sure. Nasty words were said, microaggressions abound. Those six months were the worst of my life - no money, no job, nobody I could trust. Just me and the fox, facing a house I'd built over the course of years.\n\nJust me, myself, and I, facing a home that'd grown cold and empty. Every time I called there would be no answer, and when I pretended not to look the house would be happy, jovial, full of the prospect that life goes on for its inhabitants even when I'm locked outside.\n\nYou better believe Tally and I [[burnt that fucker to the ground.|burnt]]"
+    },
+    {
+      "id": "Five",
+      "text": "I think of my circle of friends. Lately I've ignored them. The friends cradling my head have only known me for a few months. I'm fresh out of a relationship and still reeling from the social split that happens when one becomes two again.\n\n[[Four]]."
+    },
+    {
+      "id": "We rebuilt together.",
+      "text": "I see her breathing life where there was depression, dark prospects. Tally fronts when I try to avoid going out, smiles, and gets me into the fray. I meet new people. Queer people. I make new friends who become my family. Brick by brick, bridge by bridge, she helped me open up.\n\nShe taught me vulnerability, grace. Humanity, for lack of a better word. (I was a robot before, built exclusively to meet the needs of those around me [[without revealing my hand]].)"
+    },
+    {
+      "id": "This Year",
+      "text": "The apartment is messy. In the background I hear the Mountain Goats' \"this year\" playing on the speaker. I'm unsure if its actually playing or not - it's been on repeat for so long I hear it in my dreams. I am laying on the ground and breathing long, heavy breaths. With each breath I feel more and more relaxed. My friends are crowded around my head and coaxing me to relax further and further.\n\n[[Five]]"
+    },
+    {
+      "id": "mortar and trowel in one hand, bricks in the other",
+      "text": "I'm staring at the mortar and bricks and thinking of the time I helped my dad build a brick chimney. I remember him learning how to set the bricks, the mortar, calling on his friends to come help. I remember hauling lines of bricks with a clamp, thirteen at a time, up a scaffolding as he laid each brick with patience and care.\n\nTry as I may I can only remember the bricks, the sun, and the helicopter-like seeds that rained down on us. Not very helpful, [[I fear.|alone]]"
+    },
+    {
+      "id": "Trouble",
+      "text": "The fox, to her credit, tries to keep you from feeling too off-put. \"Come on! You're meeting your other half for the first time. I've been hanging out under the surface for years, watching you grow. Now you seek me out. Here I am! The fox that's been inside you all along. \n \n\"And I know what you're thinking. This is what cracking up feels like, right?\" \n \n[[\"...Yeah.\"|Here to help]]"
+    },
+    {
+      "id": "spouting bravado",
+      "text": "Back in the chair in Uptown I'm laughing. Recalling all this feels strange. Almost like a cop-out. I'm not trying to evacuate responsibility for my actions. That's not the case at all! Things Tally said for me were what I always wanted to say, but was always too afraid to get off my chest. \n \nSomething to know about me: in terms of expressing my feelings I'm somewhere above \"intelligent moss.\" I am soft on others, comfortable to sit on, and completely impervious to the stabs and slashes of disapproval. I went through some crap and learned how to turn off my emotions. For what it's worth that's actually a powerful tool - you can get the upper hand a lot of times when you respond to anger directed at you with a warm, friendly smile. Completely disarms people. Until Tally came along that was my go-to method for stopping all the trouble. Stay calm, wait for things to blow over, pick up what pieces remained when people had burned themselves out. \n \nTally changed all that. That experience - that break! - brought me back around. I couldn't stay quiet anymore. Every time I tried she'd jump in and take over. \n \n[[Mental breaks]] are funny like that, I guess."
+    },
+    {
+      "id": "life",
+      "text": "I see a hundred scenes flash before my eyes. A gentleman caller in the 1400s. Teaching in a time before time. An endless galaxy of stars among which I drifted as stardust, looking down upon a thousand points of light representing my avatars below. The streaking lights of relativity bending as I moved faster, faster, diving into the body of a child for the hell of it. I see me, coming into myself, smiling, the world marvelous and bright with new sensations. \n \nWhen I wake up she's just _there_ [[in my head]]."
+    },
+    {
+      "id": "Here to help",
+      "text": "\"You are. But it will help, I swear!\" Long tendrils of mist surround me. I breathe deep and the vapors calm me, relax the muscles, clear the head. \"It's weird, and it's hard, but I'm the only way you're going to [[believe yourself.]]\" \n \nIn any case the vapors take flight, find their way down my throat, into my ears, behind my eyes. There she imparts an entire [[life]] onto me."
+    },
+    {
+      "id": "Going Under",
+      "text": "A deep purple mist surrounds me as I go down, down, deeper than I've ever before. Mother Earth reaches up to swallow me and I allow it. I tumble, twirl, try to swim; but the mist is heavy and I learn that relaxing, forever relaxing, is the only way to find purchase. \n\nThe mist becomes solid ground. I land, and it's there I meet [[her|Fox]]."
+    },
+    {
+      "id": "enough for me",
+      "text": "My house is great now. Homey. Comfortable. Plenty of warm friends, a great girl, lots of stories and trappings for fun nights. It's not traditional but I like it just fine. Problem is, there's this huge section missing where the fire should burn.\n\nI am Laying bricks. Making do with imperfect circumstances. The house doesn't have a chimney, and the foundation work is shakey. I haven't the foggiest idea how to start.\n\nTry as she might, Tally couldn't teach me how to fix that.\n\nRebuilding is hard, but I'll just have to learn without her."
+    },
+    {
+      "id": "in my head",
+      "text": "There. I feel as if some portion of my brain is no longer mine. Imagine daydreaming, your brain moving through a thousand different tangents a second, when suddenly somebody shuts a door in your face shouting  \"Hey, that's my stuff!\" That was me when my head came back. The world around me seemed alive, drenched in colors I hadn't seen before, and when I reached out to others I felt electricity flowing through me to them. \n \nBefore I can talk she starts talking for me. I feel as if my body has become a puppet. \n \nI sat outside myself while the other part of my split started [[spouting bravado]]."
+    },
+    {
+      "id": "God help me.",
+      "text": "I look around and see my friends growing. Having children. Calling home. Having this... _excitement_ about going to see their family. Theirs is an emotion I can't ever hope to understand. For me family comes with pain, reservation. Unending walls I constructed, thinking they'd make me safe. When Tally came I thought she'd help keep me safe. (Not that I had a choice - split personalities are notioriously bad at negotiation.) \n \nBrick by brick, wall by wall, Tally tore down the home I had built around my family. It wasn't a mansion, sure. Some might even have called it dysfunctional. Family feuds and subterfuge, schisms and divorce. The commonalities of modern family living. She came along to give me confidence, the power to stand up and be myself. \n \nThen she took the tools and used them in [[anger]]."
+    },
+    {
+      "id": "alone",
+      "text": "I'm staring at an unfinished house in Uptown, Chicago, [[mortar and trowel in one hand, bricks in the other]]. My life is wonderful beyond all expectations.\n\nI'm looking back at Tally, the home, the unfortunate circumstances. I was hurt, and she was the only way I could lash out.\n\nWas it magic? Maybe? Supernatural? I prefer not to think too hard about it for fear that I'll ruin the fun. One day I woke up and had split in two: that is good [[enough for me]]."
+    },
+    {
+      "id": "burnt",
+      "text": "In about six months Tally starts to fade. I find a better job, better friends, and my skin grows thicker with the slings and arrows of being a trans woman negotiating the world. I learn to set boundaries, find ways to make sure nobody can hurt me the way that cold house did. Bit by bit, day by day, she stops taking over for me.\n\nHer attitude becomes my attitude. Her goals, my goals.\n\n\"Be happy,\" she says. I say it too.\n\nOne day she's just gone, and I'm [[alone|alone]] in my own head once again."
+    },
+    {
+      "id": "plan to be a girl",
+      "text": "Tally unrelenting, cagey. Negotiation gives way to tiny threats. When I realize she's going to corner the employer with my transition - using the job offer letter and a potential lawsuit as leverage! - I feel my body shiver with power. This isn't me. This isn't possible. \n \nI start the job as a girl and stay for three years. Tally made that happen. \n \n[[She takes over while I rage.]]"
+    },
+    {
+      "id": "The Room",
+      "text": "It's ten PM. I'm in my one-bedroom apartment with a roommate and a friend. We are all Trans. I'm on month number two of radio silence from the one person I want to talk to most,  jobless, and $800 away from zero-money. I was laid off, but unemployment didn't come through because Catholic schools apparently hate unemployment for schoolteachers. \n \nTo top it all off I am recently tonsil-less, so that's fun. \n \nI'm making a horrible habit of Ben and Jerry's to help both the swelling and the [[damaged pride.|Terror]]"
+    },
+    {
+      "id": "believe yourself.",
+      "text": "She doesn't say the last part. That's present-me, sitting in that chair in Uptown. A little ornamentation, if you will. When I think of Tally the real and the paranormal get all confused. Part of me likes this ambiguity. Part of me is [[terrified of it.|Here to help]]"
+    },
+    {
+      "id": "Does it matter?",
+      "text": "She helps me get the job. \n \nI go to my job interview dressed in male clothing. I talk about my qualifications and try to keep a straight face but in reality I'm a trojan horse. My mind dances with worry and hypothetical schedules for \"the talk\" which will probably end this job. Still I'm smiling, professional, trying my best to hide the breasts under my business suit. \n \nTally takes over once I got an offer letter. I called to check on start dates and she just _took over_ mid-sentence. I went for lunch with the hiring manager and she spilled everything. The hormones. The changes. The [[plan to be a girl]]."
+    },
+    {
+      "id": "Four",
+      "text": "I think of how silly I must look. Three months ago I was a corn-fed Hoosier, upstanding, compassionate but not into anything anyone might consider \"freaky.\" Not really a believer in anything I couldn't put my arms around objectively. Me, the person who smiles and nods when someone says \"I do magick,\" laying down, getting ready to explore past lives.\n\n[[Three]]."
+    }
+  ]
+}

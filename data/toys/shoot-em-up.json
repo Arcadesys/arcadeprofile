@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "slug": "shoot-em-up",
+  "title": "Shoot 'em Up",
+  "author": "Austen Crowder",
+  "start": "Start",
+  "source": {
+    "format": "Twine 1 / Sugarcane 1.2",
+    "importedFrom": "/Users/arcades/Documents/GitHub/writing-archive/_archive/twine/shootemup.html"
+  },
+  "passages": [
+    {
+      "id": "02",
+      "text": "<<display \"Inventory\">>\n\nAnd he's not that big a boy, either. Kinda wimpy, even. Hair like a mop.\n\n[[Shooty McShooterson|03]]"
+    },
+    {
+      "id": "Tea Time",
+      "text": "You have a spirited discussion on monetary policy. The guy is kind, but altogether boring.\n\nTHY GAME IS OVER"
+    },
+    {
+      "id": "13",
+      "text": "<<display \"Inventory\">>\n\nWell, good on you. He falls over in a crupled, rosy mist. The room rings, then all is quiet.\n\nYou've really screwed the pooch this time.\n\n[[Try again?|Endgame]]"
+    },
+    {
+      "id": "01",
+      "text": "<<display \"Inventory\">>\n\nYou sure about that? This guy probably has a family. Kids. Friends.\n\n[[Violence!|02]]"
+    },
+    {
+      "id": "06",
+      "text": "<<display \"Inventory\">>\n\nThis kitten, maybe?\n\n[[That kitten doesn't have a gun.|07]]\n\n<html><img src=\"https://dl.dropbox.com/s/6iglgu278xiw05e/kitty.jpeg\"></html>"
+    },
+    {
+      "id": "07",
+      "text": "<<display \"Inventory\">>\n\nDear God. Videogames have ruined you.\n\n[[Don't Care.|08]]"
+    },
+    {
+      "id": "04",
+      "text": "<<display \"Inventory\">>\n\nCome on. You don't really want to do this!\n\n[[Sure do. I even brought hollow points!|05]]"
+    },
+    {
+      "id": "03",
+      "text": "<<display \"Inventory\">>\n\nI think he's a vegetarian, too.\n\n[[Sucks to be him.|04]]"
+    },
+    {
+      "id": "08",
+      "text": "<<display \"Inventory\">>\n\nWhat about the appeal to subtlety?\n\n[[VIIII!|09]]"
+    },
+    {
+      "id": "05",
+      "text": "<<display \"Inventory\">>\n\nPlease. I'm begging you.\n\nLook! Here's a puppy! Isn't he cute? Tons better than blowing this guy's head off.\n\n[[Fuck Puppies. Shoot dudes!|06]]\n\n<html><img src=\"https://dl.dropbox.com/s/qoo7xs2yz4v8b8d/puppy.jpg\"></html>"
+    },
+    {
+      "id": "Dead Tea Time",
+      "text": "You mention Ron Paul and The Wizard of Oz and feel quite witty. The man does not respond. He cannot. He is dead.\n\nYou reflect on this, briefly, in the silence."
+    },
+    {
+      "id": "Start",
+      "text": "<<set $Dead eq 0>>[[This is an action game.|The Dude]]"
+    },
+    {
+      "id": "The Dude",
+      "text": "<<display \"Inventory\">>\n\nYou're in a room with a guy. What will you do?\n\n[[Shoot the dude clean in the face|01]]<<endif>>\n\n[[Discuss the Gold Standard over Hot Tea|Tea Time]]"
+    },
+    {
+      "id": "Inventory",
+      "text": "Inventory:\n1 - tea kettle\n1 - tea set\n1 - tea (for two)\n1 - Desert Eagle"
+    },
+    {
+      "id": "11",
+      "text": "<<display \"Inventory\">>\n\nI'm not going to win this one, am I?\n\n[[I put the pistol to his head.|12]]"
+    },
+    {
+      "id": "12",
+      "text": "<<display \"Inventory\">>\n\nHe begs you to stop.\n\n[[Bang.|13]]"
+    },
+    {
+      "id": "09",
+      "text": "<<display \"Inventory\">>\n\nThe appreciation for art?\n\n[[OOOOOOHHHHHHH!|10]]"
+    },
+    {
+      "id": "Endgame",
+      "text": "<<display \"Inventory\">>\n\nYou are in a room with a dead guy. There's a bullet hole in his head. Your bullet, in fact.\n\n[[Discuss the Gold Standard over Hot Tea|Dead Tea Time]]"
+    },
+    {
+      "id": "10",
+      "text": "<<display \"Inventory\">>\n\n--the classics--\n\n[[LLEEEEENNNNCCCCCCEEEEE!|11]]"
+    }
+  ]
+}
