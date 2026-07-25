@@ -3,6 +3,8 @@ import { getPayload } from 'payload';
 import config from '@payload-config';
 import StartHereCard from '../components/StartHereCard';
 import ContinueReadingBanner from '../components/ContinueReadingBanner';
+import ContinueToyBanner from '../components/toys/ContinueToyBanner';
+import { TOY_CATALOG } from '@/data/toys/catalog';
 import { hasConfiguredDatabaseURL } from '@/lib/env';
 import { buildGroupIntroUrl, buildPostUrl, getPostLocationBySlug } from '@/lib/post-url';
 import { publicPostStatusWhere } from '@/lib/post-status';
@@ -10,6 +12,7 @@ import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
 
 const RECENT_POSTS_MAX = 4;
+const HOME_TOYS = [...TOY_CATALOG].reverse().slice(0, 3);
 
 export default async function HomePage() {
   let featuredGroups: { id: string | number; title: string; description?: string | null; slug?: string | null; href?: string | null; external?: boolean | null }[] = [];
@@ -115,6 +118,7 @@ export default async function HomePage() {
       {/* Resume prompt for readers mid-series — highest priority for a returning
           visitor, so it sits above even the new-visitor on-ramp. */}
       <ContinueReadingBanner />
+      <ContinueToyBanner />
 
       {/* Entry funnel — give first-time visitors a single, voice-rich on-ramp */}
       {startHereHref && <StartHereCard href={startHereHref} />}
@@ -151,25 +155,45 @@ export default async function HomePage() {
       )}
 
       <section style={{ margin: '0 0 2.5rem' }}>
-        <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Toys</h2>
+        <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>New toys</h2>
+        <ul
+          style={{
+            display: 'grid',
+            gap: '0.75rem',
+            margin: '0 0 1rem',
+            padding: 0,
+            listStyle: 'none',
+          }}
+        >
+          {HOME_TOYS.map((toy) => (
+            <li key={toy.id}>
+              <Link
+                className="button-link"
+                href={toy.href}
+                style={{ display: 'block' }}
+              >
+                → {toy.title}
+              </Link>
+              <p
+                style={{
+                  margin: '0.25rem 0 0 1.25rem',
+                  color: 'var(--fg-muted)',
+                  fontSize: '0.875rem',
+                  lineHeight: 1.5,
+                }}
+              >
+                {toy.description}
+              </p>
+            </li>
+          ))}
+        </ul>
         <Link
           href="/toys"
           className="button-link"
           style={{ display: 'inline-block' }}
         >
-          &rarr; Browse my toys
+          &rarr; Browse all {TOY_CATALOG.length} toys
         </Link>
-        <p
-          style={{
-            margin: '0.4rem 0 0 1.25rem',
-            fontSize: '0.875rem',
-            color: 'var(--fg-muted)',
-            lineHeight: 1.5,
-          }}
-        >
-          Games, interactive stories, and strange little experiments. First up:
-          Interspecies Dating is Hard.
-        </p>
       </section>
 
       {/* Recently published — concrete, dated proof of momentum */}
