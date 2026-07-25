@@ -4,14 +4,17 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { mkdirSync } from 'node:fs';
 
-const [inputArg, outputArg, slugArg] = process.argv.slice(2);
+const [inputArg, outputArg, slugArg, ...excludeArgs] = process.argv.slice(2);
 
 if (!inputArg || !outputArg || !slugArg) {
   console.error(
-    'Usage: node scripts/import-twine-story.mjs <compiled-html> <output-json> <slug>',
+    'Usage: node scripts/import-twine-story.mjs <compiled-html> <output-json> <slug> [excluded-passage-id...]',
   );
   process.exit(1);
 }
+
+// Author-only passages (outlines, notes) that should never ship as story text.
+const excludedIds = new Set(['StoryTitle', 'StoryAuthor', ...excludeArgs]);
 
 const inputPath = resolve(inputArg);
 const outputPath = resolve(outputArg);
@@ -25,6 +28,9 @@ function decodePassageText(value) {
     .replaceAll('&#39;', "'")
     .replaceAll('&amp;', '&')
     .replaceAll('\\n', '\n')
+    // Twine 1 escapes a literal space as \s so leading indentation survives
+    // the store format. Butterfly.exe uses it to indent its poem.
+    .replaceAll('\\s', ' ')
     .replaceAll('â€™', '’');
 }
 
@@ -46,9 +52,7 @@ if (!title || !passageMap.has('Start')) {
   throw new Error('The compiled Twine file is missing StoryTitle or Start.');
 }
 
-const storyPassages = passages.filter(
-  ({ id }) => id !== 'StoryTitle' && id !== 'StoryAuthor',
-);
+const storyPassages = passages.filter(({ id }) => !excludedIds.has(id));
 
 const story = {
   schemaVersion: 1,

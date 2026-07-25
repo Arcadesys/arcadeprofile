@@ -15,6 +15,7 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
   { path: '/projects', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/toys', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/toys/interspecies-dating-is-hard', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/toys/butterfly-exe', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/latest', changeFrequency: 'daily', priority: 0.9 },
   { path: '/store', changeFrequency: 'monthly', priority: 0.7 },
   { path: '/subscribe', changeFrequency: 'monthly', priority: 0.7 },
