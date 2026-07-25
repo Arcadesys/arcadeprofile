@@ -23,7 +23,7 @@ export const TOY_CATALOG = [
     description:
       'You have $75, a few hours, and one chance to plan the right date for Tess.',
     image: {
-      src: '/images/toys/interspecies-dating-is-hard/clampett-crossroads.png',
+      src: 'https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/clampett-crossroads-2ba6YQyTWm7FcTX0uokK7fVKH1fSYB.png',
       alt: 'A lively Clampett crossroads with impossible streets and routes into the Toon city',
       width: 840,
       height: 560,
