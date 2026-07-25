@@ -150,6 +150,28 @@ export default async function HomePage() {
         </section>
       )}
 
+      <section style={{ margin: '0 0 2.5rem' }}>
+        <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Toys</h2>
+        <Link
+          href="/toys"
+          className="button-link"
+          style={{ display: 'inline-block' }}
+        >
+          &rarr; Browse my toys
+        </Link>
+        <p
+          style={{
+            margin: '0.4rem 0 0 1.25rem',
+            fontSize: '0.875rem',
+            color: 'var(--fg-muted)',
+            lineHeight: 1.5,
+          }}
+        >
+          Games, interactive stories, and strange little experiments. First up:
+          Interspecies Dating is Hard.
+        </p>
+      </section>
+
       {/* Recently published — concrete, dated proof of momentum */}
       {recentPosts.length > 0 && (
         <section style={{ margin: '0 0 2.5rem' }}>

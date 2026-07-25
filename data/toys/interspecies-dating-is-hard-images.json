@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "locations": [
+    {
+      "id": "trudys-apartment",
+      "title": "Trudy's Apartment",
+      "world": "toon",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/trudys-apartment-8cIn1WM9Sh0XSr62nQ9arZc7L65gvq.png",
+      "alt": "Trudy's clean Toon-world studio apartment, with lavender bedding, gently warped walls, and an impossible Clampett skyline outside",
+      "passages": ["Start", "Home", "Mirror", "Backstory", "Backstory2", "Start Date", "Victory"]
+    },
+    {
+      "id": "clampett-crossroads",
+      "title": "Clampett Crossroads",
+      "world": "toon",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/clampett-crossroads-2ba6YQyTWm7FcTX0uokK7fVKH1fSYB.png",
+      "alt": "A lively Clampett crossroads where impossible streets, a ribbon-like trolley, and icon-marked routes lead toward the Toon city's districts",
+      "passages": ["List", "Where to?"]
+    },
+    {
+      "id": "maries-thrift-shop",
+      "title": "Marie's Thrift Shop",
+      "world": "toon",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/maries-thrift-shop-xMo2jofYcRabY9RS2F624uHBkc2vhS.png",
+      "alt": "Marie's protective Toon-world thrift shop, crowded with clothes beneath magenta walls and expressive black ink splotches",
+      "passages": ["Marie's Thrift Shop", "Marie Tess"]
+    },
+    {
+      "id": "bennys-burrow",
+      "title": "Benny and Fenton's Burrow",
+      "world": "toon",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/bennys-burrow-Fq2M35O1v6vnZiHKbDWrlcAMCILwep.png",
+      "alt": "Benny and Fenton relaxing on a fully furnished porch above their warmly lit underground Toon bungalow",
+      "passages": ["Benny's Burrow", "Benny Tess", "Benny Chances"]
+    },
+    {
+      "id": "lakeside-ink",
+      "title": "Lakeside Ink",
+      "world": "toon",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/lakeside-ink-jUbaXB8z1fUIOvJce9sj5imxx7SgLU.png",
+      "alt": "Lakeside Ink's brilliant blue lake filled with dueling waterskiers, speedboats, pirates, and cheering Toon spectators",
+      "passages": ["Lakeside Ink", "Lakeside Tess", "Buy Lakeside Tix", "Lakeside Date"]
+    },
+    {
+      "id": "misteak",
+      "title": "Misteak",
+      "world": "toon",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/misteak-k8PyHN7GYBwt12jTKPJ0ioCQFoMMqO.png",
+      "alt": "The opulent Misteak restaurant as waiters choreograph airborne salad, flaming dessert, and tableside Toon spectacle",
+      "passages": ["Misteak", "Misteak Tess", "Misteak Menu", "Buy Misteak Tix", "Misteak Date"]
+    },
+    {
+      "id": "chez-toon",
+      "title": "Chez Toon",
+      "world": "toon",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/chez-toon-B8MJ7S3q9mu0SV7ZUfvSLACnDfFVpH.png",
+      "alt": "Chez Toon beauty parlor, with warped mirrors, colorful paint pots, and two rubber-hose stylists preparing their stations",
+      "passages": ["Chez Toon", "Chez Tess", "Buy Chez Tix", "Chez Date"]
+    },
+    {
+      "id": "janm",
+      "title": "JANM",
+      "world": "toon",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/janm-8phSnRTBfaE8Ao9pP6jDjTXvQwZRgU.png",
+      "alt": "JANM's crowded anime district as two giant robots clash above a neon coliseum and a guitar-headed attendant welcomes visitors",
+      "passages": ["JANM", "JANM Tess", "JANM Warmup", "Buy JANM Tix", "JANM Date"]
+    },
+    {
+      "id": "quorum-mall",
+      "title": "Quorum Mall",
+      "world": "real",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/quorum-mall-bd1lwCsPP6KzyorhRD3QAylx7sz5dN.png",
+      "alt": "A crowded beige Quorum mall surrounding a black public node that reveals Clampett's saturated Toon theater district",
+      "passages": ["Quorum Mall", "Mall Tess", "Meet at Quorum Mall"]
+    },
+    {
+      "id": "quorum-library",
+      "title": "Quorum Library",
+      "world": "real",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/quorum-library-Y4Qp22oybJjuyp3avQ6rud7LJgOug6.png",
+      "alt": "The quiet basement of Quorum Library, where a hidden black node near the microfiche machines opens into the Toon world",
+      "passages": ["Quorum Library", "Library Tess", "Meet at Quorum Library"]
+    },
+    {
+      "id": "gas-n-go",
+      "title": "Gas 'n Go",
+      "world": "real",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/gas-n-go-8l0B7GgsUVJDYXguySoRShvh56yOeX.png",
+      "alt": "Gas 'n Go at dusk, where Real teenagers in homemade ink-and-paint makeup gather outside the fluorescent convenience store",
+      "passages": ["Gas n' Go", "Gas Tess"]
+    },
+    {
+      "id": "quorum-park",
+      "title": "Quorum Park",
+      "world": "real",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/quorum-park-7F9DtUspD1I02h82XHYKrlpWxMmRmc.png",
+      "alt": "A subdued Quorum park where painted teenagers gather beside a black hole in a boulder revealing chaotic Lakeside Ink",
+      "passages": ["Quorum Park", "Park Tess", "Meet at Quorum Park", "Quorum Park Date"]
+    },
+    {
+      "id": "qwc-theater",
+      "title": "QWC Theater",
+      "world": "real",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/qwc-theater-ZalFH2WRuD6dzfOPknFkqwgRdVp1wm.png",
+      "alt": "The faded QWC Theater lobby, with checkerboard tile, stale neon, old concessions, and a guarded attendant behind the booth",
+      "passages": ["QWC Theater", "QWC Tess", "Buy QWC Tix", "QWC Date"]
+    },
+    {
+      "id": "quorum-high-school",
+      "title": "Quorum High School",
+      "world": "real",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/locations/quorum-high-school-WJCf5zzxE1iXDbI5hG6VLSdXCt2xq4.png",
+      "alt": "Quorum High School's ordinary brick campus behind a closed iron gate, where a security guard raises one hand to deny entry",
+      "passages": ["Quorum High School"]
+    }
+  ]
+}

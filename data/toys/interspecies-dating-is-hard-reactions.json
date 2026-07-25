@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "reactions": [
+    {
+      "id": "neutral",
+      "label": "Ready",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/characters/cutouts/gertrude-cutout-jfnqvh9Lc6tGHVCeDFZXijjsF4Txk3.png",
+      "alt": "Gertrude, a dark-gray raccoon woman with a red asymmetrical bob, smiling gently and ready for her date",
+      "width": 971,
+      "height": 1619
+    },
+    {
+      "id": "determined",
+      "label": "Determined",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/characters/cutouts/gertrude-determined-cutout-AhoazAlYInIL6KvYoM7QzXOxO43DGQ.png",
+      "alt": "Gertrude squares her shoulders with a confident grin and a small ready-to-go fist",
+      "width": 971,
+      "height": 1619
+    },
+    {
+      "id": "delighted",
+      "label": "Delighted",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/characters/cutouts/gertrude-delighted-cutout-WE5MOgnvDJPXkepksFsDxeXxCUfAsK.png",
+      "alt": "Gertrude beams with bright eyes, perked ears, and both hands raised in delight",
+      "width": 971,
+      "height": 1619
+    },
+    {
+      "id": "skeptical",
+      "label": "Skeptical",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/characters/cutouts/gertrude-skeptical-cutout-lfRFjXcXrRGSXdD4I5CPdna8gKlpJJ.png",
+      "alt": "Gertrude folds her arms and gives an unimpressed sideways look with one eyebrow raised",
+      "width": 971,
+      "height": 1620
+    },
+    {
+      "id": "worried",
+      "label": "Worried",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/characters/cutouts/gertrude-worried-cutout-pY9xgR6R1IzXrlF7Cws3PNqCCjlWjM.png",
+      "alt": "Gertrude draws inward with softened downcast eyes, one hand at her chest and the other holding her sleeve",
+      "width": 971,
+      "height": 1619
+    },
+    {
+      "id": "tender",
+      "label": "Tender",
+      "blobUrl": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/toys/interspecies-dating-is-hard/characters/cutouts/gertrude-tender-cutout-0MdL9IopzQ3VawAYiSmXHNpHo8BwGM.png",
+      "alt": "Gertrude smiles warmly with softened eyes and one hand resting over her heart",
+      "width": 971,
+      "height": 1620
+    }
+  ]
+}

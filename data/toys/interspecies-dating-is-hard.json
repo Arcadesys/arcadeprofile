@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "slug": "interspecies-dating-is-hard",
+  "title": "Interspecies Dating is Hard",
+  "author": "Austen Tucker",
+  "start": "Start",
+  "source": {
+    "format": "Twine 1 / Sugarcane",
+    "importedFrom": "/Users/arcades/Documents/GitHub/writing-archive/_archive/twine/Interspecies.html"
+  },
+  "passages": [
+    {
+      "id": "Buy QWC Tix",
+      "text": "He prints the tickets and hands them to you. He refuses to meet your eyes.\n\n[[Go Home.|Home]]\n\n<<set $Dollars = $Dollars - 25>>\n<<set $QWCDate = true>>"
+    },
+    {
+      "id": "JANM Tess",
+      "text": "WHO HAS GREAAAT LOVE ANIMU EXPLOSION! WE DO! YOU CAN DO IT! OH KAY!\n\n[[...okay.|JANM]]"
+    },
+    {
+      "id": "Lakeside Tess",
+      "text": "Nobody knows her here. However, when you ask the goat at the waterskiing kiosk he makes sure to mention that the skiing lessons are flexible. \"We get a lot of... erm... _mixed_ couples,\" he says. Now he's choosing his words very, very carefully. \"I mean, where one person's human and one is a toon. If you're both toons, then sure. We're gonna saw you in half and blow up your face. But you shouldn't be scared for her life. We'll take good care of her.\"\n\n[[Cool.|Lakeside Ink]]"
+    },
+    {
+      "id": "Buy Lakeside Tix",
+      "text": "Kickass, dudette. You won't regret it!\n\n[[Go back home.|Home]]\n\n<<set $LakesideDate = true>>\n<<set $Dollars = $Dollars - 50>>"
+    },
+    {
+      "id": "Gas Tess",
+      "text": "\"Cute lesbian chick? Yeah, I've seen her around. She knows a lot of the painters but swears up and down she ain't one of 'em.\n\n\"You know what they say, right?\" She cocked her hand and struck a pose. \"'Methinks the lady doth protest too much!'\"\n\n[[Very funny.|Gas n' Go]]"
+    },
+    {
+      "id": "Start",
+      "text": "<<silently>>\n<<set $Dollars = 75>>\n<<set $CoolForAMakeover = false>>\n<<set $ChezDate = false>>\n<<set $JANMDate = false>>\n<<set $LakesideDate = false>>\n<<set $MisteakDate = false>>\n<<set $QWCDate = false>>\n<<set $Painted = false>><<endsilently>>She finally said yes!\n\n\nIt only took two years, a lot of begging and pleading, and a couple of favors from friends, but Tess finally agreed to go on a date. You haven't spoken much with her since... well... since you moved out of Quorum because you turned into a raccoon. Folks back home don't tend to take to toons too well. But she's finally done with midterms and has a free night before her family claims her for the holidays, and she said yes to her favorite raccoon!\n\nBut there's no time to sit around and dally. You've got a date in a few hours, and those tickets won't buy themselves! You are going to show her the best time. When you're ready, come back here to call Tess and arrange your date.\n\n[[Get to planning!|Home]]\n\n[[Wait a minute, I'm a raccoon?|Mirror]]"
+    },
+    {
+      "id": "Quorum Park",
+      "text": "Quorum Park houses one of three nodes leading from the Real world into the Toon world. Its location makes it perfect for youth to come and go as they please; as long as you bring your own portable hole there's no supervision of any kind. It also drops folks into Lakeside Ink, which really only holds interest for teens and twentysomethings looking for a getaway.\n\nA small group of high school kids done up in Ink-and-Paint makeup are standing by a hole they made in the rock. You can see Lakeside Ink's pristine blue lake from here.\n\nThe kids are looking at you and trying to be cool. You can tell it's an act; they want to run over and fawn over you like schoolgirls.\n\n[[Ask about Tess|Park Tess]]\n\n[[Go somewhere else|List]]"
+    },
+    {
+      "id": "Misteak",
+      "text": "The Misteak never stops being busy. That's what you get when Michelin gives three stars. It's in the swanky, Disney-style district in downtown Clampett, and its not uncommon to see all sorts of stars here. You name the cartoon character, they've made an appearance at Misteak. Even the voice actors from past cartoon shows, now treated like Gods among Men, find red carpet treatment here. Their smiling, autographed photos look out of place against the bright ink-and-paint walls around you.\n\nEverything is going wrong at the Misteak and that's exactly how they like it. Here the salads come to table with a pratfall and a midair fury of lettuce, hard-boiled eggs, and a touch of explosive peppercorns. The steak dinners get carved right from the cow at tableside - a gig the cow tends to ham up when he can.\n\n[[Ask about Tess.|Misteak Tess]]\n\n[[Check the Menu|Misteak Menu]]\n\n[[Go somewhere else|List]]"
+    },
+    {
+      "id": "Meet at Quorum Mall",
+      "text": "You show up at the mall's back door with flowers, just like she requested. Well, she asked for the back door part. You thought about the flowers yourself.\n\nShe wasn't there.\n\nAt home, a voicemail message on your phone: \"I'm sorry. Too many people. Got nervous. Maybe some other time. Maybe. I know you and I have a different idea of 'fun' sometimes. I don't know if that'd work out.\"\n\nI'm sure you could have done better."
+    },
+    {
+      "id": "JANM Date",
+      "text": "The robots clashed above with laser guns and plasma swords. The crowd below is frozen in various poses while they take in the splendor.\n\n<<if $Painted eq true>>She leans into you like water leans into a sponge, hoping that if she cuddled hard enough you would become one being. \n\n\"I don't think I'm a Toon,\" she says.\n\n\"It's okay,\" you say.\n\n\"No. I like Toons. Isn't that weird? A Real girl liking a toon. I mean, I had enough trouble explaining to my parents that I like girls. What'll they think when I come home with a raccoon? \"Oh, Dad and Mom. This is Trudy. You remember her from school? She's a Toon now, and I love her, and - oh, yes! - I sometimes dress up like a kitty and go on dates with her over in Clampett!\"\n\n\"It's not a big deal.\"\n\n\"But it is,\" she said. Then she relaxes. The tension just flows out of her. \"Oh, I should just shut up and enjoy myself.\"\n\n\"You should.\"\n\nShe laughs at this.\n\n[[\"I'd like to come home with you after this, if that's okay. I could use the company.\"|Victory]]<<else>>You watch the spectacle in silence. Tess holds your hand but it is clammy, even a touch sweaty. You can feel her looking around at every moment.\n\n\"Could you calm down?\"\n\n\"What if someone from school is here?\" she says. \"Word travels fast.\"\n\nThe show is nice, sure, but you know there will be no second date. You both know this. It was too much, too soon, too little grounding. She can't date a Toon, and you can't handle her headspace. Maybe later, when she's settled a bit further.\n\nYou feel like you could maybe, possibly have done better.\n<<endif>>"
+    },
+    {
+      "id": "Chez Tess",
+      "text": "They don't know her.\n\n\"We'd make her into a _lovely_ Toon!\" Relee says.\n\nJasu rubbed his hands in anticipation. \"The perfect special... somebody for some raccoon!\"\n\n\"We'd do you for free if it'd make her more comfortable, of course.\"\n\nTheir eyes shine like sharks seeing blood in the water.\n\n[[\"Okay, okay!\"|Chez Toon]]"
+    },
+    {
+      "id": "Marie Tess",
+      "text": "\"Never heard of her,\" Marie said. \"But I'd check with Jon at the library. I only see folks once they're secure enough to come on their own.\"\n\n\"Thanks anyway.\"\n\n\"Anytime, Honey. She seems important to you.\"\n\n[[\"You have no idea.\"|Marie's Thrift Shop]]"
+    },
+    {
+      "id": "Misteak Date",
+      "text": "She's holding a croustini of farm-raised caviar in one hand, a glass of tap water in the other. \"This is nice,\" she says, much the same way one might say that breathing is nice, or grass growing is nice. Yes. Everything is nice. Around you the chaos unfolds like so many lotus flowers. Explosions of peppercorn, cow's blood, banana-peel driven flambes. The toons being served all laugh and cheer with each new dish that leaves the kitchen. You are not smiling. Neither is Tess.\n\nTess tries to fake a wan smile and fails. You look at your plates in unison. She fingers rim of her water glass, and you catch the I-told-you-so glare of the maitre'd at the desk. The caviar fills your mouth like cotton, and in the stuffy air between you and Tess it is nearly tasteless.\n\nThis will be the shortest date of your life.\n\n\n\nI'm sure you can do better."
+    },
+    {
+      "id": "Quorum High School",
+      "text": "Ha.\n\nSecurity meets you at the front gate. \"You activists don't give up, do you?\" He shoos you away with a gentle warning that he's calling the cops.\n\n[[So much for that.|List]]"
+    },
+    {
+      "id": "Misteak Menu",
+      "text": "You take a look at the menu and choke a bit. It'd be tight, and that's if you just went with appetizers. Are you sure about this?\n\n[[Too rich for my blood!|Misteak]]\n\n<<if $Dollars gte 70>>[[I guess I'll reserve a table for two|Buy Misteak Tix]]<<endif>>"
+    },
+    {
+      "id": "Backstory",
+      "text": "I did say raccoon. Welcome to being a Toon.\n\nOkay, that may not sit too well for you depending on how \"with it\" you are, so here we go: you are a toon living in a world where some Real people turn into Toons. Nobody can explain it but hey, them’s the breaks. One day toons didn't exist, an the next day someone painted a black hole on a wall that ended up going somewhere. Here, in fact. Right in the heart of Clampett.\n\nYou live in a border town called Clampett, right off the edge of the Real city Quorum. Quorum is famous for some anti-Toon lobbyists, in particular a dude name Daniel Cobbler. (He famously repented for his Toon-hating ways on TV when confronted by his Toon son Fenton, but that's another story entirely.) Despite the fact that prejudice flows like water in some parts of town there are no less than three ways through that town to get to Clampett. It has become a bit of a hub for traffic to and from our little Toon world, so folks are cordial. Mostly.\n\nI hope that wasn't TMI for you. You did keep asking, after all. If you want to know more you can always  <html><a href=\"https://www.amazon.com/dp/145631890X\">Read Up On It</a></html>.\n\n[[Sounds good to me.|Home]]\n\n[[No, seriously. A raccoon? Come on.|Backstory2]]"
+    },
+    {
+      "id": "Lakeside Date",
+      "text": "<<if $Makeover>>\"Nice paint,\" the goat says to Tess. \"Your girlfriend's pretty awesome for getting that for you.\"<<endif>>\n\nThe goat walks you through the safety instructions. \"Keep both hands on the line. There will be explosions and pirates circling you but as long as you stay up you should be fine. Besides, most of 'em will be going after your friend Gerdy here - she can take anything they can dish out, but you'll get turned into a fine red mist if you do this the wrong way. Understand?\"\n\nTess nodded. We held the tow cables. \"Isn't this fun?\" you ask her, and Tess just shrugs. The boat takes off and you're up on skiis dodging cutlasses left and right. All in all, a fun way to pass the time.\nI'm sure you can do better.\n\n\nIt only takes a few seconds for Tess to reach her limit. \"This isn't me,\" she says, and lets go of the tow rope.\n\nYou go to follow her but a wandering pirate takes your head clean off. By the time you find your head and get it screwed back on straight Tess is long, long gone."
+    },
+    {
+      "id": "Chez Toon",
+      "text": "The Chez Toon is a little beauty parlor three blocks from your house. They are known for terrible haircuts and absolutely mind-blowing makeovers.\n\nRelee and Jasu perk up when you ring the bell at the front desk. A crazy, 20s-animated squirrel and fox seemed to wobble over on pipe cleaners. \"We don't do Toons anymore,\" they said in unison.\n\n\"Too easy,\" Jasu said.\n\n\"Making Real people into Toons is much more fun.\"\n\nThe sign above says that a makeover runs $40.\n\n[[Ask about Tess.|Chez Tess]]\n\n[[Go somewhere else.|List]]\n\n<<if $Dollars gte 40>>[[I'd like to make an appointment for my friend Tess.|Buy Chez Tix]]<<endif>>"
+    },
+    {
+      "id": "Gas n' Go",
+      "text": "The Gas 'n Go is right outside Quorum Park, which means two things. One: there's always kids hanging out outside in various stages of ink-and-paint makeup, trying their best to look like a toon. Two: the night manager Cassia knew everybody.\n\nEven you.\n\n\"Been a while,\" she said. \"Though you look much better now that you're not painted up all the time. The natrual look does you good.\"\n\n[[Ask about Tess.|Gas Tess]]\n\n[[Go somewhere else.|List]]"
+    },
+    {
+      "id": "Buy Misteak Tix",
+      "text": "\"Excellent choice,\" the elephant says. He writes your name in for seven o'clock, sharp. \"And dress properly, please.\"\n\n[[Go home.|Home]]\n\n<<set $Dollars = $Dollars - 75>>\n<<set $MisteakDate = true>>"
+    },
+    {
+      "id": "Benny Chances",
+      "text": "They both consider this for a moment. Neither wanted to speak first. It was Benny who broke the ice. \"Trudy, we love you like a sister. You know that! But you can't keep chasing after closet cases! She's either a toon or she's Real. Are you ready to go through all that coming out mess all over again for her? Trust me: it'll dredge up bad memories.\"\n\n\"Not to mention that closet cases are messed up all to hell,\" Fenton said, chuckling.\n\n[[\"Thanks for the vote of confidence.\"|Benny's Burrow]]"
+    },
+    {
+      "id": "Benny's Burrow",
+      "text": "You don't even have to ring the doorbell. The most famous pair of Toons in Clampett have set up camp on their porch, which was, well, all you could see. Benny Bunny had a lovely burrow bungalow with an elevator, no fuss. It wasn't until Fenton insisted on some above ground furniture that you could even see the place from the road.\n\n\"Gerdy!\" Benny yelled.\n\n\"Trudy!\" Fenton yelled. (They liked to bicker over your nickname.)\n\n\"How's our favorite dykey coon doing?\"\n\n[[Ask about Tess|Benny Tess]]\n\n[[\"Am I just bad at dating?\"|Benny Chances]]\n\n[[Go somewhere else.|List]]"
+    },
+    {
+      "id": "Buy Chez Tix",
+      "text": "Jasu and Relee nearly rip your money in half as they take it. \"You won't regret it!\" Jasu said. \"We're the best in the business! What is she? A rabbit? Another raccoon? Does she like classic stuff, or a more modern look? What about--\"\n\n\"Jasu!\" Relee screamed. She bopped him on the head so hard that it rolled clear off into a fuzz-riddled corner. \"We'll leave that up to Tess to decide!\n\n\"Sorry for his rudeness, honey. He just gets excited.\"\n\n[[\"It's okay.\"|List]]\n\n<<set $Dollars = $Dollars - 40>>\n<<set $ChezDate = true>>"
+    },
+    {
+      "id": "Mall Tess",
+      "text": "You might as well be sneezing into a tornado. Between the din of a hundred shoppers cooing over an Honest-to-God Toon at the mall - that's you! - and the mall security slowly corraling you toward the front door there isn't much here for you.\n\n[[Might as well go home.|Home]]"
+    },
+    {
+      "id": "Misteak Tess",
+      "text": "The matre'd is an elephant. He holds a towel under his trunk and a monocle on his eye. When you approach he looks down from his podium with a curious, get-this-trash-out-of-my-restaurant look. \"We have a Real food menu, yes. However, we do have certain... dress codes... to which you shall be held accountable. I assume you have a tailor who could create a dress for your frame, yes? Of course, your lady friend will also need an ink-and-paint dress; we simply do not allow Real fashions to cross our threshold.\n\nYou nod.\n\n\"Please, don't think me rude for suggesting this, but... mixed dates don't go well here. We cater to a toon crowd. However, if you were to find a real nice toon lady to date I assure you that you would have the best time this side of Reality. We are truly out-of-this-world and the next one.\" He swings an elbow your way and winks to drive the point home.\n\n[[Thanks, I guess?|Misteak]]"
+    },
+    {
+      "id": "Quorum Mall",
+      "text": "Quorum mall is packed to the gills. You've never seen it _not_ packed to the gills, actually. Ever since your stilted career as a middle school mall rat the place was wall-to-wall people at all hours. The shops were pretty boring, and the boys even more so. (You figured that part out a long time ago - chasing boys was like chasing cars for you. Even if you catch one, you don't know what to do once you get 'em!)\n\nTHe only real draw of Quorum Mall was the public node leading directly to Clampett's theater district. A large hole was erected on a limestone monolith at the center of the mall courtyard. People were free to come and go to the toon world from here. Who wouldn't? Toons had all the best culture, all the best botiques, all the best restaraunts. Quorum was a strip mall desert. Folks may not like Toons here, but they sure do like what Toons offer up!\n\nAs soon as you step into the mall everyone goes nuts. A crowd forms around you like dew on a too-warm windowpane.\n\n[[Ask about Tess.|Mall Tess]]"
+    },
+    {
+      "id": "QWC Date",
+      "text": "It only takes five minutes for a local to recognize her. Then the questions start. Then the laughter starts. You can almost feel Tess melting into the chair beside you as her world comes crashing down to rubble.\n\n<<if $Painted eq true>>And you even brought her closeted ass back home _as a kitty cat? Jeez. You really are a jerk.\n<<endif>>\nNice job ruining her life, asshole."
+    },
+    {
+      "id": "List",
+      "text": "OCD runs in your family, which means two things. One: you count stairs all the time. Two: you always, always have a list. You've gathered a list of places Tess knows about, as well as a few she's never heard about.\n\nYou have $<<print $Dollars>> in your pocket.\n\n[[Go back to your place|Home]] if you're ready to call Tess.\n\n[[Marie's Thrift Shop|Marie's Thrift Shop]]\n[[Benny and Fenton's Burrow|Benny's Burrow]]\n[[Lakeside Ink|Lakeside Ink]]\n[[Misteak|Misteak]]\n[[Chez Toon|Chez Toon]]\n[[JANM|JANM]]\n[[Quorum Mall|Quorum Mall]]\n[[Quorum Library|Quorum Library]]\n[[Gas n' Go|Gas n' Go]]\n[[Quorum Park|Quorum Park]]\n[[QWC Theater|QWC Theater]]\n[[Maybe one of your old high school teachers knows her.|Quorum High School]]"
+    },
+    {
+      "id": "Meet at Quorum Park",
+      "text": "She arrives at the park wearing a hoodie tied tight around her face. You don't recognize her until she waves a quick, curt little wave. There is no stopping for a kiss or a hug. Tess just keeps right on marching.\n\n\"How're you?\" you ask, hoping to break the ice.\n\n\"I'm doing okay,\" she said. \"Let's get out of here.\"\n\n[[Where to now?|Where to?]]"
+    },
+    {
+      "id": "Meet at Quorum Library",
+      "text": "She arrives in drab dress and avoids looking at the other library patrons. It isn't until you've found your way downstairs and hidden between the stacks that she lights up like a Christmas tree.\n\n\"You know about the Library node?\" She asks.\n\n\"How do you think I snuck out when I was in the closet, hon?\"\n\n\"I didn't even think about it. But thanks! And thanks for letting me know that Jon has my back. It's a huge help!\"\n\n[[Where to now?|Where to?]]\n\n<<set $CoolWithAMakeover = true>>"
+    },
+    {
+      "id": "QWC Tess",
+      "text": "He stops you before you can say her name. \"Look. I can't stop you from picking up a ticket for you and your date. Honestly I don't want to know who they are. But if you do buy a ticket... Your funeral. Look, we may have had the feel-good talk show moment when the Cobblers kissed and made up, but that ain't how most folks in Quorum are. You're a toon, and folks don't take kindly to that round here.\n\nHis eyebrow raised like he could jump over the counter at any second. \"And we _sure_ don't take kindly to Toons dating our women.\"\n\n[[Righto.|QWC Theater]]"
+    },
+    {
+      "id": "Library Tess",
+      "text": "Jon considers this for a moment. \"Come to think of it, I _have_ seen a Tess around here. College kid, blonde hair, little on the curvy side?\"\n\nYou nod.\n\n\"Yeah. She stops by to chat with the other folks who go through this node. You know how it is: folks turning toon look for a way to stay in the closet, they end up coming through here. Marie takes care of 'em on the other side. Me, I just get 'em in and out, keep the node on the down-low.\"\n\nYou turn to walk back out the door. Jon waves you back. \"One more thing!\" he screams. \"Look, I don't know what she needs. I can't ask. It's not my place! But since it's obvious you know Tess pretty well...\"\n\n\"I guess I do,\" you say. \"Wish I knew her better.\"\n\n\"Tell her that she only ever has to ask,\" Jon says. \"As soon as she asks she can have anything. everything. We are here to help.\"\n\n[[\"I know,\" you reply. \"I remember.\"|Quorum Library]]"
+    },
+    {
+      "id": "Home",
+      "text": "You don't have a fantastic place, but it is clean. You scored a little studio apartment on the West End of CLampett, outside Care Bear Central. (Your mom insisted you stay somewhere safe - \"girls aren't safe in the city!\" she kept crowing - but she couldn't complain when you found a spot just outside of the very image of safety and wholesomeness. Parental Paranoia 0, You 1.) All the basics are there: a bed, a phone, a computer that doubles as your TV, bathroom, kitchenette, and a few photos spattered among the otherwise bare white walls. In time you'd make it nicer but for now it was good enough for home.\n\nWhat matters is that this place is clean. Sparkling. The bedsheets smell like lavender, a fact you double-checked with one of Tess's friends. (Some folks don't like lavender - what a crime it'd be if you brought her home to a bed that reeked of something she hated?)\n\nYou have a few hours before you need to finalize plans. If you'd like, you may go out and scope the area for a nice place to take her on the town. Or, if you're the impatient type, you can just call her right now and wing it. Your call.\n\nYou have $75 to spend on this date. You may spend it all or spend none of it.\n\nWhen you're ready, come back here and give Tess a call to start the date.\n\n\n[[Explore the city.|List]]\n\n[[Look at the bathroom mirror.|Mirror]]\n\n[[Call Tess.|Start Date]]"
+    },
+    {
+      "id": "Backstory2",
+      "text": "Hey, I'm your narrator, not your suspension of disbelief. Trust me: you'll have a good time. If not, you paid $0 for the game. Big deal. Worst case, you lost a few minutes on Reddit.\n\n[[Okay|Home]]\n\n[[I guess I can't argue with that logic.|Home]]\n\n[[These all go back to the story, don't they?|Home]]\n\n[['Fraid so.|Home]]"
+    },
+    {
+      "id": "Park Tess",
+      "text": "When you mention her name their eyes flicker with recognition. The girl that ends up answering is painted to look like a bad copy of some Ah My Goddess! character. All ribbons and bells and big eyes and stuff like that. For what it's worth she almost passes for a real Toon; she would be right at home in the JANM district, for sure.\n\nShe sounds like she's trying to hold back a squeal of joy while she's sharing what she knows.You think about encouraging her to let it out but decide against it. Not the time.\n\n\"I know Tess. She's in the anime club with me!\"\n\nYou know she likes anime. \"Go on.\"\n\n\"She never comes out with us, though.\" Her arms fold up under her chin, squeeze her breasts tight. She shakes bright, ink-and-paint tears from her eyes. \"But she won't let me take her out! I've done her makeup a few times here and there - she looks _great_ as a Toon - but she won't come out!\"\n\n\"I wonder why.\"\n\n\"I don't know,\" the girl says. Then she hops in the air, flashes a peace sign, says something in Japanese, and disappears into the hole.\n\n[[Cool. Next stop, I guess.|List]]"
+    },
+    {
+      "id": "Chez Date",
+      "text": "<<if $CoolWithAMakeover eq true>>\"A little bird told me you wanted this,\" you say. You can feel Tess's pulse pounding through her hand. Even still she's smiling, still skipping along the sidewalk as you walk up to Chez Toon.\n\n\"Can I be a kitty?\" she asks you. \"I always wanted to be a kitty.\"\n\n\"You can be whoever you want,\" you say, and Tess smiles even bigger. \"Why haven't you done this before.\"\n\nShe looked up to the Chez Toon sign and thought about this. \"Nervous, I guess. I always thought folks would make fun of me. But here? You took me through a hidden path and just... sprung it on me. I guess that helps.\"\n\n\"I'm glad.\"\n\n\"I know that doesn't make much sense,\" she says, laughing. But before she can explain any further Jasu and Relee descend upon her in a flurry of powder puffs and ink brushes.\n\nThey offer to do your makeup. You gracefully decline.\n<<set $Painted = true>>\n[[\"We gotta show this off!\" She said. Her eyes glowed like tiny galaxies.|Where to?]]<<else>>\nShe's trying to smile and be nice about it. You know this. The pulse in her hand tells you it was the right thing to do. She wants this. Needs this, even!\n\nWhen you get to the Chez Toon salon doors she just keeps on walking. \"What if someone saw me?\" she says. \"What if someone from the park is following me right now? Then I'd be out as a weirdo painter dating a Toon. You understand, right? Please tell me you understand.\"\n\n[[\"Okay, we'll do something else.\"|Where to?]]<<endif>>"
+    },
+    {
+      "id": "JANM Warmup",
+      "text": "Above a pair of robots screech a cry into an empty arena. Their swords light with energy and pull up concrete from the arena floor before colliding with a spark of the brightest light you've ever seen.\n\nThe robot goes starry-eyed. \"SO MUCH POWER! IMPOSSIBRU!\"\n\n[[Okay, I guess that was pretty cool.|JANM]]"
+    },
+    {
+      "id": "Marie's Thrift Shop",
+      "text": "Every Toon from Quorum knows the Thrift Shop.\n\nWell, more specifically I guess every Toon from Quorum knows the Thrift Shop bathroom. It's dingy and done up in a dark, 90s, Liquid-Televisiony vibe, with plenty of black splotches and heavy ink lines to go around. The Quorum Library has a hidden node that drops off here, and the shopkeep Marie makes a point to store any belongings for folks coming to and from the town.\n\nMarie was just the kind of fox you always wanted to know: kind, gentle, almost matriarchal in her demeanor. Always ready with a hug, a kind word, or even a \"you look wonderful\" compliment when folks were stuck between Real and Toon and looked like ground beef.\n\nYou know how much that means. She was the only thing that kept you going at some points during your transformation.\n\n\"Can I help you with something, Sugar?\"\n\n[[Ask about Tess.|Marie Tess]]\n\n[[Go somewhere else.|List]]"
+    },
+    {
+      "id": "Quorum Park Date",
+      "text": "You find a quiet place to hang out in the park. Nobody is around. The moon shines bright enough to light every leaf, shine in every coyote's eye.\n\nIt's nice. The crickets chirp. The bullfrogs croak. You take in the silence with Tess for a good thirty minutes.\n\n<<if $Painted eq true>>Tess looks to you. \"Trudy, thank you for doing me up.\"\n\n\"You're welcome.\"\n\n\"But it's not me. I wish it were, but it's just... it's just not, I guess.\"\n<<endif>>\nThen, as if on cue, she stands, plants a kiss on your cheek, and disappears into the forest.\n\n\nYou feel like you could have done better."
+    },
+    {
+      "id": "Quorum Library",
+      "text": "Jon the librarian greets you by first name. \"Gertrude Raccoon, as I live and breathe! How are you, hon? You look marvelous.\"\n\n\"Great! Clampett's been good for me. And things have definitely changed for the better.\" He hasn't seen you since... since before, actually. A whole species ago. Every Toon in transition goes through Jon. He's sort of a local legend in the community for how he lines you up with all the support you could possibly need.\n\nHe even works with Marie, whose thrift store bathroom links up near the microfiche machines in the library basement. Perfect place for a Toon to get away and figure out what's going on in their head.\n\n[[Ask about Tess.|Library Tess]]\n\n[[Go somewhere else.|List]]"
+    },
+    {
+      "id": "Where to?",
+      "text": "The Toon world surrounds you in bright colors and impossible physics. You both sigh. Home is home.\n\n\"Where to?\" she asks. <<if $CoolWithAMakeover eq true>>Her hand slides into yours as if they were puzzle pieces.<<endif>>\n\n<<if $ChezDate eq true>>[[I was thinking we could go for a makeover together!|Chez Date]]<<endif>>\n<<if $JANMDate eq true>>[[You know, I just so happen to have tickets to a robot battle at JANM...|JANM Date]]<<endif>>\n<<if $LakesideDate eq true>>[[How about we waterski down at Lakeside Ink?|Lakeside Date]]<<endif>>\n<<if $MisteakDate eq true>>[[I got us a table at the most exclusive restaraunt in Clampett.|Misteak Date]]<<endif>>\n<<if $QWCDate eq true>>[[I thought we'd go for a movie.|QWC Date]]<<endif>>\n[[How about we just go hang out at Quorum Park?|Quorum Park Date]]"
+    },
+    {
+      "id": "QWC Theater",
+      "text": "The place hasn't changed since before you were born, and probably never will. Checkboard tile leads the way to a neon-splashed concession desk, which serves both as popcorn dispenser and ticket booth. The guy running the counter is an older sort, with a salt-and-pepper beard an everpresent sneer. You remember, vaguely, that he once taught history at your school. Mister Withall. You never had him growing up but everyone who did complained. It was a pasttime in the school.\n\nHere, loosed from the need to be at least cordial to the folks around him, his eyes stare daggers through you. It's obvious that you're not from around here, and he intends to make sure you know it every step of the way.\n\n\"Match made in Milk in Honey\" is playing tonight. You've wanted to see it for a good month now. Tickets are cheaper in Quorum - you could get in for $25, no problem.\n\n[[Ask about Tess.|QWC Tess]]\n\n<<if $Dollars gte 25>>[[Buy two tickets for \"Match made in Milk and Honey\"|Buy QWC Tix]]<<endif>>\n\n[[Go somewhere else.|List]]"
+    },
+    {
+      "id": "JANM",
+      "text": "JANM bled cel shading, big eyes, and magical girls with cat familiars. That's just the way the place rolled. At the center of it all was a large colliseum where robots would cross swords for screaming crowds.\n\nToday is an off-day for robot fighting. The stadium fills with Real people on the weekends, and for those nights tickets are nearly impossible to find. Weeknight cards are all minor-league robots. Cheap tickets, but the fights are just as good to your eyes.\n\nThe robot manning the ticket counter sees you looking at the sign above his head and flashes a peace-sign salute. He is mostly humanoid save for the fact that his head is a giant guitar and his hands are purpose-built to flash various anime signs at guests.\n\n\"WELCOME GREAT FIGHTING ROBOT EXPLOSION TIME!\"\n\nTickets for tonight's upper card are $15 apiece.\n\n[[Ask about Tess.|JANM Tess]]\n\n[[A warmup just started!|JANM Warmup]]\n\n<<if $Dollars gte 30>>[[Buy two tickets for tonight's upper card.|Buy JANM Tix]]<<endif>>\n\n[[Go somewhere else.|List]]"
+    },
+    {
+      "id": "Buy JANM Tix",
+      "text": "The robot at the ticket counter rears back, poses, and proceeds to launch two tickets right into your breadbasket. \"THANK YEEEEEEW!\"\n\n[[Go somewhere else.|List]]\n\n<<set $Dollars = $Dollars - 30>>\n<<set $JANMDate = true>>"
+    },
+    {
+      "id": "Mirror",
+      "text": "You are Gertrude, and you're a raccoon.\n\n(\"I am a raccoon,\" you say again. Even now the words feel a little mealy in your mouth. It reminds you of the terrible stories you'd read on email lists, wish-fulfillment tales scribbled in notepad on a bedroom computer, sometimes one-handed, and always for an audience of a dozen people. Actually saying \"I am a raccoon\" out loud still strikes you as weird, even a little subversive.)\n\nIt wasn't always this way, of course. You had it a little easier than most folks who turned toon. Your first splotches of ink-and-paint fur appeared around graduation time, and instead of freaking out your parents tried their best to understand what was happening to you. (Having your aunt transform before you was a huge help - by the time it was your time they'd gone through their \"Being a Toon is a choice\" phase and had settled into a better mindset.) It may be a little awkward at times but all your toon friends get standing invites to your family gatherings, just because they know how people can be.\n\nCertainly less stressful than Fenton's story, you know. He doesn't talk about it much but you've heard all the rumors. If even half of those rumors are true... well, bless his heart.\n\nThe mirror in your house doesn't leave much to the imagination. Your looks like they came out of the early 90s style of animation: a touch sloppy, definitely hand-drawn, with plenty of bright colors and strange, out-of-place lines. Your hair lays in a red, asymetrical bob, set against a dark gray fur color and a white belly that just barely gives the hint of an hourglass figure. A girl, a toon, and a raccoon. Nothing strange about that at all.\n\n\n[[Go back to your room|Home]]\n\n[[Okay, stopping you right there. I'm a raccoon?|Backstory]]"
+    },
+    {
+      "id": "Lakeside Ink",
+      "text": "It's busy at Lakeside Ink. It's always busy at Lakeside Ink, really. For one, it's an upscale neighborhood on the North side of Clampett. For two, it has a massive lake. These facts make the region a hot spot for progressive tourists and toon weekend warriors alike, who flock here for the quirky shops, fair trade coffee, and mind-blowingly amazing ski shows that never, ever seem to stop.\n\nToday is no different. A pair of stoats are carving a long, curving path behind a speedboat. They duel with cutlasses and pistols as they pass by the crowd, and everyone cheers. Occasionally one of the stoats catches a cutlass through the arm and, muttering something about needing a hand, reattaches it with a twist and a jerk. The crowd goes wild.\n\nWanton violence with cute, cartoon animals. Yep. Definitely Lakeside Ink's style. You find a sign offering a two-for-one deal; waterskiing lessons and cartoon violence 101. From the looks of it you'll be out $50 for the pleasure.\n\n<<if $Dollars gte 50>>[[Buy waterskiing lessons.|Buy Lakeside Tix]]<<endif>>\n\n[[Ask about Tess.|Lakeside Tess]]\n\n[[Go somewhere else.|List]]"
+    },
+    {
+      "id": "Start Date",
+      "text": "Tess hasn't bought her own portable hole yet. They're expensive, for one, and she'd never be able to hide it from her parents. (Her words, not mine.) You will need to meet her at one of three nodes in Quorum. You tell her to meet\n\n[[at Quorum Park|Meet at Quorum Park]]\n\n[[at Quorum Mall|Meet at Quorum Mall]]\n\n[[at Quorum Library|Meet at Quorum Library]]"
+    },
+    {
+      "id": "Benny Tess",
+      "text": "\"She's not a Toon,\" Fenton said. \"And she's not a painter. Believe me, I've been around that community lots. In fact, I don't think I've ever heard of her!\" He's telling the truth. Fenton was once the most famous closet case of Quorum. Everyone in the world had heard his name at some point.\n\n\"I've heard bits and pieces about her,\" Benny interjected. \"But not much. Why don't you head over to Quorum and try learning about her? I'm sure you can find some info if you dig hard enough.\"\n\n\"And don't you DARE turn into a U-haul lesbian!\" Fenton added. \"You're too cool to get all _domesticated_ on us.\"\n\n[[\"Okay, okay. I get it!\"|Benny's Burrow]]"
+    },
+    {
+      "id": "Victory",
+      "text": "She compliments the lavender and you squeeze her even tighter. Now you're the one hoping that a good, tight cuddle will meld your two bodies into one so you'll never have to be apart again.\n\nHer ink-and-paint shell is flaking away like fish food on your bed. No big deal. You'll wash it later. For now you're just enjoying the words on the air. \"I think I love you,\" she keeps saying, over and over again. \"I think I've loved you for a long time.\"\n\n\"You're pretty sweet yourself,\" you reply.\n\nShe shifts in the bed so she can get a bead on your lips with hers. You share a moment of passion - one of many from the night - and then she's slumped in your arms again. \"I wish I were a toon. Would make things a lot easier on both of us. Are you going to be okay with this?\"\n\n\"With what?\"\n\n\"Our... differences.\" She struggled with the word.\n\n\"It'll have to be. Let's just enjoy ourselves while it's here, okay?\"\n\nShe doesn't respond to this, but from the way she pushes her body into yours you know it's the right answer."
+    }
+  ]
+}
