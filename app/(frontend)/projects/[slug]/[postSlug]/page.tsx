@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
-import PostRichText from '@/app/components/PostRichText';
+import LongformBody from '@/app/components/LongformBody';
 import { getProjectBySlug } from '@/lib/payload';
 import { getGroupBySlug } from '@/lib/blog';
 import { resolvePostOgImageBySlug } from '@/lib/post-og-image';
@@ -28,6 +28,7 @@ import {
   resolvePostSlugByPartIndex,
 } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
+import { resolveCanonicalUrl } from '@/lib/canonical-url';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
@@ -159,17 +160,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const titleForBrowser = `${metaTitle} | ${project.title}`;
   const titleForOg = `${metaTitle} | ${project.title} | Free Play Publishing`;
   const path = buildPostUrl(slug, postSlug);
-  const url = `${SITE_URL}${path}`;
-  const canonical = postExtras.canonicalPath || path;
+  const canonicalUrl = resolveCanonicalUrl(postExtras.canonicalPath, path, SITE_URL);
   return {
     title: titleForBrowser,
     description: metaDescription,
-    alternates: { canonical },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: titleForOg,
       description: metaDescription,
       type: 'article',
-      url,
+      url: canonicalUrl,
       images: og
         ? [{ url: og.url, alt: og.alt ?? metaTitle, width: og.width, height: og.height }]
         : undefined,
@@ -219,14 +219,11 @@ export default async function ProjectPostPage({ params }: Props) {
   const relatedPosts = getRelatedPosts(allPosts, post, urlMap);
 
   const pageUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
-  // JSON-LD url/mainEntityOfPage tracks the same canonical as the
-  // `<link rel="canonical">` tag — if an editor set a canonical_path
-  // override (cross-posted essay, etc.), both should point there.
-  const canonicalUrl = extras.canonicalPath
-    ? extras.canonicalPath.startsWith('http')
-      ? extras.canonicalPath
-      : `${SITE_URL}${extras.canonicalPath}`
-    : pageUrl;
+  const canonicalUrl = resolveCanonicalUrl(
+    extras.canonicalPath,
+    buildPostUrl(slug, postSlug),
+    SITE_URL,
+  );
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -260,7 +257,7 @@ export default async function ProjectPostPage({ params }: Props) {
     itemListElement: [
       { name: 'Projects', item: `${SITE_URL}/projects` },
       { name: project.title, item: `${SITE_URL}${buildGroupIntroUrl(slug)}` },
-      { name: post.title, item: pageUrl },
+      { name: post.title, item: canonicalUrl },
     ].map((b, i) => ({
       '@type': 'ListItem',
       position: i + 1,
@@ -317,9 +314,7 @@ export default async function ProjectPostPage({ params }: Props) {
           </p>
         </header>
 
-        <div className="prose">
-          <PostRichText data={post.content} />
-        </div>
+        <LongformBody content={post.content} />
 
         <div style={{ marginTop: '2.5rem' }}>
           <PostReactions postId={post.id} initialCounts={initialReactionCounts} />

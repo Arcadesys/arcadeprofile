@@ -19,13 +19,20 @@ function result<T>(docs: T[]) {
   };
 }
 
-test('buildStaticSitemapEntries trims route mapping to the configured site url', () => {
-  const now = new Date('2026-01-01T00:00:00.000Z');
-  const entries = buildStaticSitemapEntries('https://example.test', now);
+test('buildStaticSitemapEntries maps configured routes without synthetic modification dates', () => {
+  const entries = buildStaticSitemapEntries('https://example.test');
 
   assert.equal(entries[0]?.url, 'https://example.test/');
+  assert.equal(
+    entries.some(entry => entry.url === 'https://example.test/bibliography'),
+    true,
+  );
+  assert.equal(
+    entries.filter(entry => entry.url.includes('/portfolio')).length,
+    7,
+  );
   assert.equal(entries.find(entry => entry.url.endsWith('/projects'))?.priority, 0.9);
-  assert.equal(entries.every(entry => entry.lastModified === now), true);
+  assert.equal(entries.every(entry => entry.lastModified === undefined), true);
 });
 
 test('loadCmsSitemapEntries loads every group and post without fixed caps', async () => {

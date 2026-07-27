@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ensureToysNavItem, loadVisibleNavItems } from './nav-items';
+import {
+  ensureCoreNavItems,
+  ensurePortfolioNavItem,
+  ensureToysNavItem,
+  loadVisibleNavItems,
+} from './nav-items';
 
 type NavPayload = Parameters<typeof loadVisibleNavItems>[0];
 
@@ -54,4 +59,25 @@ test('ensureToysNavItem does not duplicate a CMS-managed Toys entry', () => {
   ];
 
   assert.strictEqual(ensureToysNavItem(items), items);
+});
+
+test('ensurePortfolioNavItem inserts Portfolio after Projects', () => {
+  const items = ensurePortfolioNavItem([
+    { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
+    { id: 'bio', label: 'Bio', href: '/bio', isPrimary: false },
+  ]);
+
+  assert.deepEqual(items.map((item) => item.href), ['/projects', '/portfolio', '/bio']);
+});
+
+test('ensureCoreNavItems keeps Portfolio and Toys in a predictable order', () => {
+  const items = ensureCoreNavItems([
+    { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
+    { id: 'bio', label: 'Bio', href: '/bio', isPrimary: false },
+  ]);
+
+  assert.deepEqual(
+    items.map((item) => item.href),
+    ['/projects', '/portfolio', '/toys', '/bio'],
+  );
 });
