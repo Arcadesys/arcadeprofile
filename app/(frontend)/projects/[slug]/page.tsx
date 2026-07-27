@@ -15,6 +15,7 @@ import { JsonLd } from '@/lib/structured-data';
 import { buildPostUrl, buildGroupIntroUrl, partNum } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 import { formatSiteDate } from '@/lib/site-time';
+import { resolveCanonicalUrl } from '@/lib/canonical-url';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
@@ -108,17 +109,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const metaDescription = group?.meta?.description?.trim() || project.description || undefined;
   const titleForOg = `${metaTitle} | Free Play Publishing`;
   const path = buildGroupIntroUrl(slug);
-  const url = `${SITE_URL}${path}`;
-  const canonical = groupExtras.canonicalPath || path;
+  const canonicalUrl = resolveCanonicalUrl(groupExtras.canonicalPath, path, SITE_URL);
   return {
     title: metaTitle,
     description: metaDescription,
-    alternates: { canonical },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: titleForOg,
       description: metaDescription,
       type: 'article',
-      url,
+      url: canonicalUrl,
       images: og
         ? [{ url: og.url, alt: og.alt ?? metaTitle, width: og.width, height: og.height }]
         : undefined,
@@ -160,13 +160,19 @@ export default async function ProjectIntroPage({ params }: Props) {
 
   const sections = buildDrawerSections(slug, project.title, chapterSections);
   const nextPartHref = firstPost ? buildPostUrl(slug, firstPost.slug) : undefined;
+  const groupExtras = await loadGroupExtras(slug);
+  const canonicalUrl = resolveCanonicalUrl(
+    groupExtras.canonicalPath,
+    buildGroupIntroUrl(slug),
+    SITE_URL,
+  );
 
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: project.title,
     description: project.description ?? undefined,
-    url: `${SITE_URL}${buildGroupIntroUrl(slug)}`,
+    url: canonicalUrl,
     isPartOf: { '@id': `${SITE_URL}/#website` },
     author: { '@id': `${SITE_URL}/#person` },
   };
@@ -176,7 +182,7 @@ export default async function ProjectIntroPage({ params }: Props) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { name: 'Projects', item: `${SITE_URL}/projects` },
-      { name: project.title, item: `${SITE_URL}${buildGroupIntroUrl(slug)}` },
+      { name: project.title, item: canonicalUrl },
     ].map((b, i) => ({
       '@type': 'ListItem',
       position: i + 1,

@@ -3,6 +3,7 @@ import type { Payload } from 'payload';
 
 import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
 import { publicPostStatusWhere } from '@/lib/post-status';
+import { PORTFOLIO_WORKS } from '@/lib/portfolio';
 
 export type SitemapEntry = MetadataRoute.Sitemap[number];
 
@@ -11,8 +12,15 @@ type SitemapPayload = Pick<Payload, 'find'>;
 const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFrequency']; priority: number }[] = [
   { path: '/', changeFrequency: 'weekly', priority: 1.0 },
   { path: '/bio', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/bibliography', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/resume', changeFrequency: 'monthly', priority: 0.6 },
   { path: '/projects', changeFrequency: 'weekly', priority: 0.9 },
+  { path: '/portfolio', changeFrequency: 'monthly', priority: 0.9 },
+  ...PORTFOLIO_WORKS.map((work) => ({
+    path: `/portfolio/${work.slug}`,
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  })),
   { path: '/toys', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/toys/interspecies-dating-is-hard', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/toys/butterfly-exe', changeFrequency: 'monthly', priority: 0.8 },
@@ -24,10 +32,9 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
   { path: '/subscribe', changeFrequency: 'monthly', priority: 0.7 },
 ];
 
-export function buildStaticSitemapEntries(siteUrl: string, now: Date): SitemapEntry[] {
+export function buildStaticSitemapEntries(siteUrl: string): SitemapEntry[] {
   return STATIC_ROUTES.map(({ path, changeFrequency, priority }) => ({
     url: `${siteUrl}${path}`,
-    lastModified: now,
     changeFrequency,
     priority,
   }));

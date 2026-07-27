@@ -2,17 +2,16 @@ import type { Metadata } from 'next';
 
 import ToyShelf from '@/app/components/toys/ToyShelf';
 import { TOY_CATALOG } from '@/data/toys/catalog';
+import { buildToyMetadata } from '@/lib/toys/metadata';
 
 import styles from './toys.module.css';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildToyMetadata({
   title: 'Toys',
   description:
     'Games, interactive stories, experiments, and strange little browser toys by Austen Tucker.',
-  alternates: {
-    canonical: '/toys',
-  },
-};
+  path: '/toys',
+});
 
 export default function ToysPage() {
   return (

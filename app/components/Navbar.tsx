@@ -3,7 +3,7 @@ import config from '@payload-config';
 import { hasConfiguredDatabaseURL } from '@/lib/env';
 import {
   DEFAULT_NAV_ITEMS,
-  ensureToysNavItem,
+  ensureCoreNavItems,
   loadVisibleNavItems,
   type NavItem,
 } from '@/lib/nav-items';
@@ -19,7 +19,7 @@ export default async function Navbar() {
   try {
     const payload = await getPayload({ config });
     const cmsItems = await loadVisibleNavItems(payload);
-    if (cmsItems.length > 0) items = ensureToysNavItem(cmsItems);
+    if (cmsItems.length > 0) items = ensureCoreNavItems(cmsItems);
   } catch {
     // Fall back to defaults if Payload is unavailable (build time, etc.)
   }

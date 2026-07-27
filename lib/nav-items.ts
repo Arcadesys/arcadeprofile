@@ -9,6 +9,7 @@ export type NavItem = {
 
 export const DEFAULT_NAV_ITEMS: NavItem[] = [
   { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
+  { id: 'portfolio', label: 'Portfolio', href: '/portfolio', isPrimary: false },
   { id: 'toys', label: 'Toys', href: '/toys', isPrimary: false },
   { id: 'bio', label: 'Bio', href: '/bio', isPrimary: false },
   { id: 'latest', label: 'Latest', href: '/latest', isPrimary: false },
@@ -23,17 +24,34 @@ export const TOYS_NAV_ITEM: NavItem = {
   isPrimary: false,
 };
 
+export const PORTFOLIO_NAV_ITEM: NavItem = {
+  id: 'portfolio',
+  label: 'Portfolio',
+  href: '/portfolio',
+  isPrimary: false,
+};
+
+function insertAfter(items: NavItem[], afterHref: string, item: NavItem): NavItem[] {
+  const afterIndex = items.findIndex((entry) => entry.href === afterHref);
+  const insertAt = afterIndex === -1 ? 0 : afterIndex + 1;
+  return [...items.slice(0, insertAt), item, ...items.slice(insertAt)];
+}
+
 export function ensureToysNavItem(items: NavItem[]): NavItem[] {
   if (items.some((item) => item.href === TOYS_NAV_ITEM.href)) return items;
+  const afterHref = items.some((item) => item.href === '/portfolio')
+    ? '/portfolio'
+    : '/projects';
+  return insertAfter(items, afterHref, TOYS_NAV_ITEM);
+}
 
-  const projectsIndex = items.findIndex((item) => item.href === '/projects');
-  const insertAt = projectsIndex === -1 ? 0 : projectsIndex + 1;
+export function ensurePortfolioNavItem(items: NavItem[]): NavItem[] {
+  if (items.some((item) => item.href === PORTFOLIO_NAV_ITEM.href)) return items;
+  return insertAfter(items, '/projects', PORTFOLIO_NAV_ITEM);
+}
 
-  return [
-    ...items.slice(0, insertAt),
-    TOYS_NAV_ITEM,
-    ...items.slice(insertAt),
-  ];
+export function ensureCoreNavItems(items: NavItem[]): NavItem[] {
+  return ensureToysNavItem(ensurePortfolioNavItem(items));
 }
 
 type NavPayload = Pick<Payload, 'find'>;

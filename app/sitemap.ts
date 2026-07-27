@@ -11,7 +11,7 @@ type Entry = MetadataRoute.Sitemap[number];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const entries: Entry[] = buildStaticSitemapEntries(SITE_URL, now);
+  const entries: Entry[] = buildStaticSitemapEntries(SITE_URL);
 
   if (!hasConfiguredDatabaseURL()) {
     return entries;
