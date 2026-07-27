@@ -66,7 +66,7 @@ export default async function PortfolioWorkPage({ params }: Props) {
     mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
     url: pageUrl,
     wordCount: work.wordCount,
-    image: `${SITE_URL}${work.titleImage.src}`,
+    image: work.titleImage.src,
     isPartOf: {
       '@type': 'CollectionPage',
       name: 'Portfolio',
