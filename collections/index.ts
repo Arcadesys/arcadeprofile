@@ -9,10 +9,12 @@ import { PostReactions } from './PostReactions';
 import { PostmarkEvents } from './PostmarkEvents';
 import { Posts } from './Posts';
 import { Users } from './Users';
+import { WorkItems } from './WorkItems';
 import { PublishQueue } from '../globals/PublishQueue';
 
 export const collections = [
   Users,
+  WorkItems,
   Posts,
   PostReactions,
   PostmarkEvents,

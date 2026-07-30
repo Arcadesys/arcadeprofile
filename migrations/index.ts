@@ -37,6 +37,7 @@ import * as migration_20260618_030000_drop_demos from './20260618_030000_drop_de
 import * as migration_20260618_040000_add_books_buy_label from './20260618_040000_add_books_buy_label';
 import * as migration_20260618_050000_drop_projects_table from './20260618_050000_drop_projects_table';
 import * as migration_20260624_000000_newsletter_send_state_machine from './20260624_000000_newsletter_send_state_machine';
+import * as migration_20260729_000000_add_work_items from './20260729_000000_add_work_items';
 
 export const migrations = [
   {
@@ -233,5 +234,10 @@ export const migrations = [
     up: migration_20260624_000000_newsletter_send_state_machine.up,
     down: migration_20260624_000000_newsletter_send_state_machine.down,
     name: '20260624_000000_newsletter_send_state_machine'
+  },
+  {
+    up: migration_20260729_000000_add_work_items.up,
+    down: migration_20260729_000000_add_work_items.down,
+    name: '20260729_000000_add_work_items',
   },
 ];

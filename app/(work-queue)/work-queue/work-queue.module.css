@@ -1,0 +1,490 @@
+.app {
+  --background: #080d16;
+  --surface: #111927;
+  --card: #182335;
+  --text: #f7f3eb;
+  --muted: #c7d3e3;
+  --border: #65758a;
+  --focus: #76b7ff;
+  --accent: #ff654f;
+  --accent-text: #120a08;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--text);
+  font-family: var(--font-work-queue-sans), Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+.app[data-theme='light'] {
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --text: #101828;
+  --muted: #344054;
+  --border: #475467;
+  --focus: #005fcc;
+  --accent: #e63f2d;
+  --accent-text: #ffffff;
+}
+
+.app *,
+.app *::before,
+.app *::after {
+  box-sizing: border-box;
+}
+
+.app button,
+.app input,
+.app select,
+.app textarea {
+  font: inherit;
+}
+
+.app button,
+.app input,
+.app select,
+.app textarea,
+.app [tabindex='0'] {
+  outline: none;
+}
+
+.app button:focus-visible,
+.app input:focus-visible,
+.app select:focus-visible,
+.app textarea:focus-visible,
+.app [tabindex='0']:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.header {
+  min-height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 16px 24px;
+  border-bottom: 2px solid var(--border);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.themeButton,
+.primaryButton,
+.secondaryButton {
+  min-height: 56px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 0 22px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.themeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.themeButton strong {
+  padding-left: 12px;
+  border-left: 2px solid var(--border);
+  color: var(--focus);
+  text-transform: uppercase;
+  font-family: var(--font-work-queue-mono), monospace;
+  font-size: 0.85em;
+}
+
+.primaryButton {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.secondaryButton {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.app button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.filterRail {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 12px 24px;
+  border-bottom: 2px solid var(--border);
+}
+
+.filterRail p {
+  margin: 0;
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filters button {
+  min-height: 50px;
+  padding: 0 20px;
+  border: 2px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.filters button[aria-pressed='true'] {
+  border-color: var(--focus);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.message {
+  margin: 0;
+  padding: 14px 24px;
+  border-bottom: 2px solid var(--focus);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(290px, 1fr));
+  gap: 8px;
+  padding: 8px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.column {
+  min-height: calc(100vh - 246px);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.columnHeader {
+  min-height: 86px;
+  padding: 16px;
+  border-bottom: 2px solid var(--border);
+}
+
+.columnHeader h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.25;
+}
+
+.columnHeader p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.cardList {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+}
+
+.card {
+  padding: 16px;
+  border: 2px solid var(--border);
+  border-left-width: 7px;
+  border-radius: 8px;
+  background: var(--card);
+  cursor: grab;
+}
+
+.card:focus-visible {
+  border-color: var(--focus);
+}
+
+.cardTopline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dragHandle {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.typeLabel {
+  border: 2px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-family: var(--font-work-queue-mono), monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.itemId {
+  margin-left: auto;
+  color: var(--muted);
+  font-family: var(--font-work-queue-mono), monospace;
+  font-size: 0.8rem;
+}
+
+.card h3 {
+  margin: 16px 0 12px;
+  font-size: 1.28rem;
+  line-height: 1.25;
+}
+
+.card p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.card dl {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.card dl div {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 8px;
+}
+
+.card dt {
+  color: var(--muted);
+}
+
+.card dd {
+  margin: 0;
+}
+
+.moveControls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.moveControls button {
+  min-height: 46px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.emptyColumn {
+  min-height: 110px;
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.statusLine {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 24px;
+  border-top: 2px solid var(--border);
+  font-weight: 700;
+}
+
+.statusLine span {
+  font-size: 1.6rem;
+}
+
+.drawerBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: flex-end;
+  background: rgb(0 0 0 / 62%);
+}
+
+.drawer {
+  width: min(520px, 100vw);
+  min-height: 100vh;
+  overflow-y: auto;
+  border-left: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 24px;
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.drawerHeader h2 {
+  margin: 0;
+  font-size: 2.25rem;
+}
+
+.drawerHeader button {
+  width: 54px;
+  height: 54px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 2.2rem;
+  cursor: pointer;
+}
+
+.drawer form {
+  display: grid;
+  gap: 22px;
+  margin-top: 28px;
+}
+
+.drawer label,
+.typePicker legend {
+  display: grid;
+  gap: 9px;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.drawer input,
+.drawer select,
+.drawer textarea {
+  width: 100%;
+  min-height: 58px;
+  border: 2px solid var(--border);
+  border-radius: 7px;
+  background: var(--background);
+  color: var(--text);
+  padding: 12px 14px;
+}
+
+.drawer textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.drawer input::placeholder,
+.drawer textarea::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+.typePicker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.typePicker legend {
+  grid-column: 1 / -1;
+  margin-bottom: 9px;
+}
+
+.typePicker button {
+  min-height: 58px;
+  border: 2px solid var(--border);
+  background: var(--background);
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.typePicker button:first-of-type {
+  border-radius: 7px 0 0 7px;
+}
+
+.typePicker button:last-of-type {
+  border-radius: 0 7px 7px 0;
+}
+
+.typePicker button[aria-pressed='true'] {
+  border-color: var(--focus);
+  box-shadow: inset 0 0 0 2px var(--focus);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.drawerActions {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+@media (max-width: 900px) {
+  .header,
+  .filterRail {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .headerActions,
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .board {
+    grid-template-columns: repeat(5, minmax(82vw, 1fr));
+  }
+
+  .formRow,
+  .drawerActions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app *,
+  .app *::before,
+  .app *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
