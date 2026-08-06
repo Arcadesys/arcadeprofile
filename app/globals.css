@@ -103,6 +103,13 @@ html[data-reading-width] .prose {
   max-width: min(var(--reading-measure), calc(100vw - 2rem)) !important;
 }
 
+/* Everything is border-box, so max-width caps the padded box. The drawer pages
+   carry a 2rem gutter on each side — add it back or the measure eats the text. */
+html[data-reading-width] .dd-intro-main.has-drawer,
+html[data-reading-width] .dd-post-main.has-drawer {
+  max-width: min(calc(var(--reading-measure) + 4rem), calc(100vw - 2rem)) !important;
+}
+
 /* High contrast */
 html[data-contrast="high"] {
   --fg:            #ffffff;
@@ -761,15 +768,18 @@ hr, hr.ds-hr {
   padding: 4rem 1.5rem 6rem;
 }
 .dd-post-main {
+  max-width: 680px;
+  margin: 0 auto;
   padding: 4rem 2rem 6rem;
 }
-/* Desktop: shift content right to clear the always-visible drawer */
+/* Desktop: shift content right to clear the always-visible drawer.
+   Margin, not padding — padding would come out of the reading measure. */
 @media (min-width: 1101px) {
-  .dd-intro-main.has-drawer {
-    padding-left: max(1.5rem, calc(280px + 2rem));
-  }
+  .dd-intro-main.has-drawer,
   .dd-post-main.has-drawer {
-    padding-left: max(2rem, calc(280px + 2rem));
+    padding-inline: 2rem;
+    margin-left: 280px;
+    margin-right: auto;
   }
 }
 
