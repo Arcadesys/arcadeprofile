@@ -1388,6 +1388,98 @@ html[data-reading-width] .portfolio-index {
   }
 }
 
+/* ── The Hits ─────────────────────────────────────────── */
+.hits-index {
+  width: min(860px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 6rem) 0;
+}
+.hits-index__header {
+  max-width: 680px;
+  margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
+}
+.hits-index__header h1,
+.hits-reader__header h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+.hits-index__header p,
+.hits-reader__description {
+  max-width: 62ch;
+  color: var(--fg-muted);
+  font-size: clamp(1.05rem, 2vw, 1.2rem);
+  line-height: 1.7;
+}
+.hits-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border-strong);
+}
+.hits-card {
+  display: grid;
+  grid-template-columns: 3rem minmax(160px, 220px) minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  padding: clamp(2rem, 5vw, 3rem) 0;
+  border-bottom: 1px solid var(--border-strong);
+}
+.hits-card__number,
+.hits-card__type,
+.hits-reader__type,
+.hits-reader__byline {
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.hits-card__number { color: var(--accent); padding-top: 0.3rem; }
+.hits-card__cover { display: block; overflow: hidden; border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: #f5f1e7; }
+.hits-card__cover img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; }
+.hits-card__cover:hover,
+.hits-card__cover:focus-visible { border-color: var(--neon-pink); box-shadow: 0 0 24px var(--glow-pink); }
+.hits-card__type,
+.hits-reader__type { margin: 0 0 0.7rem; color: var(--neon-pink); }
+.hits-card h2 { margin: 0 0 0.75rem; font-size: clamp(1.7rem, 4vw, 2.5rem); line-height: 1.15; }
+.hits-card h2 a { color: var(--fg); text-decoration: none; }
+.hits-card h2 a:hover { color: var(--neon-pink); }
+.hits-card__body > p:not(.hits-card__type) { max-width: 68ch; margin: 0; color: var(--fg-muted); font-size: 1.05rem; line-height: 1.7; }
+.hits-card__read,
+.hits-reader__back a { font-family: var(--font-mono); font-weight: 600; }
+.hits-card__read { display: inline-flex; min-height: 44px; align-items: center; margin-top: 1.25rem; color: var(--neon-pink); }
+.hits-reader { width: min(720px, calc(100% - 2rem)); margin: 0 auto; padding: clamp(3rem, 8vw, 6rem) 0; }
+.hits-reader__back { margin-bottom: 2.5rem; }
+.hits-reader__back a { color: var(--fg-muted); }
+.hits-reader__header { margin-bottom: 3rem; }
+.hits-reader__byline { margin: 0 0 1.5rem; color: var(--fg); }
+.hits-reader__description { margin: 0; }
+.hits-reader__cover { overflow: hidden; max-width: 620px; margin: 0 0 3rem; border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: #f5f1e7; }
+.hits-reader__cover img { display: block; width: 100%; height: auto; }
+.hits-reader__play,
+.hits-reader__downloads { border-top: 1px solid var(--border-strong); padding: 2rem 0; }
+.hits-reader__play h2,
+.hits-reader__downloads h2 { margin: 0 0 0.75rem; font-size: clamp(1.45rem, 3vw, 2rem); }
+.hits-reader__play p,
+.hits-reader__downloads p { max-width: 62ch; margin: 0; color: var(--fg-muted); line-height: 1.7; }
+.hits-reader__play a,
+.hits-download-actions a { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; padding: 0.7rem 1rem; border: 2px solid var(--neon-pink); border-radius: var(--radius); color: var(--neon-pink); font-family: var(--font-mono); font-weight: 700; text-decoration: underline; text-underline-offset: 0.16em; }
+.hits-reader__play a { margin-top: 1.25rem; }
+.hits-reader__play a:hover,
+.hits-reader__play a:focus-visible,
+.hits-download-actions a:hover,
+.hits-download-actions a:focus-visible { background: var(--surface); box-shadow: 0 0 24px var(--glow-pink); }
+.hits-download-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
+.hits-download-actions a { min-width: 10.5rem; }
+@media (max-width: 760px) {
+  .hits-card { grid-template-columns: 1fr; }
+  .hits-card__number { padding: 0; }
+  .hits-card__cover { max-width: 320px; }
+  .hits-download-actions { flex-direction: column; }
+  .hits-download-actions a { width: 100%; }
+}
+
 .prose .footnote-ref {
   font-size: 0.75em;
   vertical-align: super;

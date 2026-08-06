@@ -4,6 +4,7 @@ import type { Payload } from 'payload';
 import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
 import { publicPostStatusWhere } from '@/lib/post-status';
 import { PORTFOLIO_WORKS } from '@/lib/portfolio';
+import { HITS } from '@/lib/hits';
 
 export type SitemapEntry = MetadataRoute.Sitemap[number];
 
@@ -18,6 +19,12 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
   { path: '/portfolio', changeFrequency: 'monthly', priority: 0.9 },
   ...PORTFOLIO_WORKS.map((work) => ({
     path: `/portfolio/${work.slug}`,
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  })),
+  { path: '/the-hits', changeFrequency: 'monthly', priority: 0.9 },
+  ...HITS.map((hit) => ({
+    path: `/the-hits/${hit.slug}`,
     changeFrequency: 'monthly' as const,
     priority: 0.8,
   })),

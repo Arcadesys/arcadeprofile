@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    'work-items': WorkItem;
     posts: Post;
     'post-reactions': PostReaction;
     'postmark-events': PostmarkEvent;
@@ -84,6 +85,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    'work-items': WorkItemsSelect<false> | WorkItemsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     'post-reactions': PostReactionsSelect<false> | PostReactionsSelect<true>;
     'postmark-events': PostmarkEventsSelect<false> | PostmarkEventsSelect<true>;
@@ -162,6 +164,35 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "work-items".
+ */
+export interface WorkItem {
+  id: number;
+  title: string;
+  type: 'epic' | 'story' | 'task';
+  /**
+   * Stories belong to epics. Tasks belong to stories.
+   */
+  parent?: (number | null) | WorkItem;
+  /**
+   * The testable condition that makes this item complete.
+   */
+  definitionOfDone?: string | null;
+  owner: 'human' | 'ai';
+  /**
+   * Maximum approved AI spend for this work item.
+   */
+  budgetUsd?: number | null;
+  status: 'inbox' | 'ready' | 'running' | 'review' | 'done';
+  /**
+   * Sort position inside the current Kanban column.
+   */
+  position?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -857,6 +888,10 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
+        relationTo: 'work-items';
+        value: number | WorkItem;
+      } | null)
+    | ({
         relationTo: 'posts';
         value: number | Post;
       } | null)
@@ -954,6 +989,22 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "work-items_select".
+ */
+export interface WorkItemsSelect<T extends boolean = true> {
+  title?: T;
+  type?: T;
+  parent?: T;
+  definitionOfDone?: T;
+  owner?: T;
+  budgetUsd?: T;
+  status?: T;
+  position?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

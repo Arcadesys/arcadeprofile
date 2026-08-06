@@ -1,18 +1,18 @@
-# Furry Image Studio Web Application
+# ToonTok
 
 ## Product and Technical Specification
 
 | Field | Value |
 | --- | --- |
 | Status | Proposed |
-| Version | 0.1 |
+| Version | 0.4 |
 | Date | 2026-07-30 |
 | Owner | The Arcades |
 | Implementation status | Not started |
 
 ## 1. Purpose
 
-Furry Image Studio is a private-by-default web application for creating,
+ToonTok is a private-by-default web application for creating,
 transforming, and repairing furry, anthro, toon, and creature character images.
 Users define reusable character identity profiles, choose a rendering style,
 describe an image, and spend prepaid credits to run an image-generation job.
@@ -44,6 +44,8 @@ image generation and editing API.
    vision loss, keyboard navigation, zoom, and screen readers.
 9. **One provider is not the domain model.** Generation runs through an internal
    provider adapter so product records survive a future provider change.
+10. **A star is a retention promise.** A user can star an owned file to exempt it
+    from automatic age-based deletion.
 
 ## 3. Proposed product decisions
 
@@ -53,7 +55,7 @@ after product review.
 | Decision | Proposed baseline |
 | --- | --- |
 | Deployment | Standalone application and repository |
-| Public location | `studio.arcadeprofile.com` |
+| Public location | `toontok.thearcades.me` |
 | Database | Dedicated PostgreSQL database |
 | Asset storage | Dedicated private Vercel Blob store |
 | Payments | One-time PayPal credit packs |
@@ -62,6 +64,7 @@ after product review.
 | Authentication | Google OpenID Connect and email/password |
 | Source-photo retention | 30 days by default; user may delete sooner |
 | Generated-output retention | Until user deletion or account deletion |
+| Starred-file retention | Exempt from automatic age-based deletion |
 | Refund after credits are spent | Negative balance and generation lock |
 | Content tier | General-audience beta; explicit sexual content prohibited |
 | Minimum user age | 18 |
@@ -73,7 +76,8 @@ after product review.
 
 ### 4.1 MVP goals
 
-- Let a user create a reusable character profile with reference images.
+- Let a user create a reusable character profile with uploaded references and
+  outbound links to reference photos.
 - Let a user register and sign in with Google or email/password.
 - Let one account safely link both sign-in methods.
 - Let a user choose one bundled rendering style.
@@ -83,6 +87,7 @@ after product review.
 - Sell fixed credit packs through PayPal Checkout.
 - Maintain an exact, reproducible credit and payment history.
 - Let a user review, download, repair, and delete their results.
+- Let a user star files that must survive automatic retention cleanup.
 - Give administrators enough visibility to reconcile payments, investigate
   failures, moderate reports, and issue explicit adjustments.
 - Measure provider cost, generation success, latency, credit consumption,
@@ -116,6 +121,7 @@ During beta, the product tracks:
 | Unreconciled completed PayPal captures | 0 |
 | Failed jobs without automatic credit release | 0 |
 | Cross-user asset access incidents | 0 |
+| Starred files deleted by automatic retention | 0 |
 | Generation jobs reaching a terminal state | 100% |
 | Successful jobs producing a stored output | At least 85% |
 | Median successful-job completion time | Measured before setting a launch SLO |
@@ -135,10 +141,12 @@ A signed-in customer can:
 - Manage their account.
 - Create, edit, archive, and delete their character profiles.
 - Upload and delete private reference images.
+- Add, edit, open, and remove outbound reference-photo links.
 - Buy credits.
 - Submit generation, transformation, and repair jobs.
 - View their balance, ledger history, jobs, and outputs.
 - Download or delete their outputs.
+- Star and unstar their files.
 - Report an output.
 - Delete their account and request deletion of stored assets.
 
@@ -260,11 +268,12 @@ Both authentication methods create the same application session type. Sessions:
    - Finger count: `auto`, `five`, or `toon-four`
 4. The user enters 3–12 concrete visual traits.
 5. The user may enter known drift risks in an avoid list.
-6. The user uploads up to the configured reference-image limit.
-7. Each reference receives a role such as face, body, markings, clothing, or
-   accessory.
-8. The application validates the profile.
-9. The user saves version 1 of the character.
+6. The user may upload private reference images.
+7. The user may add outbound HTTPS links to reference photos.
+8. Each uploaded reference or outbound link receives a readable label and a role
+   such as face, body, markings, clothing, or accessory.
+9. The application validates the profile.
+10. The user saves version 1 of the character.
 
 The interface does not require the user to write a production prompt.
 
@@ -344,6 +353,29 @@ For `toon-in-real-world`, the application must enforce `subject-only` scope and
 
 Refreshes, duplicate callbacks, and webhook retries must not grant credits twice.
 
+### 7.7 Star a file
+
+1. The user opens an owned reference image, source photo, or generated output.
+2. The user selects the text-labeled **Star file** control.
+3. The server confirms ownership and records `starredAt`.
+4. The interface displays **Starred — protected from automatic deletion**.
+5. Automated retention jobs skip the file.
+
+The user may later select **Unstar file**. Unstarring begins a new full default
+retention window for file types subject to age-based deletion; it does not cause
+immediate deletion.
+
+Starring is idempotent and does not consume credits. A star prevents automatic
+age-based deletion, but it does not prevent:
+
+- Explicit deletion by the owner after a starred-file warning
+- Account deletion
+- Safety, abuse, or legal removal
+- Irrecoverable storage-provider failure
+
+If an account reaches its disclosed storage limit, the application blocks new
+uploads rather than silently deleting starred files.
+
 ## 8. Character and style contracts
 
 ### 8.1 Character profile
@@ -370,6 +402,7 @@ Optional fields:
 - `aliases`
 - `pronouns`
 - `personalityTags`
+- `referenceLinks`
 
 Validation rules:
 
@@ -378,8 +411,43 @@ Validation rules:
 - `pawStyle` is one of the three supported values.
 - `fingerCount` is `auto`, `five`, or `toon-four`.
 - A reference image belongs to exactly one user.
+- Each outbound reference link uses HTTPS and has a label and role.
 - Missing canon remains missing; the application does not invent traits.
 - Editing an in-use character creates a new version.
+
+#### Outbound reference-photo links
+
+A character profile may contain links to reference photos hosted outside
+ToonTok. Each link stores:
+
+- URL
+- Human-readable label
+- Reference role
+- Optional description
+- Optional source or creator credit
+- Provenance and permission attestation
+- Link status and last checked time, when available
+
+Outbound links are profile metadata. ToonTok does not claim ownership, permanence,
+or control of the remote file. The application:
+
+- Displays a text link such as **Open reference photo: face markings**.
+- Identifies that the link opens an external site.
+- Opens it with protections that prevent the destination from controlling the
+  ToonTok window or receiving an unnecessary referrer.
+- Does not hotlink remote images into profile thumbnails.
+- Does not automatically send a remote URL to the image provider.
+- Reports a broken or unreachable link without deleting it from the profile.
+
+If a remote reference must participate in generation, the user selects
+**Import reference into ToonTok**. The server retrieves it through the protected
+ingest pipeline, validates it like an upload, stores a private copy, records its
+source URL and content hash, and creates a `CharacterReference`. The generation
+job snapshots the imported copy.
+
+Starring an outbound link does not preserve the remote photo. The user must
+import the photo and star the ToonTok copy to protect that copy from automatic
+age-based deletion.
 
 ### 8.2 Style profile
 
@@ -423,6 +491,7 @@ Every submitted job stores immutable snapshots of:
 - Character profile
 - Style profile
 - Reference asset IDs and hashes
+- Outbound reference-link URLs, labels, roles, and import state
 - User request
 - Composed provider prompt
 - Provider settings
@@ -472,7 +541,7 @@ The server resolves the cost from a versioned operation-price table when the job
 is created. The UI never sends the authoritative cost.
 
 Credits are closed-loop usage units. They are non-transferable, have no cash
-value, and may be spent only on Furry Image Studio operations. Product counsel
+value, and may be spent only on ToonTok operations. Product counsel
 must confirm the terms, refund language, expiration behavior, and jurisdictional
 treatment before production sales.
 
@@ -747,6 +816,10 @@ character creation, job submission, job status, library, and account settings.
 - Image comparison uses large panels and an explicit source/output toggle in
   addition to any slider.
 - Dense thumbnail grids are avoided; the user can switch to a large list view.
+- Starred state uses a persistent text label and accessible name, not a star icon
+  or color alone.
+- Outbound reference photos use descriptive link text and an explicit external
+  destination label, not a bare URL or icon alone.
 
 ### 13.2 Interaction
 
@@ -781,6 +854,9 @@ character creation, job submission, job status, library, and account settings.
   and delete action.
 - Administrators access private assets only for support, safety, payment
   disputes, or abuse investigation, and access is logged.
+- ToonTok does not embed remote reference photos. Opening an outbound reference
+  intentionally navigates to the external host and leaves ToonTok's privacy
+  boundary.
 
 ### 14.2 Consent
 
@@ -813,6 +889,10 @@ refusal does not automatically prove user misconduct.
 - Source photos default to automatic deletion 30 days after the latest dependent
   job completes.
 - The user may delete a source earlier when no active job requires it.
+- A starred file is excluded from automatic age-based deletion.
+- Unstarring a retention-managed file starts a new full default retention window.
+- Explicitly deleting a starred file requires a warning that names the file and
+  explains that starring will no longer protect it.
 - Generated outputs remain until the user deletes them.
 - Deleting an asset removes the Blob object and tombstones the database record.
 - Financial, security, and ledger records are retained as required for audit and
@@ -832,6 +912,7 @@ The implementation should use separate collections or equivalent tables for:
 - `Characters`
 - `CharacterVersions`
 - `CharacterReferences`
+- `CharacterReferenceLinks`
 - `Styles`
 - `StyleVersions`
 - `GenerationJobs`
@@ -851,6 +932,7 @@ The implementation should use separate collections or equivalent tables for:
 - Authentication provider plus provider subject
 - Authentication identity owner plus provider
 - Character owner plus character slug
+- Character version plus reference-link URL and role
 - Character ID plus version
 - Style ID plus version
 - Ledger idempotency key
@@ -862,6 +944,18 @@ The implementation should use separate collections or equivalent tables for:
 
 Schema changes require explicit migrations with `up()` and `down()` behavior.
 
+Each asset record includes:
+
+- `starredAt`, nullable
+- `starredBy`, nullable
+- `retentionExpiresAt`, nullable
+- `retentionHoldReason`, nullable
+- `deletionStatus`
+
+The authenticated owner controls the ordinary star. System or administrator
+retention holds use `retentionHoldReason` and remain distinguishable from the
+user's star.
+
 ## 16. HTTP API
 
 All custom routes live under the frontend API route group, not the Payload
@@ -871,18 +965,18 @@ catch-all route group.
 
 | Method | Route | Purpose |
 | --- | --- | --- |
-| `POST` | `/api/studio/auth/register` | Create a local account |
-| `POST` | `/api/studio/auth/verify-email` | Verify a local email |
-| `POST` | `/api/studio/auth/login` | Start a local session |
-| `POST` | `/api/studio/auth/logout` | Revoke the current session |
-| `POST` | `/api/studio/auth/password/forgot` | Request password recovery |
-| `POST` | `/api/studio/auth/password/reset` | Complete password recovery |
-| `GET` | `/api/studio/auth/google` | Start Google OpenID Connect |
-| `GET` | `/api/studio/auth/google/callback` | Validate Google's callback |
-| `POST` | `/api/studio/auth/identities/google/link` | Link Google after reauthentication |
-| `DELETE` | `/api/studio/auth/identities/google` | Unlink Google safely |
-| `GET` | `/api/studio/auth/sessions` | List active sessions |
-| `DELETE` | `/api/studio/auth/sessions/:id` | Revoke an active session |
+| `POST` | `/api/toontok/auth/register` | Create a local account |
+| `POST` | `/api/toontok/auth/verify-email` | Verify a local email |
+| `POST` | `/api/toontok/auth/login` | Start a local session |
+| `POST` | `/api/toontok/auth/logout` | Revoke the current session |
+| `POST` | `/api/toontok/auth/password/forgot` | Request password recovery |
+| `POST` | `/api/toontok/auth/password/reset` | Complete password recovery |
+| `GET` | `/api/toontok/auth/google` | Start Google OpenID Connect |
+| `GET` | `/api/toontok/auth/google/callback` | Validate Google's callback |
+| `POST` | `/api/toontok/auth/identities/google/link` | Link Google after reauthentication |
+| `DELETE` | `/api/toontok/auth/identities/google` | Unlink Google safely |
+| `GET` | `/api/toontok/auth/sessions` | List active sessions |
+| `DELETE` | `/api/toontok/auth/sessions/:id` | Revoke an active session |
 
 Exact HTTP methods for library-owned callbacks may vary, but the ownership,
 validation, and linking behavior in Section 6.4 is required.
@@ -891,35 +985,40 @@ validation, and linking behavior in Section 6.4 is required.
 
 | Method | Route | Purpose |
 | --- | --- | --- |
-| `GET` | `/api/studio/characters` | List the user's characters |
-| `POST` | `/api/studio/characters` | Create a character |
-| `GET` | `/api/studio/characters/:id` | Read an owned character |
-| `PATCH` | `/api/studio/characters/:id` | Create a new character version |
-| `DELETE` | `/api/studio/characters/:id` | Archive or delete a character |
-| `GET` | `/api/studio/styles` | List active bundled styles |
+| `GET` | `/api/toontok/characters` | List the user's characters |
+| `POST` | `/api/toontok/characters` | Create a character |
+| `GET` | `/api/toontok/characters/:id` | Read an owned character |
+| `PATCH` | `/api/toontok/characters/:id` | Create a new character version |
+| `DELETE` | `/api/toontok/characters/:id` | Archive or delete a character |
+| `POST` | `/api/toontok/characters/:id/reference-links` | Add an outbound reference link |
+| `DELETE` | `/api/toontok/characters/:id/reference-links/:linkId` | Remove a reference link |
+| `POST` | `/api/toontok/characters/:id/reference-links/:linkId/import` | Import reference |
+| `GET` | `/api/toontok/styles` | List active bundled styles |
 
 ### 16.3 Assets and jobs
 
 | Method | Route | Purpose |
 | --- | --- | --- |
-| `POST` | `/api/studio/assets/upload` | Create an authorized private upload |
-| `GET` | `/api/studio/assets/:id` | Get authorized asset metadata/access |
-| `DELETE` | `/api/studio/assets/:id` | Delete an owned asset |
-| `POST` | `/api/studio/jobs` | Validate, debit, and queue a job |
-| `GET` | `/api/studio/jobs` | List the user's jobs |
-| `GET` | `/api/studio/jobs/:id` | Read job status and results |
-| `POST` | `/api/studio/jobs/:id/cancel` | Cancel an eligible queued job |
-| `POST` | `/api/studio/jobs/:id/report` | Report an output |
+| `POST` | `/api/toontok/assets/upload` | Create an authorized private upload |
+| `GET` | `/api/toontok/assets/:id` | Get authorized asset metadata/access |
+| `PUT` | `/api/toontok/assets/:id/star` | Star an owned file idempotently |
+| `DELETE` | `/api/toontok/assets/:id/star` | Unstar an owned file idempotently |
+| `DELETE` | `/api/toontok/assets/:id` | Delete an owned asset |
+| `POST` | `/api/toontok/jobs` | Validate, debit, and queue a job |
+| `GET` | `/api/toontok/jobs` | List the user's jobs |
+| `GET` | `/api/toontok/jobs/:id` | Read job status and results |
+| `POST` | `/api/toontok/jobs/:id/cancel` | Cancel an eligible queued job |
+| `POST` | `/api/toontok/jobs/:id/report` | Report an output |
 
 ### 16.4 Credits and PayPal
 
 | Method | Route | Purpose |
 | --- | --- | --- |
-| `GET` | `/api/studio/credits` | Return balance and ledger history |
-| `GET` | `/api/studio/credit-products` | List active server-priced packs |
-| `POST` | `/api/studio/paypal/orders` | Create a PayPal order |
-| `POST` | `/api/studio/paypal/orders/:id/capture` | Capture and grant credits |
-| `POST` | `/api/studio/paypal/webhook` | Verify and reconcile PayPal events |
+| `GET` | `/api/toontok/credits` | Return balance and ledger history |
+| `GET` | `/api/toontok/credit-products` | List active server-priced packs |
+| `POST` | `/api/toontok/paypal/orders` | Create a PayPal order |
+| `POST` | `/api/toontok/paypal/orders/:id/capture` | Capture and grant credits |
+| `POST` | `/api/toontok/paypal/webhook` | Verify and reconcile PayPal events |
 
 Mutation routes require authentication, CSRF protection appropriate to the
 session mechanism, schema validation, rate limits, and structured audit logs.
@@ -939,6 +1038,10 @@ session mechanism, schema validation, rate limits, and structured audit logs.
 - Require verified email before purchasing or generating.
 - Rate-limit authentication, uploads, job creation, capture, and report routes.
 - Validate file signatures rather than trusting extensions or MIME headers.
+- Allow only HTTPS outbound reference links and reject embedded credentials.
+- Protect remote-reference checks and imports against SSRF, private or loopback
+  addresses, DNS rebinding, redirect abuse, oversized responses, and unsupported
+  file types.
 - Set upload byte, dimension, and count limits.
 - Strip unnecessary image metadata, including location metadata, during ingest.
 - Reject malformed or decompression-bomb images.
@@ -962,6 +1065,8 @@ Threat-model review must cover:
 - Unauthorized person transformations
 - Admin-account compromise
 - Signed-URL leakage
+- Malicious or mutable outbound reference URLs
+- SSRF and redirect attacks through remote-reference import
 - OAuth login CSRF, callback replay, and redirect manipulation
 - Account takeover through unsafe email-based identity linking
 - Password spraying, credential stuffing, and reset-token theft
@@ -1031,6 +1136,12 @@ Pass when:
 
 - Every plugin profile fixture imports or maps without losing required fields.
 - Invalid paw style, finger count, references, and trait counts fail clearly.
+- A profile can save, display, and remove a labeled outbound HTTPS reference.
+- External links do not embed or hotlink the remote image.
+- Remote references cannot reach private network targets through the import
+  pipeline.
+- An imported reference records its source URL and immutable content hash.
+- Only an imported ToonTok copy can be starred for retention.
 - Editing a used profile creates a new version.
 
 ### Slice 3: Ledger
@@ -1083,6 +1194,10 @@ Pass when:
 - Success stores one authorized output and retains the debit.
 - Failure without output releases credits exactly once.
 - Cross-user job and asset access tests pass.
+- An owner can star and unstar each supported file type.
+- Retention cleanup skips starred files.
+- Unstarring starts a new full retention window.
+- A non-owner cannot read or change starred state.
 
 ### Slice 6: Transform and repair
 
@@ -1106,6 +1221,7 @@ Deliverables:
 
 - Privacy, terms, acceptable-use, and refund pages
 - Account and asset deletion
+- Starred-file retention and explicit-delete warnings
 - Admin support and moderation tools
 - Metrics, alerts, and reconciliation jobs
 - Accessibility audit
@@ -1124,13 +1240,20 @@ Pass when:
 Track structured events for:
 
 - Account created, verified, suspended, and deleted
+- Sign-in succeeded or failed by method and normalized failure class
+- Email verification and password recovery requested and completed
+- Authentication identity linked and unlinked
+- Session created, rotated, and revoked
 - Character created and versioned
+- Outbound reference link added, removed, checked, and imported
 - Job submitted, started, succeeded, failed, cancelled, and released
 - Provider latency, usage, refusal, and normalized failure class
 - PayPal order created, captured, refunded, reversed, and disputed
 - Webhook received, verified, duplicated, processed, and failed
 - Ledger grant, debit, release, reversal, and adjustment
 - Asset created, accessed administratively, and deleted
+- Asset starred, unstarred, skipped by retention, and explicitly deleted while
+  starred
 
 Dashboards must expose:
 
@@ -1160,6 +1283,9 @@ At least daily, the application verifies:
 - Queued and running jobs older than their operational threshold are resolved or
   flagged.
 - Expired source assets are deleted or have a documented retention hold.
+- No starred asset is selected for automatic age-based deletion.
+- Every retention-managed unstarred asset has a valid future expiration or a
+  documented system hold.
 
 Reconciliation reports differences; it does not silently rewrite history.
 
@@ -1178,7 +1304,6 @@ The following decisions block implementation or pricing:
 9. Decide whether promotional credits expire.
 10. Define customer-initiated partial refund policy.
 11. Select the beta size and per-user generation limit.
-12. Decide whether any identity provider beyond Google is required after MVP.
 
 ## 22. Stopping criteria
 
@@ -1196,10 +1321,13 @@ conditions have evidence.
   `generate-character-image`, `transform-person-to-character`,
   `repair-furry-image`, `add-furry-character`, `add-furry-style`, and
   `record-eval-trace`
-- [OpenAI GPT Image 2 model and supported endpoints](https://developers.openai.com/api/docs/models/gpt-image-2)
+- [OpenAI GPT Image 2 model and supported
+  endpoints](https://developers.openai.com/api/docs/models/gpt-image-2)
 - [Google OpenID Connect](https://developers.google.com/identity/openid-connect/openid-connect)
-- [Google OpenID Connect API claims](https://developers.google.com/identity/openid-connect/reference)
-- [Google OAuth security practices](https://developers.google.com/identity/protocols/oauth2/resources/best-practices)
+- [Google OpenID Connect API
+  claims](https://developers.google.com/identity/openid-connect/reference)
+- [Google OAuth security
+  practices](https://developers.google.com/identity/protocols/oauth2/resources/best-practices)
 - [PayPal Orders v2 integration](https://developer.paypal.com/api/rest/integration/orders-api/)
 - [PayPal JavaScript SDK](https://developer.paypal.com/sdk/js/reference/)
 - [PayPal webhook overview and verification](https://developer.paypal.com/api/rest/webhooks)
@@ -1210,6 +1338,33 @@ External API behavior must be rechecked against current official documentation
 at implementation time.
 
 ## 24. Ratchet log
+
+### Version 0.4 — 2026-07-30
+
+- Added labeled outbound reference-photo links to character profiles.
+- Kept outbound links distinct from private uploaded or imported references.
+- Added an explicit secure import path when a remote photo must participate in
+  generation.
+- Defined accessibility, privacy, SSRF protection, data, API, observability, and
+  acceptance requirements for reference links.
+- Clarified that only an imported ToonTok copy can be starred for retention.
+- Current best: this document.
+
+### Version 0.3 — 2026-07-30
+
+- Added owner-controlled stars for reference images, source photos, and outputs.
+- Defined a star as protection from automatic age-based deletion.
+- Added star/unstar APIs, asset fields, accessibility behavior, retention
+  reconciliation, and release acceptance tests.
+- Defined a new full retention window after unstarring.
+- Required upload blocking instead of silent starred-file deletion when storage
+  limits are reached.
+
+### Version 0.2 — 2026-07-30
+
+- Renamed the product from Furry Image Studio Web Application to ToonTok.
+- Set the proposed domain to `toontok.thearcades.me`.
+- Updated the application API namespace to `/api/toontok/*`.
 
 ### Version 0.1 — 2026-07-30
 
@@ -1224,5 +1379,4 @@ at implementation time.
 - Added closed-loop credit terms and tax/commercial review as production gates.
 - Added Google OpenID Connect and email/password as linkable first-class
   authentication methods with shared sessions and explicit anti-takeover rules.
-- Current best: this document.
 - Next verification: product-owner decisions in Section 21.
