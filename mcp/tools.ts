@@ -296,6 +296,11 @@ export const toolDefinitions: Tool[] = [
           description:
             'Set suppressNewsletter=true so scheduled publishing skips Postmark delivery.',
         },
+        heroImage: {
+          type: 'number',
+          description:
+            'Media id to use as this post\'s hero picture. Renders at the top of the post page and doubles as the social share card. To upload and attach in one step, use set_hero_image instead.',
+        },
         meta: {
           type: 'object',
           properties: {
@@ -438,6 +443,40 @@ export const toolDefinitions: Tool[] = [
     },
   },
   {
+    name: 'set_hero_image',
+    description:
+      "One-shot: upload an image to Media and set it as a post's hero image. The hero renders at the top of the post page AND becomes the social share card, taking precedence over meta.image. This is the tool for the per-post picture — prefer it over upload_and_embed_image, which drops the image into the body instead. Provide either `filePath` (local MCP) or `fileContent` + `filename` (hosted MCP).",
+    inputSchema: {
+      type: 'object',
+      properties: {
+        slug: { type: 'string', description: 'Slug of the post to set the hero image on.' },
+        filePath: {
+          type: 'string',
+          description: 'Absolute path to the local image file. Use only when the MCP server can read your filesystem (stdio transport).',
+        },
+        fileContent: {
+          type: 'string',
+          description: 'Base64-encoded image bytes. Use for the hosted MCP (no filesystem access). Plain base64 or a `data:image/...;base64,...` URI both work.',
+        },
+        filename: {
+          type: 'string',
+          description: 'Original filename including extension. Required when using `fileContent`.',
+        },
+        alt: {
+          type: 'string',
+          description:
+            'Alt text describing the picture. Required — the hero ships to the mailing list and sits at the top of the page, so it must be described for screen readers.',
+        },
+        caption: { type: 'string', description: 'Optional caption stored on the Media doc.' },
+      },
+      required: ['slug', 'alt'],
+      oneOf: [
+        { required: ['filePath'] },
+        { required: ['fileContent', 'filename'] },
+      ],
+    },
+  },
+  {
     name: 'repair_post_image_markdown',
     description:
       'Scan post(s) for Lexical paragraphs that still contain raw markdown — `![alt](url)` images pointing at an existing Media doc by filename, `---` horizontal-rule lines, `[text](url)` links, and bare YouTube URLs — and rewrite them in place as proper upload / horizontalrule / link / YouTube block nodes. Use to fix posts imported before the markdown→Lexical converter knew about these features. Pass `slug` to repair one post; omit it to scan every post.',
@@ -496,6 +535,7 @@ export const TOOL_SCOPES: Record<string, ToolScope> = {
   // Media
   upload_image: 'write',
   upload_and_embed_image: 'write',
+  set_hero_image: 'write',
   repair_post_image_markdown: 'write',
 };
 
@@ -677,6 +717,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
     }
 
     if (args.skipNewsletter === true) payload.suppressNewsletter = true;
+    if (args.heroImage !== undefined) payload.heroImage = args.heroImage;
     if (args.meta !== undefined) payload.meta = args.meta;
     if (args.discoverability !== undefined) payload.discoverability = args.discoverability;
 
@@ -856,6 +897,60 @@ export const toolHandlers: Record<string, ToolHandler> = {
               slug,
               media: { id: media.id, url: media.url, filename: media.filename },
               position,
+            },
+            null,
+            2,
+          ),
+        },
+      ],
+    };
+  },
+
+  async set_hero_image(args) {
+    const slug = args.slug as string;
+    const alt = typeof args.alt === 'string' ? args.alt.trim() : '';
+    if (!alt) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: 'alt is required and cannot be blank — the hero image ships to the mailing list and headlines the post page, so it needs a description.',
+          },
+        ],
+      };
+    }
+
+    const found = (await payloadFetch(
+      payloadQueryPath('posts', {
+        'where[slug][equals]': slug,
+        limit: 1,
+        depth: 0,
+      }),
+    )) as { docs: { id: number }[] };
+    if (!found.docs.length) return { content: [{ type: 'text', text: 'Post not found.' }] };
+    const post = found.docs[0];
+
+    const media = await uploadImageFile({
+      filePath: args.filePath as string | undefined,
+      fileContent: args.fileContent as string | undefined,
+      filename: args.filename as string | undefined,
+      alt,
+      caption: args.caption as string | undefined,
+    });
+
+    await payloadFetch(`/posts/${post.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ heroImage: media.id }),
+    });
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(
+            {
+              slug,
+              heroImage: { id: media.id, url: media.url, filename: media.filename, alt: media.alt },
             },
             null,
             2,

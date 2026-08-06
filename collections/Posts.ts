@@ -95,6 +95,15 @@ export const Posts: CollectionConfig = {
       required: true,
     },
     {
+      name: 'heroImage',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description:
+          'The picture for this post. Renders at the top of the page and doubles as the social share card. Takes precedence over meta.image, which is now only a fallback.',
+      },
+    },
+    {
       name: 'content',
       type: 'richText',
       required: true,

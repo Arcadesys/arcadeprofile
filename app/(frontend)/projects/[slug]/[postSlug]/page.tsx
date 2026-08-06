@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import LongformBody from '@/app/components/LongformBody';
 import { getProjectBySlug } from '@/lib/payload';
 import { getGroupBySlug } from '@/lib/blog';
-import { resolvePostOgImageBySlug } from '@/lib/post-og-image';
+import { resolvePostHeroImage, resolvePostOgImageBySlug, type OgImage } from '@/lib/post-og-image';
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
 import { projectCategoryLabels } from '@/lib/project-model';
@@ -37,7 +38,21 @@ interface PostExtras {
   updatedAt: string | null;
   publishedDate: string | null;
   author: string | null;
+  /**
+   * The post's own hero picture, or null. Resolved with no fallback chain, so
+   * posts without their own art render no banner rather than inheriting the
+   * series card that `resolvePostOgImage` would hand back.
+   */
+  heroImage: OgImage | null;
 }
+
+const EMPTY_POST_EXTRAS: PostExtras = {
+  canonicalPath: null,
+  updatedAt: null,
+  publishedDate: null,
+  author: null,
+  heroImage: null,
+};
 
 async function loadPostExtras(postSlug: string): Promise<PostExtras> {
   try {
@@ -55,16 +70,19 @@ async function loadPostExtras(postSlug: string): Promise<PostExtras> {
           updatedAt?: string;
           publishedDate?: string;
           author?: string;
+          heroImage?: number | null;
         }
       | undefined;
+    if (!doc) return EMPTY_POST_EXTRAS;
     return {
-      canonicalPath: doc?.discoverability?.canonical_path?.trim() || null,
-      updatedAt: doc?.updatedAt ?? null,
-      publishedDate: doc?.publishedDate ?? null,
-      author: doc?.author ?? null,
+      canonicalPath: doc.discoverability?.canonical_path?.trim() || null,
+      updatedAt: doc.updatedAt ?? null,
+      publishedDate: doc.publishedDate ?? null,
+      author: doc.author ?? null,
+      heroImage: await resolvePostHeroImage(payload, { heroImage: doc.heroImage ?? null }),
     };
   } catch {
-    return { canonicalPath: null, updatedAt: null, publishedDate: null, author: null };
+    return EMPTY_POST_EXTRAS;
   }
 }
 
@@ -313,6 +331,21 @@ export default async function ProjectPostPage({ params }: Props) {
             {post.author && ` · ${post.author}`}
           </p>
         </header>
+
+        {extras.heroImage && (
+          <div style={{ marginBottom: '2.5rem' }}>
+            <Image
+              src={extras.heroImage.url}
+              // Empty alt when the Media doc has none: the image sits directly
+              // under the <h1>, so echoing the title would just make a screen
+              // reader announce it twice.
+              alt={extras.heroImage.alt ?? ''}
+              width={680}
+              height={340}
+              style={{ width: '100%', height: 'auto', borderRadius: '8px', border: '1px solid var(--border)' }}
+            />
+          </div>
+        )}
 
         <LongformBody content={post.content} />
 

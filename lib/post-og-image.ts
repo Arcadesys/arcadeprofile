@@ -10,7 +10,7 @@ export interface OgImage {
   width?: number;
   height?: number;
   /** Where the image came from, for logging/debugging. */
-  source: 'post' | 'chapter-sibling' | 'group';
+  source: 'hero' | 'post' | 'chapter-sibling' | 'group';
 }
 
 /**
@@ -134,16 +134,36 @@ export async function resolveGroupOgImage(payload: Payload, groupSlug: string): 
 }
 
 /**
- * Resolve the meta/OG image for a post, falling back from post → sibling
- * post in the same chapter → group hero.
+ * Resolve the post's own hero image — the picture that renders at the top of
+ * the page. Deliberately has NO fallback chain: an inherited group card is the
+ * right answer for a social preview but wrong stamped above the body of every
+ * post in a series. Callers that want a guaranteed image want
+ * `resolvePostOgImage` instead.
+ */
+export async function resolvePostHeroImage(
+  payload: Payload,
+  post: Pick<Post, 'heroImage'>,
+): Promise<OgImage | null> {
+  const hero = await resolveMediaRef(payload, post.heroImage);
+  return fromMedia(hero, 'hero');
+}
+
+/**
+ * Resolve the meta/OG image for a post, falling back from hero → post meta →
+ * sibling post in the same chapter → group hero.
  *
  * Pass a post that's already been loaded with depth >= 1 to avoid an extra
  * round-trip when `post.meta.image` is the only thing you need.
  */
 export async function resolvePostOgImage(
   payload: Payload,
-  post: Pick<Post, 'id' | 'group' | 'chapter' | 'meta'>,
+  post: Pick<Post, 'id' | 'group' | 'chapter' | 'meta' | 'heroImage'>,
 ): Promise<OgImage | null> {
+  // The hero picture wins: it's the post's real art, so it should be what
+  // shows up in link previews rather than the shared series card.
+  const hero = await resolvePostHeroImage(payload, post);
+  if (hero) return hero;
+
   const own = await resolveMediaRef(payload, post.meta?.image);
   const fromOwn = fromMedia(own, 'post');
   if (fromOwn) return fromOwn;

@@ -2,9 +2,12 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import type { Group, Media, Post } from '@/payload-types';
-import { resolvePostOgImage } from './post-og-image';
+import { resolvePostHeroImage, resolvePostOgImage } from './post-og-image';
 
-type PartialPost = Pick<Post, 'id' | 'group' | 'chapter' | 'meta' | 'publish_status'> & { id: number };
+type PartialPost = Pick<
+  Post,
+  'id' | 'group' | 'chapter' | 'meta' | 'publish_status' | 'heroImage'
+> & { id: number };
 
 function media(overrides: Partial<Media> = {}): Media {
   return {
@@ -274,4 +277,47 @@ test('returns null when nothing in the chain has an image', async () => {
   const payload = makePayload({});
   const og = await resolvePostOgImage(payload, post as Post);
   assert.equal(og, null);
+});
+
+test('heroImage wins over meta.image', async () => {
+  const post: PartialPost = {
+    id: 1,
+    group: 'g',
+    chapter: null,
+    publish_status: 'published',
+    heroImage: media({ id: 11, sizes: { og: { url: 'https://cdn.example/hero-pic-og.jpg', width: 1200, height: 630 } } }),
+    meta: { image: media({ id: 12, sizes: { og: { url: 'https://cdn.example/series-card-og.jpg', width: 1200, height: 630 } } }) },
+  };
+  const payload = makePayload({});
+  const og = await resolvePostOgImage(payload, post as Post);
+  assert.equal(og?.source, 'hero');
+  assert.equal(og?.url, 'https://cdn.example/hero-pic-og.jpg');
+});
+
+test('heroImage resolves from a bare media id', async () => {
+  const post: PartialPost = { id: 1, group: 'g', chapter: null, heroImage: 11, meta: {} };
+  const payload = makePayload({
+    media: { 11: media({ id: 11, sizes: { og: { url: 'https://cdn.example/by-id-og.jpg', width: 1200, height: 630 } } }) },
+  });
+  const og = await resolvePostOgImage(payload, post as Post);
+  assert.equal(og?.source, 'hero');
+  assert.equal(og?.url, 'https://cdn.example/by-id-og.jpg');
+});
+
+test('resolvePostHeroImage does NOT fall back to the group card', async () => {
+  // The whole point of the separate resolver: a post with no art of its own
+  // renders no banner, rather than inheriting the series card that every
+  // sibling would also show.
+  const group: Group = {
+    id: 1,
+    title: 'G',
+    slug: 'g',
+    updatedAt: '',
+    createdAt: '',
+    image: media({ id: 9 }),
+  } as Group;
+  const payload = makePayload({ groups: [group] });
+
+  assert.equal(await resolvePostHeroImage(payload, { heroImage: null }), null);
+  assert.equal(await resolvePostHeroImage(payload, { heroImage: undefined }), null);
 });

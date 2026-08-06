@@ -111,6 +111,59 @@ test('update_post schema requires slug', () => {
   assert.ok(schema.required.includes('slug'));
 });
 
+test('update_post schema exposes heroImage', () => {
+  const tool = toolDefinitions.find((t) => t.name === 'update_post');
+  assert.ok(tool);
+  const props = (tool.inputSchema as { properties: Record<string, { type?: string }> }).properties;
+  assert.equal(props.heroImage?.type, 'number');
+});
+
+test('set_hero_image schema requires slug and alt', () => {
+  const tool = toolDefinitions.find((t) => t.name === 'set_hero_image');
+  assert.ok(tool, 'set_hero_image tool not found');
+  const schema = tool.inputSchema as { required: string[] };
+  assert.deepEqual(schema.required.sort(), ['alt', 'slug']);
+});
+
+test('set_hero_image is registered as a write-scoped tool', () => {
+  assert.equal(TOOL_SCOPES.set_hero_image, 'write');
+});
+
+test('set_hero_image rejects blank alt without touching the API', async () => {
+  let called = false;
+  const restore = mockFetch(async () => {
+    called = true;
+    return jsonResponse({ docs: [] });
+  });
+
+  try {
+    const result = await toolHandlers.set_hero_image({
+      slug: 'the-stepladder',
+      alt: '   ',
+      filePath: '/tmp/pic.png',
+    });
+    assert.match(result.content[0].text as string, /alt is required/);
+    assert.equal(called, false, 'should not hit the API when alt is blank');
+  } finally {
+    restore();
+  }
+});
+
+test('set_hero_image returns not-found message when post missing', async () => {
+  const restore = mockFetch(async () => jsonResponse({ docs: [] }));
+
+  try {
+    const result = await toolHandlers.set_hero_image({
+      slug: 'ghost-post',
+      alt: 'A picture',
+      filePath: '/tmp/pic.png',
+    });
+    assert.match(result.content[0].text as string, /Post not found/);
+  } finally {
+    restore();
+  }
+});
+
 // ---------------------------------------------------------------------------
 // markdownToLexical
 // ---------------------------------------------------------------------------

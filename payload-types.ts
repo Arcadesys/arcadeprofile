@@ -172,6 +172,10 @@ export interface Post {
   title: string;
   slug: string;
   excerpt: string;
+  /**
+   * The picture for this post. Renders at the top of the page and doubles as the social share card. Takes precedence over meta.image, which is now only a fallback.
+   */
+  heroImage?: (number | null) | Media;
   content: {
     root: {
       type: string;
@@ -963,6 +967,7 @@ export interface PostsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   excerpt?: T;
+  heroImage?: T;
   content?: T;
   publishedDate?: T;
   suppressNewsletter?: T;
