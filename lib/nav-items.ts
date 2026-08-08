@@ -10,6 +10,7 @@ export type NavItem = {
 export const DEFAULT_NAV_ITEMS: NavItem[] = [
   { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
   { id: 'portfolio', label: 'Portfolio', href: '/portfolio', isPrimary: false },
+  { id: 'this-is-what-i-do-for-fun', label: 'Stories', href: '/this-is-what-i-do-for-fun', isPrimary: false },
   { id: 'toys', label: 'Toys', href: '/toys', isPrimary: false },
   { id: 'bio', label: 'Bio', href: '/bio', isPrimary: false },
   { id: 'latest', label: 'Latest', href: '/latest', isPrimary: false },
@@ -50,8 +51,25 @@ export function ensurePortfolioNavItem(items: NavItem[]): NavItem[] {
   return insertAfter(items, '/projects', PORTFOLIO_NAV_ITEM);
 }
 
+export const COLLECTION_NAV_ITEM: NavItem = {
+  id: 'this-is-what-i-do-for-fun',
+  label: 'Stories',
+  href: '/this-is-what-i-do-for-fun',
+  isPrimary: false,
+};
+
+export function ensureCollectionNavItem(items: NavItem[]): NavItem[] {
+  if (items.some((item) => item.href === COLLECTION_NAV_ITEM.href)) return items;
+  const afterHref = items.some((item) => item.href === '/portfolio')
+    ? '/portfolio'
+    : '/projects';
+  return insertAfter(items, afterHref, COLLECTION_NAV_ITEM);
+}
+
+// Applied outermost so Stories lands directly after Portfolio regardless of
+// which of the two the CMS already supplied.
 export function ensureCoreNavItems(items: NavItem[]): NavItem[] {
-  return ensureToysNavItem(ensurePortfolioNavItem(items));
+  return ensureCollectionNavItem(ensureToysNavItem(ensurePortfolioNavItem(items)));
 }
 
 type NavPayload = Pick<Payload, 'find'>;

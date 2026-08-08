@@ -1,25 +1,23 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import fs from 'node:fs';
-import path from 'node:path';
 
 import { getPortfolioWork, PORTFOLIO_WORKS } from './portfolio';
 
-test('portfolio contains the six selected works in editorial order', () => {
-  assert.deepEqual(
-    PORTFOLIO_WORKS.map((work) => work.title),
-    [
-      'Our Hope Chest',
-      'Cleanup on Pod Six',
-      'Mr. Trout’s Slide',
-      'Gallery View',
-      'Parts of the Whole',
-      'La Ligne du Marais',
-    ],
-  );
+function assertContentAddressedBlobUrl(raw: string) {
+  const url = new URL(raw);
+  assert.equal(url.protocol, 'https:');
+  assert.equal(url.hostname.endsWith('.public.blob.vercel-storage.com'), true);
+  // The sha256 segment is what makes the URL stable across re-runs.
+  assert.match(url.pathname, /\/[a-f0-9]{64}\//);
+}
+
+test('portfolio holds only the works outside the collection', () => {
+  // The other six moved to /this-is-what-i-do-for-fun; Gallery View is an
+  // It Takes a Zoo chapter and stays here.
+  assert.deepEqual(PORTFOLIO_WORKS.map((work) => work.title), ['Gallery View']);
 });
 
-test('every portfolio work has reader content and downloadable artifacts', () => {
+test('every portfolio work has reader content and a blob-hosted PDF', () => {
   for (const work of PORTFOLIO_WORKS) {
     assert.equal(work.content.root.type, 'root');
     assert.ok(work.content.root.children.length > 0);
@@ -28,18 +26,13 @@ test('every portfolio work has reader content and downloadable artifacts', () =>
     assert.equal(work.titleImage.height, 1024);
     assert.ok(work.titleImage.alt.includes(work.title));
 
-    const titleImageUrl = new URL(work.titleImage.src);
-    assert.equal(titleImageUrl.protocol, 'https:');
-    assert.equal(
-      titleImageUrl.hostname.endsWith('.public.blob.vercel-storage.com'),
-      true,
-    );
-    assert.match(titleImageUrl.pathname, /\/[a-f0-9]{64}\//);
+    assertContentAddressedBlobUrl(work.titleImage.src);
+    assertContentAddressedBlobUrl(work.downloads.pdf);
+  }
+});
 
-    for (const download of Object.values(work.downloads)) {
-      const localPath = path.join(process.cwd(), 'public', download);
-      assert.equal(fs.existsSync(localPath), true, `missing ${download}`);
-      assert.ok(fs.statSync(localPath).size > 0, `empty ${download}`);
-    }
+test('portfolio offers no EPUB — that is the paid tier', () => {
+  for (const work of PORTFOLIO_WORKS) {
+    assert.deepEqual(Object.keys(work.downloads), ['pdf']);
   }
 });
