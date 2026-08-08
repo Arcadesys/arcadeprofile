@@ -14,3 +14,7 @@
 *.tsbuildinfo
 .env*.local
 .env*
+
+# Book editions are served from Vercel Blob, not as static assets.
+# Regenerate URLs with `npm run generate:portfolio`.
+/public/portfolio

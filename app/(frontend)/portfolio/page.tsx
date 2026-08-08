@@ -7,7 +7,7 @@ import { JsonLd } from '@/lib/structured-data';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 const DESCRIPTION =
-  'Six selected longform works by Austen Tucker, available to read online or download as PDF and EPUB.';
+  'Longform work by Austen Tucker, free to read online or download as an accessible PDF.';
 
 export const metadata: Metadata = {
   title: 'Portfolio',
@@ -87,11 +87,8 @@ export default function PortfolioPage() {
                     <Link className="portfolio-read-link" href={`/portfolio/${work.slug}`}>
                       Read online <span aria-hidden="true">→</span>
                     </Link>
-                    <a href={work.downloads.pdf} download>
-                      Download PDF
-                    </a>
-                    <a href={work.downloads.epub} download>
-                      Download EPUB
+                    <a href={work.downloads.pdf} target="_blank" rel="noreferrer">
+                      PDF <span aria-hidden="true">↗</span>
                     </a>
                   </div>
                 </div>

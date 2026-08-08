@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 
 import LongformBody from '@/app/components/LongformBody';
 import ShareLinks from '@/app/components/ShareLinks';
+import { COLLECTION_PATH, MOVED_FROM_PORTFOLIO } from '@/lib/collection';
 import { getPortfolioWork, PORTFOLIO_WORKS } from '@/lib/portfolio';
 import { JsonLd } from '@/lib/structured-data';
 
@@ -19,6 +20,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const work = getPortfolioWork(slug);
+  // Moved slugs 301 at request time; no metadata to emit for them.
   if (!work) return {};
 
   const title = `${work.title} | Portfolio`;
@@ -51,6 +53,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PortfolioWorkPage({ params }: Props) {
   const { slug } = await params;
+
+  // These six shipped at /portfolio/<slug> in #203 and may be indexed or
+  // bookmarked. They now live in the collection; send them there permanently
+  // rather than 404ing.
+  if (MOVED_FROM_PORTFOLIO.includes(slug)) {
+    permanentRedirect(`${COLLECTION_PATH}/${slug}`);
+  }
+
   const work = getPortfolioWork(slug);
   if (!work) notFound();
 
@@ -104,11 +114,8 @@ export default async function PortfolioWorkPage({ params }: Props) {
               {work.wordCount.toLocaleString('en-US')} words · about {work.readingMinutes} minutes
             </p>
             <div className="portfolio-actions" aria-label="Download this work">
-              <a href={work.downloads.pdf} download>
-                Download PDF
-              </a>
-              <a href={work.downloads.epub} download>
-                Download EPUB
+              <a href={work.downloads.pdf} target="_blank" rel="noreferrer">
+                Read the PDF <span aria-hidden="true">↗</span>
               </a>
             </div>
           </header>
@@ -132,11 +139,8 @@ export default async function PortfolioWorkPage({ params }: Props) {
               <Link className="portfolio-read-link" href="/portfolio">
                 ← All portfolio works
               </Link>
-              <a href={work.downloads.pdf} download>
-                Download PDF
-              </a>
-              <a href={work.downloads.epub} download>
-                Download EPUB
+              <a href={work.downloads.pdf} target="_blank" rel="noreferrer">
+                Read the PDF <span aria-hidden="true">↗</span>
               </a>
             </div>
           </footer>

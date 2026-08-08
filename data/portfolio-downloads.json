@@ -1,0 +1,77 @@
+{
+  "butterfly-exe": {
+    "pdf": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/butterfly-exe/8ecc7cad7b16ab1104f630b47a0d6eb9bee98e856c38852ab522f02426d6f4f3/butterfly-exe.pdf",
+    "sha256": "8ecc7cad7b16ab1104f630b47a0d6eb9bee98e856c38852ab522f02426d6f4f3",
+    "bytes": 9361457,
+    "cover": {
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/butterfly-exe/a39cae869b3537c62c1fffd5be91ef501672d02ed50e0fb9568f0c248bec1a91/butterfly-exe-cover.png",
+      "width": 1650,
+      "height": 2550
+    }
+  },
+  "carl": {
+    "pdf": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/carl/c2380af076683ef7e91ecc4ac8b90e81b41b7f5175531278985489f915b5fddb/carl.pdf",
+    "sha256": "c2380af076683ef7e91ecc4ac8b90e81b41b7f5175531278985489f915b5fddb",
+    "bytes": 2184723,
+    "cover": {
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/carl/414330ae8b0ffc9d51f9fd735ec4066b0d8df2fcbda7ebc5844c60fbad19a806/carl-cover.png",
+      "width": 1650,
+      "height": 2550
+    }
+  },
+  "cleanup-on-pod-six": {
+    "pdf": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/cleanup-on-pod-six/05a28a12fe344c863bf187abe3a66087463aa407ca322d87fd08f2d5964b32f3/cleanup-on-pod-six.pdf",
+    "sha256": "05a28a12fe344c863bf187abe3a66087463aa407ca322d87fd08f2d5964b32f3",
+    "bytes": 1066959,
+    "cover": {
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/cleanup-on-pod-six/a35c51d91d474c3cc98dc46ad5de2999541d219b67675369f570f2acf7d1ad76/cleanup-on-pod-six-cover.png",
+      "width": 1650,
+      "height": 2550
+    }
+  },
+  "gallery-view": {
+    "pdf": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/gallery-view/a07d66190f4cf4362292cfdda8a38ded0a217c36cf5039bfe46809898fa33b00/gallery-view.pdf",
+    "sha256": "a07d66190f4cf4362292cfdda8a38ded0a217c36cf5039bfe46809898fa33b00",
+    "bytes": 3723336
+  },
+  "la-ligne-du-marais": {
+    "pdf": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/la-ligne-du-marais/cd9ef061448fdb19d9f62988f008476374792c88e975f5e5892bd5ae6b35a553/la-ligne-du-marais.pdf",
+    "sha256": "cd9ef061448fdb19d9f62988f008476374792c88e975f5e5892bd5ae6b35a553",
+    "bytes": 4615922,
+    "cover": {
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/la-ligne-du-marais/d50455bb0cc8063e11943e50314301191ce5032c13ce88365684d04719eb5c39/la-ligne-du-marais-cover.png",
+      "width": 1650,
+      "height": 2550
+    }
+  },
+  "mr-trout-s-slide": {
+    "pdf": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/mr-trout-s-slide/0414e7e7db929eb066242209889fc7d9bb4995d02730c530851050ea97a61a5e/mr-trout-s-slide.pdf",
+    "sha256": "0414e7e7db929eb066242209889fc7d9bb4995d02730c530851050ea97a61a5e",
+    "bytes": 2009223,
+    "cover": {
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/mr-trout-s-slide/b387e33a67b1fe49bbd05d5cf25768aac16c68a14e4ebd4da906bc29f2c42f18/mr-trout-s-slide-cover.png",
+      "width": 1650,
+      "height": 2550
+    }
+  },
+  "our-hope-chest": {
+    "pdf": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/our-hope-chest/855a8748c6020e9ec39c36ba39179d4c86e81ae1eba5001eadbb53631e827032/our-hope-chest.pdf",
+    "sha256": "855a8748c6020e9ec39c36ba39179d4c86e81ae1eba5001eadbb53631e827032",
+    "bytes": 2176055,
+    "cover": {
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/our-hope-chest/e3ee8f31c81676324dd90afc4daca3fb674c82267d1d1a5293d6f966caf31433/our-hope-chest-cover.png",
+      "width": 1650,
+      "height": 2550
+    }
+  },
+  "parts-of-the-whole": {
+    "pdf": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/parts-of-the-whole/d1c4f5dc97242731ce22be3c3f57c0305e4a47387f4886a82b50d4925e18eb7c/parts-of-the-whole.pdf",
+    "sha256": "d1c4f5dc97242731ce22be3c3f57c0305e4a47387f4886a82b50d4925e18eb7c",
+    "bytes": 5676344,
+    "cover": {
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/portfolio/parts-of-the-whole/7c6e9562fb895c2e7f5ec4c77272699bfa5868b1f7e200254a4b4e0994740173/parts-of-the-whole-cover.png",
+      "width": 1650,
+      "height": 2550
+    }
+  }
+}

@@ -1717,3 +1717,163 @@ a:focus-visible .project-card {
   border-radius: var(--radius-sm);
   padding: 1px 6px;
 }
+
+/* ---------------------------------------------------------------------------
+   "This is what I do for fun" — the seven-story collection.
+   Portrait covers, so the index runs a tighter grid than .portfolio-card and
+   the reader shows the cover at book proportions rather than full bleed.
+   --------------------------------------------------------------------------- */
+
+.collection-index {
+  width: min(960px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 6rem) 0;
+}
+html[data-reading-width] .collection-index {
+  max-width: min(960px, calc(100vw - 2rem)) !important;
+}
+.collection-index__header {
+  max-width: 720px;
+  margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
+}
+.collection-index__header h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(2.25rem, 7vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+.collection-index__lede {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: clamp(1.05rem, 2vw, 1.2rem);
+  line-height: 1.7;
+}
+.collection-index__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border-strong);
+}
+.collection-card {
+  display: grid;
+  grid-template-columns: minmax(140px, 200px) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: start;
+  padding: clamp(2rem, 5vw, 3rem) 0;
+  border-bottom: 1px solid var(--border-strong);
+}
+.collection-card__cover {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.collection-card__cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.collection-card__type {
+  margin: 0 0 0.5rem;
+  color: var(--neon-pink);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.collection-card h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.collection-card h2 a {
+  color: var(--fg);
+  text-decoration: none;
+}
+.collection-card h2 a:hover {
+  text-decoration: underline;
+}
+.collection-card__description {
+  margin: 0 0 1.25rem;
+  color: var(--fg-muted);
+  line-height: 1.65;
+}
+.collection-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.collection-card__actions a {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+.collection-card__actions a:hover,
+.collection-card__actions a:focus-visible {
+  border-color: var(--neon-pink);
+  color: var(--neon-pink);
+}
+
+/* Book cover on a story page: constrained, centred, not full measure. */
+.portfolio-reader__cover {
+  overflow: hidden;
+  width: min(420px, 100%);
+  margin: 0 auto 3rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.portfolio-reader__cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Butterfly.exe's pointer across to the playable version. */
+.portfolio-reader__play {
+  margin: 0 0 3rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.portfolio-reader__play h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+}
+.portfolio-reader__play p {
+  margin: 0 0 1.25rem;
+  color: var(--fg-muted);
+  line-height: 1.65;
+}
+.portfolio-reader__play a {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  color: var(--neon-pink);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 760px) {
+  .collection-card {
+    grid-template-columns: minmax(0, 220px);
+    justify-content: start;
+  }
+  .collection-card__actions a {
+    justify-content: center;
+    width: 100%;
+  }
+}

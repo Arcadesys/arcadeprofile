@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+  ensureCollectionNavItem,
   ensureCoreNavItems,
   ensurePortfolioNavItem,
   ensureToysNavItem,
@@ -70,7 +71,7 @@ test('ensurePortfolioNavItem inserts Portfolio after Projects', () => {
   assert.deepEqual(items.map((item) => item.href), ['/projects', '/portfolio', '/bio']);
 });
 
-test('ensureCoreNavItems keeps Portfolio and Toys in a predictable order', () => {
+test('ensureCoreNavItems keeps Portfolio, Stories, and Toys in a predictable order', () => {
   const items = ensureCoreNavItems([
     { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
     { id: 'bio', label: 'Bio', href: '/bio', isPrimary: false },
@@ -78,6 +79,14 @@ test('ensureCoreNavItems keeps Portfolio and Toys in a predictable order', () =>
 
   assert.deepEqual(
     items.map((item) => item.href),
-    ['/projects', '/portfolio', '/toys', '/bio'],
+    ['/projects', '/portfolio', '/this-is-what-i-do-for-fun', '/toys', '/bio'],
   );
+});
+
+test('ensureCollectionNavItem does not duplicate a CMS-managed Stories entry', () => {
+  const items = [
+    { id: 'stories', label: 'Short fiction', href: '/this-is-what-i-do-for-fun', isPrimary: false },
+  ];
+
+  assert.strictEqual(ensureCollectionNavItem(items), items);
 });

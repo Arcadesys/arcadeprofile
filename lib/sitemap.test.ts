@@ -27,9 +27,15 @@ test('buildStaticSitemapEntries maps configured routes without synthetic modific
     entries.some(entry => entry.url === 'https://example.test/bibliography'),
     true,
   );
+  // /portfolio plus Gallery View — the other six moved to the collection.
   assert.equal(
     entries.filter(entry => entry.url.includes('/portfolio')).length,
-    7,
+    2,
+  );
+  // The collection index plus its seven stories.
+  assert.equal(
+    entries.filter(entry => entry.url.includes('/this-is-what-i-do-for-fun')).length,
+    8,
   );
   assert.equal(entries.find(entry => entry.url.endsWith('/projects'))?.priority, 0.9);
   assert.equal(entries.every(entry => entry.lastModified === undefined), true);
