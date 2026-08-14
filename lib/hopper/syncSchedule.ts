@@ -2,6 +2,7 @@ import type { Post } from '@/payload-types';
 import { isoDateOnlyToScheduledIso } from '@/lib/iso-date';
 import { isPublicPostStatus } from '@/lib/post-status';
 import { SITE_TZ, datePartsInTimeZone, isoDateFromParts } from '@/lib/site-time';
+import { isChapterSerialSchedule, type ChapterSerialSchedule, zonedDateTimeToUtc } from '@/lib/serial-schedule';
 
 export { todayInSiteTz } from '@/lib/site-time';
 
@@ -78,6 +79,11 @@ export interface ComputedSlot {
   weekdayLabel: string;
 }
 
+export interface QueueSchedulePost {
+  id: string;
+  group?: string | null;
+}
+
 export interface ComputeScheduleOptions {
   includePastSlots?: boolean;
   publishHourUtc?: number;
@@ -136,6 +142,55 @@ export function computeSchedule(
   return out;
 }
 
+/** Schedule chapter-first serials on Monday before allocating legacy fiction. */
+export function computeGroupAwareSchedule(
+  fiction: QueueSchedulePost[],
+  essays: QueueSchedulePost[],
+  serialSchedules: ReadonlyMap<string, ChapterSerialSchedule>,
+  from: Date = new Date(),
+  tz: string = SITE_TZ,
+  takenDates: ReadonlySet<string> = new Set(),
+  includePastSlots = false,
+): Map<string, ComputedSlot> {
+  const out = new Map<string, ComputedSlot>();
+  const serial = fiction.filter((post) => post.group && isChapterSerialSchedule(serialSchedules.get(post.group)));
+  const legacyFiction = fiction.filter((post) => !serial.includes(post));
+  let serialIndex = 0;
+  let fictionIndex = 0;
+  let essayIndex = 0;
+  const start = datePartsInTimeZone(from, tz);
+  const cursor = new Date(start.year, start.month - 1, start.day);
+
+  while (serialIndex < serial.length || fictionIndex < legacyFiction.length || essayIndex < essays.length) {
+    const dow = (cursor.getDay() + 6) % 7;
+    const date = isoDateFromParts({ year: cursor.getFullYear(), month: cursor.getMonth() + 1, day: cursor.getDate() });
+    const available = !takenDates.has(date);
+    let post: QueueSchedulePost | undefined;
+    let slot: ComputedSlot | null = null;
+
+    if (dow === 0 && serialIndex < serial.length && available) {
+      post = serial[serialIndex]!;
+      const serialSchedule = serialSchedules.get(post.group!)!;
+      const scheduledPublishDate = zonedDateTimeToUtc(date, serialSchedule.time ?? undefined, tz);
+      if (scheduledPublishDate) slot = { date, scheduledPublishDate, weekdayLabel: 'Mon · Chapter serial' };
+    } else if ((dow === 0 || dow === 2 || dow === 4) && fictionIndex < legacyFiction.length && available) {
+      post = legacyFiction[fictionIndex]!;
+      slot = { date, scheduledPublishDate: scheduledPublishDateForSlot(date), weekdayLabel: formatWeekdayLabel(dow, 'fiction') };
+    } else if ((dow === 1 || dow === 3) && essayIndex < essays.length && available) {
+      post = essays[essayIndex]!;
+      slot = { date, scheduledPublishDate: scheduledPublishDateForSlot(date), weekdayLabel: formatWeekdayLabel(dow, 'essays') };
+    }
+    if (post && slot && (includePastSlots || new Date(slot.scheduledPublishDate).getTime() > from.getTime())) {
+      out.set(post.id, slot);
+      if (serial.includes(post)) serialIndex++;
+      else if (legacyFiction.includes(post)) fictionIndex++;
+      else essayIndex++;
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return out;
+}
+
 export interface QueueDiffPrev {
   fictionIds: string[];
   essaysIds: string[];
@@ -148,6 +203,7 @@ export interface QueueDiffNext {
 
 interface SyncQueueOptions extends ComputeScheduleOptions {
   allowPastScheduledPublishDate?: boolean;
+  serialSchedules?: ReadonlyMap<string, ChapterSerialSchedule>;
 }
 
 type QueueSyncPayload = {
@@ -169,7 +225,7 @@ type QueueSyncPayload = {
   }): Promise<unknown>;
 };
 
-type QueueSyncPost = Pick<Post, 'id' | 'publish_status' | 'scheduledPublishDate'>;
+type QueueSyncPost = Pick<Post, 'id' | 'publish_status' | 'scheduledPublishDate' | 'group'>;
 
 async function loadPostsLite(payload: Pick<QueueSyncPayload, 'find'>, ids: Array<string | number>): Promise<Map<string, QueueSyncPost>> {
   if (ids.length === 0) return new Map();
@@ -202,16 +258,20 @@ export async function syncQueueToPosts(
   takenDates?: ReadonlySet<string>,
   options: SyncQueueOptions = {},
 ): Promise<void> {
-  const schedule = computeSchedule(next.fictionIds, next.essaysIds, from, SITE_TZ, takenDates, {
-    includePastSlots: options.includePastSlots ?? false,
-    publishHourUtc: options.publishHourUtc,
-  });
-
   const nextSet = new Set([...next.fictionIds, ...next.essaysIds]);
   const removed = [...new Set([...prev.fictionIds, ...prev.essaysIds])].filter((id) => !nextSet.has(id));
 
   const allIds = [...nextSet, ...removed];
   const posts = await loadPostsLite(payload, allIds);
+  const schedule = computeGroupAwareSchedule(
+    next.fictionIds.map((id) => ({ id, group: posts.get(id)?.group })),
+    next.essaysIds.map((id) => ({ id, group: posts.get(id)?.group })),
+    options.serialSchedules ?? new Map(),
+    from,
+    SITE_TZ,
+    takenDates,
+    options.includePastSlots ?? false,
+  );
 
   // Posts.afterChange hooks are safe under concurrent updates: revalidation
   // uses next/server.after, and Hopper only writes scheduled/draft state.

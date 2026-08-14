@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
-import type { Post } from '@/payload-types';
+import type { Group, Post } from '@/payload-types';
 
 import { DEFAULT_PUBLISH_HOUR_UTC } from '@/lib/hopper/syncSchedule';
 import { isIsoDateOnly, isoDateOnlyToScheduledIso } from '@/lib/iso-date';
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
 import { isPublicPostStatus } from '@/lib/post-status';
 import { parsePositiveIntegerId } from '@/lib/positive-integer-id';
+import { isChapterSerialSchedule, zonedDateTimeToUtc } from '@/lib/serial-schedule';
+import { SITE_TZ } from '@/lib/site-time';
 
 interface PostBody {
   postId?: unknown;
@@ -55,6 +57,28 @@ export async function POST(request: Request) {
     );
   }
 
+  let serialScheduledIso: string | null = null;
+  if (existing.group) {
+    const groups = await payload.find({
+      collection: 'groups',
+      where: { slug: { equals: existing.group } },
+      limit: 1,
+      depth: 0,
+      pagination: false,
+    });
+    const group = groups.docs[0] as Group | undefined;
+    const serialSchedule = group?.serialReleaseSchedule;
+    if (serialSchedule && isChapterSerialSchedule(serialSchedule)) {
+      if (new Date(`${date}T12:00:00.000Z`).getUTCDay() !== 1) {
+        return NextResponse.json({ error: 'Chapter serial releases must stay on Monday.' }, { status: 400 });
+      }
+      serialScheduledIso = zonedDateTimeToUtc(date, serialSchedule.time ?? undefined, SITE_TZ);
+      if (!serialScheduledIso) {
+        return NextResponse.json({ error: 'This serial has an invalid Chicago-local release time.' }, { status: 400 });
+      }
+    }
+  }
+
   // Preserve the post's existing send time-of-day (UTC) so dragging only
   // changes the calendar day. Fall back to the queue default when the post has
   // no prior scheduledPublishDate (e.g. dragging from the drafts tray).
@@ -67,7 +91,7 @@ export async function POST(request: Request) {
   const mm = validPrior ? validPrior.getUTCMinutes() : 0;
   const ss = validPrior ? validPrior.getUTCSeconds() : 0;
   const ms = validPrior ? validPrior.getUTCMilliseconds() : 0;
-  const scheduledIso = isoDateOnlyToScheduledIso(date, hh, mm, ss, ms);
+  const scheduledIso = serialScheduledIso ?? isoDateOnlyToScheduledIso(date, hh, mm, ss, ms);
   if (!scheduledIso) {
     return NextResponse.json({ error: 'date must be a valid YYYY-MM-DD string' }, { status: 400 });
   }

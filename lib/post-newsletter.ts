@@ -1,6 +1,9 @@
 import type { Payload } from 'payload';
 
 import type { Group, Post } from '@/payload-types';
+import { buildGroupIntroUrl, buildPostUrl } from './post-url';
+import { comparePostsByGroupOrder } from './post-order';
+import { publicPostStatusWhere } from './post-status';
 
 export type GroupHero = {
   /** Group slug — used by `buildPostNewsletterContent` to build
@@ -45,5 +48,29 @@ export async function resolveGroupHeroForPost(
     slug: groupSlug,
     image: imageUrl,
     title: found.title ?? null,
+  };
+}
+
+export async function resolveNewsletterContinuity(
+  payload: Payload,
+  post: Pick<Post, 'id' | 'slug' | 'group'>,
+): Promise<{ priorUrl: string | null; priorTitle: string | null; catchUpUrl: string | null } | null> {
+  const groupSlug = typeof post.group === 'string' ? post.group.trim() : '';
+  if (!groupSlug) return null;
+  const result = await payload.find({
+    collection: 'posts',
+    where: { and: [{ group: { equals: groupSlug } }, { publish_status: publicPostStatusWhere() }] },
+    sort: ['order', 'publishedDate'],
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+  });
+  const posts = [...(result.docs as Post[])].sort(comparePostsByGroupOrder);
+  const currentIndex = posts.findIndex((candidate) => candidate.id === post.id);
+  const prior = currentIndex > 0 ? posts[currentIndex - 1] : null;
+  return {
+    priorUrl: prior?.slug ? buildPostUrl(groupSlug, prior.slug) : null,
+    priorTitle: prior?.title ?? null,
+    catchUpUrl: buildGroupIntroUrl(groupSlug),
   };
 }

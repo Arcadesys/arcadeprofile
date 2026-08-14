@@ -15,6 +15,7 @@ import type { RevalidationDoc } from './hooks/revalidate';
 import { revalidateDeletedPathsFor, revalidatePathsFor } from './hooks/revalidate';
 import { publicReadAccess } from './shared/access';
 import { adminGroups, titledAdmin } from './shared/admin';
+import { CHAPTER_SERIAL_TIME } from '@/lib/serial-schedule';
 
 type GroupRevalidationPayload = Pick<Payload, 'find'>;
 
@@ -195,6 +196,36 @@ export const Groups: CollectionConfig = {
       },
       options: [...projectFormatOptions],
     },
+    {
+      name: 'serialReleaseSchedule',
+      type: 'group',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Optional chapter-first release lane. When enabled, Hopper schedules this serial weekly on Monday in Chicago time.',
+      },
+      fields: [
+        { name: 'enabled', type: 'checkbox', defaultValue: false, label: 'Use chapter-first serial releases' },
+        {
+          name: 'cadence',
+          type: 'select',
+          defaultValue: 'weekly',
+          options: [{ label: 'Weekly', value: 'weekly' }],
+        },
+        {
+          name: 'weekday',
+          type: 'select',
+          defaultValue: 'monday',
+          options: [{ label: 'Monday', value: 'monday' }],
+        },
+        {
+          name: 'time',
+          type: 'text',
+          defaultValue: CHAPTER_SERIAL_TIME,
+          admin: { description: 'Chicago-local 24-hour time (HH:MM), e.g. 09:00.' },
+        },
+      ],
+    },
     tagArrayField,
     {
       name: 'projectCTA',
@@ -232,7 +263,7 @@ export const Groups: CollectionConfig = {
       name: 'chapters',
       type: 'array',
       admin: {
-        description: 'Optional chapter groupings. Posts can reference a chapter slug to appear under that section in the doc drawer.',
+        description: 'Optional reader sections (for example, Book One or Act II). A chapter-first serial uses one post per chapter; posts reference these only when they belong under a larger section.',
       },
       fields: [
         { name: 'title', type: 'text', required: true },

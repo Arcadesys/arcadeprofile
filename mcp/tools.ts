@@ -189,6 +189,7 @@ export const toolDefinitions: Tool[] = [
           description: 'ISO date (YYYY-MM-DD). Defaults to today.',
         },
         group: { type: 'string', description: 'Group/series slug' },
+        chapter: { type: 'string', description: 'Optional reader-section slug (for example, book-one or act-two)' },
         order: { type: 'number', description: 'Sort order within group' },
         tags: {
           type: 'array',
@@ -277,6 +278,7 @@ export const toolDefinitions: Tool[] = [
         },
         publishedDate: { type: 'string', description: 'ISO date (YYYY-MM-DD)' },
         group: { type: 'string' },
+        chapter: { type: 'string', description: 'Optional reader-section slug' },
         order: { type: 'number' },
         tags: {
           type: 'array',
@@ -592,6 +594,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
     };
 
     if (args.group !== undefined) body.group = args.group;
+    if (args.chapter !== undefined) body.chapter = args.chapter;
     if (args.order !== undefined) body.order = args.order;
     if (args.author !== undefined) body.author = args.author;
     if (args.scheduledPublishDate !== undefined)
@@ -660,6 +663,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
       payload.content = await markdownToLexical(args.content as string);
     if (args.publishedDate !== undefined) payload.publishedDate = args.publishedDate;
     if (args.group !== undefined) payload.group = args.group;
+    if (args.chapter !== undefined) payload.chapter = args.chapter;
     if (args.order !== undefined) payload.order = args.order;
     if (args.author !== undefined) payload.author = args.author;
     if (args.scheduledPublishDate !== undefined)

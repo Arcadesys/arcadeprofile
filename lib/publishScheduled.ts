@@ -1,6 +1,6 @@
 import type { Payload } from 'payload';
 
-import type { Post } from '@/payload-types';
+import type { Group, Post } from '@/payload-types';
 import { loadLiveQueueIds } from '@/lib/hopper/loadQueue';
 import { loadPublishedTodayTakenDates } from '@/lib/hopper/publishedToday';
 import { syncQueueToPosts } from '@/lib/hopper/syncSchedule';
@@ -12,6 +12,7 @@ import {
   type NewsletterSendState,
 } from '@/lib/post-newsletter-delivery';
 import { reconcileNewsletters, type ReconcileResult } from '@/lib/newsletter-reconcile';
+import { isChapterSerialSchedule, type ChapterSerialSchedule } from '@/lib/serial-schedule';
 
 export type PublishResult = {
   id: number;
@@ -103,6 +104,24 @@ function pendingNewsletterState(nowIso: string): NewsletterSendState {
   };
 }
 
+async function loadSerialSchedules(payload: Pick<Payload, 'find'>): Promise<Map<string, ChapterSerialSchedule>> {
+  const schedules = new Map<string, ChapterSerialSchedule>();
+  // The publish pass must remain able to recover legacy queues if a group
+  // lookup is temporarily unavailable; those posts retain their old cadence.
+  let result: Awaited<ReturnType<Payload['find']>>;
+  try {
+    result = await payload.find({ collection: 'groups', limit: 0, depth: 0, pagination: false });
+  } catch (error) {
+    logger.warn({ err: error }, '[publish-scheduled] could not load serial schedules; using legacy lanes');
+    return schedules;
+  }
+  for (const group of result.docs as Group[]) {
+    const schedule = (group as Group & { serialReleaseSchedule?: ChapterSerialSchedule }).serialReleaseSchedule;
+    if (group.slug && schedule && isChapterSerialSchedule(schedule)) schedules.set(group.slug, schedule);
+  }
+  return schedules;
+}
+
 export async function publishScheduledPosts(
   payload: PayloadLike,
   {
@@ -123,13 +142,14 @@ export async function publishScheduledPosts(
   try {
     const { fictionIds, essaysIds } = await loadLiveQueueIds(payload);
     const takenDates = await loadPublishedTodayTakenDates(payload, now);
+    const serialSchedules = fictionIds.length > 0 ? await loadSerialSchedules(payload) : new Map();
     await syncQueueToPosts(
       payload,
       { fictionIds, essaysIds },
       { fictionIds, essaysIds },
       now,
       takenDates,
-      { includePastSlots: true, allowPastScheduledPublishDate: true },
+      { includePastSlots: true, allowPastScheduledPublishDate: true, serialSchedules },
     );
   } catch (err) {
     // A sync failure must not block the publish loop — a stale row is

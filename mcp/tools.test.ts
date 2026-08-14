@@ -81,6 +81,7 @@ test('create_post schema includes meta and discoverability', () => {
   assert.ok(props.skipNewsletter, 'skipNewsletter missing from create_post schema');
   assert.ok(props.tags, 'tags missing from create_post schema');
   assert.ok(props.publish_status, 'publish_status missing from create_post schema');
+  assert.ok(props.chapter, 'chapter missing from create_post schema');
 });
 
 test('list_posts schema restricts status to workflow values', () => {
