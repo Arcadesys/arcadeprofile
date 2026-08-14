@@ -33,52 +33,44 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 The repo ships a Payload CMS MCP server that exposes Posts, Pages, Groups, and Books as tools. The `list_projects` tool is a compatibility alias over Groups, because Groups are the canonical project entity. It works over **stdio** (Claude Code / CLI) and **HTTP/SSE** (claude.ai web/mobile).
 
-### Claude Code (stdio)
+### Codex / Claude Code
 
-The `.mcp.json` in the repo root is pre-configured. Add your env vars and it just works:
+The checked-in `.mcp.json` uses the hosted production MCP endpoint rather than a local
+Payload server. Its credential is intentionally not stored in the repository: provide the
+production MCP key at runtime as `ARCADEPROFILE_MCP_TOKEN` (for Codex, the project
+`.codex/config.toml` uses that variable as its bearer-token source). Obtain or rotate the
+value only through the approved Vercel environment workflow.
 
 ```bash
-PAYLOAD_API_URL=http://localhost:3000 PAYLOAD_API_KEY=<key> npm run mcp
+export ARCADEPROFILE_MCP_TOKEN='<MCP_API_KEY from the approved environment>'
 ```
+
+Restart the MCP client after setting the variable. Do not put this value in `.mcp.json`,
+`.codex/config.toml`, or any tracked file.
 
 ### Connecting claude.ai as a custom connector
 
-1. The HTTP endpoint is live at `https://arcadeprofile.vercel.app/api/mcp`
+1. The HTTP endpoint is live at `https://www.thearcades.me/api/mcp`
 2. In claude.ai → **Settings → Connectors → Add custom connector**
-3. **URL:** `https://arcadeprofile.vercel.app/api/mcp`
+3. **URL:** `https://www.thearcades.me/api/mcp`
 4. **Auth header name:** `Authorization`
 5. **Auth header value:** `Bearer <MCP_API_KEY>` (value from Vercel env)
 
 The `MCP_API_KEY` env var is separate from `PAYLOAD_API_KEY` — rotate them independently. Never commit either to the repo.
 
-### Local HTTP smoke test
+### Hosted read-only smoke test
 
 ```bash
 # List tools
-curl -X POST http://localhost:3000/api/mcp \
-  -H "Authorization: Bearer $MCP_API_KEY" \
+curl -X POST https://www.thearcades.me/api/mcp \
+  -H "Authorization: Bearer $ARCADEPROFILE_MCP_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
 
-# Create a test post (skipNewsletter suppresses Postmark send)
-curl -X POST http://localhost:3000/api/mcp \
-  -H "Authorization: Bearer $MCP_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc":"2.0","method":"tools/call","id":2,
-    "params":{
-      "name":"create_post",
-      "arguments":{
-        "title":"MCP Smoke Test",
-        "excerpt":"Testing MCP create.",
-        "content":"Body.",
-        "skipNewsletter": true,
-        "meta":{"title":"Smoke","description":"Test desc","keywords":"test"},
-        "discoverability":{"social_hook":"hook","search_summary":"summary"}
-      }
-    }
-  }'
 ```
+
+Use a deliberate, authorized publishing workflow for write tools. Do not create
+production smoke-test content.
 
 
 ## Payload email (Postmark)

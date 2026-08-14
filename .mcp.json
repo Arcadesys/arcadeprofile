@@ -1,11 +1,9 @@
 {
   "mcpServers": {
     "arcadeprofile": {
-      "command": "npx",
-      "args": ["tsx", "mcp/payload-mcp.ts"],
-      "env": {
-        "PAYLOAD_API_URL": "http://localhost:3000",
-        "PAYLOAD_API_KEY": ""
+      "url": "https://www.thearcades.me/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${ARCADEPROFILE_MCP_TOKEN}"
       }
     }
   }

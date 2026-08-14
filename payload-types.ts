@@ -521,6 +521,18 @@ export interface Group {
    * Serial: posts read in order (chapters). Collection: independent pieces (e.g. short stories) — the intro page shows a picker instead of a "Start reading" button.
    */
   format?: ('serial' | 'collection') | null;
+  /**
+   * Optional chapter-first release lane. When enabled, Hopper schedules this serial weekly on Monday in Chicago time.
+   */
+  serialReleaseSchedule?: {
+    enabled?: boolean | null;
+    cadence?: 'weekly' | null;
+    weekday?: 'monday' | null;
+    /**
+     * Chicago-local 24-hour time (HH:MM), e.g. 09:00.
+     */
+    time?: string | null;
+  };
   tags?:
     | {
         tag: string;
@@ -546,7 +558,7 @@ export interface Group {
       }[]
     | null;
   /**
-   * Optional chapter groupings. Posts can reference a chapter slug to appear under that section in the doc drawer.
+   * Optional reader sections (for example, Book One or Act II). A chapter-first serial uses one post per chapter; posts reference these only when they belong under a larger section.
    */
   chapters?:
     | {
@@ -1075,6 +1087,14 @@ export interface GroupsSelect<T extends boolean = true> {
   category?: T;
   status?: T;
   format?: T;
+  serialReleaseSchedule?:
+    | T
+    | {
+        enabled?: T;
+        cadence?: T;
+        weekday?: T;
+        time?: T;
+      };
   tags?:
     | T
     | {

@@ -116,6 +116,20 @@ test('sets an explicit light email surface for dark-mode mail clients', () => {
   assert.ok(htmlBody.indexOf('background-color:#ffffff') < htmlBody.indexOf('<article'));
 });
 
+test('adds chapter continuity links when supplied by the delivery pipeline', () => {
+  const { htmlBody, textBody } = buildPostNewsletterContent(
+    basePost({
+      group: { slug: 'my-serial', title: 'My Serial' },
+      continuity: { priorUrl: '/projects/my-serial/chapter-one', priorTitle: 'Chapter One', catchUpUrl: '/projects/my-serial' },
+    }),
+    SITE_URL,
+  );
+  assert.match(htmlBody, /Read chapter on the site/);
+  assert.match(htmlBody, /Previous chapter: Chapter One/);
+  assert.match(htmlBody, /Catch up on the serial/);
+  assert.match(textBody, /Previous chapter: https:\/\/thearcades\.me\/projects\/my-serial\/chapter-one/);
+});
+
 test('escapes hero src and alt to avoid breaking the surrounding HTML', () => {
   const { htmlBody } = buildPostNewsletterContent(
     basePost({

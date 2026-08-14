@@ -11,7 +11,7 @@ import {
 import { buildPostNewsletterContent } from './newsletter';
 import { assertNewsletterConfigValid } from './postmark-config';
 import { type NewsletterSendStatus } from './newsletter-status';
-import { resolveGroupHeroForPost } from './post-newsletter';
+import { resolveGroupHeroForPost, resolveNewsletterContinuity } from './post-newsletter';
 import {
   getPostmarkBroadcastMessageStream,
   LinkTrackingOptions,
@@ -297,7 +297,12 @@ export async function deliverPostNewsletter(
       slug: post.slug,
       group: getPostGroupSlug(post.group),
     });
-    const rendered = buildPostNewsletterContent({ ...post, group });
+    const continuity = await resolveNewsletterContinuity(payload as Payload, {
+      id: post.id,
+      slug: post.slug,
+      group: getPostGroupSlug(post.group),
+    });
+    const rendered = buildPostNewsletterContent({ ...post, group, continuity });
     const subject = post.newsletterHeading || post.title;
     let result: Awaited<ReturnType<typeof sendPostmarkNewsletterEmail>>;
     try {

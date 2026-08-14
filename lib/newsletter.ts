@@ -39,6 +39,11 @@ type PostInput = {
    * Groups collection today.
    */
   group?: GroupHero | null;
+  continuity?: {
+    priorUrl?: string | null;
+    priorTitle?: string | null;
+    catchUpUrl?: string | null;
+  } | null;
 };
 
 const DEFAULT_SITE_URL = 'https://thearcades.me';
@@ -126,6 +131,11 @@ export function buildPostNewsletterContent(
   const escapedExcerpt = excerpt ? escapeHtml(excerpt) : '';
   const contentHtml = renderPostContent(post.content);
   const hero = resolveHeroImage(post, siteUrl);
+  const priorUrl = post.continuity?.priorUrl ? toAbsoluteUrl(post.continuity.priorUrl, siteUrl) : '';
+  const catchUpUrl = post.continuity?.catchUpUrl ? toAbsoluteUrl(post.continuity.catchUpUrl, siteUrl) : '';
+  const continuityHtml = priorUrl || catchUpUrl
+    ? `<p style="margin:1.25rem 0 0; font-size:0.95rem; color:${EMAIL_MUTED};">${priorUrl ? `<a href="${escapeHtml(priorUrl)}" style="color:${EMAIL_TEXT};">Previous chapter${post.continuity?.priorTitle ? `: ${escapeHtml(post.continuity.priorTitle)}` : ''}</a>` : ''}${priorUrl && catchUpUrl ? ' · ' : ''}${catchUpUrl ? `<a href="${escapeHtml(catchUpUrl)}" style="color:${EMAIL_TEXT};">Catch up on the serial</a>` : ''}</p>`
+    : '';
 
   // <img> attributes are sized for email clients: an explicit width attribute
   // keeps Outlook from inflating the image, and the inline max-width plus
@@ -144,8 +154,9 @@ export function buildPostNewsletterContent(
           ${contentHtml || `<p style="color:${EMAIL_TEXT};">${escapedExcerpt || escapedTitle}</p>`}
         </div>
         <p style="margin-top:2rem;">
-          <a href="${postUrl}" style="color:${EMAIL_TEXT}; font-weight:600;">Read on the site</a>
+          <a href="${postUrl}" style="color:${EMAIL_TEXT}; font-weight:700; font-size:1.05rem;">Read chapter on the site</a>
         </p>
+        ${continuityHtml}
       </article>
     </div>
   `.trim();
@@ -155,6 +166,8 @@ export function buildPostNewsletterContent(
     excerpt,
     stripHtml(contentHtml),
     `Read on the site: ${postUrl}`,
+    priorUrl && `Previous chapter: ${priorUrl}`,
+    catchUpUrl && `Catch up on the serial: ${catchUpUrl}`,
   ].filter(Boolean);
 
   return {

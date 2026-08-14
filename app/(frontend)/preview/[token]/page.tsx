@@ -126,18 +126,6 @@ export default async function PreviewPage({ params }: Props) {
             {publishedDate ? formatSiteDate(publishedDate) : 'Unscheduled'}
             {post.author ? ` · ${post.author as string}` : ''}
           </p>
-          {post.excerpt ? (
-            <p
-              style={{
-                marginTop: '1rem',
-                fontSize: '1.05rem',
-                lineHeight: 1.6,
-                color: 'var(--fg-muted)',
-              }}
-            >
-              {post.excerpt as string}
-            </p>
-          ) : null}
         </header>
 
         <div className="prose">

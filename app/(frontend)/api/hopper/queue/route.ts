@@ -3,11 +3,14 @@ import type { Payload } from 'payload';
 import type { Group, Post, PublishQueue } from '@/payload-types';
 
 import { requirePayloadUser } from '@/lib/payloadSessionAuth';
-import { computeSchedule, syncQueueToPosts, todayInSiteTz } from '@/lib/hopper/syncSchedule';
+import { computeGroupAwareSchedule, syncQueueToPosts, todayInSiteTz } from '@/lib/hopper/syncSchedule';
 import { loadPublishedToday } from '@/lib/hopper/publishedToday';
 import { extractQueueIds, loadLiveQueueIds, loadPostsById } from '@/lib/hopper/loadQueue';
 import { isPublicPostStatus, prePublicOrMissingPostStatusClauses } from '@/lib/post-status';
 import { parsePositiveIntegerId } from '@/lib/positive-integer-id';
+import { buildPreviewUrl } from '@/lib/preview-token';
+import { isChapterSerialSchedule, type ChapterSerialSchedule } from '@/lib/serial-schedule';
+import { buildPostUrl } from '@/lib/post-url';
 
 type Lane = 'fiction' | 'essays';
 
@@ -21,6 +24,10 @@ interface PostSummary {
   scheduledPublishDate: string | null;
   computedPublishDate: string | null;
   weekdayLabel: string | null;
+  preflight: string[];
+  previewUrl: string | null;
+  publishedUrl: string | null;
+  deliveryStatus: string | null;
 }
 
 interface QueueResponse {
@@ -36,6 +43,31 @@ function audienceFor(groupSlug: string | null | undefined, groupMap: Map<string,
   if (!groupSlug) return 'essays';
   const g = groupMap.get(groupSlug);
   return g?.category === 'fiction' ? 'fiction' : 'essays';
+}
+
+function serialSchedules(groupMap: Map<string, Group>): Map<string, ChapterSerialSchedule> {
+  const schedules = new Map<string, ChapterSerialSchedule>();
+  for (const [slug, group] of groupMap) {
+    const schedule = (group as Group & { serialReleaseSchedule?: ChapterSerialSchedule }).serialReleaseSchedule;
+    if (schedule && isChapterSerialSchedule(schedule)) schedules.set(slug, schedule);
+  }
+  return schedules;
+}
+
+function preflightFor(post: Post, groupMap: Map<string, Group>): string[] {
+  const issues: string[] = [];
+  const isChapterSerial = post.group && isChapterSerialSchedule(
+    (groupMap.get(post.group) as (Group & { serialReleaseSchedule?: ChapterSerialSchedule }) | undefined)?.serialReleaseSchedule,
+  );
+  if (!isChapterSerial) return issues;
+  if (!post.group) issues.push('Choose a serial group.');
+  if (!post.title?.trim()) issues.push('Add a chapter title.');
+  if (!post.excerpt?.trim()) issues.push('Add a chapter excerpt.');
+  if (!post.content) issues.push('Add the complete chapter content.');
+  if (typeof post.order !== 'number') issues.push('Set the chapter order.');
+  if (!buildPreviewUrl(post.previewToken)) issues.push('Save once to create a preview link.');
+  if (typeof post.suppressNewsletter !== 'boolean') issues.push('Choose whether this chapter sends a newsletter.');
+  return issues;
 }
 
 async function loadGroupMap(payload: Payload): Promise<Map<string, Group>> {
@@ -59,10 +91,6 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
 
   const { posts: publishedToday, takenDates, todayIso } = await loadPublishedToday(payload);
 
-  const schedule = computeSchedule(fictionIds, essaysIds, new Date(), undefined, takenDates, {
-    includePastSlots: false,
-  });
-
   const unqueuedRes = await payload.find({
     collection: 'posts',
     where: {
@@ -77,6 +105,15 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
   });
 
   const groupMap = await loadGroupMap(payload);
+  const schedules = serialSchedules(groupMap);
+  const schedule = computeGroupAwareSchedule(
+    fictionIds.map((id) => ({ id, group: queuedPosts.get(id)?.group })),
+    essaysIds.map((id) => ({ id, group: queuedPosts.get(id)?.group })),
+    schedules,
+    new Date(),
+    undefined,
+    takenDates,
+  );
 
   const toSummary = (post: Post, lane: Lane | null): PostSummary => {
     const id = String(post.id);
@@ -91,6 +128,10 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
       scheduledPublishDate: post.scheduledPublishDate ?? null,
       computedPublishDate: slot?.date ?? null,
       weekdayLabel: slot?.weekdayLabel ?? null,
+      preflight: preflightFor(post, groupMap),
+      previewUrl: buildPreviewUrl(post.previewToken),
+      publishedUrl: post.group && post.slug ? buildPostUrl(post.group, post.slug) : null,
+      deliveryStatus: post.newsletterSend?.status ?? null,
     };
   };
 
@@ -108,6 +149,10 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
       scheduledPublishDate: post.scheduledPublishDate ?? null,
       computedPublishDate: publishedIso,
       weekdayLabel: `Today · ${lane === 'fiction' ? 'Fiction' : 'Essays'}`,
+      preflight: preflightFor(post, groupMap),
+      previewUrl: buildPreviewUrl(post.previewToken),
+      publishedUrl: post.group && post.slug ? buildPostUrl(post.group, post.slug) : null,
+      deliveryStatus: post.newsletterSend?.status ?? null,
     };
   };
 
@@ -202,6 +247,7 @@ export async function POST(request: Request) {
 
   if (combined.length > 0) {
     const posts = await loadPostsById(payload, combined);
+    const groupMap = await loadGroupMap(payload);
     for (const id of combined) {
       const post = posts.get(id);
       if (!post) {
@@ -210,6 +256,13 @@ export async function POST(request: Request) {
       if (isPublicPostStatus(post.publish_status)) {
         return NextResponse.json(
           { error: `Post ${id} is already ${post.publish_status} and cannot be queued` },
+          { status: 400 },
+        );
+      }
+      const issues = preflightFor(post, groupMap);
+      if (issues.length > 0) {
+        return NextResponse.json(
+          { error: `Post ${id} is not ready for its chapter release: ${issues.join(' ')}` },
           { status: 400 },
         );
       }
@@ -233,7 +286,10 @@ export async function POST(request: Request) {
   });
 
   const { takenDates } = await loadPublishedToday(payload);
-  await syncQueueToPosts(payload, prev, { fictionIds, essaysIds }, new Date(), takenDates);
+  const groupMap = await loadGroupMap(payload);
+  await syncQueueToPosts(payload, prev, { fictionIds, essaysIds }, new Date(), takenDates, {
+    serialSchedules: serialSchedules(groupMap),
+  });
 
   const body2 = await buildResponse(payload);
   return NextResponse.json(body2);

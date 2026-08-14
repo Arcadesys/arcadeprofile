@@ -5,6 +5,7 @@ import type { Post } from '@/payload-types';
 
 import {
   SCHEDULE,
+  computeGroupAwareSchedule,
   computeSchedule,
   scheduledPublishDateForSlot,
   slots,
@@ -12,6 +13,7 @@ import {
   todayInSiteTz,
   weekdayLabel,
 } from './syncSchedule';
+import { zonedDateTimeToUtc } from '../serial-schedule';
 
 // 2026-05-13 is a Wednesday in America/New_York. Anchor at 16:00 UTC
 // (noon Eastern daylight time) so the date is unambiguous regardless of
@@ -140,6 +142,42 @@ test('computeSchedule with empty takenDates matches the unguarded behavior', () 
   assert.deepEqual(guarded.get('a'), baseline.get('a'));
   assert.deepEqual(guarded.get('b'), baseline.get('b'));
   assert.deepEqual(guarded.get('c'), baseline.get('c'));
+});
+
+test('chapter serials stay at 09:00 Chicago through CST and CDT', () => {
+  assert.equal(zonedDateTimeToUtc('2026-01-05', '09:00', 'America/Chicago'), '2026-01-05T15:00:00.000Z');
+  assert.equal(zonedDateTimeToUtc('2026-07-06', '09:00', 'America/Chicago'), '2026-07-06T14:00:00.000Z');
+});
+
+test('group-aware schedule gives chapter serials Monday and leaves legacy lanes intact', () => {
+  const from = new Date('2026-05-12T12:00:00.000Z'); // Tuesday morning in Chicago
+  const schedule = new Map([['new-serial', { enabled: true, cadence: 'weekly' as const, weekday: 'monday' as const, time: '09:00' }]]);
+  const map = computeGroupAwareSchedule(
+    [{ id: 'chapter-1', group: 'new-serial' }, { id: 'legacy-1', group: 'older-fiction' }],
+    [{ id: 'essay-1' }],
+    schedule,
+    from,
+    'America/Chicago',
+  );
+  assert.deepEqual(map.get('chapter-1'), {
+    date: '2026-05-18',
+    scheduledPublishDate: '2026-05-18T14:00:00.000Z',
+    weekdayLabel: 'Mon · Chapter serial',
+  });
+  assert.equal(map.get('legacy-1')?.date, '2026-05-13');
+  assert.equal(map.get('essay-1')?.date, '2026-05-12');
+});
+
+test('group-aware schedule skips an occupied Monday for a chapter serial', () => {
+  const map = computeGroupAwareSchedule(
+    [{ id: 'chapter-1', group: 'new-serial' }],
+    [],
+    new Map([['new-serial', { enabled: true, cadence: 'weekly' as const, weekday: 'monday' as const, time: '09:00' }]]),
+    new Date('2026-05-12T16:00:00.000Z'),
+    'America/Chicago',
+    new Set(['2026-05-18']),
+  );
+  assert.equal(map.get('chapter-1')?.date, '2026-05-25');
 });
 
 test('syncQueueToPosts writes full scheduled datetimes and skips past slots by default', async () => {
