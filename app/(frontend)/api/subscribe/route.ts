@@ -24,7 +24,7 @@ const subscribeSchema = z.object({
   email: z.string().min(1, 'Email is required.').email('Email must be a valid address.'),
   audiences: z
     .array(z.enum(VALID_AUDIENCES))
-    .min(1, 'Pick at least one list (All, Fiction, or Essays).')
+    .min(1, 'Pick at least one list (All, Fiction, Essays, or Arcades Lab & build logs).')
     .transform((val) => [...new Set(val)]),
   source: z.enum(VALID_SOURCES).optional(),
   magnet: z.enum(VALID_MAGNETS).optional(),

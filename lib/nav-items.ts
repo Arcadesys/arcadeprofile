@@ -10,6 +10,7 @@ export type NavItem = {
 export const DEFAULT_NAV_ITEMS: NavItem[] = [
   { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
   { id: 'portfolio', label: 'Portfolio', href: '/portfolio', isPrimary: false },
+  { id: 'lab', label: 'Lab', href: '/lab', isPrimary: false },
   { id: 'this-is-what-i-do-for-fun', label: 'Stories', href: '/this-is-what-i-do-for-fun', isPrimary: false },
   { id: 'toys', label: 'Toys', href: '/toys', isPrimary: false },
   { id: 'bio', label: 'Bio', href: '/bio', isPrimary: false },
@@ -32,6 +33,13 @@ export const PORTFOLIO_NAV_ITEM: NavItem = {
   isPrimary: false,
 };
 
+export const LAB_NAV_ITEM: NavItem = {
+  id: 'lab',
+  label: 'Lab',
+  href: '/lab',
+  isPrimary: false,
+};
+
 function insertAfter(items: NavItem[], afterHref: string, item: NavItem): NavItem[] {
   const afterIndex = items.findIndex((entry) => entry.href === afterHref);
   const insertAt = afterIndex === -1 ? 0 : afterIndex + 1;
@@ -40,15 +48,27 @@ function insertAfter(items: NavItem[], afterHref: string, item: NavItem): NavIte
 
 export function ensureToysNavItem(items: NavItem[]): NavItem[] {
   if (items.some((item) => item.href === TOYS_NAV_ITEM.href)) return items;
-  const afterHref = items.some((item) => item.href === '/portfolio')
-    ? '/portfolio'
-    : '/projects';
+  const afterHref = items.some((item) => item.href === '/this-is-what-i-do-for-fun')
+    ? '/this-is-what-i-do-for-fun'
+    : items.some((item) => item.href === '/lab')
+      ? '/lab'
+      : items.some((item) => item.href === '/portfolio')
+        ? '/portfolio'
+        : '/projects';
   return insertAfter(items, afterHref, TOYS_NAV_ITEM);
 }
 
 export function ensurePortfolioNavItem(items: NavItem[]): NavItem[] {
   if (items.some((item) => item.href === PORTFOLIO_NAV_ITEM.href)) return items;
   return insertAfter(items, '/projects', PORTFOLIO_NAV_ITEM);
+}
+
+export function ensureLabNavItem(items: NavItem[]): NavItem[] {
+  if (items.some((item) => item.href === LAB_NAV_ITEM.href)) return items;
+  const afterHref = items.some((item) => item.href === '/portfolio')
+    ? '/portfolio'
+    : '/projects';
+  return insertAfter(items, afterHref, LAB_NAV_ITEM);
 }
 
 export const COLLECTION_NAV_ITEM: NavItem = {
@@ -60,16 +80,20 @@ export const COLLECTION_NAV_ITEM: NavItem = {
 
 export function ensureCollectionNavItem(items: NavItem[]): NavItem[] {
   if (items.some((item) => item.href === COLLECTION_NAV_ITEM.href)) return items;
-  const afterHref = items.some((item) => item.href === '/portfolio')
-    ? '/portfolio'
-    : '/projects';
+  const afterHref = items.some((item) => item.href === '/lab')
+    ? '/lab'
+    : items.some((item) => item.href === '/portfolio')
+      ? '/portfolio'
+      : '/projects';
   return insertAfter(items, afterHref, COLLECTION_NAV_ITEM);
 }
 
-// Applied outermost so Stories lands directly after Portfolio regardless of
-// which of the two the CMS already supplied.
+// Keep source-controlled destinations available when the CMS navigation has
+// not been updated yet. Existing CMS entries retain their configured labels.
 export function ensureCoreNavItems(items: NavItem[]): NavItem[] {
-  return ensureCollectionNavItem(ensureToysNavItem(ensurePortfolioNavItem(items)));
+  return ensureToysNavItem(
+    ensureCollectionNavItem(ensureLabNavItem(ensurePortfolioNavItem(items))),
+  );
 }
 
 type NavPayload = Pick<Payload, 'find'>;

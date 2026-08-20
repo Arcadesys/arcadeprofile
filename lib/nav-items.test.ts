@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   ensureCollectionNavItem,
   ensureCoreNavItems,
+  ensureLabNavItem,
   ensurePortfolioNavItem,
   ensureToysNavItem,
   loadVisibleNavItems,
@@ -71,7 +72,17 @@ test('ensurePortfolioNavItem inserts Portfolio after Projects', () => {
   assert.deepEqual(items.map((item) => item.href), ['/projects', '/portfolio', '/bio']);
 });
 
-test('ensureCoreNavItems keeps Portfolio, Stories, and Toys in a predictable order', () => {
+test('ensureLabNavItem inserts Lab after Portfolio', () => {
+  const items = ensureLabNavItem([
+    { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
+    { id: 'portfolio', label: 'Portfolio', href: '/portfolio', isPrimary: false },
+    { id: 'bio', label: 'Bio', href: '/bio', isPrimary: false },
+  ]);
+
+  assert.deepEqual(items.map((item) => item.href), ['/projects', '/portfolio', '/lab', '/bio']);
+});
+
+test('ensureCoreNavItems keeps Portfolio, Lab, Stories, and Toys in a predictable order', () => {
   const items = ensureCoreNavItems([
     { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
     { id: 'bio', label: 'Bio', href: '/bio', isPrimary: false },
@@ -79,7 +90,7 @@ test('ensureCoreNavItems keeps Portfolio, Stories, and Toys in a predictable ord
 
   assert.deepEqual(
     items.map((item) => item.href),
-    ['/projects', '/portfolio', '/this-is-what-i-do-for-fun', '/toys', '/bio'],
+    ['/projects', '/portfolio', '/lab', '/this-is-what-i-do-for-fun', '/toys', '/bio'],
   );
 });
 

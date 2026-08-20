@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import SubscribeCTA from '@/app/components/SubscribeCTA';
+import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 import { todayInSiteTz } from '@/lib/site-time';
 import styles from './ProjectsIndex.module.css';
 
@@ -60,9 +60,6 @@ const FILTER_LABELS: Array<{ value: FilterValue; label: string }> = [
   { value: 't', label: 'Tools' },
   { value: 'a', label: 'Audio/Video' },
 ];
-
-const SUBSCRIBE_BLURB =
-  "New fiction & essays delivered the moment they publish — fiction Mon/Wed/Fri, essays Tue/Thu. New here? Grab La Ligne du Marais — a Paris noir short — when you sign up.";
 
 export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
   const [filter, setFilter] = useState<FilterValue>('all');
@@ -260,13 +257,9 @@ export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
       ) : null}
 
       <section className={styles.subscribe} id="subscribe">
-        <SubscribeCTA
+        <ActiveCampaignForm
           source="projects"
           magnet="story"
-          eyebrow="▸ don't lose the thread"
-          heading="Subscribe and keep up with what's shipping."
-          blurb={SUBSCRIBE_BLURB}
-          buttonLabel="Send updates"
         />
       </section>
     </main>

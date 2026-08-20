@@ -6,7 +6,7 @@ import { logger } from '@/lib/logger';
 import { buildGroupIntroUrl } from '@/lib/post-url';
 import { formatSiteDate } from '@/lib/site-time';
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext';
-import SubscribeCTA from '@/app/components/SubscribeCTA';
+import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -133,13 +133,10 @@ export default async function LatestPage() {
       </ol>
 
       <section style={{ margin: '4rem 0 0' }}>
-        <SubscribeCTA
+        <ActiveCampaignForm
           source="latest"
           magnet="story"
-          variant="compact"
-          heading="Read one. Want the next?"
-          blurb="Every new installment as it lands. Sign up and I'll send La Ligne du Marais — a Paris noir short — right now, plus everything that follows."
-          buttonLabel="Send the story"
+          presentation="compact"
         />
       </section>
     </main>

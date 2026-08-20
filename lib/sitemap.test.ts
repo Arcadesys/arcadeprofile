@@ -38,6 +38,11 @@ test('buildStaticSitemapEntries maps configured routes without synthetic modific
     8,
   );
   assert.equal(entries.find(entry => entry.url.endsWith('/projects'))?.priority, 0.9);
+  assert.equal(entries.find(entry => entry.url.endsWith('/lab'))?.priority, 0.9);
+  assert.equal(entries.some(entry => entry.url.endsWith('/lab/wizwor')), true);
+  assert.equal(entries.some(entry => entry.url.endsWith('/lab/toontok')), true);
+  assert.equal(entries.some(entry => entry.url.endsWith('/lab/arcadeprofile')), true);
+  assert.equal(entries.some(entry => entry.url.endsWith('/lab/conductor')), true);
   assert.equal(entries.every(entry => entry.lastModified === undefined), true);
 });
 

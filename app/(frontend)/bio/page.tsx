@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import SubscribeCTA from '@/app/components/SubscribeCTA';
+import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 
 export const metadata: Metadata = {
   title: 'Bio',
@@ -229,13 +229,10 @@ export default function BioPage() {
       {/* Hear from me */}
       <section style={{ marginBottom: '2.5rem' }}>
         <h2 style={sectionHeadingStyle}>Hear from me directly</h2>
-        <SubscribeCTA
+        <ActiveCampaignForm
           source="bio"
           magnet="story"
-          variant="compact"
-          heading="Want to hear from me directly?"
-          blurb="Subscribe and I'll send La Ligne du Marais — a Paris noir short — right now. After that, every installment as it lands."
-          buttonLabel="Send me the story"
+          presentation="compact"
         />
       </section>
 

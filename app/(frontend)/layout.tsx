@@ -9,7 +9,7 @@ import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import { JsonLd } from '@/lib/structured-data';
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://www.thearcades.me').replace(/\/+$/, '');
 const SITE_NAME = 'Free Play Publishing';
 const SITE_TITLE_DEFAULT = 'FREE PLAY PUBLISHING — Austen Tucker';
 const SITE_DESCRIPTION = 'Serialized fiction, essays on AI and creativity, and weird little worlds by Austen Tucker. New fiction Mon/Wed/Fri, essays Tue/Thu.';

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import SubscribeCTA from '@/app/components/SubscribeCTA';
+import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 import { books as bookData } from '@/data/books';
 
 export const metadata: Metadata = {
@@ -53,16 +53,13 @@ export default function StorePage() {
           Books by Austen Tucker-Crowder. Most are available on Amazon; one lives at FurPlanet.
         </p>
 
-        <div style={{ maxWidth: '680px', margin: '0 auto 2.5rem' }}>
-          <SubscribeCTA
+        <section id="subscribe" style={{ maxWidth: '680px', margin: '0 auto 2.5rem' }}>
+          <ActiveCampaignForm
             source="store-top"
             magnet="story"
-            variant="compact"
-            heading="Not sure where to start?"
-            blurb="Join the list and I'll send La Ligne du Marais — a Paris noir short — first. If it lands, the books are waiting."
-            buttonLabel="Send the story"
+            presentation="compact"
           />
-        </div>
+        </section>
 
         <div className="space-y-6">
           {books.map((book) => (
@@ -102,16 +99,10 @@ export default function StorePage() {
           ))}
         </div>
 
-        <div style={{ maxWidth: '680px', margin: '3rem auto 0' }}>
-          <SubscribeCTA
-            source="store-bottom"
-            magnet="story"
-            variant="compact"
-            heading="Want a taste before you buy?"
-            blurb="Subscribe and I'll send La Ligne du Marais — a Paris noir short — to your inbox right now."
-            buttonLabel="Send the story"
-          />
-        </div>
+        <p style={{ maxWidth: '680px', margin: '3rem auto 0', fontSize: '1.125rem' }}>
+          Want La Ligne du Marais before you buy?{' '}
+          <a href="#subscribe">Return to the signup form.</a>
+        </p>
       </div>
     </div>
   );
