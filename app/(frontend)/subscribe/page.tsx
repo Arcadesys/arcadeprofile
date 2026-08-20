@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import SubscribeCTA from '@/app/components/SubscribeCTA';
+import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 
 export const metadata: Metadata = {
   title: 'Subscribe',
@@ -82,13 +82,9 @@ export default function SubscribePage() {
         </p>
       </section>
 
-      <SubscribeCTA
+      <ActiveCampaignForm
         source="subscribe-page"
         magnet="story"
-        eyebrow="Join the list"
-        heading="Get La Ligne du Marais + everything after"
-        blurb="La Ligne du Marais — a Paris noir short — to start. After that, every installment as it publishes: fiction Mon/Wed/Fri, essays Tue/Thu. All free."
-        buttonLabel="Send me the story"
       />
     </main>
   );

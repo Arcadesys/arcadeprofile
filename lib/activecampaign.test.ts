@@ -17,6 +17,7 @@ function setAcEnv(overrides: Record<string, string | undefined> = {}) {
     AC_LIST_ID_ALL_PERPOST: '7',
     AC_LIST_ID_FICTION_PERPOST: '9',
     AC_LIST_ID_ESSAYS_PERPOST: '10',
+    AC_LIST_ID_LAB_PERPOST: '12',
   };
   for (const [k, v] of Object.entries({ ...defaults, ...overrides })) {
     if (v === undefined) {
@@ -34,6 +35,7 @@ function clearAcEnv() {
     'AC_LIST_ID_ALL_PERPOST',
     'AC_LIST_ID_FICTION_PERPOST',
     'AC_LIST_ID_ESSAYS_PERPOST',
+    'AC_LIST_ID_LAB_PERPOST',
     'ACTIVECAMPAIGN_API_URL',
     'ACTIVECAMPAIGN_API_KEY',
   ]) {
@@ -57,6 +59,16 @@ test('getAudienceListId reads per-post audience list env vars', () => {
   assert.equal(getAudienceListId('all'), '7');
   assert.equal(getAudienceListId('fiction'), '9');
   assert.equal(getAudienceListId('essays'), '10');
+  assert.equal(getAudienceListId('lab'), '12');
+});
+
+test('getAudienceListId reports the Lab configuration key when it is missing', () => {
+  setAcEnv({ AC_LIST_ID_LAB_PERPOST: undefined });
+
+  assert.throws(
+    () => getAudienceListId('lab'),
+    /Missing AC_LIST_ID_LAB_PERPOST environment variable/,
+  );
 });
 
 test('resolveAudienceListIds targets all plus the category-specific list', () => {

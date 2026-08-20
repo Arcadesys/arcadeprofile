@@ -22,6 +22,11 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
     changeFrequency: 'monthly' as const,
     priority: 0.8,
   })),
+  { path: '/lab', changeFrequency: 'monthly', priority: 0.9 },
+  { path: '/lab/wizwor', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/lab/toontok', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/lab/arcadeprofile', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/lab/conductor', changeFrequency: 'monthly', priority: 0.8 },
   { path: COLLECTION_PATH, changeFrequency: 'monthly', priority: 0.9 },
   ...COLLECTION.map((story) => ({
     path: `${COLLECTION_PATH}/${story.slug}`,

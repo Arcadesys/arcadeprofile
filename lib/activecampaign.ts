@@ -4,6 +4,7 @@
  */
 
 import { parsePositiveIntegerId as parsePositiveIntegerIdValue } from '@/lib/positive-integer-id';
+import type { Audience } from '@/lib/subscribe-types';
 
 const REQUEST_TIMEOUT_MS = 15_000;
 
@@ -46,12 +47,11 @@ function getApiKey(): string {
   return key;
 }
 
-export type Audience = 'all' | 'fiction' | 'essays';
-
 const AUDIENCE_ENV: Record<Audience, string> = {
   all: 'AC_LIST_ID_ALL_PERPOST',
   fiction: 'AC_LIST_ID_FICTION_PERPOST',
   essays: 'AC_LIST_ID_ESSAYS_PERPOST',
+  lab: 'AC_LIST_ID_LAB_PERPOST',
 };
 
 export function getAudienceListId(audience: Audience): string {

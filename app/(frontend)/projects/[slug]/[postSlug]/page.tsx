@@ -10,7 +10,7 @@ import payloadConfig from '@payload-config';
 import { projectCategoryLabels } from '@/lib/project-model';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
-import SubscribeCTA from '@/app/components/SubscribeCTA';
+import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 import ShareLinks from '@/app/components/ShareLinks';
 import PostReactions from '@/app/components/PostReactions';
 import RelatedPosts from '@/app/components/RelatedPosts';
@@ -322,12 +322,9 @@ export default async function ProjectPostPage({ params }: Props) {
 
         <RelatedPosts items={relatedPosts} />
 
-        <SubscribeCTA
+        <ActiveCampaignForm
           source="post"
           magnet="story"
-          heading="Liked this? Read it as it arrives."
-          blurb="Every new chapter the moment it drops. Sign up and I'll send La Ligne du Marais — a Paris noir short — to start, then the next chapter as it publishes."
-          buttonLabel="Send me the story"
         />
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>

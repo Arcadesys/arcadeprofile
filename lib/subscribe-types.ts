@@ -1,4 +1,4 @@
-export const VALID_AUDIENCES = ['all', 'fiction', 'essays'] as const;
+export const VALID_AUDIENCES = ['all', 'fiction', 'essays', 'lab'] as const;
 export type Audience = (typeof VALID_AUDIENCES)[number];
 
 export const VALID_SOURCES = [
