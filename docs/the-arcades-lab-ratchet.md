@@ -24,7 +24,8 @@ The public Lab index presents exactly WizWor, ToonTok, ArcadeProfile, and Conduc
 - `npm run build` with the existing root checkout environment — pass; all five Lab routes and `/subscribe/thanks` were emitted.
 - Browser check at 1280×720 and 390×844 — pass for `/subscribe`, `/bio`, `/store`, `/subscribe/thanks?magnet=story`, the footer form, and all five Lab routes: one Form 7 per page, 18px form text, 28px checkboxes, 56px email/submit controls, 4px focus, no horizontal overflow, and Lab external links only after Explore.
 - Local `/projects` and `/latest` browser checks remain blocked by the existing database missing `groups.serial_release_schedule_enabled`; the production build uses the site's existing static-sitemap fallback and succeeds.
-- No ActiveCampaign account mutation or real contact submission was made.
+- Protected preview: `https://arcadeprofile-6xjt4tjyw-austen-tuckers-projects.vercel.app` was built and accessed through Vercel's deployment-protection flow for `/lab`, `/lab/conductor`, `/subscribe`, and `/subscribe/thanks?magnet=story`.
+- No production deployment, ActiveCampaign account mutation, or real contact submission was made.
 
 ## Screenshot asset gaps
 
