@@ -1,0 +1,172 @@
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import path from 'node:path';
+
+import matter from 'gray-matter';
+import { z } from 'zod';
+
+/**
+ * This module intentionally uses Node's filesystem APIs. Keep it in server
+ * code: Markdown files are the source of truth, not client-bundle data.
+ */
+
+export const DEFAULT_MARKDOWN_POSTS_DIRECTORY = path.join(process.cwd(), 'content', 'posts');
+
+const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const RFC3339_OFFSET_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+
+function isRfc3339OffsetDateTime(value: string): boolean {
+  const match = RFC3339_OFFSET_RE.exec(value);
+  if (!match) return false;
+
+  const [, yearText, monthText, dayText, hourText, minuteText, secondText] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const hour = Number(hourText);
+  const minute = Number(minuteText);
+  const second = Number(secondText);
+  const calendarDate = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    calendarDate.getUTCFullYear() === year &&
+    calendarDate.getUTCMonth() === month - 1 &&
+    calendarDate.getUTCDate() === day &&
+    hour <= 23 &&
+    minute <= 59 &&
+    second <= 59 &&
+    Number.isFinite(Date.parse(value))
+  );
+}
+
+const rfc3339OffsetDateTime = z
+  .string()
+  .refine(isRfc3339OffsetDateTime, 'must be an RFC 3339 date-time with a Z or numeric offset');
+
+const slug = z.string().regex(SLUG_RE, 'must be lowercase kebab-case');
+const nonEmptyText = z.string().trim().min(1, 'must not be empty');
+
+export const markdownPostFrontmatterSchema = z
+  .object({
+    id: nonEmptyText,
+    title: nonEmptyText,
+    slug,
+    group: slug,
+    publishDate: rfc3339OffsetDateTime,
+    order: z.number().int().positive().optional(),
+    updatedDate: rfc3339OffsetDateTime.optional(),
+    excerpt: nonEmptyText.optional(),
+    tags: z.array(nonEmptyText).optional(),
+    hero: z
+      .object({
+        src: nonEmptyText,
+        alt: nonEmptyText,
+      })
+      .strict()
+      .optional(),
+    seo: z
+      .object({
+        title: nonEmptyText.optional(),
+        description: nonEmptyText.optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();
+
+export type MarkdownPostFrontmatter = z.infer<typeof markdownPostFrontmatterSchema>;
+
+export interface MarkdownPost extends MarkdownPostFrontmatter {
+  body: string;
+  filePath: string;
+}
+
+export interface LoadMarkdownPostsOptions {
+  /** Defaults to content/posts; tests and migration tools should inject a fixture directory. */
+  contentDirectory?: string;
+}
+
+export function compareMarkdownPosts(a: MarkdownPost, b: MarkdownPost): number {
+  if (a.group !== b.group) return a.group.localeCompare(b.group);
+
+  const aOrder = a.order ?? Number.POSITIVE_INFINITY;
+  const bOrder = b.order ?? Number.POSITIVE_INFINITY;
+  if (aOrder !== bOrder) return aOrder - bOrder;
+
+  const publishedDifference = Date.parse(a.publishDate) - Date.parse(b.publishDate);
+  if (publishedDifference !== 0) return publishedDifference;
+
+  return a.slug.localeCompare(b.slug);
+}
+
+/**
+ * Load and validate every Markdown post. Each .md file must be directly under
+ * content/posts/<group>/ and its filename and frontmatter must agree.
+ */
+export function loadMarkdownPosts(options: LoadMarkdownPostsOptions = {}): MarkdownPost[] {
+  const contentDirectory = options.contentDirectory ?? DEFAULT_MARKDOWN_POSTS_DIRECTORY;
+  if (!statSync(contentDirectory, { throwIfNoEntry: false })?.isDirectory()) return [];
+
+  const posts: MarkdownPost[] = [];
+  const seenIds = new Map<string, string>();
+  const seenSlugs = new Map<string, string>();
+
+  for (const entry of readdirSync(contentDirectory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+    const entryPath = path.join(contentDirectory, entry.name);
+    if (entry.isFile() && entry.name.endsWith('.md')) {
+      throw new Error(`Markdown post ${entryPath} must be inside a group directory.`);
+    }
+    if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
+
+    for (const file of readdirSync(entryPath, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const filePath = path.join(entryPath, file.name);
+      if (file.isDirectory()) {
+        throw new Error(`Nested Markdown directory ${filePath} is not supported.`);
+      }
+      if (!file.isFile() || !file.name.endsWith('.md')) continue;
+
+      const { data, content } = matter(readFileSync(filePath, 'utf8'));
+      const parsed = markdownPostFrontmatterSchema.safeParse(data);
+      if (!parsed.success) {
+        throw new Error(`Invalid frontmatter in ${filePath}: ${z.prettifyError(parsed.error)}`);
+      }
+
+      const expectedSlug = file.name.slice(0, -'.md'.length);
+      if (parsed.data.slug !== expectedSlug) {
+        throw new Error(`Post ${filePath} has slug ${parsed.data.slug}; expected ${expectedSlug} from its filename.`);
+      }
+      if (parsed.data.group !== entry.name) {
+        throw new Error(`Post ${filePath} has group ${parsed.data.group}; expected ${entry.name} from its directory.`);
+      }
+      if (!content.trim()) {
+        throw new Error(`Post ${filePath} must have a nonempty Markdown body.`);
+      }
+      const existingIdPath = seenIds.get(parsed.data.id);
+      if (existingIdPath) {
+        throw new Error(`Duplicate Markdown post id ${parsed.data.id} in ${filePath} and ${existingIdPath}.`);
+      }
+      const existingSlugPath = seenSlugs.get(parsed.data.slug);
+      if (existingSlugPath) {
+        throw new Error(`Duplicate Markdown post slug ${parsed.data.slug} in ${filePath} and ${existingSlugPath}.`);
+      }
+
+      seenIds.set(parsed.data.id, filePath);
+      seenSlugs.set(parsed.data.slug, filePath);
+      posts.push({ ...parsed.data, body: content.trim(), filePath });
+    }
+  }
+
+  return posts.sort(compareMarkdownPosts);
+}
+
+/**
+ * Publish date is the sole visibility control. A future post is absent from
+ * all public consumers; callers can pass a fixed time for deterministic tests.
+ */
+export function selectPublicMarkdownPosts(posts: readonly MarkdownPost[], now: Date = new Date()): MarkdownPost[] {
+  const nowMs = now.getTime();
+  if (!Number.isFinite(nowMs)) throw new Error('Public-post selector requires a valid current time.');
+
+  return posts
+    .filter((post) => Date.parse(post.publishDate) <= nowMs)
+    .sort(compareMarkdownPosts);
+}
