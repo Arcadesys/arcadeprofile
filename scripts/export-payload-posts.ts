@@ -1,6 +1,8 @@
 /** Read-only Payload REST inventory plus a dry-run-by-default staging exporter. */
 import { collectPayloadPages, exportPayloadPosts, type PayloadGroup, type PayloadPost } from '../lib/payload-markdown-export';
 import { classifyPayloadExportFailure, payloadExportHeaders, payloadMeResponseIsAuthenticated, resolvePayloadExportAuth } from '../lib/payload-export-auth';
+import mediaAltById from '../data/payload-media-alt.json';
+import mediaUrlById from '../data/payload-media-url.json';
 
 function option(name: string): string | undefined {
   const index = process.argv.indexOf(name);
@@ -45,7 +47,7 @@ async function main(): Promise<void> {
   await assertCredentialIsAuthenticated();
   const [groups, posts] = await Promise.all([fetchAll<PayloadGroup>('groups'), fetchAll<PayloadPost>('posts')]);
   // Do not print the token or documents: reports retain hashes and safe metadata only.
-  await exportPayloadPosts({ posts, groups, dryRun: !write, ...(write ? { stagingDirectory } : {}) });
+  await exportPayloadPosts({ posts, groups, mediaAltById, mediaUrlById, dryRun: !write, ...(write ? { stagingDirectory } : {}) });
 }
 
 main().catch((error: unknown) => { console.error(error instanceof Error ? error.message : 'Payload export failed'); process.exitCode = 1; });

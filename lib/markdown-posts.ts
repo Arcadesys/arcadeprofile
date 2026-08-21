@@ -53,7 +53,7 @@ export const markdownPostFrontmatterSchema = z
     slug,
     group: slug,
     publishDate: rfc3339OffsetDateTime,
-    order: z.number().int().positive().optional(),
+    order: z.number().int().nonnegative().optional(),
     updatedDate: rfc3339OffsetDateTime.optional(),
     excerpt: nonEmptyText.optional(),
     tags: z.array(nonEmptyText).optional(),
