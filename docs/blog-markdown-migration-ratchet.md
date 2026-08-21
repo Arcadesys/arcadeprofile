@@ -89,8 +89,9 @@ written into the public Markdown runtime. This preserves the rule that a past
 
 Published and sent posts may export when their groups, RFC 3339 dates, semantic
 Lexical nodes, and media alt text pass validation. Drafts remain inventory only.
-Scheduled posts require a future `scheduledPublishDate` exactly matching their
-public date; otherwise they are blocked. Unsupported nodes, duplicate IDs/slugs,
+Scheduled posts require a future `scheduledPublishDate`, which becomes their
+Markdown `publishDate`; otherwise they are blocked. The separate Payload display
+date is not a scheduling timestamp. Unsupported nodes, duplicate IDs/slugs,
 unresolved groups, invalid dates, and legacy media URLs fail closed and appear in
 the report instead of becoming Markdown.
 
