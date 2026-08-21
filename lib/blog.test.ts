@@ -19,9 +19,10 @@ test('Markdown blog adapter uses one validated snapshot for posts and groups', (
   assert.equal(snapshot.groups[0]?.posts[0]?.markdownBody?.startsWith('# First'), true);
 });
 
-test('blog source defaults to Payload and rejects ambiguous values', () => {
-  assert.equal(getBlogSource(undefined), 'payload');
+test('blog source defaults to Markdown, allows Payload rollback, and rejects ambiguous values', () => {
+  assert.equal(getBlogSource(undefined), 'markdown');
   assert.equal(getBlogSource(' markdown '), 'markdown');
+  assert.equal(getBlogSource(' payload '), 'payload');
   assert.throws(() => getBlogSource('auto'), /must be payload or markdown/);
 });
 

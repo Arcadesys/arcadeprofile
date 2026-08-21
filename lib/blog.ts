@@ -68,7 +68,7 @@ type BlogPayload = Pick<Payload, 'find'>;
 export type BlogSource = 'payload' | 'markdown';
 
 export function getBlogSource(value = process.env.BLOG_SOURCE): BlogSource {
-  const normalized = value?.trim().toLowerCase() || 'payload';
+  const normalized = value?.trim().toLowerCase() || 'markdown';
   if (normalized !== 'payload' && normalized !== 'markdown') {
     throw new Error(`BLOG_SOURCE must be payload or markdown; received ${JSON.stringify(value)}.`);
   }
