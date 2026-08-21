@@ -37,6 +37,7 @@ export interface PayloadPost {
 }
 
 export interface PayloadGroup {
+  id?: unknown;
   slug?: unknown;
   title?: unknown;
   description?: unknown;
@@ -307,8 +308,11 @@ function groupManifest(group: PayloadGroup): string | undefined {
   return `${JSON.stringify(parsed.data, null, 2)}\n`;
 }
 
-function groupSlug(value: unknown): string | undefined {
-  return string(typeof value === 'string' ? value : object(value)?.slug);
+function groupSlug(value: unknown, groupById: ReadonlyMap<string, string>): string | undefined {
+  const populatedSlug = string(object(value)?.slug);
+  if (populatedSlug) return populatedSlug;
+  const scalar = typeof value === 'string' || typeof value === 'number' ? String(value) : undefined;
+  return scalar ? groupById.get(scalar) ?? scalar : undefined;
 }
 
 function heroFrom(post: PayloadPost): PayloadMedia | undefined {
@@ -336,6 +340,11 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
   const now = options.now ?? new Date();
   if (!Number.isFinite(now.getTime())) throw new Error('Exporter requires a valid current time.');
   const groups = new Set(options.groups.map((group) => string(group.slug)).filter((slug): slug is string => Boolean(slug)));
+  const groupById = new Map(
+    options.groups
+      .map((group) => [group.id == null ? undefined : String(group.id), string(group.slug)] as const)
+      .filter((entry): entry is readonly [string, string] => Boolean(entry[0] && entry[1])),
+  );
   const records: ExportRecord[] = [];
   const files = new Map<string, string>();
   const errors: string[] = [];
@@ -369,7 +378,7 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
     sourceHashes[id] = sourceHash;
     const status = string(post.publish_status) ?? 'missing';
     const slug = string(post.slug);
-    const group = groupSlug(post.group);
+    const group = groupSlug(post.group, groupById);
     byStatus[status] = (byStatus[status] ?? 0) + 1;
     if (group) byGroup[group] = (byGroup[group] ?? 0) + 1;
     const record: ExportRecord = { id, slug, group, status, disposition: 'blocked', sourceHash };

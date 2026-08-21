@@ -1,6 +1,6 @@
 /** Read-only Payload REST inventory plus a dry-run-by-default staging exporter. */
 import { collectPayloadPages, exportPayloadPosts, type PayloadGroup, type PayloadPost } from '../lib/payload-markdown-export';
-import { classifyPayloadExportFailure, payloadExportHeaders, resolvePayloadExportAuth } from '../lib/payload-export-auth';
+import { classifyPayloadExportFailure, payloadExportHeaders, payloadMeResponseIsAuthenticated, resolvePayloadExportAuth } from '../lib/payload-export-auth';
 
 function option(name: string): string | undefined {
   const index = process.argv.indexOf(name);
@@ -31,7 +31,18 @@ async function fetchAll<T>(collection: string): Promise<T[]> {
   });
 }
 
+async function assertCredentialIsAuthenticated(): Promise<void> {
+  if (auth.scheme === 'none') return;
+  const response = await fetch(`${baseUrl}/api/users/me`, { headers: payloadExportHeaders(auth) });
+  const body = await response.json().catch(() => null) as unknown;
+  if (!response.ok) throw new Error(`Payload authentication check failed: ${classifyPayloadExportFailure(response.status)}`);
+  if (!payloadMeResponseIsAuthenticated(body)) {
+    throw new Error('Payload export credential was not recognized; refusing to label an anonymous inventory as authenticated.');
+  }
+}
+
 async function main(): Promise<void> {
+  await assertCredentialIsAuthenticated();
   const [groups, posts] = await Promise.all([fetchAll<PayloadGroup>('groups'), fetchAll<PayloadPost>('posts')]);
   // Do not print the token or documents: reports retain hashes and safe metadata only.
   await exportPayloadPosts({ posts, groups, dryRun: !write, ...(write ? { stagingDirectory } : {}) });
