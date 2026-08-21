@@ -18,13 +18,22 @@ interface SubscribeCTAProps {
 const SHARE_URL = 'https://thearcades.me';
 const SHARE_TEXT = 'Serialized fiction by email — every installment as it lands. Subscribe to Free Play Publishing:';
 
-const SUCCESS_COPY = '✓ You’re in. First installment is on its way.';
+const SUCCESS_COPY = '✓ You’re in. Email preferences saved';
 
 const AUDIENCE_OPTIONS: Array<{ value: Audience; label: string; hint: string }> = [
   { value: 'all', label: 'All', hint: 'fiction & essays' },
   { value: 'fiction', label: 'Fiction', hint: 'serialized stories' },
   { value: 'essays', label: 'Essays', hint: 'on writing, tools, oddities' },
+  {
+    value: 'lab',
+    label: 'Arcades Lab & build logs',
+    hint: 'experiments, prototypes, and what I learn building them',
+  },
 ];
+
+function audienceLabel(audience: Audience): string {
+  return AUDIENCE_OPTIONS.find((option) => option.value === audience)?.label ?? audience;
+}
 
 export default function SubscribeCTA({
   variant = 'default',
@@ -37,12 +46,14 @@ export default function SubscribeCTA({
 }: SubscribeCTAProps) {
   const inputId = useId();
   const groupId = useId();
+  const errorId = useId();
   const [email, setEmail] = useState('');
   const [audiences, setAudiences] = useState<Set<Audience>>(() => new Set(['all']));
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle');
   const [magnetFiles, setMagnetFiles] = useState<Array<{ url: string; filename: string; label: string }>>([]);
+  const [subscribedAudiences, setSubscribedAudiences] = useState<Audience[]>([]);
   const [partialFailures, setPartialFailures] = useState<Audience[]>([]);
 
   function toggleAudience(audience: Audience) {
@@ -52,13 +63,16 @@ export default function SubscribeCTA({
         next.delete(audience);
         return next;
       }
-      // "All" is the union of Fiction and Essays — checking it clears the
-      // others, and checking either of the others clears "All".
+      // "All" remains the union of Fiction and Essays. Lab is an independent
+      // lane, so it can be combined with All or either editorial preference.
       if (audience === 'all') {
-        next.clear();
+        next.delete('fiction');
+        next.delete('essays');
         next.add('all');
-      } else {
+      } else if (audience === 'fiction' || audience === 'essays') {
         next.delete('all');
+        next.add(audience);
+      } else {
         next.add(audience);
       }
       return next;
@@ -92,6 +106,7 @@ export default function SubscribeCTA({
       }
       const requested = Array.from(audiences);
       const subscribed: Audience[] = Array.isArray(data.subscribed) ? data.subscribed : requested;
+      setSubscribedAudiences(subscribed);
       setPartialFailures(requested.filter((a) => !subscribed.includes(a)));
       setStatus('success');
     } catch (err) {
@@ -121,6 +136,7 @@ export default function SubscribeCTA({
 
   const isCompact = variant === 'compact';
   const margin = isCompact ? '0' : '3rem 0 0';
+  const submitLabel = audiences.has('lab') ? 'Save my preferences' : buttonLabel;
 
   return (
     <aside style={{ margin }}>
@@ -154,24 +170,33 @@ export default function SubscribeCTA({
 
       {status === 'success' ? (
         <div>
-          <p style={{
-            fontSize: '0.95rem',
-            color: 'var(--neon-pink)',
-            fontFamily: 'var(--font-mono)',
-            margin: '0 0 0.75rem',
-          }}>
+          <p
+            role="status"
+            style={{
+              fontSize: '1rem',
+              color: 'var(--neon-pink)',
+              fontFamily: 'var(--font-mono)',
+              margin: '0 0 0.75rem',
+            }}
+          >
             {SUCCESS_COPY}
+            {subscribedAudiences.length > 0
+              ? `: ${subscribedAudiences.map(audienceLabel).join(' + ')}.`
+              : '.'}
           </p>
           {partialFailures.length > 0 && (
-            <p style={{
-              fontSize: '0.82rem',
-              color: 'var(--fg-muted)',
-              margin: '0 0 0.75rem',
-              lineHeight: 1.55,
-            }}>
+            <p
+              role="alert"
+              style={{
+                fontSize: '1rem',
+                color: 'var(--fg-muted)',
+                margin: '0 0 0.75rem',
+                lineHeight: 1.55,
+              }}
+            >
               Heads-up: we couldn&apos;t add you to{' '}
               <strong style={{ color: 'var(--fg)' }}>
-                {partialFailures.map((a) => a[0].toUpperCase() + a.slice(1)).join(' + ')}
+                {partialFailures.map(audienceLabel).join(' + ')}
               </strong>{' '}
               just now. Try again in a minute, or reply to any email and I&apos;ll fix it by hand.
             </p>
@@ -241,7 +266,11 @@ export default function SubscribeCTA({
         </div>
       ) : (
         <>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-2"
+            aria-busy={status === 'loading'}
+          >
             <fieldset
               aria-labelledby={`${groupId}-legend`}
               style={{ border: 'none', padding: 0, margin: '0 0 0.25rem' }}
@@ -249,7 +278,7 @@ export default function SubscribeCTA({
               <legend
                 id={`${groupId}-legend`}
                 style={{
-                  fontSize: '0.72rem',
+                  fontSize: '1rem',
                   fontFamily: 'var(--font-mono)',
                   letterSpacing: '0.08em',
                   color: 'var(--fg-muted)',
@@ -266,9 +295,10 @@ export default function SubscribeCTA({
                     key={opt.value}
                     style={{
                       display: 'flex',
-                      alignItems: 'baseline',
-                      gap: '0.55rem',
-                      fontSize: '0.88rem',
+                      alignItems: 'flex-start',
+                      gap: '0.7rem',
+                      fontSize: '1.05rem',
+                      lineHeight: 1.5,
                       cursor: 'pointer',
                     }}
                   >
@@ -277,11 +307,17 @@ export default function SubscribeCTA({
                       checked={audiences.has(opt.value)}
                       onChange={() => toggleAudience(opt.value)}
                       disabled={status === 'loading'}
-                      style={{ accentColor: 'var(--neon-pink)' }}
+                      style={{
+                        accentColor: 'var(--neon-pink)',
+                        width: '1.25rem',
+                        height: '1.25rem',
+                        marginTop: '0.15rem',
+                        flex: '0 0 auto',
+                      }}
                     />
                     <span>
                       <span style={{ fontWeight: 600 }}>{opt.label}</span>{' '}
-                      <span style={{ color: 'var(--fg-muted)', fontSize: '0.8rem' }}>
+                      <span style={{ color: 'var(--fg-muted)', fontSize: '1rem' }}>
                         ({opt.hint})
                       </span>
                     </span>
@@ -291,8 +327,11 @@ export default function SubscribeCTA({
             </fieldset>
 
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-              <label htmlFor={inputId} style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
-                Your email address
+              <label
+                htmlFor={inputId}
+                style={{ width: '100%', fontSize: '1rem', fontWeight: 600 }}
+              >
+                Email address
               </label>
               <input
                 id={inputId}
@@ -304,16 +343,18 @@ export default function SubscribeCTA({
                 autoComplete="email"
                 inputMode="email"
                 disabled={status === 'loading'}
+                aria-invalid={status === 'error'}
+                aria-describedby={status === 'error' ? errorId : undefined}
                 className="flex-1 min-w-0"
                 style={{
-                  padding: '0.55rem 0.85rem',
+                  minHeight: '3rem',
+                  padding: '0.7rem 0.9rem',
                   background: 'var(--btn-bg)',
                   border: '1px solid var(--border)',
                   borderRadius: 'var(--radius)',
                   color: 'var(--fg)',
-                  fontSize: '0.9rem',
+                  fontSize: '1rem',
                   fontFamily: 'var(--font-mono)',
-                  outline: 'none',
                 }}
               />
               <button
@@ -323,16 +364,22 @@ export default function SubscribeCTA({
                 style={{
                   fontFamily: 'var(--font-mono)',
                   fontWeight: 700,
+                  fontSize: '1rem',
+                  minHeight: '3rem',
                   cursor: status === 'loading' ? 'wait' : audiences.size === 0 ? 'not-allowed' : 'pointer',
                   opacity: audiences.size === 0 ? 0.6 : 1,
                   whiteSpace: 'nowrap',
                 }}
               >
-                {status === 'loading' ? 'Subscribing…' : buttonLabel}
+                {status === 'loading' ? 'Saving…' : submitLabel}
               </button>
             </div>
             {status === 'error' && (
-              <p style={{ width: '100%', margin: '0.4rem 0 0', fontSize: '0.82rem', color: 'var(--neon-pink)' }}>
+              <p
+                id={errorId}
+                role="alert"
+                style={{ width: '100%', margin: '0.4rem 0 0', fontSize: '1rem', color: 'var(--neon-pink)' }}
+              >
                 {errorMsg}
               </p>
             )}
