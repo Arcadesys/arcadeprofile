@@ -67,3 +67,13 @@ export function classifyPayloadExportFailure(status: number): string {
   if (status === 404) return 'Payload endpoint not found; verify the base URL points to this Payload deployment';
   return `read request failed with HTTP ${status}`;
 }
+
+export function payloadMeResponseIsAuthenticated(value: unknown): boolean {
+  return Boolean(
+    value
+      && typeof value === 'object'
+      && 'user' in value
+      && (value as { user?: unknown }).user
+      && typeof (value as { user?: unknown }).user === 'object',
+  );
+}

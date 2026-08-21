@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { classifyPayloadExportFailure, payloadExportHeaders, resolvePayloadExportAuth } from './payload-export-auth';
+import { classifyPayloadExportFailure, payloadExportHeaders, payloadMeResponseIsAuthenticated, resolvePayloadExportAuth } from './payload-export-auth';
 
 test('Payload essay export defaults to the repository API-key convention', () => {
   const auth = resolvePayloadExportAuth({ env: { PAYLOAD_API_KEY: 'secret' } });
@@ -22,4 +22,10 @@ test('Payload essay export preserves the legacy JWT default for an export token'
 
 test('Payload essay export rejects unsupported auth schemes', () => {
   assert.throws(() => resolvePayloadExportAuth({ schemeFromCli: 'basic', env: {} }), /Unsupported Payload export auth scheme/);
+});
+
+test('Payload export distinguishes a real authenticated user from anonymous me responses', () => {
+  assert.equal(payloadMeResponseIsAuthenticated({ user: { id: 1 } }), true);
+  assert.equal(payloadMeResponseIsAuthenticated({ user: null }), false);
+  assert.equal(payloadMeResponseIsAuthenticated({}), false);
 });

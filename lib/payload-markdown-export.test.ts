@@ -7,7 +7,7 @@ import test from 'node:test';
 import { loadMarkdownPosts, selectPublicMarkdownPosts } from './markdown-posts';
 import { collectPayloadPages, exportPayloadPosts, type PayloadPost } from './payload-markdown-export';
 
-const groups = [{ slug: 'alpha', title: 'Alpha', description: 'Alpha writing.' }];
+const groups = [{ id: 10, slug: 'alpha', title: 'Alpha', description: 'Alpha writing.' }];
 const now = new Date('2026-08-20T12:00:00Z');
 
 function post(overrides: Partial<PayloadPost> = {}): PayloadPost {
@@ -58,6 +58,12 @@ test('paginates all Payload pages before inventorying', async () => {
   });
   assert.deepEqual(requested, [1, 2]);
   assert.deepEqual(docs, ['one', 'two']);
+});
+
+test('resolves unpopulated numeric group relationships through the group inventory', async () => {
+  const result = await exportPayloadPosts({ posts: [post({ group: 10 })], groups, now });
+  assert.equal(result.report.records[0]?.group, 'alpha');
+  assert.equal(result.report.totals.exported, 1);
 });
 
 test('inventories every workflow status and blocks ambiguous scheduled posts while excluding drafts', async () => {
