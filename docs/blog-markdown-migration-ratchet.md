@@ -66,7 +66,7 @@ the editorial preview surface; secret preview links are retired.
 | Authenticated export | Read all four workflow states through the hosted read-only MCP channel. The verified inventory contained 81 records: 80 public/scheduled posts exported, one draft inventoried, and zero blocked. | Keep: 32 public essays and 48 fiction posts pass the same strict loader; the draft remains non-public. |
 | Promotion | Promoted the 80 validated files and nine group manifests into `content/posts`, with the safe source-hash receipt at `data/payload-markdown-parity.json`. | In verification: Payload remains the active source until route/feed parity is exercised against the promoted corpus. |
 | Draft preservation | Preserved the newer Payload copy of `the-fox-and-the-eval` under `content/drafts`, with strict draft-only frontmatter and a verified body hash. Exporter staging writes drafts under ignored `.drafts/`; the public loader never reads either location. | Keep: all 32 essay routes and legacy redirects passed in Markdown mode; the draft returned 404 and was absent from RSS and sitemap. Payload remains the active source. |
-| Then | Enable Markdown in a separately reversible change after route/feed parity passes. | Pending. |
+| Source switch | Make Markdown the default blog source. `BLOG_SOURCE=payload` remains the explicit rollback and neither mode falls back silently. | In verification: merge only after full CI and route/feed checks; verify the deployed production surface after release. |
 
 ## Export contract
 
