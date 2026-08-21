@@ -444,12 +444,14 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
     if (!slug || !group || !groups.has(group)) { record.reason = !group || !groups.has(group) ? 'unresolved group' : 'missing slug'; records.push(record); continue; }
     if (seenSlugs.has(slug)) { duplicateSlugs.push(slug); record.reason = 'duplicate slug'; records.push(record); continue; }
     seenSlugs.add(slug);
-    if (!validDate(post.publishedDate)) { record.reason = 'invalid publishedDate RFC3339 date-time'; records.push(record); continue; }
+    let exportPublishDate = post.publishedDate;
     if (status === 'scheduled') {
-      if (!validDate(post.scheduledPublishDate) || Date.parse(post.scheduledPublishDate) !== Date.parse(post.publishedDate) || Date.parse(post.scheduledPublishDate) <= now.getTime()) {
-        record.reason = 'scheduled post lacks an unambiguous future publish date'; records.push(record); continue;
+      if (!validDate(post.scheduledPublishDate) || Date.parse(post.scheduledPublishDate) <= now.getTime()) {
+        record.reason = 'scheduled post lacks an unambiguous future scheduledPublishDate'; records.push(record); continue;
       }
+      exportPublishDate = post.scheduledPublishDate;
     }
+    if (!validDate(exportPublishDate)) { record.reason = 'invalid publishedDate RFC3339 date-time'; records.push(record); continue; }
     const conversion = convertLexical(post.content, mediaAltById, mediaUrlById);
     mediaTotal += conversion.media.length;
     const hero = heroFrom(post, mediaAltById, mediaUrlById);
@@ -470,7 +472,7 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
       title: string(post.title),
       slug,
       group,
-      publishDate: post.publishedDate,
+      publishDate: exportPublishDate,
       ...(typeof post.order === 'number' ? { order: post.order } : {}),
       ...(validDate(post.updatedAt) ? { updatedDate: post.updatedAt } : {}),
       ...(string(post.excerpt) ? { excerpt: string(post.excerpt) } : {}),
