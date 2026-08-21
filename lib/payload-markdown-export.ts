@@ -95,7 +95,7 @@ export interface ParityReport {
     blocked: number;
     byStatus: Record<string, number>;
     byGroup: Record<string, number>;
-    media: { total: number; missingMeaningfulAlt: number; items: Array<{ payloadMediaId: string; filename?: string; alt?: string }> };
+    media: { total: number; missingMeaningfulAlt: number; items: Array<{ payloadMediaId: string; postId: string; postSlug?: string; filename?: string; alt?: string }> };
     unsupportedNodes: number;
     duplicates: { ids: string[]; slugs: string[]; targets: string[] };
   };
@@ -188,7 +188,7 @@ function convertLexical(content: unknown): Conversion {
     if (type === 'text') return formatText(typeof node.text === 'string' ? node.text : '', node.format);
     if (type === 'linebreak') return '  \n';
     if (type === 'link' || type === 'autolink') {
-      const url = string(node.url);
+      const url = string(node.url) ?? string(object(node.fields)?.url);
       if (!url) { unsupported.push(`${type}: missing url`); return ''; }
       return `[${inline(childrenOf(node) ?? [])}](${url})`;
     }
@@ -224,8 +224,14 @@ function convertLexical(content: unknown): Conversion {
       const caption = string(fields?.caption);
       return `[YouTube video${caption ? `: ${caption}` : ''}](https://www.youtube.com/watch?v=${videoId})`;
     }
+    if (type === 'block' && object(node.fields)?.blockType === 'youtube') {
+      const fields = object(node.fields);
+      const videoId = string(fields?.videoId);
+      if (!videoId) { unsupported.push('youtube block: missing videoId'); return ''; }
+      return `[YouTube video](https://www.youtube.com/watch?v=${videoId})`;
+    }
     if (type === 'upload') {
-      const item = mediaFrom(object(node.fields) ?? node.value);
+      const item = mediaFrom(node.value ?? object(node.fields));
       if (!item) { unsupported.push('upload: missing media id'); return ''; }
       media.push(item);
       return `> **Media migration required:** ${item.alt ?? 'Missing alt text'} (Payload upload ${item.id}).`;
@@ -359,7 +365,7 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
   const seenTargets = new Set<string>();
   let mediaTotal = 0;
   let missingMeaningfulAlt = 0;
-  const mediaItems: Array<{ payloadMediaId: string; filename?: string; alt?: string }> = [];
+  const mediaItems: Array<{ payloadMediaId: string; postId: string; postSlug?: string; filename?: string; alt?: string }> = [];
   let unsupportedNodes = 0;
 
   for (const group of options.groups) {
@@ -401,7 +407,7 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
     const hero = heroFrom(post);
     if (hero) mediaTotal += 1;
     for (const item of [...conversion.media, ...(hero ? [hero] : [])]) {
-      mediaItems.push({ payloadMediaId: String(item.id), ...(item.filename ? { filename: item.filename } : {}), ...(item.alt ? { alt: item.alt } : {}) });
+      mediaItems.push({ payloadMediaId: String(item.id), postId: id, ...(slug ? { postSlug: slug } : {}), ...(item.filename ? { filename: item.filename } : {}), ...(item.alt ? { alt: item.alt } : {}) });
       if (!meaningfulAlt(item)) missingMeaningfulAlt += 1;
     }
     unsupportedNodes += conversion.unsupported.length;

@@ -17,8 +17,8 @@ function post(overrides: Partial<PayloadPost> = {}): PayloadPost {
     tags: [{ tag: 'testing' }], meta: { title: 'SEO title', description: 'SEO description', image: { id: 77, filename: 'hero.webp', alt: 'A testing hero image', url: '/api/media/hero.webp' } },
     content: { root: { children: [
       { type: 'heading', tag: 'h2', children: [{ type: 'text', text: 'Heading' }] },
-      { type: 'paragraph', children: [{ type: 'text', text: 'Read ' }, { type: 'link', url: 'https://example.test', children: [{ type: 'text', text: 'this' }] }] },
-      { type: 'upload', fields: { id: 88, filename: 'inline.webp', alt: 'A useful inline illustration', url: '/api/media/inline.webp' } },
+      { type: 'paragraph', children: [{ type: 'text', text: 'Read ' }, { type: 'link', fields: { url: 'https://example.test' }, children: [{ type: 'text', text: 'this' }] }] },
+      { type: 'upload', value: { id: 88, filename: 'inline.webp', alt: 'A useful inline illustration', url: '/api/media/inline.webp' } },
     ] } },
     ...overrides,
   };
@@ -64,6 +64,14 @@ test('resolves unpopulated numeric group relationships through the group invento
   const result = await exportPayloadPosts({ posts: [post({ group: 10 })], groups, now });
   assert.equal(result.report.records[0]?.group, 'alpha');
   assert.equal(result.report.totals.exported, 1);
+});
+
+test('converts the saved Payload YouTube block shape', async () => {
+  const result = await exportPayloadPosts({ posts: [post({
+    content: { root: { children: [{ type: 'block', fields: { blockType: 'youtube', videoId: 'abc123' } }] } },
+    meta: {},
+  })], groups, now });
+  assert.match(result.files.get('alpha/exportable-post.md') ?? '', /youtube\.com\/watch\?v=abc123/);
 });
 
 test('inventories every workflow status and blocks ambiguous scheduled posts while excluding drafts', async () => {
