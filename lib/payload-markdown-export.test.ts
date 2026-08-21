@@ -97,11 +97,11 @@ test('applies reviewed alt overrides by stable Payload media id', async () => {
   assert.match(result.files.get('alpha/exportable-post.md') ?? '', /A reviewed description of the hero image\./);
 });
 
-test('inventories every workflow status and blocks ambiguous scheduled posts while excluding drafts', async () => {
+test('inventories every workflow status, uses the real scheduled instant, and excludes drafts', async () => {
   const result = await exportPayloadPosts({ posts: [
     post({ id: 1, publish_status: 'draft' }),
     post({ id: 2, slug: 'ambiguous-scheduled', publish_status: 'scheduled', scheduledPublishDate: '2026-08-20T09:00:00Z' }),
-    post({ id: 3, slug: 'future-scheduled', publish_status: 'scheduled', publishedDate: '2026-08-21T09:00:00Z', scheduledPublishDate: '2026-08-21T09:00:00Z' }),
+    post({ id: 3, slug: 'future-scheduled', publish_status: 'scheduled', publishedDate: '2026-08-21T00:00:00Z', scheduledPublishDate: '2026-08-21T17:00:00Z' }),
     post({ id: 4, slug: 'sent-post', publish_status: 'sent' }),
   ], groups, now });
   assert.deepEqual(result.report.totals.byStatus, { draft: 1, scheduled: 2, sent: 1 });
@@ -109,6 +109,7 @@ test('inventories every workflow status and blocks ambiguous scheduled posts whi
   assert.equal(result.report.totals.excluded, 1);
   assert.equal(result.report.totals.blocked, 1);
   assert.equal(result.report.totals.source, result.report.totals.exported + result.report.totals.excluded + result.report.totals.blocked);
+  assert.match(result.files.get('alpha/future-scheduled.md') ?? '', /publishDate: '2026-08-21T17:00:00Z'/);
 });
 
 test('reports duplicates, unsupported nodes, unresolved groups, invalid dates, and missing alt text without emitting files', async () => {
