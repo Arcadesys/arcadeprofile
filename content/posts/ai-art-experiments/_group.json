@@ -1,0 +1,16 @@
+{
+  "slug": "ai-art-experiments",
+  "title": "AI Art Experiments",
+  "description": "A catch-all for all the things I make using AI generation.",
+  "project": {
+    "image": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/tfc-ai-art.png",
+    "external": false,
+    "featured": false,
+    "homeHighlight": true,
+    "category": "audio-video",
+    "status": "active",
+    "format": "collection",
+    "updatedAt": "2026-05-10T15:34:00.424Z",
+    "createdAt": "2026-05-04T18:21:39.510Z"
+  }
+}

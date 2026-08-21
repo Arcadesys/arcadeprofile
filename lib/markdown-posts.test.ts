@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 
@@ -102,4 +103,49 @@ test('loader rejects filename and directory disagreement, duplicate ids and slug
   assert.throws(() => loadMarkdownPosts({ contentDirectory: fixture('duplicate-id') }), /Duplicate Markdown post id/);
   assert.throws(() => loadMarkdownPosts({ contentDirectory: fixture('duplicate-slug') }), /Duplicate Markdown post slug/);
   assert.throws(() => loadMarkdownPosts({ contentDirectory: fixture('empty-body') }), /nonempty Markdown body/);
+});
+
+test('checked-in corpus matches the authenticated Payload parity receipt', () => {
+  const contentDirectory = path.join(process.cwd(), 'content', 'posts');
+  const posts = loadMarkdownPosts({ contentDirectory });
+  const groups = loadMarkdownGroups({ contentDirectory });
+  const report = JSON.parse(readFileSync(path.join(process.cwd(), 'data', 'payload-markdown-parity.json'), 'utf8')) as {
+    totals: { source: number; exported: number; excluded: number; blocked: number };
+    records: Array<{ slug?: string; disposition: string; file?: string; reason?: string }>;
+    validation: { passed: boolean };
+  };
+  const exportedFiles = report.records
+    .filter((record) => record.disposition === 'exported')
+    .map((record) => record.file)
+    .sort();
+  const loadedFiles = posts
+    .map((post) => path.relative(contentDirectory, post.filePath).split(path.sep).join('/'))
+    .sort();
+  const essayGroups = new Set([
+    'ai-art-experiments',
+    'arcade-blog',
+    'on-writing',
+    'pride-essays',
+    'the-singularity-log',
+    'white-cane-chronicles',
+  ]);
+
+  assert.deepEqual(
+    {
+      source: report.totals.source,
+      exported: report.totals.exported,
+      excluded: report.totals.excluded,
+      blocked: report.totals.blocked,
+    },
+    { source: 81, exported: 80, excluded: 1, blocked: 0 },
+  );
+  assert.equal(report.validation.passed, true);
+  assert.deepEqual(loadedFiles, exportedFiles);
+  assert.equal(groups.length, 9);
+  assert.equal(posts.filter((post) => essayGroups.has(post.group)).length, 32);
+  assert.deepEqual(
+    report.records.filter((record) => record.disposition === 'excluded').map((record) => ({ slug: record.slug, reason: record.reason })),
+    [{ slug: 'the-fox-and-the-eval', reason: 'drafts are inventory only' }],
+  );
+  assert.equal(posts.find((post) => post.slug === 'open-port')?.publishDate, '2026-08-21T17:00:00.000Z');
 });

@@ -1,0 +1,19 @@
+{
+  "slug": "on-writing",
+  "title": "On Writing",
+  "description": "Essays on the craft of writing.",
+  "tags": [
+    "writing",
+    "craft"
+  ],
+  "project": {
+    "external": false,
+    "featured": false,
+    "homeHighlight": false,
+    "category": "writing",
+    "status": "active",
+    "format": "collection",
+    "updatedAt": "2026-05-10T15:34:46.129Z",
+    "createdAt": "2026-03-29T00:36:11.953Z"
+  }
+}

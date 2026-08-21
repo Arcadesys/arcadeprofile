@@ -1,0 +1,21 @@
+{
+  "slug": "arcade-blog",
+  "title": "Arcade Blog",
+  "description": "Essays on AI productivity, engineering culture, and what the data actually says.",
+  "tags": [
+    "ai",
+    "productivity",
+    "engineering",
+    "data"
+  ],
+  "project": {
+    "external": false,
+    "featured": false,
+    "homeHighlight": false,
+    "category": "writing",
+    "status": "active",
+    "format": "serial",
+    "updatedAt": "2026-03-29T00:36:11.509Z",
+    "createdAt": "2026-03-29T00:36:11.509Z"
+  }
+}

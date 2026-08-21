@@ -219,7 +219,7 @@ function convertLexical(
   const inline = (items: LexicalNode[] = []): string => items.map((node) => {
     const type = string(node.type);
     if (type === 'text') return formatText(typeof node.text === 'string' ? node.text : '', node.format);
-    if (type === 'linebreak') return '  \n';
+    if (type === 'linebreak') return `${String.fromCharCode(92)}\n`;
     if (type === 'link' || type === 'autolink') {
       const url = string(node.url) ?? string(object(node.fields)?.url);
       if (!url) { unsupported.push(`${type}: missing url`); return ''; }

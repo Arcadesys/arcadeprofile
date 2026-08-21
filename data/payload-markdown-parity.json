@@ -1,0 +1,1149 @@
+{
+  "version": 1,
+  "generatedAt": "2026-08-21T04:13:27.990Z",
+  "dryRun": false,
+  "source": {
+    "posts": 81,
+    "groups": 9,
+    "rawSourceHashes": {
+      "1": "5ea44756c52886317f1a6e5fef5056435e5028b92e12ff365a21d91d1f7d006d",
+      "3": "85f97c1744fc9f2993faafb7a374d70ad49f0ae61f26b5c14a488d17e110fc97",
+      "4": "f1244ff2e84509851ec234b886dee25e7aa0a9297bae5f95f372be0e12285ca9",
+      "8": "c3810812c0bec4a72e5d5124526d2aa856fabfded77dd44543a840b77151ff0b",
+      "9": "3e5e7fbf0e05aa1e63bc2ce754882c9c8a763af4e2e8b3a76510d1cc140a557b",
+      "10": "44c6b1ac3c4684e6209ec3753f690bc5f08faf178ae1a31a21b27d280aff6bd8",
+      "11": "44f9f70bcef1d569a995f85394ca00e77acc236061d144b4d3c047eee5034aa0",
+      "12": "74bf7938411fdfe239f2981b6ef9505d1cdd17732b3f0f1098a71ce869de90e1",
+      "13": "9d59ca242f6bea42e6906ce73093e5a72de12c586049b74ecc37c88324d4ec7c",
+      "14": "fd4b79f5b84ae5ba0ec9b15f601ab16242b23edb288cebd93ea6c420cdd6916a",
+      "15": "9f8eb597a1f1e6720c2a15a7446c988ede49d52c55b8c4b52b167a986321c5b6",
+      "16": "327e70a3dc0e1dffbe3142e490ca65ee8a93495ff64927dee49002992d3dea6a",
+      "17": "2e2fc2bc17d5d5b8a2593d16392eeda3432e8e223c181ddc90070b807c8c9ecc",
+      "18": "5f2fdcdd943841dd99b5dc9bd6701e756680f3990d6948df6e45cbd99b52a8bf",
+      "19": "04b231ae3f43808720780ba67419f2b5060ed3d74c6809af4124acba58971ecb",
+      "20": "5e73a21189a6db4d2bc2fd512dcbe58c4669f056e9973c2a718dd3c22517ce4b",
+      "21": "7b86c1f7258ac6b56734eddcd7fc12ad8217e47abae31f9036d9a53d5abd4b1f",
+      "22": "1fd1e7f1379a27b1cc5e9ba1936f2338b7eef1877d2e5faa234b2751121c53b6",
+      "23": "05df975e4c0c204e50df0910827837435a7c1458c478ca350b988958d5ffbf72",
+      "24": "06330d4ff0714982e808b18268f563dd8103cf6624f6fa39631d394d95289abb",
+      "25": "9edc891230fe0c48402fa2d86b41f89d018268560d21485f2b329828ab097563",
+      "26": "1d8a234ad70ca6e4a681d33e5818f15145d9f616bdde4582250488fab4a1fb41",
+      "27": "341c75260157fc3edf02443d7a932a33b730ec86fe55632ac45ff5bdf1f39092",
+      "29": "ee6aad8f96fdcaa484ab87c966788e59424c725d0a4ebc2b896a5dadc462d474",
+      "32": "15c48c6c0ee3a349d5afc132eebe6356c3fc9161faeb5a698c69f7b92aad26c6",
+      "33": "cd28cc49552a936e974e75e250f39c64dc80b5fb689080378e66bef2ebfb1a25",
+      "34": "010722b5993ed020d66a488ba03bc6918006d4be4b210411280e479308c444bb",
+      "35": "86df6a602c038647fc1d50b04cd5d89ca71e5c77488575b795c3c0545eca66b2",
+      "36": "3d43eefab0e43577f361d9a7fd299fa3b0367cf2cdfa17ccfab8e3d1447aceb4",
+      "37": "c9bb99ba9fb38672f635ed143f877a90c842697bfaa83562d17a17fde497433d",
+      "38": "b32be928df8d944a2d68e1000715925b1df58147d0d21f4b77ba1d90878e57b1",
+      "39": "70ea37a27e2ff83ecb323502285a9d3b2a04ccabd93787c5673b942df3baa093",
+      "40": "d85ad0b2be7a9c164d6ebd5edf85676273d6569e2698a6431a3645e22b3230ee",
+      "41": "3c5bb69c46aaae0d3a89f7a36a12274bef204ae5fc350d4aa21ebb022e5405d6",
+      "42": "3c90b5459689118d53e5a1b017dae17d1abad4d186576116e6f63f18fa2798ae",
+      "43": "3f5b96236f25976371b425e33c3261f258271812f069f951f2d9c5d3f03e467c",
+      "44": "4d8fd9a8d83c0922d0d2d445b8c87cc6934b1fbdd68a8a95b887e483f9e6b004",
+      "45": "75687190b034d0094750351a2321da119c868a4a93171510e43ad220e599bfbd",
+      "46": "16f9b7812c1578821c5d986c6c1aafdf4257831f3f72f810296f6bf70af9c758",
+      "47": "c0b54f2e4992d3bce7562ae4aafb1da9318cae77d3a514d62ed2e8e1ca60bad3",
+      "48": "4b2befe2969b79c8d25b07cce3aac779a62b9ba665b316e816318aff30ce95e4",
+      "49": "b196df114d71e8d44533eb899cc3708dbbefdd91bd05a75290fd70e2010536aa",
+      "50": "639c07bce34c1f4a377ce825a2bcca48e6d4bf2584f88322744a2920715c7295",
+      "51": "b7c715acbf3bc9f75d8e01f00cd15036fb16f529e1a1cf90cc30b4c248bb001f",
+      "52": "ae6a1bb6280b37384274a6a03e9f73a405c0aa7c44bd6891a2c3f4c56ca23191",
+      "53": "926e7f48753bfaea02ff87412706d4e219cff1e8c0ccfd5c4fcfea0afa38295b",
+      "54": "55f4dcec4afe6e745208a25355c99676c4d6786b7553536e328775800592e056",
+      "55": "6c254e8653d90650c44ffd0f465ac87444008094af353199bd76922ae47f61b5",
+      "56": "a9fa8bc5a54afc957d38b36eca597e9b6dc39292a20e8a8fee839efef507956d",
+      "57": "77722f8dcb64be7d5acf1ee87b6f32fe0ec740c07aade369893dc4ffc7e283e9",
+      "58": "1665fb13a3c60e18faa2f6dd419111d680db19d601365fa9b6bba43c15bcf9e7",
+      "59": "723d2e609ac8398f9316624c93f6897af0bb41e502ec11aa7be27b76eb7acd4f",
+      "60": "726324d249c112d32fb5889e186b9e1d2df55e243813ac21165e854348f92333",
+      "61": "6f3304ebe8dfe7052151290125ac339e600b260a1e1a3bb3fd1ad322ea78ff18",
+      "62": "a9ef91c13a0d73e146e53080c7940ec1ee200c4b53b224ccdf2870bd171ff11a",
+      "63": "e47d749750c4ce9ade4654fa2e58c68b579661be0296cc50d89fa62e80940109",
+      "64": "f523975d1964e969676e3ca006912c1604ac8f180a440680e3b72e7dad070c4c",
+      "65": "fb3c8c2a51c1994d73482408e8f7360020c9a1408d265bab552509d4857c11c7",
+      "66": "f02706a36eaa8f009e927d78b01fdd83e8dbcd0088d2c0c8032e7957d1598318",
+      "67": "b5be4e0f6b3c501ff19dceea08589979829a5bd2a181973fcc3ec2a5244ef409",
+      "68": "9d403f9609d1e521c8858dcc8320d886d064a40e98027550cd4678c72a3ac18f",
+      "69": "8144de0d9615351bf031c74a689321f4a24b52666787730705137aa7dea11547",
+      "70": "9722c908a5001bb81d62c6d0901c62b103d30f5a235758373bbc79c610f3a2d1",
+      "71": "1645f9eb7cd15128391625a626d8171f70003c49482a0caea0240d0f91b7d294",
+      "72": "4a7c0d94b238c2f88fa9dd97ba43c4bf230a9cddae4f31ff5053b664aa01285e",
+      "73": "4682b2c0e58ce8f19d784220c1d851210927e3a16cd1b70e634451255e89bc75",
+      "74": "0da735c33174670931fe1c864d8d1e48b98f3956c93a891081c100505046fe76",
+      "75": "a36bcf4dce2e5519f82cbe50add380b69682d6b4c7d5f83700e81dc46f020905",
+      "77": "c902be8165f8129d166ed84b7cd9bdb4460ec8b4c7c8566ce658a8fd2edfdc1d",
+      "78": "c79ed7920be75a2caacce2892a3c3d8c1fb5708564e2a751d11bac6320e6eecd",
+      "79": "26fea14d771427ef65d5aba0bddb1f59b223f5cbb70accdd2909e733c92a5c63",
+      "80": "fd9eabd7700e25492735587dd636e6b7f233033daaa11ee44b3c96e8f9d7d5bf",
+      "81": "947c6fcbfaa38111133f2ec76dc61f14f2640a66425e73da8b0ff0b1c1f0596c",
+      "82": "725cd565003b76bb93acafce3e69b586524e3ccc239b4839d22e2c19924bbb38",
+      "83": "f60f47c29c73846fc9e5bcab688cecaa6db81ac891e26841eff8058426ea9cf9",
+      "84": "3d65cd83b4193327fae339f54207c8db722e484c0e19fd17e053ed7980eea29e",
+      "85": "985eae06693d2a14012ba9770c963816280e50dc32cb8b36aea229eb2f1d7c29",
+      "86": "cb496099a85d32decf3c106557abd0942444773d37d886bcd53a8fb9c3c24696",
+      "87": "d5545b419bb62fd8704384f40bbe5beccd24acf7efd0a9f7ac01d5be854b8dbd",
+      "88": "48377c2855937cd52da2e0f141ae9d7cd106f7d06092091cce66b82f0a7d3885",
+      "89": "3d7a9421b5c6ef06093e05f75740bb2c3efc5fb0c687d0d8f5557005b16c06db"
+    }
+  },
+  "totals": {
+    "source": 81,
+    "exported": 80,
+    "excluded": 1,
+    "blocked": 0,
+    "byStatus": {
+      "draft": 1,
+      "scheduled": 1,
+      "published": 34,
+      "sent": 45
+    },
+    "byGroup": {
+      "the-singularity-log": 19,
+      "it-takes-a-zoo": 39,
+      "ai-art-experiments": 2,
+      "on-writing": 2,
+      "short-stories": 4,
+      "parts-of-the-whole": 5,
+      "arcade-blog": 4,
+      "pride-essays": 5,
+      "white-cane-chronicles": 1
+    },
+    "media": {
+      "total": 41,
+      "missingMeaningfulAlt": 0,
+      "items": [
+        {
+          "payloadMediaId": "32",
+          "postId": "89",
+          "postSlug": "open-port",
+          "filename": "06-open-port.png",
+          "alt": "People gather around a patient in a dark, high-tech room as a glowing orange fox appears above the bed."
+        },
+        {
+          "payloadMediaId": "3",
+          "postId": "87",
+          "postSlug": "the-stepladder",
+          "filename": "singularity-log.png",
+          "alt": "The Singularity Log title card with a digital face above a glowing sunset grid."
+        },
+        {
+          "payloadMediaId": "28",
+          "postId": "75",
+          "postSlug": "goodgirl-tv-7-the-robin",
+          "filename": "goodgirl.tv",
+          "alt": "a puppygirl in a cyberpunk world winks at the camera"
+        },
+        {
+          "payloadMediaId": "28",
+          "postId": "74",
+          "postSlug": "goodgirl-tv-6-signpost-big",
+          "filename": "goodgirl.tv",
+          "alt": "a puppygirl in a cyberpunk world winks at the camera"
+        },
+        {
+          "payloadMediaId": "28",
+          "postId": "73",
+          "postSlug": "goodgirl-tv-5-there-again",
+          "filename": "goodgirl.tv",
+          "alt": "a puppygirl in a cyberpunk world winks at the camera"
+        },
+        {
+          "payloadMediaId": "28",
+          "postId": "72",
+          "postSlug": "goodgirl-tv-4-old-school-night",
+          "filename": "goodgirl.tv",
+          "alt": "a puppygirl in a cyberpunk world winks at the camera"
+        },
+        {
+          "payloadMediaId": "28",
+          "postId": "71",
+          "postSlug": "goodgirl-tv-3-the-fox",
+          "filename": "goodgirl.tv",
+          "alt": "a puppygirl in a cyberpunk world winks at the camera"
+        },
+        {
+          "payloadMediaId": "28",
+          "postId": "70",
+          "postSlug": "goodgirl-tv-2-goodgirl-tv",
+          "filename": "goodgirl.tv",
+          "alt": "a puppygirl in a cyberpunk world winks at the camera"
+        },
+        {
+          "payloadMediaId": "28",
+          "postId": "69",
+          "postSlug": "goodgirl-tv-1-the-impossible-room",
+          "filename": "goodgirl.tv",
+          "alt": "a puppygirl in a cyberpunk world winks at the camera"
+        },
+        {
+          "payloadMediaId": "6",
+          "postId": "27",
+          "postSlug": "why-transformation",
+          "filename": "rossi-sodium-streetlight.jpg",
+          "alt": "A smiling man poses beside a glasses-wearing feline woman in a green dress outside a crowded venue."
+        },
+        {
+          "payloadMediaId": "5",
+          "postId": "27",
+          "postSlug": "why-transformation",
+          "filename": "snow-leopard-self-portrait.jpg",
+          "alt": "A white snow leopard woman with green hair and glasses holds a white cane in an elevator selfie."
+        },
+        {
+          "payloadMediaId": "17",
+          "postId": "35",
+          "postSlug": "the-slow-blade",
+          "filename": "slow-blade-hero-1.jpg",
+          "alt": "A stylized hand grips a long blade among translucent panels on a pink and brown background."
+        },
+        {
+          "payloadMediaId": "16",
+          "postId": "35",
+          "postSlug": "the-slow-blade",
+          "filename": "slow-blade-hero.jpg",
+          "alt": "Paul Atreides delivering the slow blade in the duel with Feyd-Rautha — Dune"
+        },
+        {
+          "payloadMediaId": "15",
+          "postId": "34",
+          "postSlug": "death-of-the-creative-wall",
+          "filename": "image.png",
+          "alt": "A suited anthropomorphic rat stands in profile against a sunset city skyline."
+        },
+        {
+          "payloadMediaId": "14",
+          "postId": "34",
+          "postSlug": "death-of-the-creative-wall",
+          "filename": "cover.jpg",
+          "alt": "Jebediah O. Hickory, a chicken-fried possum lawyer from Toontown Chicago, in the YouTube short that broke 1000 views."
+        },
+        {
+          "payloadMediaId": "12",
+          "postId": "32",
+          "postSlug": "the-mailbox-had-a-pulse",
+          "filename": "aughtscon.png",
+          "alt": "an ai generated image of a mid 2000s furry con"
+        },
+        {
+          "payloadMediaId": "12",
+          "postId": "32",
+          "postSlug": "the-mailbox-had-a-pulse",
+          "filename": "aughtscon.png",
+          "alt": "an ai generated image of a mid 2000s furry con"
+        },
+        {
+          "payloadMediaId": "10",
+          "postId": "19",
+          "postSlug": "cold-boot-1-morning",
+          "filename": "knockthree.png",
+          "alt": "A white card on a wooden table reads zoo colon slash slash 001 dot server slash knockthree."
+        },
+        {
+          "payloadMediaId": "22",
+          "postId": "63",
+          "postSlug": "parts-of-the-whole-5-after",
+          "filename": "parts-of-the-whole-site-hero-bg.webp",
+          "alt": "Cel-shaded website hero art for Parts of the Whole, showing a luminous kitsune guardian protecting a young man in a revival tent."
+        },
+        {
+          "payloadMediaId": "22",
+          "postId": "63",
+          "postSlug": "parts-of-the-whole-5-after",
+          "filename": "parts-of-the-whole-site-hero-bg.webp",
+          "alt": "Cel-shaded website hero art for Parts of the Whole, showing a luminous kitsune guardian protecting a young man in a revival tent."
+        },
+        {
+          "payloadMediaId": "22",
+          "postId": "62",
+          "postSlug": "parts-of-the-whole-4-grace",
+          "filename": "parts-of-the-whole-site-hero-bg.webp",
+          "alt": "Cel-shaded website hero art for Parts of the Whole, showing a luminous kitsune guardian protecting a young man in a revival tent."
+        },
+        {
+          "payloadMediaId": "22",
+          "postId": "62",
+          "postSlug": "parts-of-the-whole-4-grace",
+          "filename": "parts-of-the-whole-site-hero-bg.webp",
+          "alt": "Cel-shaded website hero art for Parts of the Whole, showing a luminous kitsune guardian protecting a young man in a revival tent."
+        },
+        {
+          "payloadMediaId": "22",
+          "postId": "61",
+          "postSlug": "parts-of-the-whole-3-what-you-could-have",
+          "filename": "parts-of-the-whole-site-hero-bg.webp",
+          "alt": "Cel-shaded website hero art for Parts of the Whole, showing a luminous kitsune guardian protecting a young man in a revival tent."
+        },
+        {
+          "payloadMediaId": "22",
+          "postId": "61",
+          "postSlug": "parts-of-the-whole-3-what-you-could-have",
+          "filename": "parts-of-the-whole-site-hero-bg.webp",
+          "alt": "Cel-shaded website hero art for Parts of the Whole, showing a luminous kitsune guardian protecting a young man in a revival tent."
+        },
+        {
+          "payloadMediaId": "22",
+          "postId": "60",
+          "postSlug": "parts-of-the-whole-2-pressure-and-possibility",
+          "filename": "parts-of-the-whole-site-hero-bg.webp",
+          "alt": "Cel-shaded website hero art for Parts of the Whole, showing a luminous kitsune guardian protecting a young man in a revival tent."
+        },
+        {
+          "payloadMediaId": "22",
+          "postId": "60",
+          "postSlug": "parts-of-the-whole-2-pressure-and-possibility",
+          "filename": "parts-of-the-whole-site-hero-bg.webp",
+          "alt": "Cel-shaded website hero art for Parts of the Whole, showing a luminous kitsune guardian protecting a young man in a revival tent."
+        },
+        {
+          "payloadMediaId": "22",
+          "postId": "59",
+          "postSlug": "parts-of-the-whole-1-the-arrival",
+          "filename": "parts-of-the-whole-site-hero-bg.webp",
+          "alt": "Cel-shaded website hero art for Parts of the Whole, showing a luminous kitsune guardian protecting a young man in a revival tent."
+        },
+        {
+          "payloadMediaId": "22",
+          "postId": "59",
+          "postSlug": "parts-of-the-whole-1-the-arrival",
+          "filename": "parts-of-the-whole-site-hero-bg.webp",
+          "alt": "Cel-shaded website hero art for Parts of the Whole, showing a luminous kitsune guardian protecting a young man in a revival tent."
+        },
+        {
+          "payloadMediaId": "23",
+          "postId": "68",
+          "postSlug": "permissions-battle-buddy",
+          "filename": "04-permissions-title-card.png",
+          "alt": "Permissions title card showing a rabbit at a cluttered laptop desk in a dim workshop."
+        },
+        {
+          "payloadMediaId": "23",
+          "postId": "67",
+          "postSlug": "permissions-the-first-stranger",
+          "filename": "04-permissions-title-card.png",
+          "alt": "Permissions title card showing a rabbit at a cluttered laptop desk in a dim workshop."
+        },
+        {
+          "payloadMediaId": "23",
+          "postId": "66",
+          "postSlug": "permissions-rabbit01",
+          "filename": "04-permissions-title-card.png",
+          "alt": "Permissions title card showing a rabbit at a cluttered laptop desk in a dim workshop."
+        },
+        {
+          "payloadMediaId": "23",
+          "postId": "65",
+          "postSlug": "permissions-eggs-and-autopsy",
+          "filename": "04-permissions-title-card.png",
+          "alt": "Permissions title card showing a rabbit at a cluttered laptop desk in a dim workshop."
+        },
+        {
+          "payloadMediaId": "23",
+          "postId": "64",
+          "postSlug": "permissions-the-bus-dream",
+          "filename": "04-permissions-title-card.png",
+          "alt": "Permissions title card showing a rabbit at a cluttered laptop desk in a dim workshop."
+        },
+        {
+          "payloadMediaId": "21",
+          "postId": "57",
+          "postSlug": "our-hope-chest-1-the-attic",
+          "filename": "Our Hope Chest",
+          "alt": "Our Hope Chest cover showing an attic wardrobe opening onto a sunlit chest."
+        },
+        {
+          "payloadMediaId": "21",
+          "postId": "57",
+          "postSlug": "our-hope-chest-1-the-attic",
+          "filename": "Our Hope Chest",
+          "alt": "Our Hope Chest cover showing an attic wardrobe opening onto a sunlit chest."
+        },
+        {
+          "payloadMediaId": "20",
+          "postId": "40",
+          "postSlug": "gallery-view-1-the-painting",
+          "filename": "gallery view.png",
+          "alt": "Gallery View cover showing a mouse sketching in a magical, cluttered, multilevel gallery."
+        },
+        {
+          "payloadMediaId": "19",
+          "postId": "39",
+          "postSlug": "how-to-run-a-successful-moral-panic",
+          "filename": "moral-panic-mob.jpg",
+          "alt": "\"A chaotic crowd storms the Bastille, weapons and smoke rising over the stone walls of the fortress.\" By Charles Thévenin — Carnavalet, Public Domain. https://commons.wikimedia.org/w/index.php?curid=1321984"
+        },
+        {
+          "payloadMediaId": "19",
+          "postId": "39",
+          "postSlug": "how-to-run-a-successful-moral-panic",
+          "filename": "moral-panic-mob.jpg",
+          "alt": "\"A chaotic crowd storms the Bastille, weapons and smoke rising over the stone walls of the fortress.\" By Charles Thévenin — Carnavalet, Public Domain. https://commons.wikimedia.org/w/index.php?curid=1321984"
+        },
+        {
+          "payloadMediaId": "18",
+          "postId": "38",
+          "postSlug": "ginnys-magic",
+          "filename": "ginnys-magic.png",
+          "alt": "Catgirl Ginny in a red dress under Boystown street light, smiling at Evelyn"
+        },
+        {
+          "payloadMediaId": "18",
+          "postId": "38",
+          "postSlug": "ginnys-magic",
+          "filename": "ginnys-magic.png",
+          "alt": "Catgirl Ginny in a red dress under Boystown street light, smiling at Evelyn"
+        },
+        {
+          "payloadMediaId": "4",
+          "postId": "18",
+          "postSlug": "it-takes-a-zoo",
+          "filename": "raise-our-cups.png",
+          "alt": "An ornate dark metal mug with a carrot emblem and purple illuminated circuitry."
+        }
+      ]
+    },
+    "unsupportedNodes": 0,
+    "duplicates": {
+      "ids": [],
+      "slugs": [],
+      "targets": []
+    }
+  },
+  "records": [
+    {
+      "id": "88",
+      "slug": "the-fox-and-the-eval",
+      "group": "the-singularity-log",
+      "status": "draft",
+      "disposition": "excluded",
+      "sourceHash": "48377c2855937cd52da2e0f141ae9d7cd106f7d06092091cce66b82f0a7d3885",
+      "reason": "drafts are inventory only"
+    },
+    {
+      "id": "89",
+      "slug": "open-port",
+      "group": "it-takes-a-zoo",
+      "status": "scheduled",
+      "disposition": "exported",
+      "sourceHash": "3d7a9421b5c6ef06093e05f75740bb2c3efc5fb0c687d0d8f5557005b16c06db",
+      "file": "it-takes-a-zoo/open-port.md"
+    },
+    {
+      "id": "86",
+      "slug": "soft-reset-10-the-run-continues",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "cb496099a85d32decf3c106557abd0942444773d37d886bcd53a8fb9c3c24696",
+      "file": "it-takes-a-zoo/soft-reset-10-the-run-continues.md"
+    },
+    {
+      "id": "85",
+      "slug": "soft-reset-9-change-the-signal",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "985eae06693d2a14012ba9770c963816280e50dc32cb8b36aea229eb2f1d7c29",
+      "file": "it-takes-a-zoo/soft-reset-9-change-the-signal.md"
+    },
+    {
+      "id": "84",
+      "slug": "soft-reset-8-not-a-place-to-die-in",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "3d65cd83b4193327fae339f54207c8db722e484c0e19fd17e053ed7980eea29e",
+      "file": "it-takes-a-zoo/soft-reset-8-not-a-place-to-die-in.md"
+    },
+    {
+      "id": "83",
+      "slug": "soft-reset-7-the-cost-of-a-life",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "f60f47c29c73846fc9e5bcab688cecaa6db81ac891e26841eff8058426ea9cf9",
+      "file": "it-takes-a-zoo/soft-reset-7-the-cost-of-a-life.md"
+    },
+    {
+      "id": "82",
+      "slug": "soft-reset-6-then-what",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "725cd565003b76bb93acafce3e69b586524e3ccc239b4839d22e2c19924bbb38",
+      "file": "it-takes-a-zoo/soft-reset-6-then-what.md"
+    },
+    {
+      "id": "87",
+      "slug": "the-stepladder",
+      "group": "the-singularity-log",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "d5545b419bb62fd8704384f40bbe5beccd24acf7efd0a9f7ac01d5be854b8dbd",
+      "file": "the-singularity-log/the-stepladder.md"
+    },
+    {
+      "id": "81",
+      "slug": "soft-reset-5-the-same-wall-two-different-dates",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "947c6fcbfaa38111133f2ec76dc61f14f2640a66425e73da8b0ff0b1c1f0596c",
+      "file": "it-takes-a-zoo/soft-reset-5-the-same-wall-two-different-dates.md"
+    },
+    {
+      "id": "80",
+      "slug": "soft-reset-4-third-stone-past-the-mailbox",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "fd9eabd7700e25492735587dd636e6b7f233033daaa11ee44b3c96e8f9d7d5bf",
+      "file": "it-takes-a-zoo/soft-reset-4-third-stone-past-the-mailbox.md"
+    },
+    {
+      "id": "79",
+      "slug": "soft-reset-3-exactly-enough",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "26fea14d771427ef65d5aba0bddb1f59b223f5cbb70accdd2909e733c92a5c63",
+      "file": "it-takes-a-zoo/soft-reset-3-exactly-enough.md"
+    },
+    {
+      "id": "78",
+      "slug": "soft-reset-2-the-belt",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "c79ed7920be75a2caacce2892a3c3d8c1fb5708564e2a751d11bac6320e6eecd",
+      "file": "it-takes-a-zoo/soft-reset-2-the-belt.md"
+    },
+    {
+      "id": "77",
+      "slug": "soft-reset-1-ninety-seconds",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "c902be8165f8129d166ed84b7cd9bdb4460ec8b4c7c8566ce658a8fd2edfdc1d",
+      "file": "it-takes-a-zoo/soft-reset-1-ninety-seconds.md"
+    },
+    {
+      "id": "75",
+      "slug": "goodgirl-tv-7-the-robin",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "a36bcf4dce2e5519f82cbe50add380b69682d6b4c7d5f83700e81dc46f020905",
+      "file": "it-takes-a-zoo/goodgirl-tv-7-the-robin.md"
+    },
+    {
+      "id": "74",
+      "slug": "goodgirl-tv-6-signpost-big",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "0da735c33174670931fe1c864d8d1e48b98f3956c93a891081c100505046fe76",
+      "file": "it-takes-a-zoo/goodgirl-tv-6-signpost-big.md"
+    },
+    {
+      "id": "73",
+      "slug": "goodgirl-tv-5-there-again",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "4682b2c0e58ce8f19d784220c1d851210927e3a16cd1b70e634451255e89bc75",
+      "file": "it-takes-a-zoo/goodgirl-tv-5-there-again.md"
+    },
+    {
+      "id": "72",
+      "slug": "goodgirl-tv-4-old-school-night",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "4a7c0d94b238c2f88fa9dd97ba43c4bf230a9cddae4f31ff5053b664aa01285e",
+      "file": "it-takes-a-zoo/goodgirl-tv-4-old-school-night.md"
+    },
+    {
+      "id": "71",
+      "slug": "goodgirl-tv-3-the-fox",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "1645f9eb7cd15128391625a626d8171f70003c49482a0caea0240d0f91b7d294",
+      "file": "it-takes-a-zoo/goodgirl-tv-3-the-fox.md"
+    },
+    {
+      "id": "70",
+      "slug": "goodgirl-tv-2-goodgirl-tv",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "9722c908a5001bb81d62c6d0901c62b103d30f5a235758373bbc79c610f3a2d1",
+      "file": "it-takes-a-zoo/goodgirl-tv-2-goodgirl-tv.md"
+    },
+    {
+      "id": "69",
+      "slug": "goodgirl-tv-1-the-impossible-room",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "8144de0d9615351bf031c74a689321f4a24b52666787730705137aa7dea11547",
+      "file": "it-takes-a-zoo/goodgirl-tv-1-the-impossible-room.md"
+    },
+    {
+      "id": "44",
+      "slug": "gallery-view-5-breadcrumbs",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "4d8fd9a8d83c0922d0d2d445b8c87cc6934b1fbdd68a8a95b887e483f9e6b004",
+      "file": "it-takes-a-zoo/gallery-view-5-breadcrumbs.md"
+    },
+    {
+      "id": "43",
+      "slug": "gallery-view-4-safe-hour-at-the-bar",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "3f5b96236f25976371b425e33c3261f258271812f069f951f2d9c5d3f03e467c",
+      "file": "it-takes-a-zoo/gallery-view-4-safe-hour-at-the-bar.md"
+    },
+    {
+      "id": "47",
+      "slug": "refusal-is-not-resistance",
+      "group": "the-singularity-log",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "c0b54f2e4992d3bce7562ae4aafb1da9318cae77d3a514d62ed2e8e1ca60bad3",
+      "file": "the-singularity-log/refusal-is-not-resistance.md"
+    },
+    {
+      "id": "27",
+      "slug": "why-transformation",
+      "group": "ai-art-experiments",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "341c75260157fc3edf02443d7a932a33b730ec86fe55632ac45ff5bdf1f39092",
+      "file": "ai-art-experiments/why-transformation.md"
+    },
+    {
+      "id": "35",
+      "slug": "the-slow-blade",
+      "group": "the-singularity-log",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "86df6a602c038647fc1d50b04cd5d89ca71e5c77488575b795c3c0545eca66b2",
+      "file": "the-singularity-log/the-slow-blade.md"
+    },
+    {
+      "id": "22",
+      "slug": "cold-boot-4-greige-again",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "1fd1e7f1379a27b1cc5e9ba1936f2338b7eef1877d2e5faa234b2751121c53b6",
+      "file": "it-takes-a-zoo/cold-boot-4-greige-again.md"
+    },
+    {
+      "id": "34",
+      "slug": "death-of-the-creative-wall",
+      "group": "the-singularity-log",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "010722b5993ed020d66a488ba03bc6918006d4be4b210411280e479308c444bb",
+      "file": "the-singularity-log/death-of-the-creative-wall.md"
+    },
+    {
+      "id": "21",
+      "slug": "cold-boot-3-rain",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "7b86c1f7258ac6b56734eddcd7fc12ad8217e47abae31f9036d9a53d5abd4b1f",
+      "file": "it-takes-a-zoo/cold-boot-3-rain.md"
+    },
+    {
+      "id": "33",
+      "slug": "the-tollbooth-is-gone",
+      "group": "the-singularity-log",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "cd28cc49552a936e974e75e250f39c64dc80b5fb689080378e66bef2ebfb1a25",
+      "file": "the-singularity-log/the-tollbooth-is-gone.md"
+    },
+    {
+      "id": "32",
+      "slug": "the-mailbox-had-a-pulse",
+      "group": "on-writing",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "15c48c6c0ee3a349d5afc132eebe6356c3fc9161faeb5a698c69f7b92aad26c6",
+      "file": "on-writing/the-mailbox-had-a-pulse.md"
+    },
+    {
+      "id": "19",
+      "slug": "cold-boot-1-morning",
+      "group": "it-takes-a-zoo",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "04b231ae3f43808720780ba67419f2b5060ed3d74c6809af4124acba58971ecb",
+      "file": "it-takes-a-zoo/cold-boot-1-morning.md"
+    },
+    {
+      "id": "16",
+      "slug": "years-of-craft-dont-get-a-vote",
+      "group": "the-singularity-log",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "327e70a3dc0e1dffbe3142e490ca65ee8a93495ff64927dee49002992d3dea6a",
+      "file": "the-singularity-log/years-of-craft-dont-get-a-vote.md"
+    },
+    {
+      "id": "15",
+      "slug": "the-ache",
+      "group": "the-singularity-log",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "9f8eb597a1f1e6720c2a15a7446c988ede49d52c55b8c4b52b167a986321c5b6",
+      "file": "the-singularity-log/the-ache.md"
+    },
+    {
+      "id": "12",
+      "slug": "rabies-capitalism",
+      "group": "the-singularity-log",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "74bf7938411fdfe239f2981b6ef9505d1cdd17732b3f0f1098a71ce869de90e1",
+      "file": "the-singularity-log/rabies-capitalism.md"
+    },
+    {
+      "id": "1",
+      "slug": "pull-not-push",
+      "group": "on-writing",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "5ea44756c52886317f1a6e5fef5056435e5028b92e12ff365a21d91d1f7d006d",
+      "file": "on-writing/pull-not-push.md"
+    },
+    {
+      "id": "8",
+      "slug": "carl",
+      "group": "short-stories",
+      "status": "published",
+      "disposition": "exported",
+      "sourceHash": "c3810812c0bec4a72e5d5124526d2aa856fabfded77dd44543a840b77151ff0b",
+      "file": "short-stories/carl.md"
+    },
+    {
+      "id": "63",
+      "slug": "parts-of-the-whole-5-after",
+      "group": "parts-of-the-whole",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "e47d749750c4ce9ade4654fa2e58c68b579661be0296cc50d89fa62e80940109",
+      "file": "parts-of-the-whole/parts-of-the-whole-5-after.md"
+    },
+    {
+      "id": "62",
+      "slug": "parts-of-the-whole-4-grace",
+      "group": "parts-of-the-whole",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "a9ef91c13a0d73e146e53080c7940ec1ee200c4b53b224ccdf2870bd171ff11a",
+      "file": "parts-of-the-whole/parts-of-the-whole-4-grace.md"
+    },
+    {
+      "id": "61",
+      "slug": "parts-of-the-whole-3-what-you-could-have",
+      "group": "parts-of-the-whole",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "6f3304ebe8dfe7052151290125ac339e600b260a1e1a3bb3fd1ad322ea78ff18",
+      "file": "parts-of-the-whole/parts-of-the-whole-3-what-you-could-have.md"
+    },
+    {
+      "id": "60",
+      "slug": "parts-of-the-whole-2-pressure-and-possibility",
+      "group": "parts-of-the-whole",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "726324d249c112d32fb5889e186b9e1d2df55e243813ac21165e854348f92333",
+      "file": "parts-of-the-whole/parts-of-the-whole-2-pressure-and-possibility.md"
+    },
+    {
+      "id": "59",
+      "slug": "parts-of-the-whole-1-the-arrival",
+      "group": "parts-of-the-whole",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "723d2e609ac8398f9316624c93f6897af0bb41e502ec11aa7be27b76eb7acd4f",
+      "file": "parts-of-the-whole/parts-of-the-whole-1-the-arrival.md"
+    },
+    {
+      "id": "50",
+      "slug": "my-brain-was-built-for-this",
+      "group": "arcade-blog",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "639c07bce34c1f4a377ce825a2bcca48e6d4bf2584f88322744a2920715c7295",
+      "file": "arcade-blog/my-brain-was-built-for-this.md"
+    },
+    {
+      "id": "48",
+      "slug": "ive-been-waiting-for-this-my-whole-life",
+      "group": "arcade-blog",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "4b2befe2969b79c8d25b07cce3aac779a62b9ba665b316e816318aff30ce95e4",
+      "file": "arcade-blog/ive-been-waiting-for-this-my-whole-life.md"
+    },
+    {
+      "id": "54",
+      "slug": "beneath-these-bones",
+      "group": "pride-essays",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "55f4dcec4afe6e745208a25355c99676c4d6786b7553536e328775800592e056",
+      "file": "pride-essays/beneath-these-bones.md"
+    },
+    {
+      "id": "53",
+      "slug": "wicked-little-town",
+      "group": "pride-essays",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "926e7f48753bfaea02ff87412706d4e219cff1e8c0ccfd5c4fcfea0afa38295b",
+      "file": "pride-essays/wicked-little-town.md"
+    },
+    {
+      "id": "68",
+      "slug": "permissions-battle-buddy",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "9d403f9609d1e521c8858dcc8320d886d064a40e98027550cd4678c72a3ac18f",
+      "file": "it-takes-a-zoo/permissions-battle-buddy.md"
+    },
+    {
+      "id": "67",
+      "slug": "permissions-the-first-stranger",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "b5be4e0f6b3c501ff19dceea08589979829a5bd2a181973fcc3ec2a5244ef409",
+      "file": "it-takes-a-zoo/permissions-the-first-stranger.md"
+    },
+    {
+      "id": "56",
+      "slug": "a-fucking-riot",
+      "group": "pride-essays",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "a9fa8bc5a54afc957d38b36eca597e9b6dc39292a20e8a8fee839efef507956d",
+      "file": "pride-essays/a-fucking-riot.md"
+    },
+    {
+      "id": "66",
+      "slug": "permissions-rabbit01",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "f02706a36eaa8f009e927d78b01fdd83e8dbcd0088d2c0c8032e7957d1598318",
+      "file": "it-takes-a-zoo/permissions-rabbit01.md"
+    },
+    {
+      "id": "49",
+      "slug": "disposable-art-is-still-art",
+      "group": "arcade-blog",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "b196df114d71e8d44533eb899cc3708dbbefdd91bd05a75290fd70e2010536aa",
+      "file": "arcade-blog/disposable-art-is-still-art.md"
+    },
+    {
+      "id": "65",
+      "slug": "permissions-eggs-and-autopsy",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "fb3c8c2a51c1994d73482408e8f7360020c9a1408d265bab552509d4857c11c7",
+      "file": "it-takes-a-zoo/permissions-eggs-and-autopsy.md"
+    },
+    {
+      "id": "64",
+      "slug": "permissions-the-bus-dream",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "f523975d1964e969676e3ca006912c1604ac8f180a440680e3b72e7dad070c4c",
+      "file": "it-takes-a-zoo/permissions-the-bus-dream.md"
+    },
+    {
+      "id": "55",
+      "slug": "letters-and-the-sun-on-my-face",
+      "group": "pride-essays",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "6c254e8653d90650c44ffd0f465ac87444008094af353199bd76922ae47f61b5",
+      "file": "pride-essays/letters-and-the-sun-on-my-face.md"
+    },
+    {
+      "id": "58",
+      "slug": "our-hope-chest-2-coney-beach",
+      "group": "short-stories",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "1665fb13a3c60e18faa2f6dd419111d680db19d601365fa9b6bba43c15bcf9e7",
+      "file": "short-stories/our-hope-chest-2-coney-beach.md"
+    },
+    {
+      "id": "52",
+      "slug": "early-days",
+      "group": "pride-essays",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "ae6a1bb6280b37384274a6a03e9f73a405c0aa7c44bd6891a2c3f4c56ca23191",
+      "file": "pride-essays/early-days.md"
+    },
+    {
+      "id": "57",
+      "slug": "our-hope-chest-1-the-attic",
+      "group": "short-stories",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "77722f8dcb64be7d5acf1ee87b6f32fe0ec740c07aade369893dc4ffc7e283e9",
+      "file": "short-stories/our-hope-chest-1-the-attic.md"
+    },
+    {
+      "id": "46",
+      "slug": "gallery-view-7-gallery-view",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "16f9b7812c1578821c5d986c6c1aafdf4257831f3f72f810296f6bf70af9c758",
+      "file": "it-takes-a-zoo/gallery-view-7-gallery-view.md"
+    },
+    {
+      "id": "51",
+      "slug": "four-stages-nobody-tells-you-about",
+      "group": "arcade-blog",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "b7c715acbf3bc9f75d8e01f00cd15036fb16f529e1a1cf90cc30b4c248bb001f",
+      "file": "arcade-blog/four-stages-nobody-tells-you-about.md"
+    },
+    {
+      "id": "45",
+      "slug": "gallery-view-6-stack-trace",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "75687190b034d0094750351a2321da119c868a4a93171510e43ad220e599bfbd",
+      "file": "it-takes-a-zoo/gallery-view-6-stack-trace.md"
+    },
+    {
+      "id": "4",
+      "slug": "the-photograph-of-a-river",
+      "group": "the-singularity-log",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "f1244ff2e84509851ec234b886dee25e7aa0a9297bae5f95f372be0e12285ca9",
+      "file": "the-singularity-log/the-photograph-of-a-river.md"
+    },
+    {
+      "id": "3",
+      "slug": "the-hidden-tax-on-senior-engineers",
+      "group": "the-singularity-log",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "85f97c1744fc9f2993faafb7a374d70ad49f0ae61f26b5c14a488d17e110fc97",
+      "file": "the-singularity-log/the-hidden-tax-on-senior-engineers.md"
+    },
+    {
+      "id": "42",
+      "slug": "gallery-view-3-lobby",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "3c90b5459689118d53e5a1b017dae17d1abad4d186576116e6f63f18fa2798ae",
+      "file": "it-takes-a-zoo/gallery-view-3-lobby.md"
+    },
+    {
+      "id": "41",
+      "slug": "gallery-view-2-content-delivery-network",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "3c5bb69c46aaae0d3a89f7a36a12274bef204ae5fc350d4aa21ebb022e5405d6",
+      "file": "it-takes-a-zoo/gallery-view-2-content-delivery-network.md"
+    },
+    {
+      "id": "40",
+      "slug": "gallery-view-1-the-painting",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "d85ad0b2be7a9c164d6ebd5edf85676273d6569e2698a6431a3645e22b3230ee",
+      "file": "it-takes-a-zoo/gallery-view-1-the-painting.md"
+    },
+    {
+      "id": "39",
+      "slug": "how-to-run-a-successful-moral-panic",
+      "group": "the-singularity-log",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "70ea37a27e2ff83ecb323502285a9d3b2a04ccabd93787c5673b942df3baa093",
+      "file": "the-singularity-log/how-to-run-a-successful-moral-panic.md"
+    },
+    {
+      "id": "29",
+      "slug": "how-do-i-work-when-labor-gets-weird",
+      "group": "the-singularity-log",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "ee6aad8f96fdcaa484ab87c966788e59424c725d0a4ebc2b896a5dadc462d474",
+      "file": "the-singularity-log/how-do-i-work-when-labor-gets-weird.md"
+    },
+    {
+      "id": "10",
+      "slug": "ai-as-an-art-medium",
+      "group": "ai-art-experiments",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "44c6b1ac3c4684e6209ec3753f690bc5f08faf178ae1a31a21b27d280aff6bd8",
+      "file": "ai-art-experiments/ai-as-an-art-medium.md"
+    },
+    {
+      "id": "38",
+      "slug": "ginnys-magic",
+      "group": "short-stories",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "b32be928df8d944a2d68e1000715925b1df58147d0d21f4b77ba1d90878e57b1",
+      "file": "short-stories/ginnys-magic.md"
+    },
+    {
+      "id": "26",
+      "slug": "cold-boot-8-knock",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "1d8a234ad70ca6e4a681d33e5818f15145d9f616bdde4582250488fab4a1fb41",
+      "file": "it-takes-a-zoo/cold-boot-8-knock.md"
+    },
+    {
+      "id": "25",
+      "slug": "cold-boot-7-later",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "9edc891230fe0c48402fa2d86b41f89d018268560d21485f2b329828ab097563",
+      "file": "it-takes-a-zoo/cold-boot-7-later.md"
+    },
+    {
+      "id": "37",
+      "slug": "the-bad-place",
+      "group": "the-singularity-log",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "c9bb99ba9fb38672f635ed143f877a90c842697bfaa83562d17a17fde497433d",
+      "file": "the-singularity-log/the-bad-place.md"
+    },
+    {
+      "id": "36",
+      "slug": "claude-design-and-the-novel-t",
+      "group": "the-singularity-log",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "3d43eefab0e43577f361d9a7fd299fa3b0367cf2cdfa17ccfab8e3d1447aceb4",
+      "file": "the-singularity-log/claude-design-and-the-novel-t.md"
+    },
+    {
+      "id": "24",
+      "slug": "cold-boot-6-tide",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "06330d4ff0714982e808b18268f563dd8103cf6624f6fa39631d394d95289abb",
+      "file": "it-takes-a-zoo/cold-boot-6-tide.md"
+    },
+    {
+      "id": "23",
+      "slug": "cold-boot-5-warmth",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "05df975e4c0c204e50df0910827837435a7c1458c478ca350b988958d5ffbf72",
+      "file": "it-takes-a-zoo/cold-boot-5-warmth.md"
+    },
+    {
+      "id": "20",
+      "slug": "cold-boot-2-dinner",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "5e73a21189a6db4d2bc2fd512dcbe58c4669f056e9973c2a718dd3c22517ce4b",
+      "file": "it-takes-a-zoo/cold-boot-2-dinner.md"
+    },
+    {
+      "id": "18",
+      "slug": "it-takes-a-zoo",
+      "group": "it-takes-a-zoo",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "5f2fdcdd943841dd99b5dc9bd6701e756680f3990d6948df6e45cbd99b52a8bf",
+      "file": "it-takes-a-zoo/it-takes-a-zoo.md"
+    },
+    {
+      "id": "17",
+      "slug": "when-noone-approves",
+      "group": "the-singularity-log",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "2e2fc2bc17d5d5b8a2593d16392eeda3432e8e223c181ddc90070b807c8c9ecc",
+      "file": "the-singularity-log/when-noone-approves.md"
+    },
+    {
+      "id": "9",
+      "slug": "after-scarcity",
+      "group": "the-singularity-log",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "3e5e7fbf0e05aa1e63bc2ce754882c9c8a763af4e2e8b3a76510d1cc140a557b",
+      "file": "the-singularity-log/after-scarcity.md"
+    },
+    {
+      "id": "11",
+      "slug": "campfire-logic",
+      "group": "the-singularity-log",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "44f9f70bcef1d569a995f85394ca00e77acc236061d144b4d3c047eee5034aa0",
+      "file": "the-singularity-log/campfire-logic.md"
+    },
+    {
+      "id": "13",
+      "slug": "the-preciousness-problem",
+      "group": "the-singularity-log",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "9d59ca242f6bea42e6906ce73093e5a72de12c586049b74ecc37c88324d4ec7c",
+      "file": "the-singularity-log/the-preciousness-problem.md"
+    },
+    {
+      "id": "14",
+      "slug": "gist-memory-is-not-a-bug",
+      "group": "white-cane-chronicles",
+      "status": "sent",
+      "disposition": "exported",
+      "sourceHash": "fd4b79f5b84ae5ba0ec9b15f601ab16242b23edb288cebd93ea6c420cdd6916a",
+      "file": "white-cane-chronicles/gist-memory-is-not-a-bug.md"
+    }
+  ],
+  "validation": {
+    "passed": true,
+    "errors": []
+  }
+}
