@@ -25,13 +25,3 @@ export function generatePreviewToken(): string {
 export function isPreviewToken(value: unknown): value is string {
   return typeof value === 'string' && PREVIEW_TOKEN_PATTERN.test(value);
 }
-
-const DEFAULT_SITE_URL = 'https://thearcades.me';
-
-export function buildPreviewUrl(token: unknown, siteUrl?: string): string | null {
-  if (!isPreviewToken(token)) return null;
-  const base = (siteUrl ?? process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL)
-    .trim()
-    .replace(/\/+$/, '');
-  return `${base}/preview/${token}`;
-}

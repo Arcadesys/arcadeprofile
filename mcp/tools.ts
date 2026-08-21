@@ -11,7 +11,6 @@ import type { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
 import { isIsoDateOnly, parseIsoDateOnly } from '../lib/iso-date';
 import { postStatusValues } from '../lib/post-status';
-import { buildPreviewUrl } from '../lib/preview-token';
 import { todayInSiteTz } from '../lib/site-time';
 
 // ---------------------------------------------------------------------------
@@ -533,7 +532,6 @@ export const toolHandlers: Record<string, ToolHandler> = {
       publish_status: p.publish_status,
       publishedDate: p.publishedDate,
       excerpt: p.excerpt,
-      previewUrl: buildPreviewUrl(p.previewToken),
     }));
     return { content: [{ type: 'text', text: JSON.stringify(posts, null, 2) }] };
   },
@@ -547,9 +545,8 @@ export const toolHandlers: Record<string, ToolHandler> = {
       }),
     )) as { docs: Record<string, unknown>[] };
     if (!data.docs.length) return { content: [{ type: 'text', text: 'Post not found.' }] };
-    const doc = data.docs[0];
-    const enriched = { ...doc, previewUrl: buildPreviewUrl(doc.previewToken) };
-    return { content: [{ type: 'text', text: JSON.stringify(enriched, null, 2) }] };
+    const { previewToken: _retiredPreviewToken, ...doc } = data.docs[0];
+    return { content: [{ type: 'text', text: JSON.stringify(doc, null, 2) }] };
   },
 
   async create_post(args) {

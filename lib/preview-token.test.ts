@@ -4,7 +4,6 @@ import test from 'node:test';
 import {
   PREVIEW_TOKEN_LENGTH,
   PREVIEW_TOKEN_PATTERN,
-  buildPreviewUrl,
   generatePreviewToken,
   isPreviewToken,
 } from './preview-token';
@@ -36,13 +35,4 @@ test('isPreviewToken accepts valid tokens and rejects junk', () => {
   assert.ok(!isPreviewToken(null));
   assert.ok(!isPreviewToken(undefined));
   assert.ok(!isPreviewToken(12345678));
-});
-
-test('buildPreviewUrl composes site URL and strips trailing slashes', () => {
-  assert.equal(buildPreviewUrl('Aa0Bb1Cc', 'https://example.com'), 'https://example.com/preview/Aa0Bb1Cc');
-  assert.equal(buildPreviewUrl('Aa0Bb1Cc', 'https://example.com/'), 'https://example.com/preview/Aa0Bb1Cc');
-  assert.equal(buildPreviewUrl('Aa0Bb1Cc', 'https://example.com///'), 'https://example.com/preview/Aa0Bb1Cc');
-  assert.equal(buildPreviewUrl('invalid', 'https://example.com'), null);
-  assert.equal(buildPreviewUrl(null, 'https://example.com'), null);
-  assert.equal(buildPreviewUrl(undefined, 'https://example.com'), null);
 });

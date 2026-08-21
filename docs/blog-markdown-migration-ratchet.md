@@ -52,7 +52,9 @@ the editorial preview surface; secret preview links are retired.
 
 - Reader reactions are retired. Existing counts may be retained only in a
   migration record, not presented or migrated into a new runtime store.
-- Secret preview links are retired.
+- Secret preview links are retired. Token routes, share endpoints, editor
+  controls, and API projections are removed. The dormant token column remains
+  only for the rollback window; branch/PR deployments are the preview surface.
 - Checked-in RSS files are not part of the design. The eventual `/feed.xml`
   route must be generated from the same validated post index as public pages.
 

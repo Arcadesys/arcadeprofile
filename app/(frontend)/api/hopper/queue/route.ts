@@ -8,7 +8,6 @@ import { loadPublishedToday } from '@/lib/hopper/publishedToday';
 import { extractQueueIds, loadLiveQueueIds, loadPostsById } from '@/lib/hopper/loadQueue';
 import { isPublicPostStatus, prePublicOrMissingPostStatusClauses } from '@/lib/post-status';
 import { parsePositiveIntegerId } from '@/lib/positive-integer-id';
-import { buildPreviewUrl } from '@/lib/preview-token';
 import { isChapterSerialSchedule, type ChapterSerialSchedule } from '@/lib/serial-schedule';
 import { buildPostUrl } from '@/lib/post-url';
 
@@ -25,7 +24,6 @@ interface PostSummary {
   computedPublishDate: string | null;
   weekdayLabel: string | null;
   preflight: string[];
-  previewUrl: string | null;
   publishedUrl: string | null;
   deliveryStatus: string | null;
 }
@@ -65,7 +63,6 @@ function preflightFor(post: Post, groupMap: Map<string, Group>): string[] {
   if (!post.excerpt?.trim()) issues.push('Add a chapter excerpt.');
   if (!post.content) issues.push('Add the complete chapter content.');
   if (typeof post.order !== 'number') issues.push('Set the chapter order.');
-  if (!buildPreviewUrl(post.previewToken)) issues.push('Save once to create a preview link.');
   if (typeof post.suppressNewsletter !== 'boolean') issues.push('Choose whether this chapter sends a newsletter.');
   return issues;
 }
@@ -129,7 +126,6 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
       computedPublishDate: slot?.date ?? null,
       weekdayLabel: slot?.weekdayLabel ?? null,
       preflight: preflightFor(post, groupMap),
-      previewUrl: buildPreviewUrl(post.previewToken),
       publishedUrl: post.group && post.slug ? buildPostUrl(post.group, post.slug) : null,
       deliveryStatus: post.newsletterSend?.status ?? null,
     };
@@ -150,7 +146,6 @@ async function buildResponse(payload: Payload): Promise<QueueResponse> {
       computedPublishDate: publishedIso,
       weekdayLabel: `Today · ${lane === 'fiction' ? 'Fiction' : 'Essays'}`,
       preflight: preflightFor(post, groupMap),
-      previewUrl: buildPreviewUrl(post.previewToken),
       publishedUrl: post.group && post.slug ? buildPostUrl(post.group, post.slug) : null,
       deliveryStatus: post.newsletterSend?.status ?? null,
     };
