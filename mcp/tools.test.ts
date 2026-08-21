@@ -259,6 +259,7 @@ test('get_post encodes slugs before querying Payload', async () => {
     assert.equal(parsed.pathname, '/api/posts');
     assert.equal(parsed.searchParams.get('where[slug][equals]'), 'odd & slug');
     assert.equal(parsed.searchParams.get('limit'), '1');
+    assert.equal(parsed.searchParams.get('depth'), '2');
   } finally {
     restore();
   }

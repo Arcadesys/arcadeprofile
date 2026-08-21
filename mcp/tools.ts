@@ -543,7 +543,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
       payloadQueryPath('posts', {
         'where[slug][equals]': args.slug as string,
         limit: 1,
-        depth: 0,
+        depth: 2,
       }),
     )) as { docs: Record<string, unknown>[] };
     if (!data.docs.length) return { content: [{ type: 'text', text: 'Post not found.' }] };

@@ -74,6 +74,19 @@ accepts a canonical `content/posts` target, never stores raw source documents,
 and never logs a token. The report contains only source hashes and safe
 identity/metadata needed to assess parity.
 
+When a direct Payload credential is unavailable, the same exporter can use the
+hosted read-only MCP channel:
+
+```bash
+ARCADEPROFILE_MCP_TOKEN=... npm run export:payload-posts -- \
+  --mcp-url https://www.thearcades.me/api/mcp
+```
+
+MCP mode explicitly inventories `draft`, `scheduled`, `published`, and `sent`
+posts, then retrieves each full document. Drafts remain report-only and are not
+written into the public Markdown runtime. This preserves the rule that a past
+`publishDate` must never accidentally make an unfinished draft public.
+
 Published and sent posts may export when their groups, RFC 3339 dates, semantic
 Lexical nodes, and media alt text pass validation. Drafts remain inventory only.
 Scheduled posts require a future `scheduledPublishDate` exactly matching their
