@@ -14,11 +14,11 @@ function post(overrides: Partial<PayloadPost> = {}): PayloadPost {
   return {
     id: 1, title: 'Exportable Post', slug: 'exportable-post', excerpt: 'A useful summary.',
     publishedDate: '2026-08-20T09:00:00Z', updatedAt: '2026-08-20T10:00:00Z', publish_status: 'published', group: 'alpha', order: 1,
-    tags: [{ tag: 'testing' }], meta: { title: 'SEO title', description: 'SEO description', image: { id: 77, filename: 'hero.webp', alt: 'A testing hero image', url: '/api/media/hero.webp' } },
+    tags: [{ tag: 'testing' }], meta: { title: 'SEO title', description: 'SEO description', image: { id: 77, filename: 'hero.webp', alt: 'A testing hero image', url: 'https://assets.public.blob.vercel-storage.com/hero.webp' } },
     content: { root: { children: [
       { type: 'heading', tag: 'h2', children: [{ type: 'text', text: 'Heading' }] },
       { type: 'paragraph', children: [{ type: 'text', text: 'Read ' }, { type: 'link', fields: { url: 'https://example.test' }, children: [{ type: 'text', text: 'this' }] }] },
-      { type: 'upload', value: { id: 88, filename: 'inline.webp', alt: 'A useful inline illustration', url: '/api/media/inline.webp' } },
+      { type: 'upload', value: { id: 88, filename: 'inline.webp', alt: 'A useful inline illustration', url: 'https://assets.public.blob.vercel-storage.com/inline.webp' } },
     ] } },
     ...overrides,
   };
@@ -35,6 +35,8 @@ test('dry run converts only safe public posts, retains loader compatibility, and
     const markdown = result.files.get('alpha/exportable-post.md');
     assert.ok(markdown);
     assert.doesNotMatch(markdown, /\/api\/media\//);
+    assert.match(markdown, /hero:\n  src: 'https:\/\/assets\.public\.blob\.vercel-storage\.com\/hero\.webp'/);
+    assert.match(markdown, /!\[A useful inline illustration\]\(https:\/\/assets\.public\.blob\.vercel-storage\.com\/inline\.webp\)/);
     const staged = await mkdtemp(path.join(os.tmpdir(), 'markdown-loader-'));
     try {
       await exportPayloadPosts({ posts: [post()], groups, now, dryRun: false, stagingDirectory: staged });
@@ -72,6 +74,27 @@ test('converts the saved Payload YouTube block shape', async () => {
     meta: {},
   })], groups, now });
   assert.match(result.files.get('alpha/exportable-post.md') ?? '', /youtube\.com\/watch\?v=abc123/);
+});
+
+test('applies reviewed alt overrides by stable Payload media id', async () => {
+  const result = await exportPayloadPosts({
+    posts: [post({
+      meta: {
+        image: {
+          id: 77,
+          filename: 'hero.webp',
+          alt: null,
+          url: 'https://assets.public.blob.vercel-storage.com/hero.webp',
+        },
+      },
+    })],
+    groups,
+    now,
+    mediaAltById: { '77': 'A reviewed description of the hero image.' },
+  });
+  assert.equal(result.report.totals.exported, 1);
+  assert.equal(result.report.totals.media.missingMeaningfulAlt, 0);
+  assert.match(result.files.get('alpha/exportable-post.md') ?? '', /A reviewed description of the hero image\./);
 });
 
 test('inventories every workflow status and blocks ambiguous scheduled posts while excluding drafts', async () => {

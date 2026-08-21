@@ -106,6 +106,8 @@ export interface ParityReport {
 export interface ExportPayloadPostsOptions {
   posts: readonly PayloadPost[];
   groups: readonly PayloadGroup[];
+  mediaAltById?: Readonly<Record<string, string>>;
+  mediaUrlById?: Readonly<Record<string, string>>;
   now?: Date;
   dryRun?: boolean;
   stagingDirectory?: string;
@@ -174,14 +176,45 @@ function meaningfulAlt(media: PayloadMedia): boolean {
   return Boolean(media.alt && media.alt.trim().length >= 3 && !/^image$/i.test(media.alt.trim()));
 }
 
+function resolveMedia(
+  media: PayloadMedia,
+  mediaAltById: Readonly<Record<string, string>>,
+  mediaUrlById: Readonly<Record<string, string>> = {},
+): PayloadMedia {
+  const id = String(media.id);
+  const override = string(mediaAltById[id]);
+  const url = string(mediaUrlById[id]);
+  return {
+    ...media,
+    ...(override ? { alt: override } : {}),
+    ...(url ? { url } : {}),
+  };
+}
+
+function stableMediaUrl(media: PayloadMedia): string | undefined {
+  const url = string(media.url);
+  if (!url || legacyMediaUrl.test(url)) return undefined;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' ? parsed.toString() : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 type Conversion = { markdown?: string; unsupported: string[]; media: PayloadMedia[]; errors: string[] };
 
-function convertLexical(content: unknown): Conversion {
+function convertLexical(
+  content: unknown,
+  mediaAltById: Readonly<Record<string, string>> = {},
+  mediaUrlById: Readonly<Record<string, string>> = {},
+): Conversion {
   const root = object(object(content)?.root);
   const nodes = root && Array.isArray(root.children) ? root.children.filter((node): node is LexicalNode => Boolean(object(node))) : undefined;
   if (!nodes) return { unsupported: [], media: [], errors: ['content.root.children is missing'] };
   const unsupported: string[] = [];
   const media: PayloadMedia[] = [];
+  const errors: string[] = [];
 
   const inline = (items: LexicalNode[] = []): string => items.map((node) => {
     const type = string(node.type);
@@ -231,17 +264,22 @@ function convertLexical(content: unknown): Conversion {
       return `[YouTube video](https://www.youtube.com/watch?v=${videoId})`;
     }
     if (type === 'upload') {
-      const item = mediaFrom(node.value ?? object(node.fields));
-      if (!item) { unsupported.push('upload: missing media id'); return ''; }
+      const rawItem = mediaFrom(node.value ?? object(node.fields));
+      if (!rawItem) { unsupported.push('upload: missing media id'); return ''; }
+      const item = resolveMedia(rawItem, mediaAltById, mediaUrlById);
       media.push(item);
-      return `> **Media migration required:** ${item.alt ?? 'Missing alt text'} (Payload upload ${item.id}).`;
+      const url = stableMediaUrl(item);
+      if (!url) { errors.push(`media ${item.id} lacks a stable HTTPS URL`); return ''; }
+      const alt = (item.alt ?? '').replace(/([\[\]])/g, '\\$1');
+      return `![${alt}](${url})`;
     }
     unsupported.push(`block:${type ?? 'unknown'}`);
     return '';
   }).filter(Boolean).join('\n\n');
 
   const markdown = block(nodes).trim();
-  return { markdown: markdown || undefined, unsupported, media, errors: markdown ? [] : ['content has no convertible Markdown body'] };
+  if (!markdown) errors.push('content has no convertible Markdown body');
+  return { markdown: markdown || undefined, unsupported, media, errors };
 }
 
 function tags(value: unknown): string[] | undefined {
@@ -250,7 +288,10 @@ function tags(value: unknown): string[] | undefined {
   return result.length ? result : undefined;
 }
 
-function groupManifest(group: PayloadGroup): string | undefined {
+function groupManifest(
+  group: PayloadGroup,
+  mediaUrlById: Readonly<Record<string, string>>,
+): string | undefined {
   const groupSlug = string(group.slug);
   const groupTitle = string(group.title);
   if (!groupSlug || !groupTitle) return undefined;
@@ -274,9 +315,9 @@ function groupManifest(group: PayloadGroup): string | undefined {
   const relatedPostSlugs = Array.isArray(group.relatedPostSlugs)
     ? group.relatedPostSlugs.map((item) => string(typeof item === 'string' ? item : object(item)?.slug)).filter((item): item is string => Boolean(item))
     : undefined;
-  const image = object(group.image);
-  const imageUrl = string(typeof group.image === 'string' ? group.image : image?.url);
-  if (imageUrl && legacyMediaUrl.test(imageUrl)) return undefined;
+  const image = mediaFrom(group.image);
+  const imageUrl = image ? stableMediaUrl(resolveMedia(image, {}, mediaUrlById)) : undefined;
+  if (group.image && !imageUrl) return undefined;
   const intro = group.jacketDescription ? convertLexical(group.jacketDescription) : undefined;
   if (intro && (intro.errors.length || intro.unsupported.length || intro.media.length || !intro.markdown)) return undefined;
   const parsed = markdownGroupSchema.safeParse({
@@ -321,8 +362,13 @@ function groupSlug(value: unknown, groupById: ReadonlyMap<string, string>): stri
   return scalar ? groupById.get(scalar) ?? scalar : undefined;
 }
 
-function heroFrom(post: PayloadPost): PayloadMedia | undefined {
-  return mediaFrom(object(post.meta)?.image);
+function heroFrom(
+  post: PayloadPost,
+  mediaAltById: Readonly<Record<string, string>>,
+  mediaUrlById: Readonly<Record<string, string>>,
+): PayloadMedia | undefined {
+  const media = mediaFrom(object(post.meta)?.image);
+  return media ? resolveMedia(media, mediaAltById, mediaUrlById) : undefined;
 }
 
 function summarize(report: ParityReport): void {
@@ -344,6 +390,8 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
     }
   }
   const now = options.now ?? new Date();
+  const mediaAltById = options.mediaAltById ?? {};
+  const mediaUrlById = options.mediaUrlById ?? {};
   if (!Number.isFinite(now.getTime())) throw new Error('Exporter requires a valid current time.');
   const groups = new Set(options.groups.map((group) => string(group.slug)).filter((slug): slug is string => Boolean(slug)));
   const groupById = new Map(
@@ -370,7 +418,7 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
 
   for (const group of options.groups) {
     const slug = string(group.slug);
-    const manifest = groupManifest(group);
+    const manifest = groupManifest(group, mediaUrlById);
     if (!slug || !manifest) {
       errors.push(`group ${slug ?? '(missing slug)'} cannot be represented as a Markdown manifest`);
       continue;
@@ -402,9 +450,9 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
         record.reason = 'scheduled post lacks an unambiguous future publish date'; records.push(record); continue;
       }
     }
-    const conversion = convertLexical(post.content);
+    const conversion = convertLexical(post.content, mediaAltById, mediaUrlById);
     mediaTotal += conversion.media.length;
-    const hero = heroFrom(post);
+    const hero = heroFrom(post, mediaAltById, mediaUrlById);
     if (hero) mediaTotal += 1;
     for (const item of [...conversion.media, ...(hero ? [hero] : [])]) {
       mediaItems.push({ payloadMediaId: String(item.id), postId: id, ...(slug ? { postSlug: slug } : {}), ...(item.filename ? { filename: item.filename } : {}), ...(item.alt ? { alt: item.alt } : {}) });
@@ -413,7 +461,9 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
     unsupportedNodes += conversion.unsupported.length;
     if (conversion.unsupported.length) { record.reason = `unsupported Lexical nodes: ${conversion.unsupported.join(', ')}`; records.push(record); continue; }
     if (conversion.errors.length || !conversion.markdown) { record.reason = conversion.errors.join('; '); records.push(record); continue; }
-    if ([...conversion.media, ...(hero ? [hero] : [])].some((item) => !meaningfulAlt(item))) { record.reason = 'media is missing meaningful alt text'; records.push(record); continue; }
+    const referencedMedia = [...conversion.media, ...(hero ? [hero] : [])];
+    if (referencedMedia.some((item) => !meaningfulAlt(item))) { record.reason = 'media is missing meaningful alt text'; records.push(record); continue; }
+    if (referencedMedia.some((item) => !stableMediaUrl(item))) { record.reason = 'media lacks a stable non-Payload HTTPS URL'; records.push(record); continue; }
     const meta = object(post.meta);
     const frontmatter = markdownPostFrontmatterSchema.safeParse({
       id,
@@ -425,7 +475,7 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
       ...(validDate(post.updatedAt) ? { updatedDate: post.updatedAt } : {}),
       ...(string(post.excerpt) ? { excerpt: string(post.excerpt) } : {}),
       ...(tags(post.tags) ? { tags: tags(post.tags) } : {}),
-      ...(hero ? { hero: { src: `payload-media:${hero.id}`, alt: hero.alt } } : {}),
+      ...(hero ? { hero: { src: stableMediaUrl(hero), alt: hero.alt } } : {}),
       ...(string(meta?.title) || string(meta?.description) ? { seo: { ...(string(meta?.title) ? { title: string(meta?.title) } : {}), ...(string(meta?.description) ? { description: string(meta?.description) } : {}) } } : {}),
     });
     if (!frontmatter.success) { record.reason = `frontmatter validation failed: ${frontmatter.error.issues.map((issue) => issue.message).join(', ')}`; records.push(record); continue; }

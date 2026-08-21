@@ -56,6 +56,18 @@ test('strict frontmatter rejects unknown fields, status fields, and incomplete h
   );
 });
 
+test('frontmatter preserves legacy zero-based ordering', () => {
+  const base = {
+    id: 'legacy-zero-order',
+    title: 'Legacy Zero Order',
+    slug: 'legacy-zero-order',
+    group: 'valid-group',
+    publishDate: '2026-08-20T09:00:00-05:00',
+  };
+  assert.equal(markdownPostFrontmatterSchema.safeParse({ ...base, order: 0 }).success, true);
+  assert.equal(markdownPostFrontmatterSchema.safeParse({ ...base, order: -1 }).success, false);
+});
+
 test('frontmatter requires a valid RFC 3339 date-time offset or Z suffix', () => {
   const base = {
     id: 'valid-post',
