@@ -81,6 +81,7 @@ export const markdownGroupSchema = z
     slug,
     title: nonEmptyText,
     description: z.string().optional(),
+    introMarkdown: z.string().trim().min(1).optional(),
     tags: z.array(nonEmptyText).optional(),
     chapters: z
       .array(

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getProjectBySlug } from '@/lib/payload';
 import { getBlogSource, getGroupBySlug } from '@/lib/blog';
+import MarkdownPostBody from '@/app/components/MarkdownPostBody';
 import { resolveGroupOgImage } from '@/lib/post-og-image';
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
@@ -241,7 +242,7 @@ export default async function ProjectIntroPage({ params }: Props) {
           )}
         </header>
 
-        {project.jacketDescription && (
+        {(project.jacketDescription || project.jacketMarkdown) && (
           <div style={{
             marginBottom: '2.5rem',
             padding: '1.25rem 1.5rem',
@@ -250,7 +251,9 @@ export default async function ProjectIntroPage({ params }: Props) {
             borderRadius: '0 6px 6px 0',
           }}>
             <div className="prose prose-jacket">
-              <PostRichText data={project.jacketDescription} />
+              {project.jacketMarkdown
+                ? <MarkdownPostBody markdown={project.jacketMarkdown} />
+                : <PostRichText data={project.jacketDescription!} />}
             </div>
           </div>
         )}

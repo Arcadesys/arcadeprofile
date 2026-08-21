@@ -1,5 +1,6 @@
 /** Read-only Payload REST inventory plus a dry-run-by-default staging exporter. */
 import { collectPayloadPages, exportPayloadPosts, type PayloadGroup, type PayloadPost } from '../lib/payload-markdown-export';
+import { classifyPayloadExportFailure, payloadExportHeaders, resolvePayloadExportAuth } from '../lib/payload-export-auth';
 
 function option(name: string): string | undefined {
   const index = process.argv.indexOf(name);
@@ -7,11 +8,14 @@ function option(name: string): string | undefined {
 }
 
 const baseUrl = option('--base-url')?.replace(/\/+$/, '');
-const token = option('--token') ?? process.env.PAYLOAD_EXPORT_TOKEN;
+const auth = resolvePayloadExportAuth({
+  credentialFromCli: option('--token'),
+  schemeFromCli: option('--auth-scheme'),
+});
 const stagingDirectory = option('--staging-dir');
 const write = process.argv.includes('--write');
 
-if (!baseUrl) throw new Error('Usage: npm run export:payload-posts -- --base-url https://example.test [--token TOKEN] [--write --staging-dir /absolute/staging/path]');
+if (!baseUrl) throw new Error('Usage: npm run export:payload-posts -- --base-url https://example.test [--token TOKEN --auth-scheme users-api-key|jwt|bearer] [--write --staging-dir /absolute/staging/path]');
 if (write && !stagingDirectory) throw new Error('--write requires an explicit --staging-dir; canonical content/posts is never a target.');
 if (!write && stagingDirectory) throw new Error('--staging-dir requires --write. The default is a no-write dry run.');
 
@@ -21,8 +25,8 @@ async function fetchAll<T>(collection: string): Promise<T[]> {
     url.searchParams.set('depth', '2');
     url.searchParams.set('limit', '100');
     url.searchParams.set('page', String(page));
-    const response = await fetch(url, { headers: token ? { Authorization: `JWT ${token}` } : undefined });
-    if (!response.ok) throw new Error(`Payload ${collection} inventory failed: ${response.status} ${response.statusText}`);
+    const response = await fetch(url, { headers: payloadExportHeaders(auth) });
+    if (!response.ok) throw new Error(`Payload ${collection} inventory failed: ${classifyPayloadExportFailure(response.status)}`);
     return await response.json() as { docs?: T[]; page?: number; totalPages?: number };
   });
 }

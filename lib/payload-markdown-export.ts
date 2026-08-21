@@ -40,6 +40,7 @@ export interface PayloadGroup {
   slug?: unknown;
   title?: unknown;
   description?: unknown;
+  jacketDescription?: unknown;
   tags?: unknown;
   chapters?: unknown;
   meta?: unknown;
@@ -268,10 +269,14 @@ function groupManifest(group: PayloadGroup): string | undefined {
     : undefined;
   const image = object(group.image);
   const imageUrl = string(typeof group.image === 'string' ? group.image : image?.url);
+  if (imageUrl && legacyMediaUrl.test(imageUrl)) return undefined;
+  const intro = group.jacketDescription ? convertLexical(group.jacketDescription) : undefined;
+  if (intro && (intro.errors.length || intro.unsupported.length || intro.media.length || !intro.markdown)) return undefined;
   const parsed = markdownGroupSchema.safeParse({
     slug: groupSlug,
     title: groupTitle,
     ...(typeof group.description === 'string' ? { description: group.description } : {}),
+    ...(intro?.markdown ? { introMarkdown: intro.markdown } : {}),
     ...(tags(group.tags) ? { tags: tags(group.tags) } : {}),
     ...(chapters?.length ? { chapters } : {}),
     ...(string(meta?.title) || string(meta?.description) ? { meta: {
