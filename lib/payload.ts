@@ -7,6 +7,8 @@ import { publicPostStatusWhere } from '@/lib/post-status';
 import { buildGroupIntroUrl } from '@/lib/post-url';
 import type { ProjectFormat, ProjectResourceKind } from '@/lib/project-model';
 import { slugify } from '@/lib/utils';
+import { getBlogSource } from '@/lib/blog';
+import { loadMarkdownGroups, loadMarkdownPosts, selectPublicMarkdownPosts, type MarkdownGroup } from '@/lib/markdown-posts';
 
 type ProjectPayload = Pick<Payload, 'find'>;
 
@@ -26,7 +28,7 @@ export interface ProjectCTA {
 }
 
 export interface ProjectHub {
-  id: number;
+  id: number | string;
   slug: string;
   title: string;
   description: string;
@@ -36,6 +38,7 @@ export interface ProjectHub {
   external?: boolean | null;
   tags: string[];
   featured: boolean;
+  homeHighlight: boolean;
   category?: string | null;
   status?: string | null;
   format?: ProjectFormat | null;
@@ -44,6 +47,59 @@ export interface ProjectHub {
   relatedPostSlugs: string[];
   updatedAt?: string;
   createdAt?: string;
+}
+
+const projectResourceKinds = new Set<ProjectResourceKind>([
+  'preview', 'buy', 'experiment', 'youtube', 'audio', 'repo', 'download', 'post', 'other',
+]);
+
+function markdownProjectHub(group: MarkdownGroup, postSlugs: string[]): ProjectHub {
+  const project = group.project ?? {};
+  const resources: ProjectResource[] = (project.resources ?? []).map((resource) => ({
+    label: resource.label,
+    href: resource.href,
+    kind: projectResourceKinds.has(resource.kind as ProjectResourceKind)
+      ? resource.kind as ProjectResourceKind
+      : 'other',
+    description: resource.description,
+    external: resource.external,
+  }));
+  const primaryType = project.primaryCTA?.type;
+  return {
+    id: group.slug,
+    slug: group.slug,
+    title: group.title,
+    description: group.description ?? '',
+    image: project.image,
+    href: project.href ?? buildGroupIntroUrl(group.slug),
+    external: project.external ?? false,
+    tags: group.tags ?? [],
+    featured: project.featured ?? false,
+    homeHighlight: project.homeHighlight ?? false,
+    category: project.category,
+    status: project.status,
+    format: project.format ?? 'serial',
+    primaryCTA: project.primaryCTA ? {
+      label: project.primaryCTA.label,
+      href: project.primaryCTA.href,
+      type: primaryType && projectResourceKinds.has(primaryType as ProjectResourceKind) && primaryType !== 'post'
+        ? primaryType as Exclude<ProjectResourceKind, 'post'>
+        : 'other',
+    } : undefined,
+    resources,
+    relatedPostSlugs: Array.from(new Set([...postSlugs, ...(project.relatedPostSlugs ?? [])])),
+    updatedAt: project.updatedAt,
+    createdAt: project.createdAt,
+  };
+}
+
+function getMarkdownProjectHubs(): ProjectHub[] {
+  const groups = loadMarkdownGroups();
+  const posts = selectPublicMarkdownPosts(loadMarkdownPosts());
+  return groups.map((group) => markdownProjectHub(
+    group,
+    posts.filter((post) => post.group === group.slug).map((post) => post.slug),
+  )).sort((a, b) => a.title.localeCompare(b.title));
 }
 
 async function getPayloadClient() {
@@ -99,6 +155,7 @@ function normalizeGroup(doc: Group, postSlugsForGroup: string[] = []): ProjectHu
     external,
     tags: normalizeStringArray(doc.tags),
     featured: Boolean(doc.featured),
+    homeHighlight: Boolean(doc.homeHighlight),
     category: doc.category,
     status: doc.status,
     format: doc.format ?? 'serial',
@@ -165,6 +222,7 @@ export async function loadProjectHubs(payload: ProjectPayload): Promise<ProjectH
 }
 
 export async function getAllProjectHubs(): Promise<ProjectHub[]> {
+  if (getBlogSource() === 'markdown') return getMarkdownProjectHubs();
   try {
     const payload = await getPayloadClient();
     return await loadProjectHubs(payload);
@@ -175,6 +233,9 @@ export async function getAllProjectHubs(): Promise<ProjectHub[]> {
 }
 
 export async function getProjectBySlug(slug: string): Promise<ProjectHub | null> {
+  if (getBlogSource() === 'markdown') {
+    return getMarkdownProjectHubs().find((group) => group.slug === slug) ?? null;
+  }
   try {
     const payload = await getPayloadClient();
     const result = await payload.find({

@@ -7,7 +7,7 @@ import test from 'node:test';
 import { loadMarkdownPosts, selectPublicMarkdownPosts } from './markdown-posts';
 import { collectPayloadPages, exportPayloadPosts, type PayloadPost } from './payload-markdown-export';
 
-const groups = [{ slug: 'alpha' }];
+const groups = [{ slug: 'alpha', title: 'Alpha', description: 'Alpha writing.' }];
 const now = new Date('2026-08-20T12:00:00Z');
 
 function post(overrides: Partial<PayloadPost> = {}): PayloadPost {
@@ -88,7 +88,7 @@ test('reports duplicates, unsupported nodes, unresolved groups, invalid dates, a
   assert.equal(result.report.totals.media.missingMeaningfulAlt, 1);
   assert.equal(result.report.totals.exported, 1);
   assert.equal(result.report.validation.passed, false);
-  assert.equal(result.files.size, 1);
+  assert.equal(result.files.size, 2);
 });
 
 test('staged report contains safe source hashes and media identity but never raw Payload URLs or tokens', async () => {

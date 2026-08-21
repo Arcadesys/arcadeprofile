@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import {
   loadMarkdownPosts,
+  loadMarkdownGroups,
   markdownPostFrontmatterSchema,
   selectPublicMarkdownPosts,
 } from './markdown-posts';
@@ -20,6 +21,12 @@ test('loads strict Markdown post frontmatter in deterministic group and post ord
   ]);
   assert.equal(posts[0]?.body, '# First Alpha Post\n\nThe first fixture post.');
   assert.equal(posts[0]?.hero?.alt, 'A clear description of the alpha hero image.');
+});
+
+test('loads strict group manifests alongside post directories', () => {
+  const groups = loadMarkdownGroups({ contentDirectory: FIXTURES_DIRECTORY });
+  assert.deepEqual(groups.map((group) => group.slug), ['alpha', 'beta']);
+  assert.equal(groups[0]?.title, 'Alpha');
 });
 
 test('publishDate is the sole visibility control and can use an injected current time', () => {

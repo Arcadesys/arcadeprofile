@@ -10,6 +10,7 @@ import { z } from 'zod';
  */
 
 export const DEFAULT_MARKDOWN_POSTS_DIRECTORY = path.join(process.cwd(), 'content', 'posts');
+export const MARKDOWN_GROUP_MANIFEST = '_group.json';
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const RFC3339_OFFSET_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
@@ -75,6 +76,71 @@ export const markdownPostFrontmatterSchema = z
 
 export type MarkdownPostFrontmatter = z.infer<typeof markdownPostFrontmatterSchema>;
 
+export const markdownGroupSchema = z
+  .object({
+    slug,
+    title: nonEmptyText,
+    description: z.string().optional(),
+    tags: z.array(nonEmptyText).optional(),
+    chapters: z
+      .array(
+        z
+          .object({
+            title: nonEmptyText,
+            slug,
+          })
+          .strict(),
+      )
+      .optional(),
+    meta: z
+      .object({
+        title: nonEmptyText.optional(),
+        description: nonEmptyText.optional(),
+      })
+      .strict()
+      .optional(),
+    project: z
+      .object({
+        image: nonEmptyText.optional(),
+        href: nonEmptyText.optional(),
+        external: z.boolean().optional(),
+        featured: z.boolean().optional(),
+        homeHighlight: z.boolean().optional(),
+        category: nonEmptyText.optional(),
+        status: nonEmptyText.optional(),
+        format: z.enum(['serial', 'collection']).optional(),
+        primaryCTA: z
+          .object({
+            label: nonEmptyText.optional(),
+            href: nonEmptyText.optional(),
+            type: nonEmptyText.optional(),
+          })
+          .strict()
+          .optional(),
+        resources: z
+          .array(
+            z
+              .object({
+                label: nonEmptyText,
+                href: nonEmptyText,
+                kind: nonEmptyText,
+                description: z.string().optional(),
+                external: z.boolean().optional(),
+              })
+              .strict(),
+          )
+          .optional(),
+        relatedPostSlugs: z.array(slug).optional(),
+        updatedAt: rfc3339OffsetDateTime.optional(),
+        createdAt: rfc3339OffsetDateTime.optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();
+
+export type MarkdownGroup = z.infer<typeof markdownGroupSchema> & { filePath: string };
+
 export interface MarkdownPost extends MarkdownPostFrontmatter {
   body: string;
   filePath: string;
@@ -83,6 +149,30 @@ export interface MarkdownPost extends MarkdownPostFrontmatter {
 export interface LoadMarkdownPostsOptions {
   /** Defaults to content/posts; tests and migration tools should inject a fixture directory. */
   contentDirectory?: string;
+}
+
+export function loadMarkdownGroups(options: LoadMarkdownPostsOptions = {}): MarkdownGroup[] {
+  const contentDirectory = options.contentDirectory ?? DEFAULT_MARKDOWN_POSTS_DIRECTORY;
+  if (!statSync(contentDirectory, { throwIfNoEntry: false })?.isDirectory()) return [];
+
+  const groups: MarkdownGroup[] = [];
+  for (const entry of readdirSync(contentDirectory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+    if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
+    const filePath = path.join(contentDirectory, entry.name, MARKDOWN_GROUP_MANIFEST);
+    if (!statSync(filePath, { throwIfNoEntry: false })?.isFile()) {
+      throw new Error(`Markdown group ${entry.name} is missing ${filePath}.`);
+    }
+    const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
+    const parsed = markdownGroupSchema.safeParse(raw);
+    if (!parsed.success) {
+      throw new Error(`Invalid Markdown group manifest ${filePath}: ${z.prettifyError(parsed.error)}`);
+    }
+    if (parsed.data.slug !== entry.name) {
+      throw new Error(`Markdown group ${filePath} has slug ${parsed.data.slug}; expected ${entry.name} from its directory.`);
+    }
+    groups.push({ ...parsed.data, filePath });
+  }
+  return groups;
 }
 
 export function compareMarkdownPosts(a: MarkdownPost, b: MarkdownPost): number {

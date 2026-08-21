@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getProjectBySlug } from '@/lib/payload';
-import { getGroupBySlug } from '@/lib/blog';
+import { getBlogSource, getGroupBySlug } from '@/lib/blog';
 import { resolveGroupOgImage } from '@/lib/post-og-image';
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
@@ -100,11 +100,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ]);
   if (!project) return {};
 
-  const payload = await getPayload({ config: payloadConfig });
-  const [og, groupExtras] = await Promise.all([
-    resolveGroupOgImage(payload, slug),
-    loadGroupExtras(slug),
-  ]);
+  const isMarkdown = getBlogSource() === 'markdown';
+  const payload = isMarkdown ? null : await getPayload({ config: payloadConfig });
+  const [og, groupExtras] = isMarkdown
+    ? [project.image ? { url: project.image, alt: project.title } : null, { canonicalPath: null }]
+    : await Promise.all([
+        resolveGroupOgImage(payload!, slug),
+        loadGroupExtras(slug),
+      ]);
   const metaTitle = group?.meta?.title?.trim() || project.title;
   const metaDescription = group?.meta?.description?.trim() || project.description || undefined;
   const titleForOg = `${metaTitle} | Free Play Publishing`;
@@ -160,7 +163,9 @@ export default async function ProjectIntroPage({ params }: Props) {
 
   const sections = buildDrawerSections(slug, project.title, chapterSections);
   const nextPartHref = firstPost ? buildPostUrl(slug, firstPost.slug) : undefined;
-  const groupExtras = await loadGroupExtras(slug);
+  const groupExtras = getBlogSource() === 'markdown'
+    ? { canonicalPath: null }
+    : await loadGroupExtras(slug);
   const canonicalUrl = resolveCanonicalUrl(
     groupExtras.canonicalPath,
     buildGroupIntroUrl(slug),

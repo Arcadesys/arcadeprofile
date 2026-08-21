@@ -1,10 +1,29 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import path from 'node:path';
 import type { Payload } from 'payload';
 
 import type { Group as PayloadGroup, Page as PayloadPage, Post } from '@/payload-types';
 
-import { loadAllPages, loadAllPosts, loadGroupBySlug, loadUngroupedPosts } from './blog';
+import { getBlogSource, loadAllPages, loadAllPosts, loadGroupBySlug, loadMarkdownBlog, loadUngroupedPosts } from './blog';
+
+const MARKDOWN_FIXTURES = path.join(process.cwd(), 'lib', 'fixtures', 'markdown-posts');
+
+test('Markdown blog adapter uses one validated snapshot for posts and groups', () => {
+  const snapshot = loadMarkdownBlog({
+    contentDirectory: MARKDOWN_FIXTURES,
+    now: new Date('2026-08-22T00:00:00Z'),
+  });
+  assert.deepEqual(snapshot.posts.map((post) => post.slug), ['first', 'second']);
+  assert.deepEqual(snapshot.groups.map((group) => group.slug), ['alpha']);
+  assert.equal(snapshot.groups[0]?.posts[0]?.markdownBody?.startsWith('# First'), true);
+});
+
+test('blog source defaults to Payload and rejects ambiguous values', () => {
+  assert.equal(getBlogSource(undefined), 'payload');
+  assert.equal(getBlogSource(' markdown '), 'markdown');
+  assert.throws(() => getBlogSource('auto'), /must be payload or markdown/);
+});
 
 function paginated<T>(docs: T[]) {
   return {

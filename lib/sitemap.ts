@@ -5,6 +5,7 @@ import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
 import { publicPostStatusWhere } from '@/lib/post-status';
 import { COLLECTION, COLLECTION_PATH } from '@/lib/collection';
 import { PORTFOLIO_WORKS } from '@/lib/portfolio';
+import type { MarkdownGroup, MarkdownPost } from '@/lib/markdown-posts';
 
 export type SitemapEntry = MetadataRoute.Sitemap[number];
 
@@ -50,6 +51,27 @@ export function buildStaticSitemapEntries(siteUrl: string): SitemapEntry[] {
     changeFrequency,
     priority,
   }));
+}
+
+export function buildMarkdownSitemapEntries(
+  groups: readonly MarkdownGroup[],
+  posts: readonly MarkdownPost[],
+  siteUrl: string,
+): SitemapEntry[] {
+  return [
+    ...groups.map((group) => ({
+      url: `${siteUrl}${buildGroupIntroUrl(group.slug)}`,
+      lastModified: group.project?.updatedAt ? new Date(group.project.updatedAt) : undefined,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
+    ...posts.map((post) => ({
+      url: `${siteUrl}${buildPostUrl(post.group, post.slug)}`,
+      lastModified: new Date(post.updatedDate ?? post.publishDate),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    })),
+  ];
 }
 
 export async function loadCmsSitemapEntries(

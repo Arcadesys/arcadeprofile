@@ -5,6 +5,14 @@ import type { Group as PayloadGroup, Page as PayloadPage, Post } from '@/payload
 import { logger } from '@/lib/logger';
 import { comparePostsByGroupOrder, latestPostDateMs } from '@/lib/post-order';
 import { publicPostStatusWhere } from '@/lib/post-status';
+import {
+  loadMarkdownGroups,
+  loadMarkdownPosts,
+  selectPublicMarkdownPosts,
+  type LoadMarkdownPostsOptions,
+  type MarkdownGroup,
+  type MarkdownPost,
+} from '@/lib/markdown-posts';
 
 export interface BlogPostMeta {
   title?: string;
@@ -12,13 +20,17 @@ export interface BlogPostMeta {
 }
 
 export interface BlogPost {
-  id: number;
+  id: number | string;
   slug: string;
   title: string;
   date: string;
+  updatedDate?: string;
   excerpt: string;
   /** Lexical rich text JSON — render with <RichText /> */
-  content: SerializedEditorState;
+  content?: SerializedEditorState;
+  /** Repository-owned Markdown body when BLOG_SOURCE=markdown. */
+  markdownBody?: string;
+  hero?: { src: string; alt: string };
   /** Group/series slug (e.g. "the-singularity-log"). */
   group?: string;
   /** Explicit ordering within a group (lower numbers first). */
@@ -52,6 +64,68 @@ export interface Group {
 }
 
 type BlogPayload = Pick<Payload, 'find'>;
+
+export type BlogSource = 'payload' | 'markdown';
+
+export function getBlogSource(value = process.env.BLOG_SOURCE): BlogSource {
+  const normalized = value?.trim().toLowerCase() || 'payload';
+  if (normalized !== 'payload' && normalized !== 'markdown') {
+    throw new Error(`BLOG_SOURCE must be payload or markdown; received ${JSON.stringify(value)}.`);
+  }
+  return normalized;
+}
+
+function markdownPostToBlogPost(post: MarkdownPost): BlogPost {
+  return {
+    id: post.id,
+    slug: post.slug,
+    title: post.title,
+    date: post.publishDate,
+    updatedDate: post.updatedDate,
+    excerpt: post.excerpt ?? '',
+    markdownBody: post.body,
+    hero: post.hero,
+    group: post.group,
+    order: post.order,
+    tags: post.tags ?? [],
+    meta: post.seo,
+  };
+}
+
+function markdownGroupToGroup(group: MarkdownGroup, posts: BlogPost[]): Group {
+  return {
+    slug: group.slug,
+    title: group.title,
+    description: group.description,
+    tags: group.tags ?? [],
+    chapters: group.chapters,
+    posts,
+    meta: group.meta,
+  };
+}
+
+export function loadMarkdownBlog(
+  options: LoadMarkdownPostsOptions & { now?: Date } = {},
+): { posts: BlogPost[]; groups: Group[] } {
+  const publicPosts = selectPublicMarkdownPosts(loadMarkdownPosts(options), options.now);
+  const manifestGroups = loadMarkdownGroups(options);
+  const manifestBySlug = new Map(manifestGroups.map((group) => [group.slug, group]));
+  for (const post of publicPosts) {
+    if (!manifestBySlug.has(post.group)) {
+      throw new Error(`Markdown post ${post.filePath} refers to missing group manifest ${post.group}.`);
+    }
+  }
+  const posts = publicPosts.map(markdownPostToBlogPost);
+  const groups = manifestGroups
+    .map((group) => {
+      const groupPosts = posts.filter((post) => post.group === group.slug);
+      groupPosts.sort(comparePostsByGroupOrder);
+      return markdownGroupToGroup(group, groupPosts);
+    })
+    .filter((group) => group.posts.length > 0)
+    .sort((a, b) => latestPostDateMs(b.posts) - latestPostDateMs(a.posts));
+  return { posts, groups };
+}
 
 function toPost(doc: Post): BlogPost {
   return {
@@ -102,6 +176,9 @@ async function getPayloadClient() {
 }
 
 export async function getAllPosts(): Promise<BlogPost[]> {
+  if (getBlogSource() === 'markdown') {
+    return loadMarkdownBlog().posts.sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+  }
   const payload = await getPayloadClient();
   return loadAllPosts(payload);
 }
@@ -122,6 +199,9 @@ export async function loadAllPosts(payload: BlogPayload): Promise<BlogPost[]> {
  * Published posts only, for RSS and syndication.
  */
 export async function getPublishedPostsForRss(): Promise<BlogPost[]> {
+  if (getBlogSource() === 'markdown') {
+    return loadMarkdownBlog().posts.sort((a, b) => Date.parse(b.date) - Date.parse(a.date)).slice(0, 100);
+  }
   const payload = await getPayloadClient();
 
   const result = await payload.find({
@@ -139,6 +219,9 @@ export async function getPublishedPostsForRss(): Promise<BlogPost[]> {
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  if (getBlogSource() === 'markdown') {
+    return loadMarkdownBlog().posts.find((post) => post.slug === slug) ?? null;
+  }
   const payload = await getPayloadClient();
 
   const result = await payload.find({
@@ -160,6 +243,11 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
 export async function getPostsBySlugs(slugs: string[]): Promise<BlogPost[]> {
   const uniqueSlugs = [...new Set(slugs.filter(Boolean))];
   if (uniqueSlugs.length === 0) return [];
+
+  if (getBlogSource() === 'markdown') {
+    const postsBySlug = new Map(loadMarkdownBlog().posts.map((post) => [post.slug, post]));
+    return uniqueSlugs.map((slug) => postsBySlug.get(slug)).filter((post): post is BlogPost => Boolean(post));
+  }
 
   const payload = await getPayloadClient();
   const result = await payload.find({
@@ -185,6 +273,7 @@ export async function getPostsBySlugs(slugs: string[]): Promise<BlogPost[]> {
 }
 
 export async function getAllGroups(): Promise<Group[]> {
+  if (getBlogSource() === 'markdown') return loadMarkdownBlog().groups;
   const payload = await getPayloadClient();
 
   const groupDocs = await payload.find({
@@ -244,6 +333,9 @@ export async function loadGroupBySlug(payload: BlogPayload, slug: string): Promi
 }
 
 export async function getGroupBySlug(slug: string): Promise<Group | null> {
+  if (getBlogSource() === 'markdown') {
+    return loadMarkdownBlog().groups.find((group) => group.slug === slug) ?? null;
+  }
   try {
     return await loadGroupBySlug(await getPayloadClient(), slug);
   } catch (error) {

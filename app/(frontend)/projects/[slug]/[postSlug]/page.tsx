@@ -3,7 +3,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
 import LongformBody from '@/app/components/LongformBody';
 import { getProjectBySlug } from '@/lib/payload';
-import { getGroupBySlug } from '@/lib/blog';
+import { getBlogSource, getGroupBySlug } from '@/lib/blog';
 import { resolvePostOgImageBySlug } from '@/lib/post-og-image';
 import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
@@ -29,8 +29,8 @@ import {
 } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 import { resolveCanonicalUrl } from '@/lib/canonical-url';
-import { getStaticEssayBySlug } from '@/lib/static-essays';
-import MarkdownEssay from '@/app/components/MarkdownEssay';
+import MarkdownPostBody from '@/app/components/MarkdownPostBody';
+import type { OgImage } from '@/lib/post-og-image';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
@@ -79,6 +79,12 @@ async function redirectIfNumeric(groupSlug: string, segment: string): Promise<vo
   if (idx === null) return;
   if (idx === 0) {
     permanentRedirect(buildGroupIntroUrl(groupSlug));
+  }
+  if (getBlogSource() === 'markdown') {
+    const group = await getGroupBySlug(groupSlug);
+    const post = group?.posts[idx - 1];
+    if (post) permanentRedirect(buildPostUrl(groupSlug, post.slug));
+    notFound();
   }
   const payload = await getPayload({ config: payloadConfig });
   const resolved = await resolvePostSlugByPartIndex(payload, groupSlug, idx);
@@ -142,23 +148,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (parsePostPartSegment(postSlug) !== null) return {};
 
-  // Promoted Markdown exports are self-contained and deliberately do not
-  // require a running Payload database to render their public reading page.
-  const staticEssay = await getStaticEssayBySlug(postSlug);
-  if (staticEssay?.group.slug === slug) {
-    const canonicalUrl = resolveCanonicalUrl(
-      staticEssay.discoverability.canonicalPath ?? null,
-      buildPostUrl(slug, postSlug),
-      SITE_URL,
-    );
-    return {
-      title: `${staticEssay.seo.title?.trim() || staticEssay.title} | ${staticEssay.group.title}`,
-      description: staticEssay.seo.description?.trim() || staticEssay.excerpt || undefined,
-      alternates: { canonical: canonicalUrl },
-      openGraph: { type: 'article', url: canonicalUrl, title: staticEssay.seo.title?.trim() || staticEssay.title, description: staticEssay.seo.description?.trim() || staticEssay.excerpt || undefined },
-    };
-  }
-
   const [project, group] = await Promise.all([
     getProjectBySlug(slug),
     getGroupBySlug(slug),
@@ -168,6 +157,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const idx = group.posts.findIndex((p) => p.slug === postSlug);
   if (idx < 0) return {};
   const post = group.posts[idx];
+
+  if (post.markdownBody) {
+    const metaTitle = post.meta?.title?.trim() || post.title;
+    const metaDescription = post.meta?.description?.trim() || post.excerpt || undefined;
+    const titleForOg = `${metaTitle} | ${project.title} | Free Play Publishing`;
+    const canonicalUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
+    return {
+      title: `${metaTitle} | ${project.title}`,
+      description: metaDescription,
+      alternates: { canonical: canonicalUrl },
+      openGraph: {
+        title: titleForOg,
+        description: metaDescription,
+        type: 'article',
+        url: canonicalUrl,
+        images: post.hero ? [{ url: post.hero.src, alt: post.hero.alt }] : undefined,
+      },
+      twitter: {
+        card: post.hero ? 'summary_large_image' : 'summary',
+        title: titleForOg,
+        description: metaDescription,
+        images: post.hero ? [post.hero.src] : undefined,
+      },
+    };
+  }
 
   const payload = await getPayload({ config: payloadConfig });
   const [og, postExtras] = await Promise.all([
@@ -207,31 +221,6 @@ export default async function ProjectPostPage({ params }: Props) {
 
   await redirectIfNumeric(slug, postSlug);
 
-  const staticEssay = await getStaticEssayBySlug(postSlug);
-  if (staticEssay?.group.slug === slug) {
-    const pageUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
-    return (
-      <main className="dd-post-main">
-        <nav style={{ marginBottom: '2.5rem' }}>
-          <Link href={buildGroupIntroUrl(slug)} style={navLinkStyle}>← {staticEssay.group.title}</Link>
-        </nav>
-        <article>
-          <header style={{ marginBottom: '2.5rem' }}>
-            <h1 style={{ fontSize: '2rem', lineHeight: 1.2, marginBottom: '0.75rem' }}>{staticEssay.title}</h1>
-            <p style={{ fontSize: '0.9rem', color: 'var(--fg-muted)', margin: 0 }}>
-              {formatSiteDate(staticEssay.publishedDate)}
-              {staticEssay.author && ` · ${staticEssay.author}`}
-            </p>
-          </header>
-          <MarkdownEssay markdown={staticEssay.body} />
-          <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
-            <ShareLinks url={pageUrl} title={staticEssay.title} />
-          </footer>
-        </article>
-      </main>
-    );
-  }
-
   const [project, group] = await Promise.all([
     getProjectBySlug(slug),
     getGroupBySlug(slug),
@@ -252,14 +241,23 @@ export default async function ProjectPostPage({ params }: Props) {
   const nextPartHref =
     partIndex < posts.length ? buildPostUrl(slug, posts[idx + 1].slug) : undefined;
 
-  const payload = await getPayload({ config: payloadConfig });
-  const [og, extras, initialReactionCounts, allPosts, urlMap] = await Promise.all([
-    resolvePostOgImageBySlug(payload, post.slug),
-    loadPostExtras(post.slug),
-    getReactionCounts(payload, post.id),
-    getAllPosts(),
-    buildPostUrlMap(),
-  ]);
+  const [allPosts, urlMap] = await Promise.all([getAllPosts(), buildPostUrlMap()]);
+  let og: OgImage | null = post.hero ? { url: post.hero.src, alt: post.hero.alt, source: 'post' } : null;
+  let extras: PostExtras = {
+    canonicalPath: null,
+    updatedAt: post.updatedDate ?? null,
+    publishedDate: post.date,
+    author: post.author ?? null,
+  };
+  let initialReactionCounts: Record<string, number> | null = null;
+  if (!post.markdownBody) {
+    const payload = await getPayload({ config: payloadConfig });
+    [og, extras, initialReactionCounts] = await Promise.all([
+      resolvePostOgImageBySlug(payload, post.slug),
+      loadPostExtras(post.slug),
+      typeof post.id === 'number' ? getReactionCounts(payload, post.id) : Promise.resolve(null),
+    ]);
+  }
   const relatedPosts = getRelatedPosts(allPosts, post, urlMap);
 
   const pageUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
@@ -358,11 +356,15 @@ export default async function ProjectPostPage({ params }: Props) {
           </p>
         </header>
 
-        <LongformBody content={post.content} />
+        {post.markdownBody
+          ? <MarkdownPostBody markdown={post.markdownBody} />
+          : <LongformBody content={post.content!} />}
 
-        <div style={{ marginTop: '2.5rem' }}>
-          <PostReactions postId={post.id} initialCounts={initialReactionCounts} />
-        </div>
+        {typeof post.id === 'number' && initialReactionCounts && (
+          <div style={{ marginTop: '2.5rem' }}>
+            <PostReactions postId={post.id} initialCounts={initialReactionCounts} />
+          </div>
+        )}
 
         <RelatedPosts items={relatedPosts} />
 
