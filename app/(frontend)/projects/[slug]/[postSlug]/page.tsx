@@ -12,10 +12,8 @@ import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 import ShareLinks from '@/app/components/ShareLinks';
-import PostReactions from '@/app/components/PostReactions';
 import RelatedPosts from '@/app/components/RelatedPosts';
 import ReadingProgressTracker from '@/app/components/ReadingProgressTracker';
-import { getReactionCounts } from '@/lib/reactions';
 import { getRelatedPosts } from '@/lib/related-posts';
 import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
@@ -249,13 +247,11 @@ export default async function ProjectPostPage({ params }: Props) {
     publishedDate: post.date,
     author: post.author ?? null,
   };
-  let initialReactionCounts: Record<string, number> | null = null;
   if (!post.markdownBody) {
     const payload = await getPayload({ config: payloadConfig });
-    [og, extras, initialReactionCounts] = await Promise.all([
+    [og, extras] = await Promise.all([
       resolvePostOgImageBySlug(payload, post.slug),
       loadPostExtras(post.slug),
-      typeof post.id === 'number' ? getReactionCounts(payload, post.id) : Promise.resolve(null),
     ]);
   }
   const relatedPosts = getRelatedPosts(allPosts, post, urlMap);
@@ -359,12 +355,6 @@ export default async function ProjectPostPage({ params }: Props) {
         {post.markdownBody
           ? <MarkdownPostBody markdown={post.markdownBody} />
           : <LongformBody content={post.content!} />}
-
-        {typeof post.id === 'number' && initialReactionCounts && (
-          <div style={{ marginTop: '2.5rem' }}>
-            <PostReactions postId={post.id} initialCounts={initialReactionCounts} />
-          </div>
-        )}
 
         <RelatedPosts items={relatedPosts} />
 

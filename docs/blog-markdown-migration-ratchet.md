@@ -50,8 +50,10 @@ the editorial preview surface; secret preview links are retired.
 
 ## Retired features
 
-- Reader reactions are retired. Existing counts may be retained only in a
-  migration record, not presented or migrated into a new runtime store.
+- Reader reactions are retired. Their public UI and API are removed while the
+  Payload collection remains temporarily available for a final read-only
+  migration receipt and the rollback window. Existing counts are not presented
+  or migrated into a new runtime store.
 - Secret preview links are retired.
 - Checked-in RSS files are not part of the design. The eventual `/feed.xml`
   route must be generated from the same validated post index as public pages.
@@ -63,6 +65,7 @@ the editorial preview surface; secret preview links are retired.
 | Foundation | Strict loader, deterministic ordering, injected-time public selector, and isolated fixtures added. | Keep: it introduces no public route or Payload behavior change. |
 | Export slice | Added a read-only, paginated Payload inventory CLI and a tested converter/parity reporter. It defaults to dry-run, writes only to an explicit caller-selected staging directory, and never promotes into `content/posts`. | Keep: public routes, RSS, sitemap, newsletter delivery, and Payload remain unchanged. A live read-only inventory/export still needs safe credentials and user direction. |
 | Runtime slice | Added strict group manifests, a fail-closed `BLOG_SOURCE` switch, Markdown-backed blog/project adapters, a safe semantic renderer, and Markdown projections for article routes, legacy redirects, homepage/latest/projects, sitemap, and RSS. Payload remains the default. | In verification: requires all automated checks plus fixture route/feed parity before it can become the new current best. |
+| Reactions retirement | Removed the reader-facing reaction controls and mutation/read endpoint without dropping the archived Payload table. | Keep when tests, typecheck, lint, and the migration guard pass; archive counts during the authenticated final inventory. |
 | Then | Run an authenticated export, close every parity exception, and promote the complete inventory into `content/posts`. | Pending. |
 
 ## Export contract
