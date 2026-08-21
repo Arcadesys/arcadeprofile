@@ -8,7 +8,8 @@ import { TOY_CATALOG } from '@/data/toys/catalog';
 import { hasConfiguredDatabaseURL } from '@/lib/env';
 import { buildGroupIntroUrl, buildPostUrl, getPostLocationBySlug } from '@/lib/post-url';
 import { publicPostStatusWhere } from '@/lib/post-status';
-import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
+import { getAllPosts, buildPostUrlMap, getBlogSource } from '@/lib/blog';
+import { getAllProjectHubs } from '@/lib/payload';
 import { formatSiteDate } from '@/lib/site-time';
 
 const RECENT_POSTS_MAX = 4;
@@ -19,7 +20,34 @@ export default async function HomePage() {
   let startHereHref: string | null = null;
   let recentPosts: { slug: string; title: string; date: string; href: string; groupTitle: string }[] = [];
 
-  if (hasConfiguredDatabaseURL()) {
+  if (getBlogSource() === 'markdown') {
+    const [hubs, allPosts, urlMap] = await Promise.all([
+      getAllProjectHubs(),
+      getAllPosts(),
+      buildPostUrlMap(),
+    ]);
+    featuredGroups = hubs.filter((hub) => hub.homeHighlight).map((hub) => ({
+      id: hub.id,
+      title: hub.title,
+      description: hub.description,
+      slug: hub.slug,
+      href: hub.href,
+      external: hub.external,
+    }));
+    recentPosts = allPosts
+      .filter((post) => urlMap.has(post.slug))
+      .slice(0, RECENT_POSTS_MAX)
+      .map((post) => {
+        const loc = urlMap.get(post.slug)!;
+        return {
+          slug: post.slug,
+          title: post.title,
+          date: post.date,
+          href: buildPostUrl(loc.groupSlug, post.slug),
+          groupTitle: loc.groupTitle,
+        };
+      });
+  } else if (hasConfiguredDatabaseURL()) {
     try {
       const payload = await getPayload({ config });
       const [groupsResult, startHereResult, allPosts, urlMap] = await Promise.all([

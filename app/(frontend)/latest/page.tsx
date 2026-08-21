@@ -7,6 +7,7 @@ import { buildGroupIntroUrl } from '@/lib/post-url';
 import { formatSiteDate } from '@/lib/site-time';
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext';
 import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
+import { markdownToPlaintext } from '@/lib/markdown-render';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,7 +64,11 @@ export default async function LatestPage() {
 
       <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '3rem' }}>
         {published.map(post => {
-          const rawText = post.excerpt ? post.excerpt : safePlaintext(post.content);
+          const rawText = post.excerpt
+            ? post.excerpt
+            : post.markdownBody
+              ? markdownToPlaintext(post.markdownBody)
+              : safePlaintext(post.content);
           const teaser = rawText ? first100Words(rawText) : '';
           const loc = urlMap.get(post.slug)!;
           const href = buildPostUrl(loc.groupSlug, post.slug);

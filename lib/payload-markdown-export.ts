@@ -4,7 +4,12 @@ import path from 'node:path';
 
 import matter from 'gray-matter';
 
-import { markdownPostFrontmatterSchema, type MarkdownPostFrontmatter } from './markdown-posts';
+import {
+  MARKDOWN_GROUP_MANIFEST,
+  markdownGroupSchema,
+  markdownPostFrontmatterSchema,
+  type MarkdownPostFrontmatter,
+} from './markdown-posts';
 
 export type PostStatus = 'draft' | 'scheduled' | 'published' | 'sent';
 
@@ -33,6 +38,24 @@ export interface PayloadPost {
 
 export interface PayloadGroup {
   slug?: unknown;
+  title?: unknown;
+  description?: unknown;
+  tags?: unknown;
+  chapters?: unknown;
+  meta?: unknown;
+  image?: unknown;
+  href?: unknown;
+  external?: unknown;
+  featured?: unknown;
+  homeHighlight?: unknown;
+  category?: unknown;
+  status?: unknown;
+  format?: unknown;
+  projectCTA?: unknown;
+  resources?: unknown;
+  relatedPostSlugs?: unknown;
+  updatedAt?: unknown;
+  createdAt?: unknown;
 }
 
 type LexicalNode = {
@@ -219,6 +242,66 @@ function tags(value: unknown): string[] | undefined {
   return result.length ? result : undefined;
 }
 
+function groupManifest(group: PayloadGroup): string | undefined {
+  const groupSlug = string(group.slug);
+  const groupTitle = string(group.title);
+  if (!groupSlug || !groupTitle) return undefined;
+  const meta = object(group.meta);
+  const projectCTA = object(group.projectCTA);
+  const chapters = Array.isArray(group.chapters)
+    ? group.chapters.map(object).filter((item): item is Record<string, unknown> => Boolean(item)).map((item) => ({
+        title: string(item.title),
+        slug: string(item.slug),
+      })).filter((item): item is { title: string; slug: string } => Boolean(item.title && item.slug))
+    : undefined;
+  const resources = Array.isArray(group.resources)
+    ? group.resources.map(object).filter((item): item is Record<string, unknown> => Boolean(item)).map((item) => ({
+        label: string(item.label),
+        href: string(item.href),
+        kind: string(item.kind),
+        ...(string(item.description) ? { description: string(item.description) } : {}),
+        ...(typeof item.external === 'boolean' ? { external: item.external } : {}),
+      })).filter((item): item is { label: string; href: string; kind: string; description?: string; external?: boolean } => Boolean(item.label && item.href && item.kind))
+    : undefined;
+  const relatedPostSlugs = Array.isArray(group.relatedPostSlugs)
+    ? group.relatedPostSlugs.map((item) => string(typeof item === 'string' ? item : object(item)?.slug)).filter((item): item is string => Boolean(item))
+    : undefined;
+  const image = object(group.image);
+  const imageUrl = string(typeof group.image === 'string' ? group.image : image?.url);
+  const parsed = markdownGroupSchema.safeParse({
+    slug: groupSlug,
+    title: groupTitle,
+    ...(typeof group.description === 'string' ? { description: group.description } : {}),
+    ...(tags(group.tags) ? { tags: tags(group.tags) } : {}),
+    ...(chapters?.length ? { chapters } : {}),
+    ...(string(meta?.title) || string(meta?.description) ? { meta: {
+      ...(string(meta?.title) ? { title: string(meta?.title) } : {}),
+      ...(string(meta?.description) ? { description: string(meta?.description) } : {}),
+    } } : {}),
+    project: {
+      ...(imageUrl ? { image: imageUrl } : {}),
+      ...(string(group.href) ? { href: string(group.href) } : {}),
+      ...(typeof group.external === 'boolean' ? { external: group.external } : {}),
+      ...(typeof group.featured === 'boolean' ? { featured: group.featured } : {}),
+      ...(typeof group.homeHighlight === 'boolean' ? { homeHighlight: group.homeHighlight } : {}),
+      ...(string(group.category) ? { category: string(group.category) } : {}),
+      ...(string(group.status) ? { status: string(group.status) } : {}),
+      ...(group.format === 'serial' || group.format === 'collection' ? { format: group.format } : {}),
+      ...(projectCTA && (string(projectCTA.label) || string(projectCTA.href) || string(projectCTA.type)) ? { primaryCTA: {
+        ...(string(projectCTA.label) ? { label: string(projectCTA.label) } : {}),
+        ...(string(projectCTA.href) ? { href: string(projectCTA.href) } : {}),
+        ...(string(projectCTA.type) ? { type: string(projectCTA.type) } : {}),
+      } } : {}),
+      ...(resources?.length ? { resources } : {}),
+      ...(relatedPostSlugs?.length ? { relatedPostSlugs } : {}),
+      ...(validDate(group.updatedAt) ? { updatedAt: group.updatedAt } : {}),
+      ...(validDate(group.createdAt) ? { createdAt: group.createdAt } : {}),
+    },
+  });
+  if (!parsed.success) return undefined;
+  return `${JSON.stringify(parsed.data, null, 2)}\n`;
+}
+
 function groupSlug(value: unknown): string | undefined {
   return string(typeof value === 'string' ? value : object(value)?.slug);
 }
@@ -264,6 +347,16 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
   let missingMeaningfulAlt = 0;
   const mediaItems: Array<{ payloadMediaId: string; filename?: string; alt?: string }> = [];
   let unsupportedNodes = 0;
+
+  for (const group of options.groups) {
+    const slug = string(group.slug);
+    const manifest = groupManifest(group);
+    if (!slug || !manifest) {
+      errors.push(`group ${slug ?? '(missing slug)'} cannot be represented as a Markdown manifest`);
+      continue;
+    }
+    files.set(path.posix.join(slug, MARKDOWN_GROUP_MANIFEST), manifest);
+  }
 
   for (const post of options.posts) {
     const id = String(post.id);

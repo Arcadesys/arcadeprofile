@@ -1,6 +1,7 @@
 import { Feed } from 'feed';
 import { buildPostUrl, buildPostUrlMap, getPublishedPostsForRss } from '@/lib/blog';
 import { buildPostNewsletterContent } from '@/lib/newsletter';
+import { markdownToSafeHtml } from '@/lib/markdown-render';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,16 +41,18 @@ export async function GET() {
 
     const postLink = `${SITE_URL}${buildPostUrl(loc.groupSlug, post.slug)}`;
     const authorName = post.author?.trim() || 'Austen Tucker';
-    const { htmlBody } = buildPostNewsletterContent(
-      {
-        content: post.content,
-        excerpt: post.excerpt,
-        slug: post.slug,
-        title: post.title,
-        group: { slug: loc.groupSlug },
-      },
-      SITE_URL,
-    );
+    const htmlBody = post.markdownBody
+      ? markdownToSafeHtml(post.markdownBody)
+      : buildPostNewsletterContent(
+          {
+            content: post.content!,
+            excerpt: post.excerpt,
+            slug: post.slug,
+            title: post.title,
+            group: { slug: loc.groupSlug },
+          },
+          SITE_URL,
+        ).htmlBody;
 
     feed.addItem({
       title: post.title,

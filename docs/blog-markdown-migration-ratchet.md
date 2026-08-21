@@ -62,7 +62,8 @@ the editorial preview surface; secret preview links are retired.
 | --- | --- | --- |
 | Foundation | Strict loader, deterministic ordering, injected-time public selector, and isolated fixtures added. | Keep: it introduces no public route or Payload behavior change. |
 | Export slice | Added a read-only, paginated Payload inventory CLI and a tested converter/parity reporter. It defaults to dry-run, writes only to an explicit caller-selected staging directory, and never promotes into `content/posts`. | Keep: public routes, RSS, sitemap, newsletter delivery, and Payload remain unchanged. A live read-only inventory/export still needs safe credentials and user direction. |
-| Then | Move public routes, sitemap, and RSS to the same Markdown index. | Pending. |
+| Runtime slice | Added strict group manifests, a fail-closed `BLOG_SOURCE` switch, Markdown-backed blog/project adapters, a safe semantic renderer, and Markdown projections for article routes, legacy redirects, homepage/latest/projects, sitemap, and RSS. Payload remains the default. | In verification: requires all automated checks plus fixture route/feed parity before it can become the new current best. |
+| Then | Run an authenticated export, close every parity exception, and promote the complete inventory into `content/posts`. | Pending. |
 
 ## Export contract
 

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { Payload } from 'payload';
 
-import { buildStaticSitemapEntries, loadCmsSitemapEntries } from './sitemap';
+import { buildMarkdownSitemapEntries, buildStaticSitemapEntries, loadCmsSitemapEntries } from './sitemap';
 
 function result<T>(docs: T[]) {
   return {
@@ -86,4 +86,19 @@ test('loadCmsSitemapEntries loads every group and post without fixed caps', asyn
     assert.equal('limit' in call, false);
     assert.equal(call.overrideAccess, true);
   }
+});
+
+test('buildMarkdownSitemapEntries preserves canonical group and post routes', () => {
+  const entries = buildMarkdownSitemapEntries(
+    [{ slug: 'alpha', title: 'Alpha', filePath: '/tmp/alpha/_group.json' }],
+    [{
+      id: 'alpha-one', title: 'One', slug: 'one', group: 'alpha',
+      publishDate: '2026-08-20T09:00:00Z', body: 'Body', filePath: '/tmp/alpha/one.md',
+    }],
+    'https://example.test',
+  );
+  assert.deepEqual(entries.map((entry) => entry.url), [
+    'https://example.test/projects/alpha',
+    'https://example.test/projects/alpha/one',
+  ]);
 });
