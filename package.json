@@ -19,6 +19,7 @@
     "postmark:test": "tsx scripts/send-test-email.ts",
     "backfill:post-meta": "tsx --require ./scripts/patch-next-env.cjs scripts/backfill-post-meta.ts",
     "dump:post-meta": "tsx --require ./scripts/patch-next-env.cjs scripts/dump-posts-for-meta.ts",
+    "export:payload-essays": "tsx --require ./scripts/patch-next-env.cjs scripts/import-payload-essays.ts",
     "apply:post-meta": "tsx --require ./scripts/patch-next-env.cjs scripts/apply-post-meta-from-json.ts",
     "apply:post-meta-sql": "tsx scripts/apply-post-meta-sql.ts",
     "export:payload-posts": "tsx scripts/export-payload-posts.ts",

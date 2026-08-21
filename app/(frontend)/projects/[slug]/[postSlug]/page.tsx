@@ -29,6 +29,8 @@ import {
 } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 import { resolveCanonicalUrl } from '@/lib/canonical-url';
+import { getStaticEssayBySlug } from '@/lib/static-essays';
+import MarkdownEssay from '@/app/components/MarkdownEssay';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
@@ -140,6 +142,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (parsePostPartSegment(postSlug) !== null) return {};
 
+  // Promoted Markdown exports are self-contained and deliberately do not
+  // require a running Payload database to render their public reading page.
+  const staticEssay = await getStaticEssayBySlug(postSlug);
+  if (staticEssay?.group.slug === slug) {
+    const canonicalUrl = resolveCanonicalUrl(
+      staticEssay.discoverability.canonicalPath ?? null,
+      buildPostUrl(slug, postSlug),
+      SITE_URL,
+    );
+    return {
+      title: `${staticEssay.seo.title?.trim() || staticEssay.title} | ${staticEssay.group.title}`,
+      description: staticEssay.seo.description?.trim() || staticEssay.excerpt || undefined,
+      alternates: { canonical: canonicalUrl },
+      openGraph: { type: 'article', url: canonicalUrl, title: staticEssay.seo.title?.trim() || staticEssay.title, description: staticEssay.seo.description?.trim() || staticEssay.excerpt || undefined },
+    };
+  }
+
   const [project, group] = await Promise.all([
     getProjectBySlug(slug),
     getGroupBySlug(slug),
@@ -187,6 +206,31 @@ export default async function ProjectPostPage({ params }: Props) {
   const { slug, postSlug } = await params;
 
   await redirectIfNumeric(slug, postSlug);
+
+  const staticEssay = await getStaticEssayBySlug(postSlug);
+  if (staticEssay?.group.slug === slug) {
+    const pageUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
+    return (
+      <main className="dd-post-main">
+        <nav style={{ marginBottom: '2.5rem' }}>
+          <Link href={buildGroupIntroUrl(slug)} style={navLinkStyle}>← {staticEssay.group.title}</Link>
+        </nav>
+        <article>
+          <header style={{ marginBottom: '2.5rem' }}>
+            <h1 style={{ fontSize: '2rem', lineHeight: 1.2, marginBottom: '0.75rem' }}>{staticEssay.title}</h1>
+            <p style={{ fontSize: '0.9rem', color: 'var(--fg-muted)', margin: 0 }}>
+              {formatSiteDate(staticEssay.publishedDate)}
+              {staticEssay.author && ` · ${staticEssay.author}`}
+            </p>
+          </header>
+          <MarkdownEssay markdown={staticEssay.body} />
+          <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
+            <ShareLinks url={pageUrl} title={staticEssay.title} />
+          </footer>
+        </article>
+      </main>
+    );
+  }
 
   const [project, group] = await Promise.all([
     getProjectBySlug(slug),
