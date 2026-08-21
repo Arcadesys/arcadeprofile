@@ -76,6 +76,20 @@ test('converts the saved Payload YouTube block shape', async () => {
   assert.match(result.files.get('alpha/exportable-post.md') ?? '', /youtube\.com\/watch\?v=abc123/);
 });
 
+test('writes explicit Markdown hard breaks without trailing whitespace', async () => {
+  const result = await exportPayloadPosts({ posts: [post({
+    content: { root: { children: [{ type: 'paragraph', children: [
+      { type: 'text', text: 'First line' },
+      { type: 'linebreak' },
+      { type: 'text', text: 'Second line' },
+    ] }] } },
+    meta: {},
+  })], groups, now });
+  const markdown = result.files.get('alpha/exportable-post.md') ?? '';
+  assert.match(markdown, /First line\\\nSecond line/);
+  assert.doesNotMatch(markdown, /[ \t]+$/m);
+});
+
 test('applies reviewed alt overrides by stable Payload media id', async () => {
   const result = await exportPayloadPosts({
     posts: [post({

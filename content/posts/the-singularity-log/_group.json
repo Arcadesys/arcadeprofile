@@ -1,0 +1,21 @@
+{
+  "slug": "the-singularity-log",
+  "title": "The Singularity Log",
+  "description": "Essays on AI, creativity, and the collapsing scarcity model.",
+  "tags": [
+    "ai",
+    "creativity",
+    "economics"
+  ],
+  "project": {
+    "image": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/singularity-log.png",
+    "external": false,
+    "featured": true,
+    "homeHighlight": true,
+    "category": "writing",
+    "status": "active",
+    "format": "collection",
+    "updatedAt": "2026-05-10T15:34:20.749Z",
+    "createdAt": "2026-03-29T00:36:12.850Z"
+  }
+}

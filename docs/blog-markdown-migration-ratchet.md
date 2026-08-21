@@ -63,7 +63,9 @@ the editorial preview surface; secret preview links are retired.
 | Foundation | Strict loader, deterministic ordering, injected-time public selector, and isolated fixtures added. | Keep: it introduces no public route or Payload behavior change. |
 | Export slice | Added a read-only, paginated Payload inventory CLI and a tested converter/parity reporter. It defaults to dry-run, writes only to an explicit caller-selected staging directory, and never promotes into `content/posts`. | Keep: public routes, RSS, sitemap, newsletter delivery, and Payload remain unchanged. A live read-only inventory/export still needs safe credentials and user direction. |
 | Runtime slice | Added strict group manifests, a fail-closed `BLOG_SOURCE` switch, Markdown-backed blog/project adapters, a safe semantic renderer, and Markdown projections for article routes, legacy redirects, homepage/latest/projects, sitemap, and RSS. Payload remains the default. | In verification: requires all automated checks plus fixture route/feed parity before it can become the new current best. |
-| Then | Run an authenticated export, close every parity exception, and promote the complete inventory into `content/posts`. | Pending. |
+| Authenticated export | Read all four workflow states through the hosted read-only MCP channel. The verified inventory contained 81 records: 80 public/scheduled posts exported, one draft inventoried, and zero blocked. | Keep: 32 public essays and 48 fiction posts pass the same strict loader; the draft remains non-public. |
+| Promotion | Promoted the 80 validated files and nine group manifests into `content/posts`, with the safe source-hash receipt at `data/payload-markdown-parity.json`. | In verification: Payload remains the active source until route/feed parity is exercised against the promoted corpus. |
+| Then | Preserve the newer Payload draft of `the-fox-and-the-eval` in a non-public authoring source, prove rendered route/feed parity, then enable Markdown in a separately reversible change. | Pending. |
 
 ## Export contract
 

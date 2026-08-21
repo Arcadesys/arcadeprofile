@@ -1,0 +1,19 @@
+{
+  "slug": "short-stories",
+  "title": "Short Stories",
+  "description": "Original fiction.",
+  "tags": [
+    "fiction"
+  ],
+  "project": {
+    "image": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/short-stories.png",
+    "external": false,
+    "featured": false,
+    "homeHighlight": false,
+    "category": "fiction",
+    "status": "active",
+    "format": "serial",
+    "updatedAt": "2026-05-02T21:25:57.853Z",
+    "createdAt": "2026-03-29T00:36:12.400Z"
+  }
+}
