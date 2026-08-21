@@ -65,7 +65,8 @@ the editorial preview surface; secret preview links are retired.
 | Runtime slice | Added strict group manifests, a fail-closed `BLOG_SOURCE` switch, Markdown-backed blog/project adapters, a safe semantic renderer, and Markdown projections for article routes, legacy redirects, homepage/latest/projects, sitemap, and RSS. Payload remains the default. | In verification: requires all automated checks plus fixture route/feed parity before it can become the new current best. |
 | Authenticated export | Read all four workflow states through the hosted read-only MCP channel. The verified inventory contained 81 records: 80 public/scheduled posts exported, one draft inventoried, and zero blocked. | Keep: 32 public essays and 48 fiction posts pass the same strict loader; the draft remains non-public. |
 | Promotion | Promoted the 80 validated files and nine group manifests into `content/posts`, with the safe source-hash receipt at `data/payload-markdown-parity.json`. | In verification: Payload remains the active source until route/feed parity is exercised against the promoted corpus. |
-| Then | Preserve the newer Payload draft of `the-fox-and-the-eval` in a non-public authoring source, prove rendered route/feed parity, then enable Markdown in a separately reversible change. | Pending. |
+| Draft preservation | Preserved the newer Payload copy of `the-fox-and-the-eval` under `content/drafts`, with strict draft-only frontmatter and a verified body hash. Exporter staging writes drafts under ignored `.drafts/`; the public loader never reads either location. | Keep: all 32 essay routes and legacy redirects passed in Markdown mode; the draft returned 404 and was absent from RSS and sitemap. Payload remains the active source. |
+| Then | Enable Markdown in a separately reversible change after route/feed parity passes. | Pending. |
 
 ## Export contract
 
@@ -85,12 +86,14 @@ ARCADEPROFILE_MCP_TOKEN=... npm run export:payload-posts -- \
 ```
 
 MCP mode explicitly inventories `draft`, `scheduled`, `published`, and `sent`
-posts, then retrieves each full document. Drafts remain report-only and are not
-written into the public Markdown runtime. This preserves the rule that a past
-`publishDate` must never accidentally make an unfinished draft public.
+posts, then retrieves each full document. Drafts are serialized under the
+ignored `.drafts/` staging subtree for promotion into `content/drafts`; their
+strict frontmatter has `status: draft`, no `publishDate`, and no preview secret.
+The public Markdown runtime never reads that tree.
 
 Published and sent posts may export when their groups, RFC 3339 dates, semantic
-Lexical nodes, and media alt text pass validation. Drafts remain inventory only.
+Lexical nodes, and media alt text pass validation. Drafts use the same semantic
+conversion and media gates, but remain excluded from public export accounting.
 Scheduled posts require a future `scheduledPublishDate`, which becomes their
 Markdown `publishDate`; otherwise they are blocked. The separate Payload display
 date is not a scheduling timestamp. Unsupported nodes, duplicate IDs/slugs,

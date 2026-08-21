@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import matter from 'gray-matter';
 
+import { markdownDraftFrontmatterSchema, type MarkdownDraftFrontmatter } from './markdown-drafts';
 import {
   MARKDOWN_GROUP_MANIFEST,
   markdownGroupSchema,
@@ -81,6 +82,7 @@ export interface ExportRecord {
   reason?: string;
   sourceHash: string;
   file?: string;
+  draftFile?: string;
 }
 
 export interface ParityReport {
@@ -117,6 +119,7 @@ export interface ExportPayloadPostsOptions {
 export interface ExportPayloadPostsResult {
   report: ParityReport;
   files: Map<string, string>;
+  draftFiles: Map<string, string>;
 }
 
 export interface PayloadPage<T> { docs?: T[]; page?: number; totalPages?: number }
@@ -136,6 +139,10 @@ const legacyMediaUrl = /(?:^|["'`(])(?:https?:\/\/[^\s)]+)?\/?api\/media(?:\/|\b
 
 function hash(value: unknown): string {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+function hashText(value: string): string {
+  return createHash('sha256').update(value).digest('hex');
 }
 
 function string(value: unknown): string | undefined {
@@ -401,6 +408,7 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
   );
   const records: ExportRecord[] = [];
   const files = new Map<string, string>();
+  const draftFiles = new Map<string, string>();
   const errors: string[] = [];
   const byStatus: Record<string, number> = {};
   const byGroup: Record<string, number> = {};
@@ -440,18 +448,9 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
     if (seenIds.has(id)) { duplicateIds.push(id); record.reason = 'duplicate Payload id'; records.push(record); continue; }
     seenIds.add(id);
     if (!allowedStatuses.has(status as PostStatus)) { record.reason = 'unknown publish status'; records.push(record); continue; }
-    if (status === 'draft') { record.disposition = 'excluded'; record.reason = 'drafts are inventory only'; records.push(record); continue; }
     if (!slug || !group || !groups.has(group)) { record.reason = !group || !groups.has(group) ? 'unresolved group' : 'missing slug'; records.push(record); continue; }
     if (seenSlugs.has(slug)) { duplicateSlugs.push(slug); record.reason = 'duplicate slug'; records.push(record); continue; }
     seenSlugs.add(slug);
-    let exportPublishDate = post.publishedDate;
-    if (status === 'scheduled') {
-      if (!validDate(post.scheduledPublishDate) || Date.parse(post.scheduledPublishDate) <= now.getTime()) {
-        record.reason = 'scheduled post lacks an unambiguous future scheduledPublishDate'; records.push(record); continue;
-      }
-      exportPublishDate = post.scheduledPublishDate;
-    }
-    if (!validDate(exportPublishDate)) { record.reason = 'invalid publishedDate RFC3339 date-time'; records.push(record); continue; }
     const conversion = convertLexical(post.content, mediaAltById, mediaUrlById);
     mediaTotal += conversion.media.length;
     const hero = heroFrom(post, mediaAltById, mediaUrlById);
@@ -467,6 +466,43 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
     if (referencedMedia.some((item) => !meaningfulAlt(item))) { record.reason = 'media is missing meaningful alt text'; records.push(record); continue; }
     if (referencedMedia.some((item) => !stableMediaUrl(item))) { record.reason = 'media lacks a stable non-Payload HTTPS URL'; records.push(record); continue; }
     const meta = object(post.meta);
+
+    if (status === 'draft') {
+      const frontmatter = markdownDraftFrontmatterSchema.safeParse({
+        id,
+        title: string(post.title),
+        slug,
+        group,
+        status: 'draft',
+        source: {
+          system: 'payload',
+          updatedAt: validDate(post.updatedAt) ? post.updatedAt : undefined,
+          bodySha256: hashText(conversion.markdown),
+        },
+        ...(string(post.excerpt) ? { excerpt: string(post.excerpt) } : {}),
+        ...(tags(post.tags) ? { tags: tags(post.tags) } : {}),
+        ...(string(meta?.title) || string(meta?.description) ? { seo: { ...(string(meta?.title) ? { title: string(meta?.title) } : {}), ...(string(meta?.description) ? { description: string(meta?.description) } : {}) } } : {}),
+      });
+      if (!frontmatter.success) { record.reason = `draft frontmatter validation failed: ${frontmatter.error.issues.map((issue) => issue.message).join(', ')}`; records.push(record); continue; }
+      const relative = path.posix.join(group, `${slug}.md`);
+      const markdown = matter.stringify(`${conversion.markdown}\n`, frontmatter.data satisfies MarkdownDraftFrontmatter);
+      if (legacyMediaUrl.test(markdown)) { record.reason = 'legacy Payload media URL detected'; records.push(record); continue; }
+      draftFiles.set(relative, markdown);
+      record.disposition = 'excluded';
+      record.reason = 'preserved in non-public Markdown drafts';
+      record.draftFile = path.posix.join('content', 'drafts', relative);
+      records.push(record);
+      continue;
+    }
+
+    let exportPublishDate = post.publishedDate;
+    if (status === 'scheduled') {
+      if (!validDate(post.scheduledPublishDate) || Date.parse(post.scheduledPublishDate) <= now.getTime()) {
+        record.reason = 'scheduled post lacks an unambiguous future scheduledPublishDate'; records.push(record); continue;
+      }
+      exportPublishDate = post.scheduledPublishDate;
+    }
+    if (!validDate(exportPublishDate)) { record.reason = 'invalid publishedDate RFC3339 date-time'; records.push(record); continue; }
     const frontmatter = markdownPostFrontmatterSchema.safeParse({
       id,
       title: string(post.title),
@@ -509,8 +545,9 @@ export async function exportPayloadPosts(options: ExportPayloadPostsOptions): Pr
   if (!dryRun && options.stagingDirectory) {
     const write = options.writeFile ?? (async (filePath, contents) => { await mkdir(path.dirname(filePath), { recursive: true }); await writeFile(filePath, contents, 'utf8'); });
     for (const [relative, markdown] of files) await write(path.join(options.stagingDirectory, relative), markdown);
+    for (const [relative, markdown] of draftFiles) await write(path.join(options.stagingDirectory, '.drafts', relative), markdown);
     await write(path.join(options.stagingDirectory, 'parity-report.json'), `${JSON.stringify(report, null, 2)}\n`);
   }
   summarize(report);
-  return { report, files };
+  return { report, files, draftFiles };
 }

@@ -419,7 +419,8 @@
       "status": "draft",
       "disposition": "excluded",
       "sourceHash": "48377c2855937cd52da2e0f141ae9d7cd106f7d06092091cce66b82f0a7d3885",
-      "reason": "drafts are inventory only"
+      "reason": "preserved in non-public Markdown drafts",
+      "draftFile": "content/drafts/the-singularity-log/the-fox-and-the-eval.md"
     },
     {
       "id": "89",
