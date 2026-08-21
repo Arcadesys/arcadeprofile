@@ -33,6 +33,7 @@ export interface ProjectHub {
   title: string;
   description: string;
   jacketDescription?: SerializedEditorState | null;
+  jacketMarkdown?: string;
   image?: string | null;
   href: string;
   external?: boolean | null;
@@ -70,6 +71,7 @@ function markdownProjectHub(group: MarkdownGroup, postSlugs: string[]): ProjectH
     slug: group.slug,
     title: group.title,
     description: group.description ?? '',
+    jacketMarkdown: group.introMarkdown,
     image: project.image,
     href: project.href ?? buildGroupIntroUrl(group.slug),
     external: project.external ?? false,
