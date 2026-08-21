@@ -21,6 +21,7 @@
     "dump:post-meta": "tsx --require ./scripts/patch-next-env.cjs scripts/dump-posts-for-meta.ts",
     "apply:post-meta": "tsx --require ./scripts/patch-next-env.cjs scripts/apply-post-meta-from-json.ts",
     "apply:post-meta-sql": "tsx scripts/apply-post-meta-sql.ts",
+    "export:payload-posts": "tsx scripts/export-payload-posts.ts",
     "test": "tsx --test $(find lib collections mcp -name '*.test.ts' -print | sort)",
     "mcp": "tsx mcp/payload-mcp.ts"
   },
