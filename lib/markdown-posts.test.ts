@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 
+import { loadMarkdownDrafts } from './markdown-drafts';
 import {
   loadMarkdownPosts,
   loadMarkdownGroups,
@@ -145,7 +147,16 @@ test('checked-in corpus matches the authenticated Payload parity receipt', () =>
   assert.equal(posts.filter((post) => essayGroups.has(post.group)).length, 32);
   assert.deepEqual(
     report.records.filter((record) => record.disposition === 'excluded').map((record) => ({ slug: record.slug, reason: record.reason })),
-    [{ slug: 'the-fox-and-the-eval', reason: 'drafts are inventory only' }],
+    [{ slug: 'the-fox-and-the-eval', reason: 'preserved in non-public Markdown drafts' }],
   );
   assert.equal(posts.find((post) => post.slug === 'open-port')?.publishDate, '2026-08-21T17:00:00.000Z');
+});
+
+test('checked-in Payload draft is hash-verified and absent from the public corpus', () => {
+  const drafts = loadMarkdownDrafts();
+  const posts = loadMarkdownPosts();
+  const draft = drafts.find((item) => item.slug === 'the-fox-and-the-eval');
+  assert.ok(draft);
+  assert.equal(createHash('sha256').update(draft.body).digest('hex'), draft.source.bodySha256);
+  assert.equal(posts.some((post) => post.slug === draft.slug), false);
 });

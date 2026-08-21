@@ -111,7 +111,7 @@ test('applies reviewed alt overrides by stable Payload media id', async () => {
   assert.match(result.files.get('alpha/exportable-post.md') ?? '', /A reviewed description of the hero image\./);
 });
 
-test('inventories every workflow status, uses the real scheduled instant, and excludes drafts', async () => {
+test('inventories every workflow status, preserves drafts separately, and uses the real scheduled instant', async () => {
   const result = await exportPayloadPosts({ posts: [
     post({ id: 1, publish_status: 'draft' }),
     post({ id: 2, slug: 'ambiguous-scheduled', publish_status: 'scheduled', scheduledPublishDate: '2026-08-20T09:00:00Z' }),
@@ -123,7 +123,21 @@ test('inventories every workflow status, uses the real scheduled instant, and ex
   assert.equal(result.report.totals.excluded, 1);
   assert.equal(result.report.totals.blocked, 1);
   assert.equal(result.report.totals.source, result.report.totals.exported + result.report.totals.excluded + result.report.totals.blocked);
+  assert.match(result.draftFiles.get('alpha/exportable-post.md') ?? '', /status: draft/);
+  assert.doesNotMatch(result.draftFiles.get('alpha/exportable-post.md') ?? '', /publishDate:/);
+  assert.equal(result.report.records[0]?.draftFile, 'content/drafts/alpha/exportable-post.md');
   assert.match(result.files.get('alpha/future-scheduled.md') ?? '', /publishDate: '2026-08-21T17:00:00Z'/);
+});
+
+test('writes preserved drafts under an ignored staging subtree', async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'payload-draft-'));
+  try {
+    const result = await exportPayloadPosts({ posts: [post({ publish_status: 'draft' })], groups, now, dryRun: false, stagingDirectory: directory });
+    const draft = await readFile(path.join(directory, '.drafts', 'alpha', 'exportable-post.md'), 'utf8');
+    assert.match(draft, /bodySha256: [a-f0-9]{64}/);
+    assert.equal(loadMarkdownPosts({ contentDirectory: directory }).length, 0);
+    assert.equal(result.report.validation.passed, true);
+  } finally { await rm(directory, { recursive: true, force: true }); }
 });
 
 test('reports duplicates, unsupported nodes, unresolved groups, invalid dates, and missing alt text without emitting files', async () => {
