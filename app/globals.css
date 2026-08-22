@@ -64,6 +64,8 @@
 
   --navbar-height: 3.5rem;
   --nav-bg: rgba(10, 5, 20, 0.85);
+  --cyan: #00e0f0;
+  --pink: #ef36af;
 }
 
 /* ── Reading-mode overrides ─────────────────────────────── */
@@ -109,6 +111,10 @@ html[data-reading-width] .dd-intro-main.has-drawer,
 html[data-reading-width] .dd-post-main.has-drawer {
   max-width: min(calc(var(--reading-measure) + 4rem), calc(100vw - 2rem)) !important;
 }
+
+/* Reader-width preferences intentionally govern longform pages, not the
+   publishing dashboard on the home route. */
+html[data-reading-width] #freeplay-home { max-width: none !important; }
 
 /* High contrast */
 html[data-contrast="high"] {
@@ -171,9 +177,25 @@ a:hover {
 ::selection { background: var(--neon-pink); color: var(--bg-deep); }
 
 *:focus-visible {
-  outline: 2px solid var(--neon-pink);
-  outline-offset: 2px;
+  outline: 4px solid #ffffff;
+  outline-offset: 4px;
 }
+
+/* ── Free Play neon-console redesign ───────────────────── */
+body { background: #050506; }
+body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .18; background-image: radial-gradient(rgba(255,255,255,.22) .55px, transparent .8px), linear-gradient(125deg, rgba(0,224,240,.06), transparent 22%, rgba(239,54,175,.05) 75%, transparent); background-size: 5px 5px, 100% 100%; }
+.nav-wrapper { position: relative; z-index: 20; padding: 0 !important; }
+.site-nav { position: fixed; inset: 0 auto 0 0; display: flex; flex-direction: column; justify-content: flex-start; width: 138px; padding: 1.5rem .75rem; border: 0; border-right: 2px solid var(--cyan); border-radius: 0; background: rgba(5,5,6,.96); box-shadow: 5px 0 20px rgba(0,224,240,.25); backdrop-filter: blur(16px); }
+.nav-logo { width: 100%; height: auto; margin: .35rem 0 1.25rem; padding: .65rem .35rem; border-bottom: 1px solid rgba(255,255,255,.18); }.nav-logo img { width: 100%; height: auto; transform: scale(1.08); transform-origin: center; }
+.site-nav > ul { display: grid; width: 100%; gap: .45rem; }.site-nav a:not(.nav-logo), .nav-more summary { display: grid; min-height: 52px; place-items: center; padding: .55rem .25rem; border: 1px solid transparent; border-radius: 0; color: #e9e9e8; font-family: var(--font-barlow-condensed), sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; text-align: center; }
+.site-nav a:not(.nav-logo):hover, .nav-more summary:hover { color: #fff; border-color: rgba(255,255,255,.65); background: rgba(255,255,255,.06); text-shadow: none; }.site-nav a.active, .nav-more summary.active { color: #fff; border-color: var(--cyan); box-shadow: inset 0 -4px 0 var(--cyan); text-shadow: none; }
+.site-nav a.primary { color: #fff; border-color: #ff912d; background: rgba(255,145,45,.09); box-shadow: none; }.site-nav a.primary:hover { background: rgba(255,145,45,.2); box-shadow: 0 0 16px rgba(255,145,45,.3); }.nav-more { width: 100%; }.nav-more > details > ul { position: fixed; top: auto; bottom: 1rem; left: 148px; right: auto; width: 220px; border-radius: 0; background: #09090a; }.nav-more > details > ul a { justify-items: start; padding-inline: 1rem; }.nav-mobile-toggle { display: none; }
+@media (min-width: 781px) { .site-nav .nav-subscribe { display: none; } }
+body > main, body > #__next, .nav-wrapper + main { margin-left: 138px; }
+.dd-intro-main, .dd-post-main { max-width: min(64ch, calc(100vw - 138px - 3rem)); padding-block: clamp(3rem, 7vw, 6rem); }.dd-intro-main.has-drawer, .dd-post-main.has-drawer { margin-left: max(138px, calc((100vw - min(64ch, calc(100vw - 138px - 3rem))) / 2 + 138px)); }
+.doc-drawer { width: min(380px, calc(100vw - 2rem)); transform: translateX(-100%); border-right: 2px solid var(--pink); background: #09090a; }.doc-drawer.open { transform: translateX(0); }.dd-toggle { display: grid; place-items: center; left: 138px; top: 50%; min-width: 48px; min-height: 52px; border: 2px solid var(--pink); border-left: 0; border-radius: 0 6px 6px 0; color: #fff; box-shadow: 5px 0 16px rgba(239,54,175,.22); animation: none; }.dd-scrim { display: block; }.dd-scrim:not(.visible) { display: none; }
+.prose { max-width: 64ch; font-size: 18px; line-height: 1.7; }.portfolio-reader__header h1, .dd-post-main h1, .dd-intro-main h1 { font-family: var(--font-barlow-condensed), sans-serif; font-weight: 700; letter-spacing: .01em; text-transform: uppercase; }
+@media (max-width: 780px) { .site-nav { position: sticky; top: 0; flex-direction: row; align-items: center; width: 100%; min-height: 72px; padding: .65rem 1rem; border-right: 0; border-bottom: 2px solid var(--cyan); }.nav-logo { width: 150px; margin: 0 auto 0 0; }.nav-mobile-toggle { display: inline-flex; min-width: 56px; min-height: 56px; align-items: center; justify-content: center; border: 2px solid var(--cyan); background: transparent; color: #fff; font-family: var(--font-mono); font-size: .78rem; text-transform: uppercase; }.site-nav > ul { display: none; position: fixed; top: 72px; right: 0; left: 0; max-height: calc(100vh - 72px); padding: 1rem; overflow: auto; background: #09090a; border-bottom: 2px solid var(--cyan); }.site-nav.mobile-open > ul { display: grid; }.site-nav a:not(.nav-logo), .nav-more summary { min-height: 56px; font-size: 1.15rem; }.nav-more > details > ul { position: static; width: auto; margin-top: .5rem; }.nav-home { display: block; } body > main, body > #__next, .nav-wrapper + main { margin-left: 0; }.dd-intro-main, .dd-post-main, .dd-intro-main.has-drawer, .dd-post-main.has-drawer { max-width: min(64ch, calc(100vw - 2rem)); margin-left: auto; }.dd-toggle { left: 0; }.doc-drawer { width: min(380px, calc(100vw - 1rem)); } }
 
 @layer utilities {
   .text-balance { text-wrap: balance; }
@@ -1398,6 +1420,13 @@ html[data-reading-width] .portfolio-index {
   }
 }
 
+/* Final longform overrides: the series navigator is always an intentional
+   overlay, never a permanent sidebar that steals the reading measure. */
+@media (min-width: 781px) {
+  body.has-doc-drawer .nav-wrapper { padding-left: 0; }
+  .dd-intro-main.has-drawer, .dd-post-main.has-drawer { margin-left: auto; margin-right: auto; padding-inline: 1.5rem; }
+}
+
 /* ActiveCampaign form 7: preserve the account-owned form while repairing the
    generated embed for large text, high contrast, visible focus, and touch. */
 .activecampaign-form {
@@ -1583,6 +1612,36 @@ html[data-reading-width] .portfolio-index {
   background: rgba(255, 60, 172, 0.18);
   box-shadow: 0 0 20px var(--glow-pink);
 }
+.nav-more { position: relative; }
+.nav-more summary {
+  display: block;
+  cursor: pointer;
+  color: var(--fg-muted);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  list-style: none;
+}
+.nav-more summary::-webkit-details-marker { display: none; }
+.nav-more summary::after { content: ' +'; margin-left: 0.35rem; }
+.nav-more details[open] summary::after { content: ' −'; }
+.nav-more summary:hover,
+.nav-more summary.active { color: var(--neon-pink); }
+.nav-more > details > ul {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 2;
+  display: grid;
+  min-width: 11rem;
+  padding: var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-deep);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
+}
+.nav-more > details > ul a { white-space: nowrap; }
 /* High-contrast nav overrides */
 html[data-contrast="high"] .site-nav {
   background-color: #000000;
@@ -1612,6 +1671,8 @@ html[data-contrast="high"] .site-nav a.primary {
   .nav-logo img {
     height: 36px;
   }
+  .nav-more summary { font-size: 13px; padding: 6px 8px; }
+  .nav-more > details > ul { right: 0; }
 }
 
 /* ── Projects page ──────────────────────────────────────── */
@@ -1923,4 +1984,64 @@ html[data-reading-width] .collection-index {
     justify-content: center;
     width: 100%;
   }
+}
+
+/* The desktop series control is a drawer/overlay by design. */
+@media (min-width: 1101px) {
+  body.has-doc-drawer .nav-wrapper { padding-left: 0; }
+  .dd-intro-main.has-drawer, .dd-post-main.has-drawer { margin-left: auto; margin-right: auto; padding-inline: 1.5rem; }
+}
+
+/* Keep the mobile rail a real drawer even though legacy navigation rules have
+   a later generic flex declaration. */
+@media (max-width: 780px) {
+  .site-nav > ul { display: none !important; }
+  .site-nav.mobile-open > ul { display: grid !important; }
+}
+
+/* Visible on every viewport: this is the labelled gateway to series context. */
+.dd-toggle { display: grid; place-items: center; left: 138px; top: 50%; min-width: 48px; min-height: 52px; border: 2px solid var(--pink); border-left: 0; border-radius: 0 6px 6px 0; background: #09090a; color: #fff; box-shadow: 5px 0 16px rgba(239,54,175,.22); animation: none; }
+@media (max-width: 780px) { .dd-toggle { left: 0; } }
+
+/* Desktop rail icon pass: roomy, high-contrast linework that pairs every
+   editorial destination with a readable label. The icon is decorative; the
+   label and active border remain the navigation affordance. */
+@media (min-width: 781px) {
+  .site-nav {
+    justify-content: flex-start;
+  }
+  .site-nav > ul {
+    align-content: start;
+    gap: .72rem;
+    padding-block: 1rem;
+  }
+  .site-nav > ul > li:not(.nav-more) > a:not(.nav-logo) {
+    min-height: 78px;
+    gap: .38rem;
+    align-content: center;
+    justify-items: center;
+    line-height: 1;
+  }
+  .nav-rail-icon {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    color: #f5f5f2;
+  }
+  .nav-rail-icon svg {
+    display: block;
+    width: 29px;
+    height: 29px;
+    overflow: visible;
+  }
+  .site-nav a.active .nav-rail-icon {
+    color: var(--cyan);
+  }
+  .site-nav a:not(.nav-logo):hover .nav-rail-icon {
+    color: #fff;
+  }
+}
+@media (max-width: 780px) {
+  .nav-rail-icon { display: none; }
 }

@@ -38,6 +38,7 @@ import * as migration_20260618_040000_add_books_buy_label from './20260618_04000
 import * as migration_20260618_050000_drop_projects_table from './20260618_050000_drop_projects_table';
 import * as migration_20260624_000000_newsletter_send_state_machine from './20260624_000000_newsletter_send_state_machine';
 import * as migration_20260809_000000_add_group_serial_release_schedule from './20260809_000000_add_group_serial_release_schedule';
+import * as migration_20260821_010000_add_posts_pdf_edition from './20260821_010000_add_posts_pdf_edition';
 
 export const migrations = [
   {
@@ -238,6 +239,11 @@ export const migrations = [
   {
     up: migration_20260809_000000_add_group_serial_release_schedule.up,
     down: migration_20260809_000000_add_group_serial_release_schedule.down,
-    name: '20260809_000000_add_group_serial_release_schedule'
+    name: '20260809_000000_add_group_serial_release_schedule',
+  },
+  {
+    up: migration_20260821_010000_add_posts_pdf_edition.up,
+    down: migration_20260821_010000_add_posts_pdf_edition.down,
+    name: '20260821_010000_add_posts_pdf_edition'
   },
 ];

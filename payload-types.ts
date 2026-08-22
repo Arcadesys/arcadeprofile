@@ -188,6 +188,10 @@ export interface Post {
     [k: string]: unknown;
   };
   /**
+   * Optional matching PDF. When unset, the public PDF route generates an edition from this post.
+   */
+  pdfEdition?: (number | null) | Media;
+  /**
    * Date shown publicly and used for sorting published posts.
    */
   publishedDate: string;
@@ -976,6 +980,7 @@ export interface PostsSelect<T extends boolean = true> {
   slug?: T;
   excerpt?: T;
   content?: T;
+  pdfEdition?: T;
   publishedDate?: T;
   suppressNewsletter?: T;
   newsletterSend?:

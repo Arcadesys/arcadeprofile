@@ -71,6 +71,12 @@ export const markdownPostFrontmatterSchema = z
       })
       .strict()
       .optional(),
+    pdf: z
+      .object({
+        overrideUrl: z.string().url().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 

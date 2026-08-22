@@ -27,6 +27,8 @@ test('buildStaticSitemapEntries maps configured routes without synthetic modific
     entries.some(entry => entry.url === 'https://example.test/bibliography'),
     true,
   );
+  assert.equal(entries.some(entry => entry.url === 'https://example.test/stories'), true);
+  assert.equal(entries.some(entry => entry.url === 'https://example.test/essays'), true);
   // /portfolio plus Gallery View — the other six moved to the collection.
   assert.equal(
     entries.filter(entry => entry.url.includes('/portfolio')).length,

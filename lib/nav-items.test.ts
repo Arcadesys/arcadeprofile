@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   ensureCollectionNavItem,
+  buildNavigationModel,
   ensureCoreNavItems,
   ensureLabNavItem,
   ensurePortfolioNavItem,
@@ -82,7 +83,7 @@ test('ensureLabNavItem inserts Lab after Portfolio', () => {
   assert.deepEqual(items.map((item) => item.href), ['/projects', '/portfolio', '/lab', '/bio']);
 });
 
-test('ensureCoreNavItems keeps Portfolio, Lab, Stories, and Toys in a predictable order', () => {
+test('ensureCoreNavItems keeps fallback destinations available for the editorial navigation model', () => {
   const items = ensureCoreNavItems([
     { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
     { id: 'bio', label: 'Bio', href: '/bio', isPrimary: false },
@@ -90,7 +91,10 @@ test('ensureCoreNavItems keeps Portfolio, Lab, Stories, and Toys in a predictabl
 
   assert.deepEqual(
     items.map((item) => item.href),
-    ['/projects', '/portfolio', '/lab', '/this-is-what-i-do-for-fun', '/toys', '/bio'],
+    [
+      '/projects', '/portfolio', '/lab', '/this-is-what-i-do-for-fun', '/toys',
+      '/bio', '/stories', '/essays', '/subscribe',
+    ],
   );
 });
 
@@ -100,4 +104,21 @@ test('ensureCollectionNavItem does not duplicate a CMS-managed Stories entry', (
   ];
 
   assert.strictEqual(ensureCollectionNavItem(items), items);
+});
+
+test('buildNavigationModel reserves the compact header for editorial essentials', () => {
+  const model = buildNavigationModel([
+    { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
+    { id: 'stories', label: 'Stories', href: '/stories', isPrimary: false },
+    { id: 'essays', label: 'Essays', href: '/essays', isPrimary: false },
+    { id: 'lab', label: 'Lab', href: '/lab', isPrimary: false },
+    { id: 'about', label: 'About', href: '/bio', isPrimary: false },
+    { id: 'subscribe', label: 'Subscribe', href: '/subscribe', isPrimary: true },
+    { id: 'toys', label: 'Toys', href: '/toys', isPrimary: false },
+  ]);
+
+  assert.deepEqual(model.primary.map((item) => item.href), [
+    '/stories', '/essays', '/lab', '/bio', '/subscribe',
+  ]);
+  assert.deepEqual(model.more.map((item) => item.href), ['/projects', '/toys']);
 });

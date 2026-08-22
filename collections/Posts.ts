@@ -100,6 +100,16 @@ export const Posts: CollectionConfig = {
       required: true,
     },
     {
+      name: 'pdfEdition',
+      label: 'Curated PDF edition',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        position: 'sidebar',
+        description: 'Optional matching PDF. When unset, the public PDF route generates an edition from this post.',
+      },
+    },
+    {
       name: 'publishedDate',
       label: 'Public Date',
       type: 'date',

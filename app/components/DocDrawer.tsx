@@ -115,7 +115,7 @@ export default function DocDrawer({
         aria-controls="doc-drawer"
         onClick={(e) => { e.stopPropagation(); setOpen(o => !o); }}
       >
-        {open ? '×' : '☰'}
+        {open ? 'Close' : 'Series'}
       </button>
 
       <aside

@@ -2,50 +2,78 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import Image from 'next/image';
 
-import type { NavItem } from '@/lib/nav-items';
+import { buildNavigationModel, type NavItem } from '@/lib/nav-items';
 
 export type { NavItem };
 
+function RailIcon({ href }: { href: string }) {
+  const common = {
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.9,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+  };
+
+  switch (href) {
+    case '/':
+      return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><path d="m3.5 10.5 8.5-7 8.5 7v9a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19.5z" /><path d="M9.25 21v-6.25h5.5V21" /></svg>;
+    case '/stories':
+      return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><path d="M12 6.25C9.5 4.65 6.7 4.4 3.75 5.5v13c3.05-1.15 5.85-.9 8.25.7m0-12.95c2.5-1.6 5.3-1.85 8.25-.75v13c-3.05-1.15-5.85-.9-8.25.7" /><path d="M12 6.25V19.2" /></svg>;
+    case '/essays':
+      return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><path d="m4 20 3.7-.85L19.5 7.35a2.1 2.1 0 0 0-2.95-2.95L4.75 16.2z" /><path d="m14.9 6.05 3.05 3.05M4 20l.75-3.8 3.05 3.05z" /></svg>;
+    case '/lab':
+      return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><path d="M9 3.5h6M10.25 3.5v6.25L4.8 18.6A1.8 1.8 0 0 0 6.35 21h11.3a1.8 1.8 0 0 0 1.55-2.7l-5.45-8.55V3.5" /><path d="M8.2 16.2h7.6M9.6 13.75h4.8" /></svg>;
+    case '/bio':
+      return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><circle cx="12" cy="12" r="8.75" /><path d="M12 10.75V16M12 7.6h.01" /></svg>;
+    default:
+      return null;
+  }
+}
+
 export default function NavbarClient({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { primary, more } = buildNavigationModel(items);
+
+  const link = (item: NavItem) => {
+    const isActive = item.href === '/'
+      ? pathname === '/'
+      : pathname === item.href || pathname.startsWith(`${item.href}/`);
+    return (
+      <Link
+        key={item.id}
+        href={item.href}
+        className={[
+          isActive ? 'active' : '',
+          item.isPrimary ? 'primary' : '',
+        ].filter(Boolean).join(' ') || undefined}
+        aria-current={isActive ? 'page' : undefined}
+        onClick={() => setMobileOpen(false)}
+      >
+        <span className="nav-rail-icon"><RailIcon href={item.href} /></span>
+        {item.label}
+      </Link>
+    );
+  };
+
+  const moreIsActive = more.some((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
 
   return (
-    <nav className="site-nav" aria-label="Main navigation">
+    <nav className={`site-nav${mobileOpen ? ' mobile-open' : ''}`} aria-label="Main navigation">
       <Link href="/" className="nav-logo" aria-label="Free Play Publishing — home">
-        <Image
-          src="/free-play-nav.svg"
-          alt="Free Play Publishing"
-          width={173}
-          height={60}
-          priority
-        />
+        <Image src="/free-play-nav.svg" alt="Free Play Publishing" width={173} height={60} priority />
       </Link>
-
-      <ul role="list">
-        {items.map((item) => {
-          const isActive = item.href === '/'
-            ? pathname === '/'
-            : pathname === item.href || pathname.startsWith(`${item.href}/`);
-
-          return (
-            <li key={item.id}>
-              <Link
-                href={item.href}
-                className={[
-                  isActive ? 'active' : '',
-                  item.isPrimary ? 'primary' : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ') || undefined}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                {item.label}
-              </Link>
-            </li>
-          );
-        })}
+      <button className="nav-mobile-toggle" type="button" aria-expanded={mobileOpen} aria-controls="main-nav-links" onClick={() => setMobileOpen((open) => !open)}>
+        Menu
+      </button>
+      <ul id="main-nav-links" role="list">
+        <li className="nav-home"><Link href="/" className={pathname === '/' ? 'active' : undefined} aria-current={pathname === '/' ? 'page' : undefined} onClick={() => setMobileOpen(false)}><span className="nav-rail-icon"><RailIcon href="/" /></span>Home</Link></li>
+        {primary.map((item) => <li key={item.id} className={item.href === '/subscribe' ? 'nav-subscribe' : undefined}>{link(item)}</li>)}
+        {more.length > 0 ? <li className="nav-more"><details><summary className={moreIsActive ? 'active' : undefined}>More</summary><ul role="list" aria-label="More navigation">{more.map((item) => <li key={item.id}>{link(item)}</li>)}</ul></details></li> : null}
       </ul>
     </nav>
   );
