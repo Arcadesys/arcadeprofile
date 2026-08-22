@@ -46,6 +46,8 @@ export interface BlogPost {
   newsletterDescription?: string;
   /** SEO meta overrides — used by generateMetadata for OG/Twitter tags. */
   meta?: BlogPostMeta;
+  /** Curated PDF edition; generated edition is used when absent. */
+  pdfOverrideUrl?: string;
 }
 
 export interface Chapter {
@@ -89,6 +91,7 @@ function markdownPostToBlogPost(post: MarkdownPost): BlogPost {
     order: post.order,
     tags: post.tags ?? [],
     meta: post.seo,
+    pdfOverrideUrl: post.pdf?.overrideUrl,
   };
 }
 
@@ -147,6 +150,9 @@ function toPost(doc: Post): BlogPost {
           title: doc.meta.title || undefined,
           description: doc.meta.description || undefined,
         }
+      : undefined,
+    pdfOverrideUrl: typeof doc.pdfEdition === 'object' && doc.pdfEdition && 'url' in doc.pdfEdition
+      ? String(doc.pdfEdition.url ?? '') || undefined
       : undefined,
   };
 }

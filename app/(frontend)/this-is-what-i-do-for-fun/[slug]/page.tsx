@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import LongformBody from '@/app/components/LongformBody';
-import ShareLinks from '@/app/components/ShareLinks';
+import { PieceActions } from '@/app/components/PieceActions';
 import { COLLECTION, COLLECTION_PATH, COLLECTION_TITLE, getStory } from '@/lib/collection';
 import { JsonLd } from '@/lib/structured-data';
 
@@ -105,11 +105,12 @@ export default async function CollectionStoryPage({ params }: Props) {
             <h1>{story.title}</h1>
             <p className="portfolio-reader__byline">By Austen Tucker</p>
             <p className="portfolio-reader__meta">{story.description}</p>
-            <div className="portfolio-actions" aria-label={`Read ${story.title}`}>
-              <a href={story.downloads.pdf} target="_blank" rel="noreferrer">
-                Read the PDF <span aria-hidden="true">↗</span>
-              </a>
-            </div>
+            <PieceActions
+              title={story.title}
+              readHref={`${COLLECTION_PATH}/${story.slug}`}
+              pdfHref={`${COLLECTION_PATH}/${story.slug}/pdf`}
+              shareUrl={pageUrl}
+            />
           </header>
 
           <figure className="portfolio-reader__cover">
@@ -140,14 +141,10 @@ export default async function CollectionStoryPage({ params }: Props) {
           {story.content && <LongformBody content={story.content} />}
 
           <footer className="portfolio-reader__footer">
-            <ShareLinks url={pageUrl} title={story.title} />
             <div className="portfolio-actions">
               <Link className="portfolio-read-link" href={COLLECTION_PATH}>
                 ← All seven stories
               </Link>
-              <a href={story.downloads.pdf} target="_blank" rel="noreferrer">
-                Read the PDF <span aria-hidden="true">↗</span>
-              </a>
             </div>
           </footer>
         </article>

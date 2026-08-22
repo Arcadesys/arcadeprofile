@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/react';
 import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono, Lora } from 'next/font/google';
+import { Barlow_Condensed, Inter, JetBrains_Mono, Lora } from 'next/font/google';
 import "../globals.css";
 import { ThemeProvider } from '../components/ThemeContext';
 import ThemeBg from '../components/ThemeBg';
@@ -32,6 +32,13 @@ const lora = Lora({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   variable: '--font-lora',
+  display: 'swap',
+});
+
+const barlowCondensed = Barlow_Condensed({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-barlow-condensed',
   display: 'swap',
 });
 
@@ -111,7 +118,7 @@ export default function FrontendLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} ${lora.variable}`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${lora.variable} ${barlowCondensed.variable}`}
       suppressHydrationWarning
     >
       <body>

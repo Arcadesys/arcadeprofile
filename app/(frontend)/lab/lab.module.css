@@ -339,6 +339,11 @@ html[data-reading-scale] .page .story :where(p, li) {
   margin-bottom: 0 !important;
 }
 
+.pieceActions {
+  max-width: 760px;
+  margin: 0 0 clamp(3rem, 8vw, 5rem);
+}
+
 .exploreLinks {
   display: flex;
   flex-wrap: wrap;
@@ -377,6 +382,13 @@ html[data-reading-scale] .page .story :where(p, li) {
     width: 100%;
   }
 }
+
+/* Shared Free Play console treatment. The narrative copy remains deliberately
+   calm while its containers carry the publishing-system signal. */
+.page { width: min(1160px, calc(100% - 2rem)); }
+.indexHeader, .caseHeader { padding: clamp(1.5rem, 4vw, 3rem); border-left: 4px solid var(--cyan); background: rgba(7,7,8,.82); clip-path: polygon(0 0, 97% 0, 100% 12%, 100% 100%, 0 100%); }
+.eyebrow, .projectNumber { color: var(--cyan); }.indexHeader h1, .caseHeader h1, .projectBody h2 { font-family: var(--font-barlow-condensed), sans-serif; font-weight: 700; letter-spacing: .025em; text-transform: uppercase; }
+.projectCard { padding-inline: clamp(1rem, 3vw, 2rem); border: 1px solid #34343b; border-left: 4px solid var(--pink); background: rgba(7,7,8,.88); clip-path: polygon(0 0, 98% 0, 100% 6%, 100% 94%, 98% 100%, 0 100%); }.projectList { display: grid; gap: 1.25rem; border: 0; }.visual, .heroVisual { border-radius: 0; border-color: #34343b; }.caseLink, .externalLink { border-radius: 0; border-color: var(--cyan); color: #fff; }.caseLink:hover, .externalLink:hover { color: #fff; background: rgba(0,224,240,.12); }
 
 @media (forced-colors: active) {
   .visualFrame,

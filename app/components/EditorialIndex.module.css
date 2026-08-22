@@ -1,0 +1,191 @@
+.main {
+  width: min(100% - 2rem, 72rem);
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 5rem) 0 clamp(4rem, 8vw, 7rem);
+}
+
+.header {
+  max-width: 46rem;
+  margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0.6rem 0 1rem;
+  color: var(--fg);
+  font-size: clamp(2.5rem, 8vw, 5.5rem);
+  letter-spacing: -0.055em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.lede {
+  color: var(--fg-muted);
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  line-height: 1.65;
+}
+
+.collection {
+  margin: 0 0 clamp(3rem, 7vw, 6rem);
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+}
+
+.collection h2,
+.groupTitle {
+  color: var(--fg);
+  font-size: clamp(1.45rem, 3vw, 2.1rem);
+  line-height: 1.1;
+}
+
+.collection > p {
+  max-width: 46rem;
+  margin-top: 0.7rem;
+  color: var(--fg-muted);
+  font-size: 1.05rem;
+}
+
+.collectionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+  list-style: none;
+}
+
+.collectionCard,
+.group {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--bg-deep) 75%, transparent);
+}
+
+.collectionCard {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem;
+}
+
+.collectionCard h3 {
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.collectionCard p {
+  color: var(--fg-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.actions,
+.groupActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.action,
+.groupActions a {
+  min-height: 44px;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--neon-pink);
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-decoration: none;
+}
+
+.action:hover,
+.groupActions a:hover {
+  color: var(--bg-deep);
+  background: var(--neon-pink);
+  text-shadow: none;
+}
+
+.groupList {
+  display: grid;
+  gap: 1.25rem;
+  list-style: none;
+}
+
+.group {
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.groupHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.groupHeader p {
+  max-width: 46rem;
+  margin-top: 0.6rem;
+  color: var(--fg-muted);
+  line-height: 1.55;
+}
+
+.pieces {
+  display: grid;
+  margin-top: 0.75rem;
+  list-style: none;
+}
+
+.piece {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.piece:last-child { border-bottom: 0; }
+
+.pieceMeta {
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.piece h3 {
+  margin: 0.3rem 0;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  line-height: 1.2;
+}
+
+.piece p {
+  max-width: 52rem;
+  color: var(--fg-muted);
+  line-height: 1.55;
+}
+
+.empty {
+  color: var(--fg-muted);
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+}
+
+/* Console panels use the same hard geometry as the home page without making
+   the archive harder to scan. */
+.main { width: min(100% - 2rem, 74rem); }
+.eyebrow { color: var(--cyan); font-family: var(--font-mono); }
+.title { font-family: var(--font-barlow-condensed), sans-serif; font-weight: 700; letter-spacing: .01em; text-transform: uppercase; }
+.collection, .group, .collectionCard { border-radius: 0; border-color: #34343b; background: rgba(7, 7, 8, .9); clip-path: polygon(0 0, 98% 0, 100% 7%, 100% 93%, 98% 100%, 0 100%); }
+.collectionCard { clip-path: none; border-left: 3px solid var(--cyan); }.group { border-left: 3px solid var(--pink); }.groupTitle { font-family: var(--font-barlow-condensed), sans-serif; text-transform: uppercase; letter-spacing: .025em; }.action, .groupActions a { min-height: 48px; border-radius: 0; font-family: var(--font-mono); }

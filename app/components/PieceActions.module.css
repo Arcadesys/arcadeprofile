@@ -1,0 +1,57 @@
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.action,
+.shareButton {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1rem;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.shareButton {
+  cursor: pointer;
+}
+
+.action:hover,
+.action:focus-visible,
+.shareButton:hover,
+.shareButton:focus-visible {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+  color: var(--fg);
+}
+
+.fallbacks {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.status {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: 1rem;
+}
+
+@media (max-width: 620px) {
+  .actions,
+  .fallbacks {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}

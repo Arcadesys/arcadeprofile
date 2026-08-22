@@ -11,7 +11,7 @@ import { projectCategoryLabels } from '@/lib/project-model';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
-import ShareLinks from '@/app/components/ShareLinks';
+import { PieceActions } from '@/app/components/PieceActions';
 import PostReactions from '@/app/components/PostReactions';
 import RelatedPosts from '@/app/components/RelatedPosts';
 import ReadingProgressTracker from '@/app/components/ReadingProgressTracker';
@@ -260,7 +260,6 @@ export default async function ProjectPostPage({ params }: Props) {
   }
   const relatedPosts = getRelatedPosts(allPosts, post, urlMap);
 
-  const pageUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
   const canonicalUrl = resolveCanonicalUrl(
     extras.canonicalPath,
     buildPostUrl(slug, postSlug),
@@ -374,7 +373,12 @@ export default async function ProjectPostPage({ params }: Props) {
         />
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
-          <ShareLinks url={pageUrl} title={post.title} />
+          <PieceActions
+            title={post.title}
+            readHref={buildPostUrl(slug, postSlug)}
+            pdfHref={`${buildPostUrl(slug, postSlug)}/pdf`}
+            shareUrl={canonicalUrl}
+          />
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             {prevPartHref ? (
               <Link href={prevPartHref} style={{ color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '0.9rem' }}>
