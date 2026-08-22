@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 import { LAB_PROJECTS } from '@/data/lab-projects';
 import { JsonLd } from '@/lib/structured-data';
+import { SITE_NAME } from '@/lib/site-brand';
 
 import { LabProjectVisual } from './LabProjectVisual';
 import styles from './lab.module.css';
@@ -12,18 +13,18 @@ const DESCRIPTION =
   'Accessible case studies about public products and Lab infrastructure built by Austen Tucker: WizWor, ToonTok, ArcadeProfile, and Conductor.';
 
 export const metadata: Metadata = {
-  title: 'The Arcades Lab',
+  title: 'Case Studies',
   description: DESCRIPTION,
   alternates: { canonical: '/lab' },
   openGraph: {
     type: 'website',
-    title: 'The Arcades Lab | Free Play Publishing',
+    title: `Case Studies | ${SITE_NAME}`,
     description: DESCRIPTION,
     url: '/lab',
   },
   twitter: {
     card: 'summary',
-    title: 'The Arcades Lab | Free Play Publishing',
+    title: `Case Studies | ${SITE_NAME}`,
     description: DESCRIPTION,
   },
 };
@@ -32,7 +33,7 @@ export default function LabPage() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'The Arcades Lab',
+    name: 'Case Studies',
     description: DESCRIPTION,
     url: `${SITE_URL}/lab`,
     author: { '@id': `${SITE_URL}/#person` },
@@ -53,7 +54,7 @@ export default function LabPage() {
       <main className={styles.page}>
         <header className={styles.indexHeader}>
           <p className={styles.eyebrow}>AI engineering case studies</p>
-          <h1>The Arcades Lab</h1>
+          <h1>Case Studies</h1>
           <p className={styles.lede}>
             Real products, the systems behind them, and the lessons earned while building them.
             Each case study explains the work before offering a link to the public product.

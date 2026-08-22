@@ -8,6 +8,7 @@ import { PieceActions } from '@/app/components/PieceActions';
 import { buildPostUrl } from '@/lib/post-url';
 import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
+import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
 
 import styles from './home.module.css';
 
@@ -22,16 +23,16 @@ export default async function HomePage() {
   });
 
   return (
-    <main id="freeplay-home" className={styles.main}>
+    <main id="arcades-home" className={styles.main}>
       <header className={styles.hero}>
         <div className={styles.brandBar}>
-          <Link className={styles.brandLockup} href="/" aria-label="ArcadeProfile — Free Play Publishing home">
-            <span>ArcadeProfile</span><b aria-hidden="true">/</b><strong>Free Play Publishing</strong>
+          <Link className={styles.brandLockup} href="/" aria-label={`${SITE_PLATFORM_NAME} — ${SITE_NAME} home`}>
+            <span>{SITE_PLATFORM_NAME}</span><b aria-hidden="true">/</b><strong>{SITE_NAME}</strong>
           </Link>
           <Link className={styles.topSubscribe} href="/subscribe">Subscribe</Link>
         </div>
         <div className={styles.heroCopy}>
-          <h1 className={styles.title}>Free Play<br />Publishing</h1>
+          <h1 className={styles.title}>The<br />Arcades&apos; Lab</h1>
           <p className={styles.byline}>Stories by Austen Tucker</p>
           <p className={styles.tagline}>Read the strange little fire.</p>
           <div className={styles.heroActions}>
@@ -50,18 +51,18 @@ export default async function HomePage() {
         <ContinueToyBanner />
       </div>
 
-      <section className={styles.bands} aria-label="Explore Free Play Publishing">
-        <article className={styles.band} style={{ '--band': '#00e0f0' } as CSSProperties}>
+      <section className={styles.bands} aria-label={`Explore ${SITE_NAME}`}>
+        <article className={styles.band} style={{ '--band': 'var(--cyan)' } as CSSProperties}>
           <h2>Fiction</h2><p>Short stories and novellas from the edges of the ordinary.</p>
           <Link href="/stories">Explore fiction <span aria-hidden="true">→</span></Link>
         </article>
-        <article className={styles.band} style={{ '--band': '#ef36af' } as CSSProperties}>
+        <article className={styles.band} style={{ '--band': 'var(--pink)' } as CSSProperties}>
           <h2>Essays</h2><p>Ideas, reflections, and dispatches from the weird and wonderful.</p>
           <Link href="/essays">Explore essays <span aria-hidden="true">→</span></Link>
         </article>
-        <article className={styles.band} style={{ '--band': '#ff912d' } as CSSProperties}>
-          <h2>The Arcades Lab</h2><p>Experiments in narrative, worldbuilding, and the future of storytelling.</p>
-          <Link href="/lab">Enter the Lab <span aria-hidden="true">→</span></Link>
+        <article className={styles.band} style={{ '--band': 'var(--accent)' } as CSSProperties}>
+          <h2>Case Studies</h2><p>Real products, the systems behind them, and lessons earned while building them.</p>
+          <Link href="/lab">Explore case studies <span aria-hidden="true">→</span></Link>
         </article>
       </section>
 

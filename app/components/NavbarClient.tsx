@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 import { buildNavigationModel, type NavItem } from '@/lib/nav-items';
+import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
 
 export type { NavItem };
 
@@ -39,6 +40,17 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { primary, more } = buildNavigationModel(items);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileOpen(false);
+    };
+
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [mobileOpen]);
+
   const link = (item: NavItem) => {
     const isActive = item.href === '/'
       ? pathname === '/'
@@ -64,8 +76,9 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
 
   return (
     <nav className={`site-nav${mobileOpen ? ' mobile-open' : ''}`} aria-label="Main navigation">
-      <Link href="/" className="nav-logo" aria-label="Free Play Publishing — home">
-        <Image src="/free-play-nav.svg" alt="Free Play Publishing" width={173} height={60} priority />
+      <Link href="/" className="nav-logo" aria-label={`${SITE_NAME} — home`}>
+        <Image src="/images/free-play-fox-hero.png" alt="" width={60} height={60} priority />
+        <span className="nav-logo-copy"><strong>{SITE_PLATFORM_NAME}</strong><small>{SITE_NAME}</small></span>
       </Link>
       <button className="nav-mobile-toggle" type="button" aria-expanded={mobileOpen} aria-controls="main-nav-links" onClick={() => setMobileOpen((open) => !open)}>
         Menu

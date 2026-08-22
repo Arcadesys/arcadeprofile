@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SITE_NAME } from '@/lib/site-brand';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -111,7 +112,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ]);
   const metaTitle = group?.meta?.title?.trim() || project.title;
   const metaDescription = group?.meta?.description?.trim() || project.description || undefined;
-  const titleForOg = `${metaTitle} | Free Play Publishing`;
+  const titleForOg = `${metaTitle} | ${SITE_NAME}`;
   const path = buildGroupIntroUrl(slug);
   const canonicalUrl = resolveCanonicalUrl(groupExtras.canonicalPath, path, SITE_URL);
   return {

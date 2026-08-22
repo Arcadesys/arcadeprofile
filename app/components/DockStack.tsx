@@ -1,13 +1,13 @@
 'use client';
 
-import ThemeDock from './ThemeDock';
 import ReadingDock from './ReadingDock';
+import LightsToggle from './LightsToggle';
 
 export default function DockStack() {
   return (
     <div className="dock-stack">
       <ReadingDock />
-      <ThemeDock />
+      <LightsToggle />
     </div>
   );
 }

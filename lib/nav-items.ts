@@ -10,7 +10,7 @@ export type NavItem = {
 export const DEFAULT_NAV_ITEMS: NavItem[] = [
   { id: 'stories', label: 'Stories', href: '/stories', isPrimary: false },
   { id: 'essays', label: 'Essays', href: '/essays', isPrimary: false },
-  { id: 'lab', label: 'Lab', href: '/lab', isPrimary: false },
+  { id: 'lab', label: 'Case Studies', href: '/lab', isPrimary: false },
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
   { id: 'subscribe', label: 'Subscribe', href: '/subscribe', isPrimary: true },
   { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
@@ -44,7 +44,7 @@ export const PORTFOLIO_NAV_ITEM: NavItem = {
 
 export const LAB_NAV_ITEM: NavItem = {
   id: 'lab',
-  label: 'Lab',
+  label: 'Case Studies',
   href: '/lab',
   isPrimary: false,
 };
@@ -180,7 +180,7 @@ export async function loadVisibleNavItems(payload: NavPayload): Promise<NavItem[
 
   return result.docs.map((doc) => ({
     id: String(doc.id),
-    label: doc.label,
+    label: doc.href === '/lab' ? 'Case Studies' : doc.label,
     href: doc.href,
     isPrimary: Boolean(doc.isPrimary),
   }));

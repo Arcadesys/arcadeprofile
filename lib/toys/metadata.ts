@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
+import { SITE_NAME, SITE_TITLE_DEFAULT } from '@/lib/site-brand';
 
-const SITE_NAME = 'Free Play Publishing';
 const DEFAULT_SOCIAL_IMAGE = {
   url: '/opengraph-image',
   width: 1200,
   height: 630,
-  alt: 'Free Play Publishing — Austen Tucker',
+  alt: SITE_TITLE_DEFAULT,
 };
 
 type ToySocialImage = {

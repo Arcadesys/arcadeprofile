@@ -19,7 +19,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
       author: 'Austen Tucker',
       canonicalPath,
       pdfPath: `${canonicalPath}/pdf`,
-      section: 'The Arcades Lab',
+      section: 'Case Studies',
       blocks: markdownToEditorialBlocks(study.body),
     };
     return editorialPdfResponse(piece, request);

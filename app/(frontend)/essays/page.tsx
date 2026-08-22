@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SITE_NAME } from '@/lib/site-brand';
 
 import EditorialIndex from '@/app/components/EditorialIndex';
 import { getEditorialCatalog } from '@/lib/editorial-catalog';
@@ -11,8 +12,8 @@ export const metadata: Metadata = {
   title: 'Essays',
   description,
   alternates: { canonical: '/essays' },
-  openGraph: { type: 'website', title: 'Essays | Free Play Publishing', description, url: '/essays' },
-  twitter: { card: 'summary_large_image', title: 'Essays | Free Play Publishing', description },
+  openGraph: { type: 'website', title: `Essays | ${SITE_NAME}`, description, url: '/essays' },
+  twitter: { card: 'summary_large_image', title: `Essays | ${SITE_NAME}`, description },
 };
 
 export default async function EssaysPage() {

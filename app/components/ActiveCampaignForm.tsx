@@ -12,6 +12,7 @@ import {
   type PreferenceKey,
 } from '@/lib/activecampaign-form';
 import { type Magnet, type Source } from '@/lib/subscribe-types';
+import { SITE_NAME } from '@/lib/site-brand';
 
 export type ActiveCampaignFormPresentation = 'default' | 'compact';
 
@@ -33,7 +34,22 @@ function setImportantStyle(element: HTMLElement, property: string, value: string
   element.style.setProperty(property, value, 'important');
 }
 
+function repairCanonicalBranding(form: HTMLFormElement) {
+  const walker = document.createTreeWalker(form, NodeFilter.SHOW_TEXT);
+  let node = walker.nextNode();
+  while (node) {
+    if (node.nodeValue?.includes('Free Play Publishing')) {
+      node.nodeValue = node.nodeValue.replaceAll('Free Play Publishing', SITE_NAME);
+    }
+    if (node.nodeValue?.includes('Arcades Lab & build logs')) {
+      node.nodeValue = node.nodeValue.replaceAll('Arcades Lab & build logs', `${SITE_NAME} & build logs`);
+    }
+    node = walker.nextNode();
+  }
+}
+
 function repairAccessiblePresentation(form: HTMLFormElement) {
+  repairCanonicalBranding(form);
   setImportantStyle(form, 'width', '100%');
   setImportantStyle(form, 'max-width', '100%');
   setImportantStyle(form, 'margin', '0');

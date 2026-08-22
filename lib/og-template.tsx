@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og';
+import { SITE_NAME } from '@/lib/site-brand';
 
 export const ogSize = { width: 1200, height: 630 };
 export const ogContentType = 'image/png';
@@ -13,7 +14,7 @@ export function siteDomain(): string {
 }
 
 export interface OgCardInput {
-  /** Small uppercase chip shown top-left. Falls back to "Free Play Publishing". */
+  /** Small uppercase chip shown top-left. Falls back to the canonical site name. */
   eyebrow?: string | null;
   /** Big headline. Auto-scales smaller when long. */
   title: string;
@@ -22,7 +23,7 @@ export interface OgCardInput {
 }
 
 export function renderOgCard({ eyebrow, title, byline }: OgCardInput) {
-  const chip = eyebrow?.trim() || 'Free Play Publishing';
+  const chip = eyebrow?.trim() || SITE_NAME;
   const titleSize = title.length > 60 ? 64 : 84;
   const domain = siteDomain();
 

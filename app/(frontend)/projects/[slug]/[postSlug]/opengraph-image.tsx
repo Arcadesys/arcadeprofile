@@ -4,11 +4,12 @@ import { ogSize, ogContentType, renderOgCard } from '@/lib/og-template';
 import { publicPostStatusWhere } from '@/lib/post-status';
 import { projectCategoryLabels } from '@/lib/project-model';
 import { parsePostPartSegment, resolvePostSlugByPartIndex } from '@/lib/post-url';
+import { SITE_NAME } from '@/lib/site-brand';
 
 export const runtime = 'nodejs';
 export const size = ogSize;
 export const contentType = ogContentType;
-export const alt = 'Free Play Publishing';
+export const alt = SITE_NAME;
 
 type Props = { params: Promise<{ slug: string; postSlug: string }> };
 
@@ -82,7 +83,7 @@ export default async function OgImage({ params }: Props) {
   const { slug, postSlug } = await params;
   const ctx = await loadOgContext(slug, postSlug);
 
-  let title = ctx?.groupTitle || 'Free Play Publishing';
+  let title = ctx?.groupTitle || SITE_NAME;
   let byline = '';
 
   if (ctx?.post) {

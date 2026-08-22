@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SITE_NAME } from '@/lib/site-brand';
 import Link from 'next/link';
 import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 
@@ -8,13 +9,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/bio' },
   openGraph: {
     type: 'profile',
-    title: 'Bio | Free Play Publishing',
+    title: `Bio | ${SITE_NAME}`,
     description: 'Who is Austen Tucker-Crowder? A bit of everything: AI transformation lead, facilitator, dev, writer, and maker.',
     url: '/bio',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Bio | Free Play Publishing',
+    title: `Bio | ${SITE_NAME}`,
     description: 'Who is Austen Tucker-Crowder? A bit of everything: AI transformation lead, facilitator, dev, writer, and maker.',
   },
 };
@@ -153,7 +154,7 @@ export default function BioPage() {
         <h2 style={sectionHeadingStyle}>About this site</h2>
         <div style={cardStyle}>
           <p style={{ lineHeight: 1.8, margin: '0 0 1rem' }}>
-            Free Play Publishing is my personal corner of the internet. It&apos;s built with Next.js 15, Payload CMS,
+            {SITE_NAME} is my personal corner of the internet. It&apos;s built with Next.js 15, Payload CMS,
             and deployed on Vercel — and it doubles as a sandbox where I try things out.
           </p>
           <p style={{ lineHeight: 1.8, margin: 0 }}>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SITE_NAME } from '@/lib/site-brand';
 import { getAllProjectHubs, type ProjectHub } from '@/lib/payload';
 import { getAllPosts, buildPostUrlMap, type BlogPost } from '@/lib/blog';
 import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
@@ -17,13 +18,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/projects' },
   openGraph: {
     type: 'website',
-    title: 'Projects | Free Play Publishing',
+    title: `Projects | ${SITE_NAME}`,
     description: 'Projects and creative work by Austen Tucker-Crowder.',
     url: '/projects',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Projects | Free Play Publishing',
+    title: `Projects | ${SITE_NAME}`,
     description: 'Projects and creative work by Austen Tucker-Crowder.',
   },
 };

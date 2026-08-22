@@ -17,6 +17,7 @@ test('editorial metadata uses one canonical web URL and treats PDFs as an encodi
   assert.equal(result.canonicalUrl, 'https://www.thearcades.me/stories/the-signal');
   assert.equal(result.metadata.alternates?.canonical, result.canonicalUrl);
   assert.equal((result.metadata.openGraph as { url?: string }).url, result.canonicalUrl);
+  assert.equal((result.metadata.openGraph as { title?: string }).title, "The Signal | The Arcades' Lab");
   assert.equal(result.articleJsonLd.url, result.canonicalUrl);
   assert.deepEqual(result.articleJsonLd.encoding, {
     '@type': 'MediaObject',

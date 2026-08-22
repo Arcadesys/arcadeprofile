@@ -3,6 +3,7 @@ import { Document, Page, StyleSheet, Text, View, renderToBuffer } from '@react-p
 import React from 'react';
 
 import type { EditorialPiece } from '@/lib/editorial-piece';
+import { SITE_NAME } from '@/lib/site-brand';
 
 const styles = StyleSheet.create({
   page: { paddingTop: 60, paddingBottom: 64, paddingHorizontal: 56, fontFamily: 'Helvetica', fontSize: 11, lineHeight: 1.55, color: '#151515' },
@@ -19,7 +20,7 @@ const styles = StyleSheet.create({
 function PieceDocument({ piece }: { piece: EditorialPiece }) {
   return <Document title={piece.title} author={piece.author} subject={piece.description}>
     <Page size="LETTER" style={styles.page}>
-      <Text style={styles.eyebrow}>{(piece.section || 'Free Play Publishing').toUpperCase()}</Text>
+      <Text style={styles.eyebrow}>{(piece.section || SITE_NAME).toUpperCase()}</Text>
       <Text style={styles.title}>{piece.title}</Text>
       <Text style={styles.byline}>By {piece.author}{piece.datePublished ? ` · ${new Date(piece.datePublished).getFullYear()}` : ''}</Text>
       {piece.blocks.map((block, index) => {
@@ -28,9 +29,13 @@ function PieceDocument({ piece }: { piece: EditorialPiece }) {
         if (block.type === 'list') return <View key={index} style={styles.list}>{block.items.map((item, itemIndex) => <Text key={itemIndex}>{block.ordered ? `${itemIndex + 1}.` : '•'} {item}</Text>)}</View>;
         return <Text key={index} style={styles.paragraph}>{block.text}</Text>;
       })}
-      <Text fixed style={styles.footer}>Free Play Publishing · {piece.canonicalPath}</Text>
+      <Text fixed style={styles.footer}>{editorialPdfFooter(piece)}</Text>
     </Page>
   </Document>;
+}
+
+export function editorialPdfFooter(piece: Pick<EditorialPiece, 'canonicalPath'>): string {
+  return `${SITE_NAME} · ${piece.canonicalPath}`;
 }
 
 export function editorialPdfFilename(piece: EditorialPiece): string {

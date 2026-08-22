@@ -24,7 +24,7 @@ test('buildToyMetadata aligns canonical, Open Graph, and Twitter values', () => 
     },
     openGraph: {
       type: 'website',
-      title: 'Test Toy | Free Play Publishing',
+      title: "Test Toy | The Arcades' Lab",
       description: 'A testable interactive story.',
       url: '/toys/test-toy',
       images: [{
@@ -36,7 +36,7 @@ test('buildToyMetadata aligns canonical, Open Graph, and Twitter values', () => 
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Test Toy | Free Play Publishing',
+      title: "Test Toy | The Arcades' Lab",
       description: 'A testable interactive story.',
       images: [{
         url: 'https://example.test/toy.png',
@@ -59,7 +59,7 @@ test('buildToyMetadata uses the site card when no toy image exists', () => {
     url: '/opengraph-image',
     width: 1200,
     height: 630,
-    alt: 'Free Play Publishing — Austen Tucker',
+    alt: "THE ARCADES' LAB — Austen Tucker",
   };
 
   assert.deepEqual(metadata.openGraph?.images, [expectedImage]);

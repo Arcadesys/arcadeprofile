@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SITE_NAME } from '@/lib/site-brand';
 import Link from 'next/link';
 import type { SerializedEditorState } from 'lexical';
 import { getAllPosts, buildPostUrl, buildPostUrlMap } from '@/lib/blog';
@@ -13,18 +14,18 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Latest',
-  description: 'New writing from Free Play Publishing — fiction and essays by Austen Tucker.',
+  description: `New writing from ${SITE_NAME} — fiction and essays by Austen Tucker.`,
   alternates: { canonical: '/latest' },
   openGraph: {
     type: 'website',
-    title: 'Latest | Free Play Publishing',
-    description: 'New writing from Free Play Publishing — fiction and essays by Austen Tucker.',
+    title: `Latest | ${SITE_NAME}`,
+    description: `New writing from ${SITE_NAME} — fiction and essays by Austen Tucker.`,
     url: '/latest',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Latest | Free Play Publishing',
-    description: 'New writing from Free Play Publishing — fiction and essays by Austen Tucker.',
+    title: `Latest | ${SITE_NAME}`,
+    description: `New writing from ${SITE_NAME} — fiction and essays by Austen Tucker.`,
   },
 };
 

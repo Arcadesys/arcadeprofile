@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SITE_NAME } from '@/lib/site-brand';
 import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
 import LongformBody from '@/app/components/LongformBody';
@@ -161,7 +162,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (post.markdownBody) {
     const metaTitle = post.meta?.title?.trim() || post.title;
     const metaDescription = post.meta?.description?.trim() || post.excerpt || undefined;
-    const titleForOg = `${metaTitle} | ${project.title} | Free Play Publishing`;
+    const titleForOg = `${metaTitle} | ${project.title} | ${SITE_NAME}`;
     const canonicalUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
     return {
       title: `${metaTitle} | ${project.title}`,
@@ -191,7 +192,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const metaTitle = post.meta?.title?.trim() || post.title;
   const metaDescription = post.meta?.description?.trim() || post.excerpt || undefined;
   const titleForBrowser = `${metaTitle} | ${project.title}`;
-  const titleForOg = `${metaTitle} | ${project.title} | Free Play Publishing`;
+  const titleForOg = `${metaTitle} | ${project.title} | ${SITE_NAME}`;
   const path = buildPostUrl(slug, postSlug);
   const canonicalUrl = resolveCanonicalUrl(postExtras.canonicalPath, path, SITE_URL);
   return {
