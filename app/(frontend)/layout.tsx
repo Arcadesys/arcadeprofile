@@ -2,17 +2,15 @@ import { Analytics } from '@vercel/analytics/react';
 import type { Metadata } from 'next';
 import { Barlow_Condensed, Inter, JetBrains_Mono, Lora } from 'next/font/google';
 import "../globals.css";
-import { ThemeProvider } from '../components/ThemeContext';
-import ThemeBg from '../components/ThemeBg';
+import { LightsProvider } from '../components/LightsContext';
 import DockStack from '../components/DockStack';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import { JsonLd } from '@/lib/structured-data';
+import { LIGHTS_BOOTSTRAP_SCRIPT } from '@/lib/lights';
+import { SITE_DESCRIPTION, SITE_NAME, SITE_NAME_UPPER, SITE_TITLE_DEFAULT } from '@/lib/site-brand';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://www.thearcades.me').replace(/\/+$/, '');
-const SITE_NAME = 'Free Play Publishing';
-const SITE_TITLE_DEFAULT = 'FREE PLAY PUBLISHING — Austen Tucker';
-const SITE_DESCRIPTION = 'Serialized fiction, essays on AI and creativity, and weird little worlds by Austen Tucker. New fiction Mon/Wed/Fri, essays Tue/Thu.';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -89,7 +87,7 @@ const websiteJsonLd = {
   '@type': 'WebSite',
   '@id': `${SITE_URL}/#website`,
   name: SITE_NAME,
-  alternateName: 'FREE PLAY PUBLISHING',
+  alternateName: SITE_NAME_UPPER,
   url: SITE_URL,
   description: SITE_DESCRIPTION,
   inLanguage: 'en-US',
@@ -121,18 +119,20 @@ export default function FrontendLayout({
       className={`${inter.variable} ${jetbrainsMono.variable} ${lora.variable} ${barlowCondensed.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: LIGHTS_BOOTSTRAP_SCRIPT }} />
+      </head>
       <body>
         <JsonLd data={websiteJsonLd} />
         <JsonLd data={personJsonLd} />
-        <ThemeProvider>
-          <ThemeBg />
+        <LightsProvider>
           <div className="nav-wrapper">
             <Navbar />
           </div>
           {children}
           <Footer />
           <DockStack />
-        </ThemeProvider>
+        </LightsProvider>
         <Analytics />
       </body>
     </html>

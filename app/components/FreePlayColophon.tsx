@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { SITE_NAME } from '@/lib/site-brand';
 
 type Variant = 'mark' | 'lockup' | 'stacked' | 'mono';
 
@@ -95,7 +96,7 @@ export default function FreePlayColophon({
   variant = 'mark',
   className,
   style,
-  ariaLabel = 'Free Play Publishing',
+  ariaLabel = SITE_NAME,
 }: Props) {
   const uid = useId().replace(/:/g, '');
   const idPrefix = `fp-${uid}`;

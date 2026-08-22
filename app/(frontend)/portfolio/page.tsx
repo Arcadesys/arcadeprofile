@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SITE_NAME } from '@/lib/site-brand';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -15,13 +16,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/portfolio' },
   openGraph: {
     type: 'website',
-    title: 'Portfolio | Free Play Publishing',
+    title: `Portfolio | ${SITE_NAME}`,
     description: DESCRIPTION,
     url: '/portfolio',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Portfolio | Free Play Publishing',
+    title: `Portfolio | ${SITE_NAME}`,
     description: DESCRIPTION,
   },
 };

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SITE_NAME } from '@/lib/site-brand';
 import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 
 export const metadata: Metadata = {
@@ -8,13 +9,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/subscribe' },
   openGraph: {
     type: 'website',
-    title: 'Subscribe | Free Play Publishing',
+    title: `Subscribe | ${SITE_NAME}`,
     description: 'Serialized fiction and essays by Austen Tucker. Every installment as it lands. All free.',
     url: '/subscribe',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Subscribe | Free Play Publishing',
+    title: `Subscribe | ${SITE_NAME}`,
     description: 'Serialized fiction and essays by Austen Tucker. Every installment as it lands. All free.',
   },
 };

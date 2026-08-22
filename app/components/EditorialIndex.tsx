@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { EditorialCatalogGroup, EditorialSection } from '@/lib/editorial-catalog';
 import type { CollectionStory } from '@/lib/collection';
 import { formatSiteDate } from '@/lib/site-time';
+import { SITE_NAME } from '@/lib/site-brand';
 import styles from './EditorialIndex.module.css';
 
 interface Props {
@@ -14,12 +15,12 @@ interface Props {
 
 const copy = {
   fiction: {
-    eyebrow: 'Free Play Publishing / Fiction',
+    eyebrow: `${SITE_NAME} / Fiction`,
     title: 'Stories for strange little fires.',
     lede: 'Read serial fiction and short stories online. Every piece remains part of the living web edition, with downloadable editions where available.',
   },
   essays: {
-    eyebrow: 'Free Play Publishing / Essays',
+    eyebrow: `${SITE_NAME} / Essays`,
     title: 'Ideas worth sitting with.',
     lede: 'Essays on writing, accessibility, creativity, AI, and the strange business of being human while all the machinery changes.',
   },

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SITE_NAME } from '@/lib/site-brand';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: { canonical: path },
     openGraph: {
       type: 'article',
-      title: `${title} | Free Play Publishing`,
+      title: `${title} | ${SITE_NAME}`,
       description: story.description,
       url: path,
       images: [{
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary',
-      title: `${title} | Free Play Publishing`,
+      title: `${title} | ${SITE_NAME}`,
       description: story.description,
       images: [story.cover.src],
     },

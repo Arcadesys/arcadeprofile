@@ -2,11 +2,12 @@ import { getPayload } from 'payload';
 import payloadConfig from '@payload-config';
 import { ogSize, ogContentType, renderOgCard } from '@/lib/og-template';
 import { projectCategoryLabels } from '@/lib/project-model';
+import { SITE_NAME } from '@/lib/site-brand';
 
 export const runtime = 'nodejs';
 export const size = ogSize;
 export const contentType = ogContentType;
-export const alt = 'Free Play Publishing';
+export const alt = SITE_NAME;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -51,7 +52,7 @@ export default async function OgImage({ params }: Props) {
   const { slug } = await params;
   const ctx = await loadOgContext(slug);
 
-  const title = ctx ? (ctx.groupMetaTitle || ctx.groupTitle) : 'Free Play Publishing';
+  const title = ctx ? (ctx.groupMetaTitle || ctx.groupTitle) : SITE_NAME;
   const byline = ctx?.groupDescription || '';
   const eyebrow = ctx?.groupCategory
     ? projectCategoryLabels[ctx.groupCategory] || ctx.groupCategory

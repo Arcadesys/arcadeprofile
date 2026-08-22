@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { resolveCanonicalUrl } from '@/lib/canonical-url';
+import { SITE_NAME } from '@/lib/site-brand';
 
 const DEFAULT_SITE_URL = 'https://www.thearcades.me';
 
@@ -41,7 +42,7 @@ export function buildEditorialMetadata(input: EditorialMetadataInput): Editorial
     : undefined;
   const pdfUrl = input.pdfPath ? resolveCanonicalUrl(input.pdfPath, input.pdfPath, site) : undefined;
   const image = input.image ? resolveCanonicalUrl(input.image, input.image, site) : undefined;
-  const socialTitle = `${input.title} | Free Play Publishing`;
+  const socialTitle = `${input.title} | ${SITE_NAME}`;
 
   const articleJsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',

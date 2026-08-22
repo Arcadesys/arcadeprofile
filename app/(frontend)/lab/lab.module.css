@@ -383,7 +383,7 @@ html[data-reading-scale] .page .story :where(p, li) {
   }
 }
 
-/* Shared Free Play console treatment. The narrative copy remains deliberately
+/* Shared Arcades console treatment. The narrative copy remains deliberately
    calm while its containers carry the publishing-system signal. */
 .page { width: min(1160px, calc(100% - 2rem)); }
 .indexHeader, .caseHeader { padding: clamp(1.5rem, 4vw, 3rem); border-left: 4px solid var(--cyan); background: rgba(7,7,8,.82); clip-path: polygon(0 0, 97% 0, 100% 12%, 100% 100%, 0 100%); }

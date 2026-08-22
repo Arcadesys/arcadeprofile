@@ -47,6 +47,18 @@ test('loadVisibleNavItems reads every visible nav item without a fixed cap', asy
   });
 });
 
+test('loadVisibleNavItems gives the preserved /lab route its canonical public label', async () => {
+  const payload = {
+    async find() {
+      return { docs: [{ id: 1, label: 'Lab', href: '/lab', isPrimary: false }] };
+    },
+  } as unknown as NavPayload;
+
+  assert.deepEqual(await loadVisibleNavItems(payload), [
+    { id: '1', label: 'Case Studies', href: '/lab', isPrimary: false },
+  ]);
+});
+
 test('ensureToysNavItem inserts Toys after Projects when CMS navigation omits it', () => {
   const items = ensureToysNavItem([
     { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
@@ -81,6 +93,7 @@ test('ensureLabNavItem inserts Lab after Portfolio', () => {
   ]);
 
   assert.deepEqual(items.map((item) => item.href), ['/projects', '/portfolio', '/lab', '/bio']);
+  assert.equal(items.find((item) => item.href === '/lab')?.label, 'Case Studies');
 });
 
 test('ensureCoreNavItems keeps fallback destinations available for the editorial navigation model', () => {
@@ -111,7 +124,7 @@ test('buildNavigationModel reserves the compact header for editorial essentials'
     { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
     { id: 'stories', label: 'Stories', href: '/stories', isPrimary: false },
     { id: 'essays', label: 'Essays', href: '/essays', isPrimary: false },
-    { id: 'lab', label: 'Lab', href: '/lab', isPrimary: false },
+    { id: 'lab', label: 'Case Studies', href: '/lab', isPrimary: false },
     { id: 'about', label: 'About', href: '/bio', isPrimary: false },
     { id: 'subscribe', label: 'Subscribe', href: '/subscribe', isPrimary: true },
     { id: 'toys', label: 'Toys', href: '/toys', isPrimary: false },

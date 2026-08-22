@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { editorialEtag, editorialPdfFilename } from '@/lib/editorial-pdf';
+import { editorialEtag, editorialPdfFilename, editorialPdfFooter } from '@/lib/editorial-pdf';
 import { markdownToEditorialBlocks, type EditorialPiece } from '@/lib/editorial-piece';
 
 test('editorial Markdown IR retains readable headings, paragraphs, quotes, and lists', () => {
@@ -20,4 +20,5 @@ test('PDF filenames and cache validators are stable for a normalized piece', () 
   };
   assert.equal(editorialPdfFilename(piece), 'the-long-way-home.pdf');
   assert.equal(editorialEtag(piece), editorialEtag(piece));
+  assert.equal(editorialPdfFooter(piece), "The Arcades' Lab · /projects/test/the-long-way-home");
 });

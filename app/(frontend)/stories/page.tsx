@@ -1,18 +1,19 @@
 import type { Metadata } from 'next';
+import { SITE_NAME } from '@/lib/site-brand';
 
 import EditorialIndex from '@/app/components/EditorialIndex';
 import { getEditorialCatalog } from '@/lib/editorial-catalog';
 
 export const dynamic = 'force-dynamic';
 
-const description = 'Read fiction by Austen Tucker: serial stories, short fiction, and free downloadable editions from Free Play Publishing.';
+const description = `Read fiction by Austen Tucker: serial stories, short fiction, and free downloadable editions from ${SITE_NAME}.`;
 
 export const metadata: Metadata = {
   title: 'Stories',
   description,
   alternates: { canonical: '/stories' },
-  openGraph: { type: 'website', title: 'Stories | Free Play Publishing', description, url: '/stories' },
-  twitter: { card: 'summary_large_image', title: 'Stories | Free Play Publishing', description },
+  openGraph: { type: 'website', title: `Stories | ${SITE_NAME}`, description, url: '/stories' },
+  twitter: { card: 'summary_large_image', title: `Stories | ${SITE_NAME}`, description },
 };
 
 export default async function StoriesPage() {

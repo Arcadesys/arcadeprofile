@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SITE_NAME } from '@/lib/site-brand';
 import Image from 'next/image';
 import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 import { books as bookData } from '@/data/books';
@@ -9,13 +10,13 @@ export const metadata: Metadata = {
   alternates: { canonical: '/store' },
   openGraph: {
     type: 'website',
-    title: 'Store | Free Play Publishing',
+    title: `Store | ${SITE_NAME}`,
     description: 'Books by Austen Tucker-Crowder.',
     url: '/store',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Store | Free Play Publishing',
+    title: `Store | ${SITE_NAME}`,
     description: 'Books by Austen Tucker-Crowder.',
   },
 };

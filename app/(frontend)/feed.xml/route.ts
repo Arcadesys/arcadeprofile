@@ -1,4 +1,5 @@
 import { Feed } from 'feed';
+import { SITE_NAME } from '@/lib/site-brand';
 import { buildPostUrl, buildPostUrlMap, getPublishedPostsForRss } from '@/lib/blog';
 import { buildPostNewsletterContent } from '@/lib/newsletter';
 import { markdownToSafeHtml } from '@/lib/markdown-render';
@@ -20,7 +21,7 @@ export async function GET() {
   ]);
 
   const feed = new Feed({
-    title: 'Free Play Publishing — Latest',
+    title: `${SITE_NAME} — Latest`,
     description: 'Writing by Austen Tucker',
     id: SITE_URL,
     link: SITE_URL,
