@@ -43,7 +43,14 @@ export default async function HomePage() {
           </div>
           <div className={styles.portrait}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/free-play-fox-hero.png" alt="A sleeping orange fox with purple glasses and a magenta feathered tuft." />
+            <img
+              src="/images/moxie/moxie-sitting-text-gaze.webp"
+              alt="Moxie, an orange fox with purple glasses and a magenta forelock, sits and looks toward The Arcades' Lab title."
+              width="1536"
+              height="1024"
+              decoding="async"
+              fetchPriority="high"
+            />
           </div>
         </div>
         <aside className={styles.continuePanel} aria-labelledby="continue-heading">
@@ -79,7 +86,34 @@ export default async function HomePage() {
       </section>
 
       <section className={styles.below}>
+        <aside className={styles.subscribe} aria-labelledby="subscribe-heading">
+          <div className={styles.subscribeMoxie}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/moxie/moxie-sleeping.webp"
+              alt="Moxie sleeps curled around her tail with her purple glasses resting on her face."
+              width="1536"
+              height="1024"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <h2 id="subscribe-heading">Read it as it arrives</h2>
+          <p>New stories, essays, and experiments—delivered to your inbox.</p>
+          <ActiveCampaignForm source="home-hero" magnet="story" presentation="compact" />
+        </aside>
         <section className={styles.recent} aria-labelledby="recent-heading">
+          <div className={styles.recentMoxie}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/moxie/moxie-walking.webp"
+              alt="Moxie walks forward with an easy stride, her purple glasses and magenta forelock catching the neon light."
+              width="1536"
+              height="1024"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
           <h2 id="recent-heading">Recently Published</h2>
           {recentPosts.length ? <ol className={styles.recentList}>{recentPosts.map((post) => (
             <li className={styles.recentRow} key={post.slug}>
@@ -89,11 +123,6 @@ export default async function HomePage() {
           ))}</ol> : <p>No recent publications are available yet.</p>}
           <Link className={styles.button} href="/latest">View all stories <span aria-hidden="true">→</span></Link>
         </section>
-        <aside className={styles.subscribe} aria-labelledby="subscribe-heading">
-          <h2 id="subscribe-heading">Read it as it arrives</h2>
-          <p>New stories, essays, and experiments—delivered to your inbox.</p>
-          <ActiveCampaignForm source="home-hero" magnet="story" presentation="compact" />
-        </aside>
       </section>
     </main>
   );

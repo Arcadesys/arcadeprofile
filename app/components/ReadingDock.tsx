@@ -197,7 +197,7 @@ export default function ReadingDock({
       <button
         ref={triggerRef}
         className="dock-trigger"
-        aria-label="Reader controls"
+        aria-label="Change reading experience"
         aria-expanded={open}
         aria-controls="reading-panel"
         onClick={(e) => {
@@ -206,7 +206,8 @@ export default function ReadingDock({
           if (!open) closeOther?.();
         }}
       >
-        <span>Aa</span>
+        <span className="reader-trigger-aa" aria-hidden="true">Aa</span>
+        <span className="reader-trigger-label" aria-hidden="true">Reading</span>
       </button>
 
       <div

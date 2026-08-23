@@ -79,7 +79,7 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
     <>
       <nav className={`site-nav${mobileOpen ? ' mobile-open' : ''}`} aria-label="Main navigation">
         <Link href="/" className="nav-logo" aria-label={`${SITE_NAME} — home`}>
-          <Image src="/images/free-play-fox-hero.png" alt="" width={60} height={60} priority />
+          <Image src="/images/moxie/moxie-sleeping.webp" alt="" width={90} height={60} priority />
           <span className="nav-logo-copy"><strong>{SITE_PLATFORM_NAME}</strong><small>{SITE_NAME}</small></span>
         </Link>
         <button className="nav-mobile-toggle" type="button" aria-expanded={mobileOpen} aria-controls="main-nav-links" onClick={() => setMobileOpen((open) => !open)}>
