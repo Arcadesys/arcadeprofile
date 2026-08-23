@@ -31,19 +31,31 @@ export default async function HomePage() {
           </Link>
           <Link className={styles.topSubscribe} href="/subscribe">Subscribe</Link>
         </div>
-        <div className={styles.heroCopy}>
-          <h1 className={styles.title}>The<br />Arcades&apos; Lab</h1>
-          <p className={styles.byline}>Stories by Austen Tucker</p>
-          <p className={styles.tagline}>Read the strange little fire.</p>
-          <div className={styles.heroActions}>
-            <Link className={styles.button} href="/stories">Start Here <span aria-hidden="true">→</span></Link>
-            <Link className={`${styles.button} ${styles.buttonAlt}`} href="/latest">Latest Stories <span aria-hidden="true">→</span></Link>
+        <div className={styles.heroEditorial}>
+          <div className={styles.heroCopy}>
+            <p className={styles.byline}>Stories by Austen Tucker</p>
+            <h1 className={styles.title}>The Arcades&apos; Lab</h1>
+            <p className={styles.tagline}>Read the strange little fire.</p>
+            <div className={styles.heroActions}>
+              <Link className={styles.button} href="/stories">Start Here <span aria-hidden="true">→</span></Link>
+              <Link className={`${styles.button} ${styles.buttonAlt}`} href="/latest">Latest Stories <span aria-hidden="true">→</span></Link>
+            </div>
+          </div>
+          <div className={styles.portrait}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/free-play-fox-hero.png" alt="A sleeping orange fox with purple glasses and a magenta feathered tuft." />
           </div>
         </div>
-        <div className={styles.portrait}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/free-play-fox-hero.png" alt="A sleeping orange fox with purple glasses and a magenta feathered tuft." />
-        </div>
+        <aside className={styles.continuePanel} aria-labelledby="continue-heading">
+          <h2 id="continue-heading">Continue Reading</h2>
+          {recentPosts.length ? <ol className={styles.continueList}>{recentPosts.map((post, index) => (
+            <li className={styles.continueCard} key={post.slug} data-accent={index === 0 ? 'pink' : 'cyan'}>
+              <p>{post.groupTitle}</p>
+              <h3><Link href={post.href}>{post.title}</Link></h3>
+              <time dateTime={post.date}>{formatSiteDate(post.date)}</time>
+            </li>
+          ))}</ol> : <p>No recent publications are available yet.</p>}
+        </aside>
       </header>
 
       <div className={styles.resume}>
