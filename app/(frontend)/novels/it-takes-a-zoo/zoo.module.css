@@ -1,0 +1,231 @@
+.main {
+  --zoo-gold: #ffd166;
+  --zoo-ink: #f7f2ff;
+  --zoo-muted: #d5cce3;
+  --zoo-panel: #171321;
+  --zoo-line: #7b668f;
+  min-height: 100vh;
+  padding: clamp(1.25rem, 3vw, 3rem);
+  color: var(--zoo-ink);
+  background: linear-gradient(145deg, #08070c 0%, #171020 52%, #081821 100%);
+}
+
+.shell {
+  width: min(72rem, 100%);
+  margin-inline: auto;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+}
+
+.cover {
+  width: 100%;
+  height: auto;
+  border: 2px solid var(--zoo-line);
+  border-radius: 0.75rem;
+  box-shadow: 0 1.5rem 4rem #000a;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--zoo-gold);
+  font-size: clamp(1rem, 1.7vw, 1.25rem);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero h1,
+.readerHeader h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(2.75rem, 5vw, 4.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.lede,
+.description {
+  max-width: 42rem;
+  color: var(--zoo-muted);
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  line-height: 1.55;
+}
+
+.actions,
+.cardActions,
+.readerNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.actions a,
+.cardActions a,
+.readerNav a,
+.backLink {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  border: 2px solid var(--zoo-gold);
+  border-radius: 0.45rem;
+  color: #08070c;
+  background: var(--zoo-gold);
+  font-size: 1rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.actions a:focus-visible,
+.cardActions a:focus-visible,
+.readerNav a:focus-visible,
+.backLink:focus-visible {
+  outline: 4px solid #fff;
+  outline-offset: 4px;
+}
+
+.chapters {
+  margin-top: clamp(4rem, 8vw, 7rem);
+}
+
+.chapters > h2 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+}
+
+.chapterList {
+  display: grid;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chapterCard {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 1.25rem;
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+  border: 2px solid var(--zoo-line);
+  border-radius: 0.75rem;
+  background: var(--zoo-panel);
+}
+
+.chapterNumber {
+  color: var(--zoo-gold);
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.chapterCard h3 {
+  margin: 0;
+  font-size: clamp(1.65rem, 3vw, 2.4rem);
+}
+
+.chapterCard h3 a {
+  color: #fff;
+}
+
+.chapterCard p {
+  color: var(--zoo-muted);
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.cardActions a:last-child,
+.readerNav a {
+  color: var(--zoo-ink);
+  background: transparent;
+}
+
+.reader {
+  width: min(50rem, 100%);
+  margin-inline: auto;
+}
+
+.backLink {
+  margin-bottom: 2rem;
+  color: var(--zoo-ink);
+  background: transparent;
+}
+
+.readerHeader {
+  margin-bottom: 3rem;
+}
+
+.readerHeader h1 {
+  font-size: clamp(2.7rem, 7vw, 5rem);
+}
+
+.byline,
+.meta {
+  color: var(--zoo-muted);
+  font-size: 1.1rem;
+}
+
+.body {
+  padding: clamp(1.25rem, 4vw, 3.5rem);
+  border-radius: 0.75rem;
+  color: #17121f;
+  background: #fffaf2;
+  box-shadow: 0 1rem 4rem #0007;
+}
+
+.body :global(.prose) {
+  max-width: 43rem;
+  margin-inline: auto;
+  color: #17121f;
+  font-size: clamp(1.15rem, 1.8vw, 1.32rem);
+  line-height: 1.78;
+}
+
+.body :global(.prose p),
+.body :global(.prose h2),
+.body :global(.prose h3),
+.body :global(.prose blockquote),
+.body :global(.prose li),
+.body :global(.prose em),
+.body :global(.prose strong) {
+  color: #17121f;
+}
+
+.body :global(.prose a) {
+  color: #6b2600;
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.15em;
+}
+
+.body :global(.prose hr) {
+  border-color: #795f82;
+}
+
+.body :global(.prose h2) {
+  margin-top: 2.7em;
+  font-size: 1.65em;
+  line-height: 1.2;
+}
+
+.body :global(.prose img) {
+  max-width: 100%;
+  height: auto;
+}
+
+.readerNav {
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+@media (max-width: 720px) {
+  .hero { grid-template-columns: 1fr; }
+  .cover { width: min(100%, 24rem); margin-inline: auto; }
+  .chapterCard { grid-template-columns: 1fr; }
+  .chapterNumber { font-size: 2rem; }
+  .readerNav { flex-direction: column; }
+  .readerNav a { width: 100%; }
+}

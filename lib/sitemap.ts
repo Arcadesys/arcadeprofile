@@ -3,6 +3,7 @@ import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
 import { COLLECTION, COLLECTION_PATH } from '@/lib/collection';
 import { PORTFOLIO_WORKS } from '@/lib/portfolio';
 import type { MarkdownGroup, MarkdownPost } from '@/lib/markdown-posts';
+import { ZOO_CHAPTERS, ZOO_COLLECTION_PATH } from '@/lib/zoo-collection';
 
 export type SitemapEntry = MetadataRoute.Sitemap[number];
 
@@ -28,6 +29,12 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
   { path: COLLECTION_PATH, changeFrequency: 'monthly', priority: 0.9 },
   ...COLLECTION.map((story) => ({
     path: `${COLLECTION_PATH}/${story.slug}`,
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  })),
+  { path: ZOO_COLLECTION_PATH, changeFrequency: 'monthly', priority: 0.9 },
+  ...ZOO_CHAPTERS.map((chapter) => ({
+    path: chapter.path,
     changeFrequency: 'monthly' as const,
     priority: 0.8,
   })),

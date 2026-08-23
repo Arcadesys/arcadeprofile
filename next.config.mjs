@@ -9,6 +9,7 @@ const nextConfig = {
   outputFileTracingIncludes: {
     '/*': [
       './content/posts/**/*',
+      './content/novels/**/*',
       './data/portfolio-content/**/*.md',
     ],
   },
