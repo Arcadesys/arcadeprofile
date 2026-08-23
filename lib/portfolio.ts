@@ -1,8 +1,5 @@
-import type { SerializedEditorState } from 'lexical';
-
 import downloads from '@/data/portfolio-downloads.json';
-
-import galleryView from '@/data/portfolio-content/gallery-view.json';
+import { loadPortfolioMarkdown } from '@/lib/portfolio-markdown';
 
 export interface PortfolioWork {
   slug: string;
@@ -10,7 +7,7 @@ export interface PortfolioWork {
   excerpt: string;
   wordCount: number;
   readingMinutes: number;
-  content: SerializedEditorState;
+  markdownBody: string;
   titleImage: {
     src: string;
     alt: string;
@@ -68,7 +65,7 @@ export const PORTFOLIO_WORKS: readonly PortfolioWork[] = [
     excerpt:
       'An isolated artist builds a hidden virtual gallery around a portrait of Jamie while their Zoo community turns an uncertain gift into an act of trust.',
     wordCount: 7166,
-    content: galleryView as SerializedEditorState,
+    markdownBody: loadPortfolioMarkdown('gallery-view'),
     titleImage: titleImage(
       'gallery-view',
       'Gallery View — a luminous portrait at the center of a hidden virtual gallery',

@@ -141,7 +141,7 @@ export default function BioPage() {
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {[
               'AI agents & tooling', 'board game design', 'fiction writing', 'facilitation theory',
-              'MCP servers', 'constructivism', 'accessibility', 'Next.js', 'Payload CMS',
+              'MCP servers', 'constructivism', 'accessibility', 'Next.js', 'Markdown publishing',
               'systems thinking', 'Agile coaching', 'Cursor IDE', 'weird personal projects',
               'Chicago', 'tabletop RPGs',
             ].map((t) => <Tag key={t} label={t} />)}
@@ -154,8 +154,8 @@ export default function BioPage() {
         <h2 style={sectionHeadingStyle}>About this site</h2>
         <div style={cardStyle}>
           <p style={{ lineHeight: 1.8, margin: '0 0 1rem' }}>
-            {SITE_NAME} is my personal corner of the internet. It&apos;s built with Next.js 15, Payload CMS,
-            and deployed on Vercel — and it doubles as a sandbox where I try things out.
+            {SITE_NAME} is my personal corner of the internet. It&apos;s built with Next.js 16,
+            repository-owned Markdown, and Vercel — and it doubles as a sandbox where I try things out.
           </p>
           <p style={{ lineHeight: 1.8, margin: 0 }}>
             The name is about arcades in the older, weirder sense — wonder, novelty, and the

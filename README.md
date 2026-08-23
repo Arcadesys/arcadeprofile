@@ -1,90 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Arcades Profile
 
-## Getting Started
+The Arcades is a Next.js 16 and React 19 personal site, essay archive,
+portfolio, collection, and set of browser toys. Public essays are validated
+Markdown files in `content/posts/<group>/<slug>.md`; the private draft tree is
+`content/drafts`.
 
-First, run the development server:
+## Local development
 
 ```bash
+npm install
 npm run dev
+npm run lint
+npx tsc --noEmit
+npm test
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application has no database or CMS runtime. Vercel Blob URLs remain the
+media and downloadable-edition storage layer.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Publishing an essay
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Add or edit a validated Markdown file in one of the six essay group folders.
+2. Commit the file and merge it to `main`.
+3. Verify the production Vercel deployment and public essay URL.
 
-## Learn More
+`publishDate` controls visibility. A future date does not create an automatic
+schedule: publishing later requires a later commit and deployment.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## MCP Server
-
-The repo ships a Payload CMS MCP server that exposes Posts, Pages, Groups, and Books as tools. The `list_projects` tool is a compatibility alias over Groups, because Groups are the canonical project entity. It works over **stdio** (Claude Code / CLI) and **HTTP/SSE** (claude.ai web/mobile).
-
-### Codex / Claude Code
-
-The checked-in `.mcp.json` uses the hosted production MCP endpoint rather than a local
-Payload server. Its credential is intentionally not stored in the repository: provide the
-production MCP key at runtime as `ARCADEPROFILE_MCP_TOKEN` (for Codex, the project
-`.codex/config.toml` uses that variable as its bearer-token source). Obtain or rotate the
-value only through the approved Vercel environment workflow.
+## Essay newsletters
 
 ```bash
-export ARCADEPROFILE_MCP_TOKEN='<MCP_API_KEY from the approved environment>'
+# Dry run (default)
+npm run newsletter:post -- --slug <slug>
+
+# Explicit preview
+npm run newsletter:post -- --slug <slug> --preview-to reader@example.com
+
+# Broadcast after the production URL returns 200
+npm run newsletter:post -- --slug <slug> --send
 ```
 
-Restart the MCP client after setting the variable. Do not put this value in `.mcp.json`,
-`.codex/config.toml`, or any tracked file.
-
-### Connecting claude.ai as a custom connector
-
-1. The HTTP endpoint is live at `https://www.thearcades.me/api/mcp`
-2. In claude.ai → **Settings → Connectors → Add custom connector**
-3. **URL:** `https://www.thearcades.me/api/mcp`
-4. **Auth header name:** `Authorization`
-5. **Auth header value:** `Bearer <MCP_API_KEY>` (value from Vercel env)
-
-The `MCP_API_KEY` env var is separate from `PAYLOAD_API_KEY` — rotate them independently. Never commit either to the repo.
-
-### Hosted read-only smoke test
+Broadcasts always resolve the ActiveCampaign All and Essays lists and deliver
+through Postmark. Non-PII receipts live in `data/newsletter-sends`. A completed
+essay cannot be sent again without:
 
 ```bash
-# List tools
-curl -X POST https://www.thearcades.me/api/mcp \
-  -H "Authorization: Bearer $ARCADEPROFILE_MCP_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
-
+npm run newsletter:post -- --slug <slug> --send --resend --reason "why"
 ```
 
-Use a deliberate, authorized publishing workflow for write tools. Do not create
-production smoke-test content.
-
-
-## Payload email (Postmark)
-
-Payload CMS email is configured to use Postmark SMTP when `POSTMARK_SERVER_TOKEN` is set. To enforce fail-fast behavior in production, set `POSTMARK_REQUIRED_IN_PROD=true`.
-
-Required env vars:
-
-- `POSTMARK_SERVER_TOKEN`
-- `POSTMARK_FROM_EMAIL`
-- `POSTMARK_FROM_NAME` (optional, defaults to `The Arcades`)
-- `POSTMARK_REQUIRED_IN_PROD` (optional safety rail)
-- `POSTMARK_WEBHOOK_SECRET` (optional auth token for `/api/postmark/webhook`)
-
-`/api/postmark/webhook` captures Postmark delivery, bounce, complaint, open, click, and subscription-change events, records them in Payload, and refreshes post-level newsletter counts.
-
-See `docs/postmark-payload-wiring-plan.md` for Postmark operations.
+`/api/subscribe` remains the contact and preference endpoint. ActiveCampaign
+owns subscriber state; Postmark owns outbound delivery.

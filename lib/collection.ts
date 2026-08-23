@@ -1,13 +1,5 @@
-import type { SerializedEditorState } from 'lexical';
-
 import downloads from '@/data/portfolio-downloads.json';
-
-import carl from '@/data/portfolio-content/carl.json';
-import cleanupOnPodSix from '@/data/portfolio-content/cleanup-on-pod-six.json';
-import laLigneDuMarais from '@/data/portfolio-content/la-ligne-du-marais.json';
-import mrTroutsSlide from '@/data/portfolio-content/mr-trout-s-slide.json';
-import ourHopeChest from '@/data/portfolio-content/our-hope-chest.json';
-import partsOfTheWhole from '@/data/portfolio-content/parts-of-the-whole.json';
+import { loadPortfolioMarkdown } from '@/lib/portfolio-markdown';
 
 /**
  * "This is what I do for fun" — seven short stories, published individually.
@@ -29,7 +21,7 @@ export interface CollectionStory {
   /** Set when the story also exists as a playable browser toy. */
   playPath?: string;
   /** Absent for works with no linear reading order — see Butterfly.exe. */
-  content?: SerializedEditorState;
+  markdownBody?: string;
   cover: { src: string; width: number; height: number };
   downloads: { pdf: string };
 }
@@ -71,7 +63,7 @@ export const COLLECTION: readonly CollectionStory[] = [
       'An aging Floor-Mart android is told it is time to turn himself in, but he has only ever known how to keep working.',
     editionType: 'Short story',
     coverAlt: 'Black ink emblem of an android face and cart wheel on cloth-white paper.',
-    content: carl as SerializedEditorState,
+    markdownBody: loadPortfolioMarkdown('carl'),
   }),
   story({
     slug: 'butterfly-exe',
@@ -81,7 +73,7 @@ export const COLLECTION: readonly CollectionStory[] = [
     editionType: 'Interactive gamebook',
     coverAlt: 'Black ink butterfly breaking into square digital fragments on cloth-white paper.',
     playPath: '/toys/butterfly-exe',
-    // Deliberately no `content`: the branching passages have no linear order.
+    // Deliberately no `markdownBody`: the branching passages have no linear order.
   }),
   story({
     slug: 'our-hope-chest',
@@ -90,7 +82,7 @@ export const COLLECTION: readonly CollectionStory[] = [
       'Siblings Heather and Xander use magical animal costumes to escape family upheaval until a public transformation forces their private refuge into the open.',
     editionType: 'Short story',
     coverAlt: 'Open black ink hope chest with animal ears and a tail emerging on cloth-white paper.',
-    content: ourHopeChest as SerializedEditorState,
+    markdownBody: loadPortfolioMarkdown('our-hope-chest'),
   }),
   story({
     slug: 'cleanup-on-pod-six',
@@ -99,7 +91,7 @@ export const COLLECTION: readonly CollectionStory[] = [
       'A luddite janitor and an Amish teenager clean the waste beneath virtual-reality pods while debating whether Ubiq can save a resource-starved world.',
     editionType: 'Short story',
     coverAlt: 'Black ink hypersleep pod above an exclamation-point brushstroke on cloth-white paper.',
-    content: cleanupOnPodSix as SerializedEditorState,
+    markdownBody: loadPortfolioMarkdown('cleanup-on-pod-six'),
   }),
   story({
     slug: 'la-ligne-du-marais',
@@ -108,7 +100,7 @@ export const COLLECTION: readonly CollectionStory[] = [
       'A gambler chases a rumor through Le Marais and finds the smallest casino in the world.',
     editionType: 'Short story',
     coverAlt: 'Black ink roulette wheel cut by a decisive diagonal line on cloth-white paper.',
-    content: laLigneDuMarais as SerializedEditorState,
+    markdownBody: loadPortfolioMarkdown('la-ligne-du-marais'),
   }),
   story({
     slug: 'mr-trout-s-slide',
@@ -117,7 +109,7 @@ export const COLLECTION: readonly CollectionStory[] = [
       'A despairing Chicagoan follows a mysterious map to a lakeside Shifter and discovers that the route to Atlantis runs down a very unusual slide.',
     editionType: 'Short story',
     coverAlt: 'Black ink playground slide descending into a fish-shaped lake ripple on cloth-white paper.',
-    content: mrTroutsSlide as SerializedEditorState,
+    markdownBody: loadPortfolioMarkdown('mr-trout-s-slide'),
   }),
   story({
     slug: 'parts-of-the-whole',
@@ -126,7 +118,7 @@ export const COLLECTION: readonly CollectionStory[] = [
       'When Audrey’s kitsune half awakens, Lance confronts conversion therapy, his Catholic family, and the life he wants with Steve.',
     editionType: 'Short story',
     coverAlt: 'Black ink fox mask split by a white fracture on cloth-white paper.',
-    content: partsOfTheWhole as SerializedEditorState,
+    markdownBody: loadPortfolioMarkdown('parts-of-the-whole'),
   }),
 ];
 

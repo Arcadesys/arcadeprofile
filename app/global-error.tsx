@@ -14,7 +14,6 @@ export default function GlobalError({
   error: Error & { digest?: string };
 }) {
   useEffect(() => {
-    // eslint-disable-next-line no-console
     console.error('Root layout error:', error.digest ?? error.message);
   }, [error]);
 

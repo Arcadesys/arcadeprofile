@@ -14,7 +14,6 @@ export default function FrontendError({
     // Log on the client so it lands in browser devtools and Vercel's
     // client-side error reporting. The server already logs the original
     // exception via Next.js — this is just for visibility on the user side.
-    // eslint-disable-next-line no-console
     console.error('Page error:', error.digest ?? error.message);
   }, [error]);
 

@@ -3,7 +3,8 @@ import test from 'node:test';
 
 import { buildEditorialCatalog, getEditorialCatalog } from './editorial-catalog';
 import { getAllPosts, type BlogPost, type PostLocation } from './blog';
-import { getAllProjectHubs, type ProjectHub } from './payload';
+import { getAllProjectHubs, type ProjectHub } from './projects';
+import { ESSAY_GROUPS } from './newsletter-post';
 
 const hubs: ProjectHub[] = [
   {
@@ -24,10 +25,10 @@ const hubs: ProjectHub[] = [
 ];
 
 const posts: BlogPost[] = [
-  { id: 'fiction-old', slug: 'fiction-old', title: 'Old', date: '2026-01-01T00:00:00Z', excerpt: 'Old fiction', group: 'fiction', tags: [] },
-  { id: 'fiction-new', slug: 'fiction-new', title: 'New', date: '2026-02-01T00:00:00Z', excerpt: 'New fiction', group: 'fiction', tags: [] },
-  { id: 'essay', slug: 'essay', title: 'Essay', date: '2026-03-01T00:00:00Z', excerpt: 'Essay copy', group: 'essays', tags: [] },
-  { id: 'tool-post', slug: 'tool-post', title: 'Tool post', date: '2026-04-01T00:00:00Z', excerpt: 'Tool copy', group: 'tool', tags: [] },
+  { id: 'fiction-old', slug: 'fiction-old', title: 'Old', date: '2026-01-01T00:00:00Z', excerpt: 'Old fiction', markdownBody: 'Old fiction', group: 'fiction', tags: [] },
+  { id: 'fiction-new', slug: 'fiction-new', title: 'New', date: '2026-02-01T00:00:00Z', excerpt: 'New fiction', markdownBody: 'New fiction', group: 'fiction', tags: [] },
+  { id: 'essay', slug: 'essay', title: 'Essay', date: '2026-03-01T00:00:00Z', excerpt: 'Essay copy', markdownBody: 'Essay copy', group: 'essays', tags: [] },
+  { id: 'tool-post', slug: 'tool-post', title: 'Tool post', date: '2026-04-01T00:00:00Z', excerpt: 'Tool copy', markdownBody: 'Tool copy', group: 'tool', tags: [] },
 ];
 
 const locations = new Map<string, PostLocation>([
@@ -66,7 +67,7 @@ test('default public catalog covers every Markdown fiction and writing post', as
   const expectedSlugs = sourcePosts
     .filter((post) => {
       const category = post.group ? categoryByGroup.get(post.group) : undefined;
-      return category === 'fiction' || category === 'writing';
+      return category === 'fiction' || category === 'writing' || ESSAY_GROUPS.has(post.group);
     })
     .map((post) => post.slug)
     .sort();
@@ -77,7 +78,8 @@ test('default public catalog covers every Markdown fiction and writing post', as
     .map((post) => post.slug)
     .sort();
 
-  assert.ok(catalog.fiction.length > 0, 'the public catalog should contain fiction groups');
+  assert.equal(catalog.fiction.length, 0, 'deleted chat fiction must not appear in the public catalog');
   assert.ok(catalog.essays.length > 0, 'the public catalog should contain essay groups');
+  assert.equal(catalog.essays.flatMap((group) => group.posts).length, 32);
   assert.deepEqual(catalogSlugs, expectedSlugs);
 });

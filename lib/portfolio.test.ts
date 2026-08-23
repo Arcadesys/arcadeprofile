@@ -19,8 +19,7 @@ test('portfolio holds only the works outside the collection', () => {
 
 test('every portfolio work has reader content and a blob-hosted PDF', () => {
   for (const work of PORTFOLIO_WORKS) {
-    assert.equal(work.content.root.type, 'root');
-    assert.ok(work.content.root.children.length > 0);
+    assert.ok(work.markdownBody.length > 100);
     assert.equal(getPortfolioWork(work.slug), work);
     assert.equal(work.titleImage.width, 1536);
     assert.equal(work.titleImage.height, 1024);

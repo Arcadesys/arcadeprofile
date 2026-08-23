@@ -3,6 +3,7 @@ import { SITE_NAME } from '@/lib/site-brand';
 
 import EditorialIndex from '@/app/components/EditorialIndex';
 import { getEditorialCatalog } from '@/lib/editorial-catalog';
+import { PORTFOLIO_WORKS } from '@/lib/portfolio';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,5 +19,13 @@ export const metadata: Metadata = {
 
 export default async function StoriesPage() {
   const catalog = await getEditorialCatalog();
-  return <EditorialIndex section="fiction" groups={catalog.fiction} collection={catalog.collection} collectionPath={catalog.collectionPath} />;
+  return (
+    <EditorialIndex
+      section="fiction"
+      groups={catalog.fiction}
+      collection={catalog.collection}
+      collectionPath={catalog.collectionPath}
+      portfolio={PORTFOLIO_WORKS}
+    />
+  );
 }

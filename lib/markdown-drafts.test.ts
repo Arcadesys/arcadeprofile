@@ -13,11 +13,6 @@ const frontmatter = {
   slug: 'the-fox-and-the-eval',
   group: 'the-singularity-log',
   status: 'draft' as const,
-  source: {
-    system: 'payload' as const,
-    updatedAt: '2026-08-09T21:47:22.132Z',
-    bodySha256: 'a'.repeat(64),
-  },
 };
 
 test('draft frontmatter is strict and structurally incompatible with public posts', () => {
@@ -30,7 +25,7 @@ test('loads drafts only from the dedicated non-public tree', async () => {
   try {
     const group = path.join(root, 'the-singularity-log');
     await mkdir(group, { recursive: true });
-    await writeFile(path.join(group, 'the-fox-and-the-eval.md'), `---\nid: '88'\ntitle: The Fox and the Eval\nslug: the-fox-and-the-eval\ngroup: the-singularity-log\nstatus: draft\nsource:\n  system: payload\n  updatedAt: '2026-08-09T21:47:22.132Z'\n  bodySha256: ${'a'.repeat(64)}\n---\nThe preserved draft.\n`);
+    await writeFile(path.join(group, 'the-fox-and-the-eval.md'), `---\nid: '88'\ntitle: The Fox and the Eval\nslug: the-fox-and-the-eval\ngroup: the-singularity-log\nstatus: draft\n---\nThe preserved draft.\n`);
     const drafts = loadMarkdownDrafts(root);
     assert.deepEqual(drafts.map((draft) => draft.slug), ['the-fox-and-the-eval']);
     assert.throws(() => loadMarkdownPosts({ contentDirectory: root }), /Invalid frontmatter/);

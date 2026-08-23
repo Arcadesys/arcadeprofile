@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 
-import LongformBody from '@/app/components/LongformBody';
+import MarkdownPostBody from '@/app/components/MarkdownPostBody';
 import ShareLinks from '@/app/components/ShareLinks';
 import { COLLECTION_PATH, MOVED_FROM_PORTFOLIO } from '@/lib/collection';
 import { getPortfolioWork, PORTFOLIO_WORKS } from '@/lib/portfolio';
@@ -132,7 +132,7 @@ export default async function PortfolioWorkPage({ params }: Props) {
             />
           </figure>
 
-          <LongformBody content={work.content} />
+          <MarkdownPostBody markdown={work.markdownBody} />
 
           <footer className="portfolio-reader__footer">
             <ShareLinks url={pageUrl} title={work.title} />

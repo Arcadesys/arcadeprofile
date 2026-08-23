@@ -98,6 +98,8 @@ export interface SendPostmarkTransactionalEmailOptions {
   textBody: string;
   client?: PostmarkSingleClient;
   messageStream?: string;
+  tag?: string;
+  metadata?: Record<string, string>;
 }
 
 export async function sendPostmarkTransactionalEmail(
@@ -110,6 +112,8 @@ export async function sendPostmarkTransactionalEmail(
     Subject: options.subject,
     HtmlBody: options.htmlBody,
     TextBody: options.textBody,
+    ...(options.tag ? { Tag: options.tag } : {}),
+    ...(options.metadata ? { Metadata: options.metadata } : {}),
     MessageStream: options.messageStream ?? getPostmarkTransactionalMessageStream(),
   });
 }

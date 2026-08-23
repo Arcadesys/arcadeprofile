@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import type { EditorialCatalogGroup, EditorialSection } from '@/lib/editorial-catalog';
 import type { CollectionStory } from '@/lib/collection';
+import type { PortfolioWork } from '@/lib/portfolio';
 import { formatSiteDate } from '@/lib/site-time';
 import { SITE_NAME } from '@/lib/site-brand';
 import styles from './EditorialIndex.module.css';
@@ -11,13 +12,14 @@ interface Props {
   groups: EditorialCatalogGroup[];
   collection?: readonly CollectionStory[];
   collectionPath?: string;
+  portfolio?: readonly PortfolioWork[];
 }
 
 const copy = {
   fiction: {
     eyebrow: `${SITE_NAME} / Fiction`,
     title: 'Stories for strange little fires.',
-    lede: 'Read serial fiction and short stories online. Every piece remains part of the living web edition, with downloadable editions where available.',
+    lede: 'Read independent short fiction online, with downloadable editions where available.',
   },
   essays: {
     eyebrow: `${SITE_NAME} / Essays`,
@@ -26,7 +28,7 @@ const copy = {
   },
 } as const;
 
-export default function EditorialIndex({ section, groups, collection, collectionPath }: Props) {
+export default function EditorialIndex({ section, groups, collection, collectionPath, portfolio }: Props) {
   const text = copy[section];
 
   return (
@@ -49,6 +51,25 @@ export default function EditorialIndex({ section, groups, collection, collection
                 <div className={styles.actions}>
                   <Link className={styles.action} href={`${collectionPath}/${story.slug}`}>Read online</Link>
                   <a className={styles.action} href={story.downloads.pdf}>Download PDF</a>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ) : null}
+
+      {section === 'fiction' && portfolio?.length ? (
+        <section className={styles.collection} aria-labelledby="portfolio-fiction-heading">
+          <h2 id="portfolio-fiction-heading">Portfolio fiction</h2>
+          <p>Selected fiction outside the collection, preserved as web and PDF editions.</p>
+          <ol className={styles.collectionGrid}>
+            {portfolio.map((work) => (
+              <li key={work.slug} className={styles.collectionCard}>
+                <h3><Link href={`/portfolio/${work.slug}`}>{work.title}</Link></h3>
+                <p>{work.excerpt}</p>
+                <div className={styles.actions}>
+                  <Link className={styles.action} href={`/portfolio/${work.slug}`}>Read online</Link>
+                  <a className={styles.action} href={work.downloads.pdf}>Download PDF</a>
                 </div>
               </li>
             ))}
@@ -81,7 +102,9 @@ export default function EditorialIndex({ section, groups, collection, collection
             </li>
           ))}
         </ol>
-      ) : <p className={styles.empty}>No published {section === 'fiction' ? 'fiction' : 'essays'} yet. Check back soon.</p>}
+      ) : section === 'essays' || (!collection?.length && !portfolio?.length) ? (
+        <p className={styles.empty}>No published {section === 'fiction' ? 'fiction' : 'essays'} yet. Check back soon.</p>
+      ) : null}
     </main>
   );
 }

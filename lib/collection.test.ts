@@ -43,16 +43,15 @@ test('Butterfly.exe has no linear reader body but does link to the toy', () => {
   assert.ok(butterfly);
   // Its EPUB flattens every branch into one file, so a generated reading
   // order would be meaningless. The playable version is the real experience.
-  assert.equal(butterfly.content, undefined);
+  assert.equal(butterfly.markdownBody, undefined);
   assert.equal(butterfly.editionType, 'Interactive gamebook');
   assert.equal(butterfly.playPath, '/toys/butterfly-exe');
 });
 
 test('every other story has a reader body', () => {
   for (const story of COLLECTION.filter((s) => s.slug !== 'butterfly-exe')) {
-    assert.ok(story.content, `${story.slug} is missing reader content`);
-    assert.equal(story.content.root.type, 'root');
-    assert.ok(story.content.root.children.length > 0);
+    assert.ok(story.markdownBody, `${story.slug} is missing reader content`);
+    assert.ok(story.markdownBody.length > 100);
   }
 });
 

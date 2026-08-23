@@ -1,12 +1,9 @@
 import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
 import Link from 'next/link';
-import type { SerializedEditorState } from 'lexical';
 import { getAllPosts, buildPostUrl, buildPostUrlMap } from '@/lib/blog';
-import { logger } from '@/lib/logger';
 import { buildGroupIntroUrl } from '@/lib/post-url';
 import { formatSiteDate } from '@/lib/site-time';
-import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext';
 import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 import { markdownToPlaintext } from '@/lib/markdown-render';
 
@@ -35,23 +32,7 @@ function first100Words(text: string): string {
   return words.slice(0, 100).join(' ') + '…';
 }
 
-// `convertLexicalToPlaintext` throws on Lexical states that contain nodes it
-// doesn't know how to walk (legacy media embeds, custom blocks, etc.). Treat
-// a failure as "no teaser available" rather than crashing the whole list page.
-function safePlaintext(content: SerializedEditorState | undefined): string {
-  if (!content) return '';
-  try {
-    return convertLexicalToPlaintext({ data: content });
-  } catch (err) {
-    logger.error({ err }, '[/latest] convertLexicalToPlaintext failed');
-    return '';
-  }
-}
-
 export default async function LatestPage() {
-  // Sequential rather than parallel: parallel `getPayload()` initializers
-  // can race on cold starts and surface as opaque "Server Components render"
-  // failures in production.
   const posts = await getAllPosts();
   const urlMap = await buildPostUrlMap();
   const published = posts.filter(p => p.date && urlMap.has(p.slug));
@@ -65,11 +46,7 @@ export default async function LatestPage() {
 
       <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '3rem' }}>
         {published.map(post => {
-          const rawText = post.excerpt
-            ? post.excerpt
-            : post.markdownBody
-              ? markdownToPlaintext(post.markdownBody)
-              : safePlaintext(post.content);
+          const rawText = post.excerpt || markdownToPlaintext(post.markdownBody);
           const teaser = rawText ? first100Words(rawText) : '';
           const loc = urlMap.get(post.slug)!;
           const href = buildPostUrl(loc.groupSlug, post.slug);

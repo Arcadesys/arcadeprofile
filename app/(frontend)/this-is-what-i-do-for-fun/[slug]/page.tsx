@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import LongformBody from '@/app/components/LongformBody';
+import MarkdownPostBody from '@/app/components/MarkdownPostBody';
 import { PieceActions } from '@/app/components/PieceActions';
 import { COLLECTION, COLLECTION_PATH, COLLECTION_TITLE, getStory } from '@/lib/collection';
 import { JsonLd } from '@/lib/structured-data';
@@ -139,7 +139,7 @@ export default async function CollectionStoryPage({ params }: Props) {
             </section>
           )}
 
-          {story.content && <LongformBody content={story.content} />}
+          {story.markdownBody && <MarkdownPostBody markdown={story.markdownBody} />}
 
           <footer className="portfolio-reader__footer">
             <div className="portfolio-actions">
