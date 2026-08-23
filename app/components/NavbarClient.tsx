@@ -7,6 +7,7 @@ import Image from 'next/image';
 
 import { buildNavigationModel, type NavItem } from '@/lib/nav-items';
 import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
+import ReadingDock from './ReadingDock';
 
 export type { NavItem };
 
@@ -75,19 +76,22 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
   const moreIsActive = more.some((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
 
   return (
-    <nav className={`site-nav${mobileOpen ? ' mobile-open' : ''}`} aria-label="Main navigation">
-      <Link href="/" className="nav-logo" aria-label={`${SITE_NAME} — home`}>
-        <Image src="/images/free-play-fox-hero.png" alt="" width={60} height={60} priority />
-        <span className="nav-logo-copy"><strong>{SITE_PLATFORM_NAME}</strong><small>{SITE_NAME}</small></span>
-      </Link>
-      <button className="nav-mobile-toggle" type="button" aria-expanded={mobileOpen} aria-controls="main-nav-links" onClick={() => setMobileOpen((open) => !open)}>
-        Menu
-      </button>
-      <ul id="main-nav-links" role="list">
-        <li className="nav-home"><Link href="/" className={pathname === '/' ? 'active' : undefined} aria-current={pathname === '/' ? 'page' : undefined} onClick={() => setMobileOpen(false)}><span className="nav-rail-icon"><RailIcon href="/" /></span>Home</Link></li>
-        {primary.map((item) => <li key={item.id} className={item.href === '/subscribe' ? 'nav-subscribe' : undefined}>{link(item)}</li>)}
-        {more.length > 0 ? <li className="nav-more"><details><summary className={moreIsActive ? 'active' : undefined}>More</summary><ul role="list" aria-label="More navigation">{more.map((item) => <li key={item.id}>{link(item)}</li>)}</ul></details></li> : null}
-      </ul>
-    </nav>
+    <>
+      <nav className={`site-nav${mobileOpen ? ' mobile-open' : ''}`} aria-label="Main navigation">
+        <Link href="/" className="nav-logo" aria-label={`${SITE_NAME} — home`}>
+          <Image src="/images/free-play-fox-hero.png" alt="" width={60} height={60} priority />
+          <span className="nav-logo-copy"><strong>{SITE_PLATFORM_NAME}</strong><small>{SITE_NAME}</small></span>
+        </Link>
+        <button className="nav-mobile-toggle" type="button" aria-expanded={mobileOpen} aria-controls="main-nav-links" onClick={() => setMobileOpen((open) => !open)}>
+          Menu
+        </button>
+        <ul id="main-nav-links" role="list">
+          <li className="nav-home"><Link href="/" className={pathname === '/' ? 'active' : undefined} aria-current={pathname === '/' ? 'page' : undefined} onClick={() => setMobileOpen(false)}><span className="nav-rail-icon"><RailIcon href="/" /></span>Home</Link></li>
+          {primary.map((item) => <li key={item.id} className={item.href === '/subscribe' ? 'nav-subscribe' : undefined}>{link(item)}</li>)}
+          {more.length > 0 ? <li className="nav-more"><details><summary className={moreIsActive ? 'active' : undefined}>More</summary><ul role="list" aria-label="More navigation">{more.map((item) => <li key={item.id}>{link(item)}</li>)}</ul></details></li> : null}
+        </ul>
+      </nav>
+      <ReadingDock closeOther={() => setMobileOpen(false)} closeSignal={mobileOpen} />
+    </>
   );
 }

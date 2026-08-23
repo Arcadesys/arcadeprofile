@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import ActiveCampaignForm from './ActiveCampaignForm';
 
-const ROUTES_WITH_OWN_FORM = new Set(['/projects', '/bio', '/latest', '/store', '/subscribe']);
+const ROUTES_WITH_OWN_FORM = new Set(['/', '/projects', '/bio', '/latest', '/store', '/subscribe']);
 
 function hasOwnForm(pathname: string): boolean {
   return ROUTES_WITH_OWN_FORM.has(pathname) || /^\/projects\/[^/]+\/[^/]+$/.test(pathname);

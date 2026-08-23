@@ -2135,3 +2135,209 @@ html[data-contrast="high"] .lights-toggle .dock-trigger[aria-pressed="true"] {
   .lights-toggle .dock-trigger { width: 112px; }
   .reading-dock .dock-panel { bottom: 68px; }
 }
+
+/* ── Reader-access refinement ───────────────────────────── */
+.skip-link {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1000;
+  min-height: 48px;
+  padding: .75rem 1rem;
+  transform: translateY(-160%);
+  border: 3px solid var(--cyan);
+  border-radius: var(--radius);
+  background: #050506;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-decoration: none;
+}
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 4px solid var(--accent);
+  outline-offset: 4px;
+}
+.skip-target {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  scroll-margin-top: 6rem;
+}
+
+/* The Reader control is mounted once inside navigation and positioned as the
+   familiar desktop dock without duplicating state or IDs. */
+.nav-wrapper > .reading-dock {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 50;
+  pointer-events: auto;
+}
+.reading-dock .dock-panel {
+  right: 0;
+  bottom: 64px;
+  width: min(360px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 7rem);
+  padding: 1rem;
+  gap: 1rem;
+  overflow-y: auto;
+}
+.reading-dock .dock-panel[hidden] { display: none; }
+.rp-heading {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: .75rem;
+  border-bottom: 1px dashed var(--border);
+}
+.rp-title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--fg);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+.rp-close,
+.rp-reset {
+  min-height: 44px;
+  padding: .65rem .85rem;
+  font-size: 1rem;
+}
+.rp-close {
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+.rp-row { gap: .5rem; }
+.rp-label,
+.rp-label .val {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+.reading-dock .seg { gap: .35rem; padding: .35rem; }
+.reading-dock .seg button,
+.reading-dock .seg button.f-serif,
+.reading-dock .seg button.f-hyperlegible,
+.reading-dock .seg button.f-dyslexic,
+.reading-dock .seg button.f-mono {
+  min-height: 44px;
+  padding: .6rem .35rem;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+.rp-lights .lights-toggle .dock-trigger {
+  width: 100% !important;
+  min-width: 100%;
+  min-height: 48px;
+  border-radius: var(--radius);
+  font-size: 1rem;
+}
+.rp-lights .lights-toggle { width: 100%; }
+
+.dd-close { display: none; }
+
+@media (max-width: 780px) {
+  .site-nav { gap: .5rem; }
+  .nav-wrapper > .reading-dock {
+    position: fixed;
+    top: 11px;
+    right: 84px;
+    bottom: auto;
+    z-index: 102;
+  }
+  .nav-wrapper > .reading-dock .dock-trigger {
+    width: 56px;
+    height: 56px;
+    border-color: var(--fg-muted);
+    background: #080809;
+    color: #fff;
+  }
+  .reading-dock .dock-panel {
+    position: fixed;
+    inset: 78px 0 0;
+    width: 100%;
+    max-height: calc(100dvh - 78px);
+    padding: 1rem clamp(1rem, 5vw, 1.5rem) calc(1.5rem + env(safe-area-inset-bottom));
+    border-width: 2px 0 0;
+    border-radius: 0;
+    background: rgba(5, 5, 12, .98);
+    transform: translateY(1rem);
+    transform-origin: bottom center;
+  }
+  .reading-dock.dock-open .dock-panel { transform: translateY(0); }
+  .dock-stack { display: none; }
+
+  .dd-toggle {
+    position: static;
+    width: min(calc(100% - 2rem), 64ch);
+    min-height: 56px;
+    margin: 1rem auto 0;
+    transform: none;
+    border: 2px solid var(--pink);
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+  body.dd-open .dd-toggle { visibility: hidden; }
+  .dd-scrim { z-index: 119; }
+  .doc-drawer {
+    z-index: 120;
+    width: min(100%, 380px);
+  }
+  .dd-close {
+    display: inline-flex;
+    width: 100%;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    border: 2px solid var(--pink);
+    border-radius: var(--radius);
+    background: transparent;
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .doc-drawer .dd-item {
+    min-height: 44px;
+    align-items: center;
+    font-size: 1rem;
+  }
+  .doc-drawer .dd-item .num,
+  .doc-drawer .dd-meta,
+  .doc-drawer .dd-section,
+  .doc-drawer .dd-fraction {
+    font-size: .875rem;
+  }
+  .doc-drawer .dd-nav {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+  footer nav a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    padding-inline: .25rem;
+  }
+}
+
+@media (max-width: 350px) {
+  .nav-logo { max-width: 160px; }
+  .nav-logo-copy small { display: none; }
+  .nav-logo-copy strong {
+    font-size: .68rem;
+    letter-spacing: .04em;
+  }
+}

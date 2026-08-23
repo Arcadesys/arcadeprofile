@@ -41,12 +41,23 @@ export default function DocDrawer({
   nextHref,
 }: DocDrawerProps) {
   const [open, setOpen] = useState(false);
+  const [isCompact, setIsCompact] = useState(false);
   const currentItemRef = useRef<HTMLAnchorElement>(null);
   const listRef = useRef<HTMLElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     document.body.classList.add('has-doc-drawer');
     return () => { document.body.classList.remove('has-doc-drawer'); };
+  }, []);
+
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 780px)');
+    const update = () => setIsCompact(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
   }, []);
 
   useEffect(() => {
@@ -56,15 +67,23 @@ export default function DocDrawer({
 
   // Scroll current item into view on mount
   useEffect(() => {
-    if (currentItemRef.current) {
+    if (currentItemRef.current && (open || !isCompact)) {
       currentItemRef.current.scrollIntoView({ block: 'center', behavior: 'instant' });
     }
-  }, []);
+  }, [isCompact, open]);
+
+  useEffect(() => {
+    if (open && isCompact) closeRef.current?.focus();
+  }, [isCompact, open]);
 
   // Close on outside click / Escape; ←/→ navigate
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') { setOpen(false); return; }
+      if (e.key === 'Escape' && open) {
+        setOpen(false);
+        toggleRef.current?.focus();
+        return;
+      }
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (e.key === 'ArrowLeft' && prevHref) window.location.href = prevHref;
       if (e.key === 'ArrowRight' && nextHref) window.location.href = nextHref;
@@ -82,7 +101,7 @@ export default function DocDrawer({
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('click', onDoc);
     };
-  }, [prevHref, nextHref]);
+  }, [nextHref, open, prevHref]);
 
   const progressPct = Math.round((currentPosition / totalCount) * 100);
 
@@ -108,6 +127,7 @@ export default function DocDrawer({
       />
 
       <button
+        ref={toggleRef}
         id="dd-toggle"
         className="dd-toggle"
         aria-label={open ? 'Close document navigation' : 'Open document navigation'}
@@ -122,8 +142,21 @@ export default function DocDrawer({
         id="doc-drawer"
         className={`doc-drawer${open ? ' open' : ''}`}
         aria-label="Document position in series"
+        aria-hidden={isCompact && !open ? true : undefined}
+        inert={isCompact && !open ? true : undefined}
       >
         <div className="dd-head">
+          <button
+            ref={closeRef}
+            type="button"
+            className="dd-close"
+            onClick={() => {
+              setOpen(false);
+              toggleRef.current?.focus();
+            }}
+          >
+            Close series
+          </button>
           {eyebrow && <div className="dd-eyebrow">{eyebrow}</div>}
           {renderTitle()}
           <div className="dd-meta">

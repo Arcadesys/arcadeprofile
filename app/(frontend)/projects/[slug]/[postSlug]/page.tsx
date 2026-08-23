@@ -343,28 +343,30 @@ export default async function ProjectPostPage({ params }: Props) {
           <Link href={buildGroupIntroUrl(slug)} style={navLinkStyle}>← {project.title}</Link>
         </nav>
 
-        <header style={{ marginBottom: '2.5rem' }}>
-          <div style={{ ...monoMutedStyle, marginBottom: '0.5rem' }}>
-            Part {partNum(partIndex)} / {partNum(posts.length)}
-          </div>
-          <h1 style={{ fontSize: '2rem', lineHeight: 1.2, marginBottom: '0.75rem' }}>
-            {post.title}
-          </h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--fg-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em', margin: 0 }}>
-            {formatSiteDate(post.date)}
-            {post.author && ` · ${post.author}`}
-          </p>
-        </header>
+        <article className="longform-article">
+          <header style={{ marginBottom: '2.5rem' }}>
+            <div style={{ ...monoMutedStyle, marginBottom: '0.5rem' }}>
+              Part {partNum(partIndex)} / {partNum(posts.length)}
+            </div>
+            <h1 style={{ fontSize: '2rem', lineHeight: 1.2, marginBottom: '0.75rem' }}>
+              {post.title}
+            </h1>
+            <p style={{ fontSize: '0.8rem', color: 'var(--fg-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em', margin: 0 }}>
+              {formatSiteDate(post.date)}
+              {post.author && ` · ${post.author}`}
+            </p>
+          </header>
 
-        {post.markdownBody
-          ? <MarkdownPostBody markdown={post.markdownBody} />
-          : <LongformBody content={post.content!} />}
+          {post.markdownBody
+            ? <MarkdownPostBody markdown={post.markdownBody} />
+            : <LongformBody content={post.content!} />}
 
-        {typeof post.id === 'number' && initialReactionCounts && (
-          <div style={{ marginTop: '2.5rem' }}>
-            <PostReactions postId={post.id} initialCounts={initialReactionCounts} />
-          </div>
-        )}
+          {typeof post.id === 'number' && initialReactionCounts && (
+            <div style={{ marginTop: '2.5rem' }}>
+              <PostReactions postId={post.id} initialCounts={initialReactionCounts} />
+            </div>
+          )}
+        </article>
 
         <RelatedPosts items={relatedPosts} />
 
@@ -382,12 +384,12 @@ export default async function ProjectPostPage({ params }: Props) {
           />
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             {prevPartHref ? (
-              <Link href={prevPartHref} style={{ color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '0.9rem' }}>
+              <Link href={prevPartHref} style={{ display: 'inline-flex', minHeight: '44px', alignItems: 'center', color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '1rem' }}>
                 ← {prevTitle}
               </Link>
             ) : <span />}
             {nextPartHref && (
-              <Link href={nextPartHref} style={{ color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '0.9rem' }}>
+              <Link href={nextPartHref} style={{ display: 'inline-flex', minHeight: '44px', alignItems: 'center', color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '1rem' }}>
                 {posts[idx + 1].title} →
               </Link>
             )}
@@ -399,7 +401,10 @@ export default async function ProjectPostPage({ params }: Props) {
 }
 
 const navLinkStyle: React.CSSProperties = {
-  fontSize: '0.85rem',
+  display: 'inline-flex',
+  minHeight: '44px',
+  alignItems: 'center',
+  fontSize: '1rem',
   color: 'var(--fg-muted)',
   textDecoration: 'none',
   fontFamily: 'var(--font-mono)',

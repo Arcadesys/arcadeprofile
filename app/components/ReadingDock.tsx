@@ -1,6 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+} from 'react';
+
+import LightsToggle from './LightsToggle';
 
 type Prefs = {
   font: string;
@@ -76,32 +84,55 @@ function applyToDoc(prefs: Prefs) {
   else html.removeAttribute('data-motion');
 }
 
-export default function ReadingDock({ closeOther }: { closeOther?: () => void }) {
+export default function ReadingDock({
+  closeOther,
+  closeSignal = false,
+}: {
+  closeOther?: () => void;
+  closeSignal?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [prefs, setPrefs] = useState<Prefs>(DEFAULTS);
+  const [loaded, setLoaded] = useState(false);
   const dockRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   // Load from localStorage on mount
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        const valid: Partial<Prefs> = {};
-        for (const key of Object.keys(DEFAULTS) as (keyof Prefs)[]) {
-          if (typeof parsed[key] === 'string') valid[key] = parsed[key];
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          const valid: Partial<Prefs> = {};
+          for (const key of Object.keys(DEFAULTS) as (keyof Prefs)[]) {
+            if (typeof parsed[key] === 'string') valid[key] = parsed[key];
+          }
+          setPrefs(p => ({ ...p, ...valid }));
         }
-        setPrefs(p => ({ ...p, ...valid }));
       }
-    } catch {}
+    } catch {
+      // Invalid stored preferences fall back to the documented defaults.
+    } finally {
+      setLoaded(true);
+    }
   }, []);
 
   // Apply to document whenever prefs change
   useEffect(() => {
+    if (!loaded) return;
     applyToDoc(prefs);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs)); } catch {}
-  }, [prefs]);
+  }, [loaded, prefs]);
+
+  useEffect(() => {
+    if (closeSignal) setOpen(false);
+  }, [closeSignal]);
+
+  useEffect(() => {
+    if (open) panelRef.current?.focus();
+  }, [open]);
 
   // Close on outside click / Escape
   useEffect(() => {
@@ -109,7 +140,10 @@ export default function ReadingDock({ closeOther }: { closeOther?: () => void })
       if (dockRef.current && !dockRef.current.contains(e.target as Node)) setOpen(false);
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape' && open) {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
     }
     document.addEventListener('click', onDoc);
     document.addEventListener('keydown', onKey);
@@ -117,13 +151,35 @@ export default function ReadingDock({ closeOther }: { closeOther?: () => void })
       document.removeEventListener('click', onDoc);
       document.removeEventListener('keydown', onKey);
     };
-  }, []);
+  }, [open]);
 
   function set(key: keyof Prefs, val: string) {
     setPrefs(p => ({ ...p, [key]: val }));
   }
 
   function reset() { setPrefs({ ...DEFAULTS }); }
+
+  function closePanel() {
+    setOpen(false);
+    triggerRef.current?.focus();
+  }
+
+  function trapFocus(event: ReactKeyboardEvent<HTMLDivElement>) {
+    if (event.key !== 'Tab') return;
+    const controls = panelRef.current?.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    if (!controls?.length) return;
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
 
   const lhLabel = prefs.lh === '1.45' ? 'Tight' : prefs.lh === '1.85' ? 'Airy' : 'Normal';
 
@@ -139,9 +195,11 @@ export default function ReadingDock({ closeOther }: { closeOther?: () => void })
   return (
     <div className={`reading-dock${open ? ' dock-open' : ''}`} ref={dockRef}>
       <button
+        ref={triggerRef}
         className="dock-trigger"
-        aria-label="Reading preferences"
+        aria-label="Reader controls"
         aria-expanded={open}
+        aria-controls="reading-panel"
         onClick={(e) => {
           e.stopPropagation();
           setOpen(o => !o);
@@ -151,8 +209,22 @@ export default function ReadingDock({ closeOther }: { closeOther?: () => void })
         <span>Aa</span>
       </button>
 
-      <div className="dock-panel" id="reading-panel" onClick={(e) => e.stopPropagation()}>
-        <div className="rp-title">Reading experience</div>
+      <div
+        ref={panelRef}
+        className="dock-panel"
+        id="reading-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reading-panel-title"
+        tabIndex={-1}
+        hidden={!open}
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={trapFocus}
+      >
+        <div className="rp-heading">
+          <h2 className="rp-title" id="reading-panel-title">Reader controls</h2>
+          <button type="button" className="rp-close" onClick={closePanel} aria-label="Close reader controls">Close</button>
+        </div>
 
         <div className="rp-row">
           <div className="rp-label">Typeface <span className="val">{FONT_LABELS[prefs.font] ?? prefs.font}</span></div>
@@ -207,6 +279,11 @@ export default function ReadingDock({ closeOther }: { closeOther?: () => void })
             <Opt {...optProps('motion', 'full')} label="Full" />
             <Opt {...optProps('motion', 'calm')} label="Calm" />
           </Seg>
+        </div>
+
+        <div className="rp-row rp-lights">
+          <div className="rp-label">Illumination</div>
+          <LightsToggle />
         </div>
 
         <button type="button" className="rp-reset" onClick={reset}>Reset to defaults</button>
