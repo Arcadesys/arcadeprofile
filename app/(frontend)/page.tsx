@@ -72,7 +72,7 @@ export default async function HomePage() {
           {recentPosts.length ? <ol className={styles.recentList}>{recentPosts.map((post) => (
             <li className={styles.recentRow} key={post.slug}>
               <div><h3><Link href={post.href}>{post.title}</Link></h3><p>{post.groupTitle} · {formatSiteDate(post.date)}</p></div>
-              <div className={styles.recentActions}><PieceActions title={post.title} readHref={post.href} pdfHref={`${post.href}/pdf`} shareUrl={post.href} /></div>
+              <div className={styles.recentActions}><PieceActions title={post.title} readHref={post.href} pdfHref={`${post.href}/pdf`} shareUrl={post.href} showRead={false} /></div>
             </li>
           ))}</ol> : <p>No recent publications are available yet.</p>}
           <Link className={styles.button} href="/latest">View all stories <span aria-hidden="true">→</span></Link>

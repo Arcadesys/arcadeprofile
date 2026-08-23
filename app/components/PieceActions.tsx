@@ -9,10 +9,11 @@ type PieceActionsProps = {
   readHref: string;
   pdfHref: string;
   shareUrl?: string;
+  showRead?: boolean;
 };
 
 /** Accessible, reusable actions for the canonical web edition and its PDF. */
-export function PieceActions({ title, readHref, pdfHref, shareUrl }: PieceActionsProps) {
+export function PieceActions({ title, readHref, pdfHref, shareUrl, showRead = true }: PieceActionsProps) {
   const [showFallbacks, setShowFallbacks] = useState(false);
   const [status, setStatus] = useState('');
   const url = shareUrl ?? readHref;
@@ -44,9 +45,9 @@ export function PieceActions({ title, readHref, pdfHref, shareUrl }: PieceAction
   const encodedText = encodeURIComponent(title);
 
   return (
-    <div className={styles.actions} aria-label="Read, download, or share this piece">
-      <a className={styles.action} href={readHref}>Read online</a>
-      <a className={styles.action} href={pdfHref}>Download PDF</a>
+    <div className={styles.actions} aria-label={showRead ? 'Read, download, or share this piece' : 'Download or share this piece'}>
+      {showRead ? <a className={styles.action} href={readHref}>Read online</a> : null}
+      <a className={styles.action} href={pdfHref}>{showRead ? 'Download PDF' : 'PDF'}</a>
       <button className={styles.shareButton} type="button" onClick={share}>Share</button>
       {showFallbacks ? (
         <div className={styles.fallbacks} aria-label="Sharing options">

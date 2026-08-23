@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { Barlow_Condensed, Inter, JetBrains_Mono, Lora } from 'next/font/google';
 import "../globals.css";
 import { LightsProvider } from '../components/LightsContext';
-import DockStack from '../components/DockStack';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import { JsonLd } from '@/lib/structured-data';
@@ -126,12 +125,13 @@ export default function FrontendLayout({
         <JsonLd data={websiteJsonLd} />
         <JsonLd data={personJsonLd} />
         <LightsProvider>
+          <a className="skip-link" href="#main-content">Skip to content</a>
           <div className="nav-wrapper">
             <Navbar />
           </div>
+          <span className="skip-target" id="main-content" tabIndex={-1} />
           {children}
           <Footer />
-          <DockStack />
         </LightsProvider>
         <Analytics />
       </body>
