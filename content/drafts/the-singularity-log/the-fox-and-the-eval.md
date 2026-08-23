@@ -4,10 +4,6 @@ title: The Fox and the Eval
 slug: the-fox-and-the-eval
 group: the-singularity-log
 status: draft
-source:
-  system: payload
-  updatedAt: '2026-08-09T21:47:22.132Z'
-  bodySha256: 9d28642b6f74fe77f5e4cc1c01c5e425b04c9ab1212d09ecd1d30c919b4fef7f
 excerpt: What trustworthy AI systems need to preserve through transformation.
 ---
 My company announced an AI leaderboard. In a weird, quixotic way, my corporate mission is to *spend thousands of dollars on AI*.

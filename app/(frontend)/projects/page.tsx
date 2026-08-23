@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
-import { getAllProjectHubs, type ProjectHub } from '@/lib/payload';
+import { getAllProjectHubs, type ProjectHub } from '@/lib/projects';
 import { getAllPosts, buildPostUrlMap, type BlogPost } from '@/lib/blog';
 import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
 import ProjectsIndex, {

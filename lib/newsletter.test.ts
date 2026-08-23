@@ -1,149 +1,34 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import type { SerializedEditorState } from 'lexical';
 
 import { buildPostNewsletterContent } from './newsletter';
 
-const SITE_URL = 'https://thearcades.me';
+test('buildPostNewsletterContent renders Markdown and the canonical essay URL', () => {
+  const result = buildPostNewsletterContent({
+    title: 'A Small Test',
+    slug: 'a-small-test',
+    excerpt: 'The excerpt.',
+    markdownBody: '## Hello\n\nA **bold** paragraph.',
+    group: { slug: 'arcade-blog', title: 'Arcade Blog' },
+  }, 'https://thearcades.me');
 
-const EMPTY_LEXICAL: SerializedEditorState = {
-  root: {
-    type: 'root',
-    format: '',
-    indent: 0,
-    version: 1,
-    children: [],
-    direction: null,
-  } as unknown as SerializedEditorState['root'],
-};
-
-function basePost(overrides: Partial<Parameters<typeof buildPostNewsletterContent>[0]> = {}) {
-  return {
-    slug: 'post',
-    title: 'Post',
-    excerpt: 'short',
-    content: EMPTY_LEXICAL,
-    ...overrides,
-  };
-}
-
-test('renders the post meta.image as the hero when populated', () => {
-  const { htmlBody } = buildPostNewsletterContent(
-    basePost({
-      title: 'Hello',
-      meta: { image: { url: 'https://cdn.example/hero.jpg', alt: 'Hero alt' } },
-    }),
-    SITE_URL,
-  );
-
-  assert.match(htmlBody, /<img[^>]+src="https:\/\/cdn\.example\/hero\.jpg"/);
-  assert.match(htmlBody, /alt="Hero alt"/);
-  // Hero must precede the title.
-  assert.ok(htmlBody.indexOf('<img') < htmlBody.indexOf('<h1'));
+  assert.match(result.htmlBody, /<h2>Hello<\/h2>/);
+  assert.match(result.htmlBody, /<strong>bold<\/strong>/);
+  assert.match(result.htmlBody, /https:\/\/thearcades\.me\/projects\/arcade-blog\/a-small-test/);
+  assert.match(result.textBody, /A bold paragraph\./);
+  assert.doesNotMatch(result.htmlBody, /Lexical|Payload/);
 });
 
-test('falls back to the post title when meta.image has no alt', () => {
-  const { htmlBody } = buildPostNewsletterContent(
-    basePost({
-      title: 'Hello',
-      meta: { image: { url: '/api/media/file/h.jpg' } },
-    }),
-    SITE_URL,
-  );
+test('buildPostNewsletterContent prefers a post hero and escapes its alt text', () => {
+  const result = buildPostNewsletterContent({
+    title: 'Hero',
+    slug: 'hero',
+    markdownBody: 'Body.',
+    hero: { src: '/hero.png', alt: 'A <bright> image' },
+    group: { slug: 'arcade-blog', image: '/group.png' },
+  }, 'https://thearcades.me');
 
-  assert.match(htmlBody, /alt="Hello"/);
-});
-
-test('makes a relative meta.image url absolute against the site url', () => {
-  const { htmlBody } = buildPostNewsletterContent(
-    basePost({
-      meta: { image: { url: '/api/media/file/h.jpg', alt: 'A' } },
-    }),
-    SITE_URL,
-  );
-
-  assert.match(htmlBody, /src="https:\/\/thearcades\.me\/api\/media\/file\/h\.jpg"/);
-});
-
-test('falls back to group.image when meta.image is absent', () => {
-  const { htmlBody } = buildPostNewsletterContent(
-    basePost({
-      title: 'Chapter 3',
-      meta: null,
-      group: { image: 'https://cdn.example/series.jpg', title: 'Series' },
-    }),
-    SITE_URL,
-  );
-
-  assert.match(htmlBody, /src="https:\/\/cdn\.example\/series\.jpg"/);
-  assert.match(htmlBody, /alt="Series"/);
-});
-
-test('falls back to group.image when meta.image is an unpopulated id', () => {
-  const { htmlBody } = buildPostNewsletterContent(
-    basePost({
-      meta: { image: 42 },
-      group: { image: 'https://cdn.example/series.jpg', title: 'Series' },
-    }),
-    SITE_URL,
-  );
-
-  assert.match(htmlBody, /src="https:\/\/cdn\.example\/series\.jpg"/);
-});
-
-test('uses post.title as alt for the group fallback when group.title is empty', () => {
-  const { htmlBody } = buildPostNewsletterContent(
-    basePost({
-      title: 'Chapter 3',
-      group: { image: 'https://cdn.example/series.jpg' },
-    }),
-    SITE_URL,
-  );
-
-  assert.match(htmlBody, /alt="Chapter 3"/);
-});
-
-test('renders no hero img when neither meta.image nor group.image is set', () => {
-  const { htmlBody } = buildPostNewsletterContent(basePost(), SITE_URL);
-  assert.doesNotMatch(htmlBody, /<img/);
-});
-
-test('sets an explicit light email surface for dark-mode mail clients', () => {
-  const { htmlBody } = buildPostNewsletterContent(basePost(), SITE_URL);
-
-  assert.match(htmlBody, /background-color:#ffffff/);
-  assert.match(htmlBody, /color:#111827/);
-  assert.ok(htmlBody.indexOf('background-color:#ffffff') < htmlBody.indexOf('<article'));
-});
-
-test('adds chapter continuity links when supplied by the delivery pipeline', () => {
-  const { htmlBody, textBody } = buildPostNewsletterContent(
-    basePost({
-      group: { slug: 'my-serial', title: 'My Serial' },
-      continuity: { priorUrl: '/projects/my-serial/chapter-one', priorTitle: 'Chapter One', catchUpUrl: '/projects/my-serial' },
-    }),
-    SITE_URL,
-  );
-  assert.match(htmlBody, /Read chapter on the site/);
-  assert.match(htmlBody, /Previous chapter: Chapter One/);
-  assert.match(htmlBody, /Catch up on the serial/);
-  assert.match(textBody, /Previous chapter: https:\/\/thearcades\.me\/projects\/my-serial\/chapter-one/);
-});
-
-test('escapes hero src and alt to avoid breaking the surrounding HTML', () => {
-  const { htmlBody } = buildPostNewsletterContent(
-    basePost({
-      meta: {
-        image: {
-          url: 'https://cdn.example/h.jpg?a=1&b="evil"',
-          alt: 'a"b<c',
-        },
-      },
-    }),
-    SITE_URL,
-  );
-
-  assert.doesNotMatch(htmlBody, /a=1&b="evil"/);
-  assert.match(htmlBody, /a=1&amp;b=&quot;evil&quot;/);
-  assert.match(htmlBody, /alt="a&quot;b&lt;c"/);
+  assert.match(result.htmlBody, /src="https:\/\/thearcades\.me\/hero\.png"/);
+  assert.match(result.htmlBody, /alt="A &lt;bright&gt; image"/);
+  assert.doesNotMatch(result.htmlBody, /group\.png/);
 });

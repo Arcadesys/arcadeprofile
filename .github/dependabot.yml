@@ -22,10 +22,6 @@ updates:
           - "react-dom"
           - "@types/react"
           - "@types/react-dom"
-      payload:
-        patterns:
-          - "payload"
-          - "@payloadcms/*"
       types:
         patterns:
           - "@types/*"

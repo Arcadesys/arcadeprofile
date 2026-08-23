@@ -2,21 +2,15 @@ import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
 import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
-import LongformBody from '@/app/components/LongformBody';
-import { getProjectBySlug } from '@/lib/payload';
-import { getBlogSource, getGroupBySlug } from '@/lib/blog';
-import { resolvePostOgImageBySlug } from '@/lib/post-og-image';
-import { getPayload } from 'payload';
-import payloadConfig from '@payload-config';
+import { getProjectBySlug } from '@/lib/projects';
+import { getGroupBySlug } from '@/lib/blog';
 import { projectCategoryLabels } from '@/lib/project-model';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 import { PieceActions } from '@/app/components/PieceActions';
-import PostReactions from '@/app/components/PostReactions';
 import RelatedPosts from '@/app/components/RelatedPosts';
 import ReadingProgressTracker from '@/app/components/ReadingProgressTracker';
-import { getReactionCounts } from '@/lib/reactions';
 import { getRelatedPosts } from '@/lib/related-posts';
 import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
@@ -26,50 +20,11 @@ import {
   buildGroupIntroUrl,
   parsePostPartSegment,
   partNum,
-  resolvePostSlugByPartIndex,
 } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
-import { resolveCanonicalUrl } from '@/lib/canonical-url';
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
-import type { OgImage } from '@/lib/post-og-image';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
-
-interface PostExtras {
-  canonicalPath: string | null;
-  updatedAt: string | null;
-  publishedDate: string | null;
-  author: string | null;
-}
-
-async function loadPostExtras(postSlug: string): Promise<PostExtras> {
-  try {
-    const payload = await getPayload({ config: payloadConfig });
-    const result = await payload.find({
-      collection: 'posts',
-      where: { slug: { equals: postSlug } },
-      limit: 1,
-      depth: 0,
-      overrideAccess: true,
-    });
-    const doc = result.docs[0] as
-      | {
-          discoverability?: { canonical_path?: string };
-          updatedAt?: string;
-          publishedDate?: string;
-          author?: string;
-        }
-      | undefined;
-    return {
-      canonicalPath: doc?.discoverability?.canonical_path?.trim() || null,
-      updatedAt: doc?.updatedAt ?? null,
-      publishedDate: doc?.publishedDate ?? null,
-      author: doc?.author ?? null,
-    };
-  } catch {
-    return { canonicalPath: null, updatedAt: null, publishedDate: null, author: null };
-  }
-}
 
 export const dynamic = 'force-dynamic';
 
@@ -81,15 +36,9 @@ async function redirectIfNumeric(groupSlug: string, segment: string): Promise<vo
   if (idx === 0) {
     permanentRedirect(buildGroupIntroUrl(groupSlug));
   }
-  if (getBlogSource() === 'markdown') {
-    const group = await getGroupBySlug(groupSlug);
-    const post = group?.posts[idx - 1];
-    if (post) permanentRedirect(buildPostUrl(groupSlug, post.slug));
-    notFound();
-  }
-  const payload = await getPayload({ config: payloadConfig });
-  const resolved = await resolvePostSlugByPartIndex(payload, groupSlug, idx);
-  if (resolved) permanentRedirect(buildPostUrl(groupSlug, resolved));
+  const group = await getGroupBySlug(groupSlug);
+  const post = group?.posts[idx - 1];
+  if (post) permanentRedirect(buildPostUrl(groupSlug, post.slug));
   notFound();
 }
 
@@ -159,44 +108,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (idx < 0) return {};
   const post = group.posts[idx];
 
-  if (post.markdownBody) {
-    const metaTitle = post.meta?.title?.trim() || post.title;
-    const metaDescription = post.meta?.description?.trim() || post.excerpt || undefined;
-    const titleForOg = `${metaTitle} | ${project.title} | ${SITE_NAME}`;
-    const canonicalUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
-    return {
-      title: `${metaTitle} | ${project.title}`,
-      description: metaDescription,
-      alternates: { canonical: canonicalUrl },
-      openGraph: {
-        title: titleForOg,
-        description: metaDescription,
-        type: 'article',
-        url: canonicalUrl,
-        images: post.hero ? [{ url: post.hero.src, alt: post.hero.alt }] : undefined,
-      },
-      twitter: {
-        card: post.hero ? 'summary_large_image' : 'summary',
-        title: titleForOg,
-        description: metaDescription,
-        images: post.hero ? [post.hero.src] : undefined,
-      },
-    };
-  }
-
-  const payload = await getPayload({ config: payloadConfig });
-  const [og, postExtras] = await Promise.all([
-    resolvePostOgImageBySlug(payload, post.slug),
-    loadPostExtras(post.slug),
-  ]);
   const metaTitle = post.meta?.title?.trim() || post.title;
   const metaDescription = post.meta?.description?.trim() || post.excerpt || undefined;
-  const titleForBrowser = `${metaTitle} | ${project.title}`;
   const titleForOg = `${metaTitle} | ${project.title} | ${SITE_NAME}`;
-  const path = buildPostUrl(slug, postSlug);
-  const canonicalUrl = resolveCanonicalUrl(postExtras.canonicalPath, path, SITE_URL);
+  const canonicalUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
   return {
-    title: titleForBrowser,
+    title: `${metaTitle} | ${project.title}`,
     description: metaDescription,
     alternates: { canonical: canonicalUrl },
     openGraph: {
@@ -204,15 +121,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: metaDescription,
       type: 'article',
       url: canonicalUrl,
-      images: og
-        ? [{ url: og.url, alt: og.alt ?? metaTitle, width: og.width, height: og.height }]
-        : undefined,
+      images: post.hero ? [{ url: post.hero.src, alt: post.hero.alt }] : undefined,
     },
     twitter: {
-      card: og ? 'summary_large_image' : 'summary',
+      card: post.hero ? 'summary_large_image' : 'summary',
       title: titleForOg,
       description: metaDescription,
-      images: og ? [og.url] : undefined,
+      images: post.hero ? [post.hero.src] : undefined,
     },
   };
 }
@@ -243,39 +158,19 @@ export default async function ProjectPostPage({ params }: Props) {
     partIndex < posts.length ? buildPostUrl(slug, posts[idx + 1].slug) : undefined;
 
   const [allPosts, urlMap] = await Promise.all([getAllPosts(), buildPostUrlMap()]);
-  let og: OgImage | null = post.hero ? { url: post.hero.src, alt: post.hero.alt, source: 'post' } : null;
-  let extras: PostExtras = {
-    canonicalPath: null,
-    updatedAt: post.updatedDate ?? null,
-    publishedDate: post.date,
-    author: post.author ?? null,
-  };
-  let initialReactionCounts: Record<string, number> | null = null;
-  if (!post.markdownBody) {
-    const payload = await getPayload({ config: payloadConfig });
-    [og, extras, initialReactionCounts] = await Promise.all([
-      resolvePostOgImageBySlug(payload, post.slug),
-      loadPostExtras(post.slug),
-      typeof post.id === 'number' ? getReactionCounts(payload, post.id) : Promise.resolve(null),
-    ]);
-  }
   const relatedPosts = getRelatedPosts(allPosts, post, urlMap);
 
-  const canonicalUrl = resolveCanonicalUrl(
-    extras.canonicalPath,
-    buildPostUrl(slug, postSlug),
-    SITE_URL,
-  );
+  const canonicalUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.meta?.title?.trim() || post.title,
     description: post.meta?.description?.trim() || post.excerpt || undefined,
-    datePublished: extras.publishedDate || post.date,
-    dateModified: extras.updatedAt || extras.publishedDate || post.date,
+    datePublished: post.date,
+    dateModified: post.updatedDate || post.date,
     author: {
       '@type': 'Person',
-      name: extras.author || post.author || 'Austen Tucker',
+      name: post.author || 'Austen Tucker',
       '@id': `${SITE_URL}/#person`,
     },
     publisher: { '@id': `${SITE_URL}/#person` },
@@ -290,7 +185,7 @@ export default async function ProjectPostPage({ params }: Props) {
       url: `${SITE_URL}${buildGroupIntroUrl(slug)}`,
     },
     articleSection: project.category ?? undefined,
-    image: og?.url ?? undefined,
+    image: post.hero?.src ?? undefined,
   };
 
   const breadcrumbJsonLd = {
@@ -357,15 +252,7 @@ export default async function ProjectPostPage({ params }: Props) {
             </p>
           </header>
 
-          {post.markdownBody
-            ? <MarkdownPostBody markdown={post.markdownBody} />
-            : <LongformBody content={post.content!} />}
-
-          {typeof post.id === 'number' && initialReactionCounts && (
-            <div style={{ marginTop: '2.5rem' }}>
-              <PostReactions postId={post.id} initialCounts={initialReactionCounts} />
-            </div>
-          )}
+          <MarkdownPostBody markdown={post.markdownBody} />
         </article>
 
         <RelatedPosts items={relatedPosts} />

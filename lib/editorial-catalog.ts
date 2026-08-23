@@ -1,7 +1,8 @@
 import { COLLECTION, COLLECTION_PATH } from '@/lib/collection';
 import { buildPostUrlMap, getAllPosts, type BlogPost, type PostLocation } from '@/lib/blog';
 import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
-import { getAllProjectHubs, type ProjectHub } from '@/lib/payload';
+import { getAllProjectHubs, type ProjectHub } from '@/lib/projects';
+import { ESSAY_GROUPS } from '@/lib/newsletter-post';
 
 export type EditorialSection = 'fiction' | 'essays';
 
@@ -30,9 +31,9 @@ export interface EditorialCatalog {
   collectionPath: typeof COLLECTION_PATH;
 }
 
-function sectionForCategory(category: ProjectHub['category']): EditorialSection | null {
-  if (category === 'fiction') return 'fiction';
-  if (category === 'writing') return 'essays';
+function sectionForHub(hub: ProjectHub): EditorialSection | null {
+  if (hub.category === 'fiction') return 'fiction';
+  if (hub.category === 'writing' || ESSAY_GROUPS.has(hub.slug)) return 'essays';
   return null;
 }
 
@@ -42,9 +43,7 @@ function dateMs(value: string | undefined): number {
 }
 
 /**
- * Project categories are canonical across both the Markdown primary source and
- * the Payload rollback.  Keeping classification here means the two public
- * indexes cannot drift into separate editorial inventories.
+ * Project categories are canonical in the repository-owned group manifests.
  */
 export function buildEditorialCatalog(
   hubs: readonly ProjectHub[],
@@ -65,7 +64,7 @@ export function buildEditorialCatalog(
   };
 
   for (const hub of hubs) {
-    const section = sectionForCategory(hub.category);
+    const section = sectionForHub(hub);
     if (!section) continue;
 
     const groupPosts = (postsByGroup.get(hub.slug) ?? [])
@@ -107,8 +106,6 @@ export function buildEditorialCatalog(
 }
 
 export async function getEditorialCatalog(): Promise<EditorialCatalog> {
-  // Keep Payload initialization sequential: its client can race when two
-  // independent loaders initialise on a cold start.
   const hubs = await getAllProjectHubs();
   const posts = await getAllPosts();
   const urlMap = await buildPostUrlMap();

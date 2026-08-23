@@ -4,17 +4,14 @@ import test from 'node:test';
 import type { BlogPost, PostLocation } from './blog';
 import { getRelatedPosts } from './related-posts';
 
-const emptyContent = {
-  root: { type: 'root', children: [], direction: null, format: '', indent: 0, version: 1 },
-} as BlogPost['content'];
-
 function post(overrides: Partial<BlogPost> & { slug: string }): BlogPost {
   return {
     id: 1,
     title: overrides.slug,
     date: '2026-01-01T00:00:00.000Z',
     excerpt: '',
-    content: emptyContent,
+    markdownBody: 'Body.',
+    group: 'default-group',
     tags: [],
     ...overrides,
   };

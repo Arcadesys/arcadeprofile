@@ -3,16 +3,12 @@ import { SITE_NAME } from '@/lib/site-brand';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getProjectBySlug } from '@/lib/payload';
-import { getBlogSource, getGroupBySlug } from '@/lib/blog';
+import { getProjectBySlug } from '@/lib/projects';
+import { getGroupBySlug } from '@/lib/blog';
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
-import { resolveGroupOgImage } from '@/lib/post-og-image';
-import { getPayload } from 'payload';
-import payloadConfig from '@payload-config';
 import { projectCategoryLabels, projectResourceLabels, projectStatusLabels } from '@/lib/project-model';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
-import PostRichText from '@/app/components/PostRichText';
 import { JsonLd } from '@/lib/structured-data';
 import { buildPostUrl, buildGroupIntroUrl, partNum } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
@@ -20,28 +16,6 @@ import { formatSiteDate } from '@/lib/site-time';
 import { resolveCanonicalUrl } from '@/lib/canonical-url';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
-
-async function loadGroupExtras(groupSlug: string): Promise<{ canonicalPath: string | null; updatedAt: string | null }> {
-  try {
-    const payload = await getPayload({ config: payloadConfig });
-    const result = await payload.find({
-      collection: 'groups',
-      where: { slug: { equals: groupSlug } },
-      limit: 1,
-      depth: 0,
-      overrideAccess: true,
-    });
-    const doc = result.docs[0] as
-      | { discoverability?: { canonical_path?: string }; updatedAt?: string }
-      | undefined;
-    return {
-      canonicalPath: doc?.discoverability?.canonical_path?.trim() || null,
-      updatedAt: doc?.updatedAt ?? null,
-    };
-  } catch {
-    return { canonicalPath: null, updatedAt: null };
-  }
-}
 
 export const dynamic = 'force-dynamic';
 
@@ -102,19 +76,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ]);
   if (!project) return {};
 
-  const isMarkdown = getBlogSource() === 'markdown';
-  const payload = isMarkdown ? null : await getPayload({ config: payloadConfig });
-  const [og, groupExtras] = isMarkdown
-    ? [project.image ? { url: project.image, alt: project.title } : null, { canonicalPath: null }]
-    : await Promise.all([
-        resolveGroupOgImage(payload!, slug),
-        loadGroupExtras(slug),
-      ]);
+  const og = project.image ? { url: project.image, alt: project.title } : null;
   const metaTitle = group?.meta?.title?.trim() || project.title;
   const metaDescription = group?.meta?.description?.trim() || project.description || undefined;
   const titleForOg = `${metaTitle} | ${SITE_NAME}`;
   const path = buildGroupIntroUrl(slug);
-  const canonicalUrl = resolveCanonicalUrl(groupExtras.canonicalPath, path, SITE_URL);
+  const canonicalUrl = resolveCanonicalUrl(null, path, SITE_URL);
   return {
     title: metaTitle,
     description: metaDescription,
@@ -125,7 +92,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'article',
       url: canonicalUrl,
       images: og
-        ? [{ url: og.url, alt: og.alt ?? metaTitle, width: og.width, height: og.height }]
+        ? [{ url: og.url, alt: og.alt ?? metaTitle }]
         : undefined,
     },
     twitter: {
@@ -165,11 +132,8 @@ export default async function ProjectIntroPage({ params }: Props) {
 
   const sections = buildDrawerSections(slug, project.title, chapterSections);
   const nextPartHref = firstPost ? buildPostUrl(slug, firstPost.slug) : undefined;
-  const groupExtras = getBlogSource() === 'markdown'
-    ? { canonicalPath: null }
-    : await loadGroupExtras(slug);
   const canonicalUrl = resolveCanonicalUrl(
-    groupExtras.canonicalPath,
+    null,
     buildGroupIntroUrl(slug),
     SITE_URL,
   );
@@ -243,7 +207,7 @@ export default async function ProjectIntroPage({ params }: Props) {
           )}
         </header>
 
-        {(project.jacketDescription || project.jacketMarkdown) && (
+        {project.jacketMarkdown && (
           <div style={{
             marginBottom: '2.5rem',
             padding: '1.25rem 1.5rem',
@@ -252,9 +216,7 @@ export default async function ProjectIntroPage({ params }: Props) {
             borderRadius: '0 6px 6px 0',
           }}>
             <div className="prose prose-jacket">
-              {project.jacketMarkdown
-                ? <MarkdownPostBody markdown={project.jacketMarkdown} />
-                : <PostRichText data={project.jacketDescription!} />}
+              <MarkdownPostBody markdown={project.jacketMarkdown} />
             </div>
           </div>
         )}

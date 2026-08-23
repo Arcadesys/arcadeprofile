@@ -1,4 +1,0 @@
-sandbox_mode = "danger-full-access"
-[mcp_servers.arcadeprofile]
-url = "https://www.thearcades.me/api/mcp"
-bearer_token_env_var = "ARCADEPROFILE_MCP_TOKEN"

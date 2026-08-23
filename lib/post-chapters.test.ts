@@ -8,9 +8,10 @@ function fakePost(slug: string, chapter?: string): BlogPost {
     id: 0,
     slug,
     title: slug,
-    date: '2026-01-01',
+    date: '2026-01-01T00:00:00Z',
     excerpt: '',
-    content: { root: { type: 'root', children: [], direction: null, format: '', indent: 0, version: 1 } } as unknown as BlogPost['content'],
+    markdownBody: 'Body.',
+    group: 'g',
     tags: [],
     chapter,
   };
@@ -36,8 +37,8 @@ test('returns one bucket when no chapters are defined', () => {
 
 test('groups posts by chapter and preserves global part indices', () => {
   const group = fakeGroup(
-    [fakePost('intro'), fakePost('p1', 'cold-boot'), fakePost('p2', 'cold-boot'), fakePost('p3', 'thaw')],
-    [{ title: 'Cold Boot', slug: 'cold-boot' }, { title: 'Thaw', slug: 'thaw' }],
+    [fakePost('intro'), fakePost('p1', 'chapter-one'), fakePost('p2', 'chapter-one'), fakePost('p3', 'chapter-two')],
+    [{ title: 'Chapter One', slug: 'chapter-one' }, { title: 'Chapter Two', slug: 'chapter-two' }],
   );
   const out = groupPostsByChapter(group);
   assert.equal(out.length, 3);
@@ -45,26 +46,26 @@ test('groups posts by chapter and preserves global part indices', () => {
   assert.equal(out[0].slug, null);
   assert.deepEqual(out[0].posts.map((p) => p.post.slug), ['intro']);
   assert.equal(out[0].posts[0].partIndex, 1);
-  assert.equal(out[1].slug, 'cold-boot');
-  assert.equal(out[1].title, 'Cold Boot');
+  assert.equal(out[1].slug, 'chapter-one');
+  assert.equal(out[1].title, 'Chapter One');
   assert.deepEqual(out[1].posts.map((p) => p.partIndex), [2, 3]);
-  assert.equal(out[2].slug, 'thaw');
+  assert.equal(out[2].slug, 'chapter-two');
   assert.deepEqual(out[2].posts.map((p) => p.partIndex), [4]);
 });
 
 test('drops empty chapter buckets', () => {
   const group = fakeGroup(
-    [fakePost('p1', 'cold-boot')],
-    [{ title: 'Cold Boot', slug: 'cold-boot' }, { title: 'Empty', slug: 'empty' }],
+    [fakePost('p1', 'chapter-one')],
+    [{ title: 'Chapter One', slug: 'chapter-one' }, { title: 'Empty', slug: 'empty' }],
   );
   const out = groupPostsByChapter(group);
-  assert.deepEqual(out.map((s) => s.slug), ['cold-boot']);
+  assert.deepEqual(out.map((s) => s.slug), ['chapter-one']);
 });
 
 test('posts referencing unknown chapter fall into unassigned bucket', () => {
   const group = fakeGroup(
     [fakePost('p1', 'mystery')],
-    [{ title: 'Cold Boot', slug: 'cold-boot' }],
+    [{ title: 'Chapter One', slug: 'chapter-one' }],
   );
   const out = groupPostsByChapter(group);
   assert.equal(out.length, 1);

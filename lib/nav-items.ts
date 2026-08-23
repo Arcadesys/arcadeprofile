@@ -1,5 +1,3 @@
-import type { Payload } from 'payload';
-
 export type NavItem = {
   id: string;
   label: string;
@@ -144,8 +142,7 @@ export function buildNavigationModel(items: readonly NavItem[]): NavigationModel
   return { primary, more };
 }
 
-// Keep source-controlled destinations available when the CMS navigation has
-// not been updated yet. Existing CMS entries retain their configured labels.
+// Keep every source-controlled destination available in the site navigation.
 export function ensureCoreNavItems(items: NavItem[]): NavItem[] {
   return ensureNavItem(
     ensureNavItem(
@@ -165,23 +162,4 @@ export function ensureCoreNavItems(items: NavItem[]): NavItem[] {
     ),
     STORIES_NAV_ITEM,
   );
-}
-
-type NavPayload = Pick<Payload, 'find'>;
-
-export async function loadVisibleNavItems(payload: NavPayload): Promise<NavItem[]> {
-  const result = await payload.find({
-    collection: 'nav-items',
-    where: { visible: { equals: true } },
-    sort: 'order',
-    depth: 0,
-    pagination: false,
-  });
-
-  return result.docs.map((doc) => ({
-    id: String(doc.id),
-    label: doc.href === '/lab' ? 'Case Studies' : doc.label,
-    href: doc.href,
-    isPrimary: Boolean(doc.isPrimary),
-  }));
 }

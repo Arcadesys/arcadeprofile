@@ -1,5 +1,4 @@
-import { getPayload } from 'payload';
-import payloadConfig from '@payload-config';
+import { getProjectBySlug } from '@/lib/projects';
 import { ogSize, ogContentType, renderOgCard } from '@/lib/og-template';
 import { projectCategoryLabels } from '@/lib/project-model';
 import { SITE_NAME } from '@/lib/site-brand';
@@ -11,52 +10,15 @@ export const alt = SITE_NAME;
 
 type Props = { params: Promise<{ slug: string }> };
 
-interface OgContext {
-  groupTitle: string;
-  groupCategory: string | null;
-  groupMetaTitle: string | null;
-  groupDescription: string | null;
-}
-
-async function loadOgContext(slug: string): Promise<OgContext | null> {
-  try {
-    const payload = await getPayload({ config: payloadConfig });
-    const groupResult = await payload.find({
-      collection: 'groups',
-      where: { slug: { equals: slug } },
-      limit: 1,
-      depth: 0,
-      overrideAccess: true,
-    });
-    const group = groupResult.docs[0] as
-      | {
-          title?: string;
-          category?: string;
-          description?: string;
-          meta?: { title?: string };
-        }
-      | undefined;
-    if (!group) return null;
-    return {
-      groupTitle: group.title ?? slug,
-      groupCategory: group.category ?? null,
-      groupMetaTitle: group.meta?.title?.trim() || null,
-      groupDescription: group.description?.trim() || null,
-    };
-  } catch {
-    return null;
-  }
-}
-
 export default async function OgImage({ params }: Props) {
   const { slug } = await params;
-  const ctx = await loadOgContext(slug);
-
-  const title = ctx ? (ctx.groupMetaTitle || ctx.groupTitle) : SITE_NAME;
-  const byline = ctx?.groupDescription || '';
-  const eyebrow = ctx?.groupCategory
-    ? projectCategoryLabels[ctx.groupCategory] || ctx.groupCategory
+  const project = await getProjectBySlug(slug);
+  const eyebrow = project?.category
+    ? projectCategoryLabels[project.category] || project.category
     : null;
-
-  return renderOgCard({ eyebrow, title, byline });
+  return renderOgCard({
+    eyebrow,
+    title: project?.title || SITE_NAME,
+    byline: project?.description || '',
+  });
 }

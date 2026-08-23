@@ -160,16 +160,16 @@ export interface LoadMarkdownPostsOptions {
 
 export function loadMarkdownGroups(options: LoadMarkdownPostsOptions = {}): MarkdownGroup[] {
   const contentDirectory = options.contentDirectory ?? DEFAULT_MARKDOWN_POSTS_DIRECTORY;
-  if (!statSync(contentDirectory, { throwIfNoEntry: false })?.isDirectory()) return [];
+  if (!statSync(/* turbopackIgnore: true */ contentDirectory, { throwIfNoEntry: false })?.isDirectory()) return [];
 
   const groups: MarkdownGroup[] = [];
-  for (const entry of readdirSync(contentDirectory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+  for (const entry of readdirSync(/* turbopackIgnore: true */ contentDirectory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
     if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
-    const filePath = path.join(contentDirectory, entry.name, MARKDOWN_GROUP_MANIFEST);
+    const filePath = path.join(/* turbopackIgnore: true */ contentDirectory, entry.name, MARKDOWN_GROUP_MANIFEST);
     if (!statSync(filePath, { throwIfNoEntry: false })?.isFile()) {
       throw new Error(`Markdown group ${entry.name} is missing ${filePath}.`);
     }
-    const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
+    const raw = JSON.parse(readFileSync(/* turbopackIgnore: true */ filePath, 'utf8')) as unknown;
     const parsed = markdownGroupSchema.safeParse(raw);
     if (!parsed.success) {
       throw new Error(`Invalid Markdown group manifest ${filePath}: ${z.prettifyError(parsed.error)}`);
@@ -201,27 +201,27 @@ export function compareMarkdownPosts(a: MarkdownPost, b: MarkdownPost): number {
  */
 export function loadMarkdownPosts(options: LoadMarkdownPostsOptions = {}): MarkdownPost[] {
   const contentDirectory = options.contentDirectory ?? DEFAULT_MARKDOWN_POSTS_DIRECTORY;
-  if (!statSync(contentDirectory, { throwIfNoEntry: false })?.isDirectory()) return [];
+  if (!statSync(/* turbopackIgnore: true */ contentDirectory, { throwIfNoEntry: false })?.isDirectory()) return [];
 
   const posts: MarkdownPost[] = [];
   const seenIds = new Map<string, string>();
   const seenSlugs = new Map<string, string>();
 
-  for (const entry of readdirSync(contentDirectory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-    const entryPath = path.join(contentDirectory, entry.name);
+  for (const entry of readdirSync(/* turbopackIgnore: true */ contentDirectory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+    const entryPath = path.join(/* turbopackIgnore: true */ contentDirectory, entry.name);
     if (entry.isFile() && entry.name.endsWith('.md')) {
       throw new Error(`Markdown post ${entryPath} must be inside a group directory.`);
     }
     if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
 
-    for (const file of readdirSync(entryPath, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-      const filePath = path.join(entryPath, file.name);
+    for (const file of readdirSync(/* turbopackIgnore: true */ entryPath, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const filePath = path.join(/* turbopackIgnore: true */ entryPath, file.name);
       if (file.isDirectory()) {
         throw new Error(`Nested Markdown directory ${filePath} is not supported.`);
       }
       if (!file.isFile() || !file.name.endsWith('.md')) continue;
 
-      const { data, content } = matter(readFileSync(filePath, 'utf8'));
+      const { data, content } = matter(readFileSync(/* turbopackIgnore: true */ filePath, 'utf8'));
       const parsed = markdownPostFrontmatterSchema.safeParse(data);
       if (!parsed.success) {
         throw new Error(`Invalid frontmatter in ${filePath}: ${z.prettifyError(parsed.error)}`);

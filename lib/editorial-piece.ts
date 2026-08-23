@@ -1,5 +1,3 @@
-import type { SerializedEditorState } from 'lexical';
-
 import type { BlogPost } from '@/lib/blog';
 import type { CollectionStory } from '@/lib/collection';
 
@@ -80,37 +78,6 @@ export function markdownToEditorialBlocks(markdown: string): EditorialBlock[] {
   return blocks;
 }
 
-function lexicalNodeText(node: unknown): string {
-  if (!node || typeof node !== 'object') return '';
-  const value = node as { text?: unknown; children?: unknown[] };
-  const own = typeof value.text === 'string' ? value.text : '';
-  const children = Array.isArray(value.children) ? value.children.map(lexicalNodeText).join('') : '';
-  return `${own}${children}`.replace(/\s+/g, ' ').trim();
-}
-
-export function lexicalToEditorialBlocks(content: SerializedEditorState): EditorialBlock[] {
-  const root = content?.root as { children?: unknown[] } | undefined;
-  const blocks: EditorialBlock[] = [];
-  for (const node of root?.children ?? []) {
-    const item = node as { type?: string; tag?: string; children?: unknown[] };
-    const text = lexicalNodeText(item);
-    if (!text) continue;
-    if (item.type === 'list') {
-      const items = (item.children ?? []).map(lexicalNodeText).filter(Boolean);
-      if (items.length) blocks.push({ type: 'list', ordered: item.tag === 'ol', items });
-      continue;
-    }
-    if (item.type === 'quote') { blocks.push({ type: 'quote', text }); continue; }
-    if (item.type === 'heading') {
-      const tag = Number(String(item.tag ?? 'h2').replace('h', ''));
-      blocks.push({ type: 'heading', level: Math.min(4, Math.max(2, tag)) as 2 | 3 | 4, text });
-      continue;
-    }
-    blocks.push({ type: 'paragraph', text });
-  }
-  return blocks;
-}
-
 export function blogPostToEditorialPiece(post: BlogPost, groupTitle?: string): EditorialPiece {
   const canonicalPath = `/projects/${post.group}/${post.slug}`;
   return {
@@ -126,7 +93,7 @@ export function blogPostToEditorialPiece(post: BlogPost, groupTitle?: string): E
     section: groupTitle ?? post.group,
     image: post.hero,
     pdfOverrideUrl: post.pdfOverrideUrl,
-    blocks: post.markdownBody ? markdownToEditorialBlocks(post.markdownBody) : lexicalToEditorialBlocks(post.content!),
+    blocks: markdownToEditorialBlocks(post.markdownBody),
   };
 }
 
@@ -143,6 +110,8 @@ export function collectionStoryToEditorialPiece(story: CollectionStory): Editori
     section: 'This is what I do for fun',
     image: { src: story.cover.src, alt: story.coverAlt },
     pdfOverrideUrl: story.downloads.pdf,
-    blocks: story.content ? lexicalToEditorialBlocks(story.content) : [{ type: 'paragraph', text: story.description }],
+    blocks: story.markdownBody
+      ? markdownToEditorialBlocks(story.markdownBody)
+      : [{ type: 'paragraph', text: story.description }],
   };
 }
