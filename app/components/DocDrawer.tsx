@@ -104,6 +104,9 @@ export default function DocDrawer({
   }, [nextHref, open, prevHref]);
 
   const progressPct = Math.round((currentPosition / totalCount) * 100);
+  const positionLabel = currentPosition > 0
+    ? `Pt ${currentPosition} / ${totalCount}`
+    : 'Introduction';
 
   // Split groupTitle at groupTitleEm to build the title with an em highlight
   function renderTitle() {
@@ -161,7 +164,7 @@ export default function DocDrawer({
           {renderTitle()}
           <div className="dd-meta">
             <span>{[author, year].filter(Boolean).join(' · ')}</span>
-            <span className="dd-position">Pt {currentPosition} / {totalCount}</span>
+            <span className="dd-position">{positionLabel}</span>
           </div>
           <div
             className="dd-progress"
@@ -219,7 +222,7 @@ export default function DocDrawer({
             <span className="dd-nav prev disabled" aria-disabled="true">← Prev</span>
           )}
           <div className="dd-fraction">
-            <strong>{currentPosition}</strong> / {totalCount}
+            {currentPosition > 0 ? <><strong>{currentPosition}</strong> / {totalCount}</> : 'Introduction'}
           </div>
           {nextHref ? (
             <Link href={nextHref} className="dd-nav next" aria-label="Next chapter">Next →</Link>

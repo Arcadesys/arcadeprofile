@@ -125,7 +125,7 @@ export default async function ProjectIntroPage({ params }: Props) {
   if (!project) notFound();
 
   const posts = group?.posts ?? [];
-  const totalCount = posts.length + 1;
+  const totalCount = posts.length;
   const firstPost = posts[0];
   const chapterSections = group ? groupPostsByChapter(group) : [];
   const hasNamedChapters = chapterSections.some((s) => s.slug !== null);
@@ -168,7 +168,7 @@ export default async function ProjectIntroPage({ params }: Props) {
     <DocDrawer
       eyebrow={categoryLabel ?? undefined}
       groupTitle={project.title}
-      currentPosition={1}
+      currentPosition={0}
       totalCount={totalCount}
       sections={sections}
       prevHref={undefined}
