@@ -55,16 +55,6 @@ export default async function HomePage() {
             />
           </div>
         </div>
-        <aside className={styles.continuePanel} aria-labelledby="continue-heading">
-          <h2 id="continue-heading">Continue Reading</h2>
-          {recentPosts.length ? <ol className={styles.continueList}>{recentPosts.map((post, index) => (
-            <li className={styles.continueCard} key={post.slug} data-accent={index === 0 ? 'pink' : 'cyan'}>
-              <p>{post.groupTitle}</p>
-              <h3><Link href={post.href}>{post.title}</Link></h3>
-              <time dateTime={post.date}>{formatSiteDate(post.date)}</time>
-            </li>
-          ))}</ol> : <p>No recent publications are available yet.</p>}
-        </aside>
       </header>
 
       <div className={styles.resume}>
