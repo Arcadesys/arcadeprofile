@@ -57,6 +57,7 @@ export default function ZooCollectionPage() {
             <p className={styles.lede}>{ZOO_COLLECTION_DESCRIPTION}</p>
             <div className={styles.actions}>
               <Link href={ZOO_CHAPTERS[0].path}>Begin with Cold Boot</Link>
+              <Link href="/projects/it-takes-a-zoo/it-takes-a-zoo-to-raise-the-child">Read the opening poem</Link>
             </div>
           </div>
         </header>
