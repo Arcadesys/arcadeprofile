@@ -4,11 +4,13 @@ import type { CSSProperties } from 'react';
 import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 import ContinueReadingBanner from '@/app/components/ContinueReadingBanner';
 import ContinueToyBanner from '@/app/components/toys/ContinueToyBanner';
+import FeaturedCollectionCard from '@/app/components/FeaturedCollectionCard';
 import { PieceActions } from '@/app/components/PieceActions';
 import { buildPostUrl } from '@/lib/post-url';
 import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
 import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
+import { ZOO_FEATURED_COLLECTION } from '@/lib/zoo-collection-meta';
 
 import styles from './home.module.css';
 
@@ -69,6 +71,8 @@ export default async function HomePage() {
         <ContinueReadingBanner />
         <ContinueToyBanner />
       </div>
+
+      <FeaturedCollectionCard collection={ZOO_FEATURED_COLLECTION} placement="home" />
 
       <section className={styles.bands} aria-label={`Explore ${SITE_NAME}`}>
         <article className={styles.band} style={{ '--band': 'var(--cyan)' } as CSSProperties}>

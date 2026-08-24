@@ -6,11 +6,19 @@ import { z } from 'zod';
 
 import assets from '@/data/zoo-collection-assets.json';
 import { markdownToEditorialBlocks, type EditorialPiece } from '@/lib/editorial-piece';
+import {
+  ZOO_COLLECTION_PATH,
+  ZOO_COLLECTION_TITLE,
+  ZOO_HERO,
+} from '@/lib/zoo-collection-meta';
 
-export const ZOO_COLLECTION_TITLE = 'It Takes a Zoo';
-export const ZOO_COLLECTION_PATH = '/novels/it-takes-a-zoo';
-export const ZOO_COLLECTION_DESCRIPTION = 'A novel-in-stories about escaping the hypercapitalist grind.';
-export const ZOO_HERO_ALT = 'A sheltered open-air virtual bar overlooks a rainy neon city. A low-poly fox and painterly mouse, rabbit, cat, and human share drinks beneath the roof.';
+export {
+  ZOO_COLLECTION_DESCRIPTION,
+  ZOO_COLLECTION_PATH,
+  ZOO_COLLECTION_TITLE,
+  ZOO_HERO,
+  ZOO_HERO_ALT,
+} from '@/lib/zoo-collection-meta';
 
 const frontmatterSchema = z.object({
   title: z.string().min(1),
@@ -54,11 +62,6 @@ export type ZooChapter = {
   pdfPath: string;
   pdfUrl: string;
   pdfSha256: string;
-};
-
-export const ZOO_HERO = {
-  ...manifest.hero,
-  alt: ZOO_HERO_ALT,
 };
 
 function loadChapter(slug: string, expectedTitle: string, order: number): ZooChapter {

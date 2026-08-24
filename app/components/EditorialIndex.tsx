@@ -1,15 +1,18 @@
 import Link from 'next/link';
 
+import FeaturedCollectionCard from '@/app/components/FeaturedCollectionCard';
 import type { EditorialCatalogGroup, EditorialSection } from '@/lib/editorial-catalog';
 import type { CollectionStory } from '@/lib/collection';
 import type { PortfolioWork } from '@/lib/portfolio';
 import { formatSiteDate } from '@/lib/site-time';
 import { SITE_NAME } from '@/lib/site-brand';
+import type { FeaturedCollectionMetadata } from '@/lib/zoo-collection-meta';
 import styles from './EditorialIndex.module.css';
 
 interface Props {
   section: EditorialSection;
   groups: EditorialCatalogGroup[];
+  featuredCollection?: FeaturedCollectionMetadata;
   collection?: readonly CollectionStory[];
   collectionPath?: string;
   portfolio?: readonly PortfolioWork[];
@@ -28,7 +31,7 @@ const copy = {
   },
 } as const;
 
-export default function EditorialIndex({ section, groups, collection, collectionPath, portfolio }: Props) {
+export default function EditorialIndex({ section, groups, featuredCollection, collection, collectionPath, portfolio }: Props) {
   const text = copy[section];
 
   return (
@@ -38,6 +41,10 @@ export default function EditorialIndex({ section, groups, collection, collection
         <h1 className={styles.title}>{text.title}</h1>
         <p className={styles.lede}>{text.lede}</p>
       </header>
+
+      {section === 'fiction' && featuredCollection ? (
+        <FeaturedCollectionCard collection={featuredCollection} placement="stories" />
+      ) : null}
 
       {section === 'fiction' && collection && collectionPath ? (
         <section className={styles.collection} aria-labelledby="collection-heading">

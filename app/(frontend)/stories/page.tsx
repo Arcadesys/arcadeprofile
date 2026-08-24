@@ -4,6 +4,7 @@ import { SITE_NAME } from '@/lib/site-brand';
 import EditorialIndex from '@/app/components/EditorialIndex';
 import { getEditorialCatalog } from '@/lib/editorial-catalog';
 import { PORTFOLIO_WORKS } from '@/lib/portfolio';
+import { ZOO_FEATURED_COLLECTION } from '@/lib/zoo-collection-meta';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,6 +23,7 @@ export default async function StoriesPage() {
   return (
     <EditorialIndex
       section="fiction"
+      featuredCollection={ZOO_FEATURED_COLLECTION}
       groups={catalog.fiction}
       collection={catalog.collection}
       collectionPath={catalog.collectionPath}
