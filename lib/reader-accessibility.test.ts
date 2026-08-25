@@ -63,6 +63,14 @@ test('long-form routes place one contextual signup before their next-step naviga
   assert.match(footerSubscribe, /lab/);
 });
 
+test('project captures map fiction, writing, and build work to their matching lists', () => {
+  const projectPost = source('app/(frontend)/projects/[slug]/[postSlug]/page.tsx');
+
+  assert.match(projectPost, /project\.category === 'fiction'[\s\S]*?'fiction'/);
+  assert.match(projectPost, /project\.category === 'writing'[\s\S]*?'essays'/);
+  assert.match(projectPost, /:\s*'lab';/);
+});
+
 test('subscription form keeps large controls, visible status, and focus repair', () => {
   const form = source('app/components/SubscriptionForm.tsx');
   const css = source('app/components/SubscriptionForm.module.css');

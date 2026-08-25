@@ -208,7 +208,7 @@ export default async function ProjectPostPage({ params }: Props) {
     ? 'fiction'
     : project.category === 'writing'
       ? 'essays'
-      : 'all';
+      : 'lab';
   const subscriptionKind = project.category === 'fiction'
     ? 'story'
     : project.category === 'writing'
