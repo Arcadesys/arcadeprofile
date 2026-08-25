@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import FeaturedCollectionCard from '@/app/components/FeaturedCollectionCard';
+import FeaturedCollectionCard, { type FeaturedCollection } from '@/app/components/FeaturedCollectionCard';
 import type { EditorialCatalogGroup, EditorialSection } from '@/lib/editorial-catalog';
 import type { CollectionStory } from '@/lib/collection';
 import type { PortfolioWork } from '@/lib/portfolio';
@@ -13,6 +13,7 @@ interface Props {
   section: EditorialSection;
   groups: EditorialCatalogGroup[];
   featuredCollection?: FeaturedCollectionMetadata;
+  featuredCollections?: readonly FeaturedCollection[];
   collection?: readonly CollectionStory[];
   collectionPath?: string;
   portfolio?: readonly PortfolioWork[];
@@ -31,7 +32,7 @@ const copy = {
   },
 } as const;
 
-export default function EditorialIndex({ section, groups, featuredCollection, collection, collectionPath, portfolio }: Props) {
+export default function EditorialIndex({ section, groups, featuredCollection, featuredCollections, collection, collectionPath, portfolio }: Props) {
   const text = copy[section];
 
   return (
@@ -42,11 +43,15 @@ export default function EditorialIndex({ section, groups, featuredCollection, co
         <p className={styles.lede}>{text.lede}</p>
       </header>
 
+      {section === 'fiction' ? featuredCollections?.map((collection) => (
+        <FeaturedCollectionCard key={collection.id} collection={collection} placement="stories" />
+      )) : null}
+
       {section === 'fiction' && featuredCollection ? (
         <FeaturedCollectionCard collection={featuredCollection} placement="stories" />
       ) : null}
 
-      {section === 'fiction' && collection && collectionPath ? (
+      {section === 'fiction' && !featuredCollections?.length && collection && collectionPath ? (
         <section className={styles.collection} aria-labelledby="collection-heading">
           <h2 id="collection-heading">This is what I do for fun</h2>
           <p>A shelf of seven free stories: read their web editions or download the existing PDF editions.</p>
