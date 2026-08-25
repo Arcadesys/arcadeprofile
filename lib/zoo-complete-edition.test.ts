@@ -6,17 +6,37 @@ import test from 'node:test';
 
 import { GET } from '@/app/(frontend)/novels/it-takes-a-zoo/complete/pdf/route';
 import assets from '@/data/zoo-collection-assets.json';
-import { zooCompleteEditionHash, zooCompleteEditionSource } from './zoo-complete-edition';
+import { validateHeinleinReleaseManifest } from './zoo-complete-edition-publisher';
 
-test('the complete edition manifest describes the deterministic compiled PDF', async () => {
+test('the complete edition manifest describes the published PDF', async () => {
   assert.match(assets.completeEdition.url, /^https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\/collections\/it-takes-a-zoo\/complete\//);
   assert.match(assets.completeEdition.sha256, /^[a-f0-9]{64}$/);
   const pdf = await readFile(path.join(process.cwd(), 'public', 'editions', 'it-takes-a-zoo-complete.pdf'));
   assert.equal(pdf.byteLength, assets.completeEdition.bytes);
   assert.equal(createHash('sha256').update(pdf).digest('hex'), assets.completeEdition.sha256);
-  assert.equal(zooCompleteEditionHash(), 'cb82dda29153521fcab21a751d86552dcbc93dd725ceba1a81363eb778aedac9');
-  assert.match(zooCompleteEditionSource(), /"cold-boot"[\s\S]*"gallery-view"[\s\S]*"permissions"[\s\S]*"goodgirl-tv"[\s\S]*"soft-reset"[\s\S]*"open-port"/);
-  assert.doesNotMatch(zooCompleteEditionSource(), /It takes a Zoo to raise a child,/);
+});
+
+test('the publisher accepts only the canonical Heinlein release manifest', () => {
+  const sourceSha256 = 'a'.repeat(64);
+  assert.deepEqual(validateHeinleinReleaseManifest({
+    title: 'It Takes a Zoo',
+    author: 'Austen Tucker',
+    generator: 'Heinlein',
+    generatorVersion: '0.1.0',
+    sourceSha256,
+    chapters: [
+      { order: 1, slug: 'cold-boot', title: 'Cold Boot' },
+      { order: 2, slug: 'gallery-view', title: 'Gallery View' },
+      { order: 3, slug: 'permissions', title: 'Permissions' },
+      { order: 4, slug: 'goodgirl-tv', title: 'Goodgirl.tv' },
+      { order: 5, slug: 'soft-reset', title: 'Soft Reset' },
+      { order: 6, slug: 'open-port', title: 'Open Port' },
+    ],
+  }).sourceSha256, sourceSha256);
+  assert.throws(() => validateHeinleinReleaseManifest({
+    title: 'It Takes a Zoo', author: 'Austen Tucker', generator: 'Heinlein', generatorVersion: '0.1.0', sourceSha256,
+    chapters: [{ order: 1, slug: 'cold-boot', title: 'Cold Boot' }],
+  }), /canonical order/);
 });
 
 test('the complete edition attachment is cacheable, canonical, and noindex', async () => {
