@@ -11,6 +11,11 @@
     "sha256": "73b7ab70aac4ecd303a5b8161a2aeb6860bafb44f7a7fa2fa3d52f3a941f3f1b",
     "bytes": 2734639
   },
+  "completeEdition": {
+    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/complete/e690a556617775e025867a92f05dd2b0a0cc62cbc55e47fad329fbb822938132/it-takes-a-zoo-complete.pdf",
+    "sha256": "e690a556617775e025867a92f05dd2b0a0cc62cbc55e47fad329fbb822938132",
+    "bytes": 556097
+  },
   "chapters": {
     "cold-boot": {
       "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/cold-boot/6894447634591d415b9eb5293ef8b259ac8a439a07e7ca612640b3a841622054/cold-boot.pdf",

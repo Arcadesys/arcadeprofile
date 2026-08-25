@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "generate:portfolio": "tsx scripts/generate-portfolio-content.ts",
     "generate:zoo": "tsx scripts/generate-zoo-collection.ts",
+    "generate:zoo-complete-edition": "tsx scripts/generate-zoo-complete-edition.tsx",
     "postmark:test": "tsx scripts/send-test-email.ts",
     "newsletter:post": "tsx scripts/newsletter-post.ts",
     "test": "tsx --test $(find lib scripts -name '*.test.ts' -print | sort)"
