@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import test from 'node:test';
 
 import {
@@ -82,6 +84,10 @@ test('buildNavigationModel uses the five requested orientation destinations for 
 
   assert.deepEqual(fallback.primary.map(({ label, href }) => [label, href]), expected);
   assert.deepEqual(cms.primary.map(({ label, href }) => [label, href]), expected);
+  const navbar = readFileSync(resolve(process.cwd(), 'app/components/NavbarClient.tsx'), 'utf8');
+  const globalStyles = readFileSync(resolve(process.cwd(), 'app/globals.css'), 'utf8');
+  assert.doesNotMatch(navbar, /nav-more|More navigation/);
+  assert.doesNotMatch(globalStyles, /\.nav-subscribe\s*\{\s*display:\s*none/);
 });
 
 test('ensureCollectionNavItem does not duplicate a CMS-managed Stories entry', () => {

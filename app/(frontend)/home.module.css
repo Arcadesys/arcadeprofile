@@ -268,22 +268,6 @@
 .recentActions a:hover,
 .recentActions button:hover { color: #fff; background: var(--home-surface-soft); }
 
-.heroSignup :global(.activecampaign-form form._form_7) {
-  border-color: var(--home-rule) !important;
-  background: var(--home-surface-raised) !important;
-  color: var(--home-text) !important;
-}
-
-.heroSignup :global(.activecampaign-form form._form_7 :is(h1, h2, h3, p, label, legend, ._form-title, ._form-label)) {
-  color: var(--home-text) !important;
-}
-
-.heroSignup :global(.activecampaign-form form._form_7 :is(input[type='text'], input[type='email'], input[type='tel'], input[type='date'], textarea, select)) {
-  border: 2px solid #71646b !important;
-  background: #0f0e10 !important;
-  color: var(--home-text) !important;
-}
-
 @media (max-width: 1050px) {
   .hero { grid-template-columns: minmax(0, 1.45fr) minmax(280px, .9fr); }
   .heroCopy { padding-inline: clamp(2rem, 4vw, 3.5rem); }

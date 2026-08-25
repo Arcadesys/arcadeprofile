@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 
-import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
+import SubscriptionForm from '@/app/components/SubscriptionForm';
 import ContinueReadingBanner from '@/app/components/ContinueReadingBanner';
 import ContinueToyBanner from '@/app/components/toys/ContinueToyBanner';
 import FeaturedCollectionCard from '@/app/components/FeaturedCollectionCard';
@@ -43,7 +43,14 @@ export default async function HomePage() {
               <Link className={styles.latestLink} href="/latest">Latest <span aria-hidden="true">→</span></Link>
             </div>
             <div className={styles.heroSignup} aria-label="Email signup">
-              <ActiveCampaignForm source="home-hero" magnet="story" presentation="compact" />
+              <SubscriptionForm
+                source="home-hero"
+                audiences={['all']}
+                updateMode="add"
+                magnet="story"
+                presentation="compact"
+                submitLabel="Send me new work"
+              />
             </div>
           </div>
           <div className={styles.portrait}>

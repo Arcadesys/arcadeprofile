@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
+import SubscriptionForm from '@/app/components/SubscriptionForm';
 import { todayInSiteTz } from '@/lib/site-time';
 import styles from './ProjectsIndex.module.css';
 
@@ -98,7 +98,14 @@ export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
 
   return (
     <main className={styles.root}>
-      <header className={styles.masthead}>
+      <nav className={styles.sectionDoors} aria-label="Build sections">
+        <a href="#project-index"><strong>Projects</strong><span>Current and archived builds</span></a>
+        <Link href="/lab"><strong>Case studies</strong><span>How the work was made</span></Link>
+        <Link href="/portfolio"><strong>Portfolio</strong><span>Selected finished pieces</span></Link>
+        <Link href="/toys"><strong>Toys</strong><span>Playable experiments</span></Link>
+      </nav>
+
+      <header className={styles.masthead} id="project-index">
         <div>
           <div className={styles.eyebrow}>Vol. III &middot; 2026 &middot; perpetually under construction</div>
           <h1 className={styles.title}>
@@ -257,9 +264,12 @@ export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
       ) : null}
 
       <section className={styles.subscribe} id="subscribe">
-        <ActiveCampaignForm
-          source="projects"
+        <SubscriptionForm
+          source="project-hub"
+          audiences={['lab']}
+          updateMode="add"
           magnet="story"
+          submitLabel="Send me build notes"
         />
       </section>
     </main>

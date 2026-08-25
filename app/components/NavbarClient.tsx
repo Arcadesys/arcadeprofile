@@ -44,7 +44,7 @@ function RailIcon({ href }: { href: string }) {
 export default function NavbarClient({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { primary, more } = buildNavigationModel(items);
+  const { primary } = buildNavigationModel(items);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -78,8 +78,6 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
     );
   };
 
-  const moreIsActive = more.some((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
-
   return (
     <>
       <nav className={`site-nav${mobileOpen ? ' mobile-open' : ''}`} aria-label="Main navigation">
@@ -92,7 +90,6 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
         </button>
         <ul id="main-nav-links" role="list">
           {primary.map((item) => <li key={item.id} className={item.href === '/subscribe' ? 'nav-subscribe' : undefined}>{link(item)}</li>)}
-          {more.length > 0 ? <li className="nav-more"><details><summary className={moreIsActive ? 'active' : undefined}>More</summary><ul role="list" aria-label="More navigation">{more.map((item) => <li key={item.id}>{link(item)}</li>)}</ul></details></li> : null}
         </ul>
       </nav>
       <ReadingDock closeOther={() => setMobileOpen(false)} closeSignal={mobileOpen} />

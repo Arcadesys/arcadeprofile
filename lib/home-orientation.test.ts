@@ -10,9 +10,35 @@ test('homepage has one compact hero signup and the reader-first conversion copy'
 
   assert.match(home, /<h1 className=\{styles\.title\}>Read the strange little fire\.<\/h1>/);
   assert.match(home, /Speculative fiction, essays, and build notes by Austen Tucker\. New work every two weeks\. Free by email\./);
-  assert.equal((home.match(/<ActiveCampaignForm source="home-hero"/g) ?? []).length, 1);
+  assert.equal((home.match(/<SubscriptionForm/g) ?? []).length, 1);
+  assert.match(home, /source="home-hero"[\s\S]*?updateMode="add"/);
   assert.match(home, /<Link className=\{styles\.button\} href="\/writing">Start Here/);
   assert.match(home, /<Link className=\{styles\.latestLink\} href="\/latest">Latest/);
+});
+
+test('projects is the landing door for builds, case studies, portfolio, and toys', () => {
+  const projects = source('app/components/ProjectsIndex.tsx');
+
+  assert.match(projects, /href="#project-index"/);
+  assert.match(projects, /href="\/lab"/);
+  assert.match(projects, /href="\/portfolio"/);
+  assert.match(projects, /href="\/toys"/);
+});
+
+test('site-owned signup surfaces use one first-party form implementation', () => {
+  const surfaces = [
+    'app/components/FooterSubscribe.tsx',
+    'app/components/ProjectsIndex.tsx',
+    'app/(frontend)/bio/page.tsx',
+    'app/(frontend)/latest/page.tsx',
+    'app/(frontend)/store/page.tsx',
+  ];
+
+  for (const path of surfaces) {
+    const contents = source(path);
+    assert.match(contents, /SubscriptionForm/);
+    assert.doesNotMatch(contents, /ActiveCampaignForm/);
+  }
 });
 
 test('writing is an accessible section door to fiction, essays, and bibliography', () => {
