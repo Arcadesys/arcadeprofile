@@ -4,6 +4,7 @@ import Link from 'next/link';
 
 import { JsonLd } from '@/lib/structured-data';
 import { SITE_NAME } from '@/lib/site-brand';
+import SubscriptionForm from '@/app/components/SubscriptionForm';
 import {
   ZOO_CHAPTERS,
   ZOO_COLLECTION_DESCRIPTION,
@@ -57,9 +58,24 @@ export default function ZooCollectionPage() {
             <p className={styles.lede}>{ZOO_COLLECTION_DESCRIPTION}</p>
             <div className={styles.actions}>
               <Link href={ZOO_CHAPTERS[0].path}>Begin with Cold Boot</Link>
+              <Link href="/projects/it-takes-a-zoo/it-takes-a-zoo-to-raise-the-child">Read the opening poem</Link>
             </div>
           </div>
         </header>
+
+        <section className={styles.completeEdition} id="complete-pdf" aria-labelledby="complete-pdf-heading">
+          <p className={styles.eyebrow}>Complete edition</p>
+          <h2 id="complete-pdf-heading">Get the complete PDF</h2>
+          <p>Subscribe to fiction and download the six approved chapters as one large-print, high-contrast edition. The opening poem remains separate.</p>
+          <SubscriptionForm
+            source="zoo-collection"
+            audiences={['fiction']}
+            updateMode="add"
+            magnet="it-takes-a-zoo-complete"
+            submitLabel="Subscribe to fiction and get the complete PDF"
+            successMessage="You’re subscribed to fiction. Your complete PDF is ready."
+          />
+        </section>
 
         <section className={styles.chapters} aria-labelledby="chapters-heading">
           <h2 id="chapters-heading">Chapter editions</h2>

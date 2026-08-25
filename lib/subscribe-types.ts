@@ -12,6 +12,7 @@ export const VALID_SOURCES = [
   'post',
   'post-end',
   'zoo-chapter-end',
+  'zoo-collection',
   'collection-story-end',
   'portfolio-piece-end',
   'lab-case-study-end',
@@ -21,7 +22,7 @@ export const VALID_SOURCES = [
 ] as const;
 export type Source = (typeof VALID_SOURCES)[number];
 
-export const VALID_MAGNETS = ['story'] as const;
+export const VALID_MAGNETS = ['story', 'it-takes-a-zoo-complete'] as const;
 export type Magnet = (typeof VALID_MAGNETS)[number];
 
 export const VALID_UPDATE_MODES = ['replace', 'add'] as const;

@@ -15,6 +15,7 @@ export type FeaturedCollection = {
   primaryAction: { href: string; label: string };
   secondaryAction: { href: string; label: string };
   purchaseAction?: { href: string };
+  incentiveAction?: { href: string; label: string };
 };
 
 type Props = {
@@ -46,6 +47,7 @@ export default function FeaturedCollectionCard({ collection, placement }: Props)
   const secondaryAction = isGenericCollection
     ? collection.secondaryAction
     : { href: collection.firstChapterPath, label: 'Begin with Cold Boot' };
+  const incentiveAction = collection.incentiveAction;
 
   return (
     <section
@@ -71,6 +73,7 @@ export default function FeaturedCollectionCard({ collection, placement }: Props)
           <Link className={styles.primaryAction} href={primaryAction.href}>{primaryAction.label}</Link>
           <Link className={styles.secondaryAction} href={secondaryAction.href}>{secondaryAction.label}</Link>
           {isPurchaseUrl(collection.purchaseAction?.href) ? <a className={styles.secondaryAction} href={collection.purchaseAction.href} target="_blank" rel="noreferrer">Buy the paperback <span aria-hidden="true">→</span></a> : null}
+          {incentiveAction ? <Link className={styles.secondaryAction} href={incentiveAction.href}>{incentiveAction.label}</Link> : null}
         </div>
       </div>
     </section>

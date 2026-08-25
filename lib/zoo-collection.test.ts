@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import test from 'node:test';
 
 import { ZOO_CHAPTERS, ZOO_HERO, zooChapterToEditorialPiece } from './zoo-collection';
@@ -36,4 +37,10 @@ test('the approved hero and PDF route contract are complete', () => {
   assert.equal(piece.canonicalPath, '/novels/it-takes-a-zoo/cold-boot');
   assert.equal(piece.pdfPath, '/novels/it-takes-a-zoo/cold-boot/pdf');
   assert.ok(piece.blocks.length > 10);
+});
+
+test('the separate opening poem remains linked outside the six-chapter edition', () => {
+  const landing = fs.readFileSync(new URL('../app/(frontend)/novels/it-takes-a-zoo/page.tsx', import.meta.url), 'utf8');
+  assert.match(landing, /Read the opening poem/);
+  assert.match(landing, /it-takes-a-zoo-to-raise-the-child/);
 });

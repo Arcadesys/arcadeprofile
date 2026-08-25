@@ -19,6 +19,11 @@ const MAGNETS: Record<Magnet, { files: Array<{ url: string; filename: string; la
       { url: '/lead-magnets/la-ligne-du-marais.epub', filename: 'la-ligne-du-marais.epub', label: 'EPUB' },
     ],
   },
+  'it-takes-a-zoo-complete': {
+    files: [
+      { url: '/novels/it-takes-a-zoo/complete/pdf', filename: 'it-takes-a-zoo-complete.pdf', label: 'Complete PDF' },
+    ],
+  },
 };
 
 const subscribeSchema = z.object({

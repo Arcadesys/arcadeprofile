@@ -18,6 +18,7 @@ export type FeaturedCollectionMetadata = {
   firstChapterPath: string;
   chapterCount: number;
   availability: string;
+  incentiveAction?: { href: string; label: string };
   cover: typeof ZOO_HERO;
   purchaseAction?: { href: string };
 };
@@ -29,6 +30,7 @@ export const ZOO_FEATURED_COLLECTION: FeaturedCollectionMetadata = {
   path: ZOO_COLLECTION_PATH,
   firstChapterPath: `${ZOO_COLLECTION_PATH}/cold-boot`,
   chapterCount: 6,
-  availability: 'Read online · PDFs available by chapter',
+  availability: 'Read online · PDFs available by chapter or as one complete edition',
+  incentiveAction: { href: `${ZOO_COLLECTION_PATH}#complete-pdf`, label: 'Get the complete PDF' },
   cover: ZOO_HERO,
 };
