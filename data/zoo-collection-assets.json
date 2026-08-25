@@ -12,9 +12,9 @@
     "bytes": 2734639
   },
   "completeEdition": {
-    "url": "/novels/it-takes-a-zoo/complete/pdf",
-    "sha256": "a947e79b751c9a9079d4c1633489172b4e025e2160c29a631a46285916d5de0e",
-    "bytes": 496405
+    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/complete/e690a556617775e025867a92f05dd2b0a0cc62cbc55e47fad329fbb822938132/it-takes-a-zoo-complete.pdf",
+    "sha256": "e690a556617775e025867a92f05dd2b0a0cc62cbc55e47fad329fbb822938132",
+    "bytes": 556097
   },
   "chapters": {
     "cold-boot": {

@@ -26,11 +26,11 @@ const styles = StyleSheet.create({
   paragraph: { marginBottom: 15 },
   quote: { marginLeft: 18, paddingLeft: 12, borderLeftWidth: 4, borderLeftColor: '#111111', marginBottom: 15, fontStyle: 'italic' },
   list: { marginLeft: 18, marginBottom: 15 },
-  footer: { position: 'absolute', bottom: 28, left: 64, right: 64, fontSize: 10, color: '#222222', textAlign: 'center' },
+  footer: { position: 'absolute', bottom: 26, left: 64, right: 64, fontSize: 10, color: '#222222', textAlign: 'center' },
 });
 
-function Footer() {
-  return <Text fixed style={styles.footer} render={({ pageNumber }) => `${ZOO_COLLECTION_TITLE} · Page ${pageNumber}`} />;
+function Footer({ pageNumber, totalPages }: { pageNumber: number; totalPages: number }) {
+  return <Text fixed style={styles.footer}>{ZOO_COLLECTION_TITLE} · Page {pageNumber} of {totalPages}</Text>;
 }
 
 function Block({ block }: { block: EditorialBlock }) {
@@ -42,7 +42,7 @@ function Block({ block }: { block: EditorialBlock }) {
   return <Text style={styles.paragraph}>{block.text}</Text>;
 }
 
-function splitText(text: string, limit = 560): string[] {
+function splitText(text: string, limit = 600): string[] {
   if (text.length <= limit) return [text];
   const chunks: string[] = [];
   let chunk = '';
@@ -70,16 +70,18 @@ function pageChapterBlocks(blocks: EditorialBlock[]): EditorialBlock[][] {
   }
   const pages: EditorialBlock[][] = [];
   let page: EditorialBlock[] = [];
-  let length = 0;
+  let weight = 0;
   for (const block of units) {
     const blockLength = block.type === 'list' ? block.items.join(' ').length : block.text.length;
-    if (page.length && length + blockLength > 1200) {
+    const blockWeight = blockLength + 110;
+    const pageLimit = pages.length === 0 ? 700 : 1400;
+    if (page.length && weight + blockWeight > pageLimit) {
       pages.push(page);
       page = [];
-      length = 0;
+      weight = 0;
     }
     page.push(block);
-    length += blockLength;
+    weight += blockWeight;
   }
   if (page.length) pages.push(page);
   return pages;
@@ -98,6 +100,11 @@ export function zooCompleteEditionHash() {
 }
 
 function ZooCompleteEditionDocument() {
+  const chapterPages = ZOO_CHAPTERS.flatMap((chapter) =>
+    pageChapterBlocks(markdownToEditorialBlocks(chapter.markdown)).map((blocks, pageIndex) => ({ chapter, blocks, pageIndex })),
+  );
+  const totalPages = chapterPages.length + 2;
+
   return (
     <Document title={ZOO_COLLECTION_TITLE} author="Austen Tucker" subject="Complete edition" creationDate={EDITION_DATE} modificationDate={EDITION_DATE}>
       <Page size="LETTER" style={[styles.page, styles.titlePage]}>
@@ -106,15 +113,15 @@ function ZooCompleteEditionDocument() {
         <Text style={styles.subtitle}>A novel-in-stories</Text>
         <Text style={styles.byline}>By Austen Tucker</Text>
         <Text style={styles.note}>Includes the six approved chapters in canonical order. “It Takes a Zoo to Raise the Child” is a separate opening poem and is not included in this edition.</Text>
-        <Text style={styles.note}>{ZOO_COLLECTION_PATH}</Text>
-        <Footer />
+        <Text style={styles.note}>https://thearcades.me{ZOO_COLLECTION_PATH}</Text>
+        <Footer pageNumber={1} totalPages={totalPages} />
       </Page>
       <Page size="LETTER" style={styles.page}>
         <Text style={styles.tocHeading}>Contents</Text>
         {ZOO_CHAPTERS.map((chapter) => <Text key={chapter.slug} style={styles.tocItem}>{chapter.order}. {chapter.title}</Text>)}
-        <Footer />
+        <Footer pageNumber={2} totalPages={totalPages} />
       </Page>
-      {ZOO_CHAPTERS.flatMap((chapter) => pageChapterBlocks(markdownToEditorialBlocks(chapter.markdown)).map((blocks, pageIndex) => (
+      {chapterPages.map(({ chapter, blocks, pageIndex }, editionPageIndex) => (
         <Page key={`${chapter.slug}-${pageIndex}`} size="LETTER" style={styles.page}>
           {pageIndex === 0 ? <>
             <Text style={styles.chapterNumber}>CHAPTER {chapter.order}</Text>
@@ -122,9 +129,9 @@ function ZooCompleteEditionDocument() {
             <Text style={styles.chapterDescription}>{chapter.description}</Text>
           </> : <Text style={styles.chapterNumber}>CHAPTER {chapter.order} · {chapter.title} · CONTINUED</Text>}
           {blocks.map((block, index) => <Block key={`${chapter.slug}-${pageIndex}-${index}`} block={block} />)}
-          <Footer />
+          <Footer pageNumber={editionPageIndex + 3} totalPages={totalPages} />
         </Page>
-      )))}
+      ))}
     </Document>
   );
 }
