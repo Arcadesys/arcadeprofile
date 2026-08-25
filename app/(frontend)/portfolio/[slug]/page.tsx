@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
+import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
 import ShareLinks from '@/app/components/ShareLinks';
 import { COLLECTION_PATH, MOVED_FROM_PORTFOLIO } from '@/lib/collection';
 import { getPortfolioWork, PORTFOLIO_WORKS } from '@/lib/portfolio';
@@ -133,6 +134,12 @@ export default async function PortfolioWorkPage({ params }: Props) {
           </figure>
 
           <MarkdownPostBody markdown={work.markdownBody} />
+
+          <EndOfPieceSubscribe
+            audience="fiction"
+            source="portfolio-piece-end"
+            kind="story"
+          />
 
           <footer className="portfolio-reader__footer">
             <ShareLinks url={pageUrl} title={work.title} />

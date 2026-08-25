@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
+import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
 import { PieceActions } from '@/app/components/PieceActions';
 import { COLLECTION, COLLECTION_PATH, COLLECTION_TITLE, getStory } from '@/lib/collection';
 import { JsonLd } from '@/lib/structured-data';
@@ -140,6 +141,12 @@ export default async function CollectionStoryPage({ params }: Props) {
           )}
 
           {story.markdownBody && <MarkdownPostBody markdown={story.markdownBody} />}
+
+          <EndOfPieceSubscribe
+            audience="fiction"
+            source="collection-story-end"
+            kind="story"
+          />
 
           <footer className="portfolio-reader__footer">
             <div className="portfolio-actions">

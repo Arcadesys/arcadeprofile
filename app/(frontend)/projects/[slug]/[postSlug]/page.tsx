@@ -7,7 +7,7 @@ import { getGroupBySlug } from '@/lib/blog';
 import { projectCategoryLabels } from '@/lib/project-model';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
-import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
+import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
 import { PieceActions } from '@/app/components/PieceActions';
 import RelatedPosts from '@/app/components/RelatedPosts';
 import ReadingProgressTracker from '@/app/components/ReadingProgressTracker';
@@ -204,6 +204,16 @@ export default async function ProjectPostPage({ params }: Props) {
   };
 
   const categoryLabel = project.category ? (projectCategoryLabels[project.category] ?? project.category) : null;
+  const subscriptionAudience = project.category === 'fiction'
+    ? 'fiction'
+    : project.category === 'writing'
+      ? 'essays'
+      : 'lab';
+  const subscriptionKind = project.category === 'fiction'
+    ? 'story'
+    : project.category === 'writing'
+      ? 'essay'
+      : 'build note';
 
   const drawer = (
     <DocDrawer
@@ -255,12 +265,16 @@ export default async function ProjectPostPage({ params }: Props) {
           <MarkdownPostBody markdown={post.markdownBody} />
         </article>
 
-        <RelatedPosts items={relatedPosts} />
-
-        <ActiveCampaignForm
-          source="post"
-          magnet="story"
+        <EndOfPieceSubscribe
+          audience={subscriptionAudience}
+          source="post-end"
+          kind={subscriptionKind}
+          seriesTitle={project.title}
+          totalParts={posts.length}
+          seriesActive={project.status === 'active'}
         />
+
+        <RelatedPosts items={relatedPosts} />
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
           <PieceActions

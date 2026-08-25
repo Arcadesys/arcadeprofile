@@ -10,6 +10,11 @@ export const VALID_SOURCES = [
   'bio',
   'subscribe-page',
   'post',
+  'post-end',
+  'zoo-chapter-end',
+  'collection-story-end',
+  'portfolio-piece-end',
+  'lab-case-study-end',
   'project-hub',
   'store-top',
   'store-bottom',
@@ -18,3 +23,6 @@ export type Source = (typeof VALID_SOURCES)[number];
 
 export const VALID_MAGNETS = ['story'] as const;
 export type Magnet = (typeof VALID_MAGNETS)[number];
+
+export const VALID_UPDATE_MODES = ['replace', 'add'] as const;
+export type SubscriptionUpdateMode = (typeof VALID_UPDATE_MODES)[number];

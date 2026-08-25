@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
+import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
 import { JsonLd } from '@/lib/structured-data';
 import { SITE_NAME } from '@/lib/site-brand';
 import { getZooChapter, ZOO_CHAPTERS, ZOO_COLLECTION_PATH, ZOO_COLLECTION_TITLE, ZOO_HERO } from '@/lib/zoo-collection';
@@ -57,6 +58,14 @@ export default async function ZooChapterPage({ params }: Props) {
           </div>
         </header>
         <div className={styles.body}><MarkdownPostBody markdown={chapter.markdown} /></div>
+        <EndOfPieceSubscribe
+          audience="fiction"
+          source="zoo-chapter-end"
+          kind="story"
+          seriesTitle={ZOO_COLLECTION_TITLE}
+          totalParts={ZOO_CHAPTERS.length}
+          seriesActive
+        />
         <nav className={styles.readerNav} aria-label="Chapter navigation">
           {previous ? <Link href={previous.path}>← Chapter {previous.order}: {previous.title}</Link> : <Link href={ZOO_COLLECTION_PATH}>← Collection</Link>}
           {next ? <Link href={next.path}>Chapter {next.order}: {next.title} →</Link> : <Link href={ZOO_COLLECTION_PATH}>Collection →</Link>}
