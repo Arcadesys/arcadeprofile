@@ -6,7 +6,7 @@ import test from 'node:test';
 
 import { GET } from '@/app/(frontend)/novels/it-takes-a-zoo/complete/pdf/route';
 import assets from '@/data/zoo-collection-assets.json';
-import { validateHeinleinReleaseManifest } from './zoo-complete-edition-publisher';
+import { assertChapterOrder, validateHeinleinReleaseManifest } from './zoo-complete-edition-publisher';
 
 test('the complete edition manifest describes the published PDF', async () => {
   assert.match(assets.completeEdition.url, /^https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\/collections\/it-takes-a-zoo\/complete\//);
@@ -37,6 +37,22 @@ test('the publisher accepts only the canonical Heinlein release manifest', () =>
     title: 'It Takes a Zoo', author: 'Austen Tucker', generator: 'Heinlein', generatorVersion: '0.1.0', sourceSha256,
     chapters: [{ order: 1, slug: 'cold-boot', title: 'Cold Boot' }],
   }), /canonical order/);
+});
+
+test('the publisher rejects a canonical contents page with misordered body chapters', () => {
+  const chapters = [
+    { order: 1, slug: 'cold-boot', title: 'Cold Boot' },
+    { order: 2, slug: 'gallery-view', title: 'Gallery View' },
+    { order: 3, slug: 'permissions', title: 'Permissions' },
+    { order: 4, slug: 'goodgirl-tv', title: 'Goodgirl.tv' },
+    { order: 5, slug: 'soft-reset', title: 'Soft Reset' },
+    { order: 6, slug: 'open-port', title: 'Open Port' },
+  ];
+  const contents = chapters.map(({ title }) => title).join('\n');
+  const misorderedBody = [...chapters.slice(0, 2), chapters[3], chapters[2], ...chapters.slice(4)]
+    .map(({ title }) => title)
+    .join('\n');
+  assert.throws(() => assertChapterOrder(`${contents}\n${misorderedBody}`, chapters), /body chapter headings are not in canonical order/);
 });
 
 test('the complete edition attachment is cacheable, canonical, and noindex', async () => {

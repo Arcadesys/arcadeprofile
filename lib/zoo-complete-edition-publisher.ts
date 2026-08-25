@@ -80,15 +80,29 @@ function normalisePdfText(text: string) {
   return text.replace(/\s+/g, ' ').trim().toLocaleLowerCase('en-US');
 }
 
-function assertChapterOrder(pdfText: string, chapters: ZooReleaseChapter[]) {
-  const text = normalisePdfText(pdfText);
-  let cursor = 0;
+export function assertChapterOrder(pdfText: string, chapters: ZooReleaseChapter[]) {
+  const lines = pdfText
+    .split(/\r?\n/)
+    .map(normalisePdfText)
+    .filter(Boolean);
+  const bodyHeadingIndexes: number[] = [];
   for (const chapter of chapters) {
     const title = normalisePdfText(chapter.title);
-    const index = text.indexOf(title, cursor);
-    if (index < 0) throw new Error(`PDF text is missing ${JSON.stringify(chapter.title)} in canonical order.`);
-    cursor = index + title.length;
+    const matches = lines.reduce<number[]>((indexes, line, index) => {
+      if (line === title) indexes.push(index);
+      return indexes;
+    }, []);
+    if (matches.length < 2) {
+      throw new Error(`PDF text must contain ${JSON.stringify(chapter.title)} as an exact line in both contents and body.`);
+    }
+    bodyHeadingIndexes.push(matches[matches.length - 1]);
   }
+  for (let index = 1; index < bodyHeadingIndexes.length; index += 1) {
+    if (bodyHeadingIndexes[index] <= bodyHeadingIndexes[index - 1]) {
+      throw new Error('PDF body chapter headings are not in canonical order.');
+    }
+  }
+  const text = normalisePdfText(pdfText);
   if (text.includes('it takes a zoo to raise a child, with a heart so pure and character mild.')) {
     throw new Error('PDF includes the separate opening poem.');
   }
