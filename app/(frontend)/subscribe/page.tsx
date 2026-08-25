@@ -60,14 +60,15 @@ export default function SubscribePage() {
           from the cutting-room floor that never makes it to the public site.
         </p>
         <p style={{ margin: '0 0 1.1rem' }}>
-          Every installment lands the moment it&rsquo;s published &mdash;
-          fiction Monday, Wednesday, Friday and essays Tuesday and Thursday.
-          All for you, all free &mdash; no paywall, no tip jar with a guilt
-          trip, no tracking pixels playing dress-up as newsletters. No
-          &ldquo;10 things&rdquo; lists. No upsells, no courses, no funnel.
-          Just the writing, in the order I meant for you to read it, with a
-          one-click unsubscribe at the bottom of every email if it ever stops
-          being your thing.
+          Each installment lands biweekly. The other time, you&rsquo;ll get
+          something interesting: maybe a game, maybe a look behind the scenes
+          of laying out a book, maybe an essay on why everyone should love
+          Markdown. All for you, all free &mdash; no paywall, no tip jar with a
+          guilt trip, no tracking pixels playing dress-up as newsletters. No
+          &ldquo;10 things&rdquo; lists. No upsells, no courses, no funnel. Just the
+          writing, in the order I meant for you to read it, with a one-click
+          unsubscribe at the bottom of every email if it ever stops being your
+          thing.
         </p>
         <p style={{ margin: '0 0 1.1rem' }}>
           When a new book is close, subscribers get the early-access link before
