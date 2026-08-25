@@ -14,21 +14,24 @@ test('homepage places the Zoo feature between resume controls and exploration ba
   assert.ok(resume !== -1 && feature > resume && bands > feature);
 });
 
-test('Stories supplies the Zoo feature and renders it before the other fiction shelves', () => {
+test('Stories supplies both featured collections before the other fiction shelves', () => {
   const stories = source('app/(frontend)/stories/page.tsx');
   const index = source('app/components/EditorialIndex.tsx');
   const feature = index.indexOf('placement="stories"');
   const existingCollection = index.indexOf(`className={styles.collection}`);
 
   assert.match(stories, /featuredCollection=\{ZOO_FEATURED_COLLECTION\}/);
+  assert.match(stories, /featuredCollections=\{FEATURED_COLLECTIONS\}/);
   assert.ok(feature !== -1 && existingCollection > feature);
 });
 
-test('featured collection actions name and use both canonical destinations', () => {
+test('featured collection actions retain canonical destinations and accessible targets', () => {
   const card = source('app/components/FeaturedCollectionCard.tsx');
   const styles = source('app/components/FeaturedCollectionCard.module.css');
 
-  assert.match(card, /href=\{collection\.path\}>Explore the collection<\/Link>/);
-  assert.match(card, /href=\{collection\.firstChapterPath\}>Begin with Cold Boot<\/Link>/);
+  assert.match(card, /href: collection\.path, label: 'Explore the collection'/);
+  assert.match(card, /href: collection\.firstChapterPath, label: 'Begin with Cold Boot'/);
+  assert.match(card, /href=\{primaryAction\.href\}>\{primaryAction\.label\}<\/Link>/);
+  assert.match(card, /href=\{secondaryAction\.href\}>\{secondaryAction\.label\}<\/Link>/);
   assert.match(styles, /min-height: 48px/);
 });
