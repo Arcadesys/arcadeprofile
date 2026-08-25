@@ -6,20 +6,29 @@ export type NavItem = {
 };
 
 export const DEFAULT_NAV_ITEMS: NavItem[] = [
+  { id: 'writing', label: 'Read', href: '/writing', isPrimary: false },
+  { id: 'projects', label: 'Watch me build', href: '/projects', isPrimary: false },
+  { id: 'about', label: 'About', href: '/bio', isPrimary: false },
+  { id: 'store', label: 'Store', href: '/store', isPrimary: false },
+  { id: 'subscribe', label: 'Subscribe', href: '/subscribe', isPrimary: true },
   { id: 'stories', label: 'Stories', href: '/stories', isPrimary: false },
   { id: 'essays', label: 'Essays', href: '/essays', isPrimary: false },
   { id: 'lab', label: 'Case Studies', href: '/lab', isPrimary: false },
-  { id: 'about', label: 'About', href: '/bio', isPrimary: false },
-  { id: 'subscribe', label: 'Subscribe', href: '/subscribe', isPrimary: true },
-  { id: 'projects', label: 'Projects', href: '/projects', isPrimary: false },
   { id: 'portfolio', label: 'Portfolio', href: '/portfolio', isPrimary: false },
   { id: 'this-is-what-i-do-for-fun', label: 'Collection', href: '/this-is-what-i-do-for-fun', isPrimary: false },
   { id: 'toys', label: 'Toys', href: '/toys', isPrimary: false },
   { id: 'latest', label: 'Latest', href: '/latest', isPrimary: false },
-  { id: 'store', label: 'Store', href: '/store', isPrimary: true },
 ];
 
-const PRIMARY_NAV_HREFS = ['/stories', '/essays', '/lab', '/bio', '/subscribe'] as const;
+export const ORIENTATION_NAV_ITEMS: readonly NavItem[] = [
+  { id: 'writing', label: 'Read', href: '/writing', isPrimary: false },
+  { id: 'projects', label: 'Watch me build', href: '/projects', isPrimary: false },
+  { id: 'about', label: 'About', href: '/bio', isPrimary: false },
+  { id: 'store', label: 'Store', href: '/store', isPrimary: false },
+  { id: 'subscribe', label: 'Subscribe', href: '/subscribe', isPrimary: true },
+];
+
+const PRIMARY_NAV_HREFS = ORIENTATION_NAV_ITEMS.map((item) => item.href);
 
 export interface NavigationModel {
   primary: NavItem[];
@@ -132,12 +141,9 @@ export function buildNavigationModel(items: readonly NavItem[]): NavigationModel
   const primary: NavItem[] = [];
   const more: NavItem[] = [];
 
-  for (const href of PRIMARY_NAV_HREFS) {
-    const item = items.find((entry) => entry.href === href);
-    if (item) primary.push(item);
-  }
+  for (const item of ORIENTATION_NAV_ITEMS) primary.push(item);
   for (const item of items) {
-    if (!PRIMARY_NAV_HREFS.includes(item.href as typeof PRIMARY_NAV_HREFS[number])) more.push(item);
+    if (!PRIMARY_NAV_HREFS.includes(item.href)) more.push(item);
   }
   return { primary, more };
 }

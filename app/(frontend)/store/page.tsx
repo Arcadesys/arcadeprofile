@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
 import Image from 'next/image';
-import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
+import SubscriptionForm from '@/app/components/SubscriptionForm';
 import { books as bookData } from '@/data/books';
 
 export const metadata: Metadata = {
@@ -55,10 +55,13 @@ export default function StorePage() {
         </p>
 
         <section id="subscribe" style={{ maxWidth: '680px', margin: '0 auto 2.5rem' }}>
-          <ActiveCampaignForm
+          <SubscriptionForm
             source="store-top"
+            audiences={['all']}
+            updateMode="add"
             magnet="story"
             presentation="compact"
+            submitLabel="Send me new work"
           />
         </section>
 

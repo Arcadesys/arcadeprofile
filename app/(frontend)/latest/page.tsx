@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { getAllPosts, buildPostUrl, buildPostUrlMap } from '@/lib/blog';
 import { buildGroupIntroUrl } from '@/lib/post-url';
 import { formatSiteDate } from '@/lib/site-time';
-import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
+import SubscriptionForm from '@/app/components/SubscriptionForm';
 import { markdownToPlaintext } from '@/lib/markdown-render';
 
 export const dynamic = 'force-dynamic';
@@ -116,10 +116,13 @@ export default async function LatestPage() {
       </ol>
 
       <section style={{ margin: '4rem 0 0' }}>
-        <ActiveCampaignForm
+        <SubscriptionForm
           source="latest"
+          audiences={['all']}
+          updateMode="add"
           magnet="story"
           presentation="compact"
+          submitLabel="Send me new work"
         />
       </section>
     </main>

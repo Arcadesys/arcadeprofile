@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import ActiveCampaignForm from './ActiveCampaignForm';
+import SubscriptionForm from './SubscriptionForm';
 
 const ROUTES_WITH_OWN_FORM = new Set(['/', '/projects', '/bio', '/latest', '/store', '/subscribe']);
 
@@ -19,10 +19,13 @@ export default function FooterSubscribe() {
   if (pathname && hasOwnForm(pathname)) return null;
 
   return (
-    <ActiveCampaignForm
+    <SubscriptionForm
       source="footer"
+      audiences={['all']}
+      updateMode="add"
       magnet="story"
       presentation="compact"
+      submitLabel="Send me new work"
     />
   );
 }

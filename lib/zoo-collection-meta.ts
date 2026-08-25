@@ -19,6 +19,7 @@ export type FeaturedCollectionMetadata = {
   chapterCount: number;
   availability: string;
   cover: typeof ZOO_HERO;
+  purchaseAction?: { href: string };
 };
 
 export const ZOO_FEATURED_COLLECTION: FeaturedCollectionMetadata = {

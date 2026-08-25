@@ -152,6 +152,8 @@
   line-height: 1.25;
 }
 
+.subhead { max-width: 42ch; margin: 0 0 1.5rem; color: var(--home-text-muted); font-size: clamp(1.05rem, 1.5vw, 1.25rem); line-height: 1.55; }
+
 .heroActions { display: flex; flex-wrap: wrap; gap: .85rem; }
 
 .button {
@@ -170,8 +172,10 @@
   text-transform: uppercase;
 }
 
-.buttonAlt { border-color: var(--pink); }
 .button:hover { color: #fff; background: #242427; text-shadow: none; }
+.latestLink { display: inline-flex; min-height: 54px; align-items: center; color: #ffad68; font-family: var(--font-mono); font-size: .95rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.latestLink:hover { color: #fff; text-shadow: none; }
+.heroSignup { max-width: 600px; margin-top: 2rem; }
 
 .portrait {
   position: absolute;
@@ -219,14 +223,14 @@
 
 .below {
   display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(320px, .8fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   padding: 10px;
   border: 1px solid #35353a;
   background: #09090a;
 }
 
-.recent, .subscribe {
+.recent {
   padding: clamp(1.4rem, 3vw, 2.25rem);
   border: 2px solid var(--home-rule);
   color: var(--home-text);
@@ -237,10 +241,8 @@
 }
 
 .recent { border-top-color: var(--cyan); }
-.subscribe { border-top-color: var(--accent); }
 
-.recentMoxie,
-.subscribeMoxie {
+.recentMoxie {
   position: relative;
   margin: -2.25rem -2.25rem 1.75rem;
   overflow: hidden;
@@ -249,17 +251,11 @@
 }
 
 .recentMoxie { height: clamp(190px, 20vw, 270px); border-bottom-color: var(--cyan); }
-.subscribeMoxie { height: clamp(220px, 24vw, 320px); border-bottom-color: var(--accent); }
-.recentMoxie img,
-.subscribeMoxie img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.recentMoxie img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .recentMoxie img { object-position: center 52%; }
-.subscribeMoxie img { object-position: center; }
 
-.recent h2,
-.subscribe h2 { margin: 0 0 .6rem; color: #fff7ef; font-family: var(--font-serif); line-height: .95; }
-.subscribe h2 { font-size: clamp(2.35rem, 4vw, 3.4rem); }
+.recent h2 { margin: 0 0 .6rem; color: #fff7ef; font-family: var(--font-serif); line-height: .95; }
 .recent h2 { font-size: clamp(1.85rem, 2.8vw, 2.5rem); }
-.subscribe p { margin-bottom: 1rem; color: var(--home-text-muted); }
 .recentList { list-style: none; margin: 0 0 1.25rem; padding: 0; }
 .recentRow { display: grid; grid-template-columns: minmax(0, 1fr); gap: .65rem; align-items: center; padding: 1rem 0; border-top: 2px solid var(--home-rule); }
 .recentRow h3 { margin: 0 0 .2rem; font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.15; }
@@ -271,22 +267,6 @@
 .recentActions button { width: 100%; min-width: 0; min-height: 48px; padding: .6rem .8rem; border-color: #71646b; border-radius: 0; color: var(--home-text); font-family: var(--font-mono); font-size: .82rem; }
 .recentActions a:hover,
 .recentActions button:hover { color: #fff; background: var(--home-surface-soft); }
-
-.subscribe :global(.activecampaign-form form._form_7) {
-  border-color: var(--home-rule) !important;
-  background: var(--home-surface-raised) !important;
-  color: var(--home-text) !important;
-}
-
-.subscribe :global(.activecampaign-form form._form_7 :is(h1, h2, h3, p, label, legend, ._form-title, ._form-label)) {
-  color: var(--home-text) !important;
-}
-
-.subscribe :global(.activecampaign-form form._form_7 :is(input[type='text'], input[type='email'], input[type='tel'], input[type='date'], textarea, select)) {
-  border: 2px solid #71646b !important;
-  background: #0f0e10 !important;
-  color: var(--home-text) !important;
-}
 
 @media (max-width: 1050px) {
   .hero { grid-template-columns: minmax(0, 1.45fr) minmax(280px, .9fr); }
@@ -305,7 +285,7 @@
   .portrait { width: 100%; height: 44%; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30%); mask-image: linear-gradient(to bottom, transparent 0, #000 30%); }
   .portrait img { object-fit: cover; object-position: right center; }
   .bands, .below { grid-template-columns: 1fr; }
-  .recentMoxie, .subscribeMoxie { margin: -1.4rem -1.4rem 1.5rem; }
+  .recentMoxie { margin: -1.4rem -1.4rem 1.5rem; }
   .recentRow { grid-template-columns: 1fr; }
   .recentActions { flex-wrap: wrap; }
 }
