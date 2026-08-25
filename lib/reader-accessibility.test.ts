@@ -44,3 +44,34 @@ test('project prose has an article landmark and mobile controls have accessible 
   assert.match(css, /\.reading-dock \.seg button[\s\S]*?min-height: 44px[\s\S]*?font-size: 1rem/);
   assert.match(css, /\.dd-toggle[\s\S]*?position: static[\s\S]*?min-height: 56px/);
 });
+
+test('long-form routes place one contextual signup before their next-step navigation', () => {
+  const projectPost = source('app/(frontend)/projects/[slug]/[postSlug]/page.tsx');
+  const zooChapter = source('app/(frontend)/novels/it-takes-a-zoo/[chapter]/page.tsx');
+  const collectionStory = source('app/(frontend)/this-is-what-i-do-for-fun/[slug]/page.tsx');
+  const portfolioPiece = source('app/(frontend)/portfolio/[slug]/page.tsx');
+  const labCaseStudy = source('app/(frontend)/lab/[slug]/page.tsx');
+  const footerSubscribe = source('app/components/FooterSubscribe.tsx');
+
+  assert.ok(projectPost.indexOf('<EndOfPieceSubscribe') < projectPost.indexOf('<RelatedPosts'));
+  assert.ok(zooChapter.indexOf('<EndOfPieceSubscribe') < zooChapter.indexOf('<nav className={styles.readerNav}'));
+  assert.ok(collectionStory.indexOf('<EndOfPieceSubscribe') < collectionStory.indexOf('<footer className="portfolio-reader__footer">'));
+  assert.ok(portfolioPiece.indexOf('<EndOfPieceSubscribe') < portfolioPiece.indexOf('<footer className="portfolio-reader__footer">'));
+  assert.ok(labCaseStudy.indexOf('<EndOfPieceSubscribe') < labCaseStudy.indexOf('<div className={styles.pieceActions}>'));
+  assert.match(footerSubscribe, /novels\\\/it-takes-a-zoo/);
+  assert.match(footerSubscribe, /portfolio/);
+  assert.match(footerSubscribe, /lab/);
+});
+
+test('subscription form keeps large controls, visible status, and focus repair', () => {
+  const form = source('app/components/SubscriptionForm.tsx');
+  const css = source('app/components/SubscriptionForm.module.css');
+
+  assert.match(form, /aria-live|role="status"/);
+  assert.match(form, /role="alert"/);
+  assert.match(form, /autoComplete="email"/);
+  assert.match(form, /statusRef\.current\?\.focus/);
+  assert.match(css, /min-height: 56px/);
+  assert.match(css, /font-size: 18px/);
+  assert.match(css, /min-height: 44px/);
+});

@@ -64,3 +64,35 @@ test('subscribe route records Arcades Lab as an independent ActiveCampaign prefe
     ],
   );
 });
+
+test('add mode subscribes selected audiences without changing existing preferences', async () => {
+  for (const [key, value] of Object.entries(TEST_ENV)) process.env[key] = value;
+
+  const listUpdates: Array<{ list: number; status: number }> = [];
+  globalThis.fetch = async (input, init) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+    if (url.endsWith('/api/3/contact/sync')) {
+      return new Response(JSON.stringify({ contact: { id: '41' } }), { status: 200 });
+    }
+    const body = JSON.parse(String(init?.body ?? '{}')) as {
+      contactList: { list: number; status: number };
+    };
+    listUpdates.push({ list: body.contactList.list, status: body.contactList.status });
+    return new Response(JSON.stringify({ contactList: { id: '41' } }), { status: 201 });
+  };
+
+  const request = new NextRequest('https://example.com/api/subscribe', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      email: 'reader@example.com',
+      audiences: ['fiction'],
+      source: 'post-end',
+      updateMode: 'add',
+    }),
+  });
+
+  const response = await POST(request);
+  assert.equal(response.status, 200);
+  assert.deepEqual(listUpdates, [{ list: 9, status: 1 }]);
+});

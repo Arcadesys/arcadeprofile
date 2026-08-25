@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
-import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
+import SubscriptionForm from '@/app/components/SubscriptionForm';
 
 export const metadata: Metadata = {
   title: 'Subscribe',
@@ -35,23 +35,32 @@ export default function SubscribePage() {
       <p
         style={{
           color: 'var(--fg-muted)',
-          marginBottom: '2.5rem',
+          marginBottom: '1.5rem',
           fontSize: '1rem',
           fontFamily: 'var(--font-mono)',
           letterSpacing: '0.04em',
           lineHeight: 1.6,
         }}
       >
-        Serialized fiction and essays by email — every installment as it
-        lands. No algorithm, no paywall, no guilt trip — just the writing,
-        sent in the order I meant you to read it.
+        Serialized fiction, essays, and build notes by email — sent in the
+        order I meant you to read them.
       </p>
+
+      <SubscriptionForm
+        source="subscribe-page"
+        audiences={['all']}
+        updateMode="replace"
+        magnet="story"
+        showPreferences
+        submitLabel="Send me the writing"
+      />
 
       <section
         style={{
           color: 'var(--fg)',
           lineHeight: 1.75,
           fontSize: '1rem',
+          marginTop: '3rem',
         }}
       >
         <p style={{ margin: '0 0 1.1rem' }}>
@@ -60,15 +69,12 @@ export default function SubscribePage() {
           from the cutting-room floor that never makes it to the public site.
         </p>
         <p style={{ margin: '0 0 1.1rem' }}>
-          Each installment lands biweekly. The other time, you&rsquo;ll get
+          New email lands biweekly. The other time, you&rsquo;ll get
           something interesting: maybe a game, maybe a look behind the scenes
           of laying out a book, maybe an essay on why everyone should love
-          Markdown. All for you, all free &mdash; no paywall, no tip jar with a
-          guilt trip, no tracking pixels playing dress-up as newsletters. No
-          &ldquo;10 things&rdquo; lists. No upsells, no courses, no funnel. Just the
-          writing, in the order I meant for you to read it, with a one-click
-          unsubscribe at the bottom of every email if it ever stops being your
-          thing.
+          Markdown. No paywall. No spam. Just the writing, in the order I meant
+          for you to read it, with a one-click unsubscribe at the bottom of
+          every email if it ever stops being your thing.
         </p>
         <p style={{ margin: '0 0 1.1rem' }}>
           When a new book is close, subscribers get the early-access link before
@@ -77,17 +83,10 @@ export default function SubscribePage() {
           the algorithm cold.
         </p>
         <p style={{ margin: '0 0 1.1rem' }}>
-          Why ask? Honestly: it makes me feel good to watch the number go up, and to
-          know there are people on the other side of the page who care. Writing into
-          the void is fine for a while. Writing toward someone is better. If you
-          subscribe, you&rsquo;re that someone, and I&rsquo;ll write like it.
+          Subscribe if you want the next piece without having to remember to
+          come back and look for it.
         </p>
       </section>
-
-      <ActiveCampaignForm
-        source="subscribe-page"
-        magnet="story"
-      />
     </main>
   );
 }

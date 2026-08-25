@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { PieceActions } from '@/app/components/PieceActions';
+import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
 import { requireLabProject } from '@/data/lab-projects';
 import { buildEditorialMetadata } from '@/lib/editorial-metadata';
 import { requireLabCaseStudy, loadLabCaseStudies } from '@/lib/lab-case-studies';
@@ -79,6 +80,12 @@ export default async function LabCaseStudyPage({ params }: Props) {
           <LabProjectVisual project={project} hero priority />
 
           <div className={styles.story} dangerouslySetInnerHTML={{ __html: markdownToSafeHtml(study.body) }} />
+
+          <EndOfPieceSubscribe
+            audience="lab"
+            source="lab-case-study-end"
+            kind="build note"
+          />
 
           <div className={styles.pieceActions}>
             <PieceActions

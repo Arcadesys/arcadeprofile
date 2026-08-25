@@ -7,6 +7,7 @@ import {
   VALID_AUDIENCES,
   VALID_SOURCES,
   VALID_MAGNETS,
+  VALID_UPDATE_MODES,
   type Magnet,
 } from '@/lib/subscribe-types';
 import { parseBody } from '@/lib/validation';
@@ -28,21 +29,23 @@ const subscribeSchema = z.object({
     .transform((val) => [...new Set(val)]),
   source: z.enum(VALID_SOURCES).optional(),
   magnet: z.enum(VALID_MAGNETS).optional(),
+  updateMode: z.enum(VALID_UPDATE_MODES).default('replace'),
 });
 
 export async function POST(request: NextRequest) {
   const parsed = await parseBody(subscribeSchema, request);
   if (!parsed.ok) return parsed.response;
 
-  const { email, audiences, source, magnet } = parsed.data;
+  const { email, audiences, source, magnet, updateMode } = parsed.data;
 
-  // For each audience list: subscribe the picked ones, unsubscribe the rest.
-  // Unsubscribing from the unpicked lists is how "I used to subscribe to
-  // Fiction and now I want Essays only" works as a single form submit.
+  // Preference forms replace the current list selection. Contextual forms add
+  // only their selected audiences, so reading one article cannot erase an
+  // existing subscription elsewhere.
   const subscribeFailures: string[] = [];
   const unsubscribeFailures: string[] = [];
+  const audiencesToUpdate = updateMode === 'add' ? audiences : VALID_AUDIENCES;
   await Promise.all(
-    VALID_AUDIENCES.map(async (audience) => {
+    audiencesToUpdate.map(async (audience) => {
       const wantsIt = audiences.includes(audience);
       try {
         const listId = getAudienceListId(audience);
@@ -75,7 +78,7 @@ export async function POST(request: NextRequest) {
   // without an analytics roundtrip. Email is intentionally omitted.
   console.log(
     '[subscribe] ok',
-    JSON.stringify({ source: source ?? null, magnet: magnet ?? null }),
+    JSON.stringify({ source: source ?? null, magnet: magnet ?? null, updateMode }),
   );
 
   return NextResponse.json({
