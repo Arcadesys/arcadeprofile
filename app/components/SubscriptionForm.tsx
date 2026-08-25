@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useId, useRef, useState } from 'react';
+import { FormEvent, useEffect, useId, useRef, useState } from 'react';
 
 import { applyPreferenceChange } from '@/lib/activecampaign-form';
 import type {
@@ -60,6 +60,10 @@ export default function SubscriptionForm({
   const [complete, setComplete] = useState(false);
   const [downloads, setDownloads] = useState<Download[]>([]);
 
+  useEffect(() => {
+    if (complete) statusRef.current?.focus();
+  }, [complete]);
+
   function changeAudience(audience: Audience, checked: boolean) {
     setSelected((current) => applyPreferenceChange(current, audience, checked) as Set<Audience>);
     setError('');
@@ -93,7 +97,6 @@ export default function SubscriptionForm({
       const magnetDownloads = payload.magnet?.files?.map((file) => ({ href: file.url, label: `Download ${file.label}` })) ?? [];
       setDownloads(postSuccessDownload ? [postSuccessDownload, ...magnetDownloads] : magnetDownloads);
       setComplete(true);
-      queueMicrotask(() => statusRef.current?.focus());
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Could not subscribe right now. Please try again.');
       queueMicrotask(() => statusRef.current?.focus());
