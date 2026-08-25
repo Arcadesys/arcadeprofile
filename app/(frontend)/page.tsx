@@ -36,11 +36,14 @@ export default async function HomePage() {
         <div className={styles.heroEditorial}>
           <div className={styles.heroCopy}>
             <p className={styles.byline}>Stories by Austen Tucker</p>
-            <h1 className={styles.title}>The Arcades&apos; Lab</h1>
-            <p className={styles.tagline}>Read the strange little fire.</p>
+            <h1 className={styles.title}>Read the strange little fire.</h1>
+            <p className={styles.subhead}>Speculative fiction, essays, and build notes by Austen Tucker. New work every two weeks. Free by email.</p>
             <div className={styles.heroActions}>
-              <Link className={styles.button} href="/stories">Start Here <span aria-hidden="true">→</span></Link>
-              <Link className={`${styles.button} ${styles.buttonAlt}`} href="/latest">Latest Stories <span aria-hidden="true">→</span></Link>
+              <Link className={styles.button} href="/writing">Start Here <span aria-hidden="true">→</span></Link>
+              <Link className={styles.latestLink} href="/latest">Latest <span aria-hidden="true">→</span></Link>
+            </div>
+            <div className={styles.heroSignup} aria-label="Email signup">
+              <ActiveCampaignForm source="home-hero" magnet="story" presentation="compact" />
             </div>
           </div>
           <div className={styles.portrait}>
@@ -80,22 +83,6 @@ export default async function HomePage() {
       </section>
 
       <section className={styles.below}>
-        <aside className={styles.subscribe} aria-labelledby="subscribe-heading">
-          <div className={styles.subscribeMoxie}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/moxie/moxie-sleeping.webp"
-              alt="Moxie sleeps curled around her tail with her purple glasses resting on her face."
-              width="1536"
-              height="1024"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <h2 id="subscribe-heading">Read it as it arrives</h2>
-          <p>New stories, essays, and experiments—delivered to your inbox.</p>
-          <ActiveCampaignForm source="home-hero" magnet="story" presentation="compact" />
-        </aside>
         <section className={styles.recent} aria-labelledby="recent-heading">
           <div className={styles.recentMoxie}>
             {/* eslint-disable-next-line @next/next/no-img-element */}

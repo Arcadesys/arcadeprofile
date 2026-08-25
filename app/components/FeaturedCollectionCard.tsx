@@ -14,12 +14,17 @@ export type FeaturedCollection = {
   cover: { src: string; alt: string; width: number; height: number };
   primaryAction: { href: string; label: string };
   secondaryAction: { href: string; label: string };
+  purchaseAction?: { href: string };
 };
 
 type Props = {
   collection: FeaturedCollectionMetadata | FeaturedCollection;
   placement: 'home' | 'stories';
 };
+
+function isPurchaseUrl(href: string | undefined): href is string {
+  return Boolean(href && /^https:\/\//.test(href));
+}
 
 export default function FeaturedCollectionCard({ collection, placement }: Props) {
   const isGenericCollection = 'primaryAction' in collection;
@@ -65,6 +70,7 @@ export default function FeaturedCollectionCard({ collection, placement }: Props)
         <div className={styles.actions}>
           <Link className={styles.primaryAction} href={primaryAction.href}>{primaryAction.label}</Link>
           <Link className={styles.secondaryAction} href={secondaryAction.href}>{secondaryAction.label}</Link>
+          {isPurchaseUrl(collection.purchaseAction?.href) ? <a className={styles.secondaryAction} href={collection.purchaseAction.href} target="_blank" rel="noreferrer">Buy the paperback <span aria-hidden="true">→</span></a> : null}
         </div>
       </div>
     </section>

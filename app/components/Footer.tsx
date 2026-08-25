@@ -41,6 +41,7 @@ export default function Footer() {
           <Link href="/portfolio" style={{ color: 'var(--fg-muted)' }}>Portfolio</Link>
           <Link href="/lab" style={{ color: 'var(--fg-muted)' }}>Case Studies</Link>
           <Link href="/toys" style={{ color: 'var(--fg-muted)' }}>Toys</Link>
+          <a href="https://freeplaypublishing.com" target="_blank" rel="noreferrer" style={{ color: 'var(--fg-muted)' }}>Books from Free Play Publishing</a>
           <Link href="/latest" style={{ color: 'var(--fg-muted)' }}>Latest</Link>
           <Link href="/subscribe" style={{ color: 'var(--fg-muted)' }}>Subscribe</Link>
           <a href="/feed.xml" style={{ color: 'var(--fg-muted)' }}>RSS</a>
