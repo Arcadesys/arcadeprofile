@@ -6,6 +6,8 @@ import { notFound, permanentRedirect } from 'next/navigation';
 
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
 import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
+import ReadingContinuityTracker from '@/app/components/ReadingContinuityTracker';
+import ReadingNextSteps from '@/app/components/ReadingNextSteps';
 import ShareLinks from '@/app/components/ShareLinks';
 import { COLLECTION_PATH, MOVED_FROM_PORTFOLIO } from '@/lib/collection';
 import { getPortfolioWork, PORTFOLIO_WORKS } from '@/lib/portfolio';
@@ -97,6 +99,8 @@ export default async function PortfolioWorkPage({ params }: Props) {
       ...item,
     })),
   };
+  const readingCatalog = PORTFOLIO_WORKS.map((item) => ({ canonicalPath: `/portfolio/${item.slug}`, title: item.title, contentType: 'fiction' as const }));
+  const readingPiece = readingCatalog.find((item) => item.canonicalPath === `/portfolio/${work.slug}`)!;
 
   return (
     <>
@@ -134,6 +138,9 @@ export default async function PortfolioWorkPage({ params }: Props) {
           </figure>
 
           <MarkdownPostBody markdown={work.markdownBody} />
+
+          <ReadingContinuityTracker piece={readingPiece} />
+          <ReadingNextSteps piece={readingPiece} catalog={readingCatalog} />
 
           <EndOfPieceSubscribe
             audience="fiction"

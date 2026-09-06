@@ -2,14 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { buildPostUrl } from '@/lib/post-url';
-import { READING_PROGRESS_STORAGE_KEY, type ReadingProgress } from './ReadingProgressTracker';
+import {
+  LEGACY_READING_PROGRESS_STORAGE_KEY,
+  migrateLegacyReadingProgress,
+  parseReadingContinuity,
+  READING_CONTINUITY_STORAGE_KEY,
+  type ReadingContinuityRecord,
+} from '@/lib/reading-continuity';
 
-function readStoredProgress(): ReadingProgress | null {
+function readStoredProgress(): ReadingContinuityRecord | null {
   try {
-    const raw = window.localStorage.getItem(READING_PROGRESS_STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as ReadingProgress;
+    const current = parseReadingContinuity(window.localStorage.getItem(READING_CONTINUITY_STORAGE_KEY));
+    if (current) return current;
+    const legacy = migrateLegacyReadingProgress(window.localStorage.getItem(LEGACY_READING_PROGRESS_STORAGE_KEY));
+    if (legacy) {
+      window.localStorage.setItem(READING_CONTINUITY_STORAGE_KEY, JSON.stringify(legacy));
+      window.localStorage.removeItem(LEGACY_READING_PROGRESS_STORAGE_KEY);
+    }
+    return legacy;
   } catch {
     return null;
   }
@@ -22,7 +32,7 @@ function readStoredProgress(): ReadingProgress | null {
  * if there's no in-progress series.
  */
 export default function ContinueReadingBanner() {
-  const [progress, setProgress] = useState<ReadingProgress | null>(null);
+  const [progress, setProgress] = useState<ReadingContinuityRecord | null>(null);
 
   useEffect(() => {
     setProgress(readStoredProgress());
@@ -30,10 +40,15 @@ export default function ContinueReadingBanner() {
 
   if (!progress) return null;
 
+  const dismiss = () => {
+    try { window.localStorage.removeItem(READING_CONTINUITY_STORAGE_KEY); } catch { /* storage is optional */ }
+    setProgress(null);
+  };
+
   return (
     <section style={{ margin: '0 0 2rem' }}>
       <Link
-        href={buildPostUrl(progress.groupSlug, progress.postSlug)}
+        href={progress.canonicalPath}
         style={{
           display: 'block',
           padding: '0.85rem 1.1rem',
@@ -56,12 +71,13 @@ export default function ContinueReadingBanner() {
           Continue reading
         </span>
         <span style={{ fontWeight: 600 }}>
-          {progress.groupTitle}: {progress.postTitle}
+          {progress.collection ? `${progress.collection.title}: ` : ''}{progress.title}
         </span>
         <span style={{ marginLeft: '0.5rem', color: 'var(--fg-muted)', fontSize: '0.85rem' }}>
-          Part {progress.partIndex} / {progress.totalParts}
+          {progress.collection ? `Part ${progress.collection.position} / ${progress.collection.total}` : 'Open piece'}
         </span>
       </Link>
+      <button type="button" onClick={dismiss} style={{ marginTop: '0.5rem' }}>Dismiss</button>
     </section>
   );
 }

@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
 import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
+import ReadingContinuityTracker from '@/app/components/ReadingContinuityTracker';
+import ReadingNextSteps from '@/app/components/ReadingNextSteps';
 import { JsonLd } from '@/lib/structured-data';
 import { SITE_NAME } from '@/lib/site-brand';
 import { getZooChapter, ZOO_CHAPTERS, ZOO_COLLECTION_PATH, ZOO_COLLECTION_TITLE, ZOO_HERO } from '@/lib/zoo-collection';
@@ -42,9 +44,12 @@ export default async function ZooChapterPage({ params }: Props) {
     url: pageUrl, isPartOf: { '@type': 'Book', name: ZOO_COLLECTION_TITLE, url: `${SITE_URL}${ZOO_COLLECTION_PATH}` },
     encoding: [{ '@type': 'MediaObject', encodingFormat: 'application/pdf', contentUrl: `${SITE_URL}${chapter.pdfPath}` }],
   };
+  const readingCatalog = ZOO_CHAPTERS.map((item) => ({ canonicalPath: item.path, title: item.title, contentType: 'chapter' as const, collection: { id: 'it-takes-a-zoo', title: ZOO_COLLECTION_TITLE, path: ZOO_COLLECTION_PATH, position: item.order, total: ZOO_CHAPTERS.length, status: 'complete' as const } }));
+  const readingPiece = readingCatalog[chapter.order - 1]!;
   return (
     <main className={styles.main}>
       <JsonLd data={jsonLd} />
+      <ReadingContinuityTracker piece={readingPiece} />
       <article className={styles.reader}>
         <Link className={styles.backLink} href={ZOO_COLLECTION_PATH}>← All six chapters</Link>
         <header className={styles.readerHeader}>
@@ -58,6 +63,7 @@ export default async function ZooChapterPage({ params }: Props) {
           </div>
         </header>
         <div className={styles.body}><MarkdownPostBody markdown={chapter.markdown} /></div>
+        <ReadingNextSteps piece={readingPiece} catalog={readingCatalog} />
         <EndOfPieceSubscribe
           audience="fiction"
           source="zoo-chapter-end"

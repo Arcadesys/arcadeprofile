@@ -2,16 +2,16 @@ import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
 import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
-import { getProjectBySlug } from '@/lib/projects';
-import { getGroupBySlug } from '@/lib/blog';
+import { getAllProjectHubs, getProjectBySlug } from '@/lib/projects';
+import { getAllGroups, getGroupBySlug } from '@/lib/blog';
 import { projectCategoryLabels } from '@/lib/project-model';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
 import { PieceActions } from '@/app/components/PieceActions';
-import RelatedPosts from '@/app/components/RelatedPosts';
-import ReadingProgressTracker from '@/app/components/ReadingProgressTracker';
-import { getRelatedPosts } from '@/lib/related-posts';
+import ReadingContinuityTracker from '@/app/components/ReadingContinuityTracker';
+import ReadingNextSteps from '@/app/components/ReadingNextSteps';
+import type { ReadingPiece } from '@/lib/reading-continuity';
 import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
 import { JsonLd } from '@/lib/structured-data';
@@ -157,8 +157,7 @@ export default async function ProjectPostPage({ params }: Props) {
   const nextPartHref =
     partIndex < posts.length ? buildPostUrl(slug, posts[idx + 1].slug) : undefined;
 
-  const [allPosts, urlMap] = await Promise.all([getAllPosts(), buildPostUrlMap()]);
-  const relatedPosts = getRelatedPosts(allPosts, post, urlMap);
+  const [allPosts, urlMap, allGroups, allProjects] = await Promise.all([getAllPosts(), buildPostUrlMap(), getAllGroups(), getAllProjectHubs()]);
 
   const canonicalUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
   const jsonLd: Record<string, unknown> = {
@@ -214,6 +213,30 @@ export default async function ProjectPostPage({ params }: Props) {
     : project.category === 'writing'
       ? 'essay'
       : 'build note';
+  const projectsBySlug = new Map(allProjects.map((item) => [item.slug, item]));
+  const groupsBySlug = new Map(allGroups.map((item) => [item.slug, item]));
+  const readingCatalog: ReadingPiece[] = allPosts.map((candidate) => {
+    const location = urlMap.get(candidate.slug);
+    if (!location) throw new Error(`Missing canonical location for ${candidate.slug}.`);
+    const candidateProject = projectsBySlug.get(location.groupSlug);
+    const candidateGroup = groupsBySlug.get(location.groupSlug);
+    return {
+      canonicalPath: buildPostUrl(location.groupSlug, candidate.slug),
+      title: candidate.title,
+      contentType: candidateProject?.category === 'fiction' ? 'fiction' : 'essay',
+      collection: candidateGroup ? {
+        id: `project:${location.groupSlug}`, title: candidateProject?.title ?? candidateGroup.title, path: buildGroupIntroUrl(location.groupSlug),
+        position: location.partIndex, total: candidateGroup.posts.length, status: candidateProject?.status === 'active' ? 'active' : 'complete',
+      } : undefined,
+      tags: candidate.tags,
+      publishedAt: candidate.date,
+      curatedRelatedPaths: (candidateProject?.relatedPostSlugs ?? []).flatMap((relatedSlug) => {
+        const related = urlMap.get(relatedSlug);
+        return related ? [buildPostUrl(related.groupSlug, relatedSlug)] : [];
+      }),
+    };
+  });
+  const readingPiece = readingCatalog.find((candidate) => candidate.canonicalPath === buildPostUrl(slug, postSlug))!;
 
   const drawer = (
     <DocDrawer
@@ -235,14 +258,7 @@ export default async function ProjectPostPage({ params }: Props) {
       <JsonLd data={jsonLd} />
       <JsonLd data={breadcrumbJsonLd} />
       {drawer}
-      <ReadingProgressTracker
-        groupSlug={slug}
-        groupTitle={project.title}
-        postSlug={post.slug}
-        postTitle={post.title}
-        partIndex={partIndex}
-        totalParts={posts.length}
-      />
+      <ReadingContinuityTracker piece={readingPiece} />
       <main className={postMainCls}>
         <nav style={{ marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
           <Link href={buildGroupIntroUrl(slug)} style={navLinkStyle}>← {project.title}</Link>
@@ -265,6 +281,8 @@ export default async function ProjectPostPage({ params }: Props) {
           <MarkdownPostBody markdown={post.markdownBody} />
         </article>
 
+        <ReadingNextSteps piece={readingPiece} catalog={readingCatalog} />
+
         <EndOfPieceSubscribe
           audience={subscriptionAudience}
           source="post-end"
@@ -273,8 +291,6 @@ export default async function ProjectPostPage({ params }: Props) {
           totalParts={posts.length}
           seriesActive={project.status === 'active'}
         />
-
-        <RelatedPosts items={relatedPosts} />
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
           <PieceActions
