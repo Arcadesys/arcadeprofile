@@ -5,8 +5,9 @@ import Link from 'next/link';
 
 import { COLLECTION, COLLECTION_PATH, COLLECTION_TITLE } from '@/lib/collection';
 import { JsonLd } from '@/lib/structured-data';
+import { SITE_URL } from '@/lib/site-url';
+import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 const DESCRIPTION =
   'Seven short stories by Austen Tucker, free to read and download as accessible PDF editions.';
 
@@ -19,11 +20,13 @@ export const metadata: Metadata = {
     title: `${COLLECTION_TITLE} | ${SITE_NAME}`,
     description: DESCRIPTION,
     url: COLLECTION_PATH,
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
   twitter: {
     card: 'summary_large_image',
     title: `${COLLECTION_TITLE} | ${SITE_NAME}`,
     description: DESCRIPTION,
+    images: [DEFAULT_SOCIAL_IMAGE.url],
   },
 };
 

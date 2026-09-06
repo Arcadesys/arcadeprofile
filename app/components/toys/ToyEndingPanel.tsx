@@ -3,6 +3,7 @@
 import Link from 'next/link';
 
 import { TOY_CATALOG } from '@/data/toys/catalog';
+import { absoluteSiteUrl } from '@/lib/site-url';
 import { trackToyEvent } from '@/lib/toys/toy-analytics';
 import styles from './ToyEndingPanel.module.css';
 
@@ -28,7 +29,7 @@ export default function ToyEndingPanel({
     `I reached “${endingTitle}” in ${toy?.title ?? 'an ArcadeProfile toy'}.`,
   );
   const shareUrl = encodeURIComponent(
-    `https://thearcades.me${toy?.href ?? '/toys'}`,
+    absoluteSiteUrl(toy?.href ?? '/toys'),
   );
 
   function restart() {

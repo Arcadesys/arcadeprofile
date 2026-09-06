@@ -6,6 +6,7 @@ import { buildGroupIntroUrl } from '@/lib/post-url';
 import { formatSiteDate } from '@/lib/site-time';
 import SubscriptionForm from '@/app/components/SubscriptionForm';
 import { markdownToPlaintext } from '@/lib/markdown-render';
+import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,11 +19,13 @@ export const metadata: Metadata = {
     title: `Latest | ${SITE_NAME}`,
     description: `New writing from ${SITE_NAME} — fiction and essays by Austen Tucker.`,
     url: '/latest',
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
   twitter: {
     card: 'summary_large_image',
     title: `Latest | ${SITE_NAME}`,
     description: `New writing from ${SITE_NAME} — fiction and essays by Austen Tucker.`,
+    images: [DEFAULT_SOCIAL_IMAGE.url],
   },
 };
 

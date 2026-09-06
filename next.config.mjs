@@ -66,6 +66,23 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/projects/it-takes-a-zoo/it-takes-a-zoo',
+        destination: '/projects/it-takes-a-zoo/it-takes-a-zoo-to-raise-the-child',
+        permanent: true,
+      },
+      ...[
+        'soft-reset-1-ninety-seconds',
+        'soft-reset-2-the-belt',
+        'soft-reset-3-exactly-enough',
+        'soft-reset-4-third-stone-past-the-mailbox',
+        'soft-reset-5-the-same-wall-two-different-dates',
+        'soft-reset-6-then-what',
+      ].map((segment) => ({
+        source: `/projects/it-takes-a-zoo/${segment}`,
+        destination: '/novels/it-takes-a-zoo/soft-reset',
+        permanent: true,
+      })),
+      {
         source: '/betareader',
         destination: 'https://docs.google.com/forms/d/e/1FAIpQLSeOpGMaOMJwCqu9WHUpJvjlYvRIgV6vC3BqdstVJvssPlWeqg/viewform?usp=dialog',
         permanent: false,

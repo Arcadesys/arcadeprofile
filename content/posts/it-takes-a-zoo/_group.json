@@ -1,0 +1,27 @@
+{
+  "slug": "it-takes-a-zoo",
+  "title": "It Takes a Zoo",
+  "description": "A novel-in-stories about found family, queerness, and surviving a hypercapitalist world through the power of love.",
+  "meta": {
+    "description": "It Takes a Zoo is a novel-in-stories about found family, queerness, and surviving hypercapitalism through the power of love."
+  },
+  "project": {
+    "image": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/it-takes-a-zoo.png",
+    "external": false,
+    "featured": false,
+    "homeHighlight": false,
+    "category": "fiction",
+    "status": "active",
+    "format": "serial",
+    "updatedAt": "2026-05-15T12:44:20.878Z",
+    "createdAt": "2026-05-02T16:51:25.744Z",
+    "resources": [
+      {
+        "label": "Read the six-chapter novel collection",
+        "href": "/novels/it-takes-a-zoo",
+        "kind": "other",
+        "description": "The current complete collection, published separately from this opening poem."
+      }
+    ]
+  }
+}

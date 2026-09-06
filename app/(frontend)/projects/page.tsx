@@ -9,6 +9,7 @@ import ProjectsIndex, {
   type TypeLetter,
   type FeedItem,
 } from '@/app/components/ProjectsIndex';
+import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,11 +22,13 @@ export const metadata: Metadata = {
     title: `Projects | ${SITE_NAME}`,
     description: 'Projects and creative work by Austen Tucker-Crowder.',
     url: '/projects',
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
   twitter: {
     card: 'summary_large_image',
     title: `Projects | ${SITE_NAME}`,
     description: 'Projects and creative work by Austen Tucker-Crowder.',
+    images: [DEFAULT_SOCIAL_IMAGE.url],
   },
 };
 

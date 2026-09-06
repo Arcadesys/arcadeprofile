@@ -9,8 +9,8 @@ import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
 import { PieceActions } from '@/app/components/PieceActions';
 import { COLLECTION, COLLECTION_PATH, COLLECTION_TITLE, getStory } from '@/lib/collection';
 import { JsonLd } from '@/lib/structured-data';
+import { SITE_URL } from '@/lib/site-url';
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
 type Props = { params: Promise<{ slug: string }> };
 

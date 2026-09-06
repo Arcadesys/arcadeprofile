@@ -1,12 +1,6 @@
 import type { Metadata } from 'next';
-import { SITE_NAME, SITE_TITLE_DEFAULT } from '@/lib/site-brand';
-
-const DEFAULT_SOCIAL_IMAGE = {
-  url: '/opengraph-image',
-  width: 1200,
-  height: 630,
-  alt: SITE_TITLE_DEFAULT,
-};
+import { SITE_NAME } from '@/lib/site-brand';
+import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
 type ToySocialImage = {
   src: string;

@@ -4,11 +4,12 @@ import Link from 'next/link';
 import { LAB_PROJECTS } from '@/data/lab-projects';
 import { JsonLd } from '@/lib/structured-data';
 import { SITE_NAME } from '@/lib/site-brand';
+import { SITE_URL } from '@/lib/site-url';
+import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
 import { LabProjectVisual } from './LabProjectVisual';
 import styles from './lab.module.css';
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://www.thearcades.me').replace(/\/+$/, '');
 const DESCRIPTION =
   'Accessible case studies about public products and Lab infrastructure built by Austen Tucker: WizWor, ToonTok, ArcadeProfile, and Conductor.';
 
@@ -21,11 +22,13 @@ export const metadata: Metadata = {
     title: `Case Studies | ${SITE_NAME}`,
     description: DESCRIPTION,
     url: '/lab',
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
   twitter: {
     card: 'summary',
     title: `Case Studies | ${SITE_NAME}`,
     description: DESCRIPTION,
+    images: [DEFAULT_SOCIAL_IMAGE.url],
   },
 };
 

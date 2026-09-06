@@ -23,8 +23,8 @@ import {
 } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
-
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
+import { SITE_URL } from '@/lib/site-url';
+import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
 export const dynamic = 'force-dynamic';
 
@@ -121,13 +121,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: metaDescription,
       type: 'article',
       url: canonicalUrl,
-      images: post.hero ? [{ url: post.hero.src, alt: post.hero.alt }] : undefined,
+      images: [post.hero ? { url: post.hero.src, alt: post.hero.alt } : DEFAULT_SOCIAL_IMAGE],
     },
     twitter: {
       card: post.hero ? 'summary_large_image' : 'summary',
       title: titleForOg,
       description: metaDescription,
-      images: post.hero ? [post.hero.src] : undefined,
+      images: [post.hero?.src ?? DEFAULT_SOCIAL_IMAGE.url],
     },
   };
 }

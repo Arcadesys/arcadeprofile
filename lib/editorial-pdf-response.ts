@@ -1,7 +1,6 @@
 import { editorialEtag, editorialPdfFilename, renderEditorialPdf } from '@/lib/editorial-pdf';
 import type { EditorialPiece } from '@/lib/editorial-piece';
-
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
+import { absoluteSiteUrl } from '@/lib/site-url';
 
 export async function editorialPdfResponse(piece: EditorialPiece, request: Request): Promise<Response> {
   const etag = editorialEtag(piece);
@@ -10,7 +9,7 @@ export async function editorialPdfResponse(piece: EditorialPiece, request: Reque
     'Content-Disposition': `attachment; filename="${editorialPdfFilename(piece)}"`,
     'Cache-Control': 'public, max-age=0, s-maxage=86400, stale-while-revalidate=604800',
     ETag: etag,
-    Link: `<${SITE_URL}${piece.canonicalPath}>; rel="canonical"`,
+    Link: `<${absoluteSiteUrl(piece.canonicalPath)}>; rel="canonical"`,
     'X-Robots-Tag': 'noindex',
   });
   if (request.headers.get('if-none-match') === etag) return new Response(null, { status: 304, headers });

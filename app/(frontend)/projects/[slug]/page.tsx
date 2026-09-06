@@ -14,8 +14,8 @@ import { buildPostUrl, buildGroupIntroUrl, partNum } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 import { formatSiteDate } from '@/lib/site-time';
 import { resolveCanonicalUrl } from '@/lib/canonical-url';
-
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
+import { SITE_URL } from '@/lib/site-url';
+import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
 export const dynamic = 'force-dynamic';
 
@@ -91,15 +91,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: metaDescription,
       type: 'article',
       url: canonicalUrl,
-      images: og
-        ? [{ url: og.url, alt: og.alt ?? metaTitle }]
-        : undefined,
+      images: [og ? { url: og.url, alt: og.alt ?? metaTitle } : DEFAULT_SOCIAL_IMAGE],
     },
     twitter: {
       card: 'summary_large_image',
       title: titleForOg,
       description: metaDescription,
-      images: og ? [og.url] : undefined,
+      images: [og?.url ?? DEFAULT_SOCIAL_IMAGE.url],
     },
   };
 }

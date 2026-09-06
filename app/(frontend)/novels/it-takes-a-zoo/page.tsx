@@ -14,8 +14,7 @@ import {
 } from '@/lib/zoo-collection';
 
 import styles from './zoo.module.css';
-
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
+import { SITE_URL } from '@/lib/site-url';
 
 export const metadata: Metadata = {
   title: ZOO_COLLECTION_TITLE,

@@ -1,16 +1,12 @@
 import { ImageResponse } from 'next/og';
 import { SITE_NAME } from '@/lib/site-brand';
+import { SITE_URL } from '@/lib/site-url';
 
 export const ogSize = { width: 1200, height: 630 };
 export const ogContentType = 'image/png';
 
 export function siteDomain(): string {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me';
-  try {
-    return new URL(raw).host;
-  } catch {
-    return 'thearcades.me';
-  }
+  return new URL(SITE_URL).host;
 }
 
 export interface OgCardInput {

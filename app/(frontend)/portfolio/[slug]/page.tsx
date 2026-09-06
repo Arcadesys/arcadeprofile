@@ -10,8 +10,7 @@ import ShareLinks from '@/app/components/ShareLinks';
 import { COLLECTION_PATH, MOVED_FROM_PORTFOLIO } from '@/lib/collection';
 import { getPortfolioWork, PORTFOLIO_WORKS } from '@/lib/portfolio';
 import { JsonLd } from '@/lib/structured-data';
-
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
+import { SITE_URL } from '@/lib/site-url';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -115,6 +114,12 @@ export default async function PortfolioWorkPage({ params }: Props) {
             <p className="portfolio-reader__meta">
               {work.wordCount.toLocaleString('en-US')} words · about {work.readingMinutes} minutes
             </p>
+            {work.slug === 'gallery-view' && (
+              <p className="portfolio-reader__meta">
+                This is a distinct portfolio edition. Read the separate novel chapter in{' '}
+                <Link href="/novels/it-takes-a-zoo/gallery-view">It Takes a Zoo</Link>.
+              </p>
+            )}
             <div className="portfolio-actions" aria-label="Download this work">
               <a href={work.downloads.pdf} target="_blank" rel="noreferrer">
                 Read the PDF <span aria-hidden="true">↗</span>

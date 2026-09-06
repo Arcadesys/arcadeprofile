@@ -1,6 +1,10 @@
 {
   "slug": "pride-essays",
   "title": "Pride Essays",
+  "description": "Five essays about Pride, trans life, queer history, grief, survival, and the people who make a life possible.",
+  "meta": {
+    "description": "Pride Essays: five personal essays by Austen Tucker about trans life, queer history, grief, survival, and the people who make a life possible."
+  },
   "project": {
     "external": false,
     "featured": false,
