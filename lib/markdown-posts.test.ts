@@ -107,7 +107,7 @@ test('loader rejects filename and directory disagreement, duplicate ids and slug
   assert.throws(() => loadMarkdownPosts({ contentDirectory: fixture('empty-body') }), /nonempty Markdown body/);
 });
 
-test('checked-in corpus excludes retired posts from the Payload parity receipt', () => {
+test('checked-in corpus matches the authenticated Payload parity receipt', () => {
   const contentDirectory = path.join(process.cwd(), 'content', 'posts');
   const posts = loadMarkdownPosts({ contentDirectory });
   const groups = loadMarkdownGroups({ contentDirectory });
@@ -117,7 +117,7 @@ test('checked-in corpus excludes retired posts from the Payload parity receipt',
     validation: { passed: boolean };
   };
   const exportedFiles = report.records
-    .filter((record) => record.disposition === 'exported' && record.slug !== 'ginnys-magic')
+    .filter((record) => record.disposition === 'exported')
     .map((record) => record.file)
     .sort();
   const loadedFiles = posts
