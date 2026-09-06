@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
 import Link from 'next/link';
 import SubscriptionForm from '@/app/components/SubscriptionForm';
+import StartReadingShelf from '@/app/components/StartReadingShelf';
+import { getStartReadingShelf } from '@/lib/reader-discovery';
 
 export const metadata: Metadata = {
   title: 'Bio',
@@ -52,7 +54,9 @@ function Tag({ label }: { label: string }) {
   return <li style={tagStyle}>{label}</li>;
 }
 
-export default function BioPage() {
+export default async function BioPage() {
+  const shelf = await getStartReadingShelf();
+
   return (
     <main style={{ maxWidth: '740px', margin: '0 auto', padding: 'clamp(1rem, 4vw, 2rem) 1rem' }}>
 
@@ -80,6 +84,14 @@ export default function BioPage() {
         >
           View résumé →
         </Link>
+      </section>
+
+      <section style={{ marginBottom: '2.5rem' }} aria-labelledby="writer-reading-heading">
+        <h2 id="writer-reading-heading" style={sectionHeadingStyle}>Writer</h2>
+        <p style={{ color: 'var(--fg-muted)', fontSize: '1.05rem', lineHeight: 1.7, margin: '0 0 1.25rem' }}>
+          I write fiction and essays about work, access, technology, and the strange ways people make a life.
+        </p>
+        <StartReadingShelf items={shelf} heading="Read something" headingId="bio-start-reading" compact />
       </section>
 
       {/* Who I am */}

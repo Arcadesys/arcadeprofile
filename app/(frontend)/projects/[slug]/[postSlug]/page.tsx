@@ -22,6 +22,8 @@ import {
 } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
+import ReaderTelemetry from '@/app/components/ReaderTelemetry';
+
 import { absoluteSiteUrl, SITE_URL } from '@/lib/site-url';
 import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 import { stripGeneratedTitleSuffix } from '@/lib/metadata-title';
@@ -256,7 +258,7 @@ export default async function ProjectPostPage({ params }: Props) {
             </p>
           </header>
 
-          <MarkdownPostBody markdown={post.markdownBody} />
+          <ReaderTelemetry key={readingPiece.canonicalPath} canonicalId={readingPiece.canonicalPath} contentType={readingPiece.contentType} placement="reader-body" destination="none"><MarkdownPostBody markdown={post.markdownBody} /></ReaderTelemetry>
         </article>
 
         <ReadingNextSteps piece={readingPiece} catalog={readingCatalog} />

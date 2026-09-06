@@ -1038,6 +1038,7 @@ sub, sup    { font-size: 0.75em; line-height: 0; }
 
 /* ── Prose ──────────────────────────────────────────────── */
 .prose {
+  overflow-wrap: anywhere;
   color: var(--fg);
   font-size: 17px;
   line-height: 1.65;

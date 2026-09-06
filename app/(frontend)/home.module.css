@@ -196,7 +196,7 @@
 
 .bands {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   margin: 10px 0;
   padding: 10px;
@@ -220,6 +220,10 @@
 .band p { max-width: 31ch; color: var(--home-text-muted); font-size: 1.05rem; }
 .band a { display: inline-flex; min-height: 48px; align-items: center; margin-top: .75rem; color: #ffad68; font-family: var(--font-mono); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
 .band a:hover { color: #fff7ef; text-shadow: none; }
+
+.secondaryExplore { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; margin: 1rem 0 1.5rem; }
+.secondaryExplore a { display: inline-flex; min-height: 44px; align-items: center; color: var(--home-text-muted); font-family: var(--font-mono); font-size: 1rem; font-weight: 700; text-decoration: none; }
+.secondaryExplore a:hover, .secondaryExplore a:focus-visible { color: #fff7ef; text-shadow: none; }
 
 .below {
   display: grid;

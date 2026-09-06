@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { type ReadingContinuityRecord } from '@/lib/reading-continuity';
+import { usePathname } from 'next/navigation';
+import { useReaderEventTracker } from '@/lib/reader-analytics';
+import type { ReadingContinuityRecord } from '@/lib/reading-continuity';
 import { dismissStoredProgress, readStoredProgress } from '@/lib/reading-resume-storage';
 
 /**
@@ -11,6 +13,8 @@ import { dismissStoredProgress, readStoredProgress } from '@/lib/reading-resume-
  * and nothing at all when the saved canonical path is no longer public.
  */
 export default function ContinueReadingBanner({ availablePaths = [] }: { availablePaths?: readonly string[] }) {
+  const pathname = usePathname();
+  const track = useReaderEventTracker();
   const [progress, setProgress] = useState<ReadingContinuityRecord | null>(null);
 
   useEffect(() => {
@@ -28,6 +32,7 @@ export default function ContinueReadingBanner({ availablePaths = [] }: { availab
     <section style={{ margin: '0 0 2rem' }}>
       <Link
         href={progress.canonicalPath}
+        onClick={() => track('resume-click', { canonicalId: pathname, contentType: 'reading-hub', placement: 'resume-banner', destination: progress.canonicalPath })}
         style={{
           display: 'block',
           padding: '0.85rem 1.1rem',
