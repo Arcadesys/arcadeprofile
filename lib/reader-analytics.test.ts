@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { createReaderEventTracker, type ReaderTelemetryProps } from './reader-analytics';
+import {
+  createReaderEventTracker,
+  initializeReaderAnalytics,
+  type ReaderTelemetryProps,
+} from './reader-analytics';
 
 const context = {
   canonicalId: '/essays/a-piece',
@@ -36,4 +40,26 @@ test('reader telemetry absorbs analytics sender failures', () => {
 
   assert.doesNotThrow(() => tracker('signup-success', context));
   assert.equal(tracker('signup-success', context), false);
+});
+
+test('reader telemetry initializes the SDK queue before a cold-load event', () => {
+  let queueReady = false;
+  const sent: string[] = [];
+
+  initializeReaderAnalytics(() => { queueReady = true; });
+  const tracker = createReaderEventTracker((event) => {
+    if (!queueReady) throw new Error('Vercel queue was not ready');
+    sent.push(event);
+  });
+
+  assert.equal(tracker('reading-start', context), true);
+  assert.deepEqual(sent, ['reading-start']);
+});
+
+test('reader telemetry keeps a failed SDK initialization nonblocking', () => {
+  assert.doesNotThrow(() => {
+    initializeReaderAnalytics(() => {
+      throw new Error('analytics blocked');
+    });
+  });
 });
