@@ -3,6 +3,8 @@
 import { FormEvent, useEffect, useId, useRef, useState } from 'react';
 
 import { applyPreferenceChange } from '@/lib/activecampaign-form';
+import { useReaderEventTracker } from '@/lib/reader-analytics';
+import { submitSubscription } from '@/lib/subscription-client';
 import type {
   Audience,
   Magnet,
@@ -14,11 +16,7 @@ import styles from './SubscriptionForm.module.css';
 
 type Download = { href: string; label: string };
 
-type SubscribeResponse = {
-  ok?: boolean;
-  error?: string;
-  magnet?: { files?: Array<{ url: string; label: string }> };
-};
+type ReadingLink = Download;
 
 export type SubscriptionFormProps = {
   source: Source;
@@ -38,6 +36,13 @@ const AUDIENCE_LABELS: Record<Audience, string> = {
   essays: 'Essays (writing, tools, and oddities)',
   lab: "The Arcades' Lab and build notes",
 };
+
+function readingLinkFor(audiences: ReadonlySet<Audience>): ReadingLink {
+  if (audiences.has('lab')) return { href: '/lab', label: 'Read case studies' };
+  if (audiences.has('fiction')) return { href: '/stories', label: 'Read fiction' };
+  if (audiences.has('essays')) return { href: '/essays', label: 'Read essays' };
+  return { href: '/writing', label: 'Browse the writing' };
+}
 
 export default function SubscriptionForm({
   source,
@@ -59,6 +64,7 @@ export default function SubscriptionForm({
   const [error, setError] = useState('');
   const [complete, setComplete] = useState(false);
   const [downloads, setDownloads] = useState<Download[]>([]);
+  const trackReaderEvent = useReaderEventTracker();
 
   useEffect(() => {
     if (complete) statusRef.current?.focus();
@@ -80,20 +86,24 @@ export default function SubscriptionForm({
     setPending(true);
     setError('');
     try {
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
+      const readingLink = readingLinkFor(selected);
+      const payload = await submitSubscription(
+        {
           email,
           audiences: [...selected],
           source,
           magnet,
           updateMode,
-        }),
-      });
-      const payload = await response.json() as SubscribeResponse;
-      if (!response.ok || !payload.ok) throw new Error(payload.error || 'Could not subscribe right now. Please try again.');
-
+        },
+        () => {
+          trackReaderEvent('signup-success', {
+            canonicalId: window.location.pathname,
+            contentType: 'subscription',
+            placement: source,
+            destination: readingLink.href,
+          });
+        },
+      );
       const magnetDownloads = payload.magnet?.files?.map((file) => ({ href: file.url, label: `Download ${file.label}` })) ?? [];
       setDownloads(postSuccessDownload ? [postSuccessDownload, ...magnetDownloads] : magnetDownloads);
       setComplete(true);
@@ -106,6 +116,7 @@ export default function SubscriptionForm({
   }
 
   if (complete) {
+    const readingLink = readingLinkFor(selected);
     return (
       <div ref={statusRef} className={styles.status} role="status" aria-live="polite" tabIndex={-1}>
         <strong>{successMessage}</strong>
@@ -114,6 +125,7 @@ export default function SubscriptionForm({
             {downloads.map((download) => <a key={download.href} href={download.href}>{download.label}</a>)}
           </div>
         ) : null}
+        <a className={styles.successReadingLink} href={readingLink.href}>{readingLink.label}</a>
       </div>
     );
   }
@@ -153,7 +165,7 @@ export default function SubscriptionForm({
         </fieldset>
       ) : null}
 
-      <p className={styles.terms}>Biweekly. Free. One-click unsubscribe.</p>
+      <p className={styles.terms}>New writing when it&rsquo;s ready. Free. One-click unsubscribe.</p>
       <button className={styles.submit} type="submit" disabled={pending}>{pending ? 'Subscribing…' : submitLabel}</button>
       {error ? <div ref={statusRef} className={`${styles.status} ${styles.error}`} role="alert" aria-live="assertive" tabIndex={-1}>{error}</div> : null}
     </form>

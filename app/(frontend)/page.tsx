@@ -11,13 +11,14 @@ import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
 import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
 import { ZOO_FEATURED_COLLECTION } from '@/lib/zoo-collection-meta';
+import { getReadingCatalog } from '@/lib/reading-catalog';
 
 import styles from './home.module.css';
 
 const RECENT_POSTS_MAX = 4;
 
 export default async function HomePage() {
-  const [posts, urlMap] = await Promise.all([getAllPosts(), buildPostUrlMap()]);
+  const [posts, urlMap, readingCatalog] = await Promise.all([getAllPosts(), buildPostUrlMap(), getReadingCatalog()]);
   const recentPosts = posts.filter((post) => urlMap.has(post.slug)).slice(0, RECENT_POSTS_MAX).map((post) => {
     const location = urlMap.get(post.slug)!;
     const href = buildPostUrl(location.groupSlug, post.slug);
@@ -37,7 +38,7 @@ export default async function HomePage() {
           <div className={styles.heroCopy}>
             <p className={styles.byline}>Stories by Austen Tucker</p>
             <h1 className={styles.title}>Read the strange little fire.</h1>
-            <p className={styles.subhead}>Speculative fiction, essays, and build notes by Austen Tucker. New work every two weeks. Free by email.</p>
+            <p className={styles.subhead}>Speculative fiction, essays, and build notes by Austen Tucker. New writing when it&rsquo;s ready. Free. One-click unsubscribe.</p>
             <div className={styles.heroActions}>
               <Link className={styles.button} href="/writing">Start Here <span aria-hidden="true">→</span></Link>
               <Link className={styles.latestLink} href="/latest">Latest <span aria-hidden="true">→</span></Link>
@@ -68,7 +69,7 @@ export default async function HomePage() {
       </header>
 
       <div className={styles.resume}>
-        <ContinueReadingBanner />
+        <ContinueReadingBanner availablePaths={readingCatalog.map((piece) => piece.canonicalPath)} />
         <ContinueToyBanner />
       </div>
 

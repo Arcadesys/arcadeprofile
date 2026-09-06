@@ -88,6 +88,7 @@
 .error { border-left-color: var(--accent); }
 .downloads { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; margin-top: .65rem; }
 .downloads a { display: inline-flex; min-height: 44px; align-items: center; }
+.successReadingLink { display: inline-flex; min-height: 44px; align-items: center; margin-top: .5rem; font-weight: 700; }
 
 @media (max-width: 560px) {
   .submit { width: 100%; }

@@ -6,10 +6,13 @@ import { notFound } from 'next/navigation';
 
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
 import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
+import ReadingContinuityTracker from '@/app/components/ReadingContinuityTracker';
+import ReadingNextSteps from '@/app/components/ReadingNextSteps';
 import { PieceActions } from '@/app/components/PieceActions';
 import { COLLECTION, COLLECTION_PATH, COLLECTION_TITLE, getStory } from '@/lib/collection';
 import { JsonLd } from '@/lib/structured-data';
 import { SITE_URL } from '@/lib/site-url';
+import { getReadingCatalog } from '@/lib/reading-catalog';
 
 
 type Props = { params: Promise<{ slug: string }> };
@@ -91,6 +94,8 @@ export default async function CollectionStoryPage({ params }: Props) {
       ...item,
     })),
   };
+  const readingCatalog = await getReadingCatalog();
+  const readingPiece = readingCatalog.find((item) => item.canonicalPath === `${COLLECTION_PATH}/${story.slug}`);
 
   return (
     <>
@@ -141,6 +146,8 @@ export default async function CollectionStoryPage({ params }: Props) {
           )}
 
           {story.markdownBody && <MarkdownPostBody markdown={story.markdownBody} />}
+
+          {readingPiece ? <><ReadingContinuityTracker piece={readingPiece} /><ReadingNextSteps piece={readingPiece} catalog={readingCatalog} /></> : null}
 
           <EndOfPieceSubscribe
             audience="fiction"
