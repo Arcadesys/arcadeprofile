@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from 'react';
 
-import { trackReaderEvent, type ReaderTelemetryProps } from '@/lib/reader-analytics';
+import { useReaderEventTracker, type ReaderTelemetryProps } from '@/lib/reader-analytics';
 
 type Props = ReaderTelemetryProps & {
   children: ReactNode;
@@ -16,12 +16,16 @@ type Props = ReaderTelemetryProps & {
 export default function ReaderTelemetry({
   children,
   endPlacement = 'reader-end',
-  ...context
+  canonicalId,
+  contentType,
+  placement,
+  destination,
 }: Props) {
   const endMarkerRef = useRef<HTMLSpanElement>(null);
+  const trackReaderEvent = useReaderEventTracker();
 
   useEffect(() => {
-    trackReaderEvent('reading-start', context);
+    trackReaderEvent('reading-start', { canonicalId, contentType, placement, destination });
 
     const marker = endMarkerRef.current;
     if (!marker || typeof IntersectionObserver === 'undefined') return;
@@ -29,7 +33,8 @@ export default function ReaderTelemetry({
     const observer = new IntersectionObserver((entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       trackReaderEvent('end-reached', {
-        ...context,
+        canonicalId,
+        contentType,
         placement: endPlacement,
         destination: 'none',
       });
@@ -37,12 +42,17 @@ export default function ReaderTelemetry({
     });
     observer.observe(marker);
     return () => observer.disconnect();
-  }, [context, endPlacement]);
+  }, [canonicalId, contentType, destination, endPlacement, placement, trackReaderEvent]);
 
   return (
     <>
       {children}
-      <span ref={endMarkerRef} aria-hidden="true" data-reader-telemetry-end />
+      <span
+        ref={endMarkerRef}
+        aria-hidden="true"
+        data-reader-telemetry-end
+        style={{ display: 'block', width: 1, height: 1 }}
+      />
     </>
   );
 }

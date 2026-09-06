@@ -3,7 +3,8 @@
 import { FormEvent, useEffect, useId, useRef, useState } from 'react';
 
 import { applyPreferenceChange } from '@/lib/activecampaign-form';
-import { trackReaderEvent } from '@/lib/reader-analytics';
+import { useReaderEventTracker } from '@/lib/reader-analytics';
+import { submitSubscription } from '@/lib/subscription-client';
 import type {
   Audience,
   Magnet,
@@ -16,12 +17,6 @@ import styles from './SubscriptionForm.module.css';
 type Download = { href: string; label: string };
 
 type ReadingLink = Download;
-
-type SubscribeResponse = {
-  ok?: boolean;
-  error?: string;
-  magnet?: { files?: Array<{ url: string; label: string }> };
-};
 
 export type SubscriptionFormProps = {
   source: Source;
@@ -69,6 +64,7 @@ export default function SubscriptionForm({
   const [error, setError] = useState('');
   const [complete, setComplete] = useState(false);
   const [downloads, setDownloads] = useState<Download[]>([]);
+  const trackReaderEvent = useReaderEventTracker();
 
   useEffect(() => {
     if (complete) statusRef.current?.focus();
@@ -90,28 +86,25 @@ export default function SubscriptionForm({
     setPending(true);
     setError('');
     try {
-      const response = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
+      const readingLink = readingLinkFor(selected);
+      const payload = await submitSubscription(
+        {
           email,
           audiences: [...selected],
           source,
           magnet,
           updateMode,
-        }),
-      });
-      const payload = await response.json() as SubscribeResponse;
-      if (!response.ok || !payload.ok) throw new Error(payload.error || 'Could not subscribe right now. Please try again.');
-
+        },
+        () => {
+          trackReaderEvent('signup-success', {
+            canonicalId: window.location.pathname,
+            contentType: 'subscription',
+            placement: source,
+            destination: readingLink.href,
+          });
+        },
+      );
       const magnetDownloads = payload.magnet?.files?.map((file) => ({ href: file.url, label: `Download ${file.label}` })) ?? [];
-      const readingLink = readingLinkFor(selected);
-      trackReaderEvent('signup-success', {
-        canonicalId: window.location.pathname,
-        contentType: 'subscription',
-        placement: source,
-        destination: readingLink.href,
-      });
       setDownloads(postSuccessDownload ? [postSuccessDownload, ...magnetDownloads] : magnetDownloads);
       setComplete(true);
     } catch (cause) {

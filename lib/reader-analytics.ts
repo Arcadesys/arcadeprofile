@@ -1,6 +1,7 @@
 'use client';
 
 import { track } from '@vercel/analytics/react';
+import { useState } from 'react';
 
 /**
  * The reader event payload intentionally contains only page and UI context.
@@ -43,15 +44,26 @@ export function createReaderEventTracker(send: ReaderEventSender) {
     const key = eventKey(event, properties);
     if (sent.has(key)) return false;
     sent.add(key);
-    send(event, properties);
-    return true;
+    try {
+      send(event, properties);
+      return true;
+    } catch {
+      // Measurement must never interrupt a reader action or signup success.
+      return false;
+    }
   };
 }
 
 /**
- * Sends one event per unique event/context tuple for this loaded page.
- * This deliberately does not use localStorage, cookies, or a visitor key.
+ * Creates a deduped event reporter for one mounted page visit. React preserves
+ * this ref through development Strict Mode's effect replay, but a client
+ * navigation creates a new reporter so revisiting a piece is measurable.
  */
-export const trackReaderEvent = createReaderEventTracker((event, properties) => {
-  track(event, properties);
-});
+export function useReaderEventTracker() {
+  const [tracker] = useState(() =>
+    createReaderEventTracker((event, properties) => {
+      track(event, properties);
+    }),
+  );
+  return tracker;
+}

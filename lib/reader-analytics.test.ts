@@ -28,3 +28,12 @@ test('reader telemetry keeps distinct destinations measurable', () => {
 
   assert.deepEqual(sent, ['onward-reading', 'onward-reading']);
 });
+
+test('reader telemetry absorbs analytics sender failures', () => {
+  const tracker = createReaderEventTracker(() => {
+    throw new Error('analytics unavailable');
+  });
+
+  assert.doesNotThrow(() => tracker('signup-success', context));
+  assert.equal(tracker('signup-success', context), false);
+});
