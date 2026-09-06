@@ -71,6 +71,12 @@ test('project captures map fiction, writing, and build work to their matching li
   assert.match(projectPost, /:\s*'lab';/);
 });
 
+test('project article metadata makes local hero images absolute', () => {
+  const projectPost = source('app/(frontend)/projects/[slug]/[postSlug]/page.tsx');
+
+  assert.match(projectPost, /image: absoluteSiteUrl\(post\.hero\?\.src \?\? DEFAULT_SOCIAL_IMAGE\.url\)/);
+});
+
 test('subscription form keeps large controls, visible status, and focus repair', () => {
   const form = source('app/components/SubscriptionForm.tsx');
   const css = source('app/components/SubscriptionForm.module.css');

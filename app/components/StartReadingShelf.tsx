@@ -20,14 +20,14 @@ export default function StartReadingShelf({
   headingId?: string;
 }) {
   return (
-    <section className={`${styles.shelf} ${compact ? styles.compact : ''}`} aria-labelledby={headingId}>
+    <section className={[styles.shelf, compact && styles.compact].filter(Boolean).join(' ')} aria-labelledby={headingId}>
       <div className={styles.heading}>
         <h2 id={headingId}>{heading}</h2>
         <p>Four good places to enter the work.</p>
       </div>
       <ol className={styles.list}>
         {items.map((item) => (
-          <li key={item.href} className={`${styles.item} ${showCovers && item.cover ? styles.withCover : ''}`}>
+          <li key={item.href} className={[styles.item, showCovers && item.cover && styles.withCover].filter(Boolean).join(' ')}>
             {showCovers && item.cover ? (
               <Link className={styles.coverLink} href={item.href} aria-label={`Read ${item.title}`}>
                 <Image

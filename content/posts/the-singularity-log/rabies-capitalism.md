@@ -7,6 +7,9 @@ publishDate: '2026-03-30T00:00:00.000Z'
 order: 1
 updatedDate: '2026-06-15T01:17:03.278Z'
 excerpt: 'On AI, Labor, and the End of the Moat'
+hero:
+  src: /images/covers/rabies-capitalism-v1.webp
+  alt: 'Cover of Rabies Capitalism by Austen Tucker: a snarling bull stands on crumbling foundations in a black, ivory, and rust woodcut illustration.'
 seo:
   title: Rabies Capitalism
   description: >-

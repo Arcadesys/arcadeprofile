@@ -187,7 +187,7 @@ export default async function ProjectPostPage({ params }: Props) {
       url: `${SITE_URL}${buildGroupIntroUrl(slug)}`,
     },
     articleSection: project.category ?? undefined,
-    image: post.hero?.src ?? absoluteSiteUrl(DEFAULT_SOCIAL_IMAGE.url),
+    image: absoluteSiteUrl(post.hero?.src ?? DEFAULT_SOCIAL_IMAGE.url),
   };
 
   const breadcrumbJsonLd = {

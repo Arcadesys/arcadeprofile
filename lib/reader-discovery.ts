@@ -27,16 +27,16 @@ export async function getStartReadingShelf(): Promise<readonly DiscoveryReadingI
   const [posts, locations] = await Promise.all([getAllPosts(), buildPostUrlMap()]);
   const carl = COLLECTION.find((story) => story.slug === 'carl');
   const coldBoot = getZooChapter('cold-boot');
-  const photograph = posts.find((post) => post.slug === 'the-photograph-of-a-river');
+  const rabies = posts.find((post) => post.slug === 'rabies-capitalism');
   const memory = posts.find((post) => post.slug === 'gist-memory-is-not-a-bug');
 
-  if (!carl || !coldBoot || !photograph || !memory) {
+  if (!carl || !coldBoot || !rabies || !rabies.hero || !memory) {
     throw new Error('The starting reading shelf is missing a required public piece.');
   }
 
-  const photographLocation = locations.get(photograph.slug);
+  const rabiesLocation = locations.get(rabies.slug);
   const memoryLocation = locations.get(memory.slug);
-  if (!photographLocation || !memoryLocation) {
+  if (!rabiesLocation || !memoryLocation) {
     throw new Error('The starting reading shelf is missing a required public route.');
   }
 
@@ -68,11 +68,17 @@ export async function getStartReadingShelf(): Promise<readonly DiscoveryReadingI
       },
     },
     {
-      title: photograph.title,
-      description: photograph.excerpt,
-      href: buildPostUrl(photographLocation.groupSlug, photograph.slug),
-      readingMinutes: readingMinutes(photograph.markdownBody),
+      title: rabies.title,
+      description: rabies.excerpt,
+      href: buildPostUrl(rabiesLocation.groupSlug, rabies.slug),
+      readingMinutes: readingMinutes(rabies.markdownBody),
       kind: 'essay',
+      cover: {
+        src: rabies.hero.src,
+        alt: rabies.hero.alt,
+        width: 1024,
+        height: 1536,
+      },
     },
     {
       title: memory.title,
