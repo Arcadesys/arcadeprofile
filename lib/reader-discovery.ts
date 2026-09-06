@@ -30,7 +30,7 @@ export async function getStartReadingShelf(): Promise<readonly DiscoveryReadingI
   const rabies = posts.find((post) => post.slug === 'rabies-capitalism');
   const memory = posts.find((post) => post.slug === 'gist-memory-is-not-a-bug');
 
-  if (!carl || !coldBoot || !rabies || !rabies.hero || !memory) {
+  if (!carl || !coldBoot || !rabies || !rabies.hero || !memory || !memory.hero) {
     throw new Error('The starting reading shelf is missing a required public piece.');
   }
 
@@ -86,6 +86,12 @@ export async function getStartReadingShelf(): Promise<readonly DiscoveryReadingI
       href: buildPostUrl(memoryLocation.groupSlug, memory.slug),
       readingMinutes: readingMinutes(memory.markdownBody),
       kind: 'essay',
+      cover: {
+        src: memory.hero.src,
+        alt: memory.hero.alt,
+        width: 1024,
+        height: 1536,
+      },
     },
   ];
 }

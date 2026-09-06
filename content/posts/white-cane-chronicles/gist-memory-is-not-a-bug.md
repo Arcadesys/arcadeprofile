@@ -10,6 +10,9 @@ excerpt: >-
   Sighted people use the world around them to help them remember thing. When you
   can't do that, your brain builds something different. Something that might
   actually be better in some cases.
+hero:
+  src: /images/covers/bad-memory-v1.webp
+  alt: "Cover of I Thought I Had a Bad Memory. I Don't. by Austen Tucker: scattered fragments join a continuous ivory ribbon, forming an ordered path against a navy background."
 seo:
   title: I Thought I Had a Bad Memory. I Don't.
   description: >-

@@ -29,6 +29,6 @@ test('the starting shelf keeps the approved reading order and canonical paths', 
     'Black ink emblem of an android face and cart wheel on cloth-white paper.',
     'A sheltered open-air virtual bar overlooks a rainy neon city. A low-poly fox and painterly mouse, rabbit, cat, and human share drinks beneath the roof.',
     'Cover of Rabies Capitalism by Austen Tucker: a snarling bull stands on crumbling foundations in a black, ivory, and rust woodcut illustration.',
-    undefined,
+    "Cover of I Thought I Had a Bad Memory. I Don't. by Austen Tucker: scattered fragments join a continuous ivory ribbon, forming an ordered path against a navy background.",
   ]);
 });
