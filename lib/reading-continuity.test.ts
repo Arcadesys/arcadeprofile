@@ -25,9 +25,11 @@ test('continuity record is versioned, piece-level, and rejects malformed or stal
 });
 
 test('legacy post progress migrates into the canonical versioned record', () => {
-  const migrated = migrateLegacyReadingProgress(JSON.stringify({ groupSlug: 'essays', groupTitle: 'Essays', postSlug: 'hello', postTitle: 'Hello', partIndex: 2, totalParts: 3, visitedAt: 99 }));
+  const migrated = migrateLegacyReadingProgress(JSON.stringify({ groupSlug: 'essays', groupTitle: 'Essays', postSlug: 'hello', postTitle: 'Hello', partIndex: 2, totalParts: 3, visitedAt: 99 }), 100);
   assert.deepEqual(migrated, { version: 2, canonicalPath: '/projects/essays/hello', title: 'Hello', collection: { id: 'project:essays', title: 'Essays', path: '/projects/essays', position: 2, total: 3, status: 'complete' }, position: 2, timestamp: 99 });
   assert.equal(migrateLegacyReadingProgress(JSON.stringify({ groupSlug: 'essays' })), null);
+  assert.equal(migrateLegacyReadingProgress(JSON.stringify({ groupSlug: '../unsafe', groupTitle: 'Essays', postSlug: 'hello', postTitle: 'Hello', partIndex: 1, totalParts: 1, visitedAt: 99 }), 100), null);
+  assert.equal(migrateLegacyReadingProgress(JSON.stringify({ groupSlug: 'essays', groupTitle: 'Essays', postSlug: 'hello', postTitle: 'Hello', partIndex: 1, totalParts: 1, visitedAt: -999999999999 }), 100), null);
 });
 
 test('next only resolves an existing following piece and never invents an unwritten installment', () => {

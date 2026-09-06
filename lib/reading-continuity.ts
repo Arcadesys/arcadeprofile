@@ -96,7 +96,7 @@ export function parseReadingContinuity(raw: string | null, now = Date.now()): Re
 }
 
 /** Converts only the previous project-post record; unknown legacy data is discarded. */
-export function migrateLegacyReadingProgress(raw: string | null): ReadingContinuityRecord | null {
+export function migrateLegacyReadingProgress(raw: string | null, now = Date.now()): ReadingContinuityRecord | null {
   if (!raw) return null;
   try {
     const old = JSON.parse(raw) as LegacyReadingProgress;
@@ -106,7 +106,7 @@ export function migrateLegacyReadingProgress(raw: string | null): ReadingContinu
     if (typeof old.groupSlug !== 'string' || typeof old.postSlug !== 'string' || typeof old.groupTitle !== 'string'
       || typeof old.postTitle !== 'string' || !isPositiveInteger(partIndex) || !isPositiveInteger(totalParts)
       || totalParts < partIndex || !isFiniteNumber(visitedAt)) return null;
-    return {
+    const migrated = {
       version: READING_CONTINUITY_VERSION,
       canonicalPath: `/projects/${old.groupSlug}/${old.postSlug}`,
       title: old.postTitle,
@@ -114,6 +114,7 @@ export function migrateLegacyReadingProgress(raw: string | null): ReadingContinu
       position: partIndex,
       timestamp: visitedAt,
     };
+    return parseReadingContinuity(JSON.stringify(migrated), now);
   } catch {
     return null;
   }

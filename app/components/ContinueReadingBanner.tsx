@@ -10,16 +10,16 @@ import {
   type ReadingContinuityRecord,
 } from '@/lib/reading-continuity';
 
-function readStoredProgress(): ReadingContinuityRecord | null {
+function readStoredProgress(availablePaths: readonly string[]): ReadingContinuityRecord | null {
   try {
     const current = parseReadingContinuity(window.localStorage.getItem(READING_CONTINUITY_STORAGE_KEY));
-    if (current) return current;
+    if (current && availablePaths.includes(current.canonicalPath)) return current;
     const legacy = migrateLegacyReadingProgress(window.localStorage.getItem(LEGACY_READING_PROGRESS_STORAGE_KEY));
-    if (legacy) {
+    if (legacy && availablePaths.includes(legacy.canonicalPath)) {
       window.localStorage.setItem(READING_CONTINUITY_STORAGE_KEY, JSON.stringify(legacy));
       window.localStorage.removeItem(LEGACY_READING_PROGRESS_STORAGE_KEY);
     }
-    return legacy;
+    return null;
   } catch {
     return null;
   }
@@ -31,12 +31,12 @@ function readStoredProgress(): ReadingContinuityRecord | null {
  * (SSR-safe, same pattern as PostReactions' clientId) and nothing at all
  * if there's no in-progress series.
  */
-export default function ContinueReadingBanner() {
+export default function ContinueReadingBanner({ availablePaths = [] }: { availablePaths?: readonly string[] }) {
   const [progress, setProgress] = useState<ReadingContinuityRecord | null>(null);
 
   useEffect(() => {
-    setProgress(readStoredProgress());
-  }, []);
+    setProgress(readStoredProgress(availablePaths));
+  }, [availablePaths]);
 
   if (!progress) return null;
 
@@ -52,6 +52,7 @@ export default function ContinueReadingBanner() {
         style={{
           display: 'block',
           padding: '0.85rem 1.1rem',
+          minHeight: '44px',
           borderRadius: '0.5rem',
           border: '1px solid rgba(255,60,172,0.4)',
           background: 'rgba(255,60,172,0.07)',
@@ -62,7 +63,7 @@ export default function ContinueReadingBanner() {
         <span style={{
           display: 'block',
           fontFamily: 'var(--font-mono)',
-          fontSize: '0.68rem',
+          fontSize: '0.875rem',
           letterSpacing: '0.1em',
           textTransform: 'uppercase',
           color: 'var(--neon-pink)',
@@ -77,7 +78,7 @@ export default function ContinueReadingBanner() {
           {progress.collection ? `Part ${progress.collection.position} / ${progress.collection.total}` : 'Open piece'}
         </span>
       </Link>
-      <button type="button" onClick={dismiss} style={{ marginTop: '0.5rem' }}>Dismiss</button>
+      <button type="button" onClick={dismiss} style={{ marginTop: '0.5rem', minHeight: '44px', fontSize: '0.875rem' }}>Dismiss</button>
     </section>
   );
 }

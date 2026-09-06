@@ -11,6 +11,7 @@ import ReadingNextSteps from '@/app/components/ReadingNextSteps';
 import { PieceActions } from '@/app/components/PieceActions';
 import { COLLECTION, COLLECTION_PATH, COLLECTION_TITLE, getStory } from '@/lib/collection';
 import { JsonLd } from '@/lib/structured-data';
+import { getReadingCatalog } from '@/lib/reading-catalog';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
@@ -93,8 +94,7 @@ export default async function CollectionStoryPage({ params }: Props) {
       ...item,
     })),
   };
-  const readableStories = COLLECTION.filter((entry) => entry.markdownBody);
-  const readingCatalog = readableStories.map((entry, index) => ({ canonicalPath: `${COLLECTION_PATH}/${entry.slug}`, title: entry.title, contentType: 'fiction' as const, collection: { id: 'this-is-what-i-do-for-fun', title: COLLECTION_TITLE, path: COLLECTION_PATH, position: index + 1, total: readableStories.length, status: 'complete' as const } }));
+  const readingCatalog = await getReadingCatalog();
   const readingPiece = readingCatalog.find((item) => item.canonicalPath === `${COLLECTION_PATH}/${story.slug}`);
 
   return (

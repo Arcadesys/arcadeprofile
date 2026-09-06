@@ -11,6 +11,7 @@ import ReadingNextSteps from '@/app/components/ReadingNextSteps';
 import ShareLinks from '@/app/components/ShareLinks';
 import { COLLECTION_PATH, MOVED_FROM_PORTFOLIO } from '@/lib/collection';
 import { getPortfolioWork, PORTFOLIO_WORKS } from '@/lib/portfolio';
+import { getReadingCatalog } from '@/lib/reading-catalog';
 import { JsonLd } from '@/lib/structured-data';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
@@ -99,7 +100,7 @@ export default async function PortfolioWorkPage({ params }: Props) {
       ...item,
     })),
   };
-  const readingCatalog = PORTFOLIO_WORKS.map((item) => ({ canonicalPath: `/portfolio/${item.slug}`, title: item.title, contentType: 'fiction' as const }));
+  const readingCatalog = await getReadingCatalog();
   const readingPiece = readingCatalog.find((item) => item.canonicalPath === `/portfolio/${work.slug}`)!;
 
   return (

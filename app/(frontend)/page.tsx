@@ -11,13 +11,14 @@ import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
 import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
 import { ZOO_FEATURED_COLLECTION } from '@/lib/zoo-collection-meta';
+import { getReadingCatalog } from '@/lib/reading-catalog';
 
 import styles from './home.module.css';
 
 const RECENT_POSTS_MAX = 4;
 
 export default async function HomePage() {
-  const [posts, urlMap] = await Promise.all([getAllPosts(), buildPostUrlMap()]);
+  const [posts, urlMap, readingCatalog] = await Promise.all([getAllPosts(), buildPostUrlMap(), getReadingCatalog()]);
   const recentPosts = posts.filter((post) => urlMap.has(post.slug)).slice(0, RECENT_POSTS_MAX).map((post) => {
     const location = urlMap.get(post.slug)!;
     const href = buildPostUrl(location.groupSlug, post.slug);
@@ -68,7 +69,7 @@ export default async function HomePage() {
       </header>
 
       <div className={styles.resume}>
-        <ContinueReadingBanner />
+        <ContinueReadingBanner availablePaths={readingCatalog.map((piece) => piece.canonicalPath)} />
         <ContinueToyBanner />
       </div>
 
