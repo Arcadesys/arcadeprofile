@@ -78,7 +78,8 @@ test('default public catalog covers every Markdown fiction and writing post', as
     .map((post) => post.slug)
     .sort();
 
-  assert.equal(catalog.fiction.length, 0, 'deleted chat fiction must not appear in the public catalog');
+  assert.deepEqual(catalog.fiction.map((group) => group.slug), ['it-takes-a-zoo']);
+  assert.deepEqual(catalog.fiction[0]?.posts.map((post) => post.slug), ['cold-boot']);
   assert.ok(catalog.essays.length > 0, 'the public catalog should contain essay groups');
   assert.equal(catalog.essays.flatMap((group) => group.posts).length, 32);
   assert.deepEqual(catalogSlugs, expectedSlugs);

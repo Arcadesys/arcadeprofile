@@ -69,6 +69,19 @@ test('frontmatter preserves legacy zero-based ordering', () => {
   assert.equal(markdownPostFrontmatterSchema.safeParse({ ...base, order: -1 }).success, false);
 });
 
+test('frontmatter accepts repository-owned PDF download paths', () => {
+  const parsed = markdownPostFrontmatterSchema.parse({
+    id: 'pdf-post',
+    title: 'PDF Post',
+    slug: 'pdf-post',
+    group: 'valid-group',
+    publishDate: '2026-08-20T09:00:00-05:00',
+    pdf: { overrideUrl: '/downloads/series/pdf-post.pdf' },
+  });
+
+  assert.equal(parsed.pdf?.overrideUrl, '/downloads/series/pdf-post.pdf');
+});
+
 test('frontmatter requires a valid RFC 3339 date-time offset or Z suffix', () => {
   const base = {
     id: 'valid-post',
@@ -105,22 +118,23 @@ test('loader rejects filename and directory disagreement, duplicate ids and slug
   assert.throws(() => loadMarkdownPosts({ contentDirectory: fixture('empty-body') }), /nonempty Markdown body/);
 });
 
-test('checked-in public corpus contains exactly the retained 32 essays in six groups', () => {
+test('checked-in public corpus contains the retained essays plus repository-owned fiction', () => {
   const contentDirectory = path.join(process.cwd(), 'content', 'posts');
   const posts = loadMarkdownPosts({ contentDirectory });
   const groups = loadMarkdownGroups({ contentDirectory });
-  const essayGroups = [
+  const expectedGroups = [
     'ai-art-experiments',
     'arcade-blog',
+    'it-takes-a-zoo',
     'on-writing',
     'pride-essays',
     'the-singularity-log',
     'white-cane-chronicles',
   ];
 
-  assert.equal(posts.length, 32);
-  assert.deepEqual(groups.map((group) => group.slug).sort(), essayGroups);
-  assert.equal(posts.every((post) => essayGroups.includes(post.group)), true);
+  assert.equal(posts.length, 33);
+  assert.deepEqual(groups.map((group) => group.slug).sort(), expectedGroups);
+  assert.equal(posts.filter((post) => post.group === 'it-takes-a-zoo').length, 1);
 });
 
 test('The Fox and the Eval remains a private draft and is absent from the public corpus', () => {
