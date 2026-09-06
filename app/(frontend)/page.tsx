@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 
+import StartReadingShelf from '@/app/components/StartReadingShelf';
+import { getStartReadingShelf } from '@/lib/reader-discovery';
 import SubscriptionForm from '@/app/components/SubscriptionForm';
 import ContinueReadingBanner from '@/app/components/ContinueReadingBanner';
 import ContinueToyBanner from '@/app/components/toys/ContinueToyBanner';
@@ -18,7 +20,7 @@ import styles from './home.module.css';
 const RECENT_POSTS_MAX = 4;
 
 export default async function HomePage() {
-  const [posts, urlMap, readingCatalog] = await Promise.all([getAllPosts(), buildPostUrlMap(), getReadingCatalog()]);
+  const [posts, urlMap, readingCatalog, shelf] = await Promise.all([getAllPosts(), buildPostUrlMap(), getReadingCatalog(), getStartReadingShelf()]);
   const recentPosts = posts.filter((post) => urlMap.has(post.slug)).slice(0, RECENT_POSTS_MAX).map((post) => {
     const location = urlMap.get(post.slug)!;
     const href = buildPostUrl(location.groupSlug, post.slug);
@@ -72,6 +74,8 @@ export default async function HomePage() {
         <ContinueReadingBanner availablePaths={readingCatalog.map((piece) => piece.canonicalPath)} />
         <ContinueToyBanner />
       </div>
+
+      <StartReadingShelf items={shelf} heading="Choose your next read" headingId="home-start-reading" />
 
       <FeaturedCollectionCard collection={ZOO_FEATURED_COLLECTION} placement="home" />
 

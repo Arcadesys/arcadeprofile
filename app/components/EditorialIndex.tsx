@@ -48,7 +48,7 @@ export default function EditorialIndex({ section, groups, featuredCollection, fe
         <nav className={styles.topicNav} aria-label="Essay topics">
           <span>Jump to a topic</span>
           <ul>
-            {groups.map((group) => <li key={group.slug}><Link href={group.href}>{group.title}</Link></li>)}
+            {groups.map((group) => <li key={group.slug}><Link href={`#topic-${group.slug}`}>{group.title}</Link></li>)}
           </ul>
         </nav>
       ) : null}
@@ -102,7 +102,7 @@ export default function EditorialIndex({ section, groups, featuredCollection, fe
       {groups.length > 0 ? (
         <ol className={styles.groupList}>
           {groups.map((group) => (
-            <li key={group.slug} className={styles.group}>
+            <li key={group.slug} id={`topic-${group.slug}`} className={styles.group}>
               <header className={styles.groupHeader}>
                 <div>
                   <h2 className={styles.groupTitle}><Link href={group.href}>{group.title}</Link></h2>
