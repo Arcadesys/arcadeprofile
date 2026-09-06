@@ -88,7 +88,7 @@ export default function ResumePage() {
         <p style={{ fontSize: "0.9rem", margin: 0 }}>
           <a href="mailto:austen.crowder@gmail.com">austen.crowder@gmail.com</a>
           {" "}&middot;{" "}
-          <a href="https://thearcades.me">thearcades.me</a>
+          <a href="https://www.thearcades.me">www.thearcades.me</a>
           {" "}&middot;{" "}
           <a href="https://github.com/Arcadesys">github.com/Arcadesys</a>
         </p>

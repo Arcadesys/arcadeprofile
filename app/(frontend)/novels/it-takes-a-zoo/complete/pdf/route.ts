@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 
 import completeEdition from '@/data/zoo-collection-assets.json';
 import { ZOO_COLLECTION_PATH } from '@/lib/zoo-collection-meta';
+import { SITE_URL } from '@/lib/site-url';
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://www.thearcades.me').replace(/\/+$/, '');
 const edition = completeEdition.completeEdition;
 
 export async function GET(request: Request) {

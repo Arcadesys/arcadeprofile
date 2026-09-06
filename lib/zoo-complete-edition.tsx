@@ -4,6 +4,7 @@ import { Document, Page, StyleSheet, Text, View, renderToBuffer } from '@react-p
 import React from 'react';
 
 import { ZOO_CHAPTERS, ZOO_COLLECTION_PATH, ZOO_COLLECTION_TITLE } from '@/lib/zoo-collection';
+import { SITE_URL } from '@/lib/site-url';
 import type { EditorialBlock } from '@/lib/editorial-piece';
 import { markdownToEditorialBlocks } from '@/lib/editorial-piece';
 
@@ -113,7 +114,7 @@ function ZooCompleteEditionDocument() {
         <Text style={styles.subtitle}>A novel-in-stories</Text>
         <Text style={styles.byline}>By Austen Tucker</Text>
         <Text style={styles.note}>Includes the six approved chapters in canonical order. “It Takes a Zoo to Raise the Child” is a separate opening poem and is not included in this edition.</Text>
-        <Text style={styles.note}>https://thearcades.me{ZOO_COLLECTION_PATH}</Text>
+        <Text style={styles.note}>{SITE_URL}{ZOO_COLLECTION_PATH}</Text>
         <Footer pageNumber={1} totalPages={totalPages} />
       </Page>
       <Page size="LETTER" style={styles.page}>

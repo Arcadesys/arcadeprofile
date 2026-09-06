@@ -11,9 +11,9 @@ import ReadingNextSteps from '@/app/components/ReadingNextSteps';
 import { PieceActions } from '@/app/components/PieceActions';
 import { COLLECTION, COLLECTION_PATH, COLLECTION_TITLE, getStory } from '@/lib/collection';
 import { JsonLd } from '@/lib/structured-data';
+import { SITE_URL } from '@/lib/site-url';
 import { getReadingCatalog } from '@/lib/reading-catalog';
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
 type Props = { params: Promise<{ slug: string }> };
 

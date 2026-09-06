@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 
 import { resolveCanonicalUrl } from '@/lib/canonical-url';
 import { SITE_NAME } from '@/lib/site-brand';
-
-const DEFAULT_SITE_URL = 'https://www.thearcades.me';
+import { SITE_URL } from '@/lib/site-url';
+import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
 export type EditorialMetadataInput = {
   title: string;
@@ -25,23 +25,21 @@ export type EditorialMetadata = {
   breadcrumbJsonLd: Record<string, unknown>;
 };
 
-function siteUrl(): string {
-  return (process.env.NEXT_PUBLIC_SITE_URL?.trim() || DEFAULT_SITE_URL).replace(/\/+$/, '');
-}
-
 /**
  * Keep a public piece's canonical URL, social metadata, Article markup, and
  * breadcrumb markup aligned. The web page remains canonical; a matching PDF
  * is exposed as an Article encoding rather than a competing document URL.
  */
 export function buildEditorialMetadata(input: EditorialMetadataInput): EditorialMetadata {
-  const site = siteUrl();
+  const site = SITE_URL;
   const canonicalUrl = resolveCanonicalUrl(input.path, input.path, site);
   const collectionUrl = input.collection
     ? resolveCanonicalUrl(input.collection.path, input.collection.path, site)
     : undefined;
   const pdfUrl = input.pdfPath ? resolveCanonicalUrl(input.pdfPath, input.pdfPath, site) : undefined;
-  const image = input.image ? resolveCanonicalUrl(input.image, input.image, site) : undefined;
+  const image = input.image
+    ? resolveCanonicalUrl(input.image, input.image, site)
+    : resolveCanonicalUrl(DEFAULT_SOCIAL_IMAGE.url, DEFAULT_SOCIAL_IMAGE.url, site);
   const socialTitle = `${input.title} | ${SITE_NAME}`;
 
   const articleJsonLd: Record<string, unknown> = {
@@ -57,7 +55,7 @@ export function buildEditorialMetadata(input: EditorialMetadataInput): Editorial
     ...(input.datePublished ? { datePublished: input.datePublished } : {}),
     ...(input.dateModified ? { dateModified: input.dateModified } : {}),
     ...(input.section ? { articleSection: input.section } : {}),
-    ...(image ? { image } : {}),
+    image,
     ...(collectionUrl && input.collection
       ? {
           isPartOf: {
@@ -96,13 +94,13 @@ export function buildEditorialMetadata(input: EditorialMetadataInput): Editorial
         title: socialTitle,
         description: input.description,
         url: canonicalUrl,
-        ...(image ? { images: [{ url: image, alt: input.title }] } : {}),
+        images: [{ url: image, alt: input.image ? input.title : DEFAULT_SOCIAL_IMAGE.alt }],
       },
       twitter: {
-        card: image ? 'summary_large_image' : 'summary',
+        card: 'summary_large_image',
         title: socialTitle,
         description: input.description,
-        ...(image ? { images: [image] } : {}),
+        images: [image],
       },
     },
     articleJsonLd,

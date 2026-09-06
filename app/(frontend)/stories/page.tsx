@@ -7,6 +7,7 @@ import { getEditorialCatalog } from '@/lib/editorial-catalog';
 import { COLLECTION, COLLECTION_PATH, COLLECTION_TITLE } from '@/lib/collection';
 import { PORTFOLIO_WORKS } from '@/lib/portfolio';
 import { ZOO_FEATURED_COLLECTION } from '@/lib/zoo-collection-meta';
+import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,8 +36,8 @@ export const metadata: Metadata = {
   title: 'Stories',
   description,
   alternates: { canonical: '/stories' },
-  openGraph: { type: 'website', title: `Stories | ${SITE_NAME}`, description, url: '/stories' },
-  twitter: { card: 'summary_large_image', title: `Stories | ${SITE_NAME}`, description },
+  openGraph: { type: 'website', title: `Stories | ${SITE_NAME}`, description, url: '/stories', images: [DEFAULT_SOCIAL_IMAGE] },
+  twitter: { card: 'summary_large_image', title: `Stories | ${SITE_NAME}`, description, images: [DEFAULT_SOCIAL_IMAGE.url] },
 };
 
 export default async function StoriesPage() {

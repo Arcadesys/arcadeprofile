@@ -8,8 +8,7 @@ import Navbar from '../components/Navbar';
 import { JsonLd } from '@/lib/structured-data';
 import { LIGHTS_BOOTSTRAP_SCRIPT } from '@/lib/lights';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_NAME_UPPER, SITE_TITLE_DEFAULT } from '@/lib/site-brand';
-
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://www.thearcades.me').replace(/\/+$/, '');
+import { SITE_URL } from '@/lib/site-url';
 
 const inter = Inter({
   subsets: ['latin'],

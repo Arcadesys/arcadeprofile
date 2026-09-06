@@ -9,11 +9,11 @@ import ReadingNextSteps from '@/app/components/ReadingNextSteps';
 import { JsonLd } from '@/lib/structured-data';
 import { SITE_NAME } from '@/lib/site-brand';
 import { getZooChapter, ZOO_CHAPTERS, ZOO_COLLECTION_PATH, ZOO_COLLECTION_TITLE, ZOO_HERO } from '@/lib/zoo-collection';
+import { SITE_URL } from '@/lib/site-url';
 import { getReadingCatalog } from '@/lib/reading-catalog';
 
 import styles from '../zoo.module.css';
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 type Props = { params: Promise<{ chapter: string }> };
 
 export function generateStaticParams() {
@@ -59,6 +59,12 @@ export default async function ZooChapterPage({ params }: Props) {
           <p className={styles.byline}>By Austen Tucker</p>
           <p className={styles.description}>{chapter.description}</p>
           <p className={styles.meta}>{chapter.wordCount.toLocaleString('en-US')} words · about {chapter.readingMinutes} minutes</p>
+          {chapter.slug === 'gallery-view' && (
+            <p className={styles.description}>
+              This is the novel’s Chapter 2 edition. A distinct portfolio edition is also available at{' '}
+              <Link href="/portfolio/gallery-view">Gallery View</Link>.
+            </p>
+          )}
           <div className={styles.actions}>
             <a href={chapter.pdfPath}>Download the PDF of Chapter {chapter.order}: {chapter.title}</a>
           </div>

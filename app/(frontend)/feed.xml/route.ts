@@ -2,18 +2,11 @@ import { Feed } from 'feed';
 import { SITE_NAME } from '@/lib/site-brand';
 import { buildPostUrl, buildPostUrlMap, getPublishedPostsForRss } from '@/lib/blog';
 import { markdownToSafeHtml } from '@/lib/markdown-render';
+import { SITE_URL } from '@/lib/site-url';
 
 export const dynamic = 'force-dynamic';
 
-const DEFAULT_SITE_URL = 'https://thearcades.me';
-
-function getSiteUrl(): string {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim() || DEFAULT_SITE_URL;
-  return raw.replace(/\/+$/, '');
-}
-
 export async function GET() {
-  const SITE_URL = getSiteUrl();
   const [posts, urlMap] = await Promise.all([
     getPublishedPostsForRss(),
     buildPostUrlMap(),

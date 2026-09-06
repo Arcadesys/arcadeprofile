@@ -22,8 +22,9 @@ import {
 } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
-
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
+import { absoluteSiteUrl, SITE_URL } from '@/lib/site-url';
+import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
+import { stripGeneratedTitleSuffix } from '@/lib/metadata-title';
 
 export const dynamic = 'force-dynamic';
 
@@ -108,11 +109,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = group.posts[idx];
 
   const metaTitle = post.meta?.title?.trim() || post.title;
+  const titleWithoutGeneratedSuffix = stripGeneratedTitleSuffix(metaTitle, project.title, SITE_NAME);
   const metaDescription = post.meta?.description?.trim() || post.excerpt || undefined;
-  const titleForOg = `${metaTitle} | ${project.title} | ${SITE_NAME}`;
+  const titleForOg = `${titleWithoutGeneratedSuffix} | ${project.title} | ${SITE_NAME}`;
   const canonicalUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
   return {
-    title: `${metaTitle} | ${project.title}`,
+    title: `${titleWithoutGeneratedSuffix} | ${project.title}`,
     description: metaDescription,
     alternates: { canonical: canonicalUrl },
     openGraph: {
@@ -120,13 +122,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: metaDescription,
       type: 'article',
       url: canonicalUrl,
-      images: post.hero ? [{ url: post.hero.src, alt: post.hero.alt }] : undefined,
+      images: [post.hero ? { url: post.hero.src, alt: post.hero.alt } : DEFAULT_SOCIAL_IMAGE],
     },
     twitter: {
       card: post.hero ? 'summary_large_image' : 'summary',
       title: titleForOg,
       description: metaDescription,
-      images: post.hero ? [post.hero.src] : undefined,
+      images: [post.hero?.src ?? DEFAULT_SOCIAL_IMAGE.url],
     },
   };
 }
@@ -162,7 +164,7 @@ export default async function ProjectPostPage({ params }: Props) {
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
-    headline: post.meta?.title?.trim() || post.title,
+    headline: post.title,
     description: post.meta?.description?.trim() || post.excerpt || undefined,
     datePublished: post.date,
     dateModified: post.updatedDate || post.date,
@@ -183,7 +185,7 @@ export default async function ProjectPostPage({ params }: Props) {
       url: `${SITE_URL}${buildGroupIntroUrl(slug)}`,
     },
     articleSection: project.category ?? undefined,
-    image: post.hero?.src ?? undefined,
+    image: post.hero?.src ?? absoluteSiteUrl(DEFAULT_SOCIAL_IMAGE.url),
   };
 
   const breadcrumbJsonLd = {

@@ -1,5 +1,6 @@
 import { markdownToPlaintext, markdownToSafeHtml } from './markdown-render';
 import { buildPostUrl } from './post-url';
+import { SITE_URL } from './site-url';
 
 export type NewsletterContent = {
   htmlBody: string;
@@ -19,7 +20,6 @@ type PostInput = {
   };
 };
 
-const DEFAULT_SITE_URL = 'https://thearcades.me';
 const EMAIL_BACKGROUND = '#ffffff';
 const EMAIL_TEXT = '#111827';
 const EMAIL_MUTED = '#4b5563';
@@ -44,7 +44,7 @@ function toAbsoluteUrl(url: string, siteUrl: string): string {
 
 export function buildPostNewsletterContent(
   post: PostInput,
-  siteUrl = process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL,
+  siteUrl = SITE_URL,
 ): NewsletterContent {
   const baseUrl = siteUrl.replace(/\/+$/, '');
   const postUrl = `${baseUrl}${buildPostUrl(post.group.slug, post.slug)}`;
