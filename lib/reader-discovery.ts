@@ -1,7 +1,7 @@
 import { COLLECTION, COLLECTION_PATH } from '@/lib/collection';
 import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { buildPostUrl } from '@/lib/post-url';
-import { getZooChapter } from '@/lib/zoo-collection';
+import { getZooChapter, ZOO_HERO } from '@/lib/zoo-collection';
 
 export type DiscoveryReadingItem = {
   title: string;
@@ -9,6 +9,13 @@ export type DiscoveryReadingItem = {
   href: string;
   readingMinutes: number;
   kind: 'fiction' | 'essay';
+  /** Real cover art when a selected piece has a public, accessible asset. */
+  cover?: {
+    src: string;
+    alt: string;
+    width: number;
+    height: number;
+  };
 };
 
 function readingMinutes(text: string, wordsPerMinute = 225): number {
@@ -40,6 +47,12 @@ export async function getStartReadingShelf(): Promise<readonly DiscoveryReadingI
       href: `${COLLECTION_PATH}/${carl.slug}`,
       readingMinutes: readingMinutes(carl.markdownBody ?? ''),
       kind: 'fiction',
+      cover: {
+        src: carl.cover.src,
+        alt: carl.coverAlt,
+        width: carl.cover.width,
+        height: carl.cover.height,
+      },
     },
     {
       title: coldBoot.title,
@@ -47,6 +60,12 @@ export async function getStartReadingShelf(): Promise<readonly DiscoveryReadingI
       href: coldBoot.path,
       readingMinutes: coldBoot.readingMinutes,
       kind: 'fiction',
+      cover: {
+        src: ZOO_HERO.url,
+        alt: ZOO_HERO.alt,
+        width: ZOO_HERO.width,
+        height: ZOO_HERO.height,
+      },
     },
     {
       title: photograph.title,
