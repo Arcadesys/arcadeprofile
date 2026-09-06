@@ -2,40 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import {
-  LEGACY_READING_PROGRESS_STORAGE_KEY,
-  migrateLegacyReadingProgress,
-  parseReadingContinuity,
-  READING_CONTINUITY_STORAGE_KEY,
-  type ReadingContinuityRecord,
-} from '@/lib/reading-continuity';
-
-function readStoredProgress(availablePaths: readonly string[]): ReadingContinuityRecord | null {
-  try {
-    const current = parseReadingContinuity(window.localStorage.getItem(READING_CONTINUITY_STORAGE_KEY));
-    if (current && availablePaths.includes(current.canonicalPath)) return current;
-    const legacy = migrateLegacyReadingProgress(window.localStorage.getItem(LEGACY_READING_PROGRESS_STORAGE_KEY));
-    if (legacy && availablePaths.includes(legacy.canonicalPath)) {
-      window.localStorage.setItem(READING_CONTINUITY_STORAGE_KEY, JSON.stringify(legacy));
-      window.localStorage.removeItem(LEGACY_READING_PROGRESS_STORAGE_KEY);
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
+import { READING_CONTINUITY_STORAGE_KEY, type ReadingContinuityRecord } from '@/lib/reading-continuity';
+import { readStoredProgress } from '@/lib/reading-resume-storage';
 
 /**
  * Client-only "pick up where you left off" prompt, sourced from whatever
- * `ReadingProgressTracker` last recorded. Renders nothing until hydrated
- * (SSR-safe, same pattern as PostReactions' clientId) and nothing at all
- * if there's no in-progress series.
+ * the reading-continuity tracker last recorded. Renders nothing until hydrated
+ * and nothing at all when the saved canonical path is no longer public.
  */
 export default function ContinueReadingBanner({ availablePaths = [] }: { availablePaths?: readonly string[] }) {
   const [progress, setProgress] = useState<ReadingContinuityRecord | null>(null);
 
   useEffect(() => {
-    setProgress(readStoredProgress(availablePaths));
+    try { setProgress(readStoredProgress(window.localStorage, availablePaths)); } catch { setProgress(null); }
   }, [availablePaths]);
 
   if (!progress) return null;
