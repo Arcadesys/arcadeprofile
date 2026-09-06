@@ -132,15 +132,18 @@ export function nextPiece(piece: ReadingPiece, catalog: readonly ReadingPiece[])
 export function recommendedPieces(piece: ReadingPiece, catalog: readonly ReadingPiece[], limit = 2): ReadingPiece[] {
   const byPath = new Map(catalog.map((candidate) => [candidate.canonicalPath, candidate]));
   const seen = new Set<string>([piece.canonicalPath]);
+  const seenEditions = new Set(piece.editionOf ? [piece.editionOf] : []);
   const excludedEdition = piece.editionOf;
   const allowed = (candidate: ReadingPiece | undefined): candidate is ReadingPiece => candidate !== undefined
     && !seen.has(candidate.canonicalPath)
-    && (!excludedEdition || candidate.editionOf !== excludedEdition);
+    && (!excludedEdition || candidate.editionOf !== excludedEdition)
+    && (!candidate.editionOf || !seenEditions.has(candidate.editionOf));
   const picked: ReadingPiece[] = [];
   const add = (candidate: ReadingPiece | undefined) => {
     if (!candidate || !allowed(candidate) || picked.length >= limit) return;
     const selected = candidate;
     seen.add(selected.canonicalPath);
+    if (selected.editionOf) seenEditions.add(selected.editionOf);
     picked.push(selected);
   };
   for (const path of piece.curatedRelatedPaths ?? []) add(byPath.get(path));

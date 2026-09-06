@@ -18,3 +18,9 @@ export function readStoredProgress(storage: ReadingStorage, availablePaths: read
   storage.removeItem(LEGACY_READING_PROGRESS_STORAGE_KEY);
   return legacy;
 }
+
+/** Removes both formats so an older record cannot reappear after dismissal. */
+export function dismissStoredProgress(storage: ReadingStorage): void {
+  storage.removeItem(READING_CONTINUITY_STORAGE_KEY);
+  storage.removeItem(LEGACY_READING_PROGRESS_STORAGE_KEY);
+}
