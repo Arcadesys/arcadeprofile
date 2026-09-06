@@ -2044,6 +2044,18 @@ html[data-reading-width] .collection-index {
 .dd-toggle { display: grid; place-items: center; left: 138px; top: 50%; min-width: 48px; min-height: 52px; border: 2px solid var(--pink); border-left: 0; border-radius: 0 6px 6px 0; background: #09090a; color: #fff; box-shadow: 5px 0 16px rgba(239,54,175,.22); animation: none; }
 @media (max-width: 960px), (max-height: 700px) { .dd-toggle { left: 0; } }
 
+/* Keep the series list beside the fixed desktop rail so every title remains
+   visible. Mobile keeps using the full-width overlay declared below. */
+@media (min-width: 961px) and (min-height: 701px) {
+  .doc-drawer {
+    left: 138px;
+    width: min(380px, calc(100vw - 138px - 1rem));
+  }
+  body.dd-open .dd-toggle {
+    left: calc(138px + min(380px, calc(100vw - 138px - 1rem)));
+  }
+}
+
 /* Desktop rail icon pass: roomy, high-contrast linework that pairs every
    editorial destination with a readable label. The icon is decorative; the
    label and active border remain the navigation affordance. */

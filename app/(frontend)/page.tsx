@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
-
 import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 import ContinueReadingBanner from '@/app/components/ContinueReadingBanner';
 import ContinueToyBanner from '@/app/components/toys/ContinueToyBanner';
@@ -8,7 +7,7 @@ import { PieceActions } from '@/app/components/PieceActions';
 import { buildPostUrl } from '@/lib/post-url';
 import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
-import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
+import { SITE_NAME } from '@/lib/site-brand';
 
 import styles from './home.module.css';
 
@@ -26,19 +25,18 @@ export default async function HomePage() {
     <main id="arcades-home" className={styles.main}>
       <header className={styles.hero}>
         <div className={styles.brandBar}>
-          <Link className={styles.brandLockup} href="/" aria-label={`${SITE_PLATFORM_NAME} — ${SITE_NAME} home`}>
-            <span>{SITE_PLATFORM_NAME}</span><b aria-hidden="true">/</b><strong>{SITE_NAME}</strong>
-          </Link>
+          <Link className={styles.brandLockup} href="/" aria-label={`${SITE_NAME} home`}><span>THE ARCADES</span></Link>
           <Link className={styles.topSubscribe} href="/subscribe">Subscribe</Link>
         </div>
         <div className={styles.heroEditorial}>
           <div className={styles.heroCopy}>
-            <p className={styles.byline}>Stories by Austen Tucker</p>
-            <h1 className={styles.title}>The Arcades&apos; Lab</h1>
-            <p className={styles.tagline}>Read the strange little fire.</p>
+            <p className={styles.platform}>The collected works and experiments of</p>
+            <h1 className={styles.title}>Austen Tucker</h1>
+            <p className={styles.identity}>Writer <span aria-hidden="true">·</span> Artist <span aria-hidden="true">·</span> Technologist</p>
+            <p className={styles.tagline}>Stories, essays, art, software, and other experiments from a curious little workshop.</p>
             <div className={styles.heroActions}>
-              <Link className={styles.button} href="/stories">Start Here <span aria-hidden="true">→</span></Link>
-              <Link className={`${styles.button} ${styles.buttonAlt}`} href="/latest">Latest Stories <span aria-hidden="true">→</span></Link>
+              <Link className={styles.button} href="/writing">Enter the writing room <span aria-hidden="true">→</span></Link>
+              <Link className={`${styles.button} ${styles.buttonAlt}`} href="/projects">Explore the workshop <span aria-hidden="true">→</span></Link>
             </div>
           </div>
           <div className={styles.portrait}>
@@ -53,16 +51,6 @@ export default async function HomePage() {
             />
           </div>
         </div>
-        <aside className={styles.continuePanel} aria-labelledby="continue-heading">
-          <h2 id="continue-heading">Continue Reading</h2>
-          {recentPosts.length ? <ol className={styles.continueList}>{recentPosts.map((post, index) => (
-            <li className={styles.continueCard} key={post.slug} data-accent={index === 0 ? 'pink' : 'cyan'}>
-              <p>{post.groupTitle}</p>
-              <h3><Link href={post.href}>{post.title}</Link></h3>
-              <time dateTime={post.date}>{formatSiteDate(post.date)}</time>
-            </li>
-          ))}</ol> : <p>No recent publications are available yet.</p>}
-        </aside>
       </header>
 
       <div className={styles.resume}>
@@ -71,17 +59,17 @@ export default async function HomePage() {
       </div>
 
       <section className={styles.bands} aria-label={`Explore ${SITE_NAME}`}>
-        <article className={styles.band} style={{ '--band': 'var(--cyan)' } as CSSProperties}>
-          <h2>Fiction</h2><p>Short stories and novellas from the edges of the ordinary.</p>
-          <Link href="/stories">Explore fiction <span aria-hidden="true">→</span></Link>
+        <article className={styles.band} style={{ '--band': 'var(--accent)' } as CSSProperties}>
+          <h2>Writing</h2><p>Books, fiction, essays, and work still arriving.</p>
+          <Link href="/writing">Browse the shelves <span aria-hidden="true">→</span></Link>
         </article>
         <article className={styles.band} style={{ '--band': 'var(--pink)' } as CSSProperties}>
-          <h2>Essays</h2><p>Ideas, reflections, and dispatches from the weird and wonderful.</p>
-          <Link href="/essays">Explore essays <span aria-hidden="true">→</span></Link>
+          <h2>Projects</h2><p>Software, AI experiments, games, and strange little machines.</p>
+          <Link href="/projects">Visit the workshop <span aria-hidden="true">→</span></Link>
         </article>
-        <article className={styles.band} style={{ '--band': 'var(--accent)' } as CSSProperties}>
-          <h2>Case Studies</h2><p>Real products, the systems behind them, and lessons earned while building them.</p>
-          <Link href="/lab">Explore case studies <span aria-hidden="true">→</span></Link>
+        <article className={styles.band} style={{ '--band': 'var(--cyan)' } as CSSProperties}>
+          <h2>About Austen</h2><p>A writer&apos;s history, creative practice, and the work behind the work.</p>
+          <Link href="/bio">Meet the maker <span aria-hidden="true">→</span></Link>
         </article>
       </section>
 
@@ -114,14 +102,14 @@ export default async function HomePage() {
               decoding="async"
             />
           </div>
-          <h2 id="recent-heading">Recently Published</h2>
+          <h2 id="recent-heading">Featured &amp; recent work</h2>
           {recentPosts.length ? <ol className={styles.recentList}>{recentPosts.map((post) => (
             <li className={styles.recentRow} key={post.slug}>
               <div><h3><Link href={post.href}>{post.title}</Link></h3><p>{post.groupTitle} · {formatSiteDate(post.date)}</p></div>
               <div className={styles.recentActions}><PieceActions title={post.title} readHref={post.href} pdfHref={`${post.href}/pdf`} shareUrl={post.href} showRead={false} /></div>
             </li>
           ))}</ol> : <p>No recent publications are available yet.</p>}
-          <Link className={styles.button} href="/latest">View all stories <span aria-hidden="true">→</span></Link>
+          <Link className={styles.button} href="/writing">See all writing <span aria-hidden="true">→</span></Link>
         </section>
       </section>
     </main>

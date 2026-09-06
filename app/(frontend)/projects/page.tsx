@@ -3,6 +3,7 @@ import { SITE_NAME } from '@/lib/site-brand';
 import { getAllProjectHubs, type ProjectHub } from '@/lib/payload';
 import { getAllPosts, buildPostUrlMap, type BlogPost } from '@/lib/blog';
 import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
+import { ZOO_CHAPTERS, ZOO_COLLECTION_PATH } from '@/lib/zoo-collection';
 import ProjectsIndex, {
   type IndexEntry,
   type PulseItem,
@@ -57,8 +58,9 @@ export default async function ProjectsPage() {
   const hubBySlug = new Map(hubs.map((h) => [h.slug, h]));
 
   const entries: IndexEntry[] = hubs.map((hub) => {
-    const groupPosts = postsByGroup.get(hub.slug) ?? [];
-    const totalPosts = groupPosts.length;
+    const canonicalZooCollection = hub.slug === 'it-takes-a-zoo';
+    const groupPosts = canonicalZooCollection ? [] : (postsByGroup.get(hub.slug) ?? []);
+    const totalPosts = canonicalZooCollection ? ZOO_CHAPTERS.length : groupPosts.length;
     const newest = groupPosts[0];
     const newestMs = newest ? new Date(newest.date).getTime() : 0;
     const ageDays = newest ? (now - newestMs) / 86400000 : Infinity;
@@ -88,7 +90,7 @@ export default async function ProjectsPage() {
       slug: hub.slug,
       title: hub.title,
       description: hub.description,
-      href: buildGroupIntroUrl(hub.slug),
+      href: canonicalZooCollection ? ZOO_COLLECTION_PATH : hub.href,
       image: hub.image ?? null,
       category: hub.category ?? null,
       status: hub.status ?? null,
@@ -105,12 +107,12 @@ export default async function ProjectsPage() {
 
   const pulseWindowMs = PULSE_DAYS * 86400000;
   let pulseSource = posts.filter(
-    (p) => p.group && hubBySlug.has(p.group) && now - new Date(p.date).getTime() <= pulseWindowMs,
+    (p) => p.group && hubBySlug.has(p.group) && p.group !== 'it-takes-a-zoo' && now - new Date(p.date).getTime() <= pulseWindowMs,
   );
   if (pulseSource.length < 3) {
     const fallbackMs = PULSE_FALLBACK_DAYS * 86400000;
     pulseSource = posts.filter(
-      (p) => p.group && hubBySlug.has(p.group) && now - new Date(p.date).getTime() <= fallbackMs,
+      (p) => p.group && hubBySlug.has(p.group) && p.group !== 'it-takes-a-zoo' && now - new Date(p.date).getTime() <= fallbackMs,
     );
   }
   const pulse: PulseItem[] = pulseSource.slice(0, PULSE_MAX).map((p) => {
@@ -122,7 +124,7 @@ export default async function ProjectsPage() {
       title: p.title,
       href,
       groupTitle: pulseGroupShort(hub.title),
-      groupHref: buildGroupIntroUrl(hub.slug),
+      groupHref: hub.slug === 'it-takes-a-zoo' ? ZOO_COLLECTION_PATH : hub.href,
       date: p.date,
       relative: relativeShort(p.date, now),
     };

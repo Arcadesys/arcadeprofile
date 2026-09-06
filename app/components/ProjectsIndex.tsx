@@ -102,10 +102,10 @@ export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
         <div>
           <div className={styles.eyebrow}>Vol. III &middot; 2026 &middot; perpetually under construction</div>
           <h1 className={styles.title}>
-            An index of <em>in-progress things</em>.
+            Experiments &amp; <em>machines</em>.
           </h1>
           <p className={styles.lede}>
-            Fiction, essays, tools, and audio-visual experiments &mdash; collected as project hubs. Listed by recent activity. The last few drops are shown under each.
+            Software, AI experiments, interactive work, and other builds from the same creative workshop. Listed by recent activity.
           </p>
         </div>
         <div className={styles.headMeta}>

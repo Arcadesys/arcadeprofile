@@ -99,11 +99,6 @@ export default function StorePage() {
             </article>
           ))}
         </div>
-
-        <p style={{ maxWidth: '680px', margin: '3rem auto 0', fontSize: '1.125rem' }}>
-          Want La Ligne du Marais before you buy?{' '}
-          <a href="#subscribe">Return to the signup form.</a>
-        </p>
       </div>
     </div>
   );

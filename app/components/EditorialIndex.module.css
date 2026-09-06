@@ -73,8 +73,30 @@
 
 .collectionCard {
   display: grid;
-  gap: 0.7rem;
+  grid-template-columns: minmax(6rem, 9rem) minmax(0, 1fr);
+  gap: 1rem;
   padding: 1rem;
+}
+
+.coverLink,
+.groupCoverLink {
+  align-self: start;
+  display: block;
+}
+
+.collectionCover,
+.groupCover {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border-strong);
+  object-fit: cover;
+}
+
+.collectionContent {
+  display: grid;
+  gap: 0.7rem;
+  min-width: 0;
 }
 
 .collectionCard h3 {
@@ -136,6 +158,10 @@
   border-bottom: 1px solid var(--border);
 }
 
+.groupCoverLink {
+  flex: 0 0 clamp(7rem, 17vw, 12rem);
+}
+
 .groupHeader p {
   max-width: 46rem;
   margin-top: 0.6rem;
@@ -176,6 +202,13 @@
   line-height: 1.55;
 }
 
+.canonicalCollectionNote {
+  margin-top: 1rem;
+  color: var(--fg-muted);
+  font-family: var(--font-serif);
+  line-height: 1.55;
+}
+
 .empty {
   color: var(--fg-muted);
   font-family: var(--font-serif);
@@ -189,3 +222,10 @@
 .title { font-family: var(--font-barlow-condensed), sans-serif; font-weight: 700; letter-spacing: .01em; text-transform: uppercase; }
 .collection, .group, .collectionCard { border-radius: 0; border-color: #34343b; background: rgba(7, 7, 8, .9); clip-path: polygon(0 0, 98% 0, 100% 7%, 100% 93%, 98% 100%, 0 100%); }
 .collectionCard { clip-path: none; border-left: 3px solid var(--cyan); }.group { border-left: 3px solid var(--pink); }.groupTitle { font-family: var(--font-barlow-condensed), sans-serif; text-transform: uppercase; letter-spacing: .025em; }.action, .groupActions a { min-height: 48px; border-radius: 0; font-family: var(--font-mono); }
+
+@media (max-width: 28rem) {
+  .collectionCard {
+    grid-template-columns: minmax(5.5rem, 7rem) minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+}

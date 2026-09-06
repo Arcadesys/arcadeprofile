@@ -34,6 +34,7 @@ import { default as default_5aadf0170b2e4a6ac4a1379a4fd31d56 } from '../../../vi
 import { default as default_348fbacb1966829b7f5e48d72cfbf516 } from '../../../views/group-scenes/GroupScenesView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
+/** @type import('payload').ImportMap */
 export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,

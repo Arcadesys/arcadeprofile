@@ -39,6 +39,11 @@ test('buildStaticSitemapEntries maps configured routes without synthetic modific
     entries.filter(entry => entry.url.includes('/this-is-what-i-do-for-fun')).length,
     8,
   );
+  // The It Takes a Zoo collection index plus its six prose chapters.
+  assert.equal(
+    entries.filter(entry => entry.url.includes('/novels/it-takes-a-zoo')).length,
+    7,
+  );
   assert.equal(entries.find(entry => entry.url.endsWith('/projects'))?.priority, 0.9);
   assert.equal(entries.find(entry => entry.url.endsWith('/lab'))?.priority, 0.9);
   assert.equal(entries.some(entry => entry.url.endsWith('/lab/wizwor')), true);

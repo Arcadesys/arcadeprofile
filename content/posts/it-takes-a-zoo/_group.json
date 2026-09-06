@@ -16,14 +16,27 @@
     "description": "Furry transformation novel about found family, queerness, and surviving hypercapitalism through the power of love."
   },
   "project": {
-    "image": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/it-takes-a-zoo.png",
+    "image": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/cover/203848b88e2e7853c728b6021be12d92726ec277fdfbdf146ebcff7c51fe97ea/it-takes-a-zoo-collection-cover-v5.png",
     "external": false,
     "featured": true,
     "homeHighlight": true,
     "category": "fiction",
     "status": "active",
     "format": "serial",
-    "updatedAt": "2026-05-15T12:25:09.713Z",
+    "primaryCTA": {
+      "label": "Read the novel-in-stories",
+      "href": "/novels/it-takes-a-zoo",
+      "type": "preview"
+    },
+    "resources": [
+      {
+        "label": "Complete chapter editions",
+        "href": "/novels/it-takes-a-zoo",
+        "kind": "preview",
+        "description": "Six full chapters with accessible web text and PDF downloads."
+      }
+    ],
+    "updatedAt": "2026-08-23T12:00:00.000-05:00",
     "createdAt": "2026-05-02T16:51:25.744Z"
   }
 }

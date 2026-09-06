@@ -1,0 +1,46 @@
+{
+  "hero": {
+    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/cover/203848b88e2e7853c728b6021be12d92726ec277fdfbdf146ebcff7c51fe97ea/it-takes-a-zoo-collection-cover-v5.png",
+    "sha256": "203848b88e2e7853c728b6021be12d92726ec277fdfbdf146ebcff7c51fe97ea",
+    "bytes": 5675641,
+    "width": 1650,
+    "height": 2550
+  },
+  "galleryArtwork": {
+    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/gallery-view-artwork/73b7ab70aac4ecd303a5b8161a2aeb6860bafb44f7a7fa2fa3d52f3a941f3f1b/gallery%20view.png",
+    "sha256": "73b7ab70aac4ecd303a5b8161a2aeb6860bafb44f7a7fa2fa3d52f3a941f3f1b",
+    "bytes": 2734639
+  },
+  "chapters": {
+    "cold-boot": {
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/cold-boot/6894447634591d415b9eb5293ef8b259ac8a439a07e7ca612640b3a841622054/cold-boot.pdf",
+      "sha256": "6894447634591d415b9eb5293ef8b259ac8a439a07e7ca612640b3a841622054",
+      "bytes": 869414
+    },
+    "gallery-view": {
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/gallery-view/0160299de3d06b223719cf55b41a8534f8694ac1d9b4def703a943361c73e009/gallery-view.pdf",
+      "sha256": "0160299de3d06b223719cf55b41a8534f8694ac1d9b4def703a943361c73e009",
+      "bytes": 4286351
+    },
+    "permissions": {
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/permissions/91bb4c5cf6b6e1f2666c6fab5cd129d1ea3d9d7cfea2e32c1c9f13b5be7366bc/permissions.pdf",
+      "sha256": "91bb4c5cf6b6e1f2666c6fab5cd129d1ea3d9d7cfea2e32c1c9f13b5be7366bc",
+      "bytes": 1071146
+    },
+    "goodgirl-tv": {
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/goodgirl-tv/7b46af5c91ed62484a1fa6a45f3c05e79d245a83dc465fda77cd77f72c87c377/goodgirl-tv.pdf",
+      "sha256": "7b46af5c91ed62484a1fa6a45f3c05e79d245a83dc465fda77cd77f72c87c377",
+      "bytes": 1061433
+    },
+    "soft-reset": {
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/soft-reset/3b1fb16edb2d7894c1f1c08118d46bcd41f4a1576e1ed52d45c7f60582da0201/soft-reset.pdf",
+      "sha256": "3b1fb16edb2d7894c1f1c08118d46bcd41f4a1576e1ed52d45c7f60582da0201",
+      "bytes": 3694575
+    },
+    "open-port": {
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/open-port/498237c81193e6efa4c826698ff28aa0452d1bbc899ab854b69c5452d968bd46/open-port.pdf",
+      "sha256": "498237c81193e6efa4c826698ff28aa0452d1bbc899ab854b69c5452d968bd46",
+      "bytes": 1249519
+    }
+  }
+}

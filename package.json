@@ -16,6 +16,7 @@
     "seed:groups": "tsx --require ./scripts/patch-next-env.cjs scripts/seed-groups.ts",
     "seed:pico-panic": "tsx --require ./scripts/patch-next-env.cjs scripts/seed-pico-panic.ts",
     "generate:portfolio": "tsx --require ./scripts/patch-next-env.cjs scripts/generate-portfolio-content.ts",
+    "generate:zoo": "tsx --require ./scripts/patch-next-env.cjs scripts/generate-zoo-collection.ts",
     "postmark:test": "tsx scripts/send-test-email.ts",
     "backfill:post-meta": "tsx --require ./scripts/patch-next-env.cjs scripts/backfill-post-meta.ts",
     "dump:post-meta": "tsx --require ./scripts/patch-next-env.cjs scripts/dump-posts-for-meta.ts",
