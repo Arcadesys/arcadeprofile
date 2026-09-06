@@ -77,18 +77,21 @@ export default async function HomePage() {
 
       <section className={styles.bands} aria-label={`Explore ${SITE_NAME}`}>
         <article className={styles.band} style={{ '--band': 'var(--cyan)' } as CSSProperties}>
-          <h2>Fiction</h2><p>Short stories and novellas from the edges of the ordinary.</p>
-          <Link href="/stories">Explore fiction <span aria-hidden="true">→</span></Link>
+          <h2>Fiction</h2><p>Short stories, novellas, and complete reading paths for strange little fires.</p>
+          <Link href="/stories">Read fiction <span aria-hidden="true">→</span></Link>
         </article>
         <article className={styles.band} style={{ '--band': 'var(--pink)' } as CSSProperties}>
           <h2>Essays</h2><p>Ideas, reflections, and dispatches from the weird and wonderful.</p>
-          <Link href="/essays">Explore essays <span aria-hidden="true">→</span></Link>
-        </article>
-        <article className={styles.band} style={{ '--band': 'var(--accent)' } as CSSProperties}>
-          <h2>Case Studies</h2><p>Real products, the systems behind them, and lessons earned while building them.</p>
-          <Link href="/lab">Explore case studies <span aria-hidden="true">→</span></Link>
+          <Link href="/essays">Read essays <span aria-hidden="true">→</span></Link>
         </article>
       </section>
+
+      <nav className={styles.secondaryExplore} aria-label="More from The Arcades">
+        <Link href="/lab">Case studies</Link>
+        <Link href="/projects">Projects</Link>
+        <Link href="/toys">Games</Link>
+        <Link href="/store">Store</Link>
+      </nav>
 
       <section className={styles.below}>
         <section className={styles.recent} aria-labelledby="recent-heading">
@@ -103,14 +106,14 @@ export default async function HomePage() {
               decoding="async"
             />
           </div>
-          <h2 id="recent-heading">Recently Published</h2>
+          <h2 id="recent-heading">Latest</h2>
           {recentPosts.length ? <ol className={styles.recentList}>{recentPosts.map((post) => (
             <li className={styles.recentRow} key={post.slug}>
               <div><h3><Link href={post.href}>{post.title}</Link></h3><p>{post.groupTitle} · {formatSiteDate(post.date)}</p></div>
               <div className={styles.recentActions}><PieceActions title={post.title} readHref={post.href} pdfHref={`${post.href}/pdf`} shareUrl={post.href} showRead={false} /></div>
             </li>
           ))}</ol> : <p>No recent publications are available yet.</p>}
-          <Link className={styles.button} href="/latest">View all stories <span aria-hidden="true">→</span></Link>
+          <Link className={styles.button} href="/latest">View all latest writing <span aria-hidden="true">→</span></Link>
         </section>
       </section>
     </main>

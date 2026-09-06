@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { SITE_NAME } from '@/lib/site-brand';
+import StartReadingShelf from '@/app/components/StartReadingShelf';
+import { getStartReadingShelf } from '@/lib/reader-discovery';
 
 import styles from './writing.module.css';
 
@@ -20,7 +22,9 @@ const doors = [
   { title: 'Bibliography', href: '/bibliography', description: 'Books and publications beyond this workshop.' },
 ] as const;
 
-export default function WritingPage() {
+export default async function WritingPage() {
+  const shelf = await getStartReadingShelf();
+
   return (
     <main className={styles.main}>
       <header className={styles.header}>
@@ -28,7 +32,9 @@ export default function WritingPage() {
         <h1>Writing</h1>
         <span>Fiction, essays, and the work that led here.</span>
       </header>
-      <section className={styles.doors} aria-label="Writing sections">
+      <StartReadingShelf items={shelf} />
+      <section className={styles.doors} aria-label="Browse writing sections">
+        <h2>Browse the whole shelf</h2>
         {doors.map((door) => (
           <Link key={door.href} href={door.href}>
             <strong>{door.title}</strong>

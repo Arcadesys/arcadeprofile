@@ -1,0 +1,24 @@
+.shelf { margin: 0 0 clamp(3rem, 7vw, 6rem); }
+.heading { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; align-items: baseline; margin-bottom: 1.25rem; }
+.heading h2 { margin: 0; color: var(--fg); font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3rem); line-height: 1; }
+.heading p { margin: 0; color: var(--fg-muted); font-size: 1.05rem; }
+.list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 12px; list-style: none; border: 1px solid #35353a; background: #09090a; }
+.item { display: grid; align-content: start; gap: .8rem; padding: clamp(1.25rem, 3vw, 1.75rem); border: 2px solid #51484d; border-left: 5px solid var(--cyan); background: var(--surface); }
+.item:nth-child(2), .item:nth-child(4) { border-left-color: var(--pink); }
+.kind { margin: 0; color: var(--cyan); font-family: var(--font-mono); font-size: .875rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.item h3 { margin: 0; font-family: var(--font-serif); font-size: clamp(1.4rem, 2.5vw, 2rem); line-height: 1.1; }
+.item h3 a { color: var(--fg); text-decoration: none; }
+.item h3 a:hover, .item h3 a:focus-visible { color: var(--accent); text-shadow: none; }
+.description { margin: 0; color: var(--fg-muted); font-size: 1rem; line-height: 1.6; }
+.meta { margin: 0; color: var(--fg-muted); font-family: var(--font-mono); font-size: .875rem; }
+.read { display: inline-flex; min-height: 48px; align-items: center; color: var(--accent); font-family: var(--font-mono); font-size: 1rem; font-weight: 800; letter-spacing: .04em; text-decoration: none; }
+.read:hover, .read:focus-visible { color: var(--fg); text-shadow: none; }
+.compact { margin-bottom: 0; }
+.compact .heading { margin-bottom: .85rem; }
+.compact .heading h2 { font-size: clamp(1.65rem, 3vw, 2.2rem); }
+.compact .heading p { font-size: 1rem; }
+.compact .list { gap: 8px; padding: 8px; }
+.compact .item { gap: .5rem; padding: 1rem; }
+.compact .item h3 { font-size: 1.3rem; }
+.compact .read { min-height: 44px; font-size: .9rem; }
+@media (max-width: 680px) { .list { grid-template-columns: 1fr; } }

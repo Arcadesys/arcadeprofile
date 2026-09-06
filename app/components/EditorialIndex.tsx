@@ -34,6 +34,7 @@ const copy = {
 
 export default function EditorialIndex({ section, groups, featuredCollection, featuredCollections, collection, collectionPath, portfolio }: Props) {
   const text = copy[section];
+  const isEssayIndex = section === 'essays';
 
   return (
     <main className={styles.main}>
@@ -42,6 +43,15 @@ export default function EditorialIndex({ section, groups, featuredCollection, fe
         <h1 className={styles.title}>{text.title}</h1>
         <p className={styles.lede}>{text.lede}</p>
       </header>
+
+      {isEssayIndex && groups.length > 0 ? (
+        <nav className={styles.topicNav} aria-label="Essay topics">
+          <span>Jump to a topic</span>
+          <ul>
+            {groups.map((group) => <li key={group.slug}><Link href={group.href}>{group.title}</Link></li>)}
+          </ul>
+        </nav>
+      ) : null}
 
       {section === 'fiction' ? featuredCollections?.map((collection) => (
         <FeaturedCollectionCard key={collection.id} collection={collection} placement="stories" />
@@ -99,11 +109,11 @@ export default function EditorialIndex({ section, groups, featuredCollection, fe
                   {group.description ? <p>{group.description}</p> : null}
                 </div>
                 <div className={styles.groupActions}>
-                  <Link href={group.href}>View series</Link>
+                  <Link href={group.href}>{isEssayIndex ? `Read all ${group.posts.length}` : 'View series'}</Link>
                 </div>
               </header>
               <ol className={styles.pieces}>
-                {group.posts.map((post) => (
+                {(isEssayIndex ? group.posts.slice(0, 3) : group.posts).map((post) => (
                   <li key={String(post.id)} className={styles.piece}>
                     <p className={styles.pieceMeta}>{formatSiteDate(post.date)}</p>
                     <h3><Link href={post.href}>{post.title}</Link></h3>
@@ -111,6 +121,9 @@ export default function EditorialIndex({ section, groups, featuredCollection, fe
                   </li>
                 ))}
               </ol>
+              {isEssayIndex && group.posts.length > 3 ? (
+                <Link className={styles.completeLink} href={group.href}>See all {group.posts.length} essays in {group.title} <span aria-hidden="true">→</span></Link>
+              ) : null}
             </li>
           ))}
         </ol>
