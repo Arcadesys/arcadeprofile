@@ -9,7 +9,8 @@ test('homepage has one compact hero signup and the reader-first conversion copy'
   const home = source('app/(frontend)/page.tsx');
 
   assert.match(home, /<h1 className=\{styles\.title\}>Read the strange little fire\.<\/h1>/);
-  assert.match(home, /Speculative fiction, essays, and build notes by Austen Tucker\. New work every two weeks\. Free by email\./);
+  assert.match(home, /New writing when it&rsquo;s ready\. Free\. One-click unsubscribe\./);
+  assert.doesNotMatch(home, /New work every two weeks/);
   assert.equal((home.match(/<SubscriptionForm/g) ?? []).length, 1);
   assert.match(home, /source="home-hero"[\s\S]*?updateMode="add"/);
   assert.match(home, /<Link className=\{styles\.button\} href="\/writing">Start Here/);
