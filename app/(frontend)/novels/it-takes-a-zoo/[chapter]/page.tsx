@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
+import ReaderTelemetry from '@/app/components/ReaderTelemetry';
 import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
 import ReadingContinuityTracker from '@/app/components/ReadingContinuityTracker';
 import ReadingNextSteps from '@/app/components/ReadingNextSteps';
@@ -63,7 +64,7 @@ export default async function ZooChapterPage({ params }: Props) {
             <a href={chapter.pdfPath}>Download the PDF of Chapter {chapter.order}: {chapter.title}</a>
           </div>
         </header>
-        <div className={styles.body}><MarkdownPostBody markdown={chapter.markdown} /></div>
+        <div className={styles.body}><ReaderTelemetry key={readingPiece.canonicalPath} canonicalId={readingPiece.canonicalPath} contentType={readingPiece.contentType} placement="reader-body" destination="none"><MarkdownPostBody markdown={chapter.markdown} /></ReaderTelemetry></div>
         <ReadingNextSteps piece={readingPiece} catalog={readingCatalog} />
         <EndOfPieceSubscribe
           audience="fiction"

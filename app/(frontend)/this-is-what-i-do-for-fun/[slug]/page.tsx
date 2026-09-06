@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
+import ReaderTelemetry from '@/app/components/ReaderTelemetry';
 import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
 import ReadingContinuityTracker from '@/app/components/ReadingContinuityTracker';
 import ReadingNextSteps from '@/app/components/ReadingNextSteps';
@@ -145,7 +146,7 @@ export default async function CollectionStoryPage({ params }: Props) {
             </section>
           )}
 
-          {story.markdownBody && <MarkdownPostBody markdown={story.markdownBody} />}
+          {story.markdownBody && readingPiece && <ReaderTelemetry key={readingPiece.canonicalPath} canonicalId={readingPiece.canonicalPath} contentType={readingPiece.contentType} placement="reader-body" destination="none"><MarkdownPostBody markdown={story.markdownBody} /></ReaderTelemetry>}
 
           {readingPiece ? <><ReadingContinuityTracker piece={readingPiece} /><ReadingNextSteps piece={readingPiece} catalog={readingCatalog} /></> : null}
 
