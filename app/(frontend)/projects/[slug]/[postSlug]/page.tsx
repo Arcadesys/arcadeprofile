@@ -9,10 +9,9 @@ import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
 import { PieceActions } from '@/app/components/PieceActions';
-import RelatedPosts from '@/app/components/RelatedPosts';
-import ReadingProgressTracker from '@/app/components/ReadingProgressTracker';
-import { getRelatedPosts } from '@/lib/related-posts';
-import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
+import ReadingContinuityTracker from '@/app/components/ReadingContinuityTracker';
+import ReadingNextSteps from '@/app/components/ReadingNextSteps';
+import { getReadingCatalog } from '@/lib/reading-catalog';
 import { formatSiteDate } from '@/lib/site-time';
 import { JsonLd } from '@/lib/structured-data';
 import {
@@ -157,8 +156,7 @@ export default async function ProjectPostPage({ params }: Props) {
   const nextPartHref =
     partIndex < posts.length ? buildPostUrl(slug, posts[idx + 1].slug) : undefined;
 
-  const [allPosts, urlMap] = await Promise.all([getAllPosts(), buildPostUrlMap()]);
-  const relatedPosts = getRelatedPosts(allPosts, post, urlMap);
+  const readingCatalog = await getReadingCatalog();
 
   const canonicalUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
   const jsonLd: Record<string, unknown> = {
@@ -214,6 +212,7 @@ export default async function ProjectPostPage({ params }: Props) {
     : project.category === 'writing'
       ? 'essay'
       : 'build note';
+  const readingPiece = readingCatalog.find((candidate) => candidate.canonicalPath === buildPostUrl(slug, postSlug))!;
 
   const drawer = (
     <DocDrawer
@@ -235,14 +234,7 @@ export default async function ProjectPostPage({ params }: Props) {
       <JsonLd data={jsonLd} />
       <JsonLd data={breadcrumbJsonLd} />
       {drawer}
-      <ReadingProgressTracker
-        groupSlug={slug}
-        groupTitle={project.title}
-        postSlug={post.slug}
-        postTitle={post.title}
-        partIndex={partIndex}
-        totalParts={posts.length}
-      />
+      <ReadingContinuityTracker piece={readingPiece} />
       <main className={postMainCls}>
         <nav style={{ marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
           <Link href={buildGroupIntroUrl(slug)} style={navLinkStyle}>← {project.title}</Link>
@@ -265,6 +257,8 @@ export default async function ProjectPostPage({ params }: Props) {
           <MarkdownPostBody markdown={post.markdownBody} />
         </article>
 
+        <ReadingNextSteps piece={readingPiece} catalog={readingCatalog} />
+
         <EndOfPieceSubscribe
           audience={subscriptionAudience}
           source="post-end"
@@ -273,8 +267,6 @@ export default async function ProjectPostPage({ params }: Props) {
           totalParts={posts.length}
           seriesActive={project.status === 'active'}
         />
-
-        <RelatedPosts items={relatedPosts} />
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
           <PieceActions
