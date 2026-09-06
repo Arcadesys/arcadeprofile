@@ -53,10 +53,10 @@ test('long-form routes place one contextual signup before their next-step naviga
   const labCaseStudy = source('app/(frontend)/lab/[slug]/page.tsx');
   const footerSubscribe = source('app/components/FooterSubscribe.tsx');
 
-  assert.ok(projectPost.indexOf('<EndOfPieceSubscribe') < projectPost.indexOf('<RelatedPosts'));
-  assert.ok(zooChapter.indexOf('<EndOfPieceSubscribe') < zooChapter.indexOf('<nav className={styles.readerNav}'));
-  assert.ok(collectionStory.indexOf('<EndOfPieceSubscribe') < collectionStory.indexOf('<footer className="portfolio-reader__footer">'));
-  assert.ok(portfolioPiece.indexOf('<EndOfPieceSubscribe') < portfolioPiece.indexOf('<footer className="portfolio-reader__footer">'));
+  assert.ok(projectPost.indexOf('<ReadingNextSteps') < projectPost.indexOf('<EndOfPieceSubscribe'));
+  assert.ok(zooChapter.indexOf('<ReadingNextSteps') < zooChapter.indexOf('<EndOfPieceSubscribe'));
+  assert.ok(collectionStory.indexOf('<ReadingNextSteps') < collectionStory.indexOf('<EndOfPieceSubscribe'));
+  assert.ok(portfolioPiece.indexOf('<ReadingNextSteps') < portfolioPiece.indexOf('<EndOfPieceSubscribe'));
   assert.ok(labCaseStudy.indexOf('<EndOfPieceSubscribe') < labCaseStudy.indexOf('<div className={styles.pieceActions}>'));
   assert.match(footerSubscribe, /novels\\\/it-takes-a-zoo/);
   assert.match(footerSubscribe, /portfolio/);
