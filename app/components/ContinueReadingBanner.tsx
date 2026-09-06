@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useReaderEventTracker } from '@/lib/reader-analytics';
-import { READING_CONTINUITY_STORAGE_KEY, type ReadingContinuityRecord } from '@/lib/reading-continuity';
-import { readStoredProgress } from '@/lib/reading-resume-storage';
+import type { ReadingContinuityRecord } from '@/lib/reading-continuity';
+import { dismissStoredProgress, readStoredProgress } from '@/lib/reading-resume-storage';
 
 /**
  * Client-only "pick up where you left off" prompt, sourced from whatever
@@ -24,7 +24,7 @@ export default function ContinueReadingBanner({ availablePaths = [] }: { availab
   if (!progress) return null;
 
   const dismiss = () => {
-    try { window.localStorage.removeItem(READING_CONTINUITY_STORAGE_KEY); } catch { /* storage is optional */ }
+    try { dismissStoredProgress(window.localStorage); } catch { /* storage is optional */ }
     setProgress(null);
   };
 

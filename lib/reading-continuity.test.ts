@@ -49,3 +49,14 @@ test('recommendations prefer curated relationships, then shared tags, then recen
   ];
   assert.deepEqual(recommendedPieces(current, options).map((item) => item.canonicalPath), ['/fiction/curated', '/fiction/tagged']);
 });
+
+test('recommendations include at most one edition of any other work', () => {
+  const current: ReadingPiece = { canonicalPath: '/fiction/current', title: 'Current', contentType: 'fiction', tags: ['fox'] };
+  const options: ReadingPiece[] = [
+    current,
+    { canonicalPath: '/fiction/work-b-web', title: 'Work B', contentType: 'fiction', tags: ['fox'], editionOf: 'work-b', publishedAt: '2026-01-01' },
+    { canonicalPath: '/fiction/work-b-reprint', title: 'Work B reprint', contentType: 'fiction', tags: ['fox'], editionOf: 'work-b', publishedAt: '2025-01-01' },
+    { canonicalPath: '/fiction/work-c', title: 'Work C', contentType: 'fiction', tags: ['fox'], publishedAt: '2024-01-01' },
+  ];
+  assert.deepEqual(recommendedPieces(current, options).map((item) => item.canonicalPath), ['/fiction/work-b-web', '/fiction/work-c']);
+});
