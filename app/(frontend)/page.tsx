@@ -75,7 +75,7 @@ export default async function HomePage() {
         <ContinueToyBanner />
       </div>
 
-      <StartReadingShelf items={shelf} heading="Choose your next read" headingId="home-start-reading" />
+      <StartReadingShelf items={shelf} heading="Choose your next read" headingId="home-start-reading" showCovers />
 
       <FeaturedCollectionCard collection={ZOO_FEATURED_COLLECTION} placement="home" />
 
