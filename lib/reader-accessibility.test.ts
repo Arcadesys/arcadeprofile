@@ -83,3 +83,11 @@ test('subscription form keeps large controls, visible status, and focus repair',
   assert.match(css, /font-size: 18px/);
   assert.match(css, /min-height: 44px/);
 });
+
+test('reader telemetry initializes Vercel before cold-load reader effects', () => {
+  const telemetry = source('lib/reader-analytics.ts');
+
+  assert.match(telemetry, /useLayoutEffect/);
+  assert.match(telemetry, /initializeReaderAnalytics\(\)/);
+  assert.match(telemetry, /injectAnalytics\(\{ framework: 'react' \}\)/);
+});

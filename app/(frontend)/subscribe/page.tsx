@@ -65,22 +65,14 @@ export default function SubscribePage() {
       >
         <p style={{ margin: '0 0 1.1rem' }}>
           Here&rsquo;s the deal: I write serialized fiction, essays, and the occasional
-          book. Subscribers get it first &mdash; chapters as they land and the odd note
-          from the cutting-room floor that never makes it to the public site.
+          book. Pick the kinds of writing you want, and I&rsquo;ll send updates when there&rsquo;s
+          something new to read.
         </p>
         <p style={{ margin: '0 0 1.1rem' }}>
-          New email lands biweekly. The other time, you&rsquo;ll get
-          something interesting: maybe a game, maybe a look behind the scenes
-          of laying out a book, maybe an essay on why everyone should love
-          Markdown. No paywall. No spam. Just the writing, in the order I meant
-          for you to read it, with a one-click unsubscribe at the bottom of
-          every email if it ever stops being your thing.
-        </p>
-        <p style={{ margin: '0 0 1.1rem' }}>
-          When a new book is close, subscribers get the early-access link before
-          anyone else &mdash; sometimes weeks before, sometimes only hours, depending
-          on how nervous I am. Same goes for longer essays I&rsquo;d rather not throw at
-          the algorithm cold.
+          New writing when it&rsquo;s ready. Free. One-click unsubscribe. Updates might be
+          a game, a look behind the scenes of laying out a book, or an essay on why
+          everyone should love Markdown. No paywall. No spam. Just the writing, in the
+          order I meant for you to read it.
         </p>
         <p style={{ margin: '0 0 1.1rem' }}>
           Subscribe if you want the next piece without having to remember to
