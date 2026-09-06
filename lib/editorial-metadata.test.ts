@@ -35,9 +35,9 @@ test('editorial metadata supplies the site card when a piece has no artwork', ()
   });
 
   assert.deepEqual((result.metadata.openGraph as { images?: unknown }).images, [{
-    url: '/opengraph-image',
+    url: 'https://www.thearcades.me/opengraph-image',
     alt: "THE ARCADES' LAB — Austen Tucker",
   }]);
-  assert.deepEqual((result.metadata.twitter as { images?: unknown }).images, ['/opengraph-image']);
-  assert.equal(result.articleJsonLd.image, '/opengraph-image');
+  assert.deepEqual((result.metadata.twitter as { images?: unknown }).images, ['https://www.thearcades.me/opengraph-image']);
+  assert.equal(result.articleJsonLd.image, 'https://www.thearcades.me/opengraph-image');
 });

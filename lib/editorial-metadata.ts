@@ -39,7 +39,7 @@ export function buildEditorialMetadata(input: EditorialMetadataInput): Editorial
   const pdfUrl = input.pdfPath ? resolveCanonicalUrl(input.pdfPath, input.pdfPath, site) : undefined;
   const image = input.image
     ? resolveCanonicalUrl(input.image, input.image, site)
-    : DEFAULT_SOCIAL_IMAGE.url;
+    : resolveCanonicalUrl(DEFAULT_SOCIAL_IMAGE.url, DEFAULT_SOCIAL_IMAGE.url, site);
   const socialTitle = `${input.title} | ${SITE_NAME}`;
 
   const articleJsonLd: Record<string, unknown> = {
