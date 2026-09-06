@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { SITE_NAME } from '@/lib/site-brand';
 import StartReadingShelf from '@/app/components/StartReadingShelf';
 import { getStartReadingShelf } from '@/lib/reader-discovery';
+import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
 import styles from './writing.module.css';
 
@@ -13,7 +14,8 @@ export const metadata: Metadata = {
   title: 'Writing',
   description,
   alternates: { canonical: '/writing' },
-  openGraph: { type: 'website', title: `Writing | ${SITE_NAME}`, description, url: '/writing' },
+  openGraph: { type: 'website', title: `Writing | ${SITE_NAME}`, description, url: '/writing', images: [DEFAULT_SOCIAL_IMAGE] },
+  twitter: { card: 'summary_large_image', title: `Writing | ${SITE_NAME}`, description, images: [DEFAULT_SOCIAL_IMAGE.url] },
 };
 
 const doors = [

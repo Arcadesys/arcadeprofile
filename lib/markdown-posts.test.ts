@@ -105,7 +105,7 @@ test('loader rejects filename and directory disagreement, duplicate ids and slug
   assert.throws(() => loadMarkdownPosts({ contentDirectory: fixture('empty-body') }), /nonempty Markdown body/);
 });
 
-test('checked-in public corpus contains exactly the retained 32 essays in six groups', () => {
+test('checked-in public corpus contains the retained 32 essays and the restored Zoo poem', () => {
   const contentDirectory = path.join(process.cwd(), 'content', 'posts');
   const posts = loadMarkdownPosts({ contentDirectory });
   const groups = loadMarkdownGroups({ contentDirectory });
@@ -118,9 +118,10 @@ test('checked-in public corpus contains exactly the retained 32 essays in six gr
     'white-cane-chronicles',
   ];
 
-  assert.equal(posts.length, 32);
-  assert.deepEqual(groups.map((group) => group.slug).sort(), essayGroups);
-  assert.equal(posts.every((post) => essayGroups.includes(post.group)), true);
+  assert.equal(posts.length, 33);
+  assert.deepEqual(groups.map((group) => group.slug).sort(), [...essayGroups, 'it-takes-a-zoo'].sort());
+  assert.equal(posts.filter((post) => essayGroups.includes(post.group)).length, 32);
+  assert.equal(posts.some((post) => post.slug === 'it-takes-a-zoo-to-raise-the-child'), true);
 });
 
 test('The Fox and the Eval remains a private draft and is absent from the public corpus', () => {

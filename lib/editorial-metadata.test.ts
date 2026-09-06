@@ -26,3 +26,18 @@ test('editorial metadata uses one canonical web URL and treats PDFs as an encodi
   });
   assert.equal(result.breadcrumbJsonLd['@type'], 'BreadcrumbList');
 });
+
+test('editorial metadata supplies the site card when a piece has no artwork', () => {
+  const result = buildEditorialMetadata({
+    title: 'Unillustrated Note',
+    description: 'A test piece without artwork.',
+    path: '/lab/unillustrated-note',
+  });
+
+  assert.deepEqual((result.metadata.openGraph as { images?: unknown }).images, [{
+    url: 'https://www.thearcades.me/opengraph-image',
+    alt: "THE ARCADES' LAB — Austen Tucker",
+  }]);
+  assert.deepEqual((result.metadata.twitter as { images?: unknown }).images, ['https://www.thearcades.me/opengraph-image']);
+  assert.equal(result.articleJsonLd.image, 'https://www.thearcades.me/opengraph-image');
+});

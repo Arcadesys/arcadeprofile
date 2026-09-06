@@ -1,8 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { buildMarkdownSitemapEntries, buildStaticSitemapEntries } from '@/lib/sitemap';
 import { loadMarkdownGroups, loadMarkdownPosts, selectPublicMarkdownPosts } from '@/lib/markdown-posts';
-
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
+import { SITE_URL } from '@/lib/site-url';
 
 type Entry = MetadataRoute.Sitemap[number];
 

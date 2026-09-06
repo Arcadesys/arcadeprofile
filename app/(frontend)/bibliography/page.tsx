@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
 import Link from 'next/link';
 import FreePlayColophon from '@/app/components/FreePlayColophon';
+import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
 export const metadata: Metadata = {
   title: 'Bibliography',
@@ -14,11 +15,13 @@ export const metadata: Metadata = {
     description:
       'External publishing by Austen Crowder (also Slyford T. Rabbit, Sly Rabbit) — novels, short fiction, poetry, and essays from 2005 to the present.',
     url: '/bibliography',
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
   twitter: {
     card: 'summary_large_image',
     title: `Bibliography | ${SITE_NAME}`,
     description: 'External publishing under Austen Crowder, Slyford T. Rabbit, and Sly Rabbit.',
+    images: [DEFAULT_SOCIAL_IMAGE.url],
   },
 };
 
