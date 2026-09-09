@@ -1,0 +1,22 @@
+{
+  "slug": "bunch",
+  "title": "Bunch",
+  "description": "Build logs from a private companion tool built to accommodate a system with DID — memory, handoffs, and continuity as engineering problems.",
+  "tags": [
+    "did",
+    "accessibility",
+    "ai",
+    "mcp",
+    "disability"
+  ],
+  "project": {
+    "external": false,
+    "featured": false,
+    "homeHighlight": false,
+    "category": "writing",
+    "status": "active",
+    "format": "serial",
+    "updatedAt": "2026-09-09T00:00:00.000Z",
+    "createdAt": "2026-09-09T00:00:00.000Z"
+  }
+}

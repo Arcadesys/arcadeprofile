@@ -36,7 +36,7 @@ Frontmatter is strict and validated by `lib/markdown-posts.ts`.
 `publishDate` is the only public visibility control. Future-dated files require
 a later commit/deployment; there is no scheduler or preview-token backend.
 
-The six essay groups are defined in `lib/newsletter-post.ts`. Do not add chat
+The essay groups are defined in `lib/newsletter-post.ts`. Do not add chat
 fiction to the essay/project index. Independent fiction stays in the portfolio,
 collection, books, and toys surfaces.
 

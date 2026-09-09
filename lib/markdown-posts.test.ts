@@ -105,22 +105,23 @@ test('loader rejects filename and directory disagreement, duplicate ids and slug
   assert.throws(() => loadMarkdownPosts({ contentDirectory: fixture('empty-body') }), /nonempty Markdown body/);
 });
 
-test('checked-in public corpus contains the retained 32 essays and the restored Zoo poem', () => {
+test('checked-in public corpus contains the retained 33 essays and the restored Zoo poem', () => {
   const contentDirectory = path.join(process.cwd(), 'content', 'posts');
   const posts = loadMarkdownPosts({ contentDirectory });
   const groups = loadMarkdownGroups({ contentDirectory });
   const essayGroups = [
     'ai-art-experiments',
     'arcade-blog',
+    'bunch',
     'on-writing',
     'pride-essays',
     'the-singularity-log',
     'white-cane-chronicles',
   ];
 
-  assert.equal(posts.length, 33);
+  assert.equal(posts.length, 34);
   assert.deepEqual(groups.map((group) => group.slug).sort(), [...essayGroups, 'it-takes-a-zoo'].sort());
-  assert.equal(posts.filter((post) => essayGroups.includes(post.group)).length, 32);
+  assert.equal(posts.filter((post) => essayGroups.includes(post.group)).length, 33);
   assert.equal(posts.some((post) => post.slug === 'it-takes-a-zoo-to-raise-the-child'), true);
 });
 

@@ -81,6 +81,6 @@ test('default public catalog covers every Markdown fiction and writing post', as
   assert.deepEqual(catalog.fiction.map((group) => group.slug), ['it-takes-a-zoo']);
   assert.equal(catalog.fiction[0]?.posts[0]?.slug, 'it-takes-a-zoo-to-raise-the-child');
   assert.ok(catalog.essays.length > 0, 'the public catalog should contain essay groups');
-  assert.equal(catalog.essays.flatMap((group) => group.posts).length, 32);
+  assert.equal(catalog.essays.flatMap((group) => group.posts).length, 33);
   assert.deepEqual(catalogSlugs, expectedSlugs);
 });
