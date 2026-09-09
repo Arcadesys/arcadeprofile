@@ -1,7 +1,8 @@
 import Link from 'next/link';
+import Image from 'next/image';
+import FeaturedCollectionCard, { type FeaturedCollection } from '@/app/components/FeaturedCollectionCard';
 
 import type { EditorialCatalogGroup, EditorialSection } from '@/lib/editorial-catalog';
-import type { CollectionStory } from '@/lib/collection';
 import { formatSiteDate } from '@/lib/site-time';
 import { SITE_NAME } from '@/lib/site-brand';
 import styles from './EditorialIndex.module.css';
@@ -9,8 +10,7 @@ import styles from './EditorialIndex.module.css';
 interface Props {
   section: EditorialSection;
   groups: EditorialCatalogGroup[];
-  collection?: readonly CollectionStory[];
-  collectionPath?: string;
+  featuredCollections?: readonly FeaturedCollection[];
 }
 
 const copy = {
@@ -26,7 +26,7 @@ const copy = {
   },
 } as const;
 
-export default function EditorialIndex({ section, groups, collection, collectionPath }: Props) {
+export default function EditorialIndex({ section, groups, featuredCollections }: Props) {
   const text = copy[section];
 
   return (
@@ -37,30 +37,27 @@ export default function EditorialIndex({ section, groups, collection, collection
         <p className={styles.lede}>{text.lede}</p>
       </header>
 
-      {section === 'fiction' && collection && collectionPath ? (
-        <section className={styles.collection} aria-labelledby="collection-heading">
-          <h2 id="collection-heading">This is what I do for fun</h2>
-          <p>A shelf of seven free stories: read their web editions or download the existing PDF editions.</p>
-          <ol className={styles.collectionGrid}>
-            {collection.map((story) => (
-              <li key={story.slug} className={styles.collectionCard}>
-                <h3><Link href={`${collectionPath}/${story.slug}`}>{story.title}</Link></h3>
-                <p>{story.description}</p>
-                <div className={styles.actions}>
-                  <Link className={styles.action} href={`${collectionPath}/${story.slug}`}>Read online</Link>
-                  <a className={styles.action} href={story.downloads.pdf}>Download PDF</a>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </section>
-      ) : null}
+      {section === 'fiction' ? featuredCollections?.map((collection) => (
+        <FeaturedCollectionCard key={collection.id} collection={collection} />
+      )) : null}
 
       {groups.length > 0 ? (
         <ol className={styles.groupList}>
           {groups.map((group) => (
             <li key={group.slug} className={styles.group}>
               <header className={styles.groupHeader}>
+                {group.image ? (
+                  <Link className={styles.groupCoverLink} href={group.href} aria-label={`Read ${group.title}`}>
+                    <Image
+                      className={styles.groupCover}
+                      src={group.image}
+                      alt={group.imageAlt ?? `Cover art for ${group.title}.`}
+                      width={group.imageWidth ?? 1650}
+                      height={group.imageHeight ?? 2550}
+                      sizes="(max-width: 42rem) 8rem, 12rem"
+                    />
+                  </Link>
+                ) : null}
                 <div>
                   <h2 className={styles.groupTitle}><Link href={group.href}>{group.title}</Link></h2>
                   {group.description ? <p>{group.description}</p> : null}
@@ -69,19 +66,25 @@ export default function EditorialIndex({ section, groups, collection, collection
                   <Link href={group.href}>View series</Link>
                 </div>
               </header>
-              <ol className={styles.pieces}>
-                {group.posts.map((post) => (
-                  <li key={String(post.id)} className={styles.piece}>
-                    <p className={styles.pieceMeta}>{formatSiteDate(post.date)}</p>
-                    <h3><Link href={post.href}>{post.title}</Link></h3>
-                    {post.description ? <p>{post.description}</p> : null}
-                  </li>
-                ))}
-              </ol>
+              {group.canonicalChapterCollection ? (
+                <p className={styles.canonicalCollectionNote}>Six complete chapter editions, each with a PDF download.</p>
+              ) : (
+                <ol className={styles.pieces}>
+                  {group.posts.map((post) => (
+                    <li key={String(post.id)} className={styles.piece}>
+                      <p className={styles.pieceMeta}>{formatSiteDate(post.date)}</p>
+                      <h3><Link href={post.href}>{post.title}</Link></h3>
+                      {post.description ? <p>{post.description}</p> : null}
+                    </li>
+                  ))}
+                </ol>
+              )}
             </li>
           ))}
         </ol>
-      ) : <p className={styles.empty}>No published {section === 'fiction' ? 'fiction' : 'essays'} yet. Check back soon.</p>}
+      ) : !featuredCollections?.length ? (
+        <p className={styles.empty}>No published {section === 'fiction' ? 'fiction' : 'essays'} yet. Check back soon.</p>
+      ) : null}
     </main>
   );
 }

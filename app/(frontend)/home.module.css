@@ -5,8 +5,8 @@
   --home-text: #f3eae2;
   --home-text-muted: #cbbfb7;
   --home-rule: #51484d;
-  width: min(calc(100% - 138px - 2rem), 1360px);
-  margin: 0 auto 0 calc(138px + max(1rem, (100vw - 138px - 1360px) / 2));
+  width: min(calc(100% - 138px - 1rem), 1360px);
+  margin: 0 auto 0 calc(138px + max(0px, (100vw - 138px - 1rem - 1360px) / 2));
   padding: 1.25rem 0 4rem;
 }
 
@@ -64,6 +64,7 @@
 .brandLockup b { color: var(--accent); font-size: 1.35em; }
 .brandLockup strong { color: var(--accent); font: inherit; }
 
+
 .topSubscribe {
   position: relative;
   display: inline-flex;
@@ -98,6 +99,7 @@
 .heroEditorial {
   position: relative;
   z-index: 1;
+  grid-column: 1 / -1;
   min-width: 0;
   overflow: hidden;
   border: 2px solid #4a4147;
@@ -118,7 +120,7 @@
   padding: clamp(2.5rem, 6vw, 5.75rem) clamp(2rem, 5vw, 5.5rem) 12rem;
 }
 
-.byline {
+.platform {
   margin: 0 0 1.5rem;
   color: #ff9c4a;
   font-family: var(--font-mono);
@@ -127,6 +129,7 @@
   letter-spacing: .24em;
   text-transform: uppercase;
 }
+.identity { margin: 1.25rem 0 0; color: #ff9c4a; font-family: var(--font-mono); font-size: clamp(.85rem, 1.3vw, 1.05rem); font-weight: 800; letter-spacing: .18em; line-height: 1.4; text-transform: uppercase; }
 
 .title {
   max-width: 9ch;
@@ -139,6 +142,8 @@
   line-height: .84;
   text-wrap: balance;
 }
+
+.byline { margin: 1.25rem 0 0; color: #ff9c4a; font-family: var(--font-mono); font-size: clamp(.85rem, 1.3vw, 1.05rem); font-weight: 800; letter-spacing: .18em; line-height: 1.4; text-transform: uppercase; }
 
 .tagline {
   max-width: 29ch;
@@ -187,53 +192,6 @@
 }
 
 .portrait img { width: 100%; height: 100%; object-fit: contain; object-position: right bottom; }
-
-.continuePanel {
-  position: relative;
-  z-index: 2;
-  min-width: 0;
-  padding: 1.2rem 1rem 1rem;
-  background: #0b0b0d;
-}
-
-.continuePanel > h2 {
-  display: flex;
-  align-items: center;
-  gap: .8rem;
-  margin: .25rem 0 1rem;
-  color: #ff69c4;
-  font-family: var(--font-barlow-condensed), sans-serif;
-  font-size: clamp(1.25rem, 2vw, 1.75rem);
-  font-weight: 800;
-  letter-spacing: .08em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.continuePanel > h2::after { content: ''; height: 3px; flex: 1; background: var(--pink); box-shadow: 0 0 10px var(--console-pink-glow); }
-.continueList { display: grid; gap: .75rem; list-style: none; }
-
-.continueCard {
-  position: relative;
-  min-height: 110px;
-  padding: 1.15rem 1.25rem;
-  border: 2px solid #5f535a;
-  color: var(--home-text);
-  background:
-    linear-gradient(110deg, rgba(255, 255, 255, .025), transparent 42%),
-    var(--home-surface-raised);
-  box-shadow: 0 0 0 3px #111113, 0 0 0 5px #343034;
-  clip-path: polygon(0 12px, 12px 0, 100% 0, 100% 100%, 12px 100%, 0 calc(100% - 12px));
-}
-
-.continueCard[data-accent='pink'] { border-color: var(--pink); box-shadow: 0 0 0 3px #111113, 0 0 15px var(--console-pink-glow); }
-.continueCard[data-accent='cyan'] { border-left-color: var(--cyan); }
-.continueCard p { margin: 0 0 .25rem; color: #55dce5; font-family: var(--font-mono); font-size: .76rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-.continueCard:first-child p { color: #ff75c6; }
-.continueCard h3 { margin: 0; font-family: var(--font-serif); font-size: clamp(1.2rem, 2vw, 1.65rem); line-height: 1.05; }
-.continueCard a { display: inline; color: var(--home-text); text-decoration: none; }
-.continueCard a:hover { color: #ff9ed3; text-shadow: none; }
-.continueCard time { display: block; margin-top: .55rem; color: var(--home-text-muted); font-size: .82rem; font-weight: 700; }
 
 .resume { margin: 1.25rem 0; }
 
@@ -351,7 +309,6 @@
   .title { font-size: clamp(4rem, 15vw, 7rem); }
   .portrait { width: 100%; height: 44%; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30%); mask-image: linear-gradient(to bottom, transparent 0, #000 30%); }
   .portrait img { object-fit: cover; object-position: right center; }
-  .continuePanel { padding-top: 1.5rem; }
   .bands, .below { grid-template-columns: 1fr; }
   .recentMoxie, .subscribeMoxie { margin: -1.4rem -1.4rem 1.5rem; }
   .recentRow { grid-template-columns: 1fr; }
@@ -376,5 +333,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .button, .continueCard { transition: none; }
+  .button { transition: none; }
 }

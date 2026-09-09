@@ -233,7 +233,7 @@ export default async function ProjectPostPage({ params }: Props) {
   if (idx < 0) notFound();
   const post = posts[idx];
   const partIndex = idx + 1;
-  const totalCount = posts.length + 1;
+  const totalCount = posts.length;
 
   const chapterSections = groupPostsByChapter(group);
   const sections = buildDrawerSections(slug, project.title, chapterSections, partIndex);
@@ -314,7 +314,7 @@ export default async function ProjectPostPage({ params }: Props) {
     <DocDrawer
       eyebrow={categoryLabel ?? undefined}
       groupTitle={project.title}
-      currentPosition={partIndex + 1}
+      currentPosition={partIndex}
       totalCount={totalCount}
       sections={sections}
       prevHref={prevPartHref}

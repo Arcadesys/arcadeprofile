@@ -32,7 +32,12 @@ export const LAB_PROJECTS: LabProject[] = [
     visualDescription: 'Arcade-style recommendation terminal',
     screenshotNeeded:
       'A 1600 by 1000 pixel capture of the live WizWor terminal after it reveals grounded game recommendations, with no account or private data visible.',
-    screenshot: null,
+    screenshot: {
+      src: '/images/lab/wizwor-terminal.png',
+      alt: 'WizWor pixel-art terminal recommending Windjammers after the player chooses Neo Geo AES and asks for a frisbee game.',
+      width: 1367,
+      height: 804,
+    },
     liveUrl: 'https://wizwor.vercel.app',
     liveLinkLabel: 'Open the live WizWor product',
     sourceUrl: 'https://github.com/Arcadesys/wizwor',

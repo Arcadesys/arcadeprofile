@@ -4,19 +4,12 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Thanks for subscribing',
-  description: `Your ${SITE_NAME} signup is confirmed. Download La Ligne du Marais in PDF or EPUB.`,
+  description: `Your ${SITE_NAME} signup is confirmed.`,
   alternates: { canonical: '/subscribe/thanks' },
   robots: { index: false, follow: true },
 };
 
-export default async function SubscribeThanksPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ magnet?: string | string[] }>;
-}) {
-  const params = await searchParams;
-  const hasStoryMagnet = params.magnet === 'story';
-
+export default function SubscribeThanksPage() {
   return (
     <main
       style={{
@@ -45,35 +38,6 @@ export default async function SubscribeThanksPage({
         Thanks for subscribing. Your choices are recorded in ActiveCampaign. You can update them or
         unsubscribe from any email.
       </p>
-
-      {hasStoryMagnet ? (
-        <section
-          aria-labelledby="story-downloads"
-          style={{
-            marginTop: '2.5rem',
-            padding: 'clamp(1.25rem, 4vw, 2rem)',
-            border: '2px solid var(--border-strong)',
-            borderRadius: 'var(--radius-lg)',
-            background: 'var(--surface)',
-          }}
-        >
-          <h2 id="story-downloads" style={{ margin: '0 0 0.75rem', fontSize: 'clamp(1.65rem, 5vw, 2.35rem)' }}>
-            Your welcome story
-          </h2>
-          <p style={{ margin: '0 0 1.25rem', color: 'var(--fg-muted)', fontSize: '1.125rem', lineHeight: 1.7 }}>
-            Download <em>La Ligne du Marais</em>, a Paris noir short, in the reading format that works
-            best for you.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-            <a className="button-link" href="/lead-magnets/la-ligne-du-marais.pdf" download="la-ligne-du-marais.pdf">
-              Download PDF
-            </a>
-            <a className="button-link" href="/lead-magnets/la-ligne-du-marais.epub" download="la-ligne-du-marais.epub">
-              Download EPUB
-            </a>
-          </div>
-        </section>
-      ) : null}
 
       <nav aria-label="Next steps" style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', marginTop: '2.5rem' }}>
         <Link href="/">Return home</Link>

@@ -46,6 +46,17 @@ test('editorial catalog classifies group-backed posts from the shared project ca
   assert.equal(catalog.essays[0]?.posts[0]?.href, '/projects/essays/essay');
 });
 
+test('editorial catalog gives Zoo its canonical chapter-edition URL', () => {
+  const catalog = buildEditorialCatalog(
+    [{ ...hubs[0]!, slug: 'it-takes-a-zoo', href: '/novels/it-takes-a-zoo' }],
+    [{ ...posts[0]!, group: 'it-takes-a-zoo' }],
+    locations,
+  );
+
+  assert.equal(catalog.fiction[0]?.href, '/novels/it-takes-a-zoo');
+  assert.equal(catalog.fiction[0]?.canonicalChapterCollection, true);
+});
+
 test('editorial catalog invariant leaves every categorized public post in exactly one index', () => {
   const catalog = buildEditorialCatalog(hubs, posts, locations);
   const cataloged = [

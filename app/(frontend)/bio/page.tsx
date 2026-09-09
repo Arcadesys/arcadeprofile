@@ -5,18 +5,18 @@ import ActiveCampaignForm from '@/app/components/ActiveCampaignForm';
 
 export const metadata: Metadata = {
   title: 'Bio',
-  description: 'Austen Tucker-Crowder: AI enablement leader, program manager, agile coach, and builder of weird things.',
+  description: 'Austen Tucker-Crowder is a writer, artist, and technologist making stories, software, and strange things.',
   alternates: { canonical: '/bio' },
   openGraph: {
     type: 'profile',
     title: `Bio | ${SITE_NAME}`,
-    description: 'Who is Austen Tucker-Crowder? A bit of everything: AI transformation lead, facilitator, dev, writer, and maker.',
+    description: 'Austen Tucker-Crowder is a writer, artist, and technologist making stories, software, and strange things.',
     url: '/bio',
   },
   twitter: {
     card: 'summary_large_image',
     title: `Bio | ${SITE_NAME}`,
-    description: 'Who is Austen Tucker-Crowder? A bit of everything: AI transformation lead, facilitator, dev, writer, and maker.',
+    description: 'Austen Tucker-Crowder is a writer, artist, and technologist making stories, software, and strange things.',
   },
 };
 
@@ -62,7 +62,7 @@ export default function BioPage() {
           Austen Tucker-Crowder
         </h1>
         <p style={{ color: 'var(--fg-muted)', fontSize: '1.05rem', margin: '0 0 0.5rem' }}>
-          AI transformation lead &middot; program manager &middot; agile coach &middot; maker of things
+          Writer &middot; artist &middot; technologist &middot; maker of strange things
         </p>
         <p style={{ color: 'var(--fg-muted)', fontSize: '0.9rem', margin: '0 0 1rem' }}>
           Chicago, IL
@@ -84,17 +84,15 @@ export default function BioPage() {
 
       {/* Who I am */}
       <section style={{ marginBottom: '2.5rem' }}>
-        <h2 style={sectionHeadingStyle}>Who I am</h2>
+        <h2 style={sectionHeadingStyle}>The work</h2>
         <div style={cardStyle}>
           <p style={{ lineHeight: 1.8, margin: '0 0 1rem' }}>
-            I&apos;m Austen — a builder, facilitator, and professional chaos-wrangler based in Chicago.
-            By day I lead AI enablement and transformation at ActiveCampaign, where I help teams
-            figure out what it actually means to build an AI-first company (spoiler: it&apos;s mostly
-            about changing how people think, not just what tools they use).
+            I&apos;m Austen — a writer and maker based in Chicago. I write fiction, essays, and other
+            odd little things about people, systems, and the stories we tell about both.
           </p>
           <p style={{ lineHeight: 1.8, margin: '0 0 1rem' }}>
             I have a background in English and rhetoric, which means I care a lot about how ideas
-            are communicated — in meetings, in code, in documentation, and in the stories we tell
+            are communicated — in prose, in code, in documentation, and in the stories we tell
             ourselves about why we&apos;re doing what we&apos;re doing.
           </p>
           <p style={{ lineHeight: 1.8, margin: 0 }}>
@@ -106,7 +104,7 @@ export default function BioPage() {
 
       {/* What I do */}
       <section style={{ marginBottom: '2.5rem' }}>
-        <h2 style={sectionHeadingStyle}>What I do</h2>
+        <h2 style={sectionHeadingStyle}>Technology practice</h2>
         <ul style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '1rem', listStyle: 'none', padding: 0, margin: 0 }}>
           {[
             {

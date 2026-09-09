@@ -1,7 +1,8 @@
 import { COLLECTION, COLLECTION_PATH } from '@/lib/collection';
 import { buildPostUrlMap, getAllPosts, type BlogPost, type PostLocation } from '@/lib/blog';
-import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
+import { buildPostUrl } from '@/lib/post-url';
 import { getAllProjectHubs, type ProjectHub } from '@/lib/payload';
+import { ZOO_COLLECTION_PATH } from '@/lib/zoo-collection';
 
 export type EditorialSection = 'fiction' | 'essays';
 
@@ -18,10 +19,30 @@ export interface EditorialCatalogGroup {
   slug: string;
   title: string;
   description: string;
+  image?: string | null;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  canonicalChapterCollection?: boolean;
   href: string;
   posts: EditorialCatalogPost[];
   latestDate: string | undefined;
 }
+
+const fictionCoverFallbacks: Record<string, Pick<EditorialCatalogGroup, 'image' | 'imageAlt' | 'imageWidth' | 'imageHeight'>> = {
+  'parts-of-the-whole': {
+    image: '/images/stories/parts-of-the-whole.png',
+    imageAlt: 'Cover art for Parts of the Whole.',
+    imageWidth: 1024,
+    imageHeight: 1536,
+  },
+  'short-stories': {
+    image: '/images/stories/short-stories.jpg',
+    imageAlt: 'Cover art for Short Stories.',
+    imageWidth: 1054,
+    imageHeight: 1492,
+  },
+};
 
 export interface EditorialCatalog {
   fiction: EditorialCatalogGroup[];
@@ -85,11 +106,18 @@ export function buildEditorialCatalog(
       };
     });
 
+    const fallbackCover = section === 'fiction' ? fictionCoverFallbacks[hub.slug] : undefined;
+
     catalog[section].push({
       slug: hub.slug,
       title: hub.title,
       description: hub.description,
-      href: buildGroupIntroUrl(hub.slug),
+      image: fallbackCover?.image ?? hub.image,
+      imageAlt: fallbackCover?.imageAlt ?? (hub.image ? `Cover art for ${hub.title}.` : undefined),
+      imageWidth: fallbackCover?.imageWidth ?? (hub.image ? 1650 : undefined),
+      imageHeight: fallbackCover?.imageHeight ?? (hub.image ? 2550 : undefined),
+      canonicalChapterCollection: hub.slug === 'it-takes-a-zoo',
+      href: hub.slug === 'it-takes-a-zoo' ? ZOO_COLLECTION_PATH : hub.href,
       posts: normalizedPosts,
       latestDate: normalizedPosts[0]?.date,
     });

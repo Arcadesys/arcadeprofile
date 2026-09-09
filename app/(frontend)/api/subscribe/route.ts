@@ -7,18 +7,8 @@ import {
   VALID_AUDIENCES,
   VALID_SOURCES,
   VALID_MAGNETS,
-  type Magnet,
 } from '@/lib/subscribe-types';
 import { parseBody } from '@/lib/validation';
-
-const MAGNETS: Record<Magnet, { files: Array<{ url: string; filename: string; label: string }> }> = {
-  story: {
-    files: [
-      { url: '/lead-magnets/la-ligne-du-marais.pdf',  filename: 'la-ligne-du-marais.pdf',  label: 'PDF' },
-      { url: '/lead-magnets/la-ligne-du-marais.epub', filename: 'la-ligne-du-marais.epub', label: 'EPUB' },
-    ],
-  },
-};
 
 const subscribeSchema = z.object({
   email: z.string().min(1, 'Email is required.').email('Email must be a valid address.'),
@@ -81,6 +71,5 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     ok: true,
     subscribed: audiences.filter((a) => !subscribeFailures.includes(a)),
-    ...(magnet ? { magnet: MAGNETS[magnet] } : {}),
   });
 }

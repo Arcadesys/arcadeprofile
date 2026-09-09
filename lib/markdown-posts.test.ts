@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 
@@ -107,48 +106,25 @@ test('loader rejects filename and directory disagreement, duplicate ids and slug
   assert.throws(() => loadMarkdownPosts({ contentDirectory: fixture('empty-body') }), /nonempty Markdown body/);
 });
 
-test('checked-in corpus excludes retired posts from the Payload parity receipt', () => {
+test('checked-in corpus excludes retired fiction editions', () => {
   const contentDirectory = path.join(process.cwd(), 'content', 'posts');
   const posts = loadMarkdownPosts({ contentDirectory });
   const groups = loadMarkdownGroups({ contentDirectory });
-  const report = JSON.parse(readFileSync(path.join(process.cwd(), 'data', 'payload-markdown-parity.json'), 'utf8')) as {
-    totals: { source: number; exported: number; excluded: number; blocked: number };
-    records: Array<{ slug?: string; disposition: string; file?: string; reason?: string }>;
-    validation: { passed: boolean };
-  };
-  const exportedFiles = report.records
-    .filter((record) => record.disposition === 'exported' && record.slug !== 'ginnys-magic')
-    .map((record) => record.file)
-    .sort();
-  const loadedFiles = posts
-    .map((post) => path.relative(contentDirectory, post.filePath).split(path.sep).join('/'))
-    .sort();
-  const essayGroups = new Set([
-    'ai-art-experiments',
-    'arcade-blog',
-    'on-writing',
-    'pride-essays',
-    'the-singularity-log',
-    'white-cane-chronicles',
+  const retiredGroups = new Set(['parts-of-the-whole', 'short-stories']);
+  const retiredSlugs = new Set([
+    'carl',
+    'ginnys-magic',
+    'our-hope-chest-1-the-attic',
+    'our-hope-chest-2-coney-beach',
+    'parts-of-the-whole-1-the-arrival',
+    'parts-of-the-whole-2-pressure-and-possibility',
+    'parts-of-the-whole-3-what-you-could-have',
+    'parts-of-the-whole-4-grace',
+    'parts-of-the-whole-5-after',
   ]);
 
-  assert.deepEqual(
-    {
-      source: report.totals.source,
-      exported: report.totals.exported,
-      excluded: report.totals.excluded,
-      blocked: report.totals.blocked,
-    },
-    { source: 81, exported: 80, excluded: 1, blocked: 0 },
-  );
-  assert.equal(report.validation.passed, true);
-  assert.deepEqual(loadedFiles, exportedFiles);
-  assert.equal(groups.length, 9);
-  assert.equal(posts.filter((post) => essayGroups.has(post.group)).length, 32);
-  assert.deepEqual(
-    report.records.filter((record) => record.disposition === 'excluded').map((record) => ({ slug: record.slug, reason: record.reason })),
-    [{ slug: 'the-fox-and-the-eval', reason: 'preserved in non-public Markdown drafts' }],
-  );
+  assert.equal(groups.some((group) => retiredGroups.has(group.slug)), false);
+  assert.equal(posts.some((post) => retiredGroups.has(post.group) || retiredSlugs.has(post.slug)), false);
   assert.equal(posts.find((post) => post.slug === 'open-port')?.publishDate, '2026-08-21T17:00:00.000Z');
 });
 

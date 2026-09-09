@@ -8,6 +8,7 @@ export type NavItem = {
 };
 
 export const DEFAULT_NAV_ITEMS: NavItem[] = [
+  { id: 'writing', label: 'Writing', href: '/writing', isPrimary: false },
   { id: 'stories', label: 'Stories', href: '/stories', isPrimary: false },
   { id: 'essays', label: 'Essays', href: '/essays', isPrimary: false },
   { id: 'lab', label: 'Case Studies', href: '/lab', isPrimary: false },
@@ -21,7 +22,7 @@ export const DEFAULT_NAV_ITEMS: NavItem[] = [
   { id: 'store', label: 'Store', href: '/store', isPrimary: true },
 ];
 
-const PRIMARY_NAV_HREFS = ['/stories', '/essays', '/lab', '/bio', '/subscribe'] as const;
+const PRIMARY_NAV_HREFS = ['/writing', '/projects', '/bio', '/subscribe'] as const;
 
 export interface NavigationModel {
   primary: NavItem[];
@@ -104,6 +105,13 @@ export const STORIES_NAV_ITEM: NavItem = {
   isPrimary: false,
 };
 
+export const WRITING_NAV_ITEM: NavItem = {
+  id: 'writing',
+  label: 'Writing',
+  href: '/writing',
+  isPrimary: false,
+};
+
 export const ESSAYS_NAV_ITEM: NavItem = {
   id: 'essays',
   label: 'Essays',
@@ -163,7 +171,7 @@ export function ensureCoreNavItems(items: NavItem[]): NavItem[] {
       ),
       SUBSCRIBE_NAV_ITEM,
     ),
-    STORIES_NAV_ITEM,
+    WRITING_NAV_ITEM,
   );
 }
 

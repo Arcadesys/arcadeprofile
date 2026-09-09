@@ -18,3 +18,6 @@
 # Book editions are served from Vercel Blob, not as static assets.
 # Regenerate URLs with `npm run generate:portfolio`.
 /public/portfolio
+
+# Generated 3D model output (Meshy) - kept local, not versioned
+meshy_output/

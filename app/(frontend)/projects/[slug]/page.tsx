@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getProjectBySlug } from '@/lib/payload';
@@ -18,6 +18,7 @@ import { buildPostUrl, buildGroupIntroUrl, partNum } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 import { formatSiteDate } from '@/lib/site-time';
 import { resolveCanonicalUrl } from '@/lib/canonical-url';
+import { ZOO_COLLECTION_PATH } from '@/lib/zoo-collection';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thearcades.me').replace(/\/+$/, '');
 
@@ -151,6 +152,11 @@ const ctaIcons: Record<string, string> = {
 export default async function ProjectIntroPage({ params }: Props) {
   const { slug } = await params;
 
+  // The former post-by-post Zoo serial remains at individual URLs, including
+  // the separate opening poem. Its index is superseded by the six canonical
+  // chapter editions and their PDFs.
+  if (slug === 'it-takes-a-zoo') permanentRedirect(ZOO_COLLECTION_PATH);
+
   const [project, group] = await Promise.all([
     getProjectBySlug(slug),
     getGroupBySlug(slug),
@@ -158,7 +164,7 @@ export default async function ProjectIntroPage({ params }: Props) {
   if (!project) notFound();
 
   const posts = group?.posts ?? [];
-  const totalCount = posts.length + 1;
+  const totalCount = posts.length;
   const firstPost = posts[0];
   const chapterSections = group ? groupPostsByChapter(group) : [];
   const hasNamedChapters = chapterSections.some((s) => s.slug !== null);
@@ -204,7 +210,7 @@ export default async function ProjectIntroPage({ params }: Props) {
     <DocDrawer
       eyebrow={categoryLabel ?? undefined}
       groupTitle={project.title}
-      currentPosition={1}
+      currentPosition={0}
       totalCount={totalCount}
       sections={sections}
       prevHref={undefined}

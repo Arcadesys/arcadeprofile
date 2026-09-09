@@ -1,0 +1,41 @@
+.main {
+  --ink: #181019;
+  --paper: #fffaf4;
+  --plum: #3d103e;
+  --pink: #ffb6dc;
+  --line: #b96eaa;
+  min-height: 100vh;
+  padding: clamp(1.25rem, 4vw, 4rem) clamp(1rem, 4vw, 2rem) clamp(4rem, 8vw, 8rem);
+  color: var(--paper);
+  background: radial-gradient(circle at 15% 10%, #6c1f60 0, transparent 31rem), linear-gradient(135deg, #100610, #240b27 54%, #08171c);
+}
+
+.shell { width: min(70rem, 100%); margin-inline: auto; }
+
+.hero { display: grid; grid-template-columns: minmax(15rem, 22rem) minmax(0, 1fr); gap: clamp(2rem, 7vw, 6rem); align-items: center; }
+.cover { width: 100%; height: auto; border: 3px solid var(--pink); border-radius: 0.55rem; box-shadow: 0 1.5rem 4rem #000b; }
+.eyebrow { margin: 0 0 0.8rem; color: var(--pink); font-size: 1rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+.intro h1, .excerpt h2, .readerSignup h2 { color: #fff; text-wrap: balance; }
+.intro h1 { margin: 0; font-size: clamp(3rem, 7vw, 5.7rem); line-height: 0.94; letter-spacing: -0.045em; }
+.lede { max-width: 40rem; font-size: clamp(1.25rem, 2.5vw, 1.65rem); line-height: 1.5; }
+.note { max-width: 42rem; color: #ffe4f3; font-size: 1.1rem; line-height: 1.6; }
+
+.readerSignup { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr); gap: 2rem; align-items: start; margin-top: clamp(3rem, 9vw, 7rem); padding: clamp(1.5rem, 4vw, 3rem); border: 3px solid var(--pink); border-radius: 0.75rem; background: #17101ad9; }
+.readerSignup h2 { margin-top: 0; font-size: clamp(1.8rem, 4vw, 2.75rem); }
+.readerSignup p { max-width: 42rem; font-size: 1.125rem; line-height: 1.65; }
+.readerSignup :global(.formPending) { margin: 0; padding: 1rem; border: 2px solid var(--line); color: #fff; background: #2b1730; font-weight: 700; }
+
+.excerpt { width: min(48rem, 100%); margin: clamp(3rem, 9vw, 7rem) auto 0; padding: clamp(1.5rem, 5vw, 4rem); border-radius: 0.6rem; color: var(--ink); background: var(--paper); box-shadow: 0 1rem 3rem #0009; }
+.excerpt h2 { color: var(--plum); font-size: clamp(2rem, 4vw, 3.15rem); line-height: 1.08; }
+.excerpt p { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.125rem, 2.1vw, 1.35rem); line-height: 1.8; }
+.excerpt blockquote { margin: 2.5rem 0; padding: 1rem 1.25rem; border-left: 0.5rem solid var(--plum); color: #331032; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.35rem, 3vw, 1.8rem); font-weight: 700; line-height: 1.4; }
+.excerpt hr { margin: 3.5rem 0; border: 0; border-top: 3px solid var(--line); }
+.signature { font-style: italic; }
+.epigraph { color: #4d284b; font-style: italic; }
+.attribution { color: #4d284b; font-weight: 700; }
+
+@media (max-width: 720px) {
+  .hero, .readerSignup { grid-template-columns: 1fr; }
+  .cover { width: min(82vw, 23rem); margin-inline: auto; }
+  .readerSignup { gap: 1rem; }
+}
