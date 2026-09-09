@@ -3,12 +3,12 @@
 This repository is the **Arcades Profile** — a personal site and portfolio.
 
 ## Tech stack
-- **Next.js 15** (App Router) + **React 19**
-- **Payload CMS v3** (content management, PostgreSQL backend)
+- **Next.js 16** (App Router) + **React 19**
+- **Markdown content** in the repo — no database, no CMS
 - **Tailwind CSS** + SASS for styling
 - **TypeScript** (strict mode)
 - **Vercel** for deployment
-- **Postmark** for transactional email
+- **Postmark** for transactional email; **ActiveCampaign** for contacts and preferences
 
 ## Package manager
 Use **npm** exclusively. Never suggest `yarn`, `pnpm`, or `bun` commands.
@@ -17,15 +17,17 @@ Use **npm** exclusively. Never suggest `yarn`, `pnpm`, or `bun` commands.
 - `npm run dev` — start dev server
 - `npm run build` — production build
 - `npm run lint` — ESLint
-- `npm test` — run tests
-- `npm run mcp` — start MCP server (stdio)
+- `npm test` — run tests (`tsx --test` over `lib/` and `scripts/`)
+- `npm run newsletter:post -- --slug <slug>` — essay newsletter harness (dry run by default)
 
 ## Conventions
-- All App Router pages and API routes live under `app/`
-- Payload collections are in `collections/`, registered in `payload.config.ts`
+- App Router pages live under `app/(frontend)/`; custom API routes under `app/(frontend)/api/`
+- Public essays are `content/posts/<group>/<slug>.md` with a `_group.json` manifest per group
+- Private drafts live in `content/drafts` and are never served
+- Frontmatter is strict and validated by `lib/markdown-posts.ts`; `publishDate` is the only visibility control
 - Shared utilities live in `lib/`
 - Never commit `.env` or `.env.local` — use `.env.example` as reference
 - TypeScript strict mode: avoid `any`
 
 ## Environment variables
-Documented in `.env.example`. Key secrets: `PAYLOAD_SECRET`, `DATABASE_URL`, `POSTMARK_SERVER_TOKEN`, `MCP_API_KEY`, `PAYLOAD_API_KEY`.
+Documented in `.env.example`. Key secrets: `POSTMARK_SERVER_TOKEN`, `AC_API_KEY`, `BLOB_READ_WRITE_TOKEN`.

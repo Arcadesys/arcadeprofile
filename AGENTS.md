@@ -16,6 +16,10 @@ npx tsc --noEmit
 npm test
 npm run build
 npm run newsletter:post -- --slug <slug>
+npm run postmark:test
+npm run generate:portfolio
+npm run generate:zoo
+npm run generate:zoo-complete-edition
 ```
 
 Use npm only. CI uses Node 20 and the built-in Node test runner through `tsx`.
