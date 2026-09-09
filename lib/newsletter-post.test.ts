@@ -8,8 +8,9 @@ import {
   prepareAttempt,
 } from './newsletter-post';
 
-test('essay newsletter eligibility is an exact six-group allowlist', () => {
+test('essay newsletter eligibility is an exact allowlist', () => {
   assert.doesNotThrow(() => assertEssayGroup('the-singularity-log'));
+  assert.doesNotThrow(() => assertEssayGroup('bunch'));
   assert.throws(() => assertEssayGroup('short-stories'), /not eligible/);
   assert.throws(() => assertEssayGroup('it-takes-a-zoo'), /not eligible/);
 });

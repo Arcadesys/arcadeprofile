@@ -5,6 +5,7 @@ import path from 'node:path';
 export const ESSAY_GROUPS = new Set([
   'ai-art-experiments',
   'arcade-blog',
+  'bunch',
   'on-writing',
   'pride-essays',
   'the-singularity-log',
@@ -39,7 +40,7 @@ type PostmarkOutboundMessage = {
 export function assertEssayGroup(group: string): void {
   if (!ESSAY_GROUPS.has(group)) {
     throw new Error(
-      `Newsletter sends are limited to the six essay groups; ${group} is not eligible.`,
+      `Newsletter sends are limited to the essay groups; ${group} is not eligible.`,
     );
   }
 }
