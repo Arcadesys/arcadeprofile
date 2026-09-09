@@ -15,16 +15,22 @@ tags:
   - disability
   - neurodiversity
 hero:
-  src: 'https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/542c8e1b7328379a4be1b7c8f520ec1bfe48cefab684dd238db78248eff86743/bunch-the-lineup.jpg'
-  alt: 'Nine cartoon animal characters posed together on a sunny beach, kites flying behind them. Four sit in front — a mouse, a cat, a grinning raccoon, and a rabbit in a red vest — and five stand behind, including a cat in a bright patterned sweater, a squirrel in overalls, a blue-haired wolf, and a blond figure in a denim jacket. Most wear glasses. Several flash peace signs.'
+  src: 'https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/e72f58f6cf2a0aaab6b2e79cc8ab5122b3a124514378651afce6a7883bcd38df/bunch-hero-catch-up.png'
+  alt: 'Bunch’s catch-up screen for Addie Arcade, with “Help me resume my day” and its main action buttons.'
 seo:
   title: 'Bunch: Building a Memory Prosthetic for a System with DID'
   description: >-
     A build log about Bunch, an MCP-first companion built to preserve continuity across dissociative amnesia barriers — why hosting and fronting are separate, and why the first useful slice beats the final imaginary one.
 ---
+![Bunch’s catch-up screen for Addie Arcade, with “Help me resume my day” and its main action buttons.](https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/e72f58f6cf2a0aaab6b2e79cc8ab5122b3a124514378651afce6a7883bcd38df/bunch-hero-catch-up.png)
+
 I have DID.
 
 Over the past six years, I have experimented with every kind of system I could find to make my life easier: notes, checklists, shared documents, reminders, and now AI. Bunch is the story of one of those experiments. It is not a product announcement, a million-dollar idea, or a pitch for the cool MCP server I built. It is a build log about what it looks like to use AI to accommodate a person with DID.
+
+## Explore Bunch
+
+**[Browse Bunch on GitHub](https://github.com/Arcadesys/bunch)** — the code behind this build log.
 
 ## Why I built it
 
