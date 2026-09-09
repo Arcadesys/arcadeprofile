@@ -30,6 +30,10 @@ Over the past six years, I have experimented with every kind of system I could f
 
 ## Explore Bunch
 
+**[Install the Bunch demo plugin and skill](https://github.com/Arcadesys/bunch/blob/main/docs/demo-install.md)** — try Bunch in Codex with fictional people, shared tasks, notes, and catch-up records served by system.thearcades.me. The demo is read-only and needs no Bunch account.
+
+Once installed, ask: “Show the Demo system. Then show Benny’s open tasks and the reminder Fenton left him.”
+
 **[Browse Bunch on GitHub](https://github.com/Arcadesys/bunch)** — the code behind this build log.
 
 ## Why I built it
