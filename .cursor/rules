@@ -1,8 +1,8 @@
 # Arcades Profile — Cursor Rules
 
 ## Tech stack
-- Next.js 15 (App Router), React 19, TypeScript (strict)
-- Payload CMS v3 with PostgreSQL
+- Next.js 16 (App Router), React 19, TypeScript (strict)
+- Repository-owned Markdown content — no database, no CMS
 - Tailwind CSS + SASS
 - Vercel deployment
 
@@ -16,10 +16,12 @@ Always use **npm**. Never suggest `yarn`, `pnpm`, or `bun`.
 - Use Tailwind utility classes; avoid inline styles
 
 ## Project conventions
-- App Router pages and API routes live in `app/`
-- Payload collections are defined in `collections/` and registered in `payload.config.ts`
+- App Router pages live under `app/(frontend)/`
+- Public essays are `content/posts/<group>/<slug>.md`, one `_group.json` manifest per group
+- Private drafts live in `content/drafts`
+- Frontmatter is strict and validated by `lib/markdown-posts.ts`; `publishDate` is the only visibility control
 - Shared utilities belong in `lib/`
-- All new API routes go under `app/api/`
+- All new API routes go under `app/(frontend)/api/`
 
 ## Commands
 - `npm run dev` — start dev server (port 3000)
@@ -29,4 +31,3 @@ Always use **npm**. Never suggest `yarn`, `pnpm`, or `bun`.
 
 ## Environment
 - Required vars are in `.env.example` — never commit real secrets
-- `MCP_API_KEY` and `PAYLOAD_API_KEY` are separate — rotate independently
