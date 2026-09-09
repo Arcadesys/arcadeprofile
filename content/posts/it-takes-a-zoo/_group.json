@@ -1,0 +1,30 @@
+{
+  "slug": "it-takes-a-zoo",
+  "title": "It Takes a Zoo",
+  "description": "A novel-in-stories about escaping the hypercapitalist grind.",
+  "tags": [
+    "fiction",
+    "serialized fiction",
+    "cyberpunk",
+    "chosen family"
+  ],
+  "meta": {
+    "title": "It Takes a Zoo",
+    "description": "Furry transformation novel about found family, queerness, and surviving hypercapitalism through the power of love."
+  },
+  "project": {
+    "external": false,
+    "featured": true,
+    "homeHighlight": true,
+    "category": "fiction",
+    "status": "active",
+    "format": "serial",
+    "primaryCTA": {
+      "label": "Read Cold Boot",
+      "href": "/projects/it-takes-a-zoo/cold-boot",
+      "type": "read"
+    },
+    "updatedAt": "2026-08-23T13:54:42-05:00",
+    "createdAt": "2026-05-02T16:51:25.744Z"
+  }
+}

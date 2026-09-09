@@ -266,7 +266,7 @@ export default async function ProjectPostPage({ params }: Props) {
           <PieceActions
             title={post.title}
             readHref={buildPostUrl(slug, postSlug)}
-            pdfHref={`${buildPostUrl(slug, postSlug)}/pdf`}
+            pdfHref={post.pdfOverrideUrl ?? `${buildPostUrl(slug, postSlug)}/pdf`}
             shareUrl={canonicalUrl}
           />
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>

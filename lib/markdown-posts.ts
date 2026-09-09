@@ -45,6 +45,12 @@ const rfc3339OffsetDateTime = z
 
 const slug = z.string().regex(SLUG_RE, 'must be lowercase kebab-case');
 const nonEmptyText = z.string().trim().min(1, 'must not be empty');
+const publicDownloadUrl = z
+  .string()
+  .refine(
+    (value) => value.startsWith('/') || z.url().safeParse(value).success,
+    'must be an absolute URL or a root-relative public path',
+  );
 
 export const markdownPostFrontmatterSchema = z
   .object({
@@ -73,7 +79,7 @@ export const markdownPostFrontmatterSchema = z
       .optional(),
     pdf: z
       .object({
-        overrideUrl: z.string().url().optional(),
+        overrideUrl: publicDownloadUrl.optional(),
       })
       .strict()
       .optional(),

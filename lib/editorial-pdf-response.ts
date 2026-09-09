@@ -19,7 +19,8 @@ export async function editorialPdfResponse(piece: EditorialPiece, request: Reque
     // Curated editions can exceed Next's 2 MB data-cache item limit. Stream
     // them without populating that internal cache; the public response below
     // already carries CDN caching headers.
-    const upstream = await fetch(piece.pdfOverrideUrl, { cache: 'no-store' });
+    const upstreamUrl = new URL(piece.pdfOverrideUrl, request.url);
+    const upstream = await fetch(upstreamUrl, { cache: 'no-store' });
     if (upstream.ok && upstream.body) return new Response(upstream.body, { headers });
     // A configured external edition must not make the canonical content unavailable.
   }
