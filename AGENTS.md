@@ -17,6 +17,7 @@ npm test
 npm run build
 npm run newsletter:post -- --slug <slug>
 npm run postmark:test
+npm run upload:image -- <path> --alt "<text>"
 npm run generate:portfolio
 npm run generate:zoo
 npm run generate:zoo-complete-edition

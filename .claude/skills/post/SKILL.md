@@ -1,89 +1,98 @@
 ---
 name: post
-description: Draft a new Post via the Payload MCP `create_post` tool with auto-filled SEO/discoverability fields. Use when the user says "/post", "create a post", "draft a post", "post this", or hands over a finished piece they want saved as a Post. Always creates a draft; scheduling is an explicit handoff to schedule-essay or schedule-fiction.
+description: Draft a new post as a Markdown file under content/posts/<group>/, with auto-filled SEO fields. Use when the user says "/post", "create a post", "draft a post", "post this", or hands over a finished piece they want saved as a post.
 ---
 
 # Post
 
-Thin wrapper over the Payload MCP `create_post` tool. Always creates a `draft`. Scheduling is delegated.
+Writes a new post as a Markdown file at `content/posts/<group>/<slug>.md`. There is no CMS and no API — the repository is the content store, so this skill creates a file and stops. Publishing is a commit and a deploy.
 
 ## Required inputs
 
-`title`, `excerpt`, `content` — same as the `create_post` schema. If any is missing, list what's missing and ask for it. Do **not** invent a title or excerpt; do not run the tool with placeholders.
+`title`, `excerpt`, `content`, and `group`. If any is missing, list what's missing and ask for it. Do **not** invent a title or excerpt; do not write the file with placeholders.
 
-## Always-filled SEO + social fields
+`group` is required by the schema — unlike the old CMS, there is no group-less post.
 
-These are **not optional**. Draft every one of them from the content before calling `create_post`. Show them as a YAML-ish block, take any edits the user wants, then include them all in the payload. Never skip a field or pass an empty string.
+## Group validation
 
-- `meta.title` — `<title>` override, ≤60 chars.
-- `meta.description` — 150–160 chars, plain prose.
-- `meta.keywords` — comma-separated, 4–8 keywords.
-- `discoverability.social_hook` — Bluesky/Mastodon teaser, ≤280 chars, no hashtags unless the user asks.
-- `discoverability.search_summary` — 2–3 sentences, front-load main claims.
-- `discoverability.primaryCTA` — `{ label, href, description }`. Default to a "Subscribe" or "Read more from this series" CTA if the post doesn't suggest a more specific next step. If the post points at a project/book/page/external link, use that.
+1. List `content/posts/*/` and confirm the group directory exists and contains a `_group.json`.
+2. If not found, list close matches and stop. Don't guess, and don't create a new group directory as a side effect — a new group is its own decision, and needs a hand-written `_group.json`.
+
+## Frontmatter
+
+`lib/markdown-posts.ts` validates frontmatter with a **strict** Zod schema: any key not listed below is a hard error that fails the build, not a warning. The fields are:
+
+| Field | Required | Notes |
+| --- | --- | --- |
+| `id` | yes | Unique across every post in `content/posts`. Quoted string of an integer. Take the current max and add one. |
+| `title` | yes | Non-empty. |
+| `slug` | yes | Lowercase kebab-case. Must match the filename. |
+| `group` | yes | Lowercase kebab-case. Must match the parent directory name. |
+| `publishDate` | yes | RFC 3339 with an offset, e.g. `'2026-09-09T12:00:00.000Z'`. |
+| `updatedDate` | no | Same format. |
+| `order` | no | Non-negative integer. |
+| `excerpt` | no | Set it anyway — it's the card and feed summary. |
+| `tags` | no | Array of non-empty strings. |
+| `hero` | no | `{ src, alt }`, both required when present. `src` is a Vercel Blob URL. |
+| `seo` | no | `{ title?, description? }` only. |
+| `pdf` | no | `{ overrideUrl? }`. |
+
+Get the next `id` with:
+
+```bash
+grep -h "^id:" content/posts/*/*.md | tr -d "id: '" | sort -n | tail -1
+```
+
+## SEO block
+
+Draft `seo.title` and `seo.description` from the content before writing the file. Show them back, take any edits, then include them.
+
+- `seo.title` — `<title>` override, ≤60 chars.
+- `seo.description` — 150–160 chars, plain prose.
+
+There is nowhere to put keywords, a social hook, a search summary, or a CTA. The old CMS had `meta.*` and `discoverability.*` fields; the strict schema rejects them. Don't add them back as frontmatter — if the user wants a social teaser, hand it to them as text to post, not as a field.
 
 ## Image (always ask)
 
 After the user confirms the SEO block, **always ask**: "Do you have an image for this post?" Accept a file path, an attached image, or "no".
 
-If the user provides an image:
+If the user provides one, hand off to `/upload-image` to get a blob URL, then:
 
-1. Upload it to the site via MCP `upload_and_embed_image` (preferred — returns the embed placeholder and the media id) or `upload_image` (returns the media id only).
-2. If MCP upload fails with `ENOENT` or a sandbox read error, fall back to `curl -F file=@<path> http://localhost:3000/api/media` (with the dev server running) — the MCP sandbox blocks local file reads in some environments.
-3. Embed the image at the top of the post body using the `![media:<id>]()` placeholder on its own line, before the first paragraph. The `create_post` handler resolves it to a Lexical media node.
-4. Set the same media id on the post's hero/featured image field if Posts has one (check `collections/Posts.ts` for the current field name); otherwise the embedded top-of-body image is sufficient.
+- Set `hero: { src: <blob url>, alt: <alt text> }` in the frontmatter, and/or
+- Embed it in the body as ordinary Markdown: `![alt text](<blob url>)`.
+
+`lib/markdown-render.ts` renders `![alt](url)` to an `<img>` for any `http(s)`, root-relative, or `mailto:` URL. **Alt text is effectively mandatory** — the renderer's pattern requires a non-empty alt, and `![](url)` falls through and renders as literal text.
 
 If the user says no, proceed without an image — don't invent one or pick a stock image.
 
-## Group validation
+## Writing the file
 
-If the user supplies a `group` slug:
+Write to `content/posts/<group>/<slug>.md` with the frontmatter block followed by the body Markdown. Then:
 
-1. Call MCP `list_groups` once and confirm the slug exists.
-2. If not found, list close matches and stop. Don't guess.
-3. Note the group's `category` for the scheduling handoff (below).
+1. Run `npm test` — the loader tests parse every post, so a schema violation fails here.
+2. Print the file path and the `publishDate`.
 
-If no group is supplied, that's fine — `create_post` accepts a group-less post.
+## Visibility
 
-## Creating the post
+`publishDate` is the **only** visibility control. `selectPublicMarkdownPosts()` hides posts whose `publishDate` is in the future, evaluated at request time against the deployed build.
 
-Call MCP `create_post` with:
+There is no scheduler and no cron. A future-dated post does not appear on its own — it needs a commit and a deployment at or after that date. Say this out loud when you set a future date, so the user isn't waiting on a job that doesn't exist.
 
-- `title`, `excerpt`, `content` from the user.
-- `publish_status: 'draft'` (always — never `'scheduled'`, `'published'`, or `'sent'` from this skill).
-- `group` only if validated above.
-- The reviewed `meta.*` and `discoverability.*` fields.
-- Omit `slug` — let the handler auto-generate from title.
-- Omit `scheduledPublishDate` and `publishedDate` — drafts don't need them.
+## Newsletter
 
-After the call, print:
+Sending is a separate, manual step and is **not** part of this skill:
 
-- The new post's `slug` and `id`.
-- The admin URL: `/admin/collections/posts/<id>`.
+```bash
+npm run newsletter:post -- --slug <slug>
+```
 
-## Optional handoff to scheduling
-
-Then ask: **"Schedule this?"** If yes, route by the group's `category`:
-
-- `fiction` → invoke `/schedule-fiction` (Mon/Wed/Fri).
-- Anything else (`writing`, `tools`, `experiments`, `community`, `audio-video`) → invoke `/schedule-essay` (Tue/Thu).
-- No group, or ambiguous → ask the user which lane before invoking.
-
-The schedule skill will pick the slot and flip the post to `scheduled`. Don't do it inline here.
-
-## Tools
-
-- MCP `create_post` (write) — the main call.
-- MCP `list_groups` (read) — group validation.
-- MCP `upload_and_embed_image` / `upload_image` (write) — image upload. Fall back to `curl -F file=@<path> http://localhost:3000/api/media` if the MCP sandbox blocks the file read.
-- Skill: `/schedule-essay`, `/schedule-fiction` — scheduling handoff.
+Dry run by default; `--preview-to <email>` for a test; `--send` to send for real. Only the six groups in `ESSAY_GROUPS` (`lib/newsletter-post.ts`) are eligible. Don't run it from here — mention it and let the user decide.
 
 ## Don't
 
-- Don't set `publish_status` to anything but `'draft'`. The schedule skills own the `scheduled` transition; the cron owns `published`.
-- Don't skip the SEO + social block — `meta.*`, `discoverability.social_hook`, `discoverability.search_summary`, and `discoverability.primaryCTA` are always set.
-- Don't skip the image prompt. Always ask, even if the user didn't mention one.
-- Don't embed an image you didn't upload through `/api/media` or the MCP image tools — external URLs won't survive Lexical conversion cleanly.
-- Don't invent or fuzzy-match a group slug. Validate via `list_groups`.
-- Don't reimplement slug generation — the MCP handler does it.
-- Don't set `suppressNewsletter` unless the user explicitly says "no newsletter".
+- Don't add frontmatter keys outside the table above. The schema is strict and will fail the build.
+- Don't reuse an `id`. Duplicates throw at load time with both file paths named.
+- Don't let `slug` or `group` disagree with the filename and directory — both are checked.
+- Don't skip the SEO block or the image prompt.
+- Don't invent or fuzzy-match a group slug, and don't create a group directory implicitly.
+- Don't commit, push, or deploy unless the user asks.
