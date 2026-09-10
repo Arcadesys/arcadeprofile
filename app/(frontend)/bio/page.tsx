@@ -66,7 +66,7 @@ export default async function BioPage() {
           Austen Tucker-Crowder
         </h1>
         <p style={{ color: 'var(--fg-muted)', fontSize: '1.05rem', margin: '0 0 0.5rem' }}>
-          AI transformation lead &middot; program manager &middot; agile coach &middot; maker of things
+          builder &middot; AI enablement &middot; program manager &middot; agile coach
         </p>
         <p style={{ color: 'var(--fg-muted)', fontSize: '0.9rem', margin: '0 0 1rem' }}>
           Chicago, IL
@@ -118,10 +118,12 @@ export default async function BioPage() {
           <p style={{ lineHeight: 1.8, margin: '0 0 1rem' }}>
             I&apos;m Austen — a builder and accessibility-first facilitator who helps teams make AI
             transformation practical through working tools, clear goals, and room to learn by building.
+            My most recent completed professional chapter was AI Enablement and Transformation at
+            ActiveCampaign.
           </p>
           <ul style={{ margin: 0, paddingLeft: '1.25rem', lineHeight: 1.8 }}>
             <li>Helped raise agentic-coding adoption from roughly 2% to 43% of merge requests; it was still climbing at departure.</li>
-            <li>Ran a March 2026 PM roadshow across three continents, after which attendees began producing prototypes.</li>
+            <li>Led a March 2026 roadshow for product managers across three continents, introducing Cursor and agentic AI; attendees began producing prototypes afterward.</li>
             <li>Built Wavelength, an MCP-enabled operating artifact containing tasks, RAID-log items, and program state.</li>
           </ul>
         </div>

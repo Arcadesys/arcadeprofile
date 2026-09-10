@@ -13,9 +13,9 @@ Builder, AI enablement leader, program manager, and agile coach with 16+ years d
 
 - Helped raise agentic-coding adoption from roughly 2% to 43% of merge requests; it was still climbing at departure
 - Led Devin adoption with goals and KPIs, including a game used to communicate the operating model
-- Ran a March 2026 PM roadshow across three continents; attendees began producing prototypes afterward
+- Led a March 2026 roadshow for product managers across three continents, introducing Cursor and agentic AI; attendees began producing prototypes afterward
 - Built Wavelength, an MCP-enabled operating artifact containing tasks, RAID-log items, and program state
-- Facilitated an onsite that multiple attendees called one of their best within four days of arrival
+- Within four days of arrival, facilitated an onsite that multiple attendees called one of their best
 - Reduced planning time by 50% at Arity via data-driven prioritization for 50+ engineers
 - Increased feature throughput by 400% at WorkTango during merger-driven agile transformation
 - Generated $1.5B in locked loans with one sprint of work at Guaranteed Rate
@@ -32,6 +32,7 @@ Builder, AI enablement leader, program manager, and agile coach with 16+ years d
 - Led AI enablement and transformation across engineering, product, and leadership, turning adoption goals into measurable, repeatable practice
 - Helped raise agentic-coding adoption from roughly 2% to 43% of merge requests; it was still climbing at departure
 - Led Devin adoption with goals and KPIs, including a game used to communicate the operating model
+- Coordinated cross-pillar AI transformation work, including outcomes and north-star metrics that supported ePMO governance and executive review
 - Designed an outcomes framework with mandatory success *and* failure criteria — pre-loading decisions so teams act on signals, not vibes
   - Failure criteria trigger structured responses: pillar lead + PM/EM partner bring recommendation (continue / pivot / stop) to next Pit Stop
   - Framework adopted across all pillar leads for Q1 2026 planning
@@ -50,7 +51,7 @@ Builder, AI enablement leader, program manager, and agile coach with 16+ years d
   - Attendees cited Worksite discoveries 12–15 times in subsequent demos and planning discussions unrelated to the original session
   - Methodology adopted for planned international rollout (Poland, Ireland, Costa Rica)
   - All sessions designed accessibility-first: auditory-first facilitation, tactile/kinesthetic activities, screen-reader compatible materials
-- Within four days of arrival, facilitated an onsite that multiple attendees called one of their best; this was separate from the Worksites methodology
+- Within four days of arrival, facilitated an onsite that multiple attendees called one of their best
 - Facilitated critical path architecture decision for Bulk Content Update Agent; led structured option analysis when existing approach was declared not viable due to context window limitations
   - Produced clear go/no-go determination with four evaluated pivot options and assigned action items
   - Demonstrated ability to make implicit technical trade-offs explicit for cross-functional decision-makers
@@ -65,7 +66,7 @@ Builder, AI enablement leader, program manager, and agile coach with 16+ years d
 
 #### AI Enablement & Training
 
-- Ran a March 2026 PM roadshow across three continents; attendees began producing prototypes afterward
+- Led a March 2026 roadshow for product managers across three continents, introducing Cursor and agentic AI; attendees began producing prototypes afterward
 - Designed and ran 90-minute Cursor/IDE bootcamp for designers and product owners who had never interacted with an IDE or written code
   - Participants produced working artifacts in-session: career coaching tool matching company design system, interactive billing flow prototype, segment builder UI, chess game, coffee shop simulator, pro wrestling promo generator
   - Applied pedagogical frameworks: Constructivism (proof before theory), Kolb's Experiential Learning (describe → generate → judge loop), Think-Pair-Share, scaffolded complexity
@@ -85,6 +86,7 @@ Builder, AI enablement leader, program manager, and agile coach with 16+ years d
 #### Tooling, Automation & Systems
 
 - Built Wavelength, an MCP-enabled operating artifact containing tasks, RAID-log items, and program state
+- Built a suite of Claude skills for daily briefings, executive digests, meeting synthesis, and DRI investigation; created Langfuse evaluation prompts to assess AI-agent response quality
 - Built and refined a suite of 7+ Claude skills pulling from Google Calendar, Drive, Slack, Jira, and Airtable:
   - **daily-report** — Morning briefing synthesizing yesterday's meetings, action items, and today's meeting prep; delivered as Slack DM
   - **executive-demo-brief** — 2-week retrospective pulling Demo and Pit Stop transcripts, extracting only production-shipped items for ELT consumption

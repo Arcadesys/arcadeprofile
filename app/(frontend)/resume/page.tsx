@@ -112,9 +112,9 @@ export default function ResumePage() {
         <ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: 1.8 }}>
           <li>Helped raise agentic-coding adoption from roughly 2% to 43% of merge requests; it was still climbing at departure</li>
           <li>Led Devin adoption with goals and KPIs, including a game used to communicate the operating model</li>
-          <li>Ran a March 2026 PM roadshow across three continents; attendees began producing prototypes afterward</li>
+          <li>Led a March 2026 roadshow for product managers across three continents, introducing Cursor and agentic AI; attendees began producing prototypes afterward</li>
           <li>Built Wavelength, an MCP-enabled operating artifact for tasks, RAID-log items, and program state</li>
-          <li>Facilitated an onsite that multiple attendees called one of their best within four days of arrival</li>
+          <li>Within four days of arrival, facilitated an onsite that multiple attendees called one of their best</li>
           <li>Reduced planning time by 50% at Arity via data-driven prioritization for 50+ engineers</li>
           <li>Increased feature throughput by 400% at WorkTango during merger-driven agile transformation</li>
           <li>Generated $1.5B in locked loans with one sprint of work at Guaranteed Rate</li>
@@ -134,10 +134,12 @@ export default function ResumePage() {
             "Led AI enablement and transformation across engineering, product, and leadership, turning adoption goals into measurable, repeatable practice",
             "Helped raise agentic-coding adoption from roughly 2% to 43% of merge requests; adoption was still climbing at departure",
             "Led Devin adoption with goals and KPIs, using a game to communicate the operating model",
-            "Ran a March 2026 PM roadshow across three continents; attendees began producing prototypes afterward",
+            "Led a March 2026 roadshow for product managers across three continents, introducing Cursor and agentic AI; attendees began producing prototypes afterward",
             "Built Wavelength, an MCP-enabled operating artifact containing tasks, RAID-log items, and program state",
+            "Coordinated cross-pillar AI transformation work, including outcomes and north-star metrics that supported ePMO governance and executive review",
+            "Built Claude skills and Langfuse evaluation prompts that supported daily operations and assessment of AI-agent response quality",
             "Designed accessibility-first Cursor and agentic-AI learning experiences that gave participants room to build working prototypes",
-            "Within four days of arrival, facilitated an onsite that multiple attendees called one of their best; this was separate from the Worksites methodology",
+            "Within four days of arrival, facilitated an onsite that multiple attendees called one of their best",
             "Created Worksites, intensive problem-solving sessions using board-game prototyping principles, and built operational tools for shared decisions and program visibility",
           ]}
         />
