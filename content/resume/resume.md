@@ -5,16 +5,17 @@
 
 ---
 
-Chief AI Transformation Officer, Program Manager, and Agile Coach with 16+ years delivering customer-focused software solutions. Currently leading ActiveCampaign's company-wide pivot from traditional marketing automation to an autonomous AI-first platform. I design facilitation methodologies, build AI-powered operational tooling, and drive cross-functional alignment across engineering, product, and executive leadership. Accessibility-first facilitator and builder of scalable enablement programs.
+Builder, AI enablement leader, program manager, and agile coach with 16+ years delivering customer-focused software. I build the operating systems, learning experiences, and decision-making practices that help teams adopt AI in everyday work. Accessibility-first facilitation turns complex transformation work into usable tools, shared goals, and concrete next steps.
 
 ---
 
 ## Key Accomplishments
 
-- Coordinated ActiveCampaign's full AI transformation across three strategic pillars, elevated to ELT-level ePMO governance
-- Created "Worksites" methodology — intensive problem-solving sessions using board game prototyping principles; adopted for international rollout
-- Designed and delivered Cursor IDE bootcamp for non-technical staff; participants produced working artifacts in-session
-- Built 7+ Claude AI skills automating daily briefings, executive digests, meeting synthesis, and DRI investigation
+- Helped raise agentic-coding adoption from roughly 2% to 43% of merge requests; it was still climbing at departure
+- Led Devin adoption with goals and KPIs, including a game used to communicate the operating model
+- Led a March 2026 roadshow for product managers across three continents, introducing Cursor and agentic AI; attendees began producing prototypes afterward
+- Built Wavelength, an MCP-enabled operating artifact containing tasks, RAID-log items, and program state
+- Within four days of arrival, facilitated an onsite that multiple attendees called one of their best
 - Reduced planning time by 50% at Arity via data-driven prioritization for 50+ engineers
 - Increased feature throughput by 400% at WorkTango during merger-driven agile transformation
 - Generated $1.5B in locked loans with one sprint of work at Guaranteed Rate
@@ -24,20 +25,19 @@ Chief AI Transformation Officer, Program Manager, and Agile Coach with 16+ years
 ## Professional Experience
 
 ### ActiveCampaign — Chicago, IL
-**Chief AI Transformation Officer | 06/2025 – Present**
-*Reporting to SVP of Product Kevin Martin*
+**AI Enablement and Transformation | 06/2025–09/2026**
 
 #### Strategic Transformation Leadership
 
-- Coordinated ActiveCampaign's full pivot from traditional marketing automation to autonomous AI-first marketing across three strategic pillars: Contextual AI, AI-First Marketing Campaigns, and AI Foundations & Data Intelligence
-- Served as cross-pillar intelligence hub synthesizing insights to identify dependencies, risks, and acceleration opportunities
-- Managed broader visibility into two additional cross-pillar initiatives: Autonomous Agents & A2U and Agentic Customer Journeys
-- Portfolio elevated from internal team management to formal ePMO governance with ELT-level visibility and quarterly reviews
-- Designed and rolled out comprehensive quarterly outcomes framework with mandatory success *and* failure criteria — pre-loading decisions so teams act on signals, not vibes
+- Led AI enablement and transformation across engineering, product, and leadership, turning adoption goals into measurable, repeatable practice
+- Helped raise agentic-coding adoption from roughly 2% to 43% of merge requests; it was still climbing at departure
+- Led Devin adoption with goals and KPIs, including a game used to communicate the operating model
+- Coordinated cross-pillar AI transformation work, including outcomes and north-star metrics that supported ePMO governance and executive review
+- Designed an outcomes framework with mandatory success *and* failure criteria — pre-loading decisions so teams act on signals, not vibes
   - Failure criteria trigger structured responses: pillar lead + PM/EM partner bring recommendation (continue / pivot / stop) to next Pit Stop
   - Framework adopted across all pillar leads for Q1 2026 planning
   - Established weekly review cadence via Pit Stops and quarterly reset cycle
-- Led cross-pillar effort to define north star metrics for AI transformation progress; resolved BI dashboard chaos and consolidated disparate metrics into a unified framework
+- Led cross-pillar effort to define north star metrics for AI transformation progress; consolidated disparate metrics into a unified framework
 - Established recurring cross-pillar AI Trust Metrics sync (Mondays 3–3:30pm CT) with 11 pillar leads
 - Managed executive alignment and program office coordination for the company-wide AI transformation
 - Submitted ELT hot topics for onsite reviews covering strategic pivots, resource allocation, customer feedback, and competitive positioning
@@ -51,6 +51,7 @@ Chief AI Transformation Officer, Program Manager, and Agile Coach with 16+ years
   - Attendees cited Worksite discoveries 12–15 times in subsequent demos and planning discussions unrelated to the original session
   - Methodology adopted for planned international rollout (Poland, Ireland, Costa Rica)
   - All sessions designed accessibility-first: auditory-first facilitation, tactile/kinesthetic activities, screen-reader compatible materials
+- Within four days of arrival, facilitated an onsite that multiple attendees called one of their best
 - Facilitated critical path architecture decision for Bulk Content Update Agent; led structured option analysis when existing approach was declared not viable due to context window limitations
   - Produced clear go/no-go determination with four evaluated pivot options and assigned action items
   - Demonstrated ability to make implicit technical trade-offs explicit for cross-functional decision-makers
@@ -65,6 +66,7 @@ Chief AI Transformation Officer, Program Manager, and Agile Coach with 16+ years
 
 #### AI Enablement & Training
 
+- Led a March 2026 roadshow for product managers across three continents, introducing Cursor and agentic AI; attendees began producing prototypes afterward
 - Designed and ran 90-minute Cursor/IDE bootcamp for designers and product owners who had never interacted with an IDE or written code
   - Participants produced working artifacts in-session: career coaching tool matching company design system, interactive billing flow prototype, segment builder UI, chess game, coffee shop simulator, pro wrestling promo generator
   - Applied pedagogical frameworks: Constructivism (proof before theory), Kolb's Experiential Learning (describe → generate → judge loop), Think-Pair-Share, scaffolded complexity
@@ -83,6 +85,8 @@ Chief AI Transformation Officer, Program Manager, and Agile Coach with 16+ years
 
 #### Tooling, Automation & Systems
 
+- Built Wavelength, an MCP-enabled operating artifact containing tasks, RAID-log items, and program state
+- Built a suite of Claude skills for daily briefings, executive digests, meeting synthesis, and DRI investigation; created Langfuse evaluation prompts to assess AI-agent response quality
 - Built and refined a suite of 7+ Claude skills pulling from Google Calendar, Drive, Slack, Jira, and Airtable:
   - **daily-report** — Morning briefing synthesizing yesterday's meetings, action items, and today's meeting prep; delivered as Slack DM
   - **executive-demo-brief** — 2-week retrospective pulling Demo and Pit Stop transcripts, extracting only production-shipped items for ELT consumption
