@@ -37,6 +37,7 @@ export default function Footer() {
           }}
         >
           <Link href="/bio" style={{ color: 'var(--fg-muted)' }}>Bio</Link>
+          <Link href="/resume" style={{ color: 'var(--fg-muted)' }}>Resume</Link>
           <Link href="/projects" style={{ color: 'var(--fg-muted)' }}>Projects</Link>
           <Link href="/portfolio" style={{ color: 'var(--fg-muted)' }}>Portfolio</Link>
           <Link href="/lab" style={{ color: 'var(--fg-muted)' }}>Case Studies</Link>

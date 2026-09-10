@@ -32,6 +32,8 @@ function RailIcon({ href }: { href: string }) {
       return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><rect x="3.5" y="3.5" width="7" height="7" rx="1" /><rect x="13.5" y="3.5" width="7" height="7" rx="1" /><rect x="3.5" y="13.5" width="7" height="7" rx="1" /><rect x="13.5" y="13.5" width="7" height="7" rx="1" /></svg>;
     case '/lab':
       return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><path d="M9 3.5h6M10.25 3.5v6.25L4.8 18.6A1.8 1.8 0 0 0 6.35 21h11.3a1.8 1.8 0 0 0 1.55-2.7l-5.45-8.55V3.5" /><path d="M8.2 16.2h7.6M9.6 13.75h4.8" /></svg>;
+    case '/resume':
+      return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><path d="M6 2.75h7.5L18.75 8v13.25H6z" /><path d="M13.25 2.75V8h5.5" /><path d="M9 12.5h6.25M9 16h6.25" /></svg>;
     case '/bio':
       return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><circle cx="12" cy="12" r="8.75" /><path d="M12 10.75V16M12 7.6h.01" /></svg>;
     case '/store':
