@@ -10,7 +10,7 @@ export type EditorialBlock =
 /** Source-neutral public editorial representation. Keep web text canonical. */
 export interface EditorialPiece {
   id: string;
-  kind: 'post' | 'story' | 'lab';
+  kind: 'post' | 'story' | 'lab' | 'resume';
   title: string;
   description: string;
   author: string;

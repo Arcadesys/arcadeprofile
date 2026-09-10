@@ -59,13 +59,13 @@ test('ensureCoreNavItems keeps fallback destinations available for the editorial
   assert.deepEqual(
     items.map((item) => item.href),
     [
-      '/projects', '/portfolio', '/lab', '/this-is-what-i-do-for-fun', '/toys',
+      '/projects', '/resume', '/portfolio', '/lab', '/this-is-what-i-do-for-fun', '/toys',
       '/bio', '/stories', '/essays', '/subscribe',
     ],
   );
 });
 
-test('buildNavigationModel uses the five requested orientation destinations for fallback and CMS data', () => {
+test('buildNavigationModel uses the requested orientation destinations for fallback and CMS data', () => {
   const fallback = buildNavigationModel(ensureCoreNavItems(DEFAULT_NAV_ITEMS));
   const cms = buildNavigationModel([
     { id: 'custom-writing', label: 'Stories', href: '/writing', isPrimary: true },
@@ -77,6 +77,7 @@ test('buildNavigationModel uses the five requested orientation destinations for 
   const expected = [
     ['Read', '/writing'],
     ['Watch me build', '/projects'],
+    ['Resume', '/resume'],
     ['About', '/bio'],
     ['Store', '/store'],
     ['Subscribe', '/subscribe'],
@@ -110,7 +111,7 @@ test('buildNavigationModel reserves the compact header for editorial essentials'
   ]);
 
   assert.deepEqual(model.primary.map((item) => item.href), [
-    '/writing', '/projects', '/bio', '/store', '/subscribe',
+    '/writing', '/projects', '/resume', '/bio', '/store', '/subscribe',
   ]);
   assert.deepEqual(model.more.map((item) => item.href), ['/stories', '/essays', '/lab', '/toys']);
 });

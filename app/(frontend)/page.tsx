@@ -44,8 +44,9 @@ export default async function HomePage() {
             <p className={styles.professional}>Austen is a builder and AI transformation leader who helps teams make emerging tools useful in everyday work.</p>
             <div className={styles.heroActions}>
               <Link className={styles.button} href="/writing">Start Here <span aria-hidden="true">→</span></Link>
+              <Link className={styles.button} href="/resume">Resume <span aria-hidden="true">→</span></Link>
               <Link className={styles.latestLink} href="/latest">Latest <span aria-hidden="true">→</span></Link>
-              <Link className={styles.latestLink} href="/bio">AI transformation work <span aria-hidden="true">→</span></Link>
+              <Link className={styles.latestLink} href="/bio">About <span aria-hidden="true">→</span></Link>
             </div>
             <div className={styles.heroSignup} aria-label="Email signup">
               <SubscriptionForm
@@ -80,6 +81,21 @@ export default async function HomePage() {
       <StartReadingShelf items={shelf} heading="Choose your next read" headingId="home-start-reading" showCovers />
 
       <FeaturedCollectionCard collection={ZOO_FEATURED_COLLECTION} placement="home" />
+
+      <section className={styles.workLane} aria-labelledby="home-work-heading">
+        <p className={styles.workEyebrow}>AI enablement &amp; transformation</p>
+        <h2 id="home-work-heading">Hire me for the hard part.</h2>
+        <p className={styles.workCopy}>
+          Austen is a builder and AI transformation leader who helps engineering and product teams
+          make emerging tools useful in everyday work — not just purchased.
+        </p>
+        <div className={styles.workActions}>
+          <Link className={styles.workPrimary} href="/resume">Read the resume <span aria-hidden="true">→</span></Link>
+          <Link className={styles.workSecondary} href="/resume/pdf">Download PDF</Link>
+          <Link className={styles.workSecondary} href="/lab">Case studies</Link>
+          <Link className={styles.workSecondary} href="/projects">Projects</Link>
+        </div>
+      </section>
 
       <section className={styles.bands} aria-label={`Explore ${SITE_NAME}`}>
         <article className={styles.band} style={{ '--band': 'var(--cyan)' } as CSSProperties}>

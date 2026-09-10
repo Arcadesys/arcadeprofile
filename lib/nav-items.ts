@@ -8,6 +8,7 @@ export type NavItem = {
 export const DEFAULT_NAV_ITEMS: NavItem[] = [
   { id: 'writing', label: 'Read', href: '/writing', isPrimary: false },
   { id: 'projects', label: 'Watch me build', href: '/projects', isPrimary: false },
+  { id: 'resume', label: 'Resume', href: '/resume', isPrimary: false },
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
   { id: 'store', label: 'Store', href: '/store', isPrimary: false },
   { id: 'subscribe', label: 'Subscribe', href: '/subscribe', isPrimary: true },
@@ -23,6 +24,7 @@ export const DEFAULT_NAV_ITEMS: NavItem[] = [
 export const ORIENTATION_NAV_ITEMS: readonly NavItem[] = [
   { id: 'writing', label: 'Read', href: '/writing', isPrimary: false },
   { id: 'projects', label: 'Watch me build', href: '/projects', isPrimary: false },
+  { id: 'resume', label: 'Resume', href: '/resume', isPrimary: false },
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
   { id: 'store', label: 'Store', href: '/store', isPrimary: false },
   { id: 'subscribe', label: 'Subscribe', href: '/subscribe', isPrimary: true },
@@ -125,6 +127,19 @@ export const ABOUT_NAV_ITEM: NavItem = {
   isPrimary: false,
 };
 
+export const RESUME_NAV_ITEM: NavItem = {
+  id: 'resume',
+  label: 'Resume',
+  href: '/resume',
+  isPrimary: false,
+};
+
+/** The professional lane's landing page sits beside the build surfaces. */
+export function ensureResumeNavItem(items: NavItem[]): NavItem[] {
+  if (items.some((item) => item.href === RESUME_NAV_ITEM.href)) return items;
+  return insertAfter(items, '/projects', RESUME_NAV_ITEM);
+}
+
 export const SUBSCRIBE_NAV_ITEM: NavItem = {
   id: 'subscribe',
   label: 'Subscribe',
@@ -155,8 +170,10 @@ export function ensureCoreNavItems(items: NavItem[]): NavItem[] {
       ensureNavItem(
         ensureNavItem(
           ensureNavItem(
-            ensureToysNavItem(
-              ensureCollectionNavItem(ensureLabNavItem(ensurePortfolioNavItem(items))),
+            ensureResumeNavItem(
+              ensureToysNavItem(
+                ensureCollectionNavItem(ensureLabNavItem(ensurePortfolioNavItem(items))),
+              ),
             ),
             STORIES_NAV_ITEM,
           ),

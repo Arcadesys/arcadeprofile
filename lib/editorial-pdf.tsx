@@ -22,7 +22,10 @@ function PieceDocument({ piece }: { piece: EditorialPiece }) {
     <Page size="LETTER" style={styles.page}>
       <Text style={styles.eyebrow}>{(piece.section || SITE_NAME).toUpperCase()}</Text>
       <Text style={styles.title}>{piece.title}</Text>
-      <Text style={styles.byline}>By {piece.author}{piece.datePublished ? ` · ${new Date(piece.datePublished).getFullYear()}` : ''}</Text>
+      {/* A piece titled after its own author (the resume) needs no repeated byline. */}
+      {piece.author === piece.title
+        ? (piece.datePublished ? <Text style={styles.byline}>{new Date(piece.datePublished).getFullYear()}</Text> : null)
+        : <Text style={styles.byline}>By {piece.author}{piece.datePublished ? ` · ${new Date(piece.datePublished).getFullYear()}` : ''}</Text>}
       {piece.blocks.map((block, index) => {
         if (block.type === 'heading') return <Text key={index} style={styles.heading}>{block.text}</Text>;
         if (block.type === 'quote') return <Text key={index} style={styles.quote}>{block.text}</Text>;
