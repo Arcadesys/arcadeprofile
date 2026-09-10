@@ -2,18 +2,18 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Resume',
-  description: 'Professional resume of Austen Tucker-Crowder — AI Enablement and Transformation, Program Manager, and Agile Coach.',
+  description: 'Professional resume of Austen Tucker-Crowder — builder, AI enablement leader, program manager, and accessibility-first facilitator.',
   alternates: { canonical: '/resume' },
   openGraph: {
     type: 'profile',
     title: 'Resume — Austen Tucker-Crowder',
-    description: 'AI Enablement and Transformation, Program Manager, and Agile Coach with 16+ years delivering customer-focused software solutions.',
+    description: 'Builder, AI enablement leader, program manager, and accessibility-first facilitator with 16+ years delivering customer-focused software.',
     url: '/resume',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Resume — Austen Tucker-Crowder',
-    description: 'AI Enablement and Transformation, Program Manager, and Agile Coach with 16+ years delivering customer-focused software solutions.',
+    description: 'Builder, AI enablement leader, program manager, and accessibility-first facilitator with 16+ years delivering customer-focused software.',
   },
 };
 
@@ -98,12 +98,11 @@ export default function ResumePage() {
       <section style={{ marginBottom: "2.5rem" }}>
         <h2 style={sectionHeadingStyle}>Summary</h2>
         <p style={{ lineHeight: 1.8, margin: 0 }}>
-          AI Enablement and Transformation, Program Manager, and Agile Coach with 16+ years
-          delivering customer-focused software solutions. Currently leading ActiveCampaign&apos;s
-          company-wide pivot from traditional marketing automation to an autonomous AI-first
-          platform. I design facilitation methodologies, build AI-powered operational tooling,
-          and drive cross-functional alignment across engineering, product, and executive
-          leadership. Accessibility-first facilitator and builder of scalable enablement programs.
+          Builder, AI enablement leader, program manager, and agile coach with 16+ years delivering
+          customer-focused software. I build the operating systems, learning experiences, and
+          decision-making practices that help teams adopt AI in their everyday work. An
+          accessibility-first facilitator, I turn complex transformation work into usable tools,
+          shared goals, and concrete next steps.
         </p>
       </section>
 
@@ -111,10 +110,11 @@ export default function ResumePage() {
       <section style={{ marginBottom: "2.5rem" }}>
         <h2 style={sectionHeadingStyle}>Key Accomplishments</h2>
         <ul style={{ margin: 0, paddingLeft: "1.25rem", lineHeight: 1.8 }}>
-          <li>Coordinated ActiveCampaign&apos;s full AI transformation across three strategic pillars, elevated to ELT-level ePMO governance</li>
-          <li>Created &ldquo;Worksites&rdquo; methodology — intensive problem-solving sessions using board game prototyping principles; adopted for international rollout</li>
-          <li>Designed and delivered Cursor IDE bootcamp for non-technical staff; participants produced working artifacts in-session</li>
-          <li>Built 7+ Claude AI skills automating daily briefings, executive digests, meeting synthesis, and DRI investigation</li>
+          <li>Helped raise agentic-coding adoption from roughly 2% to 43% of merge requests; it was still climbing at departure</li>
+          <li>Led Devin adoption with goals and KPIs, including a game used to communicate the operating model</li>
+          <li>Ran a March 2026 PM roadshow across three continents; attendees began producing prototypes afterward</li>
+          <li>Built Wavelength, an MCP-enabled operating artifact for tasks, RAID-log items, and program state</li>
+          <li>Facilitated an onsite that multiple attendees called one of their best within four days of arrival</li>
           <li>Reduced planning time by 50% at Arity via data-driven prioritization for 50+ engineers</li>
           <li>Increased feature throughput by 400% at WorkTango during merger-driven agile transformation</li>
           <li>Generated $1.5B in locked loans with one sprint of work at Guaranteed Rate</li>
@@ -129,18 +129,16 @@ export default function ResumePage() {
           company="ActiveCampaign"
           location="Chicago, IL"
           title="AI Enablement and Transformation"
-          dates="06/2025 – Present"
+          dates="06/2025–09/2026"
           bullets={[
-            "Coordinated full pivot from traditional marketing automation to autonomous AI-first marketing across three strategic pillars: Contextual AI, AI-First Marketing Campaigns, and AI Foundations & Data Intelligence",
-            "Served as cross-pillar intelligence hub synthesizing insights to identify dependencies, risks, and acceleration opportunities",
-            "Portfolio elevated to formal ePMO governance with ELT-level visibility and quarterly reviews",
-            "Designed outcomes framework with mandatory success and failure criteria — pre-loading decisions so teams act on signals, not vibes",
-            "Created \"Worksites\" — intensive one-day problem-solving sessions using board game prototyping principles; adopted for international rollout across Poland, Ireland, and Costa Rica",
-            "Designed and ran 90-minute Cursor/IDE bootcamp for designers and product owners who had never written code — participants produced working artifacts in-session",
-            "Built suite of 7+ Claude skills pulling from Google Calendar, Drive, Slack, Jira, and Airtable for daily briefings, executive digests, and meeting synthesis",
-            "Built custom LLM-as-judge evaluation prompts in Langfuse to assess AI agent response quality",
-            "Led cross-pillar effort to define north star metrics for AI transformation; consolidated disparate metrics into a unified framework",
-            "Redesigned failing daily standup into cross-pillar tactical decision-making meeting with structured decision capture and ownership enforcement",
+            "Led AI enablement and transformation across engineering, product, and leadership, turning adoption goals into measurable, repeatable practice",
+            "Helped raise agentic-coding adoption from roughly 2% to 43% of merge requests; adoption was still climbing at departure",
+            "Led Devin adoption with goals and KPIs, using a game to communicate the operating model",
+            "Ran a March 2026 PM roadshow across three continents; attendees began producing prototypes afterward",
+            "Built Wavelength, an MCP-enabled operating artifact containing tasks, RAID-log items, and program state",
+            "Designed accessibility-first Cursor and agentic-AI learning experiences that gave participants room to build working prototypes",
+            "Within four days of arrival, facilitated an onsite that multiple attendees called one of their best; this was separate from the Worksites methodology",
+            "Created Worksites, intensive problem-solving sessions using board-game prototyping principles, and built operational tools for shared decisions and program visibility",
           ]}
         />
 

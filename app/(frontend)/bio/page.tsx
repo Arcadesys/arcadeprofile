@@ -7,18 +7,18 @@ import { getStartReadingShelf } from '@/lib/reader-discovery';
 
 export const metadata: Metadata = {
   title: 'Bio',
-  description: 'Austen Tucker-Crowder: AI enablement leader, program manager, agile coach, and builder of weird things.',
+  description: 'Austen Tucker-Crowder: builder, AI enablement leader, program manager, agile coach, writer, and artist.',
   alternates: { canonical: '/bio' },
   openGraph: {
     type: 'profile',
     title: `Bio | ${SITE_NAME}`,
-    description: 'Who is Austen Tucker-Crowder? A bit of everything: AI transformation lead, facilitator, dev, writer, and maker.',
+    description: 'Who is Austen Tucker-Crowder? A builder, accessibility-first facilitator, writer, artist, and maker.',
     url: '/bio',
   },
   twitter: {
     card: 'summary_large_image',
     title: `Bio | ${SITE_NAME}`,
-    description: 'Who is Austen Tucker-Crowder? A bit of everything: AI transformation lead, facilitator, dev, writer, and maker.',
+    description: 'Who is Austen Tucker-Crowder? A builder, accessibility-first facilitator, writer, artist, and maker.',
   },
 };
 
@@ -111,25 +111,19 @@ export default async function BioPage() {
         </div>
       </section>
 
-      {/* Who I am */}
-      <section style={{ marginBottom: '2.5rem' }}>
-        <h2 style={sectionHeadingStyle}>Who I am</h2>
+      {/* Professional work */}
+      <section style={{ marginBottom: '2.5rem' }} aria-labelledby="professional-work-heading">
+        <h2 id="professional-work-heading" style={sectionHeadingStyle}>Professional work</h2>
         <div style={cardStyle}>
           <p style={{ lineHeight: 1.8, margin: '0 0 1rem' }}>
-            I&apos;m Austen — a builder, facilitator, and professional chaos-wrangler based in Chicago.
-            By day I lead AI enablement and transformation at ActiveCampaign, where I help teams
-            figure out what it actually means to build an AI-first company (spoiler: it&apos;s mostly
-            about changing how people think, not just what tools they use).
+            I&apos;m Austen — a builder and accessibility-first facilitator who helps teams make AI
+            transformation practical through working tools, clear goals, and room to learn by building.
           </p>
-          <p style={{ lineHeight: 1.8, margin: '0 0 1rem' }}>
-            I have a background in English and rhetoric, which means I care a lot about how ideas
-            are communicated — in meetings, in code, in documentation, and in the stories we tell
-            ourselves about why we&apos;re doing what we&apos;re doing.
-          </p>
-          <p style={{ lineHeight: 1.8, margin: 0 }}>
-            Outside of work I build personal software projects, write fiction, make things with my
-            hands, and think too hard about board game design. This site is one of those projects.
-          </p>
+          <ul style={{ margin: 0, paddingLeft: '1.25rem', lineHeight: 1.8 }}>
+            <li>Helped raise agentic-coding adoption from roughly 2% to 43% of merge requests; it was still climbing at departure.</li>
+            <li>Ran a March 2026 PM roadshow across three continents, after which attendees began producing prototypes.</li>
+            <li>Built Wavelength, an MCP-enabled operating artifact containing tasks, RAID-log items, and program state.</li>
+          </ul>
         </div>
       </section>
 
