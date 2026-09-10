@@ -84,3 +84,21 @@ jobs:
           head: ${{ github.event.pull_request.head.sha || github.sha }}
           # Only fail on verified findings — unverified hits are noisy.
           extra_args: --results=verified,unknown
+
+  email-service:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: services/email
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: services/email/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
