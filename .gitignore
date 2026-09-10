@@ -18,3 +18,10 @@
 # Book editions are served from Vercel Blob, not as static assets.
 # Regenerate URLs with `npm run generate:portfolio`.
 /public/portfolio
+
+# Private email-service state and local credentials
+services/email/node_modules/
+services/email/.env*
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm

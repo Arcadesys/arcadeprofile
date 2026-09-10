@@ -14,7 +14,8 @@
     "postmark:test": "tsx scripts/send-test-email.ts",
     "upload:image": "tsx scripts/upload-image.ts",
     "newsletter:post": "tsx scripts/newsletter-post.ts",
-    "test": "tsx --test $(find lib scripts -name '*.test.ts' -print | sort)"
+    "test": "tsx --test $(find lib scripts -name '*.test.ts' -print | sort)",
+    "email:test": "tsx scripts/send-test-email.ts"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.6.1",
