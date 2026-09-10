@@ -91,16 +91,22 @@
 
 /* Key accomplishments */
 
+/* Tailwind preflight strips markers site-wide; scanning a resume needs them back. */
 .accomplishments {
   margin: 0 0 1.25rem;
-  padding-left: 1.25rem;
+  padding-left: 1.35rem;
   color: var(--fg);
   font-size: 1.0625rem;
   line-height: 1.75;
+  list-style: disc;
 }
 
 .accomplishments li {
   margin-bottom: 0.5rem;
+}
+
+.accomplishments li::marker {
+  color: var(--accent);
 }
 
 .proofLink {
@@ -166,14 +172,19 @@
 
 .jobBullets {
   margin: 0;
-  padding-left: 1.25rem;
+  padding-left: 1.35rem;
   color: var(--fg);
   font-size: 1.0625rem;
   line-height: 1.75;
+  list-style: disc;
 }
 
 .jobBullets li {
   margin-bottom: 0.45rem;
+}
+
+.jobBullets li::marker {
+  color: var(--accent);
 }
 
 .jobBullets li:last-child {
