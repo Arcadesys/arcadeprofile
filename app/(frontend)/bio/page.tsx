@@ -94,6 +94,23 @@ export default async function BioPage() {
         <StartReadingShelf items={shelf} heading="Read something" headingId="bio-start-reading" compact />
       </section>
 
+      {/* Artist */}
+      <section style={{ marginBottom: '2.5rem' }} aria-labelledby="artist-heading">
+        <h2 id="artist-heading" style={sectionHeadingStyle}>Artist</h2>
+        <div style={cardStyle}>
+          <p style={{ lineHeight: 1.8, margin: '0 0 1rem' }}>
+            I make art with AI. I&apos;m a low-vision, aphantasic artist, so I&apos;m
+            unmoored from the visual detail of reality. I get to build my own — one
+            shaped by memory, feeling, and the 1990s cartoons that taught me how
+            people move.
+          </p>
+          <p style={{ lineHeight: 1.8, margin: 0 }}>
+            My imagination begins with emotional geometry: who belongs beside whom,
+            what their shapes communicate, and how it feels when they share a world.
+          </p>
+        </div>
+      </section>
+
       {/* Who I am */}
       <section style={{ marginBottom: '2.5rem' }}>
         <h2 style={sectionHeadingStyle}>Who I am</h2>
