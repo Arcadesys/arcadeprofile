@@ -153,6 +153,7 @@
 }
 
 .subhead { max-width: 42ch; margin: 0 0 1.5rem; color: var(--home-text-muted); font-size: clamp(1.05rem, 1.5vw, 1.25rem); line-height: 1.55; }
+.professional { max-width: 50ch; margin: 0 0 1.5rem; color: #fff7ef; font-size: clamp(1rem, 1.4vw, 1.15rem); font-weight: 600; line-height: 1.5; }
 
 .heroActions { display: flex; flex-wrap: wrap; gap: .85rem; }
 

@@ -41,9 +41,11 @@ export default async function HomePage() {
             <p className={styles.byline}>Stories by Austen Tucker</p>
             <h1 className={styles.title}>Read the strange little fire.</h1>
             <p className={styles.subhead}>Speculative fiction, essays, and build notes by Austen Tucker. New writing when it&rsquo;s ready. Free. One-click unsubscribe.</p>
+            <p className={styles.professional}>Austen is a builder and AI transformation leader who helps teams make emerging tools useful in everyday work.</p>
             <div className={styles.heroActions}>
               <Link className={styles.button} href="/writing">Start Here <span aria-hidden="true">→</span></Link>
               <Link className={styles.latestLink} href="/latest">Latest <span aria-hidden="true">→</span></Link>
+              <Link className={styles.latestLink} href="/bio">AI transformation work <span aria-hidden="true">→</span></Link>
             </div>
             <div className={styles.heroSignup} aria-label="Email signup">
               <SubscriptionForm

@@ -100,7 +100,7 @@ const personJsonLd = {
   name: 'Austen Tucker',
   alternateName: 'Austen Tucker-Crowder',
   url: SITE_URL,
-  jobTitle: 'AI Enablement & Transformation Lead',
+  jobTitle: 'AI Enablement and Transformation',
   sameAs: [
     'https://github.com/Arcadesys',
   ],
