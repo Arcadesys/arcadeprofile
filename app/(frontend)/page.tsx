@@ -34,7 +34,16 @@ export default async function HomePage() {
           <Link className={styles.brandLockup} href="/" aria-label={`${SITE_PLATFORM_NAME} — ${SITE_NAME} home`}>
             <span>{SITE_PLATFORM_NAME}</span><b aria-hidden="true">/</b><strong>{SITE_NAME}</strong>
           </Link>
-          <Link className={styles.topSubscribe} href="/subscribe">Subscribe</Link>
+          <div className={styles.topActions}>
+            <a className={styles.workWithMe} href="https://work.thearcades.me">
+              <span className={styles.workWithMeIcon} aria-hidden="true">✦</span>
+              <span>
+                <small>AI work · Resume</small>
+                <strong>Work with me <span aria-hidden="true">↗</span></strong>
+              </span>
+            </a>
+            <Link className={styles.topSubscribe} href="/subscribe">Subscribe</Link>
+          </div>
         </div>
         <div className={styles.heroEditorial}>
           <div className={styles.heroCopy}>
@@ -73,15 +82,6 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <div className={styles.resume}>
-        <ContinueReadingBanner availablePaths={readingCatalog.map((piece) => piece.canonicalPath)} />
-        <ContinueToyBanner />
-      </div>
-
-      <StartReadingShelf items={shelf} heading="Choose your next read" headingId="home-start-reading" showCovers />
-
-      <FeaturedCollectionCard collection={ZOO_FEATURED_COLLECTION} placement="home" />
-
       <section className={styles.workLane} aria-labelledby="home-work-heading">
         <p className={styles.workEyebrow}>AI enablement &amp; transformation</p>
         <h2 id="home-work-heading">Hire me for the hard part.</h2>
@@ -96,6 +96,15 @@ export default async function HomePage() {
           <Link className={styles.workSecondary} href="/projects">Projects</Link>
         </div>
       </section>
+
+      <div className={styles.resume}>
+        <ContinueReadingBanner availablePaths={readingCatalog.map((piece) => piece.canonicalPath)} />
+        <ContinueToyBanner />
+      </div>
+
+      <StartReadingShelf items={shelf} heading="Choose your next read" headingId="home-start-reading" showCovers />
+
+      <FeaturedCollectionCard collection={ZOO_FEATURED_COLLECTION} placement="home" />
 
       <section className={styles.bands} aria-label={`Explore ${SITE_NAME}`}>
         <article className={styles.band} style={{ '--band': 'var(--cyan)' } as CSSProperties}>

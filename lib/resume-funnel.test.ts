@@ -24,12 +24,16 @@ const PROOF_ROUTES = new Set([
   '/portfolio',
 ]);
 
-test('the homepage opens the professional lane before the fiction bands', () => {
+test('the homepage opens the professional lane immediately after the hero', () => {
   const home = source('app/(frontend)/page.tsx');
+  const hero = home.indexOf('</header>');
   const workLane = home.indexOf('className={styles.workLane}');
+  const resume = home.indexOf('className={styles.resume}');
   const bands = home.indexOf('className={styles.bands}');
 
   assert.ok(workLane !== -1, 'homepage is missing the professional work lane');
+  assert.ok(hero !== -1 && workLane > hero, 'the work lane must follow the homepage hero');
+  assert.ok(resume > workLane, 'the professional lane must precede reading-resume controls');
   assert.ok(bands > workLane, 'the work lane must precede the fiction and essay bands');
   assert.match(home, /href="\/resume">Read the resume/);
   assert.match(home, /href="\/resume\/pdf">Download PDF/);
