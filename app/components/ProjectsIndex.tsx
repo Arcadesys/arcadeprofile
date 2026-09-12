@@ -98,14 +98,7 @@ export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
 
   return (
     <main className={styles.root}>
-      <nav className={styles.sectionDoors} aria-label="Build sections">
-        <a href="#project-index"><strong>Projects</strong><span>Current and archived builds</span></a>
-        <Link href="/lab"><strong>Case studies</strong><span>How the work was made</span></Link>
-        <Link href="/portfolio"><strong>Portfolio</strong><span>Selected finished pieces</span></Link>
-        <Link href="/toys"><strong>Toys</strong><span>Playable experiments</span></Link>
-      </nav>
-
-      <header className={styles.masthead} id="project-index">
+      <header className={styles.masthead}>
         <div>
           <div className={styles.eyebrow}>Vol. III &middot; 2026 &middot; perpetually under construction</div>
           <h1 className={styles.title}>
@@ -124,6 +117,23 @@ export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
           ) : null}
         </div>
       </header>
+
+      <nav className={styles.sectionDoors} aria-label="Build sections">
+        {[
+          { title: 'Projects', description: 'Current and archived builds', href: '#project-index', image: 'projects' },
+          { title: 'Case studies', description: 'How the work was made', href: '/lab', image: 'case-studies' },
+          { title: 'Portfolio', description: 'Selected finished pieces', href: '/portfolio', image: 'portfolio' },
+          { title: 'Toys', description: 'Playable experiments', href: '/toys', image: 'toys' },
+        ].map((section) => (
+          <Link key={section.image} href={section.href}>
+            <Image src={`/images/build-sections/${section.image}.webp`} alt="" width={768} height={512} sizes="(max-width: 600px) calc(100vw - 64px), 420px" />
+            <div className={styles.doorCopy}>
+              <strong>{section.title}<span aria-hidden="true"> →</span></strong>
+              <span>{section.description}</span>
+            </div>
+          </Link>
+        ))}
+      </nav>
 
       {pulse.length > 0 ? (
         <section className={styles.pulse} aria-label="This week">
@@ -144,7 +154,7 @@ export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
         </section>
       ) : null}
 
-      <div className={styles.filters} role="toolbar" aria-label="Filter and sort projects">
+      <div className={styles.filters} id="project-index" tabIndex={-1} role="toolbar" aria-label="Filter and sort projects">
         <span className={styles.filtersLabel}>Show</span>
         {FILTER_LABELS.map((opt) => (
           <button

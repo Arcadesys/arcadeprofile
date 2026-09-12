@@ -20,10 +20,12 @@ test('homepage has one compact hero signup and the reader-first conversion copy'
 test('projects is the landing door for builds, case studies, portfolio, and toys', () => {
   const projects = source('app/components/ProjectsIndex.tsx');
 
-  assert.match(projects, /href="#project-index"/);
-  assert.match(projects, /href="\/lab"/);
-  assert.match(projects, /href="\/portfolio"/);
-  assert.match(projects, /href="\/toys"/);
+  assert.match(projects, /href: '#project-index'/);
+  assert.match(projects, /href: '\/lab'/);
+  assert.match(projects, /href: '\/portfolio'/);
+  assert.match(projects, /href: '\/toys'/);
+  assert.match(projects, /<Link key=\{section.image\} href=\{section.href\}>/);
+  assert.match(projects, /id="project-index"/);
 });
 
 test('site-owned signup surfaces use one first-party form implementation', () => {

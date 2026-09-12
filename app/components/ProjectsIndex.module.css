@@ -1,14 +1,19 @@
 .root { max-width: 920px; margin: 0 auto; padding: 32px 24px 64px; }
 
-.sectionDoors { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 40px; }
-.sectionDoors a { display: grid; min-height: 112px; align-content: center; gap: 6px; padding: 14px; border: 2px solid var(--border); border-top: 4px solid var(--cyan); background: var(--surface); color: var(--fg); text-decoration: none; }
-.sectionDoors a:nth-child(2) { border-top-color: var(--neon-pink); }
-.sectionDoors a:nth-child(3) { border-top-color: var(--accent); }
-.sectionDoors a:nth-child(4) { border-top-color: var(--magenta); }
-.sectionDoors strong { font-size: 18px; line-height: 1.2; }
-.sectionDoors span { color: var(--fg-muted); font-size: 15px; line-height: 1.4; }
+.sectionDoors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin: 0 0 40px; }
+.sectionDoors a { display: flex; flex-direction: column; overflow: hidden; border: 2px solid var(--fg-muted); border-radius: 12px; background: var(--surface); color: var(--fg); text-decoration: none; }
+.sectionDoors img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; background: #080b15; }
+.doorCopy { display: grid; gap: 10px; padding: 22px; border-top: 4px solid var(--cyan); }
+.sectionDoors a:nth-child(2) .doorCopy { border-top-color: var(--neon-pink); }
+.sectionDoors a:nth-child(3) .doorCopy { border-top-color: var(--accent); }
+.sectionDoors a:nth-child(4) .doorCopy { border-top-color: var(--magenta); }
+.sectionDoors strong { display: flex; justify-content: space-between; gap: 12px; font-size: clamp(24px, 3vw, 30px); line-height: 1.25; }
+.doorCopy > span { color: var(--fg); font-size: 18px; line-height: 1.5; }
 .sectionDoors a:hover { border-color: var(--cyan); color: var(--fg); text-shadow: none; }
-.sectionDoors a:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
+.sectionDoors a:hover strong { text-decoration: underline; text-underline-offset: .2em; }
+.sectionDoors a:focus-visible { outline: 4px solid var(--cyan); outline-offset: 5px; }
+.filters { scroll-margin-top: 32px; }
+@media (max-width: 600px) { .sectionDoors { grid-template-columns: 1fr; gap: 20px; } }
 
 .masthead { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px; flex-wrap: wrap; }
 .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 12px; }
@@ -102,11 +107,9 @@
   .pulseDot::before, .metaTagLive::before { animation: none; }
 }
 @media (max-width: 720px) {
-  .sectionDoors { grid-template-columns: 1fr 1fr; }
   .entry, .entry.isActive, .entry.hasImage { grid-template-columns: 36px 1fr; }
   .entryNum { display: none; }
   .entryImage { display: none; }
   .headMeta { align-items: flex-start; }
   .filters .sort { margin-left: 0; }
 }
-@media (max-width: 420px) { .sectionDoors { grid-template-columns: 1fr; } }
