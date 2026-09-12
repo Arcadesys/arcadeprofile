@@ -34,7 +34,16 @@ export default async function HomePage() {
           <Link className={styles.brandLockup} href="/" aria-label={`${SITE_PLATFORM_NAME} — ${SITE_NAME} home`}>
             <span>{SITE_PLATFORM_NAME}</span><b aria-hidden="true">/</b><strong>{SITE_NAME}</strong>
           </Link>
-          <Link className={styles.topSubscribe} href="/subscribe">Subscribe</Link>
+          <div className={styles.topActions}>
+            <a className={styles.workWithMe} href="https://work.thearcades.me">
+              <span className={styles.workWithMeIcon} aria-hidden="true">✦</span>
+              <span>
+                <small>AI work · Resume</small>
+                <strong>Work with me <span aria-hidden="true">↗</span></strong>
+              </span>
+            </a>
+            <Link className={styles.topSubscribe} href="/subscribe">Subscribe</Link>
+          </div>
         </div>
         <div className={styles.heroEditorial}>
           <div className={styles.heroCopy}>
