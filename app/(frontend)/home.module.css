@@ -50,11 +50,14 @@
 
 .brandLockup {
   display: inline-flex;
+  flex-wrap: wrap;
+  align-content: center;
   align-items: baseline;
-  gap: clamp(.65rem, 1.5vw, 1.4rem);
+  min-height: 48px;
+  gap: 0 clamp(.65rem, 1.5vw, 1.4rem);
   color: #fff;
   font-family: var(--font-mono);
-  font-size: clamp(.85rem, 1.4vw, 1.15rem);
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
   font-weight: 700;
   letter-spacing: .2em;
   text-decoration: none;
@@ -132,7 +135,7 @@
   box-shadow: 0 0 0 2px #0b0b0d, 0 0 24px var(--console-orange-glow);
   clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
   font-family: var(--font-mono);
-  font-size: .9rem;
+  font-size: 1rem;
   font-weight: 900;
   letter-spacing: .1em;
   text-decoration: none;
@@ -221,7 +224,7 @@
   color: #fff;
   background: #111113;
   font-family: var(--font-mono);
-  font-size: .92rem;
+  font-size: 1rem;
   font-weight: 800;
   letter-spacing: .09em;
   text-transform: uppercase;
@@ -397,7 +400,7 @@
 .recentRow p { color: var(--home-text-muted); font-size: .9rem; font-weight: 700; }
 .recentActions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .recentActions a,
-.recentActions button { width: 100%; min-width: 0; min-height: 48px; padding: .6rem .8rem; border-color: #71646b; border-radius: 0; color: var(--home-text); font-family: var(--font-mono); font-size: .82rem; }
+.recentActions button { width: 100%; min-width: 0; min-height: 48px; padding: .6rem .8rem; border-color: #71646b; border-radius: 0; color: var(--home-text); font-family: var(--font-mono); font-size: 1rem; }
 .recentActions a:hover,
 .recentActions button:hover { color: #fff; background: var(--home-surface-soft); }
 
@@ -408,8 +411,12 @@
   .portrait { width: 58%; }
 }
 
-@media (max-width: 800px) {
+/* Same query that collapses the nav rail in app/globals.css; stop reserving its gutter. */
+@media (max-width: 960px), (max-height: 700px) {
   .main { width: min(100% - 2rem, 1360px); margin-inline: auto; }
+}
+
+@media (max-width: 800px) {
   .hero { grid-template-columns: 1fr; grid-template-rows: auto; clip-path: none; }
   .brandBar { min-height: 0; padding: .7rem; }
   .brandLockup { display: none; }
