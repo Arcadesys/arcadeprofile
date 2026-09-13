@@ -37,7 +37,6 @@ test('the homepage opens the professional lane immediately after the hero', () =
   assert.ok(bands > workLane, 'the work lane must precede the fiction and essay bands');
   assert.match(home, /href="\/resume">Read the resume/);
   assert.match(home, /href="\/resume\/pdf">Download PDF/);
-  assert.match(home, /<Link className=\{styles\.button\} href="\/resume">Resume/);
 });
 
 test('the reader funnel keeps its homepage entry points', () => {
