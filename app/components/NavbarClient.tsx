@@ -11,6 +11,8 @@ import ReadingDock from './ReadingDock';
 
 export type { NavItem };
 
+const NAV_COLLAPSED_KEY = 'arcades-nav-collapsed';
+
 function RailIcon({ href }: { href: string }) {
   const common = {
     fill: 'none',
@@ -46,7 +48,29 @@ function RailIcon({ href }: { href: string }) {
 export default function NavbarClient({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [railCollapsed, setRailCollapsed] = useState(false);
   const { primary } = buildNavigationModel(items);
+
+  useEffect(() => {
+    try {
+      setRailCollapsed(window.localStorage.getItem(NAV_COLLAPSED_KEY) === 'true');
+    } catch {
+      // localStorage can be unavailable in hardened browsing modes; expanded is safe.
+    }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.navCollapsed = String(railCollapsed);
+    try {
+      window.localStorage.setItem(NAV_COLLAPSED_KEY, String(railCollapsed));
+    } catch {
+      // Preference persistence is optional.
+    }
+
+    return () => {
+      delete document.documentElement.dataset.navCollapsed;
+    };
+  }, [railCollapsed]);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -73,20 +97,31 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
         ].filter(Boolean).join(' ') || undefined}
         aria-current={isActive ? 'page' : undefined}
         onClick={() => setMobileOpen(false)}
+        title={railCollapsed ? item.label : undefined}
       >
         <span className="nav-rail-icon"><RailIcon href={item.href} /></span>
-        {item.label}
+        <span className="nav-rail-label">{item.label}</span>
       </Link>
     );
   };
 
   return (
     <>
-      <nav className={`site-nav${mobileOpen ? ' mobile-open' : ''}`} aria-label="Main navigation">
+      <nav className={`site-nav${mobileOpen ? ' mobile-open' : ''}${railCollapsed ? ' rail-collapsed' : ''}`} aria-label="Main navigation">
         <Link href="/" className="nav-logo" aria-label={`${SITE_NAME} — home`}>
           <Image src="/images/moxie/moxie-sleeping.webp" alt="" width={90} height={60} priority />
           <span className="nav-logo-copy"><strong>{SITE_PLATFORM_NAME}</strong><small>{SITE_NAME}</small></span>
         </Link>
+        <button
+          className="nav-rail-toggle"
+          type="button"
+          aria-expanded={!railCollapsed}
+          aria-label={railCollapsed ? 'Expand navigation sidebar' : 'Collapse navigation sidebar'}
+          title={railCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          onClick={() => setRailCollapsed((collapsed) => !collapsed)}
+        >
+          <span aria-hidden="true">{railCollapsed ? '›' : '‹'}</span>
+        </button>
         <button className="nav-mobile-toggle" type="button" aria-expanded={mobileOpen} aria-controls="main-nav-links" onClick={() => setMobileOpen((open) => !open)}>
           Menu
         </button>
@@ -95,6 +130,79 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
         </ul>
       </nav>
       <ReadingDock closeOther={() => setMobileOpen(false)} closeSignal={mobileOpen} />
+      <style jsx global>{`
+        .nav-rail-toggle {
+          display: grid;
+          place-items: center;
+          position: absolute;
+          top: 50%;
+          right: -30px;
+          width: 30px;
+          min-height: 52px;
+          transform: translateY(-50%);
+          border: 2px solid var(--cyan);
+          border-left: 0;
+          border-radius: 0 6px 6px 0;
+          background: rgba(5, 5, 6, .96);
+          color: #fff;
+          font-size: 1.4rem;
+          line-height: 1;
+          cursor: pointer;
+          box-shadow: 5px 0 16px var(--console-cyan-glow);
+        }
+
+        .nav-rail-toggle:hover,
+        .nav-rail-toggle:focus-visible {
+          color: var(--accent);
+        }
+
+        @media (min-width: 961px) and (min-height: 701px) {
+          html[data-nav-collapsed='true'] .site-nav {
+            width: 56px;
+            padding-inline: .35rem;
+          }
+
+          html[data-nav-collapsed='true'] .site-nav .nav-logo {
+            margin-bottom: .65rem;
+            padding-inline: 0;
+          }
+
+          html[data-nav-collapsed='true'] .site-nav .nav-logo img {
+            width: 42px;
+            height: 42px;
+            flex-basis: 42px;
+          }
+
+          html[data-nav-collapsed='true'] .site-nav a:not(.nav-logo) {
+            min-height: 48px;
+            padding-inline: 0;
+          }
+
+          html[data-nav-collapsed='true'] .site-nav .nav-rail-label {
+            display: none;
+          }
+
+          html[data-nav-collapsed='true'] body > main,
+          html[data-nav-collapsed='true'] body > #__next,
+          html[data-nav-collapsed='true'] .nav-wrapper + main {
+            margin-left: 56px;
+          }
+
+          html[data-nav-collapsed='true'] .dd-toggle {
+            left: 56px;
+          }
+        }
+
+        @media (max-width: 960px), (max-height: 700px) {
+          .nav-rail-toggle {
+            display: none;
+          }
+
+          .nav-rail-label {
+            display: inline;
+          }
+        }
+      `}</style>
     </>
   );
 }
