@@ -119,6 +119,52 @@ export default function MidwestFurFestPage() {
           </p>
           <p>Apparently, that also makes me a pariah.</p>
           <p>I do not believe it should.</p>
+          <p>
+            But I want to be careful about the claim I am making, because the argument that gets
+            shouted down in this fandom is not the one I am here to make.
+          </p>
+          <p>
+            I am not claiming that generative AI is good for artists. I am not claiming that furry owes
+            this technology a welcome, or that anyone has to like it. I am claiming something narrower:
+            a community institution should be extremely careful about adopting a blanket cultural
+            prohibition on a fast-moving creative technology when that prohibition also sweeps up
+            accessibility tools, software, experimental practice, and work already being made by people
+            inside this fandom.
+          </p>
+
+          <div className={styles.pullQuote}>
+            The question is not whether AI is good. It is whether we are already certain enough about
+            what AI can become to decide, today, which members of this community get to explore it
+            tomorrow.
+          </div>
+
+          <p>
+            You can be deeply skeptical of generative AI and still agree with that sentence. That is the
+            entire reason I am writing it down.
+          </p>
+          <p>
+            Before I say anything else about possibility, let me say what I believe about harm, because
+            I do not think the artists in this fandom are being irrational.
+          </p>
+          <p>
+            These models were trained on enormous amounts of work, including furry work, without anyone
+            asking. Style mimicry can be used to impersonate a specific artist who spent fifteen years
+            developing that style. Sheer volume can bury careful work under an infinite supply of cheap
+            approximations. Commissions are how a real number of people in this community pay rent, and
+            the pressure on that is neither hypothetical nor far away. The fear that a tool trained on
+            your labor will be used to underprice your labor is a reasonable fear, and it gets
+            validated in public most weeks.
+          </p>
+          <p>I do not think any of that is settled, and my enthusiasm does not answer it.</p>
+          <p>
+            But protecting artists from those harms does not require the rule Midwest FurFest has
+            adopted. Every harm in that paragraph has a name: undisclosed authorship, style
+            impersonation, commercial substitution, contest eligibility, spam volume, provenance. A
+            policy can name those and go after them directly &mdash; and it can be enforced against
+            anyone who does them, with or without a model involved.
+          </p>
+          <p>Naming the tool instead catches all of that, and then keeps going.</p>
+          <p>That is where I come in.</p>
 
           <Callout
             kicker="A different way forward"
@@ -141,6 +187,36 @@ export default function MidwestFurFestPage() {
               ))}
             </div>
           </Callout>
+
+          <p>
+            Part of what makes a blanket rule so hard to write well is that &ldquo;AI&rdquo; is not one
+            practice.
+          </p>
+          <p>
+            The word covers a finished piece sold in place of a commission, a vision model describing a
+            photograph out loud, code completion, image tagging, a character reference system, an
+            animation pipeline, a local model running on somebody&rsquo;s own machine, procedural
+            generation in a game, and a dozen things that do not have names yet. Those are not the same
+            act. A few of them take a sale away from an artist. Most of them never touch one.
+          </p>
+          <p>
+            This is why I keep coming back to my own eyes, and it is not a request for an exemption.
+          </p>
+          <p>
+            For me a vision model sits closer to my white cane than to a print shop. It is the interface
+            through which I get at an image at all. The identical technical mechanism is a substitute
+            for an artist in one use and an adaptive device in another. A rule aimed at the mechanism
+            cannot tell those two apart. A rule aimed at the conduct can.
+          </p>
+          <p>
+            There is also a question of scope. Rules about what can be sold at a table are marketplace
+            rules, and MFF is entitled to write those tightly: an Artists Alley exists to protect and
+            promote the people selling in it, and provenance, copyright exposure, and direct competition
+            are real administrative problems. But the moment a policy governs which kinds of creative
+            practice count as acceptable participation in the convention at all, it has stopped
+            regulating a marketplace and started drawing a cultural boundary around who belongs here.
+          </p>
+          <p>Those are different powers. They deserve different amounts of caution.</p>
 
           <p>
             AI contains extraordinary possibilities for the furry community. These are tools for
@@ -211,14 +287,25 @@ export default function MidwestFurFestPage() {
             </p>
           </Callout>
 
+          <p>This technology is also moving absurdly fast.</p>
           <p>
-            I would be happy to give the board an interactive demonstration of some of my own software
-            and show, rather than merely tell, what I believe these technologies can make possible for
-            furry creators.
+            A rule written with 2023&rsquo;s image generators in mind will still be on the books when it
+            governs 2028&rsquo;s accessibility software, animation pipelines, and whatever the next
+            unnamed thing turns out to be. A policy built around a mechanism ages badly, and it has to
+            be defended as a moral position long after the mechanism has changed underneath it. A policy
+            built around behavior can be revised without reopening the entire argument every time.
+          </p>
+          <p>And this is not Silicon Valley knocking on furry&rsquo;s door.</p>
+          <p>
+            I have been making this argument in public, under my own name, on my own site, for years
+            &mdash; including the case that an AI-mediated image can be a disposable, personal kind of
+            expression rather than a replacement for a commission. There are furs already building with
+            these tools for furry purposes: characters, stories, games, accessibility, software. The
+            disagreement is already inside the house.
           </p>
           <p>
-            I believe code wins. A solid demonstration, in the right room, can sometimes change a
-            conversation that abstract arguments cannot.
+            An institution should be slow to settle an internal dispute by defining one side of it out
+            of the community.
           </p>
 
           <hr />
@@ -227,7 +314,18 @@ export default function MidwestFurFestPage() {
             Until Midwest FurFest&rsquo;s anti-AI policy is materially revised or eliminated, I will not
             be volunteering for or attending the convention.
           </p>
-          <p>That is not a decision I make lightly.</p>
+          <p>That is not a decision I make lightly, and I want to be precise about what it is.</p>
+          <p>
+            It is not an ultimatum. I am not offering to trade my labor for a policy change, and the
+            board should not revise anything because one volunteer is unhappy. MFF will be fine without
+            me.
+          </p>
+          <p>
+            It is that volunteering is a form of endorsement. I cannot help administer a boundary that
+            places work I believe is legitimate, accessible, human-directed creative expression on the
+            wrong side of it. I would rather withdraw than take a shift while pretending the
+            disagreement is a small one.
+          </p>
           <p>
             After more than two decades as an attendee and member of this fandom, I finally feel that I
             have something uniquely valuable to contribute to its next chapter: decades of creative
@@ -237,6 +335,12 @@ export default function MidwestFurFestPage() {
           <p>
             If the convention has decided that this kind of exploration is incompatible with the
             community it wants to build, then there is no meaningful place for me in that world.
+          </p>
+          <p>
+            I have put my own history in this letter because it shows who a rule like this excludes. It
+            is not the reason the rule is wrong. Take my name out of this letter and the argument should
+            still stand on its own &mdash; and if it does not, then it is not worth revising a policy
+            over me.
           </p>
 
           <hr />
@@ -299,15 +403,53 @@ export default function MidwestFurFestPage() {
             But I do not think we should assume that exclusion makes the underlying community
             disappear.
           </p>
+          <hr />
+
+          <p>
+            So I would rather make an offer than an argument, and the reason why is a story about this
+            city.
+          </p>
+          <p>
+            New York City banned pinball in 1942. It was classified as gambling &mdash; a game of pure
+            chance, a machine that took children&rsquo;s money &mdash; and the ban held for thirty-four
+            years. Nobody at City Hall thought it was a close question. Machines were seized and broken
+            up for the cameras.
+          </p>
+          <p>
+            In 1976, the industry sent a writer named Roger Sharpe to testify before the New York City
+            Council. He did not win by explaining that the council had misunderstood the technology. He
+            won because somebody wheeled a machine into the room. He told the council there was skill in
+            it &mdash; that if he pulled the plunger back just right, the ball would go down a
+            particular lane &mdash; and then he did it. The council voted to lift the ban. By
+            Sharpe&rsquo;s own account since, the shot was mostly luck.
+          </p>
+          <p>Chicago, which built the machines, kept its own ban until January 1977.</p>
+          <p>
+            The lesson I take from that is not that the skeptics were fools. Much of what was said about
+            coin-operated machines in 1942 was true of coin-operated machines in 1942. The lesson is
+            that the argument did not move while it stayed abstract, and it moved the moment there was
+            an actual thing in the room to look at.
+          </p>
+          <p>
+            So I am offering to bring the machine into the room. I will demonstrate my own software and
+            my own work to the board &mdash; in person, on a projector, with hostile questions welcome,
+            including from the artists in this fandom who have the most to lose if I turn out to be
+            wrong.
+          </p>
+          <p>
+            I believe code wins. A working thing, in the right room, can move a conversation that
+            abstract argument cannot.
+          </p>
         </article>
 
         <section className={styles.exhibition} aria-labelledby="exhibition-heading">
-          <p className={styles.kicker}>Don&rsquo;t imagine it. Try it.</p>
+          <p className={styles.kicker}>The machine in the room</p>
           <h2 id="exhibition-heading" className={styles.exhibitionTitle}>
             Look what happens when more people get to make things.
           </h2>
           <p className={styles.exhibitionLede}>
-            &ldquo;AI art&rdquo; is too small a box for what is already here. Everything below exists.
+            This is the part where I pull the plunger back and call the lane. &ldquo;AI art&rdquo; is
+            too small a box for what is already here. Everything below exists.
             It is all published, all mine, and all reachable from this page. I am not asking you to
             imagine a hypothetical creator. I am asking you to look at six things and decide whether
             furry is richer for having room for them.
@@ -550,6 +692,13 @@ export default function MidwestFurFestPage() {
             has chosen.
           </p>
           <p>
+            I am not asking the board to agree with me. I am asking it to look before it closes the
+            door. If MFF examines this work &mdash; the software, the games, the accessibility tools,
+            the fiction &mdash; and still concludes that none of it belongs here, then at least the
+            decision will have been made with knowledge of what is being excluded, instead of about a
+            category nobody in the room had actually examined.
+          </p>
+          <p>
             I am asking the board to reconsider this approach before it hardens into something much more
             difficult to undo.
           </p>
@@ -603,6 +752,34 @@ export default function MidwestFurFestPage() {
                   Fur Affinity, AI and blockchain content policy
                 </a>{' '}
                 (December 2022) &mdash; Fur Affinity&rsquo;s own platform-wide AI ban notice.
+              </li>
+            </ol>
+            <p className={styles.sourceGroupLabel}>The 1976 pinball hearing</p>
+            <ol>
+              <li>
+                <a href="https://en.wikipedia.org/wiki/Roger_Sharpe_(pinball)" target="_blank" rel="noopener noreferrer">
+                  Roger Sharpe (pinball)
+                </a>{' '}
+                (Wikipedia) &mdash; Sharpe, then writing for <em>GQ</em>, was recruited by the
+                industry&rsquo;s operators association to testify before the New York City Council in
+                1976; the council voted unanimously to lift the ban after his demonstration.
+              </li>
+              <li>
+                <a href="https://gizmodo.com/how-one-perfect-shot-saved-pinball-from-being-illegal-1154267979" target="_blank" rel="noopener noreferrer">
+                  &ldquo;How One Perfect Shot Saved Pinball From Being Illegal&rdquo;
+                </a>{' '}
+                (Gizmodo) &mdash; the called shot, and Sharpe&rsquo;s own later characterization of it
+                as largely luck. The specific machine is not reliably documented, so this page does not
+                name one.
+              </li>
+              <li>
+                <a href="https://chicagoreader.com/blogs/chicago-once-waged-a-40-year-war-on-pinball/" target="_blank" rel="noopener noreferrer">
+                  &ldquo;Chicago once waged a 40-year war on pinball&rdquo;
+                </a>{' '}
+                (<em>Chicago Reader</em>) &mdash; Chicago as the manufacturing capital of pinball
+                (Bally, Williams, Stern) and its own ban, which stood until January 1977. Chicago was
+                already reconsidering in early 1976; no causal link to the New York ruling is claimed
+                here.
               </li>
             </ol>
             <p className={styles.sourceGroupLabel}>Furry&rsquo;s digital-art transition</p>
