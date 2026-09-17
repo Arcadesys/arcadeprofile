@@ -25,3 +25,8 @@ services/email/.env*
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+
+# Local Claude Code worktrees: never part of the repo. One of these was
+# once committed as a stray gitlink, which broke `git submodule foreach`
+# in every CI checkout cleanup.
+.claude/worktrees/

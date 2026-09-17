@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import { JsonLd } from '@/lib/structured-data';
 import { LIGHTS_BOOTSTRAP_SCRIPT } from '@/lib/lights';
+import { NAV_COLLAPSE_BOOTSTRAP_SCRIPT } from '@/lib/nav-collapse';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_NAME_UPPER, SITE_TITLE_DEFAULT } from '@/lib/site-brand';
 import { SITE_URL } from '@/lib/site-url';
 
@@ -119,6 +120,7 @@ export default function FrontendLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: LIGHTS_BOOTSTRAP_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: NAV_COLLAPSE_BOOTSTRAP_SCRIPT }} />
       </head>
       <body>
         <JsonLd data={websiteJsonLd} />
