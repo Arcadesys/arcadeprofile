@@ -11,7 +11,7 @@ import styles from './mff.module.css';
 const TITLE = 'Leave the Door Open';
 const DESCRIPTION = 'On Midwest FurFest, generative AI, and the community I still want to call home.';
 const CANONICAL_PATH = '/mff';
-const MFF_PUBLIC = false;
+const MFF_PUBLIC = true;
 
 export const metadata: Metadata = {
   title: TITLE,
