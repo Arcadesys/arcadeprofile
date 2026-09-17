@@ -208,6 +208,13 @@ a:hover {
 /* ── The Arcades' Lab neon-console treatment ───────────── */
 body { background: #050506; }
 body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: var(--console-texture-opacity); background-image: radial-gradient(rgba(255,255,255,.22) .55px, transparent .8px), linear-gradient(125deg, rgba(0,224,240,.06), transparent 22%, rgba(239,54,175,.05) 75%, transparent); background-size: 5px 5px, 100% 100%; }
+/* Tracks how much horizontal space the fixed desktop rail actually needs, so
+   any page content can reserve space for it with `margin-left: var(--nav-rail-width)`
+   instead of hardcoding 138px (which drifts out of sync when the rail's own
+   width changes, as with the collapse toggle below). */
+:root { --nav-rail-width: 0px; }
+@media (min-width: 961px) and (min-height: 701px) { :root { --nav-rail-width: 138px; } }
+
 .nav-wrapper { position: relative; z-index: 20; padding: 0 !important; }
 .site-nav { position: fixed; inset: 0 auto 0 0; display: flex; flex-direction: column; justify-content: flex-start; width: 138px; padding: 1.5rem .75rem; border: 0; border-right: 2px solid var(--cyan); border-radius: 0; background: rgba(5,5,6,.96); box-shadow: 5px 0 20px var(--console-cyan-glow); backdrop-filter: blur(16px); }
 .nav-logo { width: 100%; height: auto; margin: .35rem 0 1.25rem; padding: .65rem .2rem .9rem; border-bottom: 1px solid rgba(255,255,255,.18); gap: .5rem; justify-content: center; }.nav-logo img { width: 52px; height: 52px; flex: 0 0 52px; border: 2px solid var(--accent); border-radius: 50%; object-fit: cover; box-shadow: 0 0 14px var(--console-orange-glow); }.nav-logo-copy { display: none; }
@@ -2113,6 +2120,66 @@ html[data-reading-width] .collection-index {
 }
 @media (max-width: 960px), (max-height: 700px) {
   .nav-rail-icon { display: none; }
+}
+
+/* ── Desktop rail collapse ─────────────────────────────────
+   A toggle at the foot of the rail lets the reader shrink it to an
+   icon-only strip so long-form content isn't fighting it for space. */
+@media (min-width: 961px) and (min-height: 701px) {
+  .nav-collapse-toggle {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin: .75rem auto 0;
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 50%;
+    background: transparent;
+    color: #cfcfcd;
+  }
+  .nav-collapse-toggle:hover { color: #fff; border-color: rgba(255,255,255,.65); }
+  .nav-collapse-toggle svg { width: 20px; height: 20px; }
+}
+@media (max-width: 960px), (max-height: 700px) {
+  .nav-collapse-toggle { display: none; }
+}
+
+html[data-nav-collapsed="true"] {
+  --nav-rail-width: 56px;
+}
+@media (min-width: 961px) and (min-height: 701px) {
+  html[data-nav-collapsed="true"] .site-nav {
+    width: var(--nav-rail-width);
+  }
+  html[data-nav-collapsed="true"] .nav-label {
+    display: none;
+  }
+  html[data-nav-collapsed="true"] .site-nav > ul > li:not(.nav-more) > a:not(.nav-logo) {
+    min-height: 56px;
+  }
+  html[data-nav-collapsed="true"] body > main,
+  html[data-nav-collapsed="true"] body > #__next,
+  html[data-nav-collapsed="true"] .nav-wrapper + main {
+    margin-left: var(--nav-rail-width);
+  }
+  html[data-nav-collapsed="true"] .dd-intro-main,
+  html[data-nav-collapsed="true"] .dd-post-main {
+    max-width: min(64ch, calc(100vw - var(--nav-rail-width) - 3rem));
+  }
+  html[data-nav-collapsed="true"] .dd-intro-main.has-drawer,
+  html[data-nav-collapsed="true"] .dd-post-main.has-drawer {
+    margin-left: max(var(--nav-rail-width), calc((100vw - min(64ch, calc(100vw - var(--nav-rail-width) - 3rem))) / 2 + var(--nav-rail-width)));
+  }
+  html[data-nav-collapsed="true"] .dd-toggle {
+    left: var(--nav-rail-width);
+  }
+  html[data-nav-collapsed="true"] .doc-drawer {
+    left: var(--nav-rail-width);
+    width: min(380px, calc(100vw - var(--nav-rail-width) - 1rem));
+  }
+  html[data-nav-collapsed="true"] body.dd-open .dd-toggle {
+    left: calc(var(--nav-rail-width) + min(380px, calc(100vw - var(--nav-rail-width) - 1rem)));
+  }
 }
 
 /* ── Site-wide illumination control ───────────────────── */

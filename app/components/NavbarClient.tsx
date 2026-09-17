@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 import { buildNavigationModel, type NavItem } from '@/lib/nav-items';
+import { NAV_COLLAPSE_STORAGE_KEY } from '@/lib/nav-collapse';
 import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
 import ReadingDock from './ReadingDock';
 
@@ -38,15 +39,41 @@ function RailIcon({ href }: { href: string }) {
       return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><circle cx="12" cy="12" r="8.75" /><path d="M12 10.75V16M12 7.6h.01" /></svg>;
     case '/store':
       return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><path d="M4 9.5h16l-1 10.5H5z" /><path d="M8.5 10V7a3.5 3.5 0 0 1 7 0v3" /></svg>;
+    case '/subscribe':
+      return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><rect x="3.5" y="5.5" width="17" height="13" rx="1.5" /><path d="m4.25 6.5 7.75 6.25 7.75-6.25" /></svg>;
     default:
       return null;
   }
 }
 
+function CollapseIcon({ collapsed }: { collapsed: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">
+      {collapsed ? <path d="m10 5 7 7-7 7M5 5l7 7-7 7" /> : <path d="m14 5-7 7 7 7M19 5l-7 7 7 7" />}
+    </svg>
+  );
+}
+
 export default function NavbarClient({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const { primary } = buildNavigationModel(items);
+
+  useEffect(() => {
+    setCollapsed(document.documentElement.dataset.navCollapsed === 'true');
+  }, []);
+
+  function toggleCollapsed() {
+    setCollapsed((value) => {
+      const next = !value;
+      document.documentElement.dataset.navCollapsed = next ? 'true' : 'false';
+      try {
+        localStorage.setItem(NAV_COLLAPSE_STORAGE_KEY, next ? 'true' : 'false');
+      } catch {}
+      return next;
+    });
+  }
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -67,6 +94,7 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
       <Link
         key={item.id}
         href={item.href}
+        title={collapsed ? item.label : undefined}
         className={[
           isActive ? 'active' : '',
           item.isPrimary ? 'primary' : '',
@@ -75,7 +103,7 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
         onClick={() => setMobileOpen(false)}
       >
         <span className="nav-rail-icon"><RailIcon href={item.href} /></span>
-        {item.label}
+        <span className="nav-label">{item.label}</span>
       </Link>
     );
   };
@@ -93,6 +121,16 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
         <ul id="main-nav-links" role="list">
           {primary.map((item) => <li key={item.id} className={item.href === '/subscribe' ? 'nav-subscribe' : undefined}>{link(item)}</li>)}
         </ul>
+        <button
+          className="nav-collapse-toggle"
+          type="button"
+          aria-pressed={collapsed}
+          aria-label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
+          title={collapsed ? 'Expand navigation' : 'Collapse navigation'}
+          onClick={toggleCollapsed}
+        >
+          <CollapseIcon collapsed={collapsed} />
+        </button>
       </nav>
       <ReadingDock closeOther={() => setMobileOpen(false)} closeSignal={mobileOpen} />
     </>
