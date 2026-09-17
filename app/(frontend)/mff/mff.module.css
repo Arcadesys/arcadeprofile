@@ -1,0 +1,313 @@
+/* Leave the Door Open — open letter to Midwest FurFest's board */
+
+.page {
+  padding-bottom: clamp(2rem, 6vw, 4rem);
+}
+
+/* Hero */
+
+.hero {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: clamp(3rem, 12vw, 6rem) 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.heroInner {
+  max-width: 46rem;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--neon-pink);
+  margin: 0 0 1rem;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.75rem, 9vw, 5.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.6em;
+  color: var(--fg);
+}
+
+.deck {
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+  line-height: 1.45;
+  color: var(--fg-muted);
+  max-width: 32em;
+  margin: 0 auto 1rem;
+}
+
+.byline {
+  color: var(--fg-faint);
+  font-size: 0.9rem;
+  margin: 0 0 1.5rem;
+}
+
+.heroLink {
+  color: var(--neon-pink);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 60, 172, 0.35);
+  font-size: 0.95rem;
+}
+
+.heroLink:hover,
+.heroLink:focus-visible {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* Long-form essay sections, layered on top of the site's .prose treatment */
+
+.essay {
+  margin: clamp(2.5rem, 6vw, 4rem) auto;
+  padding: 0 1.25rem;
+}
+
+:global(.prose).essay {
+  max-width: var(--reading-measure, 68ch);
+}
+
+.punch {
+  font-size: 1.2em;
+  font-weight: 700;
+}
+
+/* Magazine grid: a 6-column layout where each text block pairs with the
+   aside that follows it in document order, so the aside lands roughly
+   level with the passage it accompanies. Below 900px this collapses to a
+   single stacked column and asides become tap-to-expand <details>. */
+
+.magazine {
+  max-width: 78rem;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.textCol {
+  padding: 0;
+}
+
+.textCol :global(.prose) {
+  max-width: none;
+}
+
+@media (min-width: 900px) {
+  .magazine {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    column-gap: 2rem;
+    align-items: start;
+  }
+
+  .textCol {
+    grid-column: span 4;
+  }
+}
+
+/* Interlude asides */
+
+.aside {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.asideSummary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.asideSummary::-webkit-details-marker {
+  display: none;
+}
+
+.asideSummary .kicker {
+  margin-bottom: 0.35rem;
+}
+
+.asideTitle {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  line-height: 1.2;
+  color: var(--fg);
+}
+
+.asideBody {
+  margin-top: 1rem;
+}
+
+@media (min-width: 900px) {
+  .aside {
+    grid-column: span 2;
+    position: sticky;
+    top: calc(var(--navbar-height, 3.5rem) + 1.5rem);
+  }
+
+  .asideSummary {
+    cursor: default;
+    pointer-events: none;
+  }
+}
+
+.interludeTitle {
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 4.5vw, 2.75rem);
+  line-height: 1.1;
+  margin: 0.25em 0 0.6em;
+  color: var(--fg);
+}
+
+.lede {
+  max-width: 60ch;
+  color: var(--fg-muted);
+  line-height: 1.65;
+  margin: 0 0 2rem;
+}
+
+.cards,
+.demos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.aside .lede {
+  max-width: none;
+  font-size: 0.95rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+}
+
+.card h3 {
+  font-size: 1.25rem;
+  margin: 0.4rem 0 0.6rem;
+  color: var(--fg);
+}
+
+.card p {
+  color: var(--fg-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 0.75rem;
+}
+
+.tag {
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0 0 0.4rem;
+}
+
+.cardPunch {
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.demoNote {
+  color: var(--fg-faint);
+  font-size: 0.82rem;
+  font-style: italic;
+}
+
+.history {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  align-items: start;
+  margin: 1.5rem 0;
+}
+
+.historyStep p {
+  color: var(--fg-muted);
+  line-height: 1.6;
+  margin: 0.3rem 0 0;
+}
+
+.year {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+}
+
+.historyArrow {
+  display: block;
+  font-size: 1.5rem;
+  color: var(--neon-pink);
+  transform: rotate(90deg);
+}
+
+/* Closing "door" moment */
+
+.door {
+  min-height: 40vh;
+  display: grid;
+  place-items: center;
+  position: relative;
+  padding: clamp(3rem, 10vw, 6rem) 1.25rem;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+.door::before {
+  content: '';
+  position: absolute;
+  inset: 12% 20%;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  background: linear-gradient(90deg, transparent calc(50% - 1px), var(--glow-pink) 50%, transparent calc(50% + 1px));
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.finalLine {
+  position: relative;
+  max-width: 44rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--fg);
+}
+
+/* Notes / sources */
+
+.notes {
+  max-width: 68ch;
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 3.5rem) 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 720px) {
+  .door::before {
+    inset: 8% 6%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page * {
+    scroll-behavior: auto;
+  }
+}
