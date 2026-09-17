@@ -442,17 +442,21 @@ export default function MidwestFurFestPage() {
           </p>
         </article>
 
-        <section className={styles.exhibition} aria-labelledby="exhibition-heading">
-          <p className={styles.kicker}>The machine in the room</p>
-          <h2 id="exhibition-heading" className={styles.exhibitionTitle}>
-            Look what happens when more people get to make things.
-          </h2>
+        <Callout
+          kicker="The machine in the room"
+          title="Look what happens when more people get to make things."
+          hint="Open the exhibition — seven things I have actually built"
+          side="stack"
+          titleId="exhibition-heading"
+          wide
+        >
           <p className={styles.exhibitionLede}>
             This is the part where I pull the plunger back and call the lane. &ldquo;AI art&rdquo; is
-            too small a box for what is already here. Everything below exists.
-            It is all published, all mine, and all reachable from this page. I am not asking you to
-            imagine a hypothetical creator. I am asking you to look at six things and decide whether
-            furry is richer for having room for them.
+            too small a box for what is already here. Six of the seven things below are finished and
+            published; the last one is being built right now, and I have said so plainly rather than
+            dress it up. They are all mine, and all reachable from this page. I am not asking you to
+            imagine a hypothetical creator. I am asking you to look and decide whether furry is richer
+            for having room for this.
           </p>
 
           <figure className={styles.exhibit}>
@@ -644,6 +648,39 @@ export default function MidwestFurFestPage() {
             </p>
           </figure>
 
+          <figure className={styles.exhibit}>
+            <figcaption className={styles.exhibitHead}>
+              <p className={styles.tag}>Exhibit 07 &middot; In progress</p>
+              <h3>A recommender that only reads anthro</h3>
+              <p className={styles.exhibitPunch}>
+                Point it at the fandom&rsquo;s own shelf and ask it what to play next.
+              </p>
+            </figcaption>
+            <p className={styles.exhibitBody}>
+              WizWor is an agent-guided game recommender I built to test a narrow question: where does
+              model judgment actually help, and where should deterministic software stay in charge? It
+              is live, it is open source, and the case study explains both halves.
+            </p>
+            <p className={styles.exhibitBody}>
+              I am now building a version that deals purely in anthropomorphic titles, at{' '}
+              <strong>wizwor.thearcades.me/furry</strong>. Furry games are scattered across itch,
+              Steam, visual-novel sites, and two decades of forum posts, and nothing indexes them as a
+              body of work. A recommender that takes the fandom&rsquo;s catalogue seriously is a
+              straightforwardly useful thing to hand a con-goer &mdash; and it competes with no
+              artist, sells no print, and takes no commission away from anyone.
+            </p>
+            <p className={styles.exhibitStatus}>
+              Status: in development. That URL is not live yet, so I have not linked it. The general
+              engine below is.
+            </p>
+            <p className={styles.exhibitLink}>
+              <Link href="/lab/wizwor">Read the WizWor case study &rarr;</Link>{' '}
+              <a href="https://wizwor.vercel.app" target="_blank" rel="noopener noreferrer">
+                Try the live recommender &rarr;
+              </a>
+            </p>
+          </figure>
+
           <p className={styles.exhibitionClose}>
             None of these is a print generated from a prompt and dropped onto an Artists Alley table.
           </p>
@@ -652,7 +689,7 @@ export default function MidwestFurFestPage() {
             accidentally ban the movie, the game, the accessibility tool, the character system, the
             novel, and the weird thing nobody has named yet.
           </p>
-        </section>
+        </Callout>
 
         <article className={`prose ${styles.essay}`}>
           <hr />
@@ -888,6 +925,11 @@ export default function MidwestFurFestPage() {
               </li>
               <li>
                 Exhibit 06 &mdash; <Link href={ZOO_COLLECTION_PATH}>It Takes a Zoo</Link>.
+              </li>
+              <li>
+                Exhibit 07 &mdash; <Link href="/lab/wizwor">WizWor case study</Link> and the live
+                recommender. The furry-only instance at wizwor.thearcades.me/furry is in development
+                and is deliberately not linked until it ships.
               </li>
             </ol>
           </div>

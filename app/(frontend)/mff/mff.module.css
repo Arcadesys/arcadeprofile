@@ -456,23 +456,29 @@
   margin: 0 0 10px;
 }
 
-/* Exhibition — the six things that already exist */
+/* Exhibition — the things that already exist */
 
-.exhibition {
-  clear: both;
-  margin: 72px 0 24px;
-  padding-top: 40px;
-  border-top: 1px solid var(--border);
+.calloutWide {
+  margin: 64px 0 40px;
 }
 
-.exhibitionTitle {
-  font-family: var(--font-sans);
+.calloutWide .calloutTitle {
+  font-size: clamp(24px, 4vw, 32px);
   font-weight: 300;
-  font-size: clamp(30px, 5.2vw, 44px);
-  line-height: 1.15;
   letter-spacing: 0.01em;
-  color: #fff;
-  margin: 0 0 20px;
+}
+
+/* Status line for an exhibit that is not finished yet. Deliberately plain:
+   the section's credibility rests on not overselling anything in it. */
+.exhibitStatus {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  color: var(--fg-muted);
+  border-left: 2px solid var(--accent);
+  padding: 2px 0 2px 12px;
+  margin: 0 0 1.2em;
 }
 
 .exhibitionLede {
