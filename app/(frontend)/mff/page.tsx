@@ -98,6 +98,9 @@ export default function MidwestFurFestPage() {
             Furry has not simply been a hobby I visit once a year. It is one of the communities that
             made me who I am, and one I have spent much of my adult life contributing back to.
           </p>
+
+          <h2>Why this matters to me</h2>
+
           <p>That is why the convention&rsquo;s stance toward AI has been so painful.</p>
           <p>
             Since the emergence of modern generative AI, I have increasingly found myself castigated,
@@ -117,8 +120,11 @@ export default function MidwestFurFestPage() {
             I could experiment with character design, composition, environments, and storytelling in
             ways that had never been available to me.
           </p>
-          <p>Apparently, that also makes me a pariah.</p>
-          <p>I do not believe it should.</p>
+          <p>Increasingly, that has made me wonder whether there is still room for people like me here.</p>
+          <p>I do not believe that should be the answer.</p>
+
+          <h2>The narrow claim</h2>
+
           <p>
             But I want to be careful about the claim I am making, because the argument that gets
             shouted down in this fandom is not the one I am here to make.
@@ -127,9 +133,9 @@ export default function MidwestFurFestPage() {
             I am not claiming that generative AI is good for artists. I am not claiming that furry owes
             this technology a welcome, or that anyone has to like it. I am claiming something narrower:
             a community institution should be extremely careful about adopting a blanket cultural
-            prohibition on a fast-moving creative technology when that prohibition also sweeps up
-            accessibility tools, software, experimental practice, and work already being made by people
-            inside this fandom.
+            prohibition on a fast-moving creative technology when that prohibition risks excluding
+            creative work made through AI-mediated accessibility workflows, alongside software,
+            experimental practice, and work already being made by people inside this fandom.
           </p>
 
           <div className={styles.pullQuote}>
@@ -142,6 +148,9 @@ export default function MidwestFurFestPage() {
             You can be deeply skeptical of generative AI and still agree with that sentence. That is the
             entire reason I am writing it down.
           </p>
+
+          <h2>Name the harm</h2>
+
           <p>
             Before I say anything else about possibility, let me say what I believe about harm, because
             I do not think the artists in this fandom are being irrational.
@@ -188,6 +197,8 @@ export default function MidwestFurFestPage() {
             </div>
           </Callout>
 
+          <h2>Regulate conduct, not the tool</h2>
+
           <p>
             Part of what makes a blanket rule so hard to write well is that &ldquo;AI&rdquo; is not one
             practice.
@@ -209,6 +220,12 @@ export default function MidwestFurFestPage() {
             cannot tell those two apart. A rule aimed at the conduct can.
           </p>
           <p>
+            More importantly, an accessibility workflow does not stop being an accessibility workflow
+            merely because it helps produce a finished creative work. A blanket rule can therefore catch
+            the novel, image, game, or other artifact produced through that workflow even when the role
+            of the model was to compensate for a disability rather than replace human authorship.
+          </p>
+          <p>
             There is also a question of scope. Rules about what can be sold at a table are marketplace
             rules, and MFF is entitled to write those tightly: an Artists Alley exists to protect and
             promote the people selling in it, and provenance, copyright exposure, and direct competition
@@ -217,6 +234,8 @@ export default function MidwestFurFestPage() {
             regulating a marketplace and started drawing a cultural boundary around who belongs here.
           </p>
           <p>Those are different powers. They deserve different amounts of caution.</p>
+
+          <h2>What gets lost in a blanket ban</h2>
 
           <p>
             AI contains extraordinary possibilities for the furry community. These are tools for
@@ -287,6 +306,8 @@ export default function MidwestFurFestPage() {
             </p>
           </Callout>
 
+          <h2>The technology will not sit still</h2>
+
           <p>This technology is also moving absurdly fast.</p>
           <p>
             A rule written with 2023&rsquo;s image generators in mind will still be on the books when it
@@ -309,6 +330,8 @@ export default function MidwestFurFestPage() {
           </p>
 
           <hr />
+
+          <h2>Why I am stepping away</h2>
 
           <p>
             Until Midwest FurFest&rsquo;s anti-AI policy is materially revised or eliminated, I will not
@@ -344,6 +367,8 @@ export default function MidwestFurFestPage() {
           </p>
 
           <hr />
+
+          <h2>A risk, not a prediction</h2>
 
           <p>The attempt to drive AI art from the furry community has not made it disappear.</p>
           <p>Instead, it has begun driving some of its creators elsewhere.</p>
@@ -400,10 +425,14 @@ export default function MidwestFurFestPage() {
           <p>Maybe that never happens.</p>
           <p>I hope it doesn&rsquo;t.</p>
           <p>
-            But I do not think we should assume that exclusion makes the underlying community
+            I am not predicting a schism. I am pointing at a plausible risk: exclusion can move people
+            into parallel spaces, and parallel spaces can develop their own institutions, incentives,
+            and norms. I do not think we should assume that exclusion makes the underlying community
             disappear.
           </p>
           <hr />
+
+          <h2>Bring the machine into the room</h2>
 
           <p>
             So I would rather make an offer than an argument, and the reason why is a story about this
@@ -715,24 +744,25 @@ export default function MidwestFurFestPage() {
         <article className={`prose ${styles.essay}`}>
           <hr />
 
+          <h2>What I am asking</h2>
+
           <p>This is not an easy letter to write.</p>
           <p>
             Members of the staff and board of this convention are my neighbors, my friends, even my
             family. These are people I love, in a community I love.
           </p>
           <p>
-            But I cannot stand by and watch us open the door to a fractured fandom: parallel communities
+            But I cannot stand by and ignore the risk of a fractured fandom: parallel communities
             growing apart from one another, developing different norms and different ethical cultures,
             until the distance between them becomes much harder to bridge.
           </p>
-          <p>I do not know what all the consequences of that fracture would be.</p>
-          <p>That is precisely why I believe we should be trying so hard to prevent it now.</p>
+          <p>I do not know whether that fracture will happen, or what all of its consequences would be.</p>
+          <p>That uncertainty is precisely why I believe we should be trying so hard to keep dialogue open now.</p>
           <p>
             Excluding responsible, community-minded creators will not make generative AI disappear. It
-            will simply remove many of the people most interested in shaping how these technologies are
+            may instead remove some of the people most interested in shaping how these technologies are
             used responsibly.
           </p>
-          <p>The vacuum will still be filled.</p>
           <p>
             If thoughtful people are pushed out of this conversation, the result will not necessarily be
             one unified fandom that rejected AI. It may instead be parallel communities developing
