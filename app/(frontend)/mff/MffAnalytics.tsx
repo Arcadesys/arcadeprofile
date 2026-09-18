@@ -2,12 +2,6 @@
 
 import { useEffect } from 'react';
 
-const POSTHOG_TOKEN =
-  process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN ??
-  'phc_wH8qGy3tzYkfwDCLe9rZuBPxP7kaXWVocAnj6vVJFnaa';
-const POSTHOG_HOST =
-  process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://us.i.posthog.com';
-
 const STORAGE_KEY = 'arcade-posthog-anonymous-id';
 
 function getDistinctId() {
@@ -28,7 +22,6 @@ function normalizeLabel(value: string | null | undefined) {
 
 function capture(event: string, properties: Record<string, unknown> = {}) {
   const body = JSON.stringify({
-    api_key: POSTHOG_TOKEN,
     distinct_id: getDistinctId(),
     event,
     properties: {
@@ -41,7 +34,7 @@ function capture(event: string, properties: Record<string, unknown> = {}) {
     },
   });
 
-  void fetch(`${POSTHOG_HOST}/i/v0/e/`, {
+  void fetch('/api/analytics/mff', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body,
@@ -72,6 +65,12 @@ export function MffAnalytics() {
     if (!root) return;
 
     const params = new URLSearchParams(window.location.search);
+    capture('$pageview', {
+      landing_page: window.location.pathname,
+      utm_source: params.get('utm_source') || undefined,
+      utm_medium: params.get('utm_medium') || undefined,
+      utm_campaign: params.get('utm_campaign') || undefined,
+    });
     capture('mff page viewed', {
       utm_source: params.get('utm_source') || undefined,
       utm_medium: params.get('utm_medium') || undefined,
