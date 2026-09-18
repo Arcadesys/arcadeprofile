@@ -8,7 +8,7 @@ This repository is the **Arcades Profile** — a personal site and portfolio.
 - **Tailwind CSS** + SASS for styling
 - **TypeScript** (strict mode)
 - **Vercel** for deployment
-- **Postmark** for transactional email; **ActiveCampaign** for contacts and preferences
+- **Postmark** for transactional email; **Kit** (via the standalone `services/email` service) for newsletter contacts and preferences — not yet deployed, see `docs/email-service-migration.md`
 
 ## Package manager
 Use **npm** exclusively. Never suggest `yarn`, `pnpm`, or `bun` commands.
@@ -30,4 +30,4 @@ Use **npm** exclusively. Never suggest `yarn`, `pnpm`, or `bun` commands.
 - TypeScript strict mode: avoid `any`
 
 ## Environment variables
-Documented in `.env.example`. Key secrets: `POSTMARK_SERVER_TOKEN`, `AC_API_KEY`, `BLOB_READ_WRITE_TOKEN`.
+Documented in `.env.example`. Key secrets: `POSTMARK_SERVER_TOKEN`, `EMAIL_SERVICE_URL`/`EMAIL_SERVICE_SUBSCRIBE_KEY`/`EMAIL_SERVICE_ADMIN_KEY`, `BLOB_READ_WRITE_TOKEN`.

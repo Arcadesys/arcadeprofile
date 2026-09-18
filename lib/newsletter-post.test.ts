@@ -3,7 +3,6 @@ import test from 'node:test';
 
 import {
   assertEssayGroup,
-  findPostmarkRecipientsByAttempt,
   hashAudience,
   prepareAttempt,
 } from './newsletter-post';
@@ -68,20 +67,4 @@ test('audience hashes are order-independent and do not expose addresses', () => 
   const second = hashAudience(['a@example.com', 'b@example.com']);
   assert.equal(first, second);
   assert.doesNotMatch(first, /example/);
-});
-
-test('Postmark resume search filters on attempt metadata', async () => {
-  const result = await findPostmarkRecipientsByAttempt({
-    attemptId: 'attempt-1',
-    serverToken: 'test-token',
-    fetchImpl: async () => new Response(JSON.stringify({
-      TotalCount: 2,
-      Messages: [
-        { MessageID: 'm1', To: 'one@example.com', Metadata: { newsletter_attempt: 'attempt-1' } },
-        { MessageID: 'm2', To: 'two@example.com', Metadata: { newsletter_attempt: 'other' } },
-      ],
-    }), { status: 200 }),
-  });
-  assert.deepEqual([...result.recipients], ['one@example.com']);
-  assert.deepEqual(result.messageIds, ['m1']);
 });
