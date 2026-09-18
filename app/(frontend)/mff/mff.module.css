@@ -556,6 +556,19 @@
   margin: 0 0 10px;
 }
 
+.feedbackNote {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--fg-muted);
+  text-align: center;
+  margin: 24px 0 0;
+}
+
+.feedbackNote a {
+  color: inherit;
+}
+
 /* Exhibition — the things that already exist */
 
 .calloutWide {
