@@ -90,7 +90,7 @@ migrations, and republication.
 - no flag: dry run
 - `--preview-to <email>`: explicit test
 - `--send`: verify the production URL, resolve All + Essays recipients, send
-- `--resend --reason "<reason>": intentional repeat after a completed send
+- `--resend --reason "<reason>"`: intentional repeat after a completed send
 
 Postmark metadata supports interrupted-send recovery. Receipts under
 `data/newsletter-sends` must remain non-PII.
