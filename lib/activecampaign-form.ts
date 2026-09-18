@@ -1,7 +1,3 @@
-export const ACTIVE_CAMPAIGN_FORM_ID = '7';
-export const ACTIVE_CAMPAIGN_EMBED_URL =
-  'https://atuckercrowder.activehosted.com/f/embed.php?id=7';
-
 export type PreferenceKey = 'all' | 'fiction' | 'essays' | 'lab';
 
 export const PREFERENCE_LABELS: Record<PreferenceKey, string> = {

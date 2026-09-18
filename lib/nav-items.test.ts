@@ -56,11 +56,12 @@ test('ensureCoreNavItems keeps fallback destinations available for the editorial
     { id: 'bio', label: 'Bio', href: '/bio', isPrimary: false },
   ]);
 
+  // '/subscribe' is filtered out while email signups are paused site-wide.
   assert.deepEqual(
     items.map((item) => item.href),
     [
       '/projects', '/resume', '/portfolio', '/lab', '/this-is-what-i-do-for-fun', '/toys',
-      '/bio', '/stories', '/essays', '/subscribe',
+      '/bio', '/stories', '/essays',
     ],
   );
 });
@@ -74,13 +75,14 @@ test('buildNavigationModel uses the requested orientation destinations for fallb
     { id: 'custom-store', label: 'Shop', href: '/store', isPrimary: true },
     { id: 'custom-subscribe', label: 'Mail', href: '/subscribe', isPrimary: false },
   ]);
+  // The primary lane no longer carries Subscribe while email signups are
+  // paused site-wide (ORIENTATION_NAV_ITEMS has dropped it).
   const expected = [
     ['Read', '/writing'],
     ['Watch me build', '/projects'],
     ['Resume', '/resume'],
     ['About', '/bio'],
     ['Store', '/store'],
-    ['Subscribe', '/subscribe'],
   ];
 
   assert.deepEqual(fallback.primary.map(({ label, href }) => [label, href]), expected);
@@ -110,8 +112,10 @@ test('buildNavigationModel reserves the compact header for editorial essentials'
     { id: 'toys', label: 'Toys', href: '/toys', isPrimary: false },
   ]);
 
+  // '/subscribe' no longer has a reserved primary slot while email signups
+  // are paused site-wide; a passed-in subscribe item now lands in "more".
   assert.deepEqual(model.primary.map((item) => item.href), [
-    '/writing', '/projects', '/resume', '/bio', '/store', '/subscribe',
+    '/writing', '/projects', '/resume', '/bio', '/store',
   ]);
-  assert.deepEqual(model.more.map((item) => item.href), ['/stories', '/essays', '/lab', '/toys']);
+  assert.deepEqual(model.more.map((item) => item.href), ['/stories', '/essays', '/lab', '/subscribe', '/toys']);
 });

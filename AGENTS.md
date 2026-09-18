@@ -5,7 +5,9 @@
 Arcades Profile is a Next.js 16 / React 19 personal site deployed on Vercel.
 Public essays, project manifests, portfolio reader bodies, and collection reader
 bodies are repository-owned Markdown. Vercel Blob URLs provide media and
-downloads. ActiveCampaign owns contact preferences; Postmark sends email.
+downloads. A standalone email service (`services/email`) owns subscriber
+consent/preferences and adapts to Kit for newsletter broadcasts, with Postmark
+kept for transactional mail; see the Email section below.
 
 ## Commands
 
@@ -84,16 +86,30 @@ migrations, and republication.
 
 ## Email
 
-`/api/subscribe` synchronizes ActiveCampaign contacts and preferences.
-`npm run newsletter:post` is the only essay broadcast workflow:
+`/api/subscribe` and `npm run newsletter:post` both call `lib/email-service.ts`,
+a thin client for the standalone service at `services/email` (own README and
+`docs/email-service-migration.md`). That service owns subscriber consent and
+suppression state locally, upserts/tags/broadcasts through Kit, and keeps
+Postmark for transactional mail (test sends, future account email). It is not
+yet hosted anywhere — see `docs/email-service-migration.md` for the remaining
+cutover steps. Until `EMAIL_SERVICE_URL`/`EMAIL_SERVICE_SUBSCRIBE_KEY`/
+`EMAIL_SERVICE_ADMIN_KEY` point at a real deployment, subscribe and send calls
+fail closed (subscribe returns a 502; the send script throws).
+
+`lib/activecampaign.ts` and `lib/postmark.ts` (the pre-migration vendor
+libraries) have been removed as dead code; the site never called them once
+the service boundary landed.
+
+`npm run newsletter:post` flags:
 
 - no flag: dry run
 - `--preview-to <email>`: explicit test
 - `--send`: verify the production URL, resolve All + Essays recipients, send
 - `--resend --reason "<reason>"`: intentional repeat after a completed send
 
-Postmark metadata supports interrupted-send recovery. Receipts under
-`data/newsletter-sends` must remain non-PII.
+Receipts under `data/newsletter-sends` must remain non-PII. Service receipts
+mean accepted, not delivered — read `docs/email-service-migration.md` before
+trusting a send.
 
 ## Conventions
 

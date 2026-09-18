@@ -12,5 +12,7 @@ test('the homepage exposes the professional site from its top-right hero control
 
   assert.match(controls, /className=\{styles\.workWithMe\} href="https:\/\/work\.thearcades\.me"/);
   assert.match(controls, /Work with me/);
-  assert.match(controls, /href="\/subscribe"/);
+  // The hero Subscribe link is removed while email signups are paused
+  // site-wide; see app/components/SubscriptionForm.tsx.
+  assert.doesNotMatch(controls, /href="\/subscribe"/);
 });
