@@ -5,15 +5,14 @@ import test from 'node:test';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
-test('homepage has one compact hero signup and the reader-first conversion copy', () => {
+test('homepage has the reader-first conversion copy with signups currently paused', () => {
   const home = source('app/(frontend)/page.tsx');
 
   assert.match(home, /<h1 className=\{styles\.title\}>Read the strange little fire\.<\/h1>/);
-  const signup = source('app/components/SubscriptionForm.tsx');
-  assert.match(signup, /New writing when it&rsquo;s ready\. Free\. One-click unsubscribe\./);
   assert.doesNotMatch(home, /New work every two weeks/);
-  assert.equal((home.match(/<SubscriptionForm/g) ?? []).length, 1);
-  assert.match(home, /source="home-hero"[\s\S]*?updateMode="add"/);
+  // Email signups are paused site-wide (see SubscriptionForm.tsx); the
+  // homepage hero intentionally has no <SubscriptionForm /> right now.
+  assert.doesNotMatch(home, /<SubscriptionForm/);
   assert.match(home, /<Link className=\{styles\.button\} href="\/writing">Start Here/);
   assert.match(home, /<Link className=\{styles\.latestLink\} href="\/latest">Latest/);
 });
@@ -30,8 +29,9 @@ test('projects is the landing door for builds, case studies, portfolio, and toys
 });
 
 test('site-owned signup surfaces use one first-party form implementation', () => {
+  // FooterSubscribe is excluded: email signups are currently paused
+  // site-wide and it's a no-op stub rather than a SubscriptionForm caller.
   const surfaces = [
-    'app/components/FooterSubscribe.tsx',
     'app/components/ProjectsIndex.tsx',
     'app/(frontend)/bio/page.tsx',
     'app/(frontend)/latest/page.tsx',

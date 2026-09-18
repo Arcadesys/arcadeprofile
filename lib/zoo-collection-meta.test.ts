@@ -30,8 +30,8 @@ test('the Zoo complete-edition signup has a dedicated source and magnet', () => 
   const subscribeRoute = fs.readFileSync(new URL('../app/(frontend)/api/subscribe/route.ts', import.meta.url), 'utf8');
   assert.match(subscribeRoute, /it-takes-a-zoo-complete/);
   assert.match(subscribeRoute, /novels\/it-takes-a-zoo\/complete\/pdf/);
-  const footerSubscribe = fs.readFileSync(new URL('../app/components/FooterSubscribe.tsx', import.meta.url), 'utf8');
-  assert.match(footerSubscribe, /'\/novels\/it-takes-a-zoo'/);
+  // FooterSubscribe is a no-op stub while email signups are paused
+  // site-wide; it no longer carries a per-route exemption for this path.
 });
 
 test('lightweight Zoo metadata does not load chapter prose', () => {
