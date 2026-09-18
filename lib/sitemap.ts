@@ -47,7 +47,6 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
   { path: '/toys/the-day-i-split-in-two', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/latest', changeFrequency: 'daily', priority: 0.9 },
   { path: '/store', changeFrequency: 'monthly', priority: 0.7 },
-  { path: '/subscribe', changeFrequency: 'monthly', priority: 0.7 },
 ];
 
 export function buildStaticSitemapEntries(siteUrl: string): SitemapEntry[] {
