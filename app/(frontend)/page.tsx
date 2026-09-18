@@ -3,7 +3,6 @@ import type { CSSProperties } from 'react';
 
 import StartReadingShelf from '@/app/components/StartReadingShelf';
 import { getStartReadingShelf } from '@/lib/reader-discovery';
-import SubscriptionForm from '@/app/components/SubscriptionForm';
 import ContinueReadingBanner from '@/app/components/ContinueReadingBanner';
 import ContinueToyBanner from '@/app/components/toys/ContinueToyBanner';
 import FeaturedCollectionCard from '@/app/components/FeaturedCollectionCard';
@@ -38,7 +37,6 @@ export default async function HomePage() {
             <a className={styles.workWithMe} href="https://work.thearcades.me">
               Work with me <span aria-hidden="true"> ↗</span>
             </a>
-            <Link className={styles.topSubscribe} href="/subscribe">Subscribe</Link>
           </div>
         </div>
         <div className={styles.heroEditorial}>
@@ -49,16 +47,6 @@ export default async function HomePage() {
             <div className={styles.heroActions}>
               <Link className={styles.button} href="/writing">Start Here <span aria-hidden="true">→</span></Link>
               <Link className={styles.latestLink} href="/latest">Latest <span aria-hidden="true">→</span></Link>
-            </div>
-            <div className={styles.heroSignup} aria-label="Email signup">
-              <SubscriptionForm
-                source="home-hero"
-                audiences={['all']}
-                updateMode="add"
-                magnet="story"
-                presentation="compact"
-                submitLabel="Send me new work"
-              />
             </div>
           </div>
           <div className={styles.portrait}>

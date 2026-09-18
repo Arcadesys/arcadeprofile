@@ -89,7 +89,6 @@ export default function ToyEndingPanel({
         >
           Share this ending ↗
         </a>
-        <Link href="/subscribe">Get new toys by email</Link>
       </nav>
     </section>
   );
