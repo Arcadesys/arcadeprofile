@@ -12,6 +12,8 @@ const TITLE = 'Leave the Door Open';
 const DESCRIPTION = 'On Midwest FurFest, generative AI, and the community I still want to call home.';
 const CANONICAL_PATH = '/mff';
 const MFF_PUBLIC = true;
+const MANIFESTO_VERSION = '1.0.0';
+const MANIFESTO_DATE = 'September 17, 2026';
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -64,11 +66,61 @@ export default function MidwestFurFestPage() {
             Door Open.
           </h1>
           <p className={styles.deck}>{DESCRIPTION}</p>
-          <p className={styles.byline}>Austen Tucker &middot; September 2026</p>
+          <p className={styles.byline}>
+            Austen Tucker &middot; {MANIFESTO_DATE} &middot; v{MANIFESTO_VERSION}
+          </p>
         </div>
       </section>
 
       <main className={styles.magazine}>
+        <section className={styles.atAGlance} aria-labelledby="at-a-glance-heading">
+          <div className={styles.atAGlanceHeader}>
+            <p className={styles.kicker}>At a glance</p>
+            <p className={styles.versionStamp}>Manifesto v{MANIFESTO_VERSION}</p>
+          </div>
+          <h2 id="at-a-glance-heading">The argument in five minutes</h2>
+          <dl className={styles.summaryGrid}>
+            <div>
+              <dt>The ask</dt>
+              <dd>
+                Replace a broad mechanism-based prohibition with rules aimed at specific harms and
+                conduct.
+              </dd>
+            </div>
+            <div>
+              <dt>Option 01</dt>
+              <dd>Permit disclosed, meaningfully human-directed AI-assisted work.</dd>
+            </div>
+            <div>
+              <dt>Option 02</dt>
+              <dd>
+                Keep tighter limits in Artists Alley and the Dealers Den while leaving room elsewhere
+                for software, accessibility tools, games, animation, storytelling, and experiments.
+              </dd>
+            </div>
+            <div>
+              <dt>Option 03</dt>
+              <dd>
+                Run a labeled one-year experimental track, gather evidence, and revisit the policy.
+              </dd>
+            </div>
+            <div>
+              <dt>My commitment</dt>
+              <dd>
+                Until Midwest FurFest&rsquo;s anti-AI policy is materially revised or eliminated, I
+                will not volunteer for or attend the convention.
+              </dd>
+            </div>
+            <div>
+              <dt>The record</dt>
+              <dd>
+                I will append any formal board response or material policy change here with a date.
+                Substantive edits will receive a new version rather than silently replacing the record.
+              </dd>
+            </div>
+          </dl>
+        </section>
+
         <article id="letter" className={`prose ${styles.essay}`}>
           <p>
             <span className={styles.dropCap}>M</span>y first Midwest FurFest was in 2003.
@@ -799,6 +851,36 @@ export default function MidwestFurFestPage() {
             I hope you will leave a door open for me to come home.
           </div>
         </article>
+
+        <section className={styles.recordBox} aria-labelledby="record-heading">
+          <p className={styles.kicker}>Versioned public record</p>
+          <h2 id="record-heading">How this document changes</h2>
+          <p>
+            This page is both an argument and a record of a public position. I will not silently rewrite
+            material claims, requests, or consequences after publication.
+          </p>
+          <p>
+            Corrections, added sources, board responses, and policy changes will be dated here. Small
+            factual or typographic corrections increment the patch version; substantive additions
+            increment the minor version; a change to the core thesis, ask, or stated commitment would
+            increment the major version.
+          </p>
+          <p>
+            If Midwest FurFest sends me a formal response, I will append it or accurately summarize it
+            here, whatever the answer is.
+          </p>
+          <div className={styles.changelog}>
+            <div className={styles.changeVersion}>v1.0.0</div>
+            <div>
+              <strong>September 17, 2026</strong>
+              <p>
+                First versioned public edition. Added the at-a-glance summary and explicit update policy;
+                preserved the existing sourcing caveats and the seven-item exhibition as the evidentiary
+                record available on publication day.
+              </p>
+            </div>
+          </div>
+        </section>
 
         <details className={styles.sourcesBox}>
           <summary className={styles.sourcesSummary}>
