@@ -6,6 +6,7 @@ import { SITE_NAME } from '@/lib/site-brand';
 import { ZOO_HERO, ZOO_COLLECTION_PATH, ZOO_FEATURED_COLLECTION } from '@/lib/zoo-collection-meta';
 
 import { Callout } from './Callout';
+import { MffAnalytics } from './MffAnalytics';
 import styles from './mff.module.css';
 
 const TITLE = 'Leave the Door Open';
@@ -56,7 +57,8 @@ const POLICY_OPTIONS = [
 
 export default function MidwestFurFestPage() {
   return (
-    <div className={styles.page}>
+    <div id="mff-page" className={styles.page}>
+      <MffAnalytics />
       <section className={styles.hero}>
         <div className={styles.heroInner}>
           <p className={styles.kicker}>An open letter</p>
