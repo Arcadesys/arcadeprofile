@@ -1072,6 +1072,11 @@ export default function MidwestFurFestPage() {
             </ol>
           </div>
         </details>
+
+        <p className={styles.feedbackNote}>
+          Have thoughts on this, or something I got wrong?{' '}
+          <a href="mailto:austen.crowder@gmail.com">Email me</a>.
+        </p>
       </main>
     </div>
   );
