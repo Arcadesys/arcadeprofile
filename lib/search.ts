@@ -1,5 +1,6 @@
-import { getAllGroups, getAllPosts, buildGroupIntroUrl, buildPostUrl } from '@/lib/blog';
-import { PORTFOLIO_WORKS } from '@/lib/portfolio';
+import { buildGroupIntroUrl, buildPostUrl, loadMarkdownBlog } from '@/lib/blog';
+import type { LoadMarkdownPostsOptions } from '@/lib/markdown-posts';
+import { PORTFOLIO_WORKS, type PortfolioWork } from '@/lib/portfolio';
 
 export type SearchItem = {
   title: string;
@@ -35,8 +36,24 @@ function preview(excerpt: string, body: string): string {
   return text.length > 180 ? `${text.slice(0, 177).trimEnd()}…` : text;
 }
 
-export async function buildSearchIndex(): Promise<SearchItem[]> {
-  const [posts, groups] = await Promise.all([getAllPosts(), getAllGroups()]);
+function compactBodyTerms(markdown: string): string {
+  const terms = plainText(markdown)
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase()
+    .match(/[a-z0-9]+(?:['’-][a-z0-9]+)*/g) ?? [];
+
+  return [...new Set(terms.filter((term) => term.length >= 3))].slice(0, 48).join(' ');
+}
+
+type BuildSearchIndexOptions = LoadMarkdownPostsOptions & {
+  now?: Date;
+  portfolioWorks?: readonly PortfolioWork[];
+};
+
+export async function buildSearchIndex(options: BuildSearchIndexOptions = {}): Promise<SearchItem[]> {
+  const { portfolioWorks = PORTFOLIO_WORKS, ...blogOptions } = options;
+  const { posts, groups } = loadMarkdownBlog(blogOptions);
   const groupTitles = new Map(groups.map((group) => [group.slug, group.title]));
 
   const series: SearchItem[] = groups.map((group) => ({
@@ -52,15 +69,15 @@ export async function buildSearchIndex(): Promise<SearchItem[]> {
     href: buildPostUrl(post.group, post.slug),
     kind: 'Essay',
     preview: preview(post.excerpt, post.markdownBody),
-    searchText: [post.title, post.excerpt, groupTitles.get(post.group), ...post.tags, plainText(post.markdownBody)].filter(Boolean).join(' '),
+    searchText: [post.title, post.excerpt, groupTitles.get(post.group), ...post.tags, compactBodyTerms(post.markdownBody)].filter(Boolean).join(' '),
   }));
 
-  const stories: SearchItem[] = PORTFOLIO_WORKS.map((work) => ({
+  const stories: SearchItem[] = portfolioWorks.map((work) => ({
     title: work.title,
     href: `/portfolio/${work.slug}`,
     kind: 'Story',
     preview: preview(work.excerpt, work.markdownBody),
-    searchText: [work.title, work.excerpt, plainText(work.markdownBody)].join(' '),
+    searchText: [work.title, work.excerpt, compactBodyTerms(work.markdownBody)].join(' '),
   }));
 
   return [...PAGES, ...series, ...essays, ...stories];

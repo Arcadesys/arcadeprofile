@@ -4,24 +4,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { SearchItem } from '@/lib/search';
-
-function normalize(value: string): string {
-  return value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
-}
-
-function score(item: SearchItem, terms: string[]): number {
-  const title = normalize(item.title);
-  const haystack = normalize(item.searchText);
-  let total = 0;
-  for (const term of terms) {
-    if (!haystack.includes(term)) return -1;
-    if (title === term) total += 100;
-    else if (title.startsWith(term)) total += 35;
-    else if (title.includes(term)) total += 20;
-    else total += 5;
-  }
-  return total;
-}
+import { rankSearchItems } from '@/lib/search-ranking';
 
 export default function SiteSearch({
   items,
@@ -33,18 +16,10 @@ export default function SiteSearch({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const results = useMemo(() => {
-    const terms = normalize(query).trim().split(/\s+/).filter(Boolean);
-    if (!terms.length) return [];
-    return items
-      .map((item) => ({ item, rank: score(item, terms) }))
-      .filter(({ rank }) => rank >= 0)
-      .sort((a, b) => b.rank - a.rank || a.item.title.localeCompare(b.item.title))
-      .slice(0, 8)
-      .map(({ item }) => item);
-  }, [items, query]);
+  const results = useMemo(() => rankSearchItems(items, query), [items, query]);
 
   useEffect(() => setActive(0), [query]);
 
@@ -52,7 +27,10 @@ export default function SiteSearch({
     if (!open) return;
     const timeout = window.setTimeout(() => inputRef.current?.focus(), 0);
     const close = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
+      if (event.key === 'Escape') {
+        setOpen(false);
+        window.setTimeout(() => triggerRef.current?.focus(), 0);
+      }
     };
     const outside = (event: PointerEvent) => {
       if (!panelRef.current?.contains(event.target as Node)) setOpen(false);
@@ -75,6 +53,7 @@ export default function SiteSearch({
   return (
     <div className="site-search" ref={panelRef}>
       <button
+        ref={triggerRef}
         className="site-search__trigger"
         type="button"
         aria-expanded={open}
@@ -101,6 +80,9 @@ export default function SiteSearch({
               value={query}
               placeholder="Try “trans”, “AI”, or “fiction”…"
               autoComplete="off"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded={open}
               aria-controls="site-search-results"
               aria-activedescendant={results[active] ? `site-search-result-${active}` : undefined}
               onChange={(event) => setQuery(event.target.value)}
@@ -120,9 +102,12 @@ export default function SiteSearch({
             {query && <button type="button" aria-label="Clear search" onClick={() => setQuery('')}>×</button>}
           </div>
 
-          <div id="site-search-results" className="site-search__results" role="listbox" aria-live="polite">
-            {!query.trim() && <p className="site-search__hint">Search essays, stories, series, projects, and pages.</p>}
-            {query.trim() && !results.length && <p className="site-search__hint">No doors opened for “{query}”. Try another phrase.</p>}
+          <p className="site-search__status" role="status" aria-live="polite" aria-atomic="true">
+            {query.trim() ? `${results.length} search ${results.length === 1 ? 'result' : 'results'}.` : ''}
+          </p>
+          {!query.trim() && <p className="site-search__hint">Search essays, stories, series, projects, and pages.</p>}
+          {query.trim() && !results.length && <p className="site-search__hint">No doors opened for “{query}”. Try another phrase.</p>}
+          <div id="site-search-results" className="site-search__results" role="listbox" aria-label="Search results">
             {results.map((item, index) => (
               <Link
                 id={`site-search-result-${index}`}
