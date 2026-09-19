@@ -145,18 +145,6 @@ export default function StartHereCard({
         >
           {ctaLabel ?? `Read ${title}`} &rarr;
         </Link>
-        <a
-          href="/subscribe"
-          className="button-link"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            padding: '0.5rem 1.1rem',
-            fontSize: '0.85rem',
-          }}
-        >
-          Subscribe
-        </a>
       </div>
 
       <p

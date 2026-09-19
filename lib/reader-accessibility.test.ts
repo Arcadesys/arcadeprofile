@@ -28,11 +28,13 @@ test('global shell exposes a keyboard skip target', () => {
   assert.match(layout, />Skip to content</);
 });
 
-test('homepage uses one subscription form and secondary publication actions', () => {
+test('homepage uses secondary publication actions with signups currently paused', () => {
   const footerSubscribe = source('app/components/FooterSubscribe.tsx');
   const homepage = source('app/(frontend)/page.tsx');
 
-  assert.match(footerSubscribe, /new Set\(\['\/'/);
+  // FooterSubscribe is a no-op stub while email signups are paused
+  // site-wide; it no longer carries a per-route form exemption list.
+  assert.match(footerSubscribe, /return null/);
   assert.match(homepage, /showRead=\{false\}/);
 });
 
@@ -51,16 +53,14 @@ test('long-form routes place one contextual signup before their next-step naviga
   const collectionStory = source('app/(frontend)/this-is-what-i-do-for-fun/[slug]/page.tsx');
   const portfolioPiece = source('app/(frontend)/portfolio/[slug]/page.tsx');
   const labCaseStudy = source('app/(frontend)/lab/[slug]/page.tsx');
-  const footerSubscribe = source('app/components/FooterSubscribe.tsx');
 
   assert.ok(projectPost.indexOf('<ReadingNextSteps') < projectPost.indexOf('<EndOfPieceSubscribe'));
   assert.ok(zooChapter.indexOf('<ReadingNextSteps') < zooChapter.indexOf('<EndOfPieceSubscribe'));
   assert.ok(collectionStory.indexOf('<ReadingNextSteps') < collectionStory.indexOf('<EndOfPieceSubscribe'));
   assert.ok(portfolioPiece.indexOf('<ReadingNextSteps') < portfolioPiece.indexOf('<EndOfPieceSubscribe'));
   assert.ok(labCaseStudy.indexOf('<EndOfPieceSubscribe') < labCaseStudy.indexOf('<div className={styles.pieceActions}>'));
-  assert.match(footerSubscribe, /novels\\\/it-takes-a-zoo/);
-  assert.match(footerSubscribe, /portfolio/);
-  assert.match(footerSubscribe, /lab/);
+  // FooterSubscribe is a no-op stub while email signups are paused
+  // site-wide, so it no longer carries per-route exemption strings.
 });
 
 test('project captures map fiction, writing, and build work to their matching lists', () => {

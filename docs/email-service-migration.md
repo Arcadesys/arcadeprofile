@@ -1,6 +1,24 @@
 # Email service migration and implementation record
 
-## Review outcome
+## Status (updated 2026-09-18)
+
+**Code-side cutover is complete and live.** `/api/subscribe` and
+`npm run newsletter:post` call `lib/email-service.ts` exclusively; the legacy
+`lib/activecampaign.ts`/`lib/postmark.ts` site libraries have been removed as
+dead code. **Infrastructure-side cutover has not happened**: `services/email`
+is not deployed anywhere (no host, no `EMAIL_SERVICE_URL`/keys confirmed set
+in production), and no real Kit account has been verified against the Kit
+adapter. Until the service is hosted and configured, subscribe requests and
+newsletter sends fail closed (see "Cutover sequence" below — steps 1-2 remain
+outstanding).
+
+This context changed the urgency here: the ActiveCampaign account this site
+used was deleted by a third party with no export taken first. There is no
+legacy consent/suppression history to migrate — step 3 below ("Export
+ActiveCampaign's four list states...") is now moot. New subscribers start
+fresh under Kit once the service is live.
+
+## Review outcome (original, 2026-09-10)
 
 The site now calls a stable service API. The independently runnable service owns
 portable subscription and suppression records, prepares Kit newsletter audiences,

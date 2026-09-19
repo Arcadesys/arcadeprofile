@@ -60,6 +60,106 @@
 
 /* Content column */
 
+.atAGlance,
+.recordBox {
+  margin: 0 0 clamp(3rem, 7vw, 5rem);
+  padding: clamp(1.4rem, 4vw, 2rem);
+  background: rgba(20, 20, 42, 0.6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.atAGlanceHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.atAGlance .kicker,
+.recordBox .kicker {
+  margin: 0;
+}
+
+.versionStamp {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.atAGlance h2,
+.recordBox h2 {
+  margin: 0 0 1.2rem;
+  font-family: var(--font-sans);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 400;
+  color: #fff;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+
+.summaryGrid > div {
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(255, 138, 0, 0.28);
+}
+
+.summaryGrid dt {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--magenta);
+}
+
+.summaryGrid dd,
+.recordBox > p {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--fg-muted);
+}
+
+.recordBox > p + p {
+  margin-top: 1rem;
+}
+
+.changelog {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(255, 138, 0, 0.28);
+}
+
+.changeVersion {
+  font-family: var(--font-mono);
+  color: var(--magenta);
+}
+
+.changelog strong {
+  color: #fff;
+}
+
+.changelog p {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--fg-muted);
+}
+
 .magazine {
   max-width: 800px;
   margin: 0 auto;
@@ -456,23 +556,42 @@
   margin: 0 0 10px;
 }
 
-/* Exhibition — the six things that already exist */
-
-.exhibition {
-  clear: both;
-  margin: 72px 0 24px;
-  padding-top: 40px;
-  border-top: 1px solid var(--border);
+.feedbackNote {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--fg-muted);
+  text-align: center;
+  margin: 24px 0 0;
 }
 
-.exhibitionTitle {
-  font-family: var(--font-sans);
+.feedbackNote a {
+  color: inherit;
+}
+
+/* Exhibition — the things that already exist */
+
+.calloutWide {
+  margin: 64px 0 40px;
+}
+
+.calloutWide .calloutTitle {
+  font-size: clamp(24px, 4vw, 32px);
   font-weight: 300;
-  font-size: clamp(30px, 5.2vw, 44px);
-  line-height: 1.15;
   letter-spacing: 0.01em;
-  color: #fff;
-  margin: 0 0 20px;
+}
+
+/* Status line for an exhibit that is not finished yet. Deliberately plain:
+   the section's credibility rests on not overselling anything in it. */
+.exhibitStatus {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  color: var(--fg-muted);
+  border-left: 2px solid var(--accent);
+  padding: 2px 0 2px 12px;
+  margin: 0 0 1.2em;
 }
 
 .exhibitionLede {
@@ -623,6 +742,22 @@
    go positive below it, so they have to be cleared rather than scaled. */
 
 @media (max-width: 860px) {
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .atAGlanceHeader {
+    display: block;
+  }
+
+  .versionStamp {
+    margin-top: 0.5rem;
+  }
+
+  .changelog {
+    grid-template-columns: 1fr;
+  }
+
   /* .essay-prefixed to match the specificity of the float rules above. */
   .essay .pullQuote,
   .essay .statAside,

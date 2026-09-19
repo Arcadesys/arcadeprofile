@@ -42,8 +42,7 @@ export default async function SubscribeThanksPage({
         You&apos;re on the list.
       </h1>
       <p style={{ maxWidth: '62ch', color: 'var(--fg-muted)', fontSize: '1.125rem', lineHeight: 1.8 }}>
-        Thanks for subscribing. Your choices are recorded in ActiveCampaign. You can update them or
-        unsubscribe from any email.
+        Thanks for subscribing. You can update your preferences or unsubscribe from any email.
       </p>
 
       {hasStoryMagnet ? (

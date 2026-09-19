@@ -44,7 +44,14 @@ function readingLinkFor(audiences: ReadonlySet<Audience>): ReadingLink {
   return { href: '/writing', label: 'Browse the writing' };
 }
 
-export default function SubscriptionForm({
+const EMAIL_SIGNUPS_ENABLED = false;
+
+export default function SubscriptionForm(props: SubscriptionFormProps) {
+  if (!EMAIL_SIGNUPS_ENABLED) return null;
+  return <EnabledSubscriptionForm {...props} />;
+}
+
+function EnabledSubscriptionForm({
   source,
   audiences,
   updateMode,

@@ -31,12 +31,6 @@ export interface NewsletterReceipt {
   attempts: NewsletterAttempt[];
 }
 
-type PostmarkOutboundMessage = {
-  MessageID?: string;
-  To?: string;
-  Metadata?: Record<string, string>;
-};
-
 export function assertEssayGroup(group: string): void {
   if (!ESSAY_GROUPS.has(group)) {
     throw new Error(
@@ -122,47 +116,6 @@ export function prepareAttempt(options: {
   };
   receipt.attempts.push(attempt);
   return { receipt, attempt, resumed: false };
-}
-
-export async function findPostmarkRecipientsByAttempt(options: {
-  attemptId: string;
-  serverToken: string;
-  fetchImpl?: typeof fetch;
-}): Promise<{ recipients: Set<string>; messageIds: string[] }> {
-  const fetchImpl = options.fetchImpl ?? fetch;
-  const recipients = new Set<string>();
-  const messageIds = new Set<string>();
-  let offset = 0;
-  while (true) {
-    const query = new URLSearchParams({
-      count: '500',
-      offset: String(offset),
-      metadata_newsletter_attempt: options.attemptId,
-    });
-    const response = await fetchImpl(`https://api.postmarkapp.com/messages/outbound?${query}`, {
-      headers: {
-        Accept: 'application/json',
-        'X-Postmark-Server-Token': options.serverToken,
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`Postmark outbound search failed (${response.status}): ${(await response.text()).slice(0, 300)}`);
-    }
-    const body = await response.json() as {
-      TotalCount?: number;
-      Messages?: PostmarkOutboundMessage[];
-    };
-    const messages = body.Messages ?? [];
-    for (const message of messages) {
-      if (message.Metadata?.newsletter_attempt !== options.attemptId) continue;
-      const recipient = message.To?.trim().toLowerCase();
-      if (recipient) recipients.add(recipient);
-      if (message.MessageID) messageIds.add(message.MessageID);
-    }
-    offset += messages.length;
-    if (messages.length === 0 || offset >= (body.TotalCount ?? 0)) break;
-  }
-  return { recipients, messageIds: [...messageIds] };
 }
 
 export async function verifyProductionEssayUrl(

@@ -6,12 +6,15 @@ import { SITE_NAME } from '@/lib/site-brand';
 import { ZOO_HERO, ZOO_COLLECTION_PATH, ZOO_FEATURED_COLLECTION } from '@/lib/zoo-collection-meta';
 
 import { Callout } from './Callout';
+import { MffAnalytics } from './MffAnalytics';
 import styles from './mff.module.css';
 
 const TITLE = 'Leave the Door Open';
 const DESCRIPTION = 'On Midwest FurFest, generative AI, and the community I still want to call home.';
 const CANONICAL_PATH = '/mff';
-const MFF_PUBLIC = false;
+const MFF_PUBLIC = true;
+const MANIFESTO_VERSION = '1.0.0';
+const MANIFESTO_DATE = 'September 17, 2026';
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -54,7 +57,8 @@ const POLICY_OPTIONS = [
 
 export default function MidwestFurFestPage() {
   return (
-    <div className={styles.page}>
+    <div id="mff-page" className={styles.page}>
+      <MffAnalytics />
       <section className={styles.hero}>
         <div className={styles.heroInner}>
           <p className={styles.kicker}>An open letter</p>
@@ -64,11 +68,61 @@ export default function MidwestFurFestPage() {
             Door Open.
           </h1>
           <p className={styles.deck}>{DESCRIPTION}</p>
-          <p className={styles.byline}>Austen Tucker &middot; September 2026</p>
+          <p className={styles.byline}>
+            Austen Tucker &middot; {MANIFESTO_DATE} &middot; v{MANIFESTO_VERSION}
+          </p>
         </div>
       </section>
 
       <main className={styles.magazine}>
+        <section className={styles.atAGlance} aria-labelledby="at-a-glance-heading">
+          <div className={styles.atAGlanceHeader}>
+            <p className={styles.kicker}>At a glance</p>
+            <p className={styles.versionStamp}>Manifesto v{MANIFESTO_VERSION}</p>
+          </div>
+          <h2 id="at-a-glance-heading">The argument in five minutes</h2>
+          <dl className={styles.summaryGrid}>
+            <div>
+              <dt>The ask</dt>
+              <dd>
+                Replace a broad mechanism-based prohibition with rules aimed at specific harms and
+                conduct.
+              </dd>
+            </div>
+            <div>
+              <dt>Option 01</dt>
+              <dd>Permit disclosed, meaningfully human-directed AI-assisted work.</dd>
+            </div>
+            <div>
+              <dt>Option 02</dt>
+              <dd>
+                Keep tighter limits in Artists Alley and the Dealers Den while leaving room elsewhere
+                for software, accessibility tools, games, animation, storytelling, and experiments.
+              </dd>
+            </div>
+            <div>
+              <dt>Option 03</dt>
+              <dd>
+                Run a labeled one-year experimental track, gather evidence, and revisit the policy.
+              </dd>
+            </div>
+            <div>
+              <dt>My commitment</dt>
+              <dd>
+                Until Midwest FurFest&rsquo;s anti-AI policy is materially revised or eliminated, I
+                will not volunteer for or attend the convention.
+              </dd>
+            </div>
+            <div>
+              <dt>The record</dt>
+              <dd>
+                I will append any formal board response or material policy change here with a date.
+                Substantive edits will receive a new version rather than silently replacing the record.
+              </dd>
+            </div>
+          </dl>
+        </section>
+
         <article id="letter" className={`prose ${styles.essay}`}>
           <p>
             <span className={styles.dropCap}>M</span>y first Midwest FurFest was in 2003.
@@ -98,6 +152,9 @@ export default function MidwestFurFestPage() {
             Furry has not simply been a hobby I visit once a year. It is one of the communities that
             made me who I am, and one I have spent much of my adult life contributing back to.
           </p>
+
+          <h2>Why this matters to me</h2>
+
           <p>That is why the convention&rsquo;s stance toward AI has been so painful.</p>
           <p>
             Since the emergence of modern generative AI, I have increasingly found myself castigated,
@@ -117,8 +174,11 @@ export default function MidwestFurFestPage() {
             I could experiment with character design, composition, environments, and storytelling in
             ways that had never been available to me.
           </p>
-          <p>Apparently, that also makes me a pariah.</p>
-          <p>I do not believe it should.</p>
+          <p>Increasingly, that has made me wonder whether there is still room for people like me here.</p>
+          <p>I do not believe that should be the answer.</p>
+
+          <h2>The narrow claim</h2>
+
           <p>
             But I want to be careful about the claim I am making, because the argument that gets
             shouted down in this fandom is not the one I am here to make.
@@ -127,9 +187,9 @@ export default function MidwestFurFestPage() {
             I am not claiming that generative AI is good for artists. I am not claiming that furry owes
             this technology a welcome, or that anyone has to like it. I am claiming something narrower:
             a community institution should be extremely careful about adopting a blanket cultural
-            prohibition on a fast-moving creative technology when that prohibition also sweeps up
-            accessibility tools, software, experimental practice, and work already being made by people
-            inside this fandom.
+            prohibition on a fast-moving creative technology when that prohibition risks excluding
+            creative work made through AI-mediated accessibility workflows, alongside software,
+            experimental practice, and work already being made by people inside this fandom.
           </p>
 
           <div className={styles.pullQuote}>
@@ -142,6 +202,9 @@ export default function MidwestFurFestPage() {
             You can be deeply skeptical of generative AI and still agree with that sentence. That is the
             entire reason I am writing it down.
           </p>
+
+          <h2>Name the harm</h2>
+
           <p>
             Before I say anything else about possibility, let me say what I believe about harm, because
             I do not think the artists in this fandom are being irrational.
@@ -188,6 +251,8 @@ export default function MidwestFurFestPage() {
             </div>
           </Callout>
 
+          <h2>Regulate conduct, not the tool</h2>
+
           <p>
             Part of what makes a blanket rule so hard to write well is that &ldquo;AI&rdquo; is not one
             practice.
@@ -209,6 +274,12 @@ export default function MidwestFurFestPage() {
             cannot tell those two apart. A rule aimed at the conduct can.
           </p>
           <p>
+            More importantly, an accessibility workflow does not stop being an accessibility workflow
+            merely because it helps produce a finished creative work. A blanket rule can therefore catch
+            the novel, image, game, or other artifact produced through that workflow even when the role
+            of the model was to compensate for a disability rather than replace human authorship.
+          </p>
+          <p>
             There is also a question of scope. Rules about what can be sold at a table are marketplace
             rules, and MFF is entitled to write those tightly: an Artists Alley exists to protect and
             promote the people selling in it, and provenance, copyright exposure, and direct competition
@@ -217,6 +288,8 @@ export default function MidwestFurFestPage() {
             regulating a marketplace and started drawing a cultural boundary around who belongs here.
           </p>
           <p>Those are different powers. They deserve different amounts of caution.</p>
+
+          <h2>What gets lost in a blanket ban</h2>
 
           <p>
             AI contains extraordinary possibilities for the furry community. These are tools for
@@ -287,6 +360,8 @@ export default function MidwestFurFestPage() {
             </p>
           </Callout>
 
+          <h2>The technology will not sit still</h2>
+
           <p>This technology is also moving absurdly fast.</p>
           <p>
             A rule written with 2023&rsquo;s image generators in mind will still be on the books when it
@@ -309,6 +384,8 @@ export default function MidwestFurFestPage() {
           </p>
 
           <hr />
+
+          <h2>Why I am stepping away</h2>
 
           <p>
             Until Midwest FurFest&rsquo;s anti-AI policy is materially revised or eliminated, I will not
@@ -344,6 +421,8 @@ export default function MidwestFurFestPage() {
           </p>
 
           <hr />
+
+          <h2>A risk, not a prediction</h2>
 
           <p>The attempt to drive AI art from the furry community has not made it disappear.</p>
           <p>Instead, it has begun driving some of its creators elsewhere.</p>
@@ -400,10 +479,14 @@ export default function MidwestFurFestPage() {
           <p>Maybe that never happens.</p>
           <p>I hope it doesn&rsquo;t.</p>
           <p>
-            But I do not think we should assume that exclusion makes the underlying community
+            I am not predicting a schism. I am pointing at a plausible risk: exclusion can move people
+            into parallel spaces, and parallel spaces can develop their own institutions, incentives,
+            and norms. I do not think we should assume that exclusion makes the underlying community
             disappear.
           </p>
           <hr />
+
+          <h2>Bring the machine into the room</h2>
 
           <p>
             So I would rather make an offer than an argument, and the reason why is a story about this
@@ -442,17 +525,21 @@ export default function MidwestFurFestPage() {
           </p>
         </article>
 
-        <section className={styles.exhibition} aria-labelledby="exhibition-heading">
-          <p className={styles.kicker}>The machine in the room</p>
-          <h2 id="exhibition-heading" className={styles.exhibitionTitle}>
-            Look what happens when more people get to make things.
-          </h2>
+        <Callout
+          kicker="The machine in the room"
+          title="Look what happens when more people get to make things."
+          hint="Open the exhibition — seven things I have actually built"
+          side="stack"
+          titleId="exhibition-heading"
+          wide
+        >
           <p className={styles.exhibitionLede}>
             This is the part where I pull the plunger back and call the lane. &ldquo;AI art&rdquo; is
-            too small a box for what is already here. Everything below exists.
-            It is all published, all mine, and all reachable from this page. I am not asking you to
-            imagine a hypothetical creator. I am asking you to look at six things and decide whether
-            furry is richer for having room for them.
+            too small a box for what is already here. Six of the seven things below are finished and
+            published; the last one now has a live review build, and I have labeled it plainly rather
+            than dress it up. They are all mine, and all reachable from this page. I am not asking you
+            to imagine a hypothetical creator. I am asking you to look and decide whether furry is richer
+            for having room for this.
           </p>
 
           <figure className={styles.exhibit}>
@@ -644,6 +731,60 @@ export default function MidwestFurFestPage() {
             </p>
           </figure>
 
+          <figure className={styles.exhibit}>
+            <figcaption className={styles.exhibitHead}>
+              <p className={styles.tag}>Exhibit 07 &middot; Review build</p>
+              <h3>A recommender that only reads anthro</h3>
+              <p className={styles.exhibitPunch}>
+                Point it at the fandom&rsquo;s own shelf and ask it what to play next.
+              </p>
+            </figcaption>
+            <a
+              className={styles.exhibitMediaLink}
+              href="https://wizwor.vercel.app/furry"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                className={styles.exhibitImage}
+                src="https://image.thum.io/get/width/1400/crop/900/noanimate/https://wizwor.vercel.app/furry"
+                alt="Screenshot preview of the furry WizWor HOWLNET recommender review build"
+                width={1400}
+                height={900}
+                loading="lazy"
+              />
+            </a>
+            <p className={styles.exhibitBody}>
+              WizWor is an agent-guided game recommender I built to test a narrow question: where does
+              model judgment actually help, and where should deterministic software stay in charge? It
+              is live, it is open source, and the case study explains both halves.
+            </p>
+            <p className={styles.exhibitBody}>
+              The furry-specific review build deals purely in anthropomorphic titles and is now live at{' '}
+              <a href="https://wizwor.vercel.app/furry" target="_blank" rel="noopener noreferrer">
+                wizwor.vercel.app/furry
+              </a>
+              . Furry games are scattered across itch, Steam, visual-novel sites, and two decades of
+              forum posts, and nothing indexes them as a body of work. A recommender that takes the
+              fandom&rsquo;s catalogue seriously is a straightforwardly useful thing to hand a con-goer
+              &mdash; and it competes with no artist, sells no print, and takes no commission away from
+              anyone.
+            </p>
+            <p className={styles.exhibitStatus}>
+              Status: live review build. The interface and furry-specific recommendation behavior are
+              ready to try; the catalogue can continue to grow from here.
+            </p>
+            <p className={styles.exhibitLink}>
+              <Link href="/lab/wizwor">Read the WizWor case study &rarr;</Link>{' '}
+              <a href="https://wizwor.vercel.app/furry" target="_blank" rel="noopener noreferrer">
+                Try the furry review build &rarr;
+              </a>{' '}
+              <a href="https://wizwor.vercel.app" target="_blank" rel="noopener noreferrer">
+                Try the original recommender &rarr;
+              </a>
+            </p>
+          </figure>
+
           <p className={styles.exhibitionClose}>
             None of these is a print generated from a prompt and dropped onto an Artists Alley table.
           </p>
@@ -652,10 +793,12 @@ export default function MidwestFurFestPage() {
             accidentally ban the movie, the game, the accessibility tool, the character system, the
             novel, and the weird thing nobody has named yet.
           </p>
-        </section>
+        </Callout>
 
         <article className={`prose ${styles.essay}`}>
           <hr />
+
+          <h2>What I am asking</h2>
 
           <p>This is not an easy letter to write.</p>
           <p>
@@ -663,18 +806,17 @@ export default function MidwestFurFestPage() {
             family. These are people I love, in a community I love.
           </p>
           <p>
-            But I cannot stand by and watch us open the door to a fractured fandom: parallel communities
+            But I cannot stand by and ignore the risk of a fractured fandom: parallel communities
             growing apart from one another, developing different norms and different ethical cultures,
             until the distance between them becomes much harder to bridge.
           </p>
-          <p>I do not know what all the consequences of that fracture would be.</p>
-          <p>That is precisely why I believe we should be trying so hard to prevent it now.</p>
+          <p>I do not know whether that fracture will happen, or what all of its consequences would be.</p>
+          <p>That uncertainty is precisely why I believe we should be trying so hard to keep dialogue open now.</p>
           <p>
             Excluding responsible, community-minded creators will not make generative AI disappear. It
-            will simply remove many of the people most interested in shaping how these technologies are
+            may instead remove some of the people most interested in shaping how these technologies are
             used responsibly.
           </p>
-          <p>The vacuum will still be filled.</p>
           <p>
             If thoughtful people are pushed out of this conversation, the result will not necessarily be
             one unified fandom that rejected AI. It may instead be parallel communities developing
@@ -711,6 +853,36 @@ export default function MidwestFurFestPage() {
             I hope you will leave a door open for me to come home.
           </div>
         </article>
+
+        <section className={styles.recordBox} aria-labelledby="record-heading">
+          <p className={styles.kicker}>Versioned public record</p>
+          <h2 id="record-heading">How this document changes</h2>
+          <p>
+            This page is both an argument and a record of a public position. I will not silently rewrite
+            material claims, requests, or consequences after publication.
+          </p>
+          <p>
+            Corrections, added sources, board responses, and policy changes will be dated here. Small
+            factual or typographic corrections increment the patch version; substantive additions
+            increment the minor version; a change to the core thesis, ask, or stated commitment would
+            increment the major version.
+          </p>
+          <p>
+            If Midwest FurFest sends me a formal response, I will append it or accurately summarize it
+            here, whatever the answer is.
+          </p>
+          <div className={styles.changelog}>
+            <div className={styles.changeVersion}>v1.0.0</div>
+            <div>
+              <strong>September 17, 2026</strong>
+              <p>
+                First versioned public edition. Added the at-a-glance summary and explicit update policy;
+                preserved the existing sourcing caveats and the seven-item exhibition as the evidentiary
+                record available on publication day.
+              </p>
+            </div>
+          </div>
+        </section>
 
         <details className={styles.sourcesBox}>
           <summary className={styles.sourcesSummary}>
@@ -889,9 +1061,22 @@ export default function MidwestFurFestPage() {
               <li>
                 Exhibit 06 &mdash; <Link href={ZOO_COLLECTION_PATH}>It Takes a Zoo</Link>.
               </li>
+              <li>
+                Exhibit 07 &mdash; <Link href="/lab/wizwor">WizWor case study</Link>, the original live
+                recommender, and the{' '}
+                <a href="https://wizwor.vercel.app/furry" target="_blank" rel="noopener noreferrer">
+                  furry-specific review build
+                </a>
+                .
+              </li>
             </ol>
           </div>
         </details>
+
+        <p className={styles.feedbackNote}>
+          Have thoughts on this, or something I got wrong?{' '}
+          <a href="mailto:austen.crowder@gmail.com">Email me</a>.
+        </p>
       </main>
     </div>
   );

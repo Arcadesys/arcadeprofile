@@ -11,7 +11,6 @@ export const DEFAULT_NAV_ITEMS: NavItem[] = [
   { id: 'resume', label: 'Resume', href: '/resume', isPrimary: false },
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
   { id: 'store', label: 'Store', href: '/store', isPrimary: false },
-  { id: 'subscribe', label: 'Subscribe', href: '/subscribe', isPrimary: true },
   { id: 'stories', label: 'Stories', href: '/stories', isPrimary: false },
   { id: 'essays', label: 'Essays', href: '/essays', isPrimary: false },
   { id: 'lab', label: 'Case Studies', href: '/lab', isPrimary: false },
@@ -27,7 +26,6 @@ export const ORIENTATION_NAV_ITEMS: readonly NavItem[] = [
   { id: 'resume', label: 'Resume', href: '/resume', isPrimary: false },
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
   { id: 'store', label: 'Store', href: '/store', isPrimary: false },
-  { id: 'subscribe', label: 'Subscribe', href: '/subscribe', isPrimary: true },
 ];
 
 const PRIMARY_NAV_HREFS = ORIENTATION_NAV_ITEMS.map((item) => item.href);
@@ -184,5 +182,5 @@ export function ensureCoreNavItems(items: NavItem[]): NavItem[] {
       SUBSCRIBE_NAV_ITEM,
     ),
     STORIES_NAV_ITEM,
-  );
+  ).filter((item) => item.href !== '/subscribe');
 }
