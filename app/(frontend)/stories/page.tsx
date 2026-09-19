@@ -11,7 +11,8 @@ import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
 export const dynamic = 'force-dynamic';
 
-const description = `Read fiction by Austen Tucker: serial stories, short fiction, and free downloadable editions from ${SITE_NAME}.`;
+const title = 'Free Queer & Furry Speculative Fiction';
+const description = 'Free short stories and a serial novel about queer found family, furry shapeshifters, and surviving a hypercapitalist world — read online or download the PDF editions.';
 const collectionCover = COLLECTION[0]!;
 
 const FEATURED_COLLECTIONS: readonly FeaturedCollection[] = [
@@ -33,11 +34,11 @@ const FEATURED_COLLECTIONS: readonly FeaturedCollection[] = [
 ];
 
 export const metadata: Metadata = {
-  title: 'Stories',
+  title,
   description,
   alternates: { canonical: '/stories' },
-  openGraph: { type: 'website', title: `Stories | ${SITE_NAME}`, description, url: '/stories', images: [DEFAULT_SOCIAL_IMAGE] },
-  twitter: { card: 'summary_large_image', title: `Stories | ${SITE_NAME}`, description, images: [DEFAULT_SOCIAL_IMAGE.url] },
+  openGraph: { type: 'website', title: `${title} | ${SITE_NAME}`, description, url: '/stories', images: [DEFAULT_SOCIAL_IMAGE] },
+  twitter: { card: 'summary_large_image', title: `${title} | ${SITE_NAME}`, description, images: [DEFAULT_SOCIAL_IMAGE.url] },
 };
 
 export default async function StoriesPage() {

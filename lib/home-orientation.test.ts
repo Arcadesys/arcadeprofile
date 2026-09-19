@@ -8,7 +8,7 @@ const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf
 test('homepage has one compact hero signup and the reader-first conversion copy', () => {
   const home = source('app/(frontend)/page.tsx');
 
-  assert.match(home, /<h1 className=\{styles\.title\}>Read the strange little fire\.<\/h1>/);
+  assert.match(home, /<h1 className=\{styles\.title\}>Everything here used to be something else\.<\/h1>/);
   const signup = source('app/components/SubscriptionForm.tsx');
   assert.match(signup, /New writing when it&rsquo;s ready\. Free\. One-click unsubscribe\./);
   assert.doesNotMatch(home, /New work every two weeks/);

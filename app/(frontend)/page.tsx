@@ -44,7 +44,7 @@ export default async function HomePage() {
         <div className={styles.heroEditorial}>
           <div className={styles.heroCopy}>
             <p className={styles.byline}>Stories by Austen Tucker</p>
-            <h1 className={styles.title}>Read the strange little fire.</h1>
+            <h1 className={styles.title}>Everything here used to be something else.</h1>
             <p className={styles.subhead}>Speculative fiction, essays, and build notes by Austen Tucker.</p>
             <div className={styles.heroActions}>
               <Link className={styles.button} href="/writing">Start Here <span aria-hidden="true">→</span></Link>
