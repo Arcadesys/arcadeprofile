@@ -5,6 +5,7 @@ import "../globals.css";
 import { LightsProvider } from '../components/LightsContext';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
+import { PostHogAnalytics } from '../components/PostHogAnalytics';
 import { JsonLd } from '@/lib/structured-data';
 import { LIGHTS_BOOTSTRAP_SCRIPT } from '@/lib/lights';
 import { NAV_COLLAPSE_BOOTSTRAP_SCRIPT } from '@/lib/nav-collapse';
@@ -134,6 +135,7 @@ export default function FrontendLayout({
           {children}
           <Footer />
         </LightsProvider>
+        <PostHogAnalytics />
         <Analytics />
       </body>
     </html>
