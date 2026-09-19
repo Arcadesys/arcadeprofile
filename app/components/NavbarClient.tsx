@@ -8,7 +8,9 @@ import Image from 'next/image';
 import { buildNavigationModel, type NavItem } from '@/lib/nav-items';
 import { NAV_COLLAPSE_STORAGE_KEY } from '@/lib/nav-collapse';
 import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
+import type { SearchItem } from '@/lib/search';
 import ReadingDock from './ReadingDock';
+import SiteSearch from './SiteSearch';
 
 export type { NavItem };
 
@@ -54,7 +56,7 @@ function CollapseIcon({ collapsed }: { collapsed: boolean }) {
   );
 }
 
-export default function NavbarClient({ items }: { items: NavItem[] }) {
+export default function NavbarClient({ items, searchItems }: { items: NavItem[]; searchItems: SearchItem[] }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -121,6 +123,7 @@ export default function NavbarClient({ items }: { items: NavItem[] }) {
         <ul id="main-nav-links" role="list">
           {primary.map((item) => <li key={item.id} className={item.href === '/subscribe' ? 'nav-subscribe' : undefined}>{link(item)}</li>)}
         </ul>
+        <SiteSearch items={searchItems} onNavigate={() => setMobileOpen(false)} />
         <button
           className="nav-collapse-toggle"
           type="button"
