@@ -7,14 +7,15 @@ import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
 export const dynamic = 'force-dynamic';
 
-const description = 'Essays by Austen Tucker on creativity, writing, accessibility, AI, and the work of being human.';
+const title = 'Essays on AI, Creativity & Accessibility';
+const description = 'Personal essays by Austen Tucker on trans and queer life, disability and accessibility, AI and creativity, and the craft of writing.';
 
 export const metadata: Metadata = {
-  title: 'Essays',
+  title,
   description,
   alternates: { canonical: '/essays' },
-  openGraph: { type: 'website', title: `Essays | ${SITE_NAME}`, description, url: '/essays', images: [DEFAULT_SOCIAL_IMAGE] },
-  twitter: { card: 'summary_large_image', title: `Essays | ${SITE_NAME}`, description, images: [DEFAULT_SOCIAL_IMAGE.url] },
+  openGraph: { type: 'website', title: `${title} | ${SITE_NAME}`, description, url: '/essays', images: [DEFAULT_SOCIAL_IMAGE] },
+  twitter: { card: 'summary_large_image', title: `${title} | ${SITE_NAME}`, description, images: [DEFAULT_SOCIAL_IMAGE.url] },
 };
 
 export default async function EssaysPage() {

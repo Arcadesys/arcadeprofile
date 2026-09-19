@@ -23,7 +23,7 @@ const copy = {
   fiction: {
     eyebrow: `${SITE_NAME} / Fiction`,
     title: 'Stories for strange little fires.',
-    lede: 'Read independent short fiction online, with downloadable editions where available.',
+    lede: 'Free short fiction and a serial novel — queer found family, furry shapeshifters, and speculative stories about surviving a hypercapitalist world. Read online, or download the PDF editions below.',
   },
   essays: {
     eyebrow: `${SITE_NAME} / Essays`,

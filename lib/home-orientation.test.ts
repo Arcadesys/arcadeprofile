@@ -8,7 +8,7 @@ const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf
 test('homepage has the reader-first conversion copy with signups currently paused', () => {
   const home = source('app/(frontend)/page.tsx');
 
-  assert.match(home, /<h1 className=\{styles\.title\}>Read the strange little fire\.<\/h1>/);
+  assert.match(home, /<h1 className=\{styles\.title\}>Everything here used to be something else\.<\/h1>/);
   assert.doesNotMatch(home, /New work every two weeks/);
   // Email signups are paused site-wide (see SubscriptionForm.tsx); the
   // homepage hero intentionally has no <SubscriptionForm /> right now.
