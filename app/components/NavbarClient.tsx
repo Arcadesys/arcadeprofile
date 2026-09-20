@@ -31,6 +31,8 @@ function RailIcon({ href }: { href: string }) {
       return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><path d="M12 6.25C9.5 4.65 6.7 4.4 3.75 5.5v13c3.05-1.15 5.85-.9 8.25.7m0-12.95c2.5-1.6 5.3-1.85 8.25-.75v13c-3.05-1.15-5.85-.9-8.25.7" /><path d="M12 6.25V19.2" /></svg>;
     case '/essays':
       return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><path d="m4 20 3.7-.85L19.5 7.35a2.1 2.1 0 0 0-2.95-2.95L4.75 16.2z" /><path d="m14.9 6.05 3.05 3.05M4 20l.75-3.8 3.05 3.05z" /></svg>;
+    case '/latest':
+      return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><path d="M5 4.5h11.5v15H6.5A1.5 1.5 0 0 1 5 18z" /><path d="M16.5 7.5H20v10.25A1.75 1.75 0 0 1 18.25 19.5H16.5" /><path d="M8.25 8h5M8.25 11.5h5M8.25 15h3.25" /></svg>;
     case '/projects':
       return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...common}><rect x="3.5" y="3.5" width="7" height="7" rx="1" /><rect x="13.5" y="3.5" width="7" height="7" rx="1" /><rect x="3.5" y="13.5" width="7" height="7" rx="1" /><rect x="13.5" y="13.5" width="7" height="7" rx="1" /></svg>;
     case '/lab':
