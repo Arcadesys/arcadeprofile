@@ -14,11 +14,13 @@
     "postmark:test": "tsx scripts/send-test-email.ts",
     "upload:image": "tsx scripts/upload-image.ts",
     "newsletter:post": "tsx scripts/newsletter-post.ts",
-    "test": "tsx --test $(find lib scripts -name '*.test.ts' -print | sort)",
+    "test": "tsx --test $(find app lib scripts -name '*.test.ts' -print | sort)",
     "email:test": "tsx scripts/send-test-email.ts"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.6.1",
+    "@react-three/drei": "^10.7.8",
+    "@react-three/fiber": "^9.7.0",
     "@tailwindcss/typography": "^0.5.10",
     "@vercel/analytics": "^1.6.1",
     "@vercel/blob": "^2.8.0",
@@ -32,6 +34,7 @@
     "react": "^19",
     "react-dom": "^19",
     "sharp": "^0.35.3",
+    "three": "^0.179.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {

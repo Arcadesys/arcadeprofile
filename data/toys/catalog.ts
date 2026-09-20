@@ -115,4 +115,23 @@ export const TOY_CATALOG: readonly ToyCatalogEntry[] = [
       height: 1024,
     },
   },
+  {
+    id: 'cultural-weather-vane',
+    title: 'Cultural Weather Vane',
+    href: '/toys/cultural-weather-vane',
+    kind: 'Interactive data toy',
+    status: 'Explore now',
+    description:
+      'Put the year’s biggest songs and news stories on the same emotional map—and see where the atmosphere drifts.',
+    outcomeCount: 1,
+    completionMode: 'linear',
+    nextToyId: 'interspecies-dating-is-hard',
+    isNew: true,
+    image: {
+      src: 'https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/4ad788dcf361a3a891ab7d5ce2a0b77bbc88c77493de84c8150573c36c1c6b64/cultural-weather-vane-1600x1000-final.png',
+      alt: 'Cultural Weather Vane showing album covers and news photographs plotted across cultural mood axes.',
+      width: 1600,
+      height: 1000,
+    },
+  },
 ];

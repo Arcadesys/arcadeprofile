@@ -90,6 +90,28 @@ export const LAB_PROJECTS: LabProject[] = [
     costNote:
       'Cost note: opening the repository has no model cost. Running Conductor locally can consume Codex or Claude allowance or API resources after execution is approved.',
   },
+  {
+    slug: 'cultural-weather-vane',
+    title: 'Cultural Weather Vane',
+    summary:
+      'An interactive map that puts popular music and major news into the same emotional field to explore what a year felt like.',
+    status: 'Playable prototype · Data experiment',
+    disciplines: ['Data visualization', 'Cultural analysis', 'AI-assisted prototyping', 'Accessible UI'],
+    visualEyebrow: 'Cultural atmosphere field',
+    visualDescription: 'Music and news plotted as a changing weather system',
+    screenshotNeeded:
+      'A 1600 by 1000 pixel capture of the public Cultural Weather Vane Toy with its legend and accessible controls visible; no account or private data.',
+    screenshot: {
+      src: 'https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/4ad788dcf361a3a891ab7d5ce2a0b77bbc88c77493de84c8150573c36c1c6b64/cultural-weather-vane-1600x1000-final.png',
+      alt: 'Cultural Weather Vane showing album covers and news photographs plotted across cultural mood axes.',
+      width: 1600,
+      height: 1000,
+    },
+    liveUrl: 'https://www.thearcades.me/toys/cultural-weather-vane',
+    liveLinkLabel: 'Open the Cultural Weather Vane Toy',
+    costNote:
+      'Cost note: exploring the Toy does not invoke paid AI generation; its media depends on cached public catalog and encyclopedia sources.',
+  },
 ];
 
 export function getLabProject(slug: string): LabProject | undefined {
