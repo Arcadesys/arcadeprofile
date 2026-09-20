@@ -27,7 +27,7 @@ export default function MarkdownEssay({ markdown }: { markdown: string }) {
     const heading = /^(#{1,6})\s+(.+)$/.exec(line);
     if (heading) {
       flush();
-      const Tag = `h${heading[1].length}` as keyof React.JSX.IntrinsicElements;
+      const Tag = `h${heading[1].length}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
       nodes.push(<Tag key={`h-${nodes.length}`}>{textWithLinks(heading[2])}</Tag>);
     } else if (line === '---') {
       flush(); nodes.push(<hr key={`r-${nodes.length}`} />);

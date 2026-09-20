@@ -27,6 +27,7 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
   { path: '/lab/toontok', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/lab/arcadeprofile', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/lab/conductor', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/lab/cultural-weather-vane', changeFrequency: 'monthly', priority: 0.8 },
   { path: COLLECTION_PATH, changeFrequency: 'monthly', priority: 0.9 },
   ...COLLECTION.map((story) => ({
     path: `${COLLECTION_PATH}/${story.slug}`,
@@ -45,6 +46,7 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
   { path: '/toys/justice-porn', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/toys/shoot-em-up', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/toys/the-day-i-split-in-two', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/toys/cultural-weather-vane', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/latest', changeFrequency: 'daily', priority: 0.9 },
   { path: '/store', changeFrequency: 'monthly', priority: 0.7 },
 ];
