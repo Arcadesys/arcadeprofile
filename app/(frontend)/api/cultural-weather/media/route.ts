@@ -37,7 +37,8 @@ function scoreMusic(item: ITunesResult, title: string, artist: string) {
   const performer = normalise(item.artistName ?? '');
   const wantedArtists = artistAliases(artist.split(/feat\.|&/i)[0]);
   let score = 0;
-  if (track === wanted || track.startsWith(`${wanted} `)) score += 100;
+  if (track === wanted) score += 120;
+  else if (track.startsWith(`${wanted} `)) score += 100;
   else if (track.includes(wanted)) score += 45;
   if (wantedArtists.some((wantedArtist) => performer === wantedArtist || performer.startsWith(`${wantedArtist} `))) score += 80;
   else if (wantedArtists.some((wantedArtist) => performer.includes(wantedArtist))) score += 30;
