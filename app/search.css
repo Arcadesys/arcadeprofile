@@ -63,3 +63,37 @@ html[data-nav-collapsed="true"] .site-search__trigger .nav-label { display: none
   .site-search__panel { padding: .75rem; }
   .site-search__preview { -webkit-line-clamp: 3; }
 }
+
+
+/* The rail's full-size brand mark must not squeeze into a glowing pill when
+   the navigation is collapsed. Treat it as a deliberate compact home button. */
+@media (min-width: 961px) and (min-height: 701px) {
+  html[data-nav-collapsed="true"] .nav-logo {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    margin: .35rem auto 1rem;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 50%;
+  }
+
+  html[data-nav-collapsed="true"] .nav-logo img {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    max-width: 36px;
+    flex: 0 0 36px;
+    border-width: 2px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  html[data-nav-collapsed="true"] .nav-logo:hover img,
+  html[data-nav-collapsed="true"] .nav-logo:focus-visible img {
+    border-color: var(--pink);
+    box-shadow: 0 0 12px var(--console-pink-glow);
+  }
+}
