@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f4ef" />
+    <title>Furry History Board</title>
+    <script>
+      (() => {
+        const key = "furry-history-board.theme";
+        const saved = window.localStorage.getItem(key);
+        const preference = saved === "light" || saved === "dark" ? saved : "system";
+        const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const resolved = preference === "system" ? (dark ? "dark" : "light") : preference;
+        document.documentElement.dataset.theme = resolved;
+        document.documentElement.style.colorScheme = resolved;
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

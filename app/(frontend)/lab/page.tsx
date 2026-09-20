@@ -11,7 +11,7 @@ import { LabProjectVisual } from './LabProjectVisual';
 import styles from './lab.module.css';
 
 const DESCRIPTION =
-  'Accessible case studies about public products and Lab infrastructure built by Austen Tucker: WizWor, ToonTok, ArcadeProfile, and Conductor.';
+  'Accessible case studies about public products, historical interfaces, data experiments, and Lab infrastructure built by Austen Tucker.';
 
 export const metadata: Metadata = {
   title: 'Case Studies',

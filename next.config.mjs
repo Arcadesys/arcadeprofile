@@ -94,6 +94,14 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: '/lab/furry-history-board/app',
+        destination: '/furry-history-board/index.html',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
