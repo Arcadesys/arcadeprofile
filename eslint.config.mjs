@@ -27,6 +27,7 @@ export default defineConfig([
     // lint` with thousands of errors from compiled output that is not ours.
     '**/.next/**',
     '**/node_modules/**',
+    'public/furry-history-board/**',
     '.claude/**',
   ]),
 ]);

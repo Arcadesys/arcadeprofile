@@ -1,0 +1,39 @@
+.prominence-chart { min-width: 0; padding: 0; }
+.chart-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: end; }
+.chart-heading h2 { margin: 0; font-size: clamp(2rem, 3vw, 2.7rem); line-height: 1; }
+.chart-heading p { margin: .3rem 0 0; color: var(--ink-muted); font-family: Georgia, "Times New Roman", serif; }
+.chart-measure { display: grid; gap: .2rem; min-width: 13rem; color: var(--ink-muted); font-size: .82rem; }
+.chart-measure strong { padding: .55rem .75rem; border: 1px solid var(--rule); border-radius: .25rem; background: var(--surface); color: var(--ink); font-size: .95rem; }
+.chart-note { max-width: 74ch; margin: .8rem 0 .35rem; color: var(--ink-muted); font-size: .83rem; line-height: 1.4; }
+.chart-focus { min-width: 0; overflow-x: auto; border: 3px solid transparent; border-radius: .2rem; }
+.chart-focus svg { display: block; width: 100%; min-width: 720px; height: auto; }
+.chart-focus:focus-visible { outline: 4px solid var(--focus); outline-offset: 3px; }
+.axis { stroke: var(--rule); stroke-width: 2; }
+.grid-line { stroke: var(--grid); stroke-width: 1; }
+.year-guide { stroke: var(--rust); stroke-width: 3; stroke-dasharray: 8 6; }
+.guide-label, .axis-label { fill: var(--ink); font-size: 13px; font-weight: 700; }
+.series { color: var(--ink); }
+.series--rowrbrazzle { color: var(--teal); }
+.series--confurence { color: var(--rust); }
+.series--anthrocon { color: var(--blue); }
+.series--midwest-furfest { color: var(--green); }
+.series--furality { color: var(--indigo); }
+.series-line { fill: none; stroke: currentColor; stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; }
+.series.active .series-line { stroke-width: 5.5; }
+.pattern-solid { stroke-dasharray: none; }
+.pattern-dashed { stroke-dasharray: 18 10; }
+.pattern-dotted { stroke-dasharray: 2 10; }
+.pattern-dash-dot { stroke-dasharray: 18 8 3 8; }
+.pattern-long-dash { stroke-dasharray: 30 10; }
+.series-marker { fill: var(--canvas); stroke: currentColor; stroke-width: 3; }
+.marker-cross { fill: currentColor; }
+.series-label { fill: currentColor; font-size: 14px; font-weight: 800; }
+.chart-status { min-height: 3rem; margin-top: .45rem; padding: .6rem .8rem; border-left: 5px solid var(--rust); background: var(--surface); color: var(--ink); font-size: .88rem; font-weight: 700; line-height: 1.4; }
+.keyboard-help { margin: .5rem 0 0; color: var(--ink-muted); font-size: .82rem; font-weight: 650; }
+.prominence-table-wrap { overflow-x: auto; margin-top: .75rem; border-top: 1px solid var(--rule); }
+.prominence-table { border-collapse: collapse; width: 100%; min-width: 52rem; }
+.prominence-table caption { padding: 1rem 0 .5rem; text-align: left; font-family: Georgia, "Times New Roman", serif; font-size: 1.35rem; font-weight: 800; }
+.prominence-table th, .prominence-table td { padding: .65rem; border-bottom: 1px solid var(--grid); text-align: left; vertical-align: top; font-size: .85rem; }
+.nonliteral { font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
+@media (max-width: 640px) { .chart-heading { align-items: stretch; flex-direction: column; } .chart-measure { min-width: 0; } .chart-note { font-size: .9rem; } }
+

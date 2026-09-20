@@ -6,7 +6,7 @@ import { LAB_PROJECTS, requireLabProject } from '@/data/lab-projects';
 test('Lab foregrounds the public products in the intended order', () => {
   assert.deepEqual(
     LAB_PROJECTS.map((project) => project.slug),
-    ['wizwor', 'toontok', 'arcadeprofile', 'conductor', 'cultural-weather-vane'],
+    ['wizwor', 'toontok', 'arcadeprofile', 'conductor', 'cultural-weather-vane', 'furry-history-board'],
   );
 });
 
@@ -36,4 +36,6 @@ test('Lab external destinations and AI cost disclosures are explicit', () => {
   assert.equal(requireLabProject('conductor').liveUrl, undefined);
   assert.equal(requireLabProject('conductor').sourceUrl, 'https://github.com/Arcadesys/conductor');
   assert.equal(requireLabProject('cultural-weather-vane').liveUrl, 'https://www.thearcades.me/toys/cultural-weather-vane');
+  assert.equal(requireLabProject('furry-history-board').liveUrl, 'https://www.thearcades.me/lab/furry-history-board/app');
+  assert.match(requireLabProject('furry-history-board').costNote, /does not invoke paid AI generation/i);
 });

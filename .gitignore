@@ -1,6 +1,7 @@
 .DS_Store
 .agents/
 /node_modules
+**/node_modules/
 /dist
 /build
 .env
@@ -18,6 +19,7 @@
 # Book editions are served from Vercel Blob, not as static assets.
 # Regenerate URLs with `npm run generate:portfolio`.
 /public/portfolio
+/public/furry-history-board
 
 # Private email-service state and local credentials
 services/email/node_modules/

@@ -112,6 +112,23 @@ export const LAB_PROJECTS: LabProject[] = [
     costNote:
       'Cost note: exploring the Toy does not invoke paid AI generation; its media depends on cached public catalog and encyclopedia sources.',
   },
+  {
+    slug: 'furry-history-board',
+    title: 'Furry History Board',
+    summary:
+      'A source-backed historical board for asking bounded questions about furry communities, publishing, conventions, and people without treating unlike evidence as one metric.',
+    status: 'Interactive prototype · Historical data experiment',
+    disciplines: ['Data visualization', 'Historical research', 'Deterministic queries', 'Accessible UI'],
+    visualEyebrow: 'Source-backed history explorer',
+    visualDescription: 'Timeline, relative-prominence chart, evidence, and equivalent data table',
+    screenshotNeeded:
+      'A 1600 by 1000 pixel capture of the live Furry History Board with the chart, evidence region, lens controls, and nonliteral-index disclosure visible.',
+    screenshot: null,
+    liveUrl: 'https://www.thearcades.me/lab/furry-history-board/app',
+    liveLinkLabel: 'Open the live Furry History Board',
+    costNote:
+      'Cost note: exploring the board does not invoke paid AI generation. Its bounded query parser and historical sampler run locally in the browser; evidence links open their named public sources.',
+  },
 ];
 
 export function getLabProject(slug: string): LabProject | undefined {
