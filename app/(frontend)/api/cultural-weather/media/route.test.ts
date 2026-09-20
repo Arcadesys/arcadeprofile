@@ -13,7 +13,10 @@ test('music metadata reports provider and exact source URL', async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (input) => {
     if (String(input).includes('itunes.apple.com')) {
-      return new Response(JSON.stringify({ results: [{ trackName: 'Espresso', artistName: 'Sabrina Carpenter', artworkUrl100: 'https://is.example/100x100bb.jpg', collectionViewUrl: 'https://music.apple.com/us/album/espresso' }] }), { status: 200 });
+      return new Response(JSON.stringify({ results: [
+        { trackName: 'Espresso (On Vacation Version)', artistName: 'Sabrina Carpenter', artworkUrl100: 'https://is.example/variant/100x100bb.jpg', collectionViewUrl: 'https://music.apple.com/us/album/espresso-variant' },
+        { trackName: 'Espresso', artistName: 'Sabrina Carpenter', artworkUrl100: 'https://is.example/100x100bb.jpg', collectionViewUrl: 'https://music.apple.com/us/album/espresso' },
+      ] }), { status: 200 });
     }
     throw new Error('unexpected fetch');
   };
