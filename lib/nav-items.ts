@@ -22,6 +22,7 @@ export const DEFAULT_NAV_ITEMS: NavItem[] = [
 
 export const ORIENTATION_NAV_ITEMS: readonly NavItem[] = [
   { id: 'writing', label: 'Read', href: '/writing', isPrimary: false },
+  { id: 'blog', label: 'Blog', href: '/latest', isPrimary: false },
   { id: 'projects', label: 'Watch me build', href: '/projects', isPrimary: false },
   { id: 'resume', label: 'Resume', href: '/resume', isPrimary: false },
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
