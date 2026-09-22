@@ -13,7 +13,7 @@ const TITLE = 'Leave the Door Open';
 const DESCRIPTION = 'On Midwest FurFest, generative AI, and the community I still want to call home.';
 const CANONICAL_PATH = '/mff';
 const MFF_PUBLIC = true;
-const MANIFESTO_VERSION = '1.0.0';
+const MANIFESTO_VERSION = '1.0.1';
 const MANIFESTO_DATE = 'September 17, 2026';
 
 export const metadata: Metadata = {
@@ -144,9 +144,9 @@ export default function MidwestFurFestPage() {
           <p>And I did not simply attend it.</p>
           <p>
             I have written furry fiction for decades, including work from the early years of the Ursa
-            awards. I helped contribute to the literary culture of this fandom while it was still
-            defining what furry fiction could be. I have attended MFF for 23 years and volunteered for
-            six.
+            awards. I am a founding member of the Furry Writers&rsquo; Guild, and I helped contribute
+            to the literary culture of this fandom while it was still defining what furry fiction could
+            be. I have attended MFF for 23 years and volunteered for six.
           </p>
           <p>
             Furry has not simply been a hobby I visit once a year. It is one of the communities that
@@ -872,6 +872,14 @@ export default function MidwestFurFestPage() {
             here, whatever the answer is.
           </p>
           <div className={styles.changelog}>
+            <div className={styles.changeVersion}>v1.0.1</div>
+            <div>
+              <strong>September 22, 2026</strong>
+              <p>
+                Added that I am a founding member of the Furry Writers&rsquo; Guild, clarifying my
+                longstanding involvement in furry literary culture.
+              </p>
+            </div>
             <div className={styles.changeVersion}>v1.0.0</div>
             <div>
               <strong>September 17, 2026</strong>
