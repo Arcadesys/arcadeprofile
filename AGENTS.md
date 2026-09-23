@@ -5,9 +5,8 @@
 Arcades Profile is a Next.js 16 / React 19 personal site deployed on Vercel.
 Public essays, project manifests, portfolio reader bodies, and collection reader
 bodies are repository-owned Markdown. Vercel Blob URLs provide media and
-downloads. A standalone email service (`services/email`) owns subscriber
-consent/preferences and adapts to Kit for newsletter broadcasts, with Postmark
-kept for transactional mail; see the Email section below.
+downloads. Kit owns newsletter signup confirmation and broadcast delivery;
+Postmark is used only for explicitly addressed previews.
 
 ## Commands
 
@@ -86,30 +85,38 @@ migrations, and republication.
 
 ## Email
 
-`/api/subscribe` and `npm run newsletter:post` both call `lib/email-service.ts`,
-a thin client for the standalone service at `services/email` (own README and
-`docs/email-service-migration.md`). That service owns subscriber consent and
-suppression state locally, upserts/tags/broadcasts through Kit, and keeps
-Postmark for transactional mail (test sends, future account email). It is not
-yet hosted anywhere — see `docs/email-service-migration.md` for the remaining
-cutover steps. Until `EMAIL_SERVICE_URL`/`EMAIL_SERVICE_SUBSCRIBE_KEY`/
-`EMAIL_SERVICE_ADMIN_KEY` point at a real deployment, subscribe and send calls
-fail closed (subscribe returns a 502; the send script throws).
-
-`lib/activecampaign.ts` and `lib/postmark.ts` (the pre-migration vendor
-libraries) have been removed as dead code; the site never called them once
-the service boundary landed.
+`/api/subscribe` does an exact Kit status read, then stores the submitted email
+as AES-GCM ciphertext plus selected preferences in a 24-hour Upstash challenge and sends one
+explicitly addressed Postmark verification email. It performs no Kit writes.
+The same email/audience bundle uses a keyed ten-minute Redis cooldown to avoid
+repeat sends after ambiguous provider responses.
+The verification URL carries its signed token in a fragment; the page clears
+that fragment before rendering and only an explicit POST button can claim it.
+After the click, active Kit subscribers get the requested form memberships and
+tags. New or inactive subscribers get the requested double-opt-in form
+memberships; email ciphertext is removed as soon as Kit returns a subscriber ID.
+The Redis record then retains only Kit subscriber ID and selected
+preferences for up to 30 days. Kit can send an additional confirmation before
+delivery begins. A daily authenticated cron checks only these Redis-verified
+records and tags only their stored audience choices after Kit reports `active`.
+It never infers selections from raw form-member listings. Configure Kit form
+and audience tag IDs, `KIT_TAG_ARCADEPROFILE_ID`, `KIT_API_KEY`, `CRON_SECRET`,
+`UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` or Vercel-injected
+`KV_REST_API_URL`/`KV_REST_API_TOKEN`, `SIGNUP_LINK_SECRET`, and
+the Postmark transactional sender. The site must fail closed when those values
+are missing. Kit Free can delay tags until the daily cron runs.
 
 `npm run newsletter:post` flags:
 
 - no flag: dry run
 - `--preview-to <email>`: explicit test
-- `--send`: verify the production URL, resolve All + Essays recipients, send
+- `--send`: verify the production URL, target All Writing OR Essays tags, and
+  schedule the Kit broadcast
 - `--resend --reason "<reason>"`: intentional repeat after a completed send
 
-Receipts under `data/newsletter-sends` must remain non-PII. Service receipts
-mean accepted, not delivered — read `docs/email-service-migration.md` before
-trusting a send.
+Receipts under `data/newsletter-sends` must remain non-PII. An ambiguous
+pending Kit request must be reconciled in Kit before retrying. Kit excludes
+unsubscribed contacts from broadcasts.
 
 ## Conventions
 

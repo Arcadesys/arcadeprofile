@@ -2,6 +2,7 @@
 
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
+import { buildSiteAnalyticsContext, shouldTrackSiteAnalytics } from '@/lib/site-analytics';
 
 const STORAGE_KEY = 'arcade-posthog-anonymous-id';
 
@@ -18,14 +19,15 @@ function getDistinctId() {
 }
 
 function capture(event: string, properties: Record<string, unknown> = {}) {
+  const context = buildSiteAnalyticsContext(window.location.pathname, window.location.href);
+  if (!context) return;
   const body = JSON.stringify({
     distinct_id: getDistinctId(),
     event,
     properties: {
       ...properties,
-      pathname: window.location.pathname,
+      ...context,
       hostname: window.location.hostname,
-      $current_url: window.location.href,
       $referrer: document.referrer || undefined,
       analytics_surface: 'sitewide',
     },
@@ -46,6 +48,7 @@ export function PostHogAnalytics() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    if (!shouldTrackSiteAnalytics(pathname)) return;
     const params = new URLSearchParams(searchParams.toString());
     capture('$pageview', {
       landing_page: pathname,
@@ -57,6 +60,7 @@ export function PostHogAnalytics() {
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
+      if (!shouldTrackSiteAnalytics(window.location.pathname)) return;
       const target = event.target;
       if (!(target instanceof Element)) return;
       const link = target.closest('a');

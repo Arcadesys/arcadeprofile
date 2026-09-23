@@ -37,6 +37,10 @@ const AUDIENCE_LABELS: Record<Audience, string> = {
   lab: "The Arcades' Lab and build notes",
 };
 
+function audienceNames(audiences: readonly Audience[]): string {
+  return audiences.map((audience) => AUDIENCE_LABELS[audience]).join(', ');
+}
+
 function readingLinkFor(audiences: ReadonlySet<Audience>): ReadingLink {
   if (audiences.has('lab')) return { href: '/lab', label: 'Read case studies' };
   if (audiences.has('fiction')) return { href: '/stories', label: 'Read fiction' };
@@ -44,7 +48,7 @@ function readingLinkFor(audiences: ReadonlySet<Audience>): ReadingLink {
   return { href: '/writing', label: 'Browse the writing' };
 }
 
-const EMAIL_SIGNUPS_ENABLED = false;
+const EMAIL_SIGNUPS_ENABLED = true;
 
 export default function SubscriptionForm(props: SubscriptionFormProps) {
   if (!EMAIL_SIGNUPS_ENABLED) return null;
@@ -59,7 +63,7 @@ function EnabledSubscriptionForm({
   presentation = 'default',
   showPreferences = false,
   submitLabel = 'Subscribe',
-  successMessage = "You're on the list.",
+  successMessage = 'Check your inbox to confirm your subscription.',
   postSuccessDownload,
 }: SubscriptionFormProps) {
   const emailId = useId();
@@ -70,6 +74,7 @@ function EnabledSubscriptionForm({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
   const [complete, setComplete] = useState(false);
+  const [completionMessage, setCompletionMessage] = useState(successMessage);
   const [downloads, setDownloads] = useState<Download[]>([]);
   const trackReaderEvent = useReaderEventTracker();
 
@@ -111,6 +116,19 @@ function EnabledSubscriptionForm({
           });
         },
       );
+      setCompletionMessage(payload.deliveryPending
+        ? 'Your request is recorded. Check your inbox; if no confirmation arrives, try again in 10 minutes.'
+        : successMessage);
+      if (payload.partial && payload.submitted && payload.failed?.length) {
+        setSelected(new Set(payload.failed));
+        setError(
+          `${payload.submitted.length ? `Confirmation requests were sent for ${audienceNames(payload.submitted)}. ` : `${payload.error ?? 'No preferences were submitted.'} `}`
+          + `We could not submit ${audienceNames(payload.failed)}. `
+          + 'Those preferences remain selected so you can retry them.',
+        );
+        queueMicrotask(() => statusRef.current?.focus());
+        return;
+      }
       const magnetDownloads = payload.magnet?.files?.map((file) => ({ href: file.url, label: `Download ${file.label}` })) ?? [];
       setDownloads(postSuccessDownload ? [postSuccessDownload, ...magnetDownloads] : magnetDownloads);
       setComplete(true);
@@ -126,7 +144,8 @@ function EnabledSubscriptionForm({
     const readingLink = readingLinkFor(selected);
     return (
       <div ref={statusRef} className={styles.status} role="status" aria-live="polite" tabIndex={-1}>
-        <strong>{successMessage}</strong>
+        <strong>{completionMessage}</strong>
+        <p>One email covers the preferences you selected. If your address is new or inactive in Kit, Kit may send another confirmation before delivery begins.</p>
         {downloads.length > 0 ? (
           <div className={styles.downloads}>
             {downloads.map((download) => <a key={download.href} href={download.href}>{download.label}</a>)}
@@ -173,6 +192,9 @@ function EnabledSubscriptionForm({
       ) : null}
 
       <p className={styles.terms}>New writing when it&rsquo;s ready. Free. One-click unsubscribe.</p>
+      {showPreferences ? (
+        <p className={styles.terms}>One confirmation email covers all selected preferences. New or inactive Kit subscribers may receive a second confirmation from Kit.</p>
+      ) : null}
       <button className={styles.submit} type="submit" disabled={pending}>{pending ? 'Subscribing…' : submitLabel}</button>
       {error ? <div ref={statusRef} className={`${styles.status} ${styles.error}`} role="alert" aria-live="assertive" tabIndex={-1}>{error}</div> : null}
     </form>
