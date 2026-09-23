@@ -64,9 +64,9 @@ export async function POST(request: NextRequest) {
 
   const { email, audiences, source, magnet } = parsed.data;
 
-  let subscribed: string[];
+  let result: Awaited<ReturnType<typeof subscribeToKitForms>>;
   try {
-    subscribed = await subscribeToKitForms({
+    result = await subscribeToKitForms({
       email,
       audiences,
     });
@@ -81,16 +81,35 @@ export async function POST(request: NextRequest) {
   // Surface attribution in logs so we can answer "which page is converting?"
   // without an analytics roundtrip. Email is intentionally omitted.
   console.log(
-    "[subscribe] ok",
+    "[subscribe] Kit form memberships requested",
     JSON.stringify({
       source: source ?? null,
       magnet: magnet ?? null,
+      submitted: result.submitted,
+      failed: result.failed,
     }),
   );
 
+  if (result.failed.length > 0) {
+    return NextResponse.json(
+      {
+        ok: false,
+        partial: true,
+        submitted: result.submitted,
+        failed: result.failed,
+        confirmationRequired: true,
+        error: result.blockedActiveSubscriber
+          ? "This address is already active in Kit. We did not add the selected preferences because Kit cannot request a separate confirmation for an already-active subscriber."
+          : "Some preferences could not be submitted. Check the failed preferences and try again.",
+        ...(magnet ? { magnet: MAGNETS[magnet] } : {}),
+      },
+      { status: 207 },
+    );
+  }
+
   return NextResponse.json({
     ok: true,
-    subscribed,
+    subscribed: result.submitted,
     confirmationRequired: true,
     ...(magnet ? { magnet: MAGNETS[magnet] } : {}),
   });

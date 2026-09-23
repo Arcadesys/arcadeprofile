@@ -86,9 +86,13 @@ migrations, and republication.
 ## Email
 
 `/api/subscribe` submits each selected preference to its Kit double opt-in
-form. Kit form rules apply audience tags after confirmation. Configure
-`KIT_API_SECRET` and the four `KIT_FORM_*_ID` values. Do not add tags from the
-site signup API.
+form through the v4 API using server-only `KIT_API_KEY`. The site creates one
+inactive subscriber and requests membership on each selected form; Kit sends
+separate confirmation emails, one per selected preference. The signup API must
+not apply audience tags. A daily authenticated cron reads every page of active
+form members and then tags those confirmed subscribers for their audience.
+Configure the four `KIT_FORM_*_ID`, four `KIT_TAG_*_ID`, and `CRON_SECRET`
+values. This free-plan reconciliation can take up to a day after confirmation.
 
 `npm run newsletter:post` flags:
 

@@ -3,6 +3,10 @@ import type { Audience, Magnet, Source, SubscriptionUpdateMode } from '@/lib/sub
 export type SubscriptionResponse = {
   ok?: boolean;
   error?: string;
+  partial?: boolean;
+  submitted?: Audience[];
+  failed?: Audience[];
+  confirmationRequired?: boolean;
   magnet?: { files?: Array<{ url: string; label: string }> };
 };
 
@@ -28,6 +32,9 @@ export async function submitSubscription(
     body: JSON.stringify(request),
   });
   const payload = await response.json() as SubscriptionResponse;
+  if (payload.partial && payload.failed?.length) {
+    return payload;
+  }
   if (!response.ok || !payload.ok) {
     throw new Error(payload.error || 'Could not subscribe right now. Please try again.');
   }

@@ -42,3 +42,20 @@ test('subscription client does not invoke success work after an API failure', as
 
   assert.equal(successCount, 0);
 });
+
+test('partial audience failure remains recoverable and does not invoke complete-success work', async () => {
+  let successCount = 0;
+  const payload = await submitSubscription(
+    { ...request, audiences: ['all', 'lab'] },
+    () => { successCount += 1; },
+    async () => Response.json({
+      ok: false,
+      partial: true,
+      submitted: ['all'],
+      failed: ['lab'],
+      confirmationRequired: true,
+    }, { status: 207 }),
+  );
+  assert.deepEqual(payload.failed, ['lab']);
+  assert.equal(successCount, 0);
+});
