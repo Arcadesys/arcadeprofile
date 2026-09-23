@@ -5,7 +5,7 @@ slug: the-safe-door
 group: queer-columns
 publishDate: '2026-09-23T21:16:24.000Z'
 order: 1
-excerpt: What happens when a community's needs become difficult enough to meet? The needs don't disappear. They go underground.
+excerpt: What happens when a community's needs become too difficult to meet? The needs don't disappear. They go underground.
 tags:
   - trans
   - queer-history
@@ -20,7 +20,7 @@ seo:
 ---
 I'm not here to convince you to like trans people. I'm not here to persuade you that transition is beautiful, or brave, or spiritually meaningful. I'm not even asking you to understand us.
 
-I'm here to tell you what happens when you make a community's needs difficult enough to meet.
+I'm here to tell you what happens when you make a community's needs too difficult to meet.
 
 The needs don't disappear. They go underground.
 

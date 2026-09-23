@@ -124,7 +124,7 @@ export default async function QueerColumnsPage() {
                 <div className={styles.issueCopy}>
                   <div className={styles.issueMeta}><span>Issue 01</span><span>In progress</span></div>
                   <h3>The Safe Door</h3>
-                  <p>What happens when a community&apos;s needs become difficult enough to meet? The needs don&apos;t disappear. They go underground.</p>
+                  <p>What happens when a community&apos;s needs become too difficult to meet? The needs don&apos;t disappear. They go underground.</p>
                 </div>
               </article>
             )}
