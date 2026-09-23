@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { getGroupBySlug, buildPostUrl } from '@/lib/blog';
@@ -50,13 +51,25 @@ export default async function QueerColumnsPage() {
           </nav>
 
           <header className={styles.hero}>
-            <p className={styles.kicker}>A monthly column by Austen Tucker</p>
-            <h1>Queer Columns<span>.</span></h1>
-            <p className={styles.dek}>
-              Trans life, queer history, and the policies that shape what happens next.
-              Personal stakes, public evidence, and room for the people living with the answer.
-            </p>
-            <p className={styles.motto}>Let people be people.</p>
+            <div className={styles.heroCopy}>
+              <p className={styles.kicker}>A monthly column by Austen Tucker</p>
+              <h1>Queer Columns<span>.</span></h1>
+              <p className={styles.dek}>
+                Trans life, queer history, and the policies that shape what happens next.
+                Personal stakes, public evidence, and room for the people living with the answer.
+              </p>
+              <p className={styles.motto}>Let people be people.</p>
+            </div>
+            <figure className={styles.heroPortrait}>
+              <Image
+                src="/images/headshots/austen-tucker-crowder.jpeg"
+                alt="Austen Tucker smiling in glasses."
+                width={768}
+                height={1024}
+                sizes="(max-width: 720px) 192px, 272px"
+                priority
+              />
+            </figure>
           </header>
 
           <section className={styles.issues} aria-labelledby="issues-title">
@@ -81,9 +94,21 @@ export default async function QueerColumnsPage() {
               </ol>
             ) : (
               <article className={styles.firstIssue}>
-                <div className={styles.issueMeta}><span>Issue 01</span><span>In progress</span></div>
-                <h3>The Safe Door</h3>
-                <p>What happens when a community&apos;s needs become difficult enough to meet? The needs don&apos;t disappear. They go underground.</p>
+                <figure className={styles.issueArt}>
+                  <Image
+                    src="/images/queer-columns/safe-door-editorial.png"
+                    alt="Illustration of a half-open door with bright paths leading toward it."
+                    width={1536}
+                    height={1024}
+                    sizes="(max-width: 720px) 100vw, 34rem"
+                  />
+                  <figcaption>Illustration for The Safe Door</figcaption>
+                </figure>
+                <div className={styles.issueCopy}>
+                  <div className={styles.issueMeta}><span>Issue 01</span><span>In progress</span></div>
+                  <h3>The Safe Door</h3>
+                  <p>What happens when a community&apos;s needs become difficult enough to meet? The needs don&apos;t disappear. They go underground.</p>
+                </div>
               </article>
             )}
           </section>
@@ -93,10 +118,20 @@ export default async function QueerColumnsPage() {
               <h2 id="signup-title">Get the next column</h2>
               <p>One essay a month. This list is separate from Fiction, Essays, Lab, and All Writing.</p>
             </div>
-            <a className={styles.signupLink} href={signupUrl}>Subscribe <span aria-hidden="true">↗</span></a>
+            <a className={styles.signupLink} href={signupUrl}>Subscribe to Queer Columns <span aria-hidden="true">↗</span></a>
           </section>
 
           <aside className={styles.archive} aria-labelledby="archive-title">
+            <figure className={styles.archiveArt}>
+              <Image
+                src="/images/queer-columns/pride-essays-zines.png"
+                alt="Illustration of five colorful essay zines spread across a desk."
+                width={1672}
+                height={941}
+                sizes="(max-width: 720px) 100vw, 72rem"
+              />
+              <figcaption>Illustration for the Pride Essays shelf</figcaption>
+            </figure>
             <div>
               <h2 id="archive-title">Earlier queer writing</h2>
               <p>The five-part Pride Essays series is its own story, and a good place to keep reading.</p>
