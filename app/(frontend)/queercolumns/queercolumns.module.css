@@ -16,7 +16,6 @@
 .breadcrumb span:last-child { color: #fffaf7; }
 
 .masthead { position: relative; overflow: hidden; padding: clamp(1.4rem, 3vw, 2.75rem); border: 2px solid #b0eaf5; background: linear-gradient(142deg, rgba(36, 33, 64, .96), rgba(11, 17, 34, .98)); box-shadow: 10px 10px 0 #f0a9c8; }
-.masthead::after { content: ''; position: absolute; right: -3rem; top: 4.5rem; width: 18rem; height: 18rem; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; pointer-events: none; }
 .mastheadTop, .mastheadBottom { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 1rem; }
 .mastheadTop { font: 700 .83rem/1.5 var(--font-mono); letter-spacing: .11em; text-transform: uppercase; }
 .mastheadTop p:last-child { color: #f6b7d2; }
@@ -26,6 +25,8 @@
 .masthead h1 > span:first-child { color: #aee7f4; }
 .masthead h1 > span:nth-child(2) { color: #fffaf7; }
 .titleDot { color: #f6b7d2; }
+.headshot { position: absolute; top: 6rem; right: 2.75rem; width: clamp(13rem, 22vw, 18rem); aspect-ratio: 1; margin: 0; overflow: hidden; border: 3px solid #f3b2d0; border-radius: 50%; box-shadow: 0 0 0 6px rgba(174, 231, 244, .22); }
+.headshot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
 .mastheadBottom { border-top: 1px solid rgba(255,255,255,.38); padding-top: 1.1rem; }
 .mastheadBottom p { max-width: 40rem; font: 500 clamp(1.2rem, 2.2vw, 1.75rem)/1.35 var(--font-serif); }
 .monthlyLabel { display: inline-flex; min-height: 44px; align-items: center; padding: .45rem .7rem; border: 1px solid #f6b7d2; color: #fffaf7; font: 700 .85rem/1.3 var(--font-mono); text-transform: uppercase; }
@@ -76,6 +77,10 @@
 .archiveLink:focus-visible,
 .priorList a:focus-visible { outline: 3px solid #f3b2d0; outline-offset: 4px; }
 
+@media (max-width: 900px) {
+  .headshot { position: relative; top: auto; right: auto; width: min(12rem, 55vw); margin: -1rem 0 2rem auto; }
+}
+
 @media (max-width: 720px) {
   .page { padding: 1rem; }
   .masthead { box-shadow: 5px 5px 0 #f0a9c8; }
@@ -102,3 +107,4 @@
 :global(html[data-contrast="high"]) .signup,
 :global(html[data-contrast="high"]) .archive { background: #000; border-color: #fff; box-shadow: none; }
 :global(html[data-contrast="high"]) .motto { background: #fff; color: #000; }
+:global(html[data-contrast="high"]) .headshot { border-color: #fff; box-shadow: none; }
