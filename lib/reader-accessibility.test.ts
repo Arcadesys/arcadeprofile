@@ -28,14 +28,17 @@ test('global shell exposes a keyboard skip target', () => {
   assert.match(layout, />Skip to content</);
 });
 
-test('homepage keeps the shared footer signup slot empty', () => {
+test('the shared footer offers the All writing signup on every page', () => {
+  const layout = source('app/(frontend)/layout.tsx');
+  const footer = source('app/components/Footer.tsx');
   const footerSubscribe = source('app/components/FooterSubscribe.tsx');
-  const homepage = source('app/(frontend)/page.tsx');
 
-  // The homepage keeps its shared footer slot empty; contextual forms live on
-  // the writing surfaces that introduce their matching preferences.
-  assert.match(footerSubscribe, /return null/);
-  assert.match(homepage, /showRead=\{false\}/);
+  assert.match(layout, /<Footer\s*\/>/);
+  assert.match(footer, /<FooterSubscribe\s*\/>/);
+  assert.match(footerSubscribe, /<SubscriptionForm/);
+  assert.match(footerSubscribe, /source="footer"/);
+  assert.match(footerSubscribe, /audiences=\{\['all'\]\}/);
+  assert.match(footerSubscribe, /Send confirmation email/);
 });
 
 test('project prose has an article landmark and mobile controls have accessible sizing', () => {
@@ -47,20 +50,20 @@ test('project prose has an article landmark and mobile controls have accessible 
   assert.match(css, /\.dd-toggle[\s\S]*?position: static[\s\S]*?min-height: 56px/);
 });
 
-test('long-form routes place one contextual signup before their next-step navigation', () => {
+test('long-form routes keep their inactive end-of-piece slot after next steps', () => {
   const projectPost = source('app/(frontend)/projects/[slug]/[postSlug]/page.tsx');
   const zooChapter = source('app/(frontend)/novels/it-takes-a-zoo/[chapter]/page.tsx');
   const collectionStory = source('app/(frontend)/this-is-what-i-do-for-fun/[slug]/page.tsx');
   const portfolioPiece = source('app/(frontend)/portfolio/[slug]/page.tsx');
   const labCaseStudy = source('app/(frontend)/lab/[slug]/page.tsx');
+  const endOfPieceSubscribe = source('app/components/EndOfPieceSubscribe.tsx');
 
   assert.ok(projectPost.indexOf('<ReadingNextSteps') < projectPost.indexOf('<EndOfPieceSubscribe'));
   assert.ok(zooChapter.indexOf('<ReadingNextSteps') < zooChapter.indexOf('<EndOfPieceSubscribe'));
   assert.ok(collectionStory.indexOf('<ReadingNextSteps') < collectionStory.indexOf('<EndOfPieceSubscribe'));
   assert.ok(portfolioPiece.indexOf('<ReadingNextSteps') < portfolioPiece.indexOf('<EndOfPieceSubscribe'));
   assert.ok(labCaseStudy.indexOf('<EndOfPieceSubscribe') < labCaseStudy.indexOf('<div className={styles.pieceActions}>'));
-  // FooterSubscribe is a no-op stub while email signups are paused
-  // site-wide, so it no longer carries per-route exemption strings.
+  assert.match(endOfPieceSubscribe, /return null/);
 });
 
 test('project captures map fiction, writing, and build work to their matching lists', () => {

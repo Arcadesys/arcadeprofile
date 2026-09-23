@@ -81,6 +81,12 @@ function EnabledSubscriptionForm({
     if (complete) statusRef.current?.focus();
   }, [complete]);
 
+  useEffect(() => {
+    if (!error) return;
+    if (error === 'Select at least one email preference.') firstChoiceRef.current?.focus();
+    else statusRef.current?.focus();
+  }, [error]);
+
   function changeAudience(audience: Audience, checked: boolean) {
     setSelected((current) => applyPreferenceChange(current, audience, checked) as Set<Audience>);
     setError('');
@@ -90,7 +96,6 @@ function EnabledSubscriptionForm({
     event.preventDefault();
     if (selected.size === 0) {
       setError('Select at least one email preference.');
-      queueMicrotask(() => firstChoiceRef.current?.focus());
       return;
     }
 
@@ -122,7 +127,6 @@ function EnabledSubscriptionForm({
           + `We could not submit ${audienceNames(payload.failed)}. `
           + 'Those preferences remain selected so you can retry them. Each selected preference requires its own confirmation email.',
         );
-        queueMicrotask(() => statusRef.current?.focus());
         return;
       }
       const magnetDownloads = payload.magnet?.files?.map((file) => ({ href: file.url, label: `Download ${file.label}` })) ?? [];
@@ -130,7 +134,6 @@ function EnabledSubscriptionForm({
       setComplete(true);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Could not subscribe right now. Please try again.');
-      queueMicrotask(() => statusRef.current?.focus());
     } finally {
       setPending(false);
     }
