@@ -3,11 +3,12 @@
 .header p { margin: 0 0 .75rem; color: var(--cyan); font-family: var(--font-mono); font-size: 1rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .header h1 { margin: 0 0 1rem; color: var(--fg); font-family: var(--font-barlow-condensed), sans-serif; font-size: clamp(3.5rem, 9vw, 6rem); font-weight: 700; line-height: .9; text-transform: uppercase; }
 .header > span { color: var(--fg-muted); font-family: var(--font-serif); font-size: clamp(1.15rem, 2vw, 1.4rem); line-height: 1.6; }
-.doors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 10px; border: 1px solid #35353a; background: #09090a; }
+.doors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 10px; border: 1px solid #35353a; background: #09090a; }
 .doors h2 { grid-column: 1 / -1; margin: .5rem .5rem 0; color: var(--fg); font-family: var(--font-serif); font-size: clamp(1.65rem, 3vw, 2.25rem); }
 .doors a { display: grid; min-height: 220px; align-content: start; gap: 1rem; padding: 1.5rem; border: 2px solid #51484d; border-top: 5px solid var(--cyan); background: var(--surface); color: var(--fg); text-decoration: none; }
 .doors a:nth-child(2) { border-top-color: var(--pink); }
 .doors a:nth-child(3) { border-top-color: var(--accent); }
+.doors a:nth-child(4) { border-top-color: #aee7f4; }
 .doors strong { font-family: var(--font-serif); font-size: clamp(1.8rem, 3vw, 2.4rem); line-height: 1; }
 .doors span { color: var(--fg-muted); font-size: 1.125rem; line-height: 1.55; }
 .doors em { min-height: 44px; align-self: end; display: inline-flex; align-items: center; margin-top: auto; color: var(--accent); font-family: var(--font-mono); font-size: 1rem; font-style: normal; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }

@@ -44,6 +44,17 @@ export default function EditorialIndex({ section, groups, featuredCollection, fe
         <p className={styles.lede}>{text.lede}</p>
       </header>
 
+      {isEssayIndex && (
+        <aside className={styles.columnInvite} aria-labelledby="column-invite-title">
+          <div>
+            <p>New monthly column</p>
+            <h2 id="column-invite-title">Queer Columns</h2>
+            <span>Let people be people.</span>
+          </div>
+          <Link href="/queercolumns">Enter the column <span aria-hidden="true">↗</span></Link>
+        </aside>
+      )}
+
       {isEssayIndex && groups.length > 0 ? (
         <nav className={styles.topicNav} aria-label="Essay topics">
           <span>Jump to a topic</span>
