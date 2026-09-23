@@ -34,7 +34,7 @@ I started thinking about this differently after watching the English-language ra
 
 Before the story begins, the performer delivers a conversational opening called the _makura_. The word literally means "pillow." Sunshine explains the idea beautifully: before you invite the audience into the dream world of the story, you first put their head on the pillow.
 
-[Watch Katsura Sunshine explain the idea.](https://www.youtube.com/shorts/jm1j_kY89Q4)
+[https://www.youtube.com/embed/jm1j_kY89Q4](https://www.youtube.com/embed/jm1j_kY89Q4)
 
 That idea lodged itself permanently in my brain. The opening is not merely exposition. It is not throat-clearing. It is the moment when the storyteller and the audience negotiate reality. The performer says, in effect: _come with me._ And the audience decides whether to go.
 
