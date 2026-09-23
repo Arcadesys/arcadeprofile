@@ -106,6 +106,18 @@ and audience tag IDs, `KIT_TAG_ARCADEPROFILE_ID`, `KIT_API_KEY`, `CRON_SECRET`,
 the Postmark transactional sender. The site must fail closed when those values
 are missing. Kit Free can delay tags until the daily cron runs.
 
+The approved Writing welcome is one-time per address, after explicit link claim
+and Kit-active checks. With multiple choices, select one copy in this order:
+All Writing, Fiction, Essays, Lab; keep all selected memberships and tags. Do
+not welcome imported contacts or Kit DOI-pending subscribers. Welcome emails
+carry an RFC 8058 one-click unsubscribe header and an accessible linked page.
+The page GET is inert and its button explicitly submits; both update Kit state.
+Exclude `/subscribe/verify` and `/subscribe/unsubscribe` from analytics so
+their token fragments are never captured.
+Keep writing welcome delivery disabled unless `WRITING_WELCOME_ENABLED=true`
+is deliberately configured after coordinator review. Signup verification
+emails use Postmark independently of this welcome gate.
+
 `npm run newsletter:post` flags:
 
 - no flag: dry run

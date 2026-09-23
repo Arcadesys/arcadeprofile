@@ -1,0 +1,82 @@
+.shell {
+  min-height: 65vh;
+  padding: clamp(2rem, 7vw, 5rem) clamp(1rem, 5vw, 3rem);
+}
+
+.shell :global(.signup-verify) {
+  width: min(100%, 48rem);
+  margin: 0 auto;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  border: 2px solid currentColor;
+  border-radius: 1rem;
+  background: var(--color-background, #fff);
+  color: var(--color-foreground, #161616);
+}
+
+.shell :global(.signup-verify h1) {
+  max-width: 18ch;
+  margin: 0 0 1rem;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  line-height: 1.1;
+}
+
+.shell :global(.signup-verify p) {
+  max-width: 65ch;
+  font-size: clamp(1.125rem, 2vw, 1.35rem);
+  line-height: 1.6;
+}
+
+.shell :global(.signup-verify__eyebrow) {
+  margin-top: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.shell :global(.signup-verify__actions) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.shell :global(.signup-verify button) {
+  min-height: 3.5rem;
+  padding: 0.85rem 1.25rem;
+  border: 2px solid #111;
+  border-radius: 0.45rem;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.shell :global(.signup-verify button:focus-visible),
+.shell :global(.signup-verify a:focus-visible),
+.shell :global(.signup-verify__status:focus-visible) {
+  outline: 4px solid #e09b00;
+  outline-offset: 4px;
+}
+
+.shell :global(.signup-verify button:disabled) {
+  cursor: wait;
+  opacity: 0.75;
+}
+
+.shell :global(.signup-verify__status) {
+  margin: 1.5rem 0;
+  font-size: 1.125rem;
+}
+
+.shell :global(.signup-verify a) {
+  color: #164f9c;
+  text-underline-offset: 0.2em;
+}
+
+@media (max-width: 32rem) {
+  .shell :global(.signup-verify__actions) { align-items: stretch; flex-direction: column; }
+  .shell :global(.signup-verify button) { width: 100%; }
+}

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { audienceList, challengeTtlMilliseconds, createVerificationToken, encryptSignupEmail, lookupKitSubscriber, newChallengeId, PostmarkRejectedError, putChallenge, redisCommand, sendVerificationEmail, signupCooldownKey, type SignupChallenge } from '@/lib/writing-signup';
+import { audienceList, challengeTtlMilliseconds, createVerificationToken, encryptSignupEmail, lookupKitSubscriber, newChallengeId, PostmarkRejectedError, putChallenge, redisCommand, sendVerificationEmail, signupCooldownKey, signupEmailDigest, type SignupChallenge } from '@/lib/writing-signup';
 import { VALID_AUDIENCES, VALID_MAGNETS, VALID_SOURCES, VALID_UPDATE_MODES, type Magnet } from '@/lib/subscribe-types';
 import { parseBody } from '@/lib/validation';
 
@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
     const createdAt = Date.now();
     const challenge: SignupChallenge = {
       encryptedEmail: encryptSignupEmail(email),
+      emailDigest: signupEmailDigest(email),
       audiences: parsed.data.audiences,
       source: parsed.data.source ?? null,
       createdAt,

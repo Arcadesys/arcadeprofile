@@ -68,7 +68,7 @@ Postmark response does not trigger an immediate duplicate email.
 On explicit confirmation, an already-active Kit subscriber receives the
 selected form memberships and audience tags. A new or inactive subscriber is
 created or reused as inactive and added to each selected double-opt-in form.
-Kit may send a second confirmation email for new or inactive contacts. The
+Kit may send a second confirmation email for new or inactive contacts. The approved Writing welcome is sent at most once per address, only after the reader claims the Postmark verification link and Kit reports active. For multiple choices, one copy is selected in this order: All Writing, Fiction, Essays, Lab; every selected membership and tag remains intact. Imported contacts and DOI-pending subscribers do not receive the welcome. It includes an RFC 8058 one-click unsubscribe header and a linked fallback page; the page requires an explicit button, while the one-click POST updates Kit. Token pages are excluded from PostHog analytics.
 daily authenticated Vercel cron at `/api/kit/reconcile-confirmations` reads
 only Redis records created by successful signed confirmation POSTs, rechecks
 Kit's subscriber state, and tags only those recorded selections after Kit
@@ -82,3 +82,7 @@ is sent to imported contacts unless they submit the signup form and claim its
 confirmation link.
 
 Postmark sends signup verification emails and explicitly addressed previews.
+Writing welcome delivery is independently gated: set
+`WRITING_WELCOME_ENABLED=true` only after review; unset or any other value
+keeps the welcome inactive while signup confirmations and audience updates
+continue.
