@@ -80,6 +80,37 @@ test('explicit confirm atomically claims the challenge, adds only selected audie
   assert.equal(welcomeBodies[0].To, 'reader@example.com');
 });
 
+test('Work and TH4F choices join their own forms without Arcades provenance or a writing welcome', async () => {
+  for (const [name, value] of Object.entries({ KIT_API_KEY: 'kit-test', UPSTASH_REDIS_REST_URL: 'https://redis.example', UPSTASH_REDIS_REST_TOKEN: 'redis-test', SIGNUP_LINK_SECRET: 'a-long-signing-secret-for-tests-at-least-32', WRITING_WELCOME_ENABLED: 'true' })) process.env[name] = value;
+  const { createVerificationToken, signupEmailDigest } = await import('./writing-signup');
+  const id = 'a123456789abcdef0123456789abcdef';
+  let challenge: Record<string, unknown> = { emailDigest: signupEmailDigest('reader@example.com'), audiences: ['work-ai', 'th4f'], createdAt: Date.now(), subscriberId: 55, status: 'pending' };
+  const writes: string[] = [];
+  globalThis.fetch = async (input, init) => {
+    const url = String(input);
+    if (url === 'https://redis.example') {
+      const command = JSON.parse(String(init?.body)) as Array<string | number>;
+      if (command[0] === 'SET') return Response.json({ result: 'OK' });
+      if (command[0] === 'GET') return Response.json({ result: JSON.stringify(challenge) });
+      if (command[0] === 'EVAL') { challenge = JSON.parse(String(command[6])) as Record<string, unknown>; return Response.json({ result: 'updated' }); }
+      if (command[0] === 'DEL') return Response.json({ result: 1 });
+    }
+    if (url === 'https://api.kit.com/v4/subscribers/55') return Response.json({ subscriber: { id: 55, state: 'active', email_address: 'reader@example.com' } });
+    if (url.startsWith('https://api.kit.com/v4/forms/') || url.startsWith('https://api.kit.com/v4/tags/')) { writes.push(url); return Response.json({ ok: true }); }
+    throw new Error(`Unexpected request ${url}`);
+  };
+  const token = createVerificationToken(id, Date.now() + 60_000);
+  const response = await POST(new Request('https://example.com/api/subscribe/verify', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token, action: 'confirm' }) }));
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { ok: true, status: 'complete', preferences: ['Work / AI', 'TH4F'] });
+  assert.deepEqual(writes.sort(), [
+    'https://api.kit.com/v4/forms/9953061/subscribers/55',
+    'https://api.kit.com/v4/forms/9953071/subscribers/55',
+    'https://api.kit.com/v4/tags/23806915/subscribers/55',
+    'https://api.kit.com/v4/tags/23808390/subscribers/55',
+  ].sort());
+});
+
 test('inactive Kit subscribers receive no welcome until Kit later confirms them', async () => {
   for (const [name, value] of Object.entries({ KIT_API_KEY: 'kit-test', UPSTASH_REDIS_REST_URL: 'https://redis.example', UPSTASH_REDIS_REST_TOKEN: 'redis-test', SIGNUP_LINK_SECRET: 'a-long-signing-secret-for-tests-at-least-32', KIT_FORM_FICTION_ID: '102', KIT_TAG_FICTION_ID: '202', KIT_TAG_ARCADEPROFILE_ID: '205', POSTMARK_SERVER_TOKEN: 'postmark-test', POSTMARK_FROM_EMAIL: 'writer@example.com', WRITING_WELCOME_ENABLED: 'true' })) process.env[name] = value;
   const { signupEmailDigest, createVerificationToken } = await import('./writing-signup');

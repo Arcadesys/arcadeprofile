@@ -18,11 +18,14 @@ test('All is mutually exclusive with Fiction and Essays while Lab is independent
   assert.deepEqual([...allOnly].sort(), ['all', 'lab']);
 });
 
-test('preference validation requires a selection and recognizes all four account labels', () => {
+test('preference validation requires a selection and recognizes all seven topics', () => {
   assert.equal(hasAtLeastOnePreference(new Set()), false);
   assert.equal(hasAtLeastOnePreference(new Set(['lab'])), true);
   assert.equal(normalizePreferenceLabel('All'), 'all');
   assert.equal(normalizePreferenceLabel('Fiction'), 'fiction');
   assert.equal(normalizePreferenceLabel('Essays'), 'essays');
   assert.equal(normalizePreferenceLabel('Arcades Lab & build logs'), 'lab');
+  assert.equal(normalizePreferenceLabel('Queer Columns'), 'queer-columns');
+  assert.equal(normalizePreferenceLabel('Work / AI'), 'work-ai');
+  assert.equal(normalizePreferenceLabel('TH4F'), 'th4f');
 });

@@ -15,7 +15,7 @@ export type SignupChallenge = {
 };
 
 const TTL_SECONDS = 60 * 60 * 24;
-const audiences: Audience[] = ['all', 'fiction', 'essays', 'lab'];
+const audiences: Audience[] = ['all', 'fiction', 'essays', 'lab', 'queer-columns', 'work-ai', 'th4f'];
 
 function env(name: string) {
   const value = process.env[name]?.trim();
@@ -166,22 +166,22 @@ export async function sendVerificationEmail(input: { email: string; token: strin
   const serverToken = env('POSTMARK_SERVER_TOKEN');
   const from = env('POSTMARK_FROM_EMAIL');
   const site = verificationSiteUrl();
-  const labels: Record<Audience, string> = { all: 'All writing', fiction: 'Fiction', essays: 'Essays', lab: "The Arcades' Lab" };
+  const labels: Record<Audience, string> = { all: 'All writing', fiction: 'Fiction', essays: 'Essays', lab: "The Arcades' Lab", 'queer-columns': 'Queer Columns', 'work-ai': 'Work / AI', th4f: 'TH4F' };
   const selectedAudiences = new Set(input.audiences);
   // "All writing" already covers fiction and essays. Older requests may contain all three.
   const selected = input.audiences
     .filter((audience) => !selectedAudiences.has('all') || (audience !== 'fiction' && audience !== 'essays'))
     .map((audience) => audience === 'all' ? 'All writing (fiction and essays)' : labels[audience]);
   const verifyUrl = `${site}/subscribe/verify#${input.token}`;
-  const html = `<p>You requested email updates from The Arcades.</p><p><strong>Your topics:</strong> ${selected.join(', ')}.</p><p>To start receiving them, confirm your request:</p><p><a href="${verifyUrl}">Confirm my subscription</a></p><p>This link expires in 24 hours. After you confirm here, Kit may send one more confirmation email before delivery begins.</p><p>If you didn’t make this request, ignore this message. We won’t add these choices from it.</p>`;
-  const text = `You requested email updates from The Arcades.\n\nYour topics: ${selected.join(', ')}.\n\nTo start receiving them, confirm your request:\n${verifyUrl}\n\nThis link expires in 24 hours. After you confirm here, Kit may send one more confirmation email before delivery begins.\n\nIf you didn’t make this request, ignore this message. We won’t add these choices from it.`;
+  const html = `<p>You requested email updates from The Arcades.</p><p><strong>Your topics:</strong> ${selected.join(', ')}.</p><p>To start receiving them, confirm your request:</p><p><a href="${verifyUrl}">Confirm my subscription</a></p><p>This link expires in 24 hours. After you confirm here, Kit may send additional confirmation emails before delivery begins.</p><p>If you didn’t make this request, ignore this message. We won’t add these choices from it.</p>`;
+  const text = `You requested email updates from The Arcades.\n\nYour topics: ${selected.join(', ')}.\n\nTo start receiving them, confirm your request:\n${verifyUrl}\n\nThis link expires in 24 hours. After you confirm here, Kit may send additional confirmation emails before delivery begins.\n\nIf you didn’t make this request, ignore this message. We won’t add these choices from it.`;
   const response = await fetcher('https://api.postmarkapp.com/email', {
     method: 'POST',
     headers: { 'X-Postmark-Server-Token': serverToken, 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({
       From: process.env.POSTMARK_FROM_NAME?.trim() ? `${process.env.POSTMARK_FROM_NAME.trim()} <${from}>` : from,
       To: input.email,
-      Subject: 'Confirm your writing updates from The Arcades',
+      Subject: 'Confirm your updates from The Arcades',
       HtmlBody: html,
       TextBody: text,
       MessageStream: process.env.POSTMARK_TRANSACTIONAL_STREAM?.trim() || 'outbound',

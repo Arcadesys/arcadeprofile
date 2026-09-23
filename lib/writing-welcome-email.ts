@@ -9,8 +9,8 @@ type WelcomeCopy = {
   paragraphs: Array<Array<string | WelcomeLink>>;
 };
 
-const priority: Audience[] = ['all', 'fiction', 'essays', 'lab'];
-const copy: Record<Audience, WelcomeCopy> = {
+const priority: Audience[] = ['all', 'fiction', 'essays', 'lab', 'queer-columns'];
+const copy: Partial<Record<Audience, WelcomeCopy>> = {
   all: {
     subject: "Welcome to The Arcades' writing",
     preview: 'Fiction, essays, and a place to start reading.',
@@ -51,6 +51,16 @@ const copy: Record<Audience, WelcomeCopy> = {
       ['Austen'],
     ],
   },
+  'queer-columns': {
+    subject: 'Welcome to Queer Columns',
+    preview: 'New columns on queer history and life.',
+    paragraphs: [
+      ['Thanks for choosing Queer Columns updates. I will write when a new column is ready.'],
+      ['You can ', { label: 'read Queer Columns', url: 'https://www.thearcades.me/queercolumns' }, ' at your own pace.'],
+      ['You can unsubscribe from any email.'],
+      ['Austen'],
+    ],
+  },
 };
 
 export function primaryWritingWelcomeAudience(audiences: Audience[]): Audience | null {
@@ -61,6 +71,7 @@ export function buildWritingWelcomeEmail(audiences: Audience[], unsubscribeUrl?:
   const audience = primaryWritingWelcomeAudience(audiences);
   if (!audience) throw new Error('A writing welcome email needs a selected audience');
   const message = copy[audience];
+  if (!message) throw new Error('Writing welcome copy is unavailable');
   const unsubscribeAnchor = unsubscribeUrl ? `<a href="${unsubscribeUrl}">unsubscribe from any email</a>` : 'unsubscribe from any email';
   const renderText = (value: string) => unsubscribeUrl ? value.replace('unsubscribe from any email', `unsubscribe from any email (${unsubscribeUrl})`) : value;
   const renderHtml = (value: string) => value.replace('unsubscribe from any email', unsubscribeAnchor);

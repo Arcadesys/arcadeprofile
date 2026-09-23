@@ -1,10 +1,15 @@
-export type PreferenceKey = 'all' | 'fiction' | 'essays' | 'lab';
+import type { Audience } from './subscribe-types';
+
+export type PreferenceKey = Audience;
 
 export const PREFERENCE_LABELS: Record<PreferenceKey, string> = {
   all: 'All',
   fiction: 'Fiction',
   essays: 'Essays',
   lab: 'Arcades Lab & build logs',
+  'queer-columns': 'Queer Columns',
+  'work-ai': 'Work / AI',
+  th4f: 'TH4F',
 };
 
 export function normalizePreferenceLabel(value: string): PreferenceKey | undefined {
@@ -13,6 +18,9 @@ export function normalizePreferenceLabel(value: string): PreferenceKey | undefin
   if (label === 'fiction') return 'fiction';
   if (label === 'essays') return 'essays';
   if (label === 'arcades lab & build logs') return 'lab';
+  if (label === 'queer columns') return 'queer-columns';
+  if (label === 'work / ai') return 'work-ai';
+  if (label === 'th4f') return 'th4f';
   return undefined;
 }
 
