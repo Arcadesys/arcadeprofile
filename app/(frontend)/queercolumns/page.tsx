@@ -8,6 +8,7 @@ import { SITE_NAME } from '@/lib/site-brand';
 import { SITE_URL } from '@/lib/site-url';
 import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 import { JsonLd } from '@/lib/structured-data';
+import KitSignup from './KitSignup';
 
 import styles from './queercolumns.module.css';
 
@@ -135,7 +136,10 @@ export default async function QueerColumnsPage() {
               <h2 id="signup-title">Get the next column</h2>
               <p>One essay a month. This list is separate from Fiction, Essays, Lab, and All Writing.</p>
             </div>
-            <a className={styles.signupLink} href={signupUrl}>Subscribe to Queer Columns <span aria-hidden="true">↗</span></a>
+            <div className={styles.signupForm}>
+              <KitSignup />
+              <a className={styles.signupLink} href={signupUrl}>Subscribe to Queer Columns on Kit <span aria-hidden="true">↗</span></a>
+            </div>
           </section>
 
           <aside className={styles.archive} aria-labelledby="archive-title">

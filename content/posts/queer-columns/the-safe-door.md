@@ -230,10 +230,6 @@ And in San Francisco in 1966, the people policed around Compton's Cafeteria foug
 
 Afterward, Tenderloin activists [won new social services for their community](https://www.kqed.org/trulyca/43/screaming-queens). The map grew a public address again.
 
-![People welcome visitors and prepare chairs and resources in a warmly lit community room.](/images/queer-columns/the-safe-door/community-room-illustration.webp)
-
-_A public address again. Contemporary illustration; this is not a photograph of Compton's Cafeteria._
-
 _Watch the full film: [KQED](https://www.kqed.org/trulyca/43/screaming-queens) · [PBS version with captions](https://www.pbs.org/video/truly-ca-screaming-queens-truly-ca/)._
 
 The details change from generation to generation, but the rhythm is familiar: visibility, fascination, backlash, restriction, disappearance.
