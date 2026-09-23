@@ -56,7 +56,7 @@ test('buildToyMetadata uses the site card when no toy image exists', () => {
   });
 
   const expectedImage = {
-    url: '/opengraph-image',
+    url: '/social-card',
     width: 1200,
     height: 630,
     alt: "THE ARCADES' LAB — Austen Tucker",
