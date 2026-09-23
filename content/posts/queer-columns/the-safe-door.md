@@ -18,6 +18,10 @@ seo:
   title: The Safe Door
   description: A personal and sourced essay on how barriers to trans care push communities toward hidden networks, and what history shows about what happens next.
 ---
+![A half-open door casts light across a dark room as several bright paths lead toward it.](/images/queer-columns/the-safe-door/safe-door-lead.webp)
+
+_Illustration for The Safe Door._
+
 I'm not here to convince you to like trans people. I'm not here to persuade you that transition is beautiful, or brave, or spiritually meaningful. I'm not even asking you to understand us.
 
 I'm here to tell you what happens when you make a community's needs too difficult to meet.
@@ -29,6 +33,10 @@ People share names quietly. They trade phone numbers. They learn which doctor wi
 And once that happens, you have an ecosystem. Some of what grows there is community knowledge: people keeping one another alive because nobody else will. You also get opportunists, amateurs, and con artists — people willing to provide what reputable institutions won't, sometimes because they care and sometimes because they've realized that desperate people make excellent customers.
 
 I know because this was the world I transitioned in.
+
+![Glowing routes connect a kitchen table, bus stop, pharmacy, clinic, and community room across a city at dusk.](/images/queer-columns/the-safe-door/other-map-illustration.webp)
+
+_The other map. Conceptual illustration of people sharing routes to care._
 
 ## The other map
 
@@ -221,6 +229,10 @@ The so-called *three-article rule* lived in police practice and memory; [researc
 And in San Francisco in 1966, the people policed around Compton's Cafeteria fought back. *[Screaming Queens: The Riot at Compton's Cafeteria](https://www.kqed.org/trulyca/43/screaming-queens)* puts former Tenderloin residents and other witnesses on camera. [The GLBT Historical Society preserves the film's production materials and full oral histories](https://www.digitaltransgenderarchive.net/files/2z10wq440). Their testimony is part of the record, not a rumor passed down after the fact.
 
 Afterward, Tenderloin activists [won new social services for their community](https://www.kqed.org/trulyca/43/screaming-queens). The map grew a public address again.
+
+![People welcome visitors and prepare chairs and resources in a warmly lit community room.](/images/queer-columns/the-safe-door/community-room-illustration.webp)
+
+_A public address again. Contemporary illustration; this is not a photograph of Compton's Cafeteria._
 
 _Watch the full film: [KQED](https://www.kqed.org/trulyca/43/screaming-queens) · [PBS version with captions](https://www.pbs.org/video/truly-ca-screaming-queens-truly-ca/)._
 
