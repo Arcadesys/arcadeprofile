@@ -1,13 +1,11 @@
-import { Analytics } from '@vercel/analytics/react';
 import type { Metadata } from 'next';
 import { Barlow_Condensed, Inter, JetBrains_Mono, Lora } from 'next/font/google';
-import { Suspense } from 'react';
 import "../globals.css";
 import "../search.css";
 import { LightsProvider } from '../components/LightsContext';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
-import { PostHogAnalytics } from '../components/PostHogAnalytics';
+import { SiteAnalytics } from '../components/SiteAnalytics';
 import { JsonLd } from '@/lib/structured-data';
 import { LIGHTS_BOOTSTRAP_SCRIPT } from '@/lib/lights';
 import { NAV_COLLAPSE_BOOTSTRAP_SCRIPT } from '@/lib/nav-collapse';
@@ -137,10 +135,7 @@ export default function FrontendLayout({
           {children}
           <Footer />
         </LightsProvider>
-        <Suspense fallback={null}>
-          <PostHogAnalytics />
-        </Suspense>
-        <Analytics />
+        <SiteAnalytics />
       </body>
     </html>
   );

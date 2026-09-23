@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { parseVerificationToken, getChallenge, decryptSignupEmail, newProcessingToken, redisCommand, releaseSignupLock, saveChallengeIfStatus } from '@/lib/writing-signup';
+import { sendWritingWelcomeOnce } from '@/lib/writing-welcome-email';
+import { signupEmailDigest } from '@/lib/writing-signup';
 import type { Audience } from '@/lib/subscribe-types';
 
 export const runtime = 'nodejs';
@@ -75,29 +77,50 @@ export async function POST(request: Request) {
     // subscriber state; create an inactive record only for a new signup.
     let subscriberId = challenge.subscriberId;
     let state: string | undefined;
+    let subscriberEmail: string | undefined;
     if (subscriberId) {
       const response = await fetch(`https://api.kit.com/v4/subscribers/${subscriberId}`, {
         headers: { 'X-Kit-Api-Key': apiKey }, signal: AbortSignal.timeout(10000), cache: 'no-store',
       });
       if (!response.ok) return json({ error: 'Kit status could not be checked. Please retry this link.' }, 502);
-      const payload = await response.json() as { subscriber?: { id?: unknown; state?: unknown } };
+      const payload = await response.json() as { subscriber?: { id?: unknown; state?: unknown; email_address?: unknown } };
       if (payload.subscriber?.id !== subscriberId || typeof payload.subscriber.state !== 'string') return json({ error: 'Kit returned an invalid subscriber status.' }, 502);
       state = payload.subscriber.state;
+      if (typeof payload.subscriber.email_address === 'string') subscriberEmail = payload.subscriber.email_address.trim().toLowerCase();
+      if (challenge.emailDigest && (!subscriberEmail || signupEmailDigest(subscriberEmail) !== challenge.emailDigest)) {
+        challenge.status = 'blocked';
+        delete challenge.encryptedEmail;
+        delete challenge.processingToken;
+        delete challenge.processingUntil;
+        await saveChallengeIfStatus(token.id, challenge, 'processing', activeLeaseToken);
+        return json({ error: 'The Kit address no longer matches this confirmation request.' }, 409);
+      }
     } else {
       if (!challenge.encryptedEmail) return json({ error: 'This confirmation link is no longer available.' }, 410);
       const email = decryptSignupEmail(challenge.encryptedEmail);
+      subscriberEmail = email.trim().toLowerCase();
       const response = await fetch('https://api.kit.com/v4/subscribers', {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Kit-Api-Key': apiKey },
         body: JSON.stringify({ email_address: email, state: 'inactive' }),
         signal: AbortSignal.timeout(10000), cache: 'no-store',
       });
       if (!response.ok) return json({ error: 'Kit could not accept this signup yet. Please retry the confirmation.' }, 502);
-      const payload = await response.json() as { subscriber?: { id?: unknown; state?: unknown } };
+      const payload = await response.json() as { subscriber?: { id?: unknown; state?: unknown; email_address?: unknown } };
       if (typeof payload.subscriber?.id !== 'number' || !Number.isSafeInteger(payload.subscriber.id) || typeof payload.subscriber.state !== 'string') {
         return json({ error: 'Kit returned an invalid signup receipt.' }, 502);
       }
       subscriberId = payload.subscriber.id;
       state = payload.subscriber.state;
+      const returnedEmail = typeof payload.subscriber.email_address === 'string' ? payload.subscriber.email_address.trim().toLowerCase() : '';
+      if (!returnedEmail || (challenge.emailDigest && signupEmailDigest(returnedEmail) !== challenge.emailDigest)) {
+        challenge.status = 'blocked';
+        delete challenge.encryptedEmail;
+        delete challenge.processingToken;
+        delete challenge.processingUntil;
+        await saveChallengeIfStatus(token.id, challenge, 'processing', activeLeaseToken);
+        return json({ error: 'Kit returned an address that does not match this confirmation request.' }, 409);
+      }
+      subscriberEmail = returnedEmail;
     }
     challenge.subscriberId = subscriberId;
     delete challenge.encryptedEmail;
@@ -143,6 +166,26 @@ export async function POST(request: Request) {
         catch { return false; }
       }));
       if (writes.some((ok) => !ok)) return json({ error: 'Preferences are saved, but audience updates are still retrying. Reopen this link to finish.' }, 502);
+      if (challenge.emailDigest && subscriberEmail) {
+        const current = await fetch(`https://api.kit.com/v4/subscribers/${subscriberId}`, {
+          headers: { 'X-Kit-Api-Key': apiKey }, signal: AbortSignal.timeout(10000), cache: 'no-store',
+        });
+        if (!current.ok) return json({ error: 'Kit status could not be rechecked. Please retry this link.' }, 502);
+        const currentPayload = await current.json() as { subscriber?: { id?: unknown; state?: unknown; email_address?: unknown } };
+        const currentEmail = typeof currentPayload.subscriber?.email_address === 'string' ? currentPayload.subscriber.email_address.trim().toLowerCase() : '';
+        if (currentPayload.subscriber?.id !== subscriberId || currentPayload.subscriber.state !== 'active' || !currentEmail || signupEmailDigest(currentEmail) !== challenge.emailDigest) {
+          if (currentPayload.subscriber?.state === 'cancelled' || currentPayload.subscriber?.state === 'bounced' || currentPayload.subscriber?.state === 'complained') {
+            challenge.status = 'blocked';
+            delete challenge.processingToken;
+            delete challenge.processingUntil;
+            await saveChallengeIfStatus(token.id, challenge, 'processing', activeLeaseToken);
+          }
+          return json({ error: 'Kit must report this address as active before a welcome email can be sent.' }, 409);
+        }
+        subscriberEmail = currentEmail;
+        const welcome = await sendWritingWelcomeOnce({ email: subscriberEmail, subscriberId, emailDigest: challenge.emailDigest, audiences: challenge.audiences });
+        if (welcome === 'rejected') return json({ error: 'Preferences are saved, but the welcome email was rejected. Retry to request it again.' }, 502);
+      }
       challenge.status = 'complete';
       delete challenge.encryptedEmail;
       delete challenge.processingToken;

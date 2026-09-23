@@ -51,6 +51,7 @@ test('signup stores an expiring challenge and sends one fragment-link email with
   assert.deepEqual(challenge?.audiences, ['fiction', 'lab']);
   assert.notEqual(challenge?.encryptedEmail, 'reader@example.com');
   assert.equal(typeof challenge?.encryptedEmail, 'string');
+  assert.match(String(challenge?.emailDigest), /^[a-f0-9]{64}$/);
   assert.equal(challenge?.status, 'pending');
   assert.equal(postmark?.To, 'reader@example.com');
   assert.equal(postmark?.TrackLinks, 'None');

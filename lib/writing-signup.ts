@@ -3,6 +3,7 @@ import type { Audience } from './subscribe-types';
 
 export type SignupChallenge = {
   encryptedEmail?: string;
+  emailDigest?: string;
   audiences: Audience[];
   source?: string | null;
   createdAt: number;
@@ -64,6 +65,28 @@ export function decryptSignupEmail(encryptedEmail: string) {
   const decipher = createDecipheriv('aes-256-gcm', createHash('sha256').update(signingSecret()).digest(), packed.subarray(0, 12));
   decipher.setAuthTag(packed.subarray(12, 28));
   return Buffer.concat([decipher.update(packed.subarray(28)), decipher.final()]).toString('utf8');
+}
+
+/** Stable keyed identifier for one address, without storing the address itself. */
+export function signupEmailDigest(email: string) {
+  return createHmac('sha256', signingSecret()).update(`writing-email\n${email.trim().toLowerCase()}`).digest('hex');
+}
+
+export function createKitUnsubscribeToken(subscriberId: number, emailDigest: string) {
+  if (!Number.isSafeInteger(subscriberId) || subscriberId <= 0 || !/^[a-f0-9]{64}$/.test(emailDigest)) throw new Error('Unsubscribe identity is invalid');
+  const payload = `${subscriberId}.${emailDigest}`;
+  return `${payload}.${sign(`unsubscribe:${payload}`)}`;
+}
+
+export function parseKitUnsubscribeToken(token: string) {
+  if (token.length > 256) return null;
+  const [idText, emailDigest, signature, extra] = token.split('.');
+  const subscriberId = Number(idText);
+  if (!idText || !Number.isSafeInteger(subscriberId) || subscriberId <= 0 || !emailDigest || !/^[a-f0-9]{64}$/.test(emailDigest) || !signature || extra) return null;
+  const expected = Buffer.from(sign(`unsubscribe:${idText}.${emailDigest}`));
+  const actual = Buffer.from(signature);
+  if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) return null;
+  return { subscriberId, emailDigest };
 }
 
 export function createVerificationToken(id: string, expiresAt: number) {
