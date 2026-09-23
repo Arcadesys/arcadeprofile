@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { getGroupBySlug, buildPostUrl } from '@/lib/blog';
@@ -55,6 +56,16 @@ export default async function QueerColumnsPage() {
             </div>
             <div className={styles.flagRule} aria-hidden="true" />
             <h1><span>Queer</span><span>Columns<span className={styles.titleDot}>.</span></span></h1>
+            <figure className={styles.headshot}>
+              <Image
+                src="/images/headshots/austen-tucker-crowder.jpeg"
+                alt="Austen Tucker smiling in glasses."
+                width={768}
+                height={1024}
+                sizes="(max-width: 720px) 192px, (max-width: 1000px) 240px, 288px"
+                priority
+              />
+            </figure>
             <div className={styles.mastheadBottom}>
               <p>Trans life. Queer history. The policies that shape what happens next.</p>
               <span className={styles.monthlyLabel}>One essay each month</span>
