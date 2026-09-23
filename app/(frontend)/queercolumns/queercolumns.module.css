@@ -68,6 +68,11 @@
 .priorList span { color: #b8e7f1; font: 700 .78rem/1.4 var(--font-mono); text-transform: uppercase; }
 .priorList a { color: #fffaf7; font: 700 clamp(1.35rem, 2.5vw, 1.9rem)/1.15 var(--font-barlow-condensed), var(--font-sans); text-decoration: underline; text-decoration-color: #f4afcb; text-underline-offset: .15em; }
 .priorList a:hover { color: #aee7f4; text-shadow: none; }
+.breadcrumb a:focus-visible,
+.issueCard h3 a:focus-visible,
+.readLink:focus-visible,
+.archiveLink:focus-visible,
+.priorList a:focus-visible { outline: 3px solid #f3b2d0; outline-offset: 4px; }
 
 @media (max-width: 720px) {
   .page { padding: 1rem; }
