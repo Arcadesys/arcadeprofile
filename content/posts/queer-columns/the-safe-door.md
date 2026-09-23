@@ -3,7 +3,7 @@ id: queer-columns-safe-door
 title: The Safe Door
 slug: the-safe-door
 group: queer-columns
-publishDate: '2026-09-23T21:00:00.000Z'
+publishDate: '2026-09-23T21:16:24.000Z'
 order: 1
 excerpt: What happens when a community's needs become difficult enough to meet? The needs don't disappear. They go underground.
 tags:
