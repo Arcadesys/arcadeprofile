@@ -44,7 +44,7 @@ function readingLinkFor(audiences: ReadonlySet<Audience>): ReadingLink {
   return { href: '/writing', label: 'Browse the writing' };
 }
 
-const EMAIL_SIGNUPS_ENABLED = false;
+const EMAIL_SIGNUPS_ENABLED = true;
 
 export default function SubscriptionForm(props: SubscriptionFormProps) {
   if (!EMAIL_SIGNUPS_ENABLED) return null;
@@ -59,7 +59,7 @@ function EnabledSubscriptionForm({
   presentation = 'default',
   showPreferences = false,
   submitLabel = 'Subscribe',
-  successMessage = "You're on the list.",
+  successMessage = 'Check your inbox to confirm your subscription.',
   postSuccessDownload,
 }: SubscriptionFormProps) {
   const emailId = useId();

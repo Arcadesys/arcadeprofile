@@ -3,18 +3,25 @@ import { afterEach, test } from "node:test";
 import { NextRequest } from "next/server";
 import { POST } from "@/app/(frontend)/api/subscribe/route";
 const originalFetch = globalThis.fetch;
-const originalUrl = process.env.EMAIL_SERVICE_URL;
-const originalKey = process.env.EMAIL_SERVICE_SUBSCRIBE_KEY;
+const originalSecret = process.env.KIT_API_SECRET;
+const originalFormIds = Object.fromEntries(
+  ["ALL", "FICTION", "ESSAYS", "LAB"].map((name) => [`KIT_FORM_${name}_ID`, process.env[`KIT_FORM_${name}_ID`]]),
+);
 afterEach(() => {
   globalThis.fetch = originalFetch;
-  if (originalUrl === undefined) delete process.env.EMAIL_SERVICE_URL;
-  else process.env.EMAIL_SERVICE_URL = originalUrl;
-  if (originalKey === undefined) delete process.env.EMAIL_SERVICE_SUBSCRIBE_KEY;
-  else process.env.EMAIL_SERVICE_SUBSCRIBE_KEY = originalKey;
+  if (originalSecret === undefined) delete process.env.KIT_API_SECRET;
+  else process.env.KIT_API_SECRET = originalSecret;
+  for (const [name, value] of Object.entries(originalFormIds)) {
+    if (value === undefined) delete process.env[name];
+    else process.env[name] = value;
+  }
 });
 function configure() {
-  process.env.EMAIL_SERVICE_URL = "https://email.example.com";
-  process.env.EMAIL_SERVICE_SUBSCRIBE_KEY = "test-key";
+  process.env.KIT_API_SECRET = "test-secret";
+  process.env.KIT_FORM_ALL_ID = "101";
+  process.env.KIT_FORM_FICTION_ID = "102";
+  process.env.KIT_FORM_ESSAYS_ID = "103";
+  process.env.KIT_FORM_LAB_ID = "104";
 }
 function request(body: unknown) {
   return new NextRequest("https://example.com/api/subscribe", {
@@ -23,61 +30,40 @@ function request(body: unknown) {
     body: JSON.stringify(body),
   });
 }
-for (const updateMode of ["add", "replace"])
-  test(`${updateMode} preferences cross one vendor-neutral boundary with consent policy`, async () => {
+test("selected preferences subscribe through their double opt-in Kit forms", async () => {
     configure();
-    let calls = 0;
+    const calls: string[] = [];
     globalThis.fetch = async (url, init) => {
-      calls++;
-      assert.equal(String(url), "https://email.example.com/v1/subscribers");
-      assert.equal(
-        new Headers(init?.headers).get("Authorization"),
-        "Bearer test-key",
-      );
+      calls.push(String(url));
+      assert.equal(new Headers(init?.headers).get("Content-Type"), "application/json");
       assert.deepEqual(JSON.parse(String(init?.body)), {
+        api_secret: "test-secret",
         email: "reader@example.com",
-        audiences: ["lab"],
-        source: "subscribe-page",
-        updateMode,
-        policy: "writing-updates-v1",
       });
-      return Response.json({ ok: true, audiences: ["lab"], suppressed: false });
+      return Response.json({ subscription: { id: 1 } });
     };
     const response = await POST(
       request({
         email: "reader@example.com",
         audiences: ["lab"],
         source: "subscribe-page",
-        updateMode,
+        updateMode: "replace",
       }),
     );
     assert.equal(response.status, 200);
-    assert.deepEqual(await response.json(), { ok: true, subscribed: ["lab"] });
-    assert.equal(calls, 1);
+    assert.deepEqual(await response.json(), {
+      ok: true,
+      subscribed: ["lab"],
+      confirmationRequired: true,
+    });
+    assert.deepEqual(calls, ["https://api.convertkit.com/v3/forms/104/subscribe"]);
   });
-test("service failure cannot report subscription success", async () => {
+test("Kit failure cannot report subscription success", async () => {
   configure();
   globalThis.fetch = async () => new Response("", { status: 503 });
   assert.equal(
     (await POST(request({ email: "reader@example.com", audiences: ["all"] })))
       .status,
     502,
-  );
-});
-test("suppressed address remains blocked and magnet is not exposed as success", async () => {
-  configure();
-  globalThis.fetch = async () =>
-    Response.json({ ok: true, audiences: ["all"], suppressed: true });
-  assert.equal(
-    (
-      await POST(
-        request({
-          email: "reader@example.com",
-          audiences: ["all"],
-          magnet: "story",
-        }),
-      )
-    ).status,
-    409,
   );
 });

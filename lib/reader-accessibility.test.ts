@@ -28,12 +28,12 @@ test('global shell exposes a keyboard skip target', () => {
   assert.match(layout, />Skip to content</);
 });
 
-test('homepage uses secondary publication actions with signups currently paused', () => {
+test('homepage keeps the shared footer signup slot empty', () => {
   const footerSubscribe = source('app/components/FooterSubscribe.tsx');
   const homepage = source('app/(frontend)/page.tsx');
 
-  // FooterSubscribe is a no-op stub while email signups are paused
-  // site-wide; it no longer carries a per-route form exemption list.
+  // The homepage keeps its shared footer slot empty; contextual forms live on
+  // the writing surfaces that introduce their matching preferences.
   assert.match(footerSubscribe, /return null/);
   assert.match(homepage, /showRead=\{false\}/);
 });

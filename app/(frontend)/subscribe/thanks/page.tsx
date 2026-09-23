@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Thanks for subscribing',
-  description: `Your ${SITE_NAME} signup is confirmed. Download La Ligne du Marais in PDF or EPUB.`,
+  description: `Confirm your ${SITE_NAME} signup by email. Download La Ligne du Marais in PDF or EPUB.`,
   alternates: { canonical: '/subscribe/thanks' },
   robots: { index: false, follow: true },
 };
@@ -39,10 +39,10 @@ export default async function SubscribeThanksPage({
         {SITE_NAME}
       </p>
       <h1 style={{ margin: '0 0 1rem', fontSize: 'clamp(2.4rem, 8vw, 4.5rem)', lineHeight: 1 }}>
-        You&apos;re on the list.
+        Check your inbox.
       </h1>
       <p style={{ maxWidth: '62ch', color: 'var(--fg-muted)', fontSize: '1.125rem', lineHeight: 1.8 }}>
-        Thanks for subscribing. You can update your preferences or unsubscribe from any email.
+        We sent a confirmation link. Open it to confirm your subscription. You can update your preferences or unsubscribe from any email.
       </p>
 
       {hasStoryMagnet ? (

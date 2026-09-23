@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { subscribeViaEmailService } from "@/lib/email-service";
+import { subscribeToKitForms } from "@/lib/kit";
 import { logger } from "@/lib/logger";
 import {
   VALID_AUDIENCES,
@@ -62,28 +62,16 @@ export async function POST(request: NextRequest) {
   const parsed = await parseBody(subscribeSchema, request);
   if (!parsed.ok) return parsed.response;
 
-  const { email, audiences, source, magnet, updateMode } = parsed.data;
+  const { email, audiences, source, magnet } = parsed.data;
 
   let subscribed: string[];
   try {
-    const result = await subscribeViaEmailService({
+    subscribed = await subscribeToKitForms({
       email,
       audiences,
-      source,
-      updateMode,
     });
-    if (result.suppressed) {
-      return NextResponse.json(
-        {
-          error:
-            "This address cannot receive updates. Contact us for help with your subscription.",
-        },
-        { status: 409 },
-      );
-    }
-    subscribed = result.audiences;
   } catch {
-    logger.error("[subscribe] Email service request failed");
+    logger.error("[subscribe] Kit form request failed");
     return NextResponse.json(
       { error: "Could not subscribe right now. Please try again." },
       { status: 502 },
@@ -97,13 +85,13 @@ export async function POST(request: NextRequest) {
     JSON.stringify({
       source: source ?? null,
       magnet: magnet ?? null,
-      updateMode,
     }),
   );
 
   return NextResponse.json({
     ok: true,
     subscribed,
+    confirmationRequired: true,
     ...(magnet ? { magnet: MAGNETS[magnet] } : {}),
   });
 }

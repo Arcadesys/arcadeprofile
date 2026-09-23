@@ -37,17 +37,23 @@ npm run newsletter:post -- --slug <slug>
 # Explicit preview
 npm run newsletter:post -- --slug <slug> --preview-to reader@example.com
 
-# Broadcast after the production URL returns 200
+# Schedule a Kit broadcast after the production URL returns 200
 npm run newsletter:post -- --slug <slug> --send
 ```
 
-Broadcasts always resolve the ActiveCampaign All and Essays lists and deliver
-through Postmark. Non-PII receipts live in `data/newsletter-sends`. A completed
+Broadcasts target Kit's `ArcadeProfile: All Writing` OR
+`ArcadeProfile: Essays` tags. Kit sends one copy to each matching active
+subscriber. Non-PII receipts live in `data/newsletter-sends`; an ambiguous
+pending request must be reconciled in Kit before it can be retried. A completed
 essay cannot be sent again without:
 
 ```bash
 npm run newsletter:post -- --slug <slug> --send --resend --reason "why"
 ```
 
-`/api/subscribe` remains the contact and preference endpoint. ActiveCampaign
-owns subscriber state; Postmark owns outbound delivery.
+`/api/subscribe` submits to the selected Kit double opt-in forms. Kit applies
+audience tags through its form confirmation rules. Set `KIT_API_SECRET` and
+`KIT_FORM_ALL_ID`, `KIT_FORM_FICTION_ID`, `KIT_FORM_ESSAYS_ID`, and
+`KIT_FORM_LAB_ID` in the runtime environment. `KIT_API_KEY`,
+`KIT_TAG_ALL_WRITING_ID`, and `KIT_TAG_ESSAYS_ID` are used by the newsletter
+sender. Postmark is used only for an explicitly addressed preview.
