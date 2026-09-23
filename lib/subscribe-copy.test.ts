@@ -4,8 +4,8 @@ import { test } from 'node:test';
 
 const subscribePage = readFileSync(new URL('../app/(frontend)/subscribe/page.tsx', import.meta.url), 'utf8');
 
-test('subscribe intro matches the single confirmation email flow', () => {
-  assert.match(subscribePage, /one confirmation email for everything you select/i);
-  assert.match(subscribePage, /Kit may ask you to confirm once more/);
-  assert.doesNotMatch(subscribePage, /Each selected preference gets its own confirmation email|confirm each one to join that list/);
+test('subscribe intro explains the request and possible Kit confirmations', () => {
+  assert.match(subscribePage, /confirmation email for your request/i);
+  assert.match(subscribePage, /Kit may send additional confirmation emails/);
+  assert.match(subscribePage, /audiences=\{\[\]\}/);
 });

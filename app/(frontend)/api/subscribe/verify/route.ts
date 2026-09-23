@@ -4,13 +4,12 @@ import { parseVerificationToken, getChallenge, decryptSignupEmail, newProcessing
 import { sendWritingWelcomeOnce } from '@/lib/writing-welcome-email';
 import { signupEmailDigest } from '@/lib/writing-signup';
 import type { Audience } from '@/lib/subscribe-types';
+import { isArcadesAudience, kitFormId, kitTagId } from '@/lib/subscription-audiences';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 const bodySchema = z.object({ token: z.string().min(1).max(256), action: z.enum(['confirm', 'cancel']) });
-const FORM_ENV: Record<Audience, string> = { all: 'KIT_FORM_ALL_ID', fiction: 'KIT_FORM_FICTION_ID', essays: 'KIT_FORM_ESSAYS_ID', lab: 'KIT_FORM_LAB_ID' };
-const TAG_ENV: Record<Audience, string> = { all: 'KIT_TAG_ALL_WRITING_ID', fiction: 'KIT_TAG_FICTION_ID', essays: 'KIT_TAG_ESSAYS_ID', lab: 'KIT_TAG_LAB_ID' };
-const labels: Record<Audience, string> = { all: 'All Writing', fiction: 'Fiction', essays: 'Essays', lab: 'Lab' };
+const labels: Record<Audience, string> = { all: 'All Writing', fiction: 'Fiction', essays: 'Essays', lab: 'Lab', 'queer-columns': 'Queer Columns', 'work-ai': 'Work / AI', th4f: 'TH4F' };
 const json = (body: Record<string, unknown>, status = 200) => NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store, max-age=0', 'Referrer-Policy': 'no-referrer' } });
 
 async function kitPost(url: string, apiKey: string, body: Record<string, string> = {}) {
@@ -144,11 +143,11 @@ export async function POST(request: Request) {
 
     const configured = challenge.audiences.map((audience) => ({
       audience,
-      formId: process.env[FORM_ENV[audience]]?.trim(),
-      tagId: process.env[TAG_ENV[audience]]?.trim(),
+      formId: kitFormId(audience),
+      tagId: kitTagId(audience),
     }));
     const provenanceTagId = process.env.KIT_TAG_ARCADEPROFILE_ID?.trim();
-    if (!provenanceTagId || !/^\d+$/.test(provenanceTagId) || configured.some(({ formId, tagId }) => !formId || !/^\d+$/.test(formId) || !tagId || !/^\d+$/.test(tagId))) {
+    if ((challenge.audiences.some(isArcadesAudience) && (!provenanceTagId || !/^\d+$/.test(provenanceTagId))) || configured.some(({ formId, tagId }) => !/^\d+$/.test(formId) || !/^\d+$/.test(tagId))) {
       return json({ error: 'Signup preferences are temporarily unavailable.' }, 503);
     }
     // Form membership endpoints are idempotent. A partial failure can be retried
@@ -160,7 +159,7 @@ export async function POST(request: Request) {
     if (memberships.some((ok) => !ok)) return json({ error: 'Some preferences could not be submitted. Please retry this confirmation.' }, 502);
 
     if (state === 'active') {
-      const tagIds = [...new Set([...configured.map(({ tagId }) => tagId!), provenanceTagId])];
+      const tagIds = [...new Set([...configured.map(({ tagId }) => tagId), ...(challenge.audiences.some(isArcadesAudience) ? [provenanceTagId!] : [])])];
       const writes = await Promise.all(tagIds.map(async (tagId) => {
         try { return await kitPost(`https://api.kit.com/v4/tags/${tagId}/subscribers/${subscriberId}`, apiKey); }
         catch { return false; }
@@ -183,8 +182,10 @@ export async function POST(request: Request) {
           return json({ error: 'Kit must report this address as active before a welcome email can be sent.' }, 409);
         }
         subscriberEmail = currentEmail;
-        const welcome = await sendWritingWelcomeOnce({ email: subscriberEmail, subscriberId, emailDigest: challenge.emailDigest, audiences: challenge.audiences });
-        if (welcome === 'rejected') return json({ error: 'Preferences are saved, but the welcome email was rejected. Retry to request it again.' }, 502);
+        if (challenge.audiences.some(isArcadesAudience)) {
+          const welcome = await sendWritingWelcomeOnce({ email: subscriberEmail, subscriberId, emailDigest: challenge.emailDigest, audiences: challenge.audiences });
+          if (welcome === 'rejected') return json({ error: 'Preferences are saved, but the welcome email was rejected. Retry to request it again.' }, 502);
+        }
       }
       challenge.status = 'complete';
       delete challenge.encryptedEmail;

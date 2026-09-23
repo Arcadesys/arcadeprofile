@@ -134,11 +134,12 @@ export default async function QueerColumnsPage() {
           <section className={styles.signup} aria-labelledby="signup-title">
             <div>
               <h2 id="signup-title">Get the next column</h2>
-              <p>One essay a month. This list is separate from Fiction, Essays, Lab, and All Writing.</p>
+              <p>One essay a month. Queer Columns is its own email topic.</p>
             </div>
             <div className={styles.signupForm}>
               <KitSignup />
               <a className={styles.signupLink} href={signupUrl}>Subscribe to Queer Columns on Kit <span aria-hidden="true">↗</span></a>
+              <Link className={styles.signupLink} href="/subscribe">Choose from all email topics <span aria-hidden="true">→</span></Link>
             </div>
           </section>
 

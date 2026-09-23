@@ -35,6 +35,9 @@ const AUDIENCE_LABELS: Record<Audience, string> = {
   fiction: 'Fiction (serialized stories)',
   essays: 'Essays (writing, tools, and oddities)',
   lab: "The Arcades' Lab and build notes",
+  'queer-columns': 'Queer Columns (queer history and life)',
+  'work-ai': 'Work / AI (AI build logs and essays)',
+  th4f: 'TH4F (Hack with me)',
 };
 
 function audienceNames(audiences: readonly Audience[]): string {
@@ -42,6 +45,9 @@ function audienceNames(audiences: readonly Audience[]): string {
 }
 
 function readingLinkFor(audiences: ReadonlySet<Audience>): ReadingLink {
+  if (audiences.has('queer-columns')) return { href: '/queercolumns', label: 'Read Queer Columns' };
+  if (audiences.has('work-ai')) return { href: 'https://work.thearcades.me/blog', label: 'Read Work / AI' };
+  if (audiences.has('th4f')) return { href: 'https://hack.thearcades.me/blog', label: 'Read TH4F' };
   if (audiences.has('lab')) return { href: '/lab', label: 'Read case studies' };
   if (audiences.has('fiction')) return { href: '/stories', label: 'Read fiction' };
   if (audiences.has('essays')) return { href: '/essays', label: 'Read essays' };
@@ -148,7 +154,7 @@ function EnabledSubscriptionForm({
     return (
       <div ref={statusRef} className={styles.status} role="status" aria-live="polite" tabIndex={-1}>
         <strong>{completionMessage}</strong>
-        <p>One email covers the lists you chose. Kit may ask you to confirm once more before delivery begins.</p>
+        <p>Kit may send additional confirmation emails for the topics you chose before delivery begins.</p>
         {downloads.length > 0 ? (
           <div className={styles.downloads}>
             {downloads.map((download) => <a key={download.href} href={download.href}>{download.label}</a>)}
@@ -194,9 +200,9 @@ function EnabledSubscriptionForm({
         </fieldset>
       ) : null}
 
-      <p className={styles.terms}>New writing when it&rsquo;s ready. Free. One-click unsubscribe.</p>
+      <p className={styles.terms}>Updates when they&rsquo;re ready. Free. Unsubscribe whenever.</p>
       {showPreferences ? (
-        <p className={styles.terms}>One confirmation email covers all the lists you choose. Kit may ask you to confirm once more before delivery begins.</p>
+        <p className={styles.terms}>You will confirm this request once. Kit may send additional confirmation emails for the topics you choose.</p>
       ) : null}
       <button className={styles.submit} type="submit" disabled={pending}>{pending ? 'Subscribing…' : submitLabel}</button>
       {error ? <div ref={statusRef} className={`${styles.status} ${styles.error}`} role="alert" aria-live="assertive" tabIndex={-1}>{error}</div> : null}

@@ -1,9 +1,8 @@
-import type { Audience } from './subscribe-types';
+import { isArcadesAudience, kitTagId } from './subscription-audiences';
 import { challengeIndexKey, getChallenge, redisCommand, saveChallengeIfStatus, signupEmailDigest } from './writing-signup';
 import { sendWritingWelcomeOnce } from './writing-welcome-email';
 
 type Fetcher = typeof fetch;
-const TAG_ENV: Record<Audience, string> = { all: 'KIT_TAG_ALL_WRITING_ID', fiction: 'KIT_TAG_FICTION_ID', essays: 'KIT_TAG_ESSAYS_ID', lab: 'KIT_TAG_LAB_ID' };
 
 /** Reconcile only audience choices stored after a signed verification POST. */
 export async function reconcileVerifiedKitSignups(input: { apiKey: string; fetcher?: Fetcher }) {
@@ -44,7 +43,7 @@ export async function reconcileVerifiedKitSignups(input: { apiKey: string; fetch
         continue;
       }
       const provenanceTag = process.env.KIT_TAG_ARCADEPROFILE_ID?.trim() ?? '';
-      const tagIds = [...new Set([...challenge.audiences.map((audience) => process.env[TAG_ENV[audience]]?.trim() ?? ''), provenanceTag])];
+      const tagIds = [...new Set([...challenge.audiences.map(kitTagId), ...(challenge.audiences.some(isArcadesAudience) ? [provenanceTag] : [])])];
       if (tagIds.some((tagId) => !/^\d+$/.test(tagId))) throw new Error('Kit audience tags are not configured');
       let allSucceeded = true;
       for (const tagId of tagIds) {
@@ -71,8 +70,10 @@ export async function reconcileVerifiedKitSignups(input: { apiKey: string; fetch
           } else pending += 1;
           continue;
         }
-        const welcome = await sendWritingWelcomeOnce({ email: currentEmail, subscriberId: challenge.subscriberId, emailDigest: challenge.emailDigest, audiences: challenge.audiences, fetcher });
-        if (welcome === 'rejected') throw new Error('Writing welcome was rejected');
+        if (challenge.audiences.some(isArcadesAudience)) {
+          const welcome = await sendWritingWelcomeOnce({ email: currentEmail, subscriberId: challenge.subscriberId, emailDigest: challenge.emailDigest, audiences: challenge.audiences, fetcher });
+          if (welcome === 'rejected') throw new Error('Writing welcome was rejected');
+        }
       }
       challenge.status = 'complete';
       delete challenge.encryptedEmail;

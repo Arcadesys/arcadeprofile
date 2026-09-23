@@ -75,10 +75,10 @@ test('verification email explains the second confirmation and presents overlappi
       body = JSON.parse(String(init?.body)) as Record<string, string>;
       return Response.json({ ErrorCode: 0, MessageID: 'test-message' });
     });
-    assert.equal(body.Subject, 'Confirm your writing updates from The Arcades');
+    assert.equal(body.Subject, 'Confirm your updates from The Arcades');
     assert.match(body.HtmlBody, /All writing \(fiction and essays\), The Arcades' Lab/);
     assert.doesNotMatch(body.HtmlBody, /All writing[^<]*, Fiction, Essays/);
-    assert.match(body.TextBody, /Kit may send one more confirmation email/);
+    assert.match(body.TextBody, /Kit may send additional confirmation emails/);
     assert.match(body.TextBody, /https:\/\/thearcades\.me\/subscribe\/verify#test-token/);
   } finally {
     for (const [name, value] of Object.entries(prior)) { if (value === undefined) delete process.env[name]; else process.env[name] = value; }

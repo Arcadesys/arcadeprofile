@@ -1,14 +1,8 @@
 import type { Audience } from "./subscribe-types";
-
-const FORM_ENV: Record<Audience, string> = {
-  all: "KIT_FORM_ALL_ID",
-  fiction: "KIT_FORM_FICTION_ID",
-  essays: "KIT_FORM_ESSAYS_ID",
-  lab: "KIT_FORM_LAB_ID",
-};
+import { kitFormId } from './subscription-audiences';
 
 function formId(audience: Audience): string {
-  const value = process.env[FORM_ENV[audience]]?.trim();
+  const value = kitFormId(audience);
   if (!value || !/^\d+$/.test(value)) {
     throw new Error(`Kit form is not configured for ${audience}`);
   }
