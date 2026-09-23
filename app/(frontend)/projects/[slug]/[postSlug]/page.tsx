@@ -36,7 +36,7 @@ async function redirectIfNumeric(groupSlug: string, segment: string): Promise<vo
   const idx = parsePostPartSegment(segment);
   if (idx === null) return;
   if (idx === 0) {
-    permanentRedirect(buildGroupIntroUrl(groupSlug));
+    permanentRedirect(groupSlug === 'queer-columns' ? '/queercolumns' : buildGroupIntroUrl(groupSlug));
   }
   const group = await getGroupBySlug(groupSlug);
   const post = group?.posts[idx - 1];
@@ -58,8 +58,8 @@ function buildDrawerSections(
 ): DrawerSection[] {
   const introItem = {
     num: '00',
-    label: 'Introduction',
-    href: buildGroupIntroUrl(groupSlug),
+    label: groupSlug === 'queer-columns' ? groupTitle : 'Introduction',
+    href: groupSlug === 'queer-columns' ? '/queercolumns' : buildGroupIntroUrl(groupSlug),
     state: currentPartIndex === 0 ? ('current' as const) : ('read' as const),
   };
 
@@ -155,8 +155,9 @@ export default async function ProjectPostPage({ params }: Props) {
 
   const chapterSections = groupPostsByChapter(group);
   const sections = buildDrawerSections(slug, project.title, chapterSections, partIndex);
+  const introHref = slug === 'queer-columns' ? '/queercolumns' : buildGroupIntroUrl(slug);
   const prevPartHref =
-    partIndex === 1 ? buildGroupIntroUrl(slug) : buildPostUrl(slug, posts[idx - 1].slug);
+    partIndex === 1 ? introHref : buildPostUrl(slug, posts[idx - 1].slug);
   const nextPartHref =
     partIndex < posts.length ? buildPostUrl(slug, posts[idx + 1].slug) : undefined;
 
@@ -184,7 +185,7 @@ export default async function ProjectPostPage({ params }: Props) {
     isPartOf: {
       '@type': 'CreativeWorkSeries',
       name: project.title,
-      url: `${SITE_URL}${buildGroupIntroUrl(slug)}`,
+      url: `${SITE_URL}${introHref}`,
     },
     articleSection: project.category ?? undefined,
     image: absoluteSiteUrl(post.hero?.src ?? DEFAULT_SOCIAL_IMAGE.url),
@@ -195,7 +196,7 @@ export default async function ProjectPostPage({ params }: Props) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { name: 'Projects', item: `${SITE_URL}/projects` },
-      { name: project.title, item: `${SITE_URL}${buildGroupIntroUrl(slug)}` },
+      { name: project.title, item: `${SITE_URL}${introHref}` },
       { name: post.title, item: canonicalUrl },
     ].map((b, i) => ({
       '@type': 'ListItem',
@@ -230,7 +231,7 @@ export default async function ProjectPostPage({ params }: Props) {
     />
   );
 
-  const prevTitle = partIndex === 1 ? 'Introduction' : posts[idx - 1].title;
+  const prevTitle = partIndex === 1 ? (slug === 'queer-columns' ? project.title : 'Introduction') : posts[idx - 1].title;
   const postMainCls = 'dd-post-main has-drawer';
 
   return (
@@ -241,7 +242,7 @@ export default async function ProjectPostPage({ params }: Props) {
       <ReadingContinuityTracker piece={readingPiece} />
       <main className={postMainCls}>
         <nav style={{ marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-          <Link href={buildGroupIntroUrl(slug)} style={navLinkStyle}>← {project.title}</Link>
+          <Link href={introHref} style={navLinkStyle}>← {project.title}</Link>
         </nav>
 
         <article className="longform-article">
