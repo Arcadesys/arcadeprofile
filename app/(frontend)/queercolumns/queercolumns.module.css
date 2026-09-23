@@ -1,0 +1,102 @@
+.page {
+  width: calc(100% - var(--nav-rail-width));
+  max-width: none;
+  margin: 0 0 0 var(--nav-rail-width);
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  background: radial-gradient(circle at 90% 3%, rgba(245, 166, 198, .12), transparent 34%), #0c1020;
+  color: #fffaf7;
+}
+
+.inner { width: min(100%, 82rem); margin: 0 auto; }
+.breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; min-height: 48px; margin-bottom: 1.4rem; font: 700 .85rem/1.4 var(--font-mono); letter-spacing: .04em; }
+.breadcrumb a { color: #aee7f4; text-decoration: underline; text-underline-offset: .2em; }
+.breadcrumb span:last-child { color: #fffaf7; }
+
+.masthead { position: relative; overflow: hidden; padding: clamp(1.4rem, 3vw, 2.75rem); border: 2px solid #b0eaf5; background: linear-gradient(142deg, rgba(36, 33, 64, .96), rgba(11, 17, 34, .98)); box-shadow: 10px 10px 0 #f0a9c8; }
+.masthead::after { content: ''; position: absolute; right: -3rem; top: 4.5rem; width: 18rem; height: 18rem; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; pointer-events: none; }
+.mastheadTop, .mastheadBottom { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 1rem; }
+.mastheadTop { font: 700 .83rem/1.5 var(--font-mono); letter-spacing: .11em; text-transform: uppercase; }
+.mastheadTop p:last-child { color: #f6b7d2; }
+.mastheadTop span { padding-inline: .45rem; color: #b0eaf5; }
+.flagRule { width: min(19rem, 100%); height: .8rem; margin-top: clamp(2rem, 6vw, 4rem); background: linear-gradient(to right, #94d9ef 0 20%, #f3b2d0 20% 40%, #fff 40% 60%, #f3b2d0 60% 80%, #94d9ef 80%); }
+.masthead h1 { position: relative; z-index: 1; display: grid; width: fit-content; margin: .7rem 0 clamp(2rem, 6vw, 4rem); font-family: var(--font-barlow-condensed), var(--font-sans); font-size: clamp(2.75rem, 10vw, 10rem); font-weight: 800; line-height: .82; letter-spacing: -.025em; text-transform: uppercase; }
+.masthead h1 > span:first-child { color: #aee7f4; }
+.masthead h1 > span:nth-child(2) { color: #fffaf7; }
+.titleDot { color: #f6b7d2; }
+.mastheadBottom { border-top: 1px solid rgba(255,255,255,.38); padding-top: 1.1rem; }
+.mastheadBottom p { max-width: 40rem; font: 500 clamp(1.2rem, 2.2vw, 1.75rem)/1.35 var(--font-serif); }
+.monthlyLabel { display: inline-flex; min-height: 44px; align-items: center; padding: .45rem .7rem; border: 1px solid #f6b7d2; color: #fffaf7; font: 700 .85rem/1.3 var(--font-mono); text-transform: uppercase; }
+
+.motto { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(.5rem, 2vw, 1.7rem); margin: clamp(2.5rem, 6vw, 5rem) 0; padding: clamp(1.5rem, 4vw, 3.5rem); border-left: .75rem solid #f3b2d0; background: #fff9f4; color: #1b1a25; }
+.mottoMark { color: #7d4367; font: 500 clamp(4rem, 8vw, 7rem)/.8 var(--font-serif); }
+.sectionLabel { color: #405a69; font: 800 .83rem/1.4 var(--font-mono); letter-spacing: .13em; text-transform: uppercase; }
+.motto h2 { margin: .6rem 0 1rem; font: 700 clamp(2.3rem, 5vw, 5rem)/.97 var(--font-barlow-condensed), var(--font-sans); text-transform: uppercase; }
+.motto h2 span { color: #8a3e65; }
+.motto p:last-child { max-width: 48rem; font-size: clamp(1.05rem, 1.8vw, 1.25rem); line-height: 1.6; }
+
+.issues { padding-block: 1rem clamp(3rem, 6vw, 5rem); }
+.sectionHeading { max-width: 50rem; margin-bottom: 1.6rem; }
+.issues .sectionLabel, .archive .sectionLabel { color: #aee7f4; }
+.sectionHeading h2, .archive h2 { margin: .35rem 0 .65rem; font: 700 clamp(2.3rem, 5vw, 4.25rem)/1 var(--font-barlow-condensed), var(--font-sans); text-transform: uppercase; }
+.sectionHeading > p:last-child { color: #d6e3e9; font-size: 1.1rem; }
+.issueList { display: grid; gap: 1rem; padding: 0; list-style: none; }
+.issueCard, .firstIssue { padding: clamp(1.4rem, 3vw, 2.5rem); border: 2px solid #96d7e9; background: #151c32; }
+.issueMeta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .75rem; color: #f7bed7; font: 800 .82rem/1.4 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+.issueCard h3, .firstIssue h3 { margin: 1.1rem 0 .7rem; font: 700 clamp(2.6rem, 6vw, 5.5rem)/.92 var(--font-barlow-condensed), var(--font-sans); text-transform: uppercase; }
+.issueCard h3 a { color: #fffaf7; text-decoration: underline; text-decoration-color: #f4afcb; text-decoration-thickness: .06em; text-underline-offset: .12em; }
+.issueCard h3 a:hover { color: #aee7f4; text-shadow: none; }
+.issueCard p, .firstIssue p { max-width: 45rem; color: #e5edf0; font-size: clamp(1.1rem, 1.8vw, 1.35rem); line-height: 1.55; }
+.readLink, .archiveLink { display: inline-flex; min-height: 48px; align-items: center; gap: .7rem; margin-top: 1.4rem; padding: .55rem .9rem; border: 2px solid #aee7f4; color: #fffaf7; font: 800 .92rem/1.3 var(--font-mono); text-decoration: none; }
+.readLink:hover, .archiveLink:hover { color: #10202a; background: #aee7f4; text-shadow: none; }
+.inProgress { display: inline-block; margin-top: 1.5rem; color: #f7bed7; font: 800 .86rem/1.4 var(--font-mono); text-transform: uppercase; }
+
+.signup { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem; margin-bottom: clamp(3rem, 6vw, 5rem); padding: clamp(1.5rem, 4vw, 3rem); border: 2px solid #f3b2d0; background: #251a32; }
+.signup > div { max-width: 42rem; }
+.signup .sectionLabel { color: #f7bed7; }
+.signup h2 { margin: .35rem 0 .65rem; font: 700 clamp(2.3rem, 5vw, 4.25rem)/1 var(--font-barlow-condensed), var(--font-sans); text-transform: uppercase; }
+.signup p:last-child { color: #f4e9f0; font-size: 1.1rem; line-height: 1.6; }
+.signupLink { display: inline-flex; min-height: 52px; align-items: center; justify-content: center; gap: .7rem; padding: .7rem 1rem; border: 2px solid #f3b2d0; background: #f3b2d0; color: #201629; font: 800 .95rem/1.3 var(--font-mono); text-decoration: none; }
+.signupLink:hover { background: #fffaf7; border-color: #fffaf7; color: #201629; text-shadow: none; }
+.signupLink:focus-visible { outline: 3px solid #aee7f4; outline-offset: 4px; }
+.signupPending { display: inline-flex; min-height: 52px; align-items: center; padding: .7rem 1rem; border: 2px solid #f3b2d0; color: #fffaf7; font: 800 .95rem/1.3 var(--font-mono); }
+
+.archive { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(1.5rem, 5vw, 5rem); padding: clamp(1.5rem, 4vw, 3rem); border-top: .75rem solid #aee7f4; background: #202039; }
+.archiveIntro > p:not(.sectionLabel) { max-width: 35rem; color: #e0e3ed; font-size: 1.05rem; line-height: 1.6; }
+.priorList { align-self: center; padding: 0; list-style: none; }
+.priorList li { display: grid; gap: .3rem; padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,.35); }
+.priorList li:first-child { border-top: 1px solid rgba(255,255,255,.35); }
+.priorList span { color: #b8e7f1; font: 700 .78rem/1.4 var(--font-mono); text-transform: uppercase; }
+.priorList a { color: #fffaf7; font: 700 clamp(1.35rem, 2.5vw, 1.9rem)/1.15 var(--font-barlow-condensed), var(--font-sans); text-decoration: underline; text-decoration-color: #f4afcb; text-underline-offset: .15em; }
+.priorList a:hover { color: #aee7f4; text-shadow: none; }
+.breadcrumb a:focus-visible,
+.issueCard h3 a:focus-visible,
+.readLink:focus-visible,
+.archiveLink:focus-visible,
+.priorList a:focus-visible { outline: 3px solid #f3b2d0; outline-offset: 4px; }
+
+@media (max-width: 720px) {
+  .page { padding: 1rem; }
+  .masthead { box-shadow: 5px 5px 0 #f0a9c8; }
+  .masthead h1 { font-size: clamp(2.75rem, 10vw, 6rem); }
+  .mastheadBottom { align-items: flex-start; }
+  .archive { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 420px) {
+  .page { padding: .65rem; }
+  .masthead h1 { font-size: clamp(2.65rem, 12vw, 4rem); }
+  .motto { grid-template-columns: 1fr; border-left-width: .5rem; }
+  .mottoMark { line-height: .5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page *, .page *::before, .page *::after { scroll-behavior: auto; transition: none; }
+}
+
+:global(html[data-contrast="high"]) .page { background: #000; color: #fff; }
+:global(html[data-contrast="high"]) .masthead,
+:global(html[data-contrast="high"]) .issueCard,
+:global(html[data-contrast="high"]) .firstIssue,
+:global(html[data-contrast="high"]) .signup,
+:global(html[data-contrast="high"]) .archive { background: #000; border-color: #fff; box-shadow: none; }
+:global(html[data-contrast="high"]) .motto { background: #fff; color: #000; }
