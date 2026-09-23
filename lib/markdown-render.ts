@@ -22,13 +22,27 @@ function inlineMarkdownToHtml(value: string): string {
     return safe ? `<a href="${escapeHtml(safe)}">${label}</a>` : escapeHtml(_match);
   });
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  const protectedMarkup: string[] = [];
+  html = html.replace(/<code>[\s\S]*?<\/code>|<[^>]+>/g, (markup) => {
+    const token = `\uE000${protectedMarkup.length}\uE001`;
+    protectedMarkup.push(markup);
+    return token;
+  });
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  html = html.replace(/(?<![\w/])_([^_\n]+?)_(?![\w])/g, '<em>$1</em>');
+  html = html.replace(/\uE000(\d+)\uE001/g, (_match, index: string) => protectedMarkup[Number(index)] ?? '');
   return html;
 }
 
+function youtubeLink(id: string, label: string): string {
+  const videoUrl = `https://www.youtube.com/shorts/${id}`;
+  const safeLabel = escapeHtml(label);
+  return `<a href="${videoUrl}" target="_blank" rel="noopener noreferrer">${safeLabel}</a>`;
+}
+
 /** Convert the intentionally small repository Markdown contract to safe HTML. */
-export function markdownToSafeHtml(markdown: string): string {
+export function markdownToSafeHtml(markdown: string, options: { allowEmbeds?: boolean } = {}): string {
   const lines = markdown.replace(/\r\n?/g, '\n').split('\n');
   const blocks: string[] = [];
   let paragraph: string[] = [];
@@ -41,8 +55,15 @@ export function markdownToSafeHtml(markdown: string): string {
     const line = lines[index] ?? '';
     const heading = /^(#{1,6})\s+(.+)$/.exec(line);
     const list = /^(\s*)(-|\d+\.)\s+(.+)$/.exec(line);
+    const youtube = /^@\[youtube\]\(([A-Za-z0-9_-]{11}) "([^"\n]+)"\)$/.exec(line);
     if (!line.trim()) {
       flushParagraph();
+    } else if (youtube) {
+      flushParagraph();
+      const link = youtubeLink(youtube[1], youtube[2]);
+      blocks.push(options.allowEmbeds
+        ? `<figure class="prose-video"><div class="prose-video__frame"><iframe src="https://www.youtube-nocookie.com/embed/${youtube[1]}" title="${escapeHtml(youtube[2])}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><figcaption>${link}</figcaption></figure>`
+        : `<p>${link}</p>`);
     } else if (heading) {
       flushParagraph();
       const level = heading[1].length;
@@ -83,6 +104,7 @@ export function markdownToSafeHtml(markdown: string): string {
 
 export function markdownToPlaintext(markdown: string): string {
   return markdown
+    .replace(/@\[youtube\]\([A-Za-z0-9_-]{11} "([^"\n]+)"\)/g, '$1')
     .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
     .replace(/^#{1,6}\s+/gm, '')

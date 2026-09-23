@@ -7,7 +7,7 @@ export default function MarkdownPostBody({ markdown }: { markdown: string }) {
   return (
     <div
       className="prose"
-      dangerouslySetInnerHTML={{ __html: markdownToSafeHtml(articleBody) }}
+      dangerouslySetInnerHTML={{ __html: markdownToSafeHtml(articleBody, { allowEmbeds: true }) }}
     />
   );
 }
