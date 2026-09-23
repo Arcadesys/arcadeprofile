@@ -84,7 +84,7 @@ function EnabledSubscriptionForm({
 
   useEffect(() => {
     if (!error) return;
-    if (error === 'Select at least one email preference.') firstChoiceRef.current?.focus();
+    if (error === 'Choose at least one email list.') firstChoiceRef.current?.focus();
     else statusRef.current?.focus();
   }, [error]);
 
@@ -96,7 +96,7 @@ function EnabledSubscriptionForm({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (selected.size === 0) {
-      setError('Select at least one email preference.');
+      setError('Choose at least one email list.');
       return;
     }
 
@@ -127,9 +127,9 @@ function EnabledSubscriptionForm({
       if (payload.partial && payload.submitted && payload.failed?.length) {
         setSelected(new Set(payload.failed));
         setError(
-          `${payload.submitted.length ? `Confirmation requests were sent for ${audienceNames(payload.submitted)}. ` : `${payload.error ?? 'No preferences were submitted.'} `}`
+          `${payload.submitted.length ? `Confirmation requests were sent for ${audienceNames(payload.submitted)}. ` : `${payload.error ?? 'No email lists were selected.'} `}`
           + `We could not submit ${audienceNames(payload.failed)}. `
-          + 'Those preferences remain selected so you can retry them.',
+          + 'Those choices remain selected so you can retry them.',
         );
         return;
       }
@@ -148,7 +148,7 @@ function EnabledSubscriptionForm({
     return (
       <div ref={statusRef} className={styles.status} role="status" aria-live="polite" tabIndex={-1}>
         <strong>{completionMessage}</strong>
-        <p>One email covers the preferences you selected. If your address is new or inactive in Kit, Kit may send another confirmation before delivery begins.</p>
+        <p>One email covers the lists you chose. Kit may ask you to confirm once more before delivery begins.</p>
         {downloads.length > 0 ? (
           <div className={styles.downloads}>
             {downloads.map((download) => <a key={download.href} href={download.href}>{download.label}</a>)}
@@ -177,7 +177,7 @@ function EnabledSubscriptionForm({
 
       {showPreferences ? (
         <fieldset className={styles.preferences}>
-          <legend>What do you want?</legend>
+          <legend>What would you like by email?</legend>
           <div className={styles.choices}>
             {(Object.keys(AUDIENCE_LABELS) as Audience[]).map((audience, index) => (
               <label className={styles.choice} key={audience}>
@@ -196,7 +196,7 @@ function EnabledSubscriptionForm({
 
       <p className={styles.terms}>New writing when it&rsquo;s ready. Free. One-click unsubscribe.</p>
       {showPreferences ? (
-        <p className={styles.terms}>One confirmation email covers all selected preferences. New or inactive Kit subscribers may receive a second confirmation from Kit.</p>
+        <p className={styles.terms}>One confirmation email covers all the lists you choose. Kit may ask you to confirm once more before delivery begins.</p>
       ) : null}
       <button className={styles.submit} type="submit" disabled={pending}>{pending ? 'Subscribing…' : submitLabel}</button>
       {error ? <div ref={statusRef} className={`${styles.status} ${styles.error}`} role="alert" aria-live="assertive" tabIndex={-1}>{error}</div> : null}

@@ -8,17 +8,21 @@ type Outcome = 'ready' | 'working' | 'complete' | 'awaiting-kit' | 'cancelled' |
 export default function VerificationClient() {
   const [token, setToken] = useState('');
   const [outcome, setOutcome] = useState<Outcome>('ready');
-  const [message, setMessage] = useState('This page does not confirm a signup automatically. Choose Confirm only if you requested this email.');
+  const [message, setMessage] = useState('Nothing happens until you choose to confirm. If you did not request this email, you can close this page.');
   const statusRef = useRef<HTMLDivElement>(null);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
+    if (initializedRef.current) return;
+    initializedRef.current = true;
     const fragment = window.location.hash.slice(1);
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
     if (fragment) {
       setToken(fragment);
       setOutcome('ready');
-      setMessage('Choose Confirm preferences to finish your request.');
+      setMessage('Choose Confirm subscription if you want the emails named in the message we sent you.');
     } else {
+      setOutcome('missing');
       setMessage('This confirmation link is missing. Return to signup to request a new one.');
     }
   }, []);
@@ -36,7 +40,7 @@ export default function VerificationClient() {
       return;
     }
     setOutcome('working');
-    setMessage(action === 'confirm' ? 'Confirming your preferences…' : 'Cancelling this request…');
+    setMessage(action === 'confirm' ? 'Confirming your subscription…' : 'Cancelling this request…');
     try {
       const response = await fetch('/api/subscribe/verify', {
         method: 'POST',
@@ -49,13 +53,13 @@ export default function VerificationClient() {
       setToken('');
       if (action === 'cancel' || body.status === 'cancelled') {
         setOutcome('cancelled');
-        setMessage('This signup request was cancelled. No preferences were added.');
+        setMessage('This signup request was cancelled. No emails were added.');
       } else if (body.status === 'awaiting-kit') {
         setOutcome('awaiting-kit');
-        setMessage('Your choices are confirmed. If Kit considers your address new or inactive, it may send another confirmation before delivery begins.');
+        setMessage('Your request is confirmed. If your address is new or inactive in Kit, Kit may send one more confirmation before emails begin.');
       } else {
         setOutcome('complete');
-        setMessage('Your selected writing preferences are confirmed. You can unsubscribe from any email.');
+        setMessage('You are subscribed to the emails you chose. You can unsubscribe from any email.');
       }
     } catch (cause) {
       setOutcome('error');
@@ -66,11 +70,11 @@ export default function VerificationClient() {
   return (
     <main className="signup-verify" aria-labelledby="verify-title">
       <p className="signup-verify__eyebrow">The Arcades</p>
-      <h1 id="verify-title">Confirm your writing preferences</h1>
-      <p>One confirmation covers every preference you selected. If you are new or inactive in Kit, Kit may also send a confirmation before your subscription starts.</p>
-      {!['complete', 'awaiting-kit', 'cancelled', 'error'].includes(outcome) ? (
+      <h1 id="verify-title">Confirm your subscription</h1>
+      <p>The email we sent lists exactly what you signed up for. Confirm below to get those emails. Kit may ask you to confirm once more before delivery begins.</p>
+      {!['complete', 'awaiting-kit', 'cancelled', 'error', 'missing'].includes(outcome) ? (
         <div className="signup-verify__actions">
-          <button type="button" disabled={outcome === 'working'} onClick={() => void submit('confirm')}>Confirm preferences</button>
+          <button type="button" disabled={outcome === 'working'} onClick={() => void submit('confirm')}>Confirm subscription</button>
           <button type="button" className="signup-verify__secondary" disabled={outcome === 'working'} onClick={() => void submit('cancel')}>Cancel this request</button>
         </div>
       ) : null}

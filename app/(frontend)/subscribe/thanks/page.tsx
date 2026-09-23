@@ -42,7 +42,7 @@ export default async function SubscribeThanksPage({
         Check your inbox.
       </h1>
       <p style={{ maxWidth: '62ch', color: 'var(--fg-muted)', fontSize: '1.125rem', lineHeight: 1.8 }}>
-        We sent a confirmation link. Open it to confirm your subscription. You can update your preferences or unsubscribe from any email.
+        We sent a confirmation link. Open it to confirm your subscription. You can change what you receive or unsubscribe from any email.
       </p>
 
       {hasStoryMagnet ? (
