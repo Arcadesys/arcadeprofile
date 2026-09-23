@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
-import { createVerificationToken, decryptSignupEmail, encryptSignupEmail, parseVerificationToken, redisCommand, verificationSiteUrl } from './writing-signup';
+import { createVerificationToken, decryptSignupEmail, encryptSignupEmail, parseVerificationToken, redisCommand, sendVerificationEmail, verificationSiteUrl } from './writing-signup';
 
 const previous = process.env.SIGNUP_LINK_SECRET;
 afterEach(() => { if (previous === undefined) delete process.env.SIGNUP_LINK_SECRET; else process.env.SIGNUP_LINK_SECRET = previous; });
@@ -57,6 +57,29 @@ test('verification links use a trusted Vercel preview host and keep production c
     assert.throws(() => verificationSiteUrl());
     process.env.VERCEL_ENV = 'production';
     assert.equal(verificationSiteUrl(), 'https://www.thearcades.me');
+  } finally {
+    for (const [name, value] of Object.entries(prior)) { if (value === undefined) delete process.env[name]; else process.env[name] = value; }
+  }
+});
+
+test('verification email explains the second confirmation and presents overlapping topics once', async () => {
+  const names = ['POSTMARK_SERVER_TOKEN', 'POSTMARK_FROM_EMAIL', 'VERCEL_ENV', 'NEXT_PUBLIC_SITE_URL'];
+  const prior = Object.fromEntries(names.map((name) => [name, process.env[name]]));
+  try {
+    process.env.POSTMARK_SERVER_TOKEN = 'test-token';
+    process.env.POSTMARK_FROM_EMAIL = 'reply@example.com';
+    process.env.VERCEL_ENV = 'production';
+    process.env.NEXT_PUBLIC_SITE_URL = 'https://thearcades.me';
+    let body: Record<string, string> = {};
+    await sendVerificationEmail({ email: 'reader@example.com', token: 'test-token', audiences: ['all', 'fiction', 'essays', 'lab'] }, async (_url, init) => {
+      body = JSON.parse(String(init?.body)) as Record<string, string>;
+      return Response.json({ ErrorCode: 0, MessageID: 'test-message' });
+    });
+    assert.equal(body.Subject, 'Confirm your writing updates from The Arcades');
+    assert.match(body.HtmlBody, /All writing \(fiction and essays\), The Arcades' Lab/);
+    assert.doesNotMatch(body.HtmlBody, /All writing[^<]*, Fiction, Essays/);
+    assert.match(body.TextBody, /Kit may send one more confirmation email/);
+    assert.match(body.TextBody, /https:\/\/thearcades\.me\/subscribe\/verify#test-token/);
   } finally {
     for (const [name, value] of Object.entries(prior)) { if (value === undefined) delete process.env[name]; else process.env[name] = value; }
   }
