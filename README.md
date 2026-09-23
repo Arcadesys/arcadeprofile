@@ -82,3 +82,7 @@ is sent to imported contacts unless they submit the signup form and claim its
 confirmation link.
 
 Postmark sends signup verification emails and explicitly addressed previews.
+Writing welcome delivery is independently gated: set
+`WRITING_WELCOME_ENABLED=true` only after review; unset or any other value
+keeps the welcome inactive while signup confirmations and audience updates
+continue.

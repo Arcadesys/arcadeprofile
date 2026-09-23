@@ -113,7 +113,7 @@ async function sendWritingWelcome(email: string, subscriberId: number, emailDige
   return receipt.MessageID;
 }
 
-export type WelcomeDeliveryResult = 'sent' | 'already-claimed' | 'uncertain' | 'rejected';
+export type WelcomeDeliveryResult = 'sent' | 'already-claimed' | 'uncertain' | 'rejected' | 'disabled';
 
 /** Claim once per HMAC email digest; a claim is durable across signup challenges. */
 export async function sendWritingWelcomeOnce(input: {
@@ -123,6 +123,7 @@ export async function sendWritingWelcomeOnce(input: {
   audiences: Audience[];
   fetcher?: typeof fetch;
 }): Promise<WelcomeDeliveryResult> {
+  if (process.env.WRITING_WELCOME_ENABLED?.trim().toLowerCase() !== 'true') return 'disabled';
   senderConfig();
   if (!/^[a-f0-9]{64}$/.test(input.emailDigest)) throw new Error('Writing welcome email digest is invalid');
   const fetcher = input.fetcher ?? fetch;

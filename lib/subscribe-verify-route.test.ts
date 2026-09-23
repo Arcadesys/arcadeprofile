@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
 import { POST } from '@/app/(frontend)/api/subscribe/verify/route';
 
-const names = ['KIT_API_KEY', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'SIGNUP_LINK_SECRET', 'KIT_FORM_FICTION_ID', 'KIT_FORM_LAB_ID', 'KIT_TAG_FICTION_ID', 'KIT_TAG_LAB_ID', 'KIT_TAG_ARCADEPROFILE_ID', 'POSTMARK_SERVER_TOKEN', 'POSTMARK_FROM_EMAIL', 'POSTMARK_TRANSACTIONAL_STREAM'];
+const names = ['KIT_API_KEY', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'SIGNUP_LINK_SECRET', 'KIT_FORM_FICTION_ID', 'KIT_FORM_LAB_ID', 'KIT_TAG_FICTION_ID', 'KIT_TAG_LAB_ID', 'KIT_TAG_ARCADEPROFILE_ID', 'POSTMARK_SERVER_TOKEN', 'POSTMARK_FROM_EMAIL', 'POSTMARK_TRANSACTIONAL_STREAM', 'WRITING_WELCOME_ENABLED'];
 const saved = Object.fromEntries(names.map((name) => [name, process.env[name]]));
 const originalFetch = globalThis.fetch;
 afterEach(() => { globalThis.fetch = originalFetch; for (const name of names) { if (saved[name] === undefined) delete process.env[name]; else process.env[name] = saved[name]; } });
 
 test('explicit confirm atomically claims the challenge, adds only selected audiences, and removes email after completion', async () => {
-  for (const [name, value] of Object.entries({ KIT_API_KEY: 'kit-test', UPSTASH_REDIS_REST_URL: 'https://redis.example', UPSTASH_REDIS_REST_TOKEN: 'redis-test', SIGNUP_LINK_SECRET: 'a-long-signing-secret-for-tests-at-least-32', KIT_FORM_FICTION_ID: '102', KIT_FORM_LAB_ID: '104', KIT_TAG_FICTION_ID: '202', KIT_TAG_LAB_ID: '204', KIT_TAG_ARCADEPROFILE_ID: '205', POSTMARK_SERVER_TOKEN: 'postmark-test', POSTMARK_FROM_EMAIL: 'writer@example.com', POSTMARK_TRANSACTIONAL_STREAM: 'outbound' })) process.env[name] = value;
+  for (const [name, value] of Object.entries({ KIT_API_KEY: 'kit-test', UPSTASH_REDIS_REST_URL: 'https://redis.example', UPSTASH_REDIS_REST_TOKEN: 'redis-test', SIGNUP_LINK_SECRET: 'a-long-signing-secret-for-tests-at-least-32', KIT_FORM_FICTION_ID: '102', KIT_FORM_LAB_ID: '104', KIT_TAG_FICTION_ID: '202', KIT_TAG_LAB_ID: '204', KIT_TAG_ARCADEPROFILE_ID: '205', POSTMARK_SERVER_TOKEN: 'postmark-test', POSTMARK_FROM_EMAIL: 'writer@example.com', POSTMARK_TRANSACTIONAL_STREAM: 'outbound', WRITING_WELCOME_ENABLED: 'true' })) process.env[name] = value;
   const id = '0123456789abcdef0123456789abcdef';
   const { signupEmailDigest } = await import('./writing-signup');
   let challenge: Record<string, unknown> = { encryptedEmail: 'ciphertext', emailDigest: signupEmailDigest('reader@example.com'), audiences: ['fiction', 'lab'], source: 'subscribe-page', createdAt: Date.now(), subscriberId: 55, status: 'pending' };
@@ -81,7 +81,7 @@ test('explicit confirm atomically claims the challenge, adds only selected audie
 });
 
 test('inactive Kit subscribers receive no welcome until Kit later confirms them', async () => {
-  for (const [name, value] of Object.entries({ KIT_API_KEY: 'kit-test', UPSTASH_REDIS_REST_URL: 'https://redis.example', UPSTASH_REDIS_REST_TOKEN: 'redis-test', SIGNUP_LINK_SECRET: 'a-long-signing-secret-for-tests-at-least-32', KIT_FORM_FICTION_ID: '102', KIT_TAG_FICTION_ID: '202', KIT_TAG_ARCADEPROFILE_ID: '205', POSTMARK_SERVER_TOKEN: 'postmark-test', POSTMARK_FROM_EMAIL: 'writer@example.com' })) process.env[name] = value;
+  for (const [name, value] of Object.entries({ KIT_API_KEY: 'kit-test', UPSTASH_REDIS_REST_URL: 'https://redis.example', UPSTASH_REDIS_REST_TOKEN: 'redis-test', SIGNUP_LINK_SECRET: 'a-long-signing-secret-for-tests-at-least-32', KIT_FORM_FICTION_ID: '102', KIT_TAG_FICTION_ID: '202', KIT_TAG_ARCADEPROFILE_ID: '205', POSTMARK_SERVER_TOKEN: 'postmark-test', POSTMARK_FROM_EMAIL: 'writer@example.com', WRITING_WELCOME_ENABLED: 'true' })) process.env[name] = value;
   const { signupEmailDigest, createVerificationToken } = await import('./writing-signup');
   const id = '1123456789abcdef0123456789abcdef';
   let challenge: Record<string, unknown> = { encryptedEmail: 'ciphertext', emailDigest: signupEmailDigest('reader@example.com'), audiences: ['fiction'], createdAt: Date.now(), subscriberId: 55, status: 'pending' };
@@ -112,7 +112,7 @@ test('inactive Kit subscribers receive no welcome until Kit later confirms them'
 });
 
 test('a subscriber cancelled during preference writes never receives the welcome', async () => {
-  for (const [name, value] of Object.entries({ KIT_API_KEY: 'kit-test', UPSTASH_REDIS_REST_URL: 'https://redis.example', UPSTASH_REDIS_REST_TOKEN: 'redis-test', SIGNUP_LINK_SECRET: 'a-long-signing-secret-for-tests-at-least-32', KIT_FORM_FICTION_ID: '102', KIT_TAG_FICTION_ID: '202', KIT_TAG_ARCADEPROFILE_ID: '205', POSTMARK_SERVER_TOKEN: 'postmark-test', POSTMARK_FROM_EMAIL: 'writer@example.com' })) process.env[name] = value;
+  for (const [name, value] of Object.entries({ KIT_API_KEY: 'kit-test', UPSTASH_REDIS_REST_URL: 'https://redis.example', UPSTASH_REDIS_REST_TOKEN: 'redis-test', SIGNUP_LINK_SECRET: 'a-long-signing-secret-for-tests-at-least-32', KIT_FORM_FICTION_ID: '102', KIT_TAG_FICTION_ID: '202', KIT_TAG_ARCADEPROFILE_ID: '205', POSTMARK_SERVER_TOKEN: 'postmark-test', POSTMARK_FROM_EMAIL: 'writer@example.com', WRITING_WELCOME_ENABLED: 'true' })) process.env[name] = value;
   const { signupEmailDigest, createVerificationToken } = await import('./writing-signup');
   const id = '2123456789abcdef0123456789abcdef';
   let challenge: Record<string, unknown> = { encryptedEmail: 'ciphertext', emailDigest: signupEmailDigest('reader@example.com'), audiences: ['fiction'], createdAt: Date.now(), subscriberId: 55, status: 'pending' };

@@ -114,6 +114,9 @@ carry an RFC 8058 one-click unsubscribe header and an accessible linked page.
 The page GET is inert and its button explicitly submits; both update Kit state.
 Exclude `/subscribe/verify` and `/subscribe/unsubscribe` from analytics so
 their token fragments are never captured.
+Keep writing welcome delivery disabled unless `WRITING_WELCOME_ENABLED=true`
+is deliberately configured after coordinator review. Signup verification
+emails use Postmark independently of this welcome gate.
 
 `npm run newsletter:post` flags:
 

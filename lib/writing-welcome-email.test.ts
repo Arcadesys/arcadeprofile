@@ -3,7 +3,7 @@ import { afterEach, test } from 'node:test';
 import { buildWritingWelcomeEmail, primaryWritingWelcomeAudience, sendWritingWelcomeOnce } from './writing-welcome-email';
 import { parseKitUnsubscribeToken, signupEmailDigest } from './writing-signup';
 
-const envNames = ['SIGNUP_LINK_SECRET', 'POSTMARK_SERVER_TOKEN', 'POSTMARK_FROM_EMAIL', 'POSTMARK_FROM_NAME', 'POSTMARK_TRANSACTIONAL_STREAM', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN'];
+const envNames = ['SIGNUP_LINK_SECRET', 'POSTMARK_SERVER_TOKEN', 'POSTMARK_FROM_EMAIL', 'POSTMARK_FROM_NAME', 'POSTMARK_TRANSACTIONAL_STREAM', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'WRITING_WELCOME_ENABLED'];
 const previous = Object.fromEntries(envNames.map((name) => [name, process.env[name]]));
 afterEach(() => { for (const name of envNames) { if (previous[name] === undefined) delete process.env[name]; else process.env[name] = previous[name]; } });
 
@@ -15,7 +15,17 @@ function configure() {
   process.env.POSTMARK_TRANSACTIONAL_STREAM = 'outbound';
   process.env.UPSTASH_REDIS_REST_URL = 'https://redis.example';
   process.env.UPSTASH_REDIS_REST_TOKEN = 'redis-test';
+  process.env.WRITING_WELCOME_ENABLED = 'true';
 }
+
+test('welcome stays disabled until WRITING_WELCOME_ENABLED is explicitly true', async () => {
+  configure();
+  delete process.env.WRITING_WELCOME_ENABLED;
+  let calls = 0;
+  const fetcher: typeof fetch = async () => { calls += 1; throw new Error('must not send'); };
+  assert.equal(await sendWritingWelcomeOnce({ email: 'reader@example.com', subscriberId: 12, emailDigest: signupEmailDigest('reader@example.com'), audiences: ['all'], fetcher }), 'disabled');
+  assert.equal(calls, 0);
+});
 
 test('welcome selection uses deterministic preference priority and approved copy', () => {
   assert.equal(primaryWritingWelcomeAudience(['lab', 'essays', 'fiction']), 'fiction');

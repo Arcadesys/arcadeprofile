@@ -3,7 +3,7 @@ import { afterEach, test } from 'node:test';
 import { reconcileVerifiedKitSignups } from './kit-confirmation-reconciliation';
 import { signupEmailDigest } from './writing-signup';
 
-const envNames = ['UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'KIT_TAG_ALL_WRITING_ID', 'KIT_TAG_FICTION_ID', 'KIT_TAG_ESSAYS_ID', 'KIT_TAG_LAB_ID', 'KIT_TAG_ARCADEPROFILE_ID', 'KIT_API_KEY', 'SIGNUP_LINK_SECRET', 'POSTMARK_SERVER_TOKEN', 'POSTMARK_FROM_EMAIL'];
+const envNames = ['UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'KIT_TAG_ALL_WRITING_ID', 'KIT_TAG_FICTION_ID', 'KIT_TAG_ESSAYS_ID', 'KIT_TAG_LAB_ID', 'KIT_TAG_ARCADEPROFILE_ID', 'KIT_API_KEY', 'SIGNUP_LINK_SECRET', 'POSTMARK_SERVER_TOKEN', 'POSTMARK_FROM_EMAIL', 'WRITING_WELCOME_ENABLED'];
 const saved = Object.fromEntries(envNames.map((name) => [name, process.env[name]]));
 afterEach(() => { for (const name of envNames) { if (saved[name] === undefined) delete process.env[name]; else process.env[name] = saved[name]; } });
 
@@ -74,6 +74,7 @@ test('cron sends one selected welcome only after an explicitly verified challeng
   configure();
   process.env.POSTMARK_SERVER_TOKEN = 'postmark-test';
   process.env.POSTMARK_FROM_EMAIL = 'writer@example.com';
+  process.env.WRITING_WELCOME_ENABLED = 'true';
   let challenge: Record<string, unknown> = { emailDigest: signupEmailDigest('reader@example.com'), audiences: ['lab', 'essays'], createdAt: Date.now(), verifiedAt: Date.now(), subscriberId: 57, status: 'awaiting-kit' };
   const claims = new Map<string, string>();
   const emails: Array<Record<string, unknown>> = [];
