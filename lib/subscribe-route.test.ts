@@ -1,109 +1,141 @@
-import assert from "node:assert/strict";
-import { afterEach, test } from "node:test";
-import { NextRequest } from "next/server";
-import { POST } from "@/app/(frontend)/api/subscribe/route";
+import assert from 'node:assert/strict';
+import { afterEach, test } from 'node:test';
+import { NextRequest } from 'next/server';
+import { POST } from '@/app/(frontend)/api/subscribe/route';
 
+const names = ['KIT_API_KEY', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'SIGNUP_LINK_SECRET', 'POSTMARK_SERVER_TOKEN', 'POSTMARK_FROM_EMAIL', 'POSTMARK_FROM_NAME', 'POSTMARK_TRANSACTIONAL_STREAM'];
+const saved = Object.fromEntries(names.map((name) => [name, process.env[name]]));
 const originalFetch = globalThis.fetch;
-const originalApiKey = process.env.KIT_API_KEY;
-const originalFormIds = Object.fromEntries(
-  ["ALL", "FICTION", "ESSAYS", "LAB"].map((name) => [`KIT_FORM_${name}_ID`, process.env[`KIT_FORM_${name}_ID`]]),
-);
 afterEach(() => {
   globalThis.fetch = originalFetch;
-  if (originalApiKey === undefined) delete process.env.KIT_API_KEY;
-  else process.env.KIT_API_KEY = originalApiKey;
-  for (const [name, value] of Object.entries(originalFormIds)) {
-    if (value === undefined) delete process.env[name];
-    else process.env[name] = value;
-  }
+  for (const name of names) { if (saved[name] === undefined) delete process.env[name]; else process.env[name] = saved[name]; }
 });
 function configure() {
-  process.env.KIT_API_KEY = "test-key";
-  process.env.KIT_FORM_ALL_ID = "101";
-  process.env.KIT_FORM_FICTION_ID = "102";
-  process.env.KIT_FORM_ESSAYS_ID = "103";
-  process.env.KIT_FORM_LAB_ID = "104";
+  process.env.KIT_API_KEY = 'kit-test';
+  process.env.UPSTASH_REDIS_REST_URL = 'https://redis.example';
+  process.env.UPSTASH_REDIS_REST_TOKEN = 'redis-test';
+  process.env.SIGNUP_LINK_SECRET = 'test-secret-with-more-than-32-characters';
+  process.env.POSTMARK_SERVER_TOKEN = 'postmark-test';
+  process.env.POSTMARK_FROM_EMAIL = 'writer@example.com';
+  process.env.POSTMARK_TRANSACTIONAL_STREAM = 'outbound';
 }
 function request(body: unknown) {
-  return new NextRequest("https://example.com/api/subscribe", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  return new NextRequest('https://example.com/api/subscribe', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
 }
 
-test("selected preferences create an inactive subscriber then request each double opt-in form", async () => {
+test('signup stores an expiring challenge and sends one fragment-link email without Kit writes', async () => {
   configure();
-  const calls: Array<{ url: string; body: unknown }> = [];
-  globalThis.fetch = async (url, init) => {
-    calls.push({ url: String(url), body: JSON.parse(String(init?.body)) });
-    assert.equal(new Headers(init?.headers).get("X-Kit-Api-Key"), "test-key");
-    if (String(url) === "https://api.kit.com/v4/subscribers") {
-      return Response.json({ subscriber: { id: 55, state: "inactive" } });
+  const kitWrites: string[] = [];
+  let challenge: Record<string, unknown> | undefined;
+  let postmark: Record<string, unknown> | undefined;
+  globalThis.fetch = async (input, init) => {
+    const url = String(input);
+    if (url.startsWith('https://api.kit.com/v4/subscribers?')) return Response.json({ subscribers: [] });
+    if (url === 'https://redis.example') {
+      const command = JSON.parse(String(init?.body)) as string[];
+      assert.equal(command[0], 'SET');
+      if (String(command[1]).startsWith('writing:send-cooldown:')) return Response.json({ result: 'OK' });
+      challenge = JSON.parse(command[2]) as Record<string, unknown>;
+      return Response.json({ result: 'OK' });
     }
-    return Response.json({ subscriber: { id: 55 } });
+    if (url === 'https://api.postmarkapp.com/email') {
+      postmark = JSON.parse(String(init?.body)) as Record<string, unknown>;
+      return Response.json({ ErrorCode: 0, Message: 'OK', MessageID: 'postmark-message-1' });
+    }
+    kitWrites.push(url);
+    throw new Error(`Unexpected request ${url}`);
   };
-  const response = await POST(request({
-    email: "Reader@Example.com",
-    audiences: ["fiction", "lab"],
-    source: "subscribe-page",
-    updateMode: "replace",
-  }));
+  const response = await POST(request({ email: 'Reader@Example.com', audiences: ['fiction', 'lab', 'fiction'], source: 'subscribe-page' }));
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), {
-    ok: true,
-    subscribed: ["fiction", "lab"],
-    confirmationRequired: true,
-  });
-  assert.deepEqual(calls, [
-    { url: "https://api.kit.com/v4/subscribers", body: { email_address: "reader@example.com", state: "inactive" } },
-    { url: "https://api.kit.com/v4/forms/102/subscribers/55", body: {} },
-    { url: "https://api.kit.com/v4/forms/104/subscribers/55", body: {} },
-  ]);
+  assert.equal((await response.json() as { ok: boolean }).ok, true);
+  assert.deepEqual(challenge?.audiences, ['fiction', 'lab']);
+  assert.notEqual(challenge?.encryptedEmail, 'reader@example.com');
+  assert.equal(typeof challenge?.encryptedEmail, 'string');
+  assert.equal(challenge?.status, 'pending');
+  assert.equal(postmark?.To, 'reader@example.com');
+  assert.equal(postmark?.TrackLinks, 'None');
+  assert.equal(postmark?.MessageStream, 'outbound');
+  assert.match(String(postmark?.HtmlBody), /\/subscribe\/verify#[a-f0-9]{32}\./);
+  assert.deepEqual(kitWrites, []);
 });
 
-test("partial form failures are returned without hiding successful requests", async () => {
+test('suppressed Kit state receives no challenge, email, or writes', async () => {
   configure();
-  globalThis.fetch = async (url) => {
-    if (String(url) === "https://api.kit.com/v4/subscribers") {
-      return Response.json({ subscriber: { id: 55, state: "inactive" } });
+  let redisOrPostmark = false;
+  globalThis.fetch = async (input) => {
+    if (String(input).startsWith('https://api.kit.com/v4/subscribers?')) {
+      return Response.json({ subscribers: [{ id: 99, state: 'complained', email_address: 'reader@example.com' }] });
     }
-    if (String(url).includes("/forms/101/")) return new Response("", { status: 503 });
-      return Response.json({ subscriber: { id: 55, state: "inactive" } });
+    redisOrPostmark = true;
+    throw new Error('unexpected write');
   };
-  const response = await POST(request({ email: "reader@example.com", audiences: ["all", "essays"] }));
-  assert.equal(response.status, 207);
-  assert.deepEqual(await response.json(), {
-    ok: false,
-    partial: true,
-    submitted: ["essays"],
-    failed: ["all"],
-    confirmationRequired: true,
-    error: "Some preferences could not be submitted. Check the failed preferences and try again.",
-  });
+  const response = await POST(request({ email: 'reader@example.com', audiences: ['all'] }));
+  assert.equal(response.status, 200);
+  assert.equal(redisOrPostmark, false);
 });
 
-test("a failed inactive-subscriber creation cannot report enrollment", async () => {
+test('an ambiguous Postmark result keeps the challenge and cooldown and does not blindly resend', async () => {
   configure();
-  let calls = 0;
-  globalThis.fetch = async () => { calls += 1; return new Response("", { status: 503 }); };
-  const response = await POST(request({ email: "reader@example.com", audiences: ["all"] }));
+  let postmarkCalls = 0;
+  let cooldownClaimed = false;
+  globalThis.fetch = async (input, init) => {
+    const url = String(input);
+    if (url.startsWith('https://api.kit.com/v4/subscribers?')) return Response.json({ subscribers: [] });
+    if (url === 'https://redis.example') {
+      const command = JSON.parse(String(init?.body)) as string[];
+      if (String(command[1]).startsWith('writing:send-cooldown:')) {
+        if (cooldownClaimed) return Response.json({ result: null });
+        cooldownClaimed = true;
+      }
+      return Response.json({ result: 'OK' });
+    }
+    if (url === 'https://api.postmarkapp.com/email') { postmarkCalls += 1; throw new Error('network timeout'); }
+    throw new Error(`Unexpected request ${url}`);
+  };
+  const body = { email: 'reader@example.com', audiences: ['all'] };
+  const first = await POST(request(body));
+  assert.equal(first.status, 202);
+  assert.equal((await first.json() as { deliveryPending: boolean }).deliveryPending, true);
+  const second = await POST(request(body));
+  assert.equal(second.status, 200);
+  assert.equal(postmarkCalls, 1);
+});
+
+test('a definitive Postmark rejection releases cooldown so the reader can retry', async () => {
+  configure();
+  const commands: string[][] = [];
+  globalThis.fetch = async (input, init) => {
+    const url = String(input);
+    if (url.startsWith('https://api.kit.com/v4/subscribers?')) return Response.json({ subscribers: [] });
+    if (url === 'https://redis.example') {
+      const command = JSON.parse(String(init?.body)) as string[];
+      commands.push(command);
+      return Response.json({ result: 'OK' });
+    }
+    if (url === 'https://api.postmarkapp.com/email') return Response.json({ ErrorCode: 300, Message: 'Rejected' }, { status: 422 });
+    throw new Error(`Unexpected request ${url}`);
+  };
+  const response = await POST(request({ email: 'reader@example.com', audiences: ['all'] }));
   assert.equal(response.status, 502);
-  assert.equal(calls, 1);
+  assert.ok(commands.some((command) => command[0] === 'DEL' && String(command[1]).startsWith('writing:send-cooldown:')));
+  assert.ok(commands.some((command) => command[0] === 'DEL' && String(command[1]).startsWith('writing:challenge:')));
 });
 
-test("an already-active subscriber is not added to another form without fresh confirmation", async () => {
+test('a malformed Postmark success receipt is treated as ambiguous and keeps the cooldown', async () => {
   configure();
-  const calls: string[] = [];
-  globalThis.fetch = async (url) => {
-    calls.push(String(url));
-    return Response.json({ subscriber: { id: 55, state: "active" } });
+  let deleteCooldown = false;
+  globalThis.fetch = async (input, init) => {
+    const url = String(input);
+    if (url.startsWith('https://api.kit.com/v4/subscribers?')) return Response.json({ subscribers: [] });
+    if (url === 'https://redis.example') {
+      const command = JSON.parse(String(init?.body)) as string[];
+      if (command[0] === 'DEL' && String(command[1]).startsWith('writing:send-cooldown:')) deleteCooldown = true;
+      return Response.json({ result: 'OK' });
+    }
+    if (url === 'https://api.postmarkapp.com/email') return Response.json({ ErrorCode: 0, Message: 'OK' });
+    throw new Error(`Unexpected request ${url}`);
   };
-  const response = await POST(request({ email: "reader@example.com", audiences: ["fiction", "lab"] }));
-  assert.equal(response.status, 207);
-  assert.deepEqual(calls, ["https://api.kit.com/v4/subscribers"]);
-  const body = await response.json();
-  assert.deepEqual(body.failed, ["fiction", "lab"]);
-  assert.equal(body.blockedActiveSubscriber, undefined);
-  assert.match(body.error, /already active in Kit/);
+  const response = await POST(request({ email: 'reader@example.com', audiences: ['all'] }));
+  assert.equal(response.status, 202);
+  assert.equal(deleteCooldown, false);
 });

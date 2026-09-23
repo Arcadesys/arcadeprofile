@@ -1,77 +1,69 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import { afterEach, test } from 'node:test';
+import { reconcileVerifiedKitSignups } from './kit-confirmation-reconciliation';
 
-import { reconcileConfirmedKitSubscribers } from './kit-confirmation-reconciliation';
+const envNames = ['UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'KIT_TAG_ALL_WRITING_ID', 'KIT_TAG_FICTION_ID', 'KIT_TAG_ESSAYS_ID', 'KIT_TAG_LAB_ID', 'KIT_TAG_ARCADEPROFILE_ID', 'KIT_API_KEY'];
+const saved = Object.fromEntries(envNames.map((name) => [name, process.env[name]]));
+afterEach(() => { for (const name of envNames) { if (saved[name] === undefined) delete process.env[name]; else process.env[name] = saved[name]; } });
 
-const audiences = [
-  { audience: 'all' as const, formId: '9953083', tagId: '23851250' },
-  { audience: 'fiction' as const, formId: '9953090', tagId: '23851251' },
-  { audience: 'essays' as const, formId: '9953099', tagId: '23851252' },
-  { audience: 'lab' as const, formId: '9953112', tagId: '23851253' },
-];
+function configure() {
+  process.env.UPSTASH_REDIS_REST_URL = 'https://redis.example';
+  process.env.UPSTASH_REDIS_REST_TOKEN = 'redis-test';
+  process.env.KIT_TAG_ALL_WRITING_ID = '201';
+  process.env.KIT_TAG_FICTION_ID = '202';
+  process.env.KIT_TAG_ESSAYS_ID = '203';
+  process.env.KIT_TAG_LAB_ID = '204';
+  process.env.KIT_TAG_ARCADEPROFILE_ID = '205';
+  process.env.KIT_API_KEY = 'kit-test';
+}
 
-test('reconciliation reads every form and tag before idempotently tagging active members', async () => {
-  const calls: Array<{ url: URL; method: string }> = [];
-  let writeStarted = false;
+test('cron tags only the selected audiences saved by explicit verification and never scans Kit forms', async () => {
+  configure();
+  let challenge: Record<string, unknown> = { audiences: ['fiction', 'lab'], createdAt: Date.now(), verifiedAt: Date.now(), subscriberId: 55, status: 'awaiting-kit' };
+  const calls: Array<{ url: string; command?: string[] }> = [];
   const fetcher: typeof fetch = async (input, init) => {
-    const url = new URL(String(input));
-    const method = init?.method ?? 'GET';
-    calls.push({ url, method });
-    if (method === 'POST') {
-      writeStarted = true;
-      return Response.json({ subscriber: { id: Number(url.pathname.split('/').at(-1)) } });
+    const url = String(input);
+    if (url === 'https://redis.example') {
+      const command = JSON.parse(String(init?.body)) as string[];
+      calls.push({ url, command });
+      if (command[0] === 'SMEMBERS') return Response.json({ result: ['a'.repeat(32)] });
+      if (command[0] === 'GET') return Response.json({ result: JSON.stringify(challenge) });
+      if (command[0] === 'EVAL') { challenge = JSON.parse(String(command[6])) as Record<string, unknown>; return Response.json({ result: 'updated' }); }
+      return Response.json({ result: 1 });
     }
-    assert.equal(writeStarted, false, 'provider reads complete before tag writes begin');
-    if (url.pathname === '/v4/forms/9953083/subscribers' && !url.searchParams.has('after')) {
-      return Response.json({
-        subscribers: [{ id: 11, state: 'active' }],
-        pagination: { has_next_page: true, end_cursor: 'next-page' },
-      });
-    }
-    if (url.pathname === '/v4/forms/9953083/subscribers') {
-      return Response.json({ subscribers: [{ id: 13, state: 'active' }], pagination: { has_next_page: false } });
-    }
-    if (url.pathname.startsWith('/v4/forms/')) {
-      const formId = url.pathname.split('/')[3];
-      const member = formId === '9953090' ? 21 : formId === '9953099' ? 31 : 41;
-      return Response.json({ subscribers: [{ id: member, state: 'active' }], pagination: { has_next_page: false } });
-    }
-    if (url.pathname === '/v4/tags/23851250/subscribers') {
-      return Response.json({ subscribers: [{ id: 13, state: 'cancelled' }], pagination: { has_next_page: false } });
-    }
-    if (url.pathname.startsWith('/v4/tags/') && url.pathname.endsWith('/subscribers')) {
-      return Response.json({ subscribers: [], pagination: { has_next_page: false } });
-    }
-    throw new Error(`Unexpected Kit request: ${method} ${url.pathname}`);
+    calls.push({ url });
+    if (url === 'https://api.kit.com/v4/subscribers/55') return Response.json({ subscriber: { id: 55, state: 'active' } });
+    if (url === 'https://api.kit.com/v4/tags/202/subscribers/55' || url === 'https://api.kit.com/v4/tags/204/subscribers/55' || url === 'https://api.kit.com/v4/tags/205/subscribers/55') return Response.json({ ok: true });
+    throw new Error(`Unexpected request ${url}`);
   };
-
-  const result = await reconcileConfirmedKitSubscribers({ apiKey: 'test-key', audiences }, fetcher);
-  assert.deepEqual(result, { confirmed: 5, alreadyTagged: 1, added: 4, failed: 0 });
-  const writes = calls.filter(({ method }) => method === 'POST');
-  assert.equal(writes.some(({ url }) => url.pathname.endsWith('/12')), false);
-  assert.equal(writes.some(({ url }) => url.pathname.endsWith('/13')), false);
-  assert.equal(writes.length, 4);
-  assert.equal(calls.some(({ url }) => url.pathname === '/v4/forms/9953083/subscribers' && url.searchParams.get('status') !== 'active'), false);
-  assert.equal(calls.some(({ url }) => url.pathname === '/v4/tags/23851250/subscribers' && url.searchParams.get('status') !== 'all'), false);
+  const result = await reconcileVerifiedKitSignups({ apiKey: 'kit-test', fetcher });
+  assert.deepEqual(result, { checked: 1, tagged: 2, pending: 0, failed: 0, remaining: 0 });
+  assert.deepEqual(calls.filter((call) => call.url.includes('/tags/')).map((call) => call.url), [
+    'https://api.kit.com/v4/tags/202/subscribers/55',
+    'https://api.kit.com/v4/tags/204/subscribers/55',
+    'https://api.kit.com/v4/tags/205/subscribers/55',
+  ]);
+  assert.equal(calls.some((call) => call.url.includes('/forms/')), false);
+  assert.equal(challenge.encryptedEmail, undefined);
 });
 
-test('any incomplete Kit read fails before any audience tag write', async () => {
-  let writes = 0;
+test('inactive subscriber remains queued with no tag writes', async () => {
+  configure();
+  const challenge = { audiences: ['all'], createdAt: Date.now(), subscriberId: 56, status: 'awaiting-kit' };
+  let tagged = false;
   const fetcher: typeof fetch = async (input, init) => {
-    const url = new URL(String(input));
-    if (init?.method === 'POST') writes += 1;
-    if (url.pathname === '/v4/forms/9953099/subscribers') return new Response(null, { status: 503 });
-    if (url.pathname.startsWith('/v4/forms/')) {
-      return Response.json({ subscribers: [], pagination: { has_next_page: false } });
+    if (String(input) === 'https://redis.example') {
+      const command = JSON.parse(String(init?.body)) as string[];
+      if (command[0] === 'SMEMBERS') return Response.json({ result: ['b'.repeat(32)] });
+      if (command[0] === 'GET') return Response.json({ result: JSON.stringify(challenge) });
+      if (command[0] === 'EVAL') return Response.json({ result: 'updated' });
+      return Response.json({ result: 1 });
     }
-    if (url.pathname.startsWith('/v4/tags/')) {
-      return Response.json({ subscribers: [], pagination: { has_next_page: false } });
-    }
-    throw new Error('Unexpected endpoint');
+    if (String(input) === 'https://api.kit.com/v4/subscribers/56') return Response.json({ subscriber: { id: 56, state: 'inactive' } });
+    if (String(input).includes('/tags/')) tagged = true;
+    throw new Error(`Unexpected request ${String(input)}`);
   };
-  await assert.rejects(
-    reconcileConfirmedKitSubscribers({ apiKey: 'test-key', audiences }, fetcher),
-    /Kit subscriber lookup failed/,
-  );
-  assert.equal(writes, 0);
+  const result = await reconcileVerifiedKitSignups({ apiKey: 'kit-test', fetcher });
+  assert.deepEqual(result, { checked: 1, tagged: 0, pending: 1, failed: 0, remaining: 0 });
+  assert.equal(tagged, false);
 });

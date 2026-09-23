@@ -7,6 +7,7 @@ export type SubscriptionResponse = {
   submitted?: Audience[];
   failed?: Audience[];
   confirmationRequired?: boolean;
+  deliveryPending?: boolean;
   magnet?: { files?: Array<{ url: string; label: string }> };
 };
 

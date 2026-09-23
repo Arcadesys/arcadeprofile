@@ -85,16 +85,26 @@ migrations, and republication.
 
 ## Email
 
-`/api/subscribe` submits each selected preference to its Kit double opt-in
-form through the v4 API using server-only `KIT_API_KEY`. The site creates one
-inactive subscriber and requests membership on each selected form; Kit sends
-separate confirmation emails, one per selected preference. The signup API must
-not apply audience tags. A daily authenticated cron reads every page of active
-form members and then tags those confirmed subscribers for their audience.
-Configure the four `KIT_FORM_*_ID`, four `KIT_TAG_*_ID`, and `CRON_SECRET`
-values. Keep `KIT_RECONCILE_ENABLED` unset until per-form confirmation is
-proven for already-active contacts; only the exact value `true` enables writes.
-This free-plan reconciliation can take up to a day after confirmation.
+`/api/subscribe` does an exact Kit status read, then stores the submitted email
+as AES-GCM ciphertext plus selected preferences in a 24-hour Upstash challenge and sends one
+explicitly addressed Postmark verification email. It performs no Kit writes.
+The same email/audience bundle uses a keyed ten-minute Redis cooldown to avoid
+repeat sends after ambiguous provider responses.
+The verification URL carries its signed token in a fragment; the page clears
+that fragment before rendering and only an explicit POST button can claim it.
+After the click, active Kit subscribers get the requested form memberships and
+tags. New or inactive subscribers get the requested double-opt-in form
+memberships; email ciphertext is removed as soon as Kit returns a subscriber ID.
+The Redis record then retains only Kit subscriber ID and selected
+preferences for up to 30 days. Kit can send an additional confirmation before
+delivery begins. A daily authenticated cron checks only these Redis-verified
+records and tags only their stored audience choices after Kit reports `active`.
+It never infers selections from raw form-member listings. Configure Kit form
+and audience tag IDs, `KIT_TAG_ARCADEPROFILE_ID`, `KIT_API_KEY`, `CRON_SECRET`,
+`UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` or Vercel-injected
+`KV_REST_API_URL`/`KV_REST_API_TOKEN`, `SIGNUP_LINK_SECRET`, and
+the Postmark transactional sender. The site must fail closed when those values
+are missing. Kit Free can delay tags until the daily cron runs.
 
 `npm run newsletter:post` flags:
 

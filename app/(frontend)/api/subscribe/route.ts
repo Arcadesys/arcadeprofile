@@ -1,116 +1,76 @@
-import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { audienceList, challengeTtlMilliseconds, createVerificationToken, encryptSignupEmail, lookupKitSubscriber, newChallengeId, PostmarkRejectedError, putChallenge, redisCommand, sendVerificationEmail, signupCooldownKey, type SignupChallenge } from '@/lib/writing-signup';
+import { VALID_AUDIENCES, VALID_MAGNETS, VALID_SOURCES, VALID_UPDATE_MODES, type Magnet } from '@/lib/subscribe-types';
+import { parseBody } from '@/lib/validation';
 
-import { subscribeToKitForms } from "@/lib/kit";
-import { logger } from "@/lib/logger";
-import {
-  VALID_AUDIENCES,
-  VALID_SOURCES,
-  VALID_MAGNETS,
-  VALID_UPDATE_MODES,
-  type Magnet,
-} from "@/lib/subscribe-types";
-import { parseBody } from "@/lib/validation";
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-const MAGNETS: Record<
-  Magnet,
-  { files: Array<{ url: string; filename: string; label: string }> }
-> = {
-  story: {
-    files: [
-      {
-        url: "/lead-magnets/la-ligne-du-marais.pdf",
-        filename: "la-ligne-du-marais.pdf",
-        label: "PDF",
-      },
-      {
-        url: "/lead-magnets/la-ligne-du-marais.epub",
-        filename: "la-ligne-du-marais.epub",
-        label: "EPUB",
-      },
-    ],
-  },
-  "it-takes-a-zoo-complete": {
-    files: [
-      {
-        url: "/novels/it-takes-a-zoo/complete/pdf",
-        filename: "it-takes-a-zoo-complete.pdf",
-        label: "Complete PDF",
-      },
-    ],
-  },
+const MAGNETS: Record<Magnet, { files: Array<{ url: string; filename: string; label: string }> }> = {
+  story: { files: [
+    { url: '/lead-magnets/la-ligne-du-marais.pdf', filename: 'la-ligne-du-marais.pdf', label: 'PDF' },
+    { url: '/lead-magnets/la-ligne-du-marais.epub', filename: 'la-ligne-du-marais.epub', label: 'EPUB' },
+  ] },
+  'it-takes-a-zoo-complete': { files: [{ url: '/novels/it-takes-a-zoo/complete/pdf', filename: 'it-takes-a-zoo-complete.pdf', label: 'Complete PDF' }] },
 };
-
-const subscribeSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email is required.")
-    .email("Email must be a valid address."),
-  audiences: z
-    .array(z.enum(VALID_AUDIENCES))
-    .min(
-      1,
-      "Pick at least one list (All, Fiction, Essays, or The Arcades' Lab & build logs).",
-    )
-    .transform((val) => [...new Set(val)]),
+const schema = z.object({
+  email: z.string().trim().min(1).email(),
+  audiences: z.array(z.enum(VALID_AUDIENCES)).min(1).transform(audienceList),
   source: z.enum(VALID_SOURCES).optional(),
   magnet: z.enum(VALID_MAGNETS).optional(),
-  updateMode: z.enum(VALID_UPDATE_MODES).default("replace"),
+  updateMode: z.enum(VALID_UPDATE_MODES).default('replace'),
 });
 
+function json(body: Record<string, unknown>, status = 200) {
+  return NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store, max-age=0', 'Referrer-Policy': 'no-referrer' } });
+}
+
 export async function POST(request: NextRequest) {
-  const parsed = await parseBody(subscribeSchema, request);
+  const parsed = await parseBody(schema, request);
   if (!parsed.ok) return parsed.response;
-
-  const { email, audiences, source, magnet } = parsed.data;
-
-  let result: Awaited<ReturnType<typeof subscribeToKitForms>>;
+  const email = parsed.data.email.toLowerCase();
+  const apiKey = process.env.KIT_API_KEY?.trim();
+  if (!apiKey) return json({ error: 'Signup is temporarily unavailable.' }, 503);
+  if (!process.env.POSTMARK_SERVER_TOKEN?.trim() || !process.env.POSTMARK_FROM_EMAIL?.trim()) return json({ error: 'Signup is temporarily unavailable.' }, 503);
   try {
-    result = await subscribeToKitForms({
-      email,
-      audiences,
-    });
+    // Read only. Suppressed states must not receive a verification message or any Kit writes.
+    const subscriber = await lookupKitSubscriber(email, apiKey);
+    if (subscriber && ['cancelled', 'bounced', 'complained'].includes(subscriber.state)) {
+      return json({ ok: true, confirmationRequired: true, ...(parsed.data.magnet ? { magnet: MAGNETS[parsed.data.magnet] } : {}) });
+    }
+    const id = newChallengeId();
+    const cooldownKey = signupCooldownKey(email, parsed.data.audiences);
+    const claimed = await redisCommand<string | null>(['SET', cooldownKey, id, 'EX', 600, 'NX']);
+    if (claimed !== 'OK') return json({ ok: true, confirmationRequired: true, ...(parsed.data.magnet ? { magnet: MAGNETS[parsed.data.magnet] } : {}) });
+    const createdAt = Date.now();
+    const challenge: SignupChallenge = {
+      encryptedEmail: encryptSignupEmail(email),
+      audiences: parsed.data.audiences,
+      source: parsed.data.source ?? null,
+      createdAt,
+      ...(subscriber ? { subscriberId: subscriber.id } : {}),
+      status: 'pending',
+    };
+    let attemptedPostmark = false;
+    try {
+      await putChallenge(id, challenge);
+      const token = createVerificationToken(id, createdAt + challengeTtlMilliseconds);
+      attemptedPostmark = true;
+      await sendVerificationEmail({ email, token, audiences: challenge.audiences });
+    } catch (error) {
+      if (!attemptedPostmark || error instanceof PostmarkRejectedError) {
+        await redisCommand(['DEL', cooldownKey]);
+        await redisCommand(['DEL', `writing:challenge:${id}`]);
+        throw error;
+      }
+      // An ambiguous network result keeps the ten-minute keyed cooldown so a
+      // retry cannot blindly send a duplicate verification message.
+      return json({ ok: true, confirmationRequired: true, deliveryPending: true, ...(parsed.data.magnet ? { magnet: MAGNETS[parsed.data.magnet] } : {}) }, 202);
+    }
+    return json({ ok: true, confirmationRequired: true, ...(parsed.data.magnet ? { magnet: MAGNETS[parsed.data.magnet] } : {}) });
   } catch {
-    logger.error("[subscribe] Kit form request failed");
-    return NextResponse.json(
-      { error: "Could not subscribe right now. Please try again." },
-      { status: 502 },
-    );
+    // Request data, email addresses, tokens, and provider bodies never enter logs.
+    return json({ error: 'Could not send a confirmation email right now. Please try again.' }, 502);
   }
-
-  // Surface attribution in logs so we can answer "which page is converting?"
-  // without an analytics roundtrip. Email is intentionally omitted.
-  console.log(
-    "[subscribe] Kit form memberships requested",
-    JSON.stringify({
-      source: source ?? null,
-      magnet: magnet ?? null,
-      submitted: result.submitted,
-      failed: result.failed,
-    }),
-  );
-
-  if (result.failed.length > 0) {
-    return NextResponse.json(
-      {
-        ok: false,
-        partial: true,
-        submitted: result.submitted,
-        failed: result.failed,
-        confirmationRequired: true,
-        error: result.blockedActiveSubscriber
-          ? "This address is already active in Kit. We did not add the selected preferences because Kit cannot request a separate confirmation for an already-active subscriber."
-          : "Some preferences could not be submitted. Check the failed preferences and try again.",
-        ...(magnet ? { magnet: MAGNETS[magnet] } : {}),
-      },
-      { status: 207 },
-    );
-  }
-
-  return NextResponse.json({
-    ok: true,
-    subscribed: result.submitted,
-    confirmationRequired: true,
-    ...(magnet ? { magnet: MAGNETS[magnet] } : {}),
-  });
 }

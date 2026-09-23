@@ -1,18 +1,9 @@
 import { timingSafeEqual } from 'node:crypto';
 
-import { reconcileConfirmedKitSubscribers } from '@/lib/kit-confirmation-reconciliation';
-import type { Audience } from '@/lib/subscribe-types';
+import { reconcileVerifiedKitSignups } from '@/lib/kit-confirmation-reconciliation';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
-const AUDIENCES: Audience[] = ['all', 'fiction', 'essays', 'lab'];
-const TAG_ENV: Record<Audience, string> = {
-  all: 'KIT_TAG_ALL_WRITING_ID',
-  fiction: 'KIT_TAG_FICTION_ID',
-  essays: 'KIT_TAG_ESSAYS_ID',
-  lab: 'KIT_TAG_LAB_ID',
-};
 
 function json(body: Record<string, unknown>, status = 200) {
   return Response.json(body, { status, headers: { 'Cache-Control': 'no-store, max-age=0' } });
@@ -28,19 +19,12 @@ export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (!secret || secret.length < 16) return json({ error: 'not_configured' }, 503);
   if (!authorized(request, secret)) return json({ error: 'unauthorized' }, 401);
-  if (process.env.KIT_RECONCILE_ENABLED !== 'true') {
-    return json({ ok: true, skipped: true, reason: 'reconciliation_not_enabled' });
-  }
   const apiKey = process.env.KIT_API_KEY;
-  if (!apiKey) return json({ error: 'not_configured' }, 503);
-
-  const audiences = AUDIENCES.map((audience) => ({
-    audience,
-    formId: process.env[`KIT_FORM_${audience.toUpperCase()}_ID`] ?? '',
-    tagId: process.env[TAG_ENV[audience]] ?? '',
-  }));
+  const redisUrl = process.env.UPSTASH_REDIS_REST_URL?.trim() || process.env.KV_REST_API_URL?.trim();
+  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN?.trim() || process.env.KV_REST_API_TOKEN?.trim();
+  if (!apiKey || !redisUrl || !redisToken) return json({ error: 'not_configured' }, 503);
   try {
-    const result = await reconcileConfirmedKitSubscribers({ apiKey, audiences });
+    const result = await reconcileVerifiedKitSignups({ apiKey });
     return result.failed === 0
       ? json({ ok: true, ...result })
       : json({ ok: false, ...result }, 502);

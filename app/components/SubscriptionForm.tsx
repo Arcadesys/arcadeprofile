@@ -74,6 +74,7 @@ function EnabledSubscriptionForm({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
   const [complete, setComplete] = useState(false);
+  const [completionMessage, setCompletionMessage] = useState(successMessage);
   const [downloads, setDownloads] = useState<Download[]>([]);
   const trackReaderEvent = useReaderEventTracker();
 
@@ -115,12 +116,15 @@ function EnabledSubscriptionForm({
           });
         },
       );
+      setCompletionMessage(payload.deliveryPending
+        ? 'Your request is recorded. Check your inbox; if no confirmation arrives, try again in 10 minutes.'
+        : successMessage);
       if (payload.partial && payload.submitted && payload.failed?.length) {
         setSelected(new Set(payload.failed));
         setError(
           `${payload.submitted.length ? `Confirmation requests were sent for ${audienceNames(payload.submitted)}. ` : `${payload.error ?? 'No preferences were submitted.'} `}`
           + `We could not submit ${audienceNames(payload.failed)}. `
-          + 'Those preferences remain selected so you can retry them. Each selected preference requires its own confirmation email.',
+          + 'Those preferences remain selected so you can retry them.',
         );
         queueMicrotask(() => statusRef.current?.focus());
         return;
@@ -140,7 +144,8 @@ function EnabledSubscriptionForm({
     const readingLink = readingLinkFor(selected);
     return (
       <div ref={statusRef} className={styles.status} role="status" aria-live="polite" tabIndex={-1}>
-        <strong>{successMessage}</strong>
+        <strong>{completionMessage}</strong>
+        <p>One email covers the preferences you selected. If your address is new or inactive in Kit, Kit may send another confirmation before delivery begins.</p>
         {downloads.length > 0 ? (
           <div className={styles.downloads}>
             {downloads.map((download) => <a key={download.href} href={download.href}>{download.label}</a>)}
@@ -188,7 +193,7 @@ function EnabledSubscriptionForm({
 
       <p className={styles.terms}>New writing when it&rsquo;s ready. Free. One-click unsubscribe.</p>
       {showPreferences ? (
-        <p className={styles.terms}>Each selected preference sends a separate confirmation email. Confirm each email to join that list.</p>
+        <p className={styles.terms}>One confirmation email covers all selected preferences. New or inactive Kit subscribers may receive a second confirmation from Kit.</p>
       ) : null}
       <button className={styles.submit} type="submit" disabled={pending}>{pending ? 'Subscribing…' : submitLabel}</button>
       {error ? <div ref={statusRef} className={`${styles.status} ${styles.error}`} role="alert" aria-live="assertive" tabIndex={-1}>{error}</div> : null}

@@ -1,0 +1,66 @@
+.shell {
+  width: min(100% - 2rem, 48rem);
+  margin: 0 auto;
+  padding: clamp(2.5rem, 8vw, 6rem) 0;
+}
+
+.shell :global(.signup-verify) {
+  color: var(--fg);
+  line-height: 1.65;
+}
+
+.shell :global(.signup-verify__eyebrow) {
+  margin: 0 0 .5rem;
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.shell h1 {
+  max-width: 18ch;
+  margin: 0 0 1rem;
+  font-size: clamp(2.25rem, 7vw, 4rem);
+  line-height: 1.08;
+}
+
+.shell :global(.signup-verify__actions) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.shell button {
+  min-height: 3.25rem;
+  padding: .75rem 1.25rem;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--fg);
+  color: var(--bg);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.shell :global(.signup-verify__secondary) {
+  background: var(--surface);
+  color: var(--fg);
+}
+
+.shell button:focus-visible,
+.shell a:focus-visible {
+  outline: 4px solid #fff;
+  outline-offset: 4px;
+}
+
+.shell button:disabled { cursor: wait; opacity: .75; }
+.shell :global(.signup-verify__status) { margin: 1.5rem 0; font-size: 1.125rem; }
+.shell a { color: var(--accent); text-decoration-thickness: .12em; text-underline-offset: .2em; }
+
+@media (max-width: 30rem) {
+  .shell :global(.signup-verify__actions) { align-items: stretch; flex-direction: column; }
+  .shell button { width: 100%; }
+}
