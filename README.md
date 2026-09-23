@@ -70,4 +70,8 @@ audience tags. Kit keeps cancelled contacts out of active-form results and
 broadcast sends. If Kit reports that an address is already active, signup
 does not add it to a newly selected form: Kit may treat that membership as
 already confirmed without sending another form-specific confirmation email.
+The cron returns without contacting Kit unless `KIT_RECONCILE_ENABLED=true`.
+Keep that variable unset in Vercel until per-form confirmation is proven for
+already-active contacts; form-member active status alone is not sufficient
+proof for that case.
 Postmark is used only for an explicitly addressed preview.

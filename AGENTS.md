@@ -92,7 +92,9 @@ separate confirmation emails, one per selected preference. The signup API must
 not apply audience tags. A daily authenticated cron reads every page of active
 form members and then tags those confirmed subscribers for their audience.
 Configure the four `KIT_FORM_*_ID`, four `KIT_TAG_*_ID`, and `CRON_SECRET`
-values. This free-plan reconciliation can take up to a day after confirmation.
+values. Keep `KIT_RECONCILE_ENABLED` unset until per-form confirmation is
+proven for already-active contacts; only the exact value `true` enables writes.
+This free-plan reconciliation can take up to a day after confirmation.
 
 `npm run newsletter:post` flags:
 

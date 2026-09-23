@@ -28,6 +28,9 @@ export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (!secret || secret.length < 16) return json({ error: 'not_configured' }, 503);
   if (!authorized(request, secret)) return json({ error: 'unauthorized' }, 401);
+  if (process.env.KIT_RECONCILE_ENABLED !== 'true') {
+    return json({ ok: true, skipped: true, reason: 'reconciliation_not_enabled' });
+  }
   const apiKey = process.env.KIT_API_KEY;
   if (!apiKey) return json({ error: 'not_configured' }, 503);
 
