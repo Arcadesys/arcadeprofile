@@ -26,6 +26,8 @@ A sentence can make someone furious. A paragraph can leave them grieving for a p
 
 That is the trick. The writer creates a space in which the reader agrees, for a little while, to dream with them. And once that dream begins, the writer has a responsibility to keep it alive.
 
+![An open book on a desk leads from a lamplit reading room into a moonlit landscape.](https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/284069ded7dc61481e56741e6604e0f460ca55243e007c92530e73b792316d66/dream-space-open-book.webp)
+
 ## Put Their Head on the Pillow
 
 I started thinking about this differently after watching the English-language rakugo performer Katsura Sunshine. Rakugo is an old Japanese storytelling form performed by a single storyteller, seated onstage, using little more than a fan, a cloth, their voice, and the audience's imagination.
@@ -41,6 +43,8 @@ Writers do exactly the same thing; we just do it with letters and a handful of s
 ## Stay in the Room
 
 I fell in love with James Baldwin in college, when I was introduced to "The Rockpile." What still gets me about that story is the moment after Roy gets hurt. Gabriel comes home looking for someone to blame, and it is not Roy, his own son, who takes the fall. It is Elizabeth first, then John, the stepson he has never claimed as his own. Baldwin never spells out the favoritism. He shows you who gets protected and who gets sacrificed, and lets the reader do the arithmetic. That refusal to flinch runs through everything of his I have read since: race, family, sexuality, religion, shame, violence, love, and belonging, all handled without sanding off the edges that made those subjects dangerous.
+
+![An empty chair beside a set table in a quiet kitchen at night.](https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/f8f7a46512ccf0b9e57f0e3a4b59f544ac870651ba33da9f048b883e4830a158/dream-space-stay-in-room.webp)
 
 The courage to say the hurtful or upsetting parts out loud _is_ craft. It changes what you allow yourself to notice. It changes which details survive the draft. It changes how long you are willing to remain in an uncomfortable moment before escaping into abstraction.
 
