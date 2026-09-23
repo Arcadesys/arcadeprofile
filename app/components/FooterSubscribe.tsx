@@ -5,7 +5,10 @@ import SubscriptionForm from './SubscriptionForm';
 
 export default function FooterSubscribe() {
   const pathname = usePathname();
-  if (pathname === '/queercolumns' || pathname.startsWith('/projects/queer-columns/')) return null;
+  if (
+    pathname === '/queercolumns' || pathname.startsWith('/queercolumns/') ||
+    pathname === '/projects/queer-columns' || pathname.startsWith('/projects/queer-columns/')
+  ) return null;
 
   return (
     <section aria-labelledby="footer-subscribe-heading">

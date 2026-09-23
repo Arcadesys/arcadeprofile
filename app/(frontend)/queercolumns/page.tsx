@@ -81,13 +81,30 @@ export default async function QueerColumnsPage() {
               <ol className={styles.issueList}>
                 {issues.map((issue, index) => (
                   <li key={issue.slug}>
-                    <article className={styles.issueCard}>
-                      <div className={styles.issueMeta}>
-                        <span>Issue {String(issues.length - index).padStart(2, '0')}</span>
-                        <time dateTime={issue.date}>{formatSiteDate(issue.date)}</time>
-                      </div>
-                      <h3><Link href={buildPostUrl('queer-columns', issue.slug)}>{issue.title}</Link></h3>
-                      {issue.excerpt && <p>{issue.excerpt}</p>}
+                    <article className={issue.hero ? `${styles.issueCard} ${styles.illustratedIssue}` : styles.issueCard}>
+                      <Link className={styles.issueCardLink} href={buildPostUrl('queer-columns', issue.slug)}>
+                        {issue.hero && (
+                          <figure className={styles.issueArt}>
+                            <Image
+                              src={issue.hero.src}
+                              alt={issue.hero.alt}
+                              width={1536}
+                              height={1024}
+                              sizes="(max-width: 720px) 100vw, 34rem"
+                            />
+                            {issue.slug === 'the-safe-door' && <figcaption>Illustration for The Safe Door</figcaption>}
+                          </figure>
+                        )}
+                        <div className={styles.issueCopy}>
+                          <div className={styles.issueMeta}>
+                            <span>Issue {String(issues.length - index).padStart(2, '0')}</span>
+                            <time dateTime={issue.date}>{formatSiteDate(issue.date)}</time>
+                          </div>
+                          <h3>{issue.title}</h3>
+                          {issue.excerpt && <p>{issue.excerpt}</p>}
+                          <span className={styles.readIssue}>Read issue <span aria-hidden="true">→</span></span>
+                        </div>
+                      </Link>
                     </article>
                   </li>
                 ))}
