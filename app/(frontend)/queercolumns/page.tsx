@@ -13,7 +13,7 @@ import styles from './queercolumns.module.css';
 export const dynamic = 'force-dynamic';
 
 const description = 'Queer Columns is a monthly column by Austen Tucker on trans life, queer history, and the policies that shape our lives. Let people be people.';
-const signupUrl = process.env.QUEER_COLUMNS_SIGNUP_URL?.trim();
+const signupUrl = 'https://austen-tucker.kit.com/e422068d6d?utm_source=thearcades.me&utm_medium=site&utm_campaign=queer_columns';
 
 export const metadata: Metadata = {
   title: 'Queer Columns',
@@ -106,11 +106,7 @@ export default async function QueerColumnsPage() {
               <h2 id="signup-title">Get Queer Columns</h2>
               <p>One column each month, sent to a separate Queer Columns list in Kit. Signing up for it will not add you to Fiction, Essays, Lab, or All Writing.</p>
             </div>
-            {signupUrl ? (
-              <a className={styles.signupLink} href={signupUrl}>Subscribe in Kit <span aria-hidden="true">↗</span></a>
-            ) : (
-              <span className={styles.signupPending}>Signup opens with the first issue</span>
-            )}
+            <a className={styles.signupLink} href={signupUrl}>Subscribe to Queer Columns <span aria-hidden="true">↗</span></a>
           </section>
 
           <aside className={styles.archive} aria-labelledby="archive-title">

@@ -19,7 +19,7 @@ export default function SubscribePage() {
         Get new writing by email
       </h1>
       <p style={{ maxWidth: '62ch', color: 'var(--fg-muted)', fontSize: '1.125rem', lineHeight: 1.8 }}>
-        Choose the updates you want. One email covers every preference you select. If you are new or inactive in Kit, Kit may send another confirmation before your subscription starts.
+        Choose what you want to hear about. We&rsquo;ll send one confirmation email for everything you select. Kit may ask you to confirm once more before delivery begins.
       </p>
       <SubscriptionForm
         source="subscribe-page"

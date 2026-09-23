@@ -1,6 +1,12 @@
+'use client';
+
+import { usePathname } from 'next/navigation';
 import SubscriptionForm from './SubscriptionForm';
 
 export default function FooterSubscribe() {
+  const pathname = usePathname();
+  if (pathname === '/queercolumns' || pathname.startsWith('/projects/queer-columns/')) return null;
+
   return (
     <section aria-labelledby="footer-subscribe-heading">
       <h2 id="footer-subscribe-heading" style={{ margin: '0 0 0.5rem', fontSize: 'clamp(1.5rem, 4vw, 2rem)', lineHeight: 1.2 }}>

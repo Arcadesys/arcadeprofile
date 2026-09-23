@@ -169,15 +169,15 @@ export async function sendVerificationEmail(input: { email: string; token: strin
   const labels: Record<Audience, string> = { all: 'All writing', fiction: 'Fiction', essays: 'Essays', lab: "The Arcades' Lab" };
   const selected = input.audiences.map((audience) => labels[audience]);
   const verifyUrl = `${site}/subscribe/verify#${input.token}`;
-  const html = `<p>You asked to receive: <strong>${selected.join(', ')}</strong>.</p><p><a href="${verifyUrl}">Confirm these writing preferences</a></p><p>This link expires in 24 hours. If you didn’t request this, you can ignore this email.</p>`;
-  const text = `You asked to receive: ${selected.join(', ')}.\n\nConfirm these writing preferences: ${verifyUrl}\n\nThis link expires in 24 hours. If you didn’t request this, you can ignore this email.`;
+  const html = `<p>You asked to receive: <strong>${selected.join(', ')}</strong>.</p><p><a href="${verifyUrl}">Confirm your subscription</a></p><p>This link expires in 24 hours. If you didn’t request this, you can ignore this email.</p>`;
+  const text = `You asked to receive: ${selected.join(', ')}.\n\nConfirm your subscription: ${verifyUrl}\n\nThis link expires in 24 hours. If you didn’t request this, you can ignore this email.`;
   const response = await fetcher('https://api.postmarkapp.com/email', {
     method: 'POST',
     headers: { 'X-Postmark-Server-Token': serverToken, 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({
       From: process.env.POSTMARK_FROM_NAME?.trim() ? `${process.env.POSTMARK_FROM_NAME.trim()} <${from}>` : from,
       To: input.email,
-      Subject: 'Confirm your writing preferences at The Arcades',
+      Subject: 'Confirm your subscription to The Arcades',
       HtmlBody: html,
       TextBody: text,
       MessageStream: process.env.POSTMARK_TRANSACTIONAL_STREAM?.trim() || 'outbound',

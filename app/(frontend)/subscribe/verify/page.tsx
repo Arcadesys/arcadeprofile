@@ -3,7 +3,7 @@ import VerificationClient from './VerificationClient';
 import styles from './page.module.css';
 
 export const metadata: Metadata = {
-  title: 'Confirm writing preferences',
+  title: 'Confirm your subscription',
   robots: { index: false, follow: false },
   referrer: 'no-referrer',
 };
