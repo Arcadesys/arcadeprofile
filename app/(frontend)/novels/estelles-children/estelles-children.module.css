@@ -93,29 +93,6 @@
   line-height: 1.7;
 }
 
-.excerpt {
-  margin: 1.25rem 0 0;
-  padding: clamp(1.5rem, 5vw, 2.5rem);
-  border-left: 8px solid #f4ca67;
-  color: #17131b;
-  background: #fff8e9;
-}
-
-.excerpt p {
-  margin: 0;
-  font-family: var(--font-serif), Georgia, serif;
-  font-size: clamp(1.4rem, 5vw, 2rem);
-  font-weight: 700;
-  line-height: 1.45;
-  text-wrap: pretty;
-}
-
-.excerpt footer {
-  margin-top: 0.75rem;
-  color: #33263e;
-  font-size: 1rem;
-}
-
 .backLink {
   margin-top: 1.5rem;
   font-size: 1.125rem;
@@ -126,6 +103,5 @@
   .main { padding-inline: 0.5rem; }
   .header,
   .section,
-  .note,
-  .excerpt { padding: 1rem; }
+  .note { padding: 1rem; }
 }

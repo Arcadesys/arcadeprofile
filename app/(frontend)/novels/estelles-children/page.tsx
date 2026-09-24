@@ -50,11 +50,6 @@ export default function EstellesChildrenPreviewPage() {
           </p>
         </section>
 
-        <blockquote className={styles.excerpt}>
-          <p>“Cryin&apos;s over. Let&apos;s work on the rest of your life.”</p>
-          <footer>— Lady Estelle</footer>
-        </blockquote>
-
         <section aria-labelledby="preview-heading" className={styles.note}>
           <h2 id="preview-heading">Preview</h2>
           <p>
