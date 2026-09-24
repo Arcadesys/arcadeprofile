@@ -25,10 +25,12 @@ pdf:
 
 ---
 
-> Suddenly I’m this punk rock
-> star of stage and screen
-> And I ain’t ever—
-> I’m never going back!
+> Put on some makeup\
+> Turn on the eight-track\
+> I'm pulling the wig down from the shelf\
+> Suddenly I'm this punk rock star of stage and screen\
+> And I ain't never\
+> I'm never turning back!
 
 ## Twi, 2024
 
