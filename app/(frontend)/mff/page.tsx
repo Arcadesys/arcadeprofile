@@ -1085,6 +1085,13 @@ export default function MidwestFurFestPage() {
           Have thoughts on this, or something I got wrong?{' '}
           <a href="mailto:austen.crowder@gmail.com">Email me</a>.
         </p>
+        <nav className={styles.nextSteps} aria-label="Continue reading">
+          <p>New to my work? <Link href="/start">Start here</Link>.</p>
+          <p>
+            Curious about my furry creative work? Read <a href="https://hack.thearcades.me/why">why TH4F</a> or{' '}
+            <a href="https://wizwor.vercel.app/furry">try the live review build</a>.
+          </p>
+        </nav>
       </main>
     </div>
   );
