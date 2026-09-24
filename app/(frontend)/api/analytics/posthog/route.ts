@@ -29,10 +29,30 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: 'missing_fields' }, { status: 400 });
   }
 
+  const incoming = payload.properties ?? {};
+  const currentUrl = typeof incoming.$current_url === 'string' ? incoming.$current_url : null;
+
+  let current: URL | null = null;
+  if (currentUrl) {
+    try {
+      current = new URL(currentUrl);
+    } catch {
+      current = null;
+    }
+  }
+
   const properties = {
-    ...payload.properties,
+    ...incoming,
+    $process_person_profile: false,
     $geoip_disable: false,
     $raw_user_agent: request.headers.get('user-agent') ?? undefined,
+    ...(current
+      ? {
+          $current_url: current.toString(),
+          $host: current.hostname,
+          $pathname: current.pathname,
+        }
+      : {}),
   };
 
   const response = await fetch(`${POSTHOG_HOST}/capture/`, {
