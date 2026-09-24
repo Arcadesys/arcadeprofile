@@ -6,7 +6,7 @@ import styles from './start.module.css';
 
 export const metadata: Metadata = {
   title: 'Start here',
-  description: 'A few clear ways into Austen Tucker’s work: AI and product leadership, furry and AI projects, and writing.',
+  description: 'A few clear ways into Austen Tucker’s work: professional writing, projects to explore, and creative writing.',
   alternates: { canonical: '/start' },
 };
 
@@ -22,13 +22,13 @@ const routes = [
     ],
   },
   {
-    id: 'furry-ai',
-    title: 'Furry and AI',
-    description: 'Character art, furry community work, and playful experiments with AI.',
+    id: 'demos-projects',
+    title: 'Demos and Projects',
+    description: 'Interactive toys, small experiments, and other projects you can explore.',
     links: [
-      { label: 'MFF', href: 'https://www.thearcades.me/mff', detail: 'Midwest FurFest community work.' },
-      { label: 'Why furry?', href: 'https://hack.thearcades.me/why', detail: 'A personal introduction to furry.' },
-      { label: 'WizWor furry demo', href: 'https://wizwor.vercel.app/furry', detail: 'Try the furry character experience.' },
+      { label: 'Cultural Weather Vane', href: 'https://www.thearcades.me/toys/cultural-weather-vane', detail: 'Explore songs and headlines on a shared map.' },
+      { label: 'The Day I Split in Two', href: 'https://www.thearcades.me/toys/the-day-i-split-in-two', detail: 'An interactive memoir about change and rebuilding.' },
+      { label: 'It Takes a Zoo', href: 'https://www.thearcades.me/novels/it-takes-a-zoo', detail: 'Read a novel in stories about found family and survival.' },
     ],
   },
   {
