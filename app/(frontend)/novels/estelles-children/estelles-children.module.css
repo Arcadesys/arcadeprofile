@@ -1,0 +1,131 @@
+.main {
+  min-height: 100vh;
+  padding: clamp(1rem, 4vw, 3rem) 1rem 5rem;
+  color: #f7f3f8;
+  background: #100e14;
+}
+
+.preview {
+  width: min(100%, 54rem);
+  margin-inline: auto;
+}
+
+.breadcrumb {
+  margin-bottom: clamp(2rem, 6vw, 4rem);
+  font-size: 1rem;
+}
+
+.breadcrumb a,
+.backLink a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0.4rem 0.65rem;
+  border: 2px solid #a68db5;
+  color: #fff;
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.2em;
+}
+
+.breadcrumb a:focus-visible,
+.backLink a:focus-visible {
+  outline: 4px solid #fff;
+  outline-offset: 5px;
+  border-radius: 2px;
+}
+
+.header {
+  padding: clamp(1.25rem, 5vw, 3rem);
+  border: 2px solid #a68db5;
+  border-top: 8px solid #f4ca67;
+  background: #1b1721;
+}
+
+.eyebrow {
+  margin: 0 0 1rem;
+  color: #ffe19a;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.header h1 {
+  max-width: 18ch;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.75rem, 9vw, 5rem);
+  line-height: 1;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.lede {
+  max-width: 44rem;
+  margin: 1.5rem 0 0;
+  color: #e3dbea;
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
+  line-height: 1.6;
+}
+
+.section,
+.note {
+  margin-top: 1.25rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 2px solid #6c5c76;
+  background: #19151f;
+}
+
+.section h2,
+.note h2 {
+  margin: 0 0 0.75rem;
+  color: #fff;
+  font-size: clamp(1.6rem, 5vw, 2rem);
+  line-height: 1.2;
+}
+
+.section p,
+.note p {
+  max-width: 62ch;
+  margin: 0;
+  color: #e3dbea;
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.excerpt {
+  margin: 1.25rem 0 0;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  border-left: 8px solid #f4ca67;
+  color: #17131b;
+  background: #fff8e9;
+}
+
+.excerpt p {
+  margin: 0;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.excerpt footer {
+  margin-top: 0.75rem;
+  color: #33263e;
+  font-size: 1rem;
+}
+
+.backLink {
+  margin-top: 1.5rem;
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 240px) {
+  .main { padding-inline: 0.5rem; }
+  .header,
+  .section,
+  .note,
+  .excerpt { padding: 1rem; }
+}
