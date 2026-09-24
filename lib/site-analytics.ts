@@ -12,7 +12,7 @@ export function buildSiteAnalyticsContext(pathname: string, currentUrl: string) 
       pathname,
       $pathname: pathname,
       $host: url.hostname,
-      $current_url: url.toString(),
+      $current_url: `${url.origin}${url.pathname}`,
     };
   } catch {
     return {

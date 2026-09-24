@@ -3,6 +3,7 @@
 import { inject } from '@vercel/analytics';
 import { track } from '@vercel/analytics/react';
 import { useLayoutEffect, useState } from 'react';
+import { captureSiteEvent } from '@/lib/posthog-client';
 
 /**
  * The reader event payload intentionally contains only page and UI context.
@@ -84,7 +85,12 @@ export function useReaderEventTracker() {
 
   const [tracker] = useState(() =>
     createReaderEventTracker((event, properties) => {
-      track(event, properties);
+      try {
+        track(event, properties);
+      } catch {
+        // The PostHog receipt remains useful if Vercel Analytics is unavailable.
+      }
+      captureSiteEvent(event === 'signup-success' ? 'signup confirmation requested' : event, properties);
     }),
   );
   return tracker;

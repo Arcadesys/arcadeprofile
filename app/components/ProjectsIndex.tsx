@@ -34,6 +34,7 @@ export interface IndexEntry {
   totalPosts: number;
   feed: FeedItem[];
   latestPost?: FeedItem;
+  primaryActionLabel?: string;
   latestSortKey: number;
 }
 
@@ -237,7 +238,11 @@ export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
                   </div>
                 ) : null}
 
-                {e.bucket === 'recent' && e.latestPost ? (
+                {e.bucket === 'recent' && e.primaryActionLabel ? (
+                  <p className={styles.recentLine}>
+                    <Link href={e.href}>{e.primaryActionLabel} &rarr;</Link>
+                  </p>
+                ) : e.bucket === 'recent' && e.latestPost ? (
                   <p className={styles.recentLine}>
                     last drop &middot; {relativeAgo(e.latestPost.date)} &middot;{' '}
                     <Link href={e.latestPost.href}>

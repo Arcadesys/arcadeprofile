@@ -45,12 +45,12 @@ export function PieceActions({ title, readHref, pdfHref, shareUrl, showRead = tr
   const encodedText = encodeURIComponent(title);
 
   return (
-    <div className={styles.actions} aria-label={showRead ? 'Read, download, or share this piece' : 'Download or share this piece'}>
+    <div className={styles.actions} role="group" aria-label={showRead ? 'Read, download, or share this piece' : 'Download or share this piece'}>
       {showRead ? <a className={styles.action} href={readHref}>Read online</a> : null}
       <a className={styles.action} href={pdfHref}>{showRead ? 'Download PDF' : 'PDF'}</a>
       <button className={styles.shareButton} type="button" onClick={share}>Share</button>
       {showFallbacks ? (
-        <div className={styles.fallbacks} aria-label="Sharing options">
+        <div className={styles.fallbacks} role="group" aria-label="Sharing options">
           <button className={styles.shareButton} type="button" onClick={copyLink}>Copy link</button>
           <a className={styles.action} href={`https://bsky.app/intent/compose?text=${encodedText}%20${encodedUrl}`} target="_blank" rel="noreferrer">Share on Bluesky</a>
           <a className={styles.action} href={`https://x.com/intent/post?text=${encodedText}%20${encodedUrl}`} target="_blank" rel="noreferrer">Share on X</a>

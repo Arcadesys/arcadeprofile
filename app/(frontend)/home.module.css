@@ -210,6 +210,7 @@
   overflow: hidden;
 }
 
+.portrait picture { display: block; width: 100%; }
 .portrait img { display: block; width: 100%; height: auto; object-fit: contain; }
 
 .resume { margin: 1.25rem 0; }
