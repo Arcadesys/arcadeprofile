@@ -65,12 +65,6 @@ export function MffAnalytics() {
     if (!root) return;
 
     const params = new URLSearchParams(window.location.search);
-    capture('$pageview', {
-      landing_page: window.location.pathname,
-      utm_source: params.get('utm_source') || undefined,
-      utm_medium: params.get('utm_medium') || undefined,
-      utm_campaign: params.get('utm_campaign') || undefined,
-    });
     capture('mff page viewed', {
       utm_source: params.get('utm_source') || undefined,
       utm_medium: params.get('utm_medium') || undefined,
