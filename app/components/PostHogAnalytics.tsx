@@ -1,24 +1,19 @@
 'use client';
 
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { shouldTrackSiteAnalytics } from '@/lib/site-analytics';
 import { captureSiteEvent } from '@/lib/posthog-client';
 
 export function PostHogAnalytics() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!shouldTrackSiteAnalytics(pathname)) return;
-    const params = new URLSearchParams(searchParams.toString());
     captureSiteEvent('$pageview', {
       landing_page: pathname,
-      utm_source: params.get('utm_source') || undefined,
-      utm_medium: params.get('utm_medium') || undefined,
-      utm_campaign: params.get('utm_campaign') || undefined,
     });
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
@@ -33,9 +28,10 @@ export function PostHogAnalytics() {
 
       try {
         const url = new URL(href, window.location.href);
+        if (!['http:', 'https:'].includes(url.protocol)) return;
+        if (!shouldTrackSiteAnalytics(url.pathname) && url.hostname === window.location.hostname) return;
         captureSiteEvent('site link clicked', {
-          href: url.hostname === window.location.hostname ? url.pathname : `${url.origin}${url.pathname}`,
-          label: link.textContent?.replace(/\s+/g, ' ').trim().slice(0, 160) || undefined,
+          href: url.hostname === window.location.hostname ? url.pathname : url.hostname === 'work.thearcades.me' ? url.origin : undefined,
           link_kind: url.hostname === window.location.hostname ? 'internal' : 'external',
           destination_host: url.hostname,
         });

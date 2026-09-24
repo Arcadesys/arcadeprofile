@@ -18,7 +18,6 @@ export function buildSiteAnalyticsContext(pathname: string, currentUrl: string) 
     return {
       pathname,
       $pathname: pathname,
-      $current_url: currentUrl,
     };
   }
 }
