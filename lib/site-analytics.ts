@@ -5,5 +5,20 @@ export function shouldTrackSiteAnalytics(pathname: string) {
 
 export function buildSiteAnalyticsContext(pathname: string, currentUrl: string) {
   if (!shouldTrackSiteAnalytics(pathname)) return null;
-  return { pathname, $current_url: currentUrl };
+
+  try {
+    const url = new URL(currentUrl);
+    return {
+      pathname,
+      $pathname: pathname,
+      $host: url.hostname,
+      $current_url: url.toString(),
+    };
+  } catch {
+    return {
+      pathname,
+      $pathname: pathname,
+      $current_url: currentUrl,
+    };
+  }
 }
