@@ -122,7 +122,9 @@ html[data-reading-width="narrow"] { --reading-measure: 52ch; }
 html[data-reading-width="comfy"]  { --reading-measure: 68ch; }
 html[data-reading-width="wide"]   { --reading-measure: 84ch; }
 
-html[data-reading-width] body > main,
+/* Reading width is a prose preference, not a site-layout preference.
+   Do not constrain every top-level <main>: doing so squeezes responsive grids
+   on otherwise wide viewports whenever a reader has Comfy/Narrow selected. */
 html[data-reading-width] .dd-intro-main,
 html[data-reading-width] .dd-post-main,
 html[data-reading-width] .prose {
