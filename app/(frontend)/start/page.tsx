@@ -54,8 +54,8 @@ export default function StartPage() {
     <main className={styles.main}>
       <header className={styles.header}>
         <p>{SITE_NAME}</p>
-        <h1>So, what is all this?</h1>
-        <p className={styles.intro}>A few doors into my work. Choose a subject, or start with one of these three pieces.</p>
+        <h1>I’m a writer.</h1>
+        <p className={styles.intro}>I mean compulsion, not hobby: the books are evidence. Everything else here is what happens when I can’t leave an idea alone.</p>
       </header>
 
       <section className={styles.introductions} aria-labelledby="start-with-heading">
