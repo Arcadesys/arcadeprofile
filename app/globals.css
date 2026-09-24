@@ -2493,3 +2493,13 @@ html[data-contrast="high"] .lights-toggle .dock-trigger[aria-pressed="true"] {
     letter-spacing: .07em;
   }
 }
+
+@media (max-width: 380px) {
+  .site-nav { gap: .25rem; padding-inline: .5rem; }
+  .nav-logo { flex: 0 0 48px; padding-inline: 0; }
+  .nav-logo img { width: 48px; height: 40px; flex-basis: 48px; }
+  .nav-logo-copy { display: none; }
+  .nav-mobile-toggle { min-width: 48px; min-height: 48px; padding-inline: .25rem; }
+  .site-search__trigger { width: 48px; min-height: 48px; }
+  .nav-wrapper > .reading-dock { position: relative; inset: auto; display: flex; justify-content: flex-end; margin: .5rem .5rem 0; }
+}
