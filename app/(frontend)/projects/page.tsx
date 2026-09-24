@@ -10,6 +10,7 @@ import ProjectsIndex, {
   type FeedItem,
 } from '@/app/components/ProjectsIndex';
 import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
+import { ZOO_COLLECTION_DESCRIPTION, ZOO_COLLECTION_PATH, ZOO_FEATURED_COLLECTION } from '@/lib/zoo-collection-meta';
 
 export const dynamic = 'force-dynamic';
 
@@ -60,6 +61,7 @@ export default async function ProjectsPage() {
   const hubBySlug = new Map(hubs.map((h) => [h.slug, h]));
 
   const entries: IndexEntry[] = hubs.map((hub) => {
+    const isZooCollection = hub.slug === 'it-takes-a-zoo';
     const groupPosts = postsByGroup.get(hub.slug) ?? [];
     const totalPosts = groupPosts.length;
     const newest = groupPosts[0];
@@ -83,15 +85,17 @@ export default async function ProjectsPage() {
       latestPost = toFeedItem(newest, hub);
     }
 
-    const metaTags = buildMetaTags(hub, totalPosts);
+    const metaTags = isZooCollection
+      ? [`${ZOO_FEATURED_COLLECTION.chapterCount} chapters + opening poem`]
+      : buildMetaTags(hub, totalPosts);
 
     const latestSortKey = newestMs || dateToMs(hub.updatedAt) || dateToMs(hub.createdAt);
 
     return {
       slug: hub.slug,
       title: hub.title,
-      description: hub.description,
-      href: buildGroupIntroUrl(hub.slug),
+      description: isZooCollection ? ZOO_COLLECTION_DESCRIPTION : hub.description,
+      href: isZooCollection ? ZOO_COLLECTION_PATH : buildGroupIntroUrl(hub.slug),
       image: hub.image ?? null,
       category: hub.category ?? null,
       status: hub.status ?? null,
@@ -101,7 +105,8 @@ export default async function ProjectsPage() {
       cadence,
       totalPosts,
       feed,
-      latestPost,
+      latestPost: isZooCollection ? undefined : latestPost,
+      primaryActionLabel: isZooCollection ? 'Read the six-chapter collection' : undefined,
       latestSortKey,
     };
   });

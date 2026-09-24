@@ -14,4 +14,13 @@ test('verification fragment URLs never produce analytics context', () => {
   });
   assert.equal(shouldTrackSiteAnalytics('/subscribe/unsubscribe'), false);
   assert.equal(buildSiteAnalyticsContext('/subscribe/unsubscribe', 'https://www.thearcades.me/subscribe/unsubscribe#signed-unsubscribe-token'), null);
+  assert.deepEqual(
+    buildSiteAnalyticsContext('/stories', 'https://www.thearcades.me/stories?email=private%40example.com#private-token'),
+    {
+      pathname: '/stories',
+      $pathname: '/stories',
+      $host: 'www.thearcades.me',
+      $current_url: 'https://www.thearcades.me/stories',
+    },
+  );
 });

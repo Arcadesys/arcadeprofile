@@ -13,6 +13,9 @@ import { formatSiteDate } from '@/lib/site-time';
 import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
 import { ZOO_FEATURED_COLLECTION } from '@/lib/zoo-collection-meta';
 import { getReadingCatalog } from '@/lib/reading-catalog';
+import moxieHero480 from '@/public/images/moxie/moxie-sitting-text-gaze-480.webp';
+import moxieHero960 from '@/public/images/moxie/moxie-sitting-text-gaze-960.webp';
+import moxieHero1536 from '@/public/images/moxie/moxie-sitting-text-gaze.webp';
 
 import styles from './home.module.css';
 
@@ -50,15 +53,21 @@ export default async function HomePage() {
             </div>
           </div>
           <div className={styles.portrait}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/moxie/moxie-sitting-text-gaze.webp"
-              alt="Moxie, an orange fox with purple glasses and a magenta forelock, sits and looks toward The Arcades' Lab title."
-              width="1536"
-              height="1024"
-              decoding="async"
-              fetchPriority="high"
-            />
+            <picture>
+              <source
+                type="image/webp"
+                srcSet={`${moxieHero480.src} 480w, ${moxieHero960.src} 960w, ${moxieHero1536.src} 1536w`}
+                sizes="(max-width: 800px) 100vw, 35vw"
+              />
+              <img
+                src={moxieHero960.src}
+                alt="Moxie, an orange fox with purple glasses and a magenta forelock, sits and looks toward The Arcades' Lab title."
+                width="1536"
+                height="1024"
+                decoding="async"
+                fetchPriority="high"
+              />
+            </picture>
           </div>
         </div>
       </header>
