@@ -45,7 +45,7 @@ export default async function HomePage() {
             <h1 className={styles.title}>Everything here used to be something else.</h1>
             <p className={styles.subhead}>Speculative fiction, essays, and build notes by Austen Tucker.</p>
             <div className={styles.heroActions}>
-              <Link className={styles.button} href="/writing">Start Here <span aria-hidden="true">→</span></Link>
+              <Link className={styles.button} href="/start">Start Here <span aria-hidden="true">→</span></Link>
               <Link className={styles.latestLink} href="/latest">Latest <span aria-hidden="true">→</span></Link>
             </div>
           </div>

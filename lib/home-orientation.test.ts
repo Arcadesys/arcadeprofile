@@ -13,7 +13,7 @@ test('homepage has the reader-first conversion copy with signups currently pause
   // Email signups are paused site-wide (see SubscriptionForm.tsx); the
   // homepage hero intentionally has no <SubscriptionForm /> right now.
   assert.doesNotMatch(home, /<SubscriptionForm/);
-  assert.match(home, /<Link className=\{styles\.button\} href="\/writing">Start Here/);
+  assert.match(home, /<Link className=\{styles\.button\} href="\/start">Start Here/);
   assert.match(home, /<Link className=\{styles\.latestLink\} href="\/latest">Latest/);
 });
 
