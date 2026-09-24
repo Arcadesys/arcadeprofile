@@ -247,3 +247,5 @@ They will hide the care.
 They will rebuild the other map.
 
 And someday, when the panic burns itself out, somebody will discover us again and act amazed that we were here the whole time.
+
+New to my work? [Start here](/start).

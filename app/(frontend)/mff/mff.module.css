@@ -569,6 +569,25 @@
   color: inherit;
 }
 
+.nextSteps {
+  margin: 28px auto 0;
+  max-width: 48rem;
+  color: var(--fg);
+  font-size: clamp(1rem, 1.2vw, 1.15rem);
+  line-height: 1.65;
+  text-align: center;
+}
+
+.nextSteps p {
+  margin: 0.5rem 0;
+}
+
+.nextSteps a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 /* Exhibition — the things that already exist */
 
 .calloutWide {

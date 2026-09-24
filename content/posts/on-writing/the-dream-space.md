@@ -115,3 +115,5 @@ That is the whole exercise. Write it. Read it aloud. Then tell the truth.
 Put their head on the pillow.
 
 And invite them into the dream.
+
+New to my work? [Start here](/start).
