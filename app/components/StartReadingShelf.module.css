@@ -1,4 +1,4 @@
-.shelf { margin: 0 0 clamp(3rem, 7vw, 6rem); }
+.shelf { container: reading-shelf / inline-size; margin: 0 0 clamp(3rem, 7vw, 6rem); }
 .heading { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; align-items: baseline; margin-bottom: 1.25rem; }
 .heading h2 { margin: 0; color: var(--fg); font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3rem); line-height: 1; }
 .heading p { margin: 0; color: var(--fg-muted); font-size: 1.05rem; }
@@ -25,8 +25,12 @@
 .compact .item { gap: .5rem; padding: 1rem; }
 .compact .item h3 { font-size: 1.3rem; }
 .compact .read { min-height: 44px; font-size: .9rem; }
-@media (max-width: 680px) {
+@container reading-shelf (max-width: 46rem) {
   .list { grid-template-columns: 1fr; }
   .coverLink { min-height: 260px; }
-  .cover { height: min(100vw, 360px); max-height: 360px; }
+  .cover { height: min(100cqw, 360px); max-height: 360px; }
+}
+
+@media (max-width: 680px) {
+  .cover { height: min(100vw, 360px); }
 }
