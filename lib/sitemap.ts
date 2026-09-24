@@ -35,6 +35,7 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
     priority: 0.8,
   })),
   { path: ZOO_COLLECTION_PATH, changeFrequency: 'monthly', priority: 0.9 },
+  { path: '/novels/estelles-children', changeFrequency: 'monthly', priority: 0.8 },
   ...ZOO_CHAPTERS.map((chapter) => ({
     path: chapter.path,
     changeFrequency: 'monthly' as const,

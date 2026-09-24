@@ -26,9 +26,9 @@ const routes = [
     title: 'Demos and Projects',
     description: 'Interactive toys, small experiments, and other projects you can explore.',
     links: [
-      { label: 'Cultural Weather Vane', href: 'https://www.thearcades.me/toys/cultural-weather-vane', detail: 'Explore songs and headlines on a shared map.' },
+      { label: 'Shoot ’em Up', href: 'https://www.thearcades.me/toys/shoot-em-up', detail: 'Play an interactive-fiction argument about games and tea.' },
       { label: 'The Day I Split in Two', href: 'https://www.thearcades.me/toys/the-day-i-split-in-two', detail: 'An interactive memoir about change and rebuilding.' },
-      { label: 'It Takes a Zoo', href: 'https://www.thearcades.me/novels/it-takes-a-zoo', detail: 'Read a novel in stories about found family and survival.' },
+      { label: 'Cultural Weather Vane', href: 'https://www.thearcades.me/toys/cultural-weather-vane', detail: 'Explore songs and headlines on a shared map.' },
     ],
   },
   {
@@ -36,9 +36,9 @@ const routes = [
     title: 'Writing',
     description: 'Fiction, essays, and queer columns from The Arcades.',
     links: [
-      { label: 'The Dream Space', href: 'https://www.thearcades.me/projects/on-writing/the-dream-space', detail: 'Writing about imagination and creative practice.' },
-      { label: 'The Safe Door', href: 'https://www.thearcades.me/projects/queer-columns/the-safe-door', detail: 'A queer column on finding a way through.' },
-      { label: 'Cultural Weather Vane', href: 'https://www.thearcades.me/lab/cultural-weather-vane', detail: 'An interactive cultural reading toy.' },
+      { label: 'This Is What I Do for Fun', href: 'https://www.thearcades.me/this-is-what-i-do-for-fun', detail: 'A collection of short stories.' },
+      { label: "Estelle's Children", href: 'https://www.thearcades.me/novels/estelles-children', detail: 'A preview of a novel told as an archive.' },
+      { label: 'It Takes a Zoo', href: 'https://www.thearcades.me/novels/it-takes-a-zoo', detail: 'Read a novel in stories about found family and survival.' },
     ],
   },
 ] as const;
