@@ -190,6 +190,12 @@
 
 .signup > div { max-width: 42rem; }
 
+.signupInline {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
 .signupForm { min-width: 0; }
 
 .signupForm :global(.formkit-form) {

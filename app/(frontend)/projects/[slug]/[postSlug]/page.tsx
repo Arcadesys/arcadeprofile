@@ -23,6 +23,8 @@ import {
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
 import ReaderTelemetry from '@/app/components/ReaderTelemetry';
+import KitSignup from '@/app/(frontend)/queercolumns/KitSignup';
+import queerColumnsStyles from '@/app/(frontend)/queercolumns/queercolumns.module.css';
 
 import { absoluteSiteUrl, SITE_URL } from '@/lib/site-url';
 import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
@@ -280,6 +282,18 @@ export default async function ProjectPostPage({ params }: Props) {
             pdfHref={`${buildPostUrl(slug, postSlug)}/pdf`}
             shareUrl={canonicalUrl}
           />
+          {slug === 'queer-columns' && (
+            <section className={`${queerColumnsStyles.signup} ${queerColumnsStyles.signupInline}`} aria-labelledby="signup-title">
+              <div>
+                <h2 id="signup-title">Get the next Queer Columns issue</h2>
+                <p>One essay a month, sent to your inbox.</p>
+              </div>
+              <div className={queerColumnsStyles.signupForm}>
+                <KitSignup />
+                <a className={queerColumnsStyles.signupLink} href="https://austen-tucker.kit.com/e422068d6d?utm_source=thearcades.me&utm_medium=site&utm_campaign=queer_columns">Subscribe to Queer Columns on Kit <span aria-hidden="true">↗</span></a>
+              </div>
+            </section>
+          )}
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             {prevPartHref ? (
               <Link href={prevPartHref} style={{ display: 'inline-flex', minHeight: '44px', alignItems: 'center', color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '1rem' }}>
