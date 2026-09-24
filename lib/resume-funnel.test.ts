@@ -42,7 +42,7 @@ test('the homepage opens the professional lane immediately after the hero', () =
 test('the reader funnel keeps its homepage entry points', () => {
   const home = source('app/(frontend)/page.tsx');
 
-  assert.match(home, /<Link className=\{styles\.button\} href="\/writing">Start Here/);
+  assert.match(home, /<Link className=\{styles\.button\} href="\/start">Start Here/);
   assert.match(home, /<Link className=\{styles\.latestLink\} href="\/latest">Latest/);
   assert.match(home, /href="\/stories">Read fiction/);
   assert.match(home, /href="\/essays">Read essays/);
