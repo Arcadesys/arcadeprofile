@@ -8,6 +8,8 @@ test('verification fragment URLs never produce analytics context', () => {
   assert.equal(buildSiteAnalyticsContext('/subscribe/verify', secretUrl), null);
   assert.deepEqual(buildSiteAnalyticsContext('/essays/example', 'https://www.thearcades.me/essays/example'), {
     pathname: '/essays/example',
+    $pathname: '/essays/example',
+    $host: 'www.thearcades.me',
     $current_url: 'https://www.thearcades.me/essays/example',
   });
   assert.equal(shouldTrackSiteAnalytics('/subscribe/unsubscribe'), false);
