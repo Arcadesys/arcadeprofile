@@ -54,7 +54,7 @@ test('project prose has an article landmark and mobile controls have accessible 
   assert.match(css, /\.dd-toggle[\s\S]*?position: static[\s\S]*?min-height: 56px/);
 });
 
-test('long-form routes keep their inactive end-of-piece slot after next steps', () => {
+test('long-form routes offer the end-of-piece signup after next steps', () => {
   const projectPost = source('app/(frontend)/projects/[slug]/[postSlug]/page.tsx');
   const zooChapter = source('app/(frontend)/novels/it-takes-a-zoo/[chapter]/page.tsx');
   const collectionStory = source('app/(frontend)/this-is-what-i-do-for-fun/[slug]/page.tsx');
@@ -67,7 +67,8 @@ test('long-form routes keep their inactive end-of-piece slot after next steps', 
   assert.ok(collectionStory.indexOf('<ReadingNextSteps') < collectionStory.indexOf('<EndOfPieceSubscribe'));
   assert.ok(portfolioPiece.indexOf('<ReadingNextSteps') < portfolioPiece.indexOf('<EndOfPieceSubscribe'));
   assert.ok(labCaseStudy.indexOf('<EndOfPieceSubscribe') < labCaseStudy.indexOf('<div className={styles.pieceActions}>'));
-  assert.match(endOfPieceSubscribe, /return null/);
+  assert.match(endOfPieceSubscribe, /<SubscriptionForm/);
+  assert.match(endOfPieceSubscribe, /END_OF_PIECE_AUDIENCES: readonly Audience\[\] = \['all'\]/);
 });
 
 test('project captures map fiction, writing, and build work to their matching lists', () => {

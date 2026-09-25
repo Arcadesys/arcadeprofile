@@ -130,7 +130,7 @@ export default async function HomePage() {
           <h2 id="recent-heading">Latest</h2>
           {recentPosts.length ? <ol className={styles.recentList}>{recentPosts.map((post) => (
             <li className={styles.recentRow} key={post.slug}>
-              <div><h3><Link href={post.href}>{post.title}</Link></h3><p>{post.groupTitle} · {formatSiteDate(post.date)}</p></div>
+              <div><h3><Link href={post.href}>{post.title}</Link></h3>{post.excerpt ? <p className={styles.recentExcerpt}>{post.excerpt}</p> : null}<p>{post.groupTitle} · {formatSiteDate(post.date)}</p></div>
               <div className={styles.recentActions}><PieceActions title={post.title} readHref={post.href} pdfHref={`${post.href}/pdf`} shareUrl={post.href} showRead={false} /></div>
             </li>
           ))}</ol> : <p>No recent publications are available yet.</p>}
