@@ -266,14 +266,16 @@ export default async function ProjectPostPage({ params }: Props) {
 
         <ReadingNextSteps piece={readingPiece} catalog={readingCatalog} />
 
-        <EndOfPieceSubscribe
-          audience={subscriptionAudience}
-          source="post-end"
-          kind={subscriptionKind}
-          seriesTitle={project.title}
-          totalParts={posts.length}
-          seriesActive={project.status === 'active'}
-        />
+        {slug !== 'queer-columns' && (
+          <EndOfPieceSubscribe
+            audience={subscriptionAudience}
+            source="post-end"
+            kind={subscriptionKind}
+            seriesTitle={project.title}
+            totalParts={posts.length}
+            seriesActive={project.status === 'active'}
+          />
+        )}
 
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
           <PieceActions

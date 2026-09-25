@@ -19,3 +19,10 @@ test('standalone copy names the kind of work without inventing a series count', 
   assert.equal(endOfPieceCopy({ kind: 'story' }), 'Get the next story as it arrives.');
   assert.equal(endOfPieceCopy({ kind: 'build note' }), 'Get the next build note as it arrives.');
 });
+
+test('inactive series copy still names the series without implying it is active', () => {
+  assert.equal(
+    endOfPieceCopy({ kind: 'essay', seriesTitle: 'Queer Columns', totalParts: 4 }),
+    'Follow Queer Columns for new essays.',
+  );
+});
