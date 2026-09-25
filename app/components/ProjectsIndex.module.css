@@ -13,7 +13,7 @@
 .sectionDoors a:hover strong { text-decoration: underline; text-underline-offset: .2em; }
 .sectionDoors a:focus-visible { outline: 4px solid var(--cyan); outline-offset: 5px; }
 .writingNow {
-  scroll-margin-top: 32px;
+  scroll-margin-top: 112px;
   margin: 0 0 28px;
   padding: clamp(20px, 4vw, 32px);
   border: 3px solid var(--cyan);
@@ -87,7 +87,7 @@
 
 .feed { list-style: none; margin: 16px 0 0; padding: 4px 0 4px 16px; border-left: 2px solid var(--neon-pink); box-shadow: -2px 0 14px -2px var(--glow-pink); }
 .entry:not(.isActive) .feed { border-left-color: var(--border); box-shadow: none; }
-.feedItem { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 12px; padding: 8px 0; border-bottom: 1px dotted var(--border); }
+.feedItem { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 12px; padding: 8px 0; border-bottom: 1px dotted var(--border); }
 .feedItem:last-child { border-bottom: none; }
 .feedItem a { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; color: var(--fg); text-decoration: none; transition: color .2s; }
 .feedItem a:hover { color: var(--neon-pink); text-shadow: none; }
@@ -129,4 +129,6 @@
   .entryImage { display: none; }
   .headMeta { align-items: flex-start; }
   .filters .sort { margin-left: 0; }
+  .feedItem { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .feedDate { text-align: left; white-space: normal; }
 }

@@ -37,7 +37,7 @@ export default async function HomePage() {
             <span>{SITE_PLATFORM_NAME}</span><b aria-hidden="true">/</b><strong>{SITE_NAME}</strong>
           </Link>
           <div className={styles.topActions}>
-            <a className={styles.workWithMe} href="https://work.thearcades.me">
+            <a className={styles.workWithMe} href="https://work.thearcades.me/?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_header">
               Work with me <span aria-hidden="true"> ↗</span>
             </a>
           </div>
@@ -90,7 +90,7 @@ export default async function HomePage() {
             </Link>
           </li>
           <li>
-            <a href="https://work.thearcades.me">
+            <a href="https://work.thearcades.me/?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_entry">
               <strong>Explore professional work</strong>
               <span>See professional projects, case studies, and writing.</span>
               <span className={styles.entryPathAction}>Visit the work site <span aria-hidden="true">↗</span></span>

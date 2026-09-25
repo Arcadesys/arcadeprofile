@@ -47,7 +47,7 @@ const routes = [
 const entryChoices = [
   { label: 'Read fiction', title: 'Cold Boot', href: '/novels/it-takes-a-zoo/cold-boot', detail: 'Start It Takes a Zoo, a novel in stories about found family and survival.', action: 'Read Cold Boot' },
   { label: 'Read essays and columns', title: 'The Safe Door', href: '/projects/queer-columns/the-safe-door', detail: 'Begin with a Queer Columns essay about safety, community, and building another map.', action: 'Read The Safe Door' },
-  { label: 'Explore professional work', title: 'The Arcades Work', href: 'https://work.thearcades.me', detail: 'See professional projects, case studies, and writing.', action: 'Visit the work site' },
+  { label: 'Explore professional work', title: 'The Arcades Work', href: 'https://work.thearcades.me/?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=start_entry', detail: 'See professional projects, case studies, and writing.', action: 'Visit the work site' },
 ] as const;
 
 export default function StartPage() {
