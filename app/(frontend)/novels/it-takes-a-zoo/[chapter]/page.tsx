@@ -53,9 +53,9 @@ export default async function ZooChapterPage({ params }: Props) {
       <JsonLd data={jsonLd} />
       <ReadingContinuityTracker piece={readingPiece} />
       <article className={styles.reader}>
-        <Link className={styles.backLink} href={ZOO_COLLECTION_PATH}>← All six chapters</Link>
+        <Link className={styles.backLink} href={ZOO_COLLECTION_PATH}>← All {ZOO_CHAPTERS.length} chapters</Link>
         <header className={styles.readerHeader}>
-          <p className={styles.eyebrow}>Chapter {chapter.order} of 6</p>
+          <p className={styles.eyebrow}>Chapter {chapter.order} of {ZOO_CHAPTERS.length}</p>
           <h1>{chapter.title}</h1>
           <p className={styles.byline}>By Austen Tucker</p>
           <p className={styles.description}>{chapter.description}</p>

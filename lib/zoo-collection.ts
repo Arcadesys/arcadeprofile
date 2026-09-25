@@ -36,6 +36,7 @@ const expected = [
   ['goodgirl-tv', 'Goodgirl.tv'],
   ['soft-reset', 'Soft Reset'],
   ['open-port', 'Open Port'],
+  ['failover', 'Failover'],
 ] as const;
 
 type Asset = { url: string; sha256: string; bytes: number };

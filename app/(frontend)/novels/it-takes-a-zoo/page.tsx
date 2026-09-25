@@ -65,7 +65,7 @@ export default function ZooCollectionPage() {
         <section className={styles.completeEdition} id="complete-pdf" aria-labelledby="complete-pdf-heading">
           <p className={styles.eyebrow}>Complete edition</p>
           <h2 id="complete-pdf-heading">Get the complete PDF</h2>
-          <p>Subscribe to fiction and download the six approved chapters as one large-print, high-contrast edition. The opening poem remains separate.</p>
+          <p>Subscribe to fiction and download all {ZOO_CHAPTERS.length} published chapters as one large-print, high-contrast edition. The opening poem remains separate.</p>
           <SubscriptionForm
             source="zoo-collection"
             audiences={['fiction']}
