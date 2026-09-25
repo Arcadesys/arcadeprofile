@@ -72,6 +72,13 @@ export default async function HomePage() {
         </div>
       </header>
 
+      <div className={styles.resume}>
+        <ContinueReadingBanner availablePaths={readingCatalog.map((piece) => piece.canonicalPath)} />
+        <ContinueToyBanner />
+      </div>
+
+      <StartReadingShelf items={shelf} heading="Choose your next read" headingId="home-start-reading" showCovers />
+
       <section className={styles.workLane} aria-labelledby="home-work-heading">
         <p className={styles.workEyebrow}>AI enablement &amp; transformation</p>
         <h2 id="home-work-heading">Hire me for the hard part.</h2>
@@ -86,13 +93,6 @@ export default async function HomePage() {
           <Link className={styles.workSecondary} href="/projects">Projects</Link>
         </div>
       </section>
-
-      <div className={styles.resume}>
-        <ContinueReadingBanner availablePaths={readingCatalog.map((piece) => piece.canonicalPath)} />
-        <ContinueToyBanner />
-      </div>
-
-      <StartReadingShelf items={shelf} heading="Choose your next read" headingId="home-start-reading" showCovers />
 
       <FeaturedCollectionCard collection={ZOO_FEATURED_COLLECTION} placement="home" />
 
