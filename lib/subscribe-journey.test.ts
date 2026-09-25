@@ -57,11 +57,11 @@ function setupKitJourney(initialState: 'active' | 'inactive') {
         const current = values.get(String(command[3]));
         if (!current) return Response.json({ result: 'missing' });
         const challenge = JSON.parse(current) as { status: string; processingToken?: string };
-        if (challenge.status !== command[5]) return Response.json({ result: challenge.status });
-        if (command[10] && challenge.processingToken !== command[10]) return Response.json({ result: 'lease_mismatch' });
-        values.set(String(command[3]), String(command[6]));
-        if (command[8] === 'awaiting-kit') awaiting.add(String(command[9]));
-        else awaiting.delete(String(command[9]));
+        if (challenge.status !== command[7]) return Response.json({ result: challenge.status });
+        if (command[12] && challenge.processingToken !== command[12]) return Response.json({ result: 'lease_mismatch' });
+        values.set(String(command[3]), String(command[8]));
+        if (command[10] === 'awaiting-kit') awaiting.add(String(command[11]));
+        else awaiting.delete(String(command[11]));
         return Response.json({ result: 'updated' });
       }
       throw new Error(`Unexpected Redis command ${String(command[0])}`);
