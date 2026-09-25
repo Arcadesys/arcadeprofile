@@ -8,6 +8,7 @@ export type SignupChallenge = {
   source?: string | null;
   createdAt: number;
   verifiedAt?: number;
+  kitActiveAt?: number;
   processingUntil?: number;
   processingToken?: string;
   subscriberId?: number;
@@ -129,12 +130,15 @@ export async function saveChallengeIfStatus(
   expectedProcessingToken?: string,
   fetcher: typeof fetch = fetch,
 ): Promise<'updated' | SignupChallenge['status'] | 'missing'> {
+  if (challenge.status === 'complete' && !challenge.kitActiveAt) challenge.kitActiveAt = Date.now();
   const retentionEnd = challenge.verifiedAt ? challenge.verifiedAt + 30 * 24 * 60 * 60 * 1000 : challenge.createdAt + TTL_SECONDS * 1000;
   const ttl = ['processing', 'awaiting-kit'].includes(challenge.status)
     ? Math.max(1, Math.ceil((retentionEnd - Date.now()) / 1000))
     : 0;
-  const script = `local raw=redis.call('GET',KEYS[1]); if not raw then return 'missing' end; local current=cjson.decode(raw); if current.status~=ARGV[1] then return current.status end; if ARGV[6]~='' and current.processingToken~=ARGV[6] then return 'lease_mismatch' end; redis.call('SET',KEYS[1],ARGV[2],'KEEPTTL'); if tonumber(ARGV[3])>0 then redis.call('EXPIRE',KEYS[1],ARGV[3]) end; if ARGV[4]=='awaiting-kit' then redis.call('SADD',KEYS[2],ARGV[5]) else redis.call('SREM',KEYS[2],ARGV[5]) end; return 'updated'`;
-  const result = await redisCommand<string>(['EVAL', script, 2, `writing:challenge:${id}`, challengeIndexKey(), expectedStatus, JSON.stringify(challenge), ttl, challenge.status, id, expectedProcessingToken ?? ''], fetcher);
+  const script = `local raw=redis.call('GET',KEYS[1]); if not raw then return 'missing' end; local current=cjson.decode(raw); if current.status~=ARGV[1] then return current.status end; if ARGV[6]~='' and current.processingToken~=ARGV[6] then return 'lease_mismatch' end; local next=cjson.decode(ARGV[2]); redis.call('SET',KEYS[1],ARGV[2],'KEEPTTL'); if tonumber(ARGV[3])>0 then redis.call('EXPIRE',KEYS[1],ARGV[3]) end; if ARGV[4]=='awaiting-kit' then redis.call('SADD',KEYS[2],ARGV[5]) else redis.call('SREM',KEYS[2],ARGV[5]) end; if not current.verifiedAt and next.verifiedAt and ARGV[7]~='' then redis.call('HINCRBY',KEYS[3],'first_party_verified',1); redis.call('EXPIRE',KEYS[3],34560000) end; if not current.kitActiveAt and next.kitActiveAt and ARGV[8]~='' then redis.call('HINCRBY',KEYS[4],'kit_active_ready',1); redis.call('EXPIRE',KEYS[4],34560000) end; return 'updated'`;
+  const verifiedDay = challenge.verifiedAt ? new Date(challenge.verifiedAt).toISOString().slice(0, 10) : '';
+  const kitActiveDay = challenge.kitActiveAt ? new Date(challenge.kitActiveAt).toISOString().slice(0, 10) : '';
+  const result = await redisCommand<string>(['EVAL', script, 4, `writing:challenge:${id}`, challengeIndexKey(), verifiedDay ? `writing:metrics:${verifiedDay}` : 'writing:metrics:none', kitActiveDay ? `writing:metrics:${kitActiveDay}` : 'writing:metrics:none', expectedStatus, JSON.stringify(challenge), ttl, challenge.status, id, expectedProcessingToken ?? '', verifiedDay, kitActiveDay], fetcher);
   if (result === 'updated' || result === 'missing' || ['pending', 'processing', 'awaiting-kit', 'complete', 'blocked', 'cancelled'].includes(result)) return result as 'updated' | SignupChallenge['status'] | 'missing';
   throw new Error('Signup ledger status was invalid');
 }

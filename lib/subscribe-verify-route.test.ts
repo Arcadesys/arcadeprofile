@@ -36,9 +36,9 @@ test('explicit confirm atomically claims the challenge, adds only selected audie
           welcomeClaims.set(key, String(command[5]));
           return Response.json({ result: 1 });
         }
-        const expected = String(command[5]);
+        const expected = String(command[7]);
         if (challenge.status !== expected) return Response.json({ result: challenge.status });
-        challenge = JSON.parse(String(command[6])) as Record<string, unknown>;
+        challenge = JSON.parse(String(command[8])) as Record<string, unknown>;
         return Response.json({ result: 'updated' });
       }
       if (command[0] === 'DEL') return Response.json({ result: 1 });
@@ -92,7 +92,7 @@ test('Work and TH4F choices join their own forms without Arcades provenance or a
       const command = JSON.parse(String(init?.body)) as Array<string | number>;
       if (command[0] === 'SET') return Response.json({ result: 'OK' });
       if (command[0] === 'GET') return Response.json({ result: JSON.stringify(challenge) });
-      if (command[0] === 'EVAL') { challenge = JSON.parse(String(command[6])) as Record<string, unknown>; return Response.json({ result: 'updated' }); }
+      if (command[0] === 'EVAL') { challenge = JSON.parse(String(command[8])) as Record<string, unknown>; return Response.json({ result: 'updated' }); }
       if (command[0] === 'DEL') return Response.json({ result: 1 });
     }
     if (url === 'https://api.kit.com/v4/subscribers/55') return Response.json({ subscriber: { id: 55, state: 'active', email_address: 'reader@example.com' } });
@@ -124,7 +124,7 @@ test('inactive Kit subscribers receive no welcome until Kit later confirms them'
       if (command[0] === 'SET') return Response.json({ result: 'OK' });
       if (command[0] === 'GET') return Response.json({ result: JSON.stringify(challenge) });
       if (command[0] === 'EVAL') {
-        challenge = JSON.parse(String(command[6])) as Record<string, unknown>;
+        challenge = JSON.parse(String(command[8])) as Record<string, unknown>;
         return Response.json({ result: 'updated' });
       }
       if (command[0] === 'DEL') return Response.json({ result: 1 });
@@ -156,9 +156,9 @@ test('a subscriber cancelled during preference writes never receives the welcome
       if (command[0] === 'SET') return Response.json({ result: 'OK' });
       if (command[0] === 'GET') return Response.json({ result: JSON.stringify(challenge) });
       if (command[0] === 'EVAL') {
-        const expected = String(command[5]);
+        const expected = String(command[7]);
         if (challenge.status !== expected) return Response.json({ result: challenge.status });
-        challenge = JSON.parse(String(command[6])) as Record<string, unknown>;
+        challenge = JSON.parse(String(command[8])) as Record<string, unknown>;
         return Response.json({ result: 'updated' });
       }
       if (command[0] === 'DEL') return Response.json({ result: 1 });
@@ -191,9 +191,9 @@ test('a subscriber cancelled after signup is blocked before any form or tag writ
       if (command[0] === 'SET') return Response.json({ result: 'OK' });
       if (command[0] === 'GET') return Response.json({ result: JSON.stringify(challenge) });
       if (command[0] === 'EVAL') {
-        const expected = String(command[5]);
+        const expected = String(command[7]);
         if (challenge.status !== expected) return Response.json({ result: challenge.status });
-        challenge = JSON.parse(String(command[6])) as Record<string, unknown>;
+        challenge = JSON.parse(String(command[8])) as Record<string, unknown>;
         return Response.json({ result: 'updated' });
       }
       if (command[0] === 'DEL') return Response.json({ result: 1 });
