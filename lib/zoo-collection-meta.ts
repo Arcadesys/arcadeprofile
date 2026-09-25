@@ -29,7 +29,7 @@ export const ZOO_FEATURED_COLLECTION: FeaturedCollectionMetadata = {
   description: ZOO_COLLECTION_DESCRIPTION,
   path: ZOO_COLLECTION_PATH,
   firstChapterPath: `${ZOO_COLLECTION_PATH}/cold-boot`,
-  chapterCount: 6,
+  chapterCount: 7,
   availability: 'Read online · PDFs available by chapter or as one complete edition',
   incentiveAction: { href: `${ZOO_COLLECTION_PATH}#complete-pdf`, label: 'Get the complete PDF' },
   cover: ZOO_HERO,

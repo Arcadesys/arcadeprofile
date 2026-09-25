@@ -8,7 +8,7 @@ import { SITE_URL } from '@/lib/site-url';
 import type { EditorialBlock } from '@/lib/editorial-piece';
 import { markdownToEditorialBlocks } from '@/lib/editorial-piece';
 
-const EDITION_DATE = new Date('2026-08-24T00:00:00.000Z');
+const EDITION_DATE = new Date('2026-09-24T00:00:00.000Z');
 
 const styles = StyleSheet.create({
   page: { paddingTop: 72, paddingBottom: 70, paddingHorizontal: 64, fontFamily: 'Helvetica', fontSize: 15, lineHeight: 1.65, color: '#111111', backgroundColor: '#ffffff' },
@@ -113,7 +113,7 @@ function ZooCompleteEditionDocument() {
         <Text style={styles.title}>{ZOO_COLLECTION_TITLE}</Text>
         <Text style={styles.subtitle}>A novel-in-stories</Text>
         <Text style={styles.byline}>By Austen Tucker</Text>
-        <Text style={styles.note}>Includes the six approved chapters in canonical order. “It Takes a Zoo to Raise the Child” is a separate opening poem and is not included in this edition.</Text>
+        <Text style={styles.note}>Includes all {ZOO_CHAPTERS.length} published chapters in canonical order. “It Takes a Zoo to Raise the Child” is a separate opening poem and is not included in this edition.</Text>
         <Text style={styles.note}>{SITE_URL}{ZOO_COLLECTION_PATH}</Text>
         <Footer pageNumber={1} totalPages={totalPages} />
       </Page>

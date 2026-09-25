@@ -3,11 +3,11 @@ import test from 'node:test';
 
 import { buildStaticSitemapEntries } from './sitemap';
 
-test('the static sitemap includes the Zoo collection and all six chapters', () => {
+test('the static sitemap includes the Zoo collection and all seven chapters', () => {
   const entries = buildStaticSitemapEntries('https://example.test');
   assert.equal(
     entries.filter((entry) => entry.url.includes('/novels/it-takes-a-zoo')).length,
-    7,
+    8,
   );
 });
 

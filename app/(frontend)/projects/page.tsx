@@ -106,7 +106,7 @@ export default async function ProjectsPage() {
       totalPosts,
       feed,
       latestPost: isZooCollection ? undefined : latestPost,
-      primaryActionLabel: isZooCollection ? 'Read the six-chapter collection' : undefined,
+      primaryActionLabel: isZooCollection ? `Read the ${ZOO_FEATURED_COLLECTION.chapterCount}-chapter collection` : undefined,
       latestSortKey,
     };
   });
