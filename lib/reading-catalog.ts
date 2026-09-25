@@ -13,7 +13,7 @@ const EDITION_BY_PATH: Record<string, string> = {
 
 const CURATED_PATHS: Record<string, readonly string[]> = {
   '/novels/it-takes-a-zoo/cold-boot': ['/this-is-what-i-do-for-fun/carl'],
-  '/novels/it-takes-a-zoo/open-port': ['/this-is-what-i-do-for-fun/carl', '/this-is-what-i-do-for-fun/cleanup-on-pod-six'],
+  '/novels/it-takes-a-zoo/failover': ['/this-is-what-i-do-for-fun/carl', '/this-is-what-i-do-for-fun/cleanup-on-pod-six'],
   '/this-is-what-i-do-for-fun/parts-of-the-whole': ['/portfolio/gallery-view'],
 };
 

@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { ZOO_CHAPTERS, ZOO_HERO, zooChapterToEditorialPiece } from './zoo-collection';
 
-test('the collection contains the six canonical chapter editions in order', () => {
+test('the collection contains the seven canonical chapter editions in order', () => {
   assert.deepEqual(ZOO_CHAPTERS.map(({ title, slug, order }) => ({ title, slug, order })), [
     { title: 'Cold Boot', slug: 'cold-boot', order: 1 },
     { title: 'Gallery View', slug: 'gallery-view', order: 2 },
@@ -12,6 +12,7 @@ test('the collection contains the six canonical chapter editions in order', () =
     { title: 'Goodgirl.tv', slug: 'goodgirl-tv', order: 4 },
     { title: 'Soft Reset', slug: 'soft-reset', order: 5 },
     { title: 'Open Port', slug: 'open-port', order: 6 },
+    { title: 'Failover', slug: 'failover', order: 7 },
   ]);
 });
 
@@ -25,6 +26,9 @@ test('chapter Markdown is full web text without planning notes or the separate p
     assert.match(chapter.pdfSha256, /^[a-f0-9]{64}$/);
   }
   assert.match(ZOO_CHAPTERS[1].markdown, /collections\/it-takes-a-zoo\/gallery-view-artwork/);
+  const failover = ZOO_CHAPTERS[6];
+  assert.match(failover.markdown, /^## Kat\n\nThe kitten was on our doorstep/);
+  assert.match(failover.markdown, /I stayed awake, listening to the monitors count for all three of us\.$/);
 });
 
 test('the approved hero and PDF route contract are complete', () => {
@@ -39,7 +43,7 @@ test('the approved hero and PDF route contract are complete', () => {
   assert.ok(piece.blocks.length > 10);
 });
 
-test('the separate opening poem remains linked outside the six-chapter edition', () => {
+test('the separate opening poem remains linked outside the seven-chapter edition', () => {
   const landing = fs.readFileSync(new URL('../app/(frontend)/novels/it-takes-a-zoo/page.tsx', import.meta.url), 'utf8');
   assert.match(landing, /Read the opening poem/);
   assert.match(landing, /it-takes-a-zoo-to-raise-the-child/);

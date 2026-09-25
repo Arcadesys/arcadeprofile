@@ -14,7 +14,7 @@ test('Zoo discovery metadata points to the canonical collection and first chapte
   assert.equal(ZOO_COLLECTION_TITLE, 'It Takes a Zoo');
   assert.equal(ZOO_FEATURED_COLLECTION.path, ZOO_COLLECTION_PATH);
   assert.equal(ZOO_FEATURED_COLLECTION.firstChapterPath, `${ZOO_COLLECTION_PATH}/cold-boot`);
-  assert.equal(ZOO_FEATURED_COLLECTION.chapterCount, 6);
+  assert.equal(ZOO_FEATURED_COLLECTION.chapterCount, 7);
   assert.match(ZOO_FEATURED_COLLECTION.availability, /PDFs available by chapter/);
   assert.deepEqual(ZOO_FEATURED_COLLECTION.incentiveAction, {
     href: `${ZOO_COLLECTION_PATH}#complete-pdf`,

@@ -14,8 +14,8 @@ test('the complete edition manifest describes the deterministic compiled PDF', a
   const pdf = await readFile(path.join(process.cwd(), 'public', 'editions', 'it-takes-a-zoo-complete.pdf'));
   assert.equal(pdf.byteLength, assets.completeEdition.bytes);
   assert.equal(createHash('sha256').update(pdf).digest('hex'), assets.completeEdition.sha256);
-  assert.equal(zooCompleteEditionHash(), 'cb82dda29153521fcab21a751d86552dcbc93dd725ceba1a81363eb778aedac9');
-  assert.match(zooCompleteEditionSource(), /"cold-boot"[\s\S]*"gallery-view"[\s\S]*"permissions"[\s\S]*"goodgirl-tv"[\s\S]*"soft-reset"[\s\S]*"open-port"/);
+  assert.equal(zooCompleteEditionHash(), 'd975d8c24a0c7e19f8735fc719a627419bbdf3d712f8276affccf031c1eb744a');
+  assert.match(zooCompleteEditionSource(), /"cold-boot"[\s\S]*"gallery-view"[\s\S]*"permissions"[\s\S]*"goodgirl-tv"[\s\S]*"soft-reset"[\s\S]*"open-port"[\s\S]*"failover"/);
   assert.doesNotMatch(zooCompleteEditionSource(), /It takes a Zoo to raise a child,/);
 });
 
