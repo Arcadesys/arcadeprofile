@@ -72,6 +72,33 @@ export default async function HomePage() {
         </div>
       </header>
 
+      <section className={styles.entryPaths} aria-labelledby="home-entry-paths-heading">
+        <h2 id="home-entry-paths-heading">Choose what brought you here</h2>
+        <ul>
+          <li>
+            <Link href="/novels/it-takes-a-zoo/cold-boot">
+              <strong>Read fiction</strong>
+              <span>Start <em>It Takes a Zoo</em> with “Cold Boot.”</span>
+              <span className={styles.entryPathAction}>Read Cold Boot <span aria-hidden="true">→</span></span>
+            </Link>
+          </li>
+          <li>
+            <Link href="/projects/queer-columns/the-safe-door">
+              <strong>Read essays and columns</strong>
+              <span>Begin with “The Safe Door,” a Queer Columns essay.</span>
+              <span className={styles.entryPathAction}>Read The Safe Door <span aria-hidden="true">→</span></span>
+            </Link>
+          </li>
+          <li>
+            <a href="https://work.thearcades.me">
+              <strong>Explore professional work</strong>
+              <span>See professional projects, case studies, and writing.</span>
+              <span className={styles.entryPathAction}>Visit the work site <span aria-hidden="true">↗</span></span>
+            </a>
+          </li>
+        </ul>
+      </section>
+
       <section className={styles.workLane} aria-labelledby="home-work-heading">
         <p className={styles.workEyebrow}>AI enablement &amp; transformation</p>
         <h2 id="home-work-heading">Hire me for the hard part.</h2>
