@@ -10,7 +10,20 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - dependencies
+    ignore:
+      # typescript-eslint (via eslint-config-next) does not support TS 7 yet;
+      # lint crashes on install. Drop this once typescript-eslint ships TS 7 support.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     groups:
+      # vite, its React plugin, and vitest pin each other through peer deps,
+      # so a lone vite major fails `npm ci` with ERESOLVE. Bump them together.
+      vite:
+        patterns:
+          - "vite"
+          - "vitest"
+          - "@vitejs/*"
+          - "@vitest/*"
       next:
         patterns:
           - "next"
