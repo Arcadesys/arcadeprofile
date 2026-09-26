@@ -140,19 +140,15 @@ The kitten glanced behind her, through the open door that did not lead to outsid
 
 The kitten looked back at us. “Can I?”
 
-That was the killing thing—not the third login, the missing log entry, or even the eyes, but the question. _Can I?_ Like home was something she might be denied at the door, like belonging had a quota and the house could take Kit and me but not whatever this was, whoever this was, this small orange proof there had been another room in the burning building.
-
-Kit reached out one hand, slowly, palm up. There was no grab or demand, just an offered ledge.
+Kit reached out one hand, slowly, palm up.
 
 “Yeah,” he said. “You can.”
 
 I put my hand beside Kit’s, and for a second the kitten only looked at them. Then she got up.
 
-She was unsteady in the way little kids were unsteady, in the way traumatized people were unsteady, and in the way new avatars were unsteady when the sim had not finished negotiating gravity with the nervous system.
-
 She stepped over the threshold, and nothing exploded. No alarm sounded, no adult came running, and no file opened with all the answers in it.
 
-The kitten put one tiny hand in Kit’s and one tiny hand in mine, and the whole system lit up with a love so violent it was almost indistinguishable from panic.
+The kitten put one tiny hand in Kit’s and one tiny hand in mine.
 
 _Mine,_ something in us said. _Ours,_ something better corrected.
 
@@ -628,7 +624,7 @@ There was exactly one door left in the world, and it was down the hall, and it h
 
 ## Kit
 
-She went up. I went with her. We didn't discuss it; the body just took both of us, the way it does when neither of us can afford to be alone in a hallway.
+Kat put the headset back on. The Zoo came back. She went upstairs, and I went with her.
 
 The apartment over the bar has never needed a key. I'd tell you who else visits and how often, but the honest answer is the answer to the whole book of this family: nobody, and always. The door knows us. The stairs came up to meet our feet in the dark, one degree warmer, like the banister of a house where somebody waited up.
 
