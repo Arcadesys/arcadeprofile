@@ -10,9 +10,7 @@ export function PostHogAnalytics() {
 
   useEffect(() => {
     if (!shouldTrackSiteAnalytics(pathname)) return;
-    captureSiteEvent('$pageview', {
-      landing_page: pathname,
-    });
+    captureSiteEvent('$pageview');
   }, [pathname]);
 
   useEffect(() => {
@@ -31,7 +29,11 @@ export function PostHogAnalytics() {
         if (!['http:', 'https:'].includes(url.protocol)) return;
         if (!shouldTrackSiteAnalytics(url.pathname) && url.hostname === window.location.hostname) return;
         captureSiteEvent('site link clicked', {
-          href: url.hostname === window.location.hostname ? url.pathname : url.hostname === 'work.thearcades.me' ? url.origin : undefined,
+          href: url.hostname === window.location.hostname
+            ? url.pathname
+            : url.hostname === 'work.thearcades.me'
+              ? url.origin
+              : undefined,
           link_kind: url.hostname === window.location.hostname ? 'internal' : 'external',
           destination_host: url.hostname,
         });
