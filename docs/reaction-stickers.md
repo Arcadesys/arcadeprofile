@@ -20,3 +20,9 @@ For a demo-only edit, edit `public/reaction-stickers/` directly. Keep the single
 Run the repository's `npm run lint`, `npx tsc --noEmit`, `npm test`, and `npm run build`. Inspect the project index's Tools filter, project CTA, demo at desktop and narrow widths, reference download, invalid/custom reactions, label toggle, keyboard focus, and prompt copy. Verify public asset bytes against the recorded hashes after release.
 
 Generation and installation in a recipient's ChatGPT account depend on their account features and remain separate from validating the static demo. The page explains those limits and offers a standalone prompt fallback.
+
+## Visual system
+
+The demo uses warm paper, forest text, mint work surfaces, and orange primary actions. Rounded system headings keep it dependency-free. The robot reference has a separate full-width section; the prompt form and handoff share one mint workspace. Install instructions use native keyboard-accessible disclosures, with the account-availability note always visible.
+
+Keep body copy at 20px, controls at least 48px high, a distinct focus outline, reduced-motion support, and the single-column reflow below 800px. The published standalone source archive includes the same presentation with relative asset paths for local hosting.
