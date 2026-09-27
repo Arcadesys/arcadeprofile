@@ -1,37 +1,23 @@
 ---
-id: reaction-stickers-first-release
-title: 'Reaction Stickers: your character, ten reactions'
-slug: first-release
-group: reaction-stickers
-publishDate: '2026-09-27T21:59:21Z'
-excerpt: 'A small creative tool for making reaction sticker sheets in your own chat app, with a web demo and reusable skill.'
+id: when-art-gets-cheap-enough-to-waste
+title: When Art Gets Cheap Enough to Waste
+slug: when-art-gets-cheap-enough-to-waste
+group: the-singularity-log
+publishDate: '2026-09-27T23:11:35Z'
+excerpt: >-
+  A Telegram sticker factory, the economics of disposable art, and what changes
+  when images become cheap enough to function as language.
 tags:
-  - creative-tools
-  - stickers
   - ai
+  - art
+  - economics
+  - stickers
+seo:
+  title: When Art Gets Cheap Enough to Waste
+  description: >-
+    On sticker economics, disposable art, and what changes when images become
+    cheap enough to function as language.
 ---
-
-A wave, a laugh, a very sleepy face. Reaction Stickers turns a character reference into a sheet of ten expressions using the image-generation tool in your own chat app.
-
-[Try the demo](/reaction-stickers). It includes a downloadable robot reference and a finished example, so there is something to start with even if you do not have a character ready.
-
-## The small version
-
-Choose the everyday reactions or write ten of your own. Keep the large labels or turn them off. Copy the prompt, attach your reference in ChatGPT, and generate the sheet there.
-
-The website prepares text. It does not receive your images or run an image model. Generation uses your own account’s available tools and limits.
-
-## Keep it
-
-The demo also offers a downloadable skill and plugin package. Install the skill where your account supports it, or use the standalone prompt without installation. Setup instructions and the full source are linked from the [project page](/projects/reaction-stickers).
-
-The default result is one JPG preview in a two-column, five-row layout: hello, love, laugh, thanks, yes, no, sad, angry, thinking, and sleepy. Review it and ask for specific repairs before using it.
-
-Individual transparent stickers and publishing a Telegram pack are separate steps. This first release keeps the workflow small: bring a character, make expressions, and keep the preview.
-
-*This essay is also part of [The Singularity Log](/projects/the-singularity-log/when-art-gets-cheap-enough-to-waste).*
-
-## When Art Gets Cheap Enough to Waste
 
 *Disposable art was the point.*
 
@@ -45,9 +31,9 @@ I am not spending five thousand dollars illustrating that graph.
 
 So I built a factory.
 
-### The factory
+## The factory
 
-Over the last few days, I built a little system for producing Telegram sticker packs. You give it a character reference, work out their visual language, choose the reactions you actually use, block the poses, iterate until they feel right, generate the finished stickers, and package them up. The whole thing is deliberately mundane. I am not particularly interested in whether a computer can produce a technically impressive cartoon mouse looking exhausted. We crossed that bridge a while ago.
+Over the last few days, I built [a little system for producing Telegram sticker packs](/projects/reaction-stickers). You give it a character reference, work out their visual language, choose the reactions you actually use, block the poses, iterate until they feel right, generate the finished stickers, and package them up. The whole thing is deliberately mundane. I am not particularly interested in whether a computer can produce a technically impressive cartoon mouse looking exhausted. We crossed that bridge a while ago.
 
 What interests me is that making the exhausted mouse is now cheap enough that I do not have to ask whether the exhausted mouse deserves to exist.
 
@@ -61,7 +47,7 @@ A hundred-dollar portrait makes sense. A hundred-dollar reaction sticker usually
 
 Then the economics changed.
 
-### Disposable art
+## Disposable art
 
 A while ago, I started using the phrase [**disposable art**](/projects/arcade-blog/disposable-art-is-still-art) for a lot of what I was making. I did not mean bad art, thoughtless art, or art without value. I meant art that was allowed to be temporary. Art you could use rather than preserve. Art you could send to somebody once, make into an icon for three months, use to settle an argument in a group chat, or create because somebody said something stupid at 1:14 in the morning and you immediately needed a picture of your fursona staring into the middle distance.
 
@@ -73,7 +59,7 @@ I was never going to commission one hundred Telegram stickers. There is no missi
 
 That is a different economic event, and I think it is the more interesting one.
 
-### Cheap tools create new behavior
+## Cheap tools create new behavior
 
 When [production costs collapse](/projects/the-singularity-log/rabies-capitalism), we tend to imagine the old thing being made more cheaply. That certainly happens, and it creates all sorts of legitimate arguments about labor, markets, authorship, and compensation. But sufficiently cheap production does something else: it makes entirely new categories of use possible.
 
@@ -89,7 +75,7 @@ Cheap tools let us spend creative effort on things that do not need to survive.
 
 That is not a defect. It is one of abundance’s most interesting properties.
 
-### Images become language
+## Images become language
 
 This is the point I keep circling back to: when images become cheap enough, they stop functioning exclusively as art objects and start functioning as language.
 
@@ -105,7 +91,7 @@ We have spent a remarkable amount of time asking whether generative media can ma
 
 I suspect that may be the larger transformation.
 
-### Furry already understands disposable art
+## Furry already understands disposable art
 
 Furry fandom is an unusually good laboratory for this because it is both intensely visual and deeply social. It is one place where [campfire logic](/projects/the-singularity-log/campfire-logic) is already visible. A character can be an avatar, a costume, an autobiography, a recurring joke, a social interface, or some glorious combination of all five that got out of hand sometime around 2007.
 
@@ -123,7 +109,7 @@ Generative tools make the alternative obvious, and that is one reason the argume
 
 Those are not the same question.
 
-### The n-squared problem
+## The n-squared problem
 
 This is where being a system made the whole thing impossible for me to ignore.
 
@@ -139,7 +125,7 @@ And then another hundred ideas show up behind them.
 
 That is the part of abundance that interests me. It does not merely satisfy existing demand. It creates demand that scarcity had trained us not to notice.
 
-### So I built a sticker factory
+## So I built a sticker factory
 
 Which brings me back to my ridiculous little machine.
 
