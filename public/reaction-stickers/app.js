@@ -9,12 +9,17 @@ let copyAttempt = 0;
 function update() {
   copyAttempt += 1;
   const character = form.elements.character.value;
+  const telegram = form.elements.finish.value === 'telegram';
   const result = window.stickerPrompt.compose(window.stickerWorkflow, {
     character,
     reactions: reactions.value,
     notes: document.querySelector('#notes').value,
     labels: document.querySelector('#labels').checked,
+    finish: form.elements.finish.value,
+    title: document.querySelector('#pack-title').value,
   });
+  document.querySelector('#telegram-options').hidden = !telegram;
+  document.querySelector('#telegram-handoff').hidden = !telegram;
   document.querySelector('#character-help').textContent = character === 'robot'
     ? 'Download the robot reference below and attach it in ChatGPT with your prompt. Results will vary.'
     : 'Attach your reference directly in ChatGPT. This page never receives your images.';
@@ -23,6 +28,7 @@ function update() {
   reactions.setAttribute('aria-invalid', result.error ? 'true' : 'false');
   reactions.setCustomValidity(result.error || '');
   copyButton.disabled = Boolean(result.error);
+  copyButton.textContent = telegram ? 'Copy Telegram prompt' : 'Copy prompt';
   promptField.value = result.prompt || '';
   list.replaceChildren();
   for (const label of result.labels || []) {
@@ -30,7 +36,7 @@ function update() {
     item.textContent = label;
     list.append(item);
   }
-  status.textContent = result.error ? 'Complete the ten reactions to build your prompt.' : 'No installation needed to try a prompt.';
+  status.textContent = result.error ? 'Complete the ten reactions to build your prompt.' : telegram ? 'Install the skill for Telegram publishing. This page only prepares the prompt.' : 'No installation needed to try a prompt.';
 }
 form.addEventListener('input', update);
 form.addEventListener('submit', event => event.preventDefault());
@@ -40,7 +46,9 @@ copyButton.addEventListener('click', async () => {
   const attempt = ++copyAttempt;
   try {
     await navigator.clipboard.writeText(promptField.value);
-    if (attempt === copyAttempt) status.textContent = 'Prompt copied. Open ChatGPT, attach your own or the robot reference, then paste and send.';
+    if (attempt === copyAttempt) status.textContent = form.elements.finish.value === 'telegram'
+      ? 'Telegram prompt copied. Open ChatGPT, attach your reference, then paste and send. Review the pack before publishing.'
+      : 'Prompt copied. Open ChatGPT, attach your own or the robot reference, then paste and send.';
   } catch {
     if (attempt !== copyAttempt) return;
     promptField.focus();

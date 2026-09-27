@@ -2,7 +2,7 @@
   "slug": "reaction-stickers",
   "title": "Reaction Stickers",
   "description": "Your character, ten reactions. A reusable AI sticker workflow with a small web demo, a robot reference to try, and a skill you can run in your own chat app.",
-  "introMarkdown": "Your character. Ten reactions. One JPG preview.\n\nReaction Stickers is a small reusable AI workflow for making expressive sticker sheets. Attach a character reference in your own chat app, keep the everyday set or choose your own reactions, and generate a preview you can review and repair.\n\n[Try the demo](/reaction-stickers) to prepare a prompt without installing anything. The demo includes a mint-green robot reference sheet and a finished example. Download the reference, then attach it in ChatGPT with your prompt.\n\n## Keep the workflow\n\nDownload the skill for an account that supports skill uploads, or get the plugin package for a compatible desktop Work or Codex setup. The demo includes setup instructions and a copy-and-paste prompt for people without skill installation.\n\n## What runs where\n\nThe website prepares your prompt. Image generation runs through your own chat app and uses that account’s available tools and limits. The demo collects no images and has no inference server. No Bunch account, Telegram connection, or API key is needed for the preview.\n\nThe result is one JPG preview sheet. On an explicit Telegram-set request, the skill can prepare sticker-ready PNGs and publish a reviewed pack through connected Bunch tools or the included local script with your own bot. This website does not upload images. The JPG preview remains a separate deliverable.\n",
+  "introMarkdown": "Your character. Ten reactions. One JPG preview.\n\nReaction Stickers is a small reusable AI workflow for making expressive sticker sheets. Attach a character reference in your own chat app, keep the everyday set or choose your own reactions, and generate a preview you can review and repair.\n\n[Try the demo](/reaction-stickers) to prepare a JPG preview prompt or an opt-in Telegram set prompt without installing anything. The demo includes a mint-green robot reference sheet and a finished example. Download the reference, then attach it in ChatGPT with your prompt.\n\n## Keep the workflow\n\nDownload the skill for an account that supports skill uploads, or get the plugin package for a compatible desktop Work or Codex setup. The demo includes setup instructions and a copy-and-paste prompt for people without skill installation.\n\n## What runs where\n\nThe website prepares your prompt. Image generation runs through your own chat app and uses that account’s available tools and limits. The demo collects no images and has no inference server. No Bunch account, Telegram connection, or API key is needed for the preview.\n\nThe result is one JPG preview sheet. On an explicit Telegram-set request, the skill can prepare sticker-ready PNGs and publish a reviewed pack through connected Bunch tools or the included local script with your own bot. This website does not upload images. The JPG preview remains a separate deliverable.\n",
   "tags": [
     "creative-tools",
     "stickers",
@@ -34,7 +34,7 @@
       },
       {
         "label": "Download the plugin",
-        "href": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/27025433f1ebc09fbefb065d5bc87fd3de1c73ff939f96b04b67c757fb60da2d/reaction-stickers-plugin.zip?download=1",
+        "href": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/358c182aadbb1c36ef29618b03126a93273c94908c7ff75ab44b13b074819003/reaction-stickers-plugin.zip?download=1",
         "kind": "download",
         "description": "The same skill packaged for compatible desktop Work or Codex setups.",
         "external": true
@@ -48,7 +48,7 @@
       },
       {
         "label": "Download the full source",
-        "href": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/ac437b3d6f3c388fb23010e4d541866ecd0610fc620818227332ad0513c1c62b/reaction-stickers-project.zip?download=1",
+        "href": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/91650199363ff1d1938972b0034cd74f93a291b8d93b7d3839eebb6deb9e89a2/reaction-stickers-project.zip?download=1",
         "kind": "download",
         "description": "Static demo, packages, build script, tests, and setup guide.",
         "external": true
