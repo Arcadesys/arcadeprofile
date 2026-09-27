@@ -28,3 +28,7 @@ The demo uses warm paper, forest text, mint work surfaces, and orange primary ac
 Keep body copy at 20px, controls at least 48px high, a distinct focus outline, reduced-motion support, and the single-column reflow below 800px. The published standalone source archive includes the same presentation with relative asset paths for local hosting.
 
 The theme follows the device preference with `prefers-color-scheme: dark` and `color-scheme: light dark`. Shared color tokens cover text, fields, focus, selected/error/disabled states, and surfaces; CSS responds immediately if the preference changes. The original reference and sticker images keep their original colors. No theme setting or browser storage is needed. Verify both system themes when changing these tokens.
+
+## Optional Telegram publication
+
+Version 0.2.0 of the downloadable skill adds an explicit opt-in continuation. The JPG preview still needs no account. For a Telegram set, the chat needs image tools capable of producing individually validated transparent PNGs and a separate authenticated Bunch connection exposing the Telegram uploader. The static website and Reaction Stickers plugin do not bundle Bunch or a Telegram bot. The agent prepares an exact pack, uses any prior authorization covering that exact destination or asks for the missing decision, then reports the verified result. Do not describe this as an immediate one-click upload from the demo.
