@@ -97,6 +97,10 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        source: '/reaction-stickers',
+        destination: '/reaction-stickers/index.html',
+      },
+      {
         source: '/lab/furry-history-board/app',
         destination: '/furry-history-board/index.html',
       },

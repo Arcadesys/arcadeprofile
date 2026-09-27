@@ -1,0 +1,34 @@
+{
+  "assets/robot-reference.png": {
+    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/9a0d2ddc8dca6779577141796d29969cb17968ebfa0f7c69fbcf1294d453974b/robot-reference.png",
+    "sha256": "9a0d2ddc8dca6779577141796d29969cb17968ebfa0f7c69fbcf1294d453974b"
+  },
+  "assets/robot-reactions.jpg": {
+    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/6ac2ee6e44359159d8e7dbfb7a2aa7b5da64462e29a40a1cb8bb688807e1cea9/robot-reactions.jpg",
+    "sha256": "6ac2ee6e44359159d8e7dbfb7a2aa7b5da64462e29a40a1cb8bb688807e1cea9"
+  },
+  "downloads/make-reaction-stickers.zip": {
+    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/f061405f30d12e8fc15d242786bfe47d290fa30d43d80812329e11a2e96b4fbb/make-reaction-stickers.zip",
+    "sha256": "f061405f30d12e8fc15d242786bfe47d290fa30d43d80812329e11a2e96b4fbb"
+  },
+  "downloads/reaction-stickers-plugin.zip": {
+    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/3885bd821a5ff78280cc78647b7dafcdb7752d5589e9a63813936a8e874019e5/reaction-stickers-plugin.zip",
+    "sha256": "3885bd821a5ff78280cc78647b7dafcdb7752d5589e9a63813936a8e874019e5"
+  },
+  "downloads/SKILL.md": {
+    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/1c3825b7bb11db7d4a77c0f8ed4865e71f44a6d6db600793758efef7d84cd911/SKILL.md",
+    "sha256": "1c3825b7bb11db7d4a77c0f8ed4865e71f44a6d6db600793758efef7d84cd911"
+  },
+  "downloads/SETUP.md": {
+    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/6a20b2ba4ad4f52b0ab93513d993c6e7bc98d92f47606ce84c476bb813c95bd4/SETUP.md",
+    "sha256": "6a20b2ba4ad4f52b0ab93513d993c6e7bc98d92f47606ce84c476bb813c95bd4"
+  },
+  "downloads/SHA256SUMS.txt": {
+    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/ae24c69eb754f059f3eeda685e2bfebc03e524329877d80d9e85fd500c49cf29/SHA256SUMS.txt",
+    "sha256": "ae24c69eb754f059f3eeda685e2bfebc03e524329877d80d9e85fd500c49cf29"
+  },
+  "source.zip": {
+    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/c56ca94ed4be3e0e5bd28a0e9387ed36cf17a8aba9def9eda3b8556c6a75b42b/reaction-stickers-project.zip",
+    "sha256": "c56ca94ed4be3e0e5bd28a0e9387ed36cf17a8aba9def9eda3b8556c6a75b42b"
+  }
+}
