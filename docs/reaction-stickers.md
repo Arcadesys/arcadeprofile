@@ -32,3 +32,7 @@ The theme follows the device preference with `prefers-color-scheme: dark` and `c
 ## Optional Telegram publication
 
 Version 0.3.0 adds an included local Telegram Bot API upload script beside the optional connected Bunch route. The JPG preview still needs no account. A Telegram set needs individually validated transparent PNGs and either authenticated Bunch tools or a user-owned bot configured locally. The script reads credentials only from local environment variables, checks the reviewed manifest offline, creates a new set in one Bot API call, and reads the set back. The static website has no upload route. The agent prepares the exact pack, uses any prior authorization covering that destination or asks for the missing decision, then reports verification. Do not describe the demo as an immediate one-click upload.
+
+## Telegram choice in the demo
+
+The workshop defaults to JPG preview. Selecting Telegram reveals an optional pack title, the skill setup link, and the three review/publish steps. The copied prompt requests transparent PNGs and an exact-pack review before publication; it never asks for a bot token. The page still has no upload endpoint or credential fields. Keep this branch of the prompt aligned in the standalone `demo/prompt.js` and the hosted `public/reaction-stickers/prompt.js`.
