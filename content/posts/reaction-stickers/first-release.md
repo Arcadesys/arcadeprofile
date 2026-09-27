@@ -3,7 +3,7 @@ id: reaction-stickers-first-release
 title: 'Reaction Stickers: your character, ten reactions'
 slug: first-release
 group: reaction-stickers
-publishDate: '2026-09-27T00:00:00Z'
+publishDate: '2026-09-27T21:59:21Z'
 excerpt: 'A small creative tool for making reaction sticker sheets in your own chat app, with a web demo and reusable skill.'
 tags:
   - creative-tools
