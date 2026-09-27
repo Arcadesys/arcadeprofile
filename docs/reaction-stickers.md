@@ -28,3 +28,7 @@ The demo uses warm paper, forest text, mint work surfaces, and orange primary ac
 Keep body copy at 20px, controls at least 48px high, a distinct focus outline, reduced-motion support, and the single-column reflow below 800px. The published standalone source archive includes the same presentation with relative asset paths for local hosting.
 
 The theme follows the device preference with `prefers-color-scheme: dark` and `color-scheme: light dark`. Shared color tokens cover text, fields, focus, selected/error/disabled states, and surfaces; CSS responds immediately if the preference changes. The original reference and sticker images keep their original colors. No theme setting or browser storage is needed. Verify both system themes when changing these tokens.
+
+## Optional Telegram publication
+
+Version 0.3.0 adds an included local Telegram Bot API upload script beside the optional connected Bunch route. The JPG preview still needs no account. A Telegram set needs individually validated transparent PNGs and either authenticated Bunch tools or a user-owned bot configured locally. The script reads credentials only from local environment variables, checks the reviewed manifest offline, creates a new set in one Bot API call, and reads the set back. The static website has no upload route. The agent prepares the exact pack, uses any prior authorization covering that destination or asks for the missing decision, then reports verification. Do not describe the demo as an immediate one-click upload.
