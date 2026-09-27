@@ -26,3 +26,5 @@ Generation and installation in a recipient's ChatGPT account depend on their acc
 The demo uses warm paper, forest text, mint work surfaces, and orange primary actions. Rounded system headings keep it dependency-free. The robot reference has a separate full-width section; the prompt form and handoff share one mint workspace. Install instructions use native keyboard-accessible disclosures, with the account-availability note always visible.
 
 Keep body copy at 20px, controls at least 48px high, a distinct focus outline, reduced-motion support, and the single-column reflow below 800px. The published standalone source archive includes the same presentation with relative asset paths for local hosting.
+
+The theme follows the device preference with `prefers-color-scheme: dark` and `color-scheme: light dark`. Shared color tokens cover text, fields, focus, selected/error/disabled states, and surfaces; CSS responds immediately if the preference changes. The original reference and sticker images keep their original colors. No theme setting or browser storage is needed. Verify both system themes when changing these tokens.
