@@ -1,0 +1,58 @@
+{
+  "slug": "reaction-stickers",
+  "title": "Reaction Stickers",
+  "description": "Your character, ten reactions. A reusable AI sticker workflow with a small web demo, a robot reference to try, and a skill you can run in your own chat app.",
+  "introMarkdown": "Your character. Ten reactions. One JPG preview.\n\nReaction Stickers is a small reusable AI workflow for making expressive sticker sheets. Attach a character reference in your own chat app, keep the everyday set or choose your own reactions, and generate a preview you can review and repair.\n\n[Try the demo](/reaction-stickers) to prepare a prompt without installing anything. The demo includes a mint-green robot reference sheet and a finished example. Download the reference, then attach it in ChatGPT with your prompt.\n\n## Keep the workflow\n\nDownload the skill for an account that supports skill uploads, or get the plugin package for a compatible desktop Work or Codex setup. The demo includes setup instructions and a copy-and-paste prompt for people without skill installation.\n\n## What runs where\n\nThe website prepares your prompt. Image generation runs through your own chat app and uses that account’s available tools and limits. The demo collects no images and has no inference server. No Bunch account, Telegram connection, or API key is needed for the preview.\n\nThe result is one JPG preview sheet. Individual transparent sticker files and a published Telegram pack are separate steps.\n",
+  "tags": [
+    "creative-tools",
+    "stickers",
+    "ai",
+    "accessibility"
+  ],
+  "project": {
+    "category": "tools",
+    "status": "available",
+    "format": "collection",
+    "external": false,
+    "featured": false,
+    "homeHighlight": false,
+    "image": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/9a0d2ddc8dca6779577141796d29969cb17968ebfa0f7c69fbcf1294d453974b/robot-reference.png",
+    "createdAt": "2026-09-27T00:00:00.000Z",
+    "updatedAt": "2026-09-27T00:00:00.000Z",
+    "primaryCTA": {
+      "label": "Try the sticker demo",
+      "href": "/reaction-stickers",
+      "type": "experiment"
+    },
+    "resources": [
+      {
+        "label": "Download the skill",
+        "href": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/f061405f30d12e8fc15d242786bfe47d290fa30d43d80812329e11a2e96b4fbb/make-reaction-stickers.zip?download=1",
+        "kind": "download",
+        "description": "Reusable instructions for making a reaction sheet in your own chat app.",
+        "external": true
+      },
+      {
+        "label": "Download the plugin",
+        "href": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/3885bd821a5ff78280cc78647b7dafcdb7752d5589e9a63813936a8e874019e5/reaction-stickers-plugin.zip?download=1",
+        "kind": "download",
+        "description": "The same skill packaged for compatible desktop Work or Codex setups.",
+        "external": true
+      },
+      {
+        "label": "Download the robot reference",
+        "href": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/9a0d2ddc8dca6779577141796d29969cb17968ebfa0f7c69fbcf1294d453974b/robot-reference.png?download=1",
+        "kind": "download",
+        "description": "Front, side, and back views of the example robot.",
+        "external": true
+      },
+      {
+        "label": "Download the full source",
+        "href": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/c56ca94ed4be3e0e5bd28a0e9387ed36cf17a8aba9def9eda3b8556c6a75b42b/reaction-stickers-project.zip?download=1",
+        "kind": "download",
+        "description": "Static demo, packages, build script, tests, and setup guide.",
+        "external": true
+      }
+    ]
+  }
+}
