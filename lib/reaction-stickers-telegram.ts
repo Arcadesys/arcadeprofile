@@ -65,6 +65,12 @@ export function stickerSessionCookie(value: string) {
   return `${SESSION_NAME}=${value}; Path=/api/reaction-stickers/telegram; Max-Age=${SESSION_SECONDS}; HttpOnly; Secure; SameSite=Lax`;
 }
 
+export function stickerRedirect(location: URL | string, cookie?: string) {
+  const headers = new Headers({ Location: String(location), 'Cache-Control': 'no-store' });
+  if (cookie) headers.set('Set-Cookie', cookie);
+  return new Response(null, { status: 303, headers });
+}
+
 export function sameSiteRequest(request: Request) {
   const origin = request.headers.get('origin');
   const expected = process.env.REACTION_STICKERS_PUBLIC_ORIGIN || 'https://www.thearcades.me';

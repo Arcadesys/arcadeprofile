@@ -2,13 +2,21 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import sharp from 'sharp';
 import {
-  createStickerSession, publishStickerSet, readStickerSession, validateStickerFiles,
+  createStickerSession, publishStickerSet, readStickerSession, stickerRedirect, validateStickerFiles,
 } from './reaction-stickers-telegram';
 import { startTelegramLogin } from './reaction-stickers-telegram-auth';
 
 const envName = 'REACTION_STICKERS_TELEGRAM_BOT_TOKEN';
 const previous = process.env[envName];
 test.after(() => { if (previous === undefined) delete process.env[envName]; else process.env[envName] = previous; });
+
+test('Telegram redirects carry the session cookie without caching', () => {
+  const response = stickerRedirect('https://oauth.telegram.org/auth', 'reaction_stickers_telegram_tx=abc; HttpOnly; Secure');
+  assert.equal(response.status, 303);
+  assert.equal(response.headers.get('location'), 'https://oauth.telegram.org/auth');
+  assert.equal(response.headers.get('set-cookie'), 'reaction_stickers_telegram_tx=abc; HttpOnly; Secure');
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+});
 
 test('Telegram session is signed, scoped, and expires', () => {
   const botToken = '123456:abcdefghijklmnopqrstuvwxyz123456';
