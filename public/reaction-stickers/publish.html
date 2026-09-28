@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://*.public.blob.vercel-storage.com; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <title>Publish a Telegram set — Reaction Stickers</title>
+  <link rel="stylesheet" href="/reaction-stickers/styles.css">
+  <link rel="stylesheet" href="/reaction-stickers/publish.css">
+  <script src="/reaction-stickers/publish.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><a class="wordmark" href="/reaction-stickers">Reaction Stickers<span aria-hidden="true">✳</span></a><nav aria-label="Main"><a href="/reaction-stickers">Make stickers</a><a href="/projects/reaction-stickers">Project</a></nav></header>
+<main id="main" class="publish-page">
+  <div class="publish-heading"><h1>Make it a Telegram set.</h1><p class="lead">Bring ten transparent PNGs from your own chat, sign in with Telegram, and publish a set you own.</p><p>Images go to Telegram only after you review this form and press Publish. This page does not generate stickers.</p></div>
+  <noscript><p class="notice">Turn on JavaScript to review and publish a Telegram set.</p></noscript>
+  <div id="availability" class="notice" role="status">Checking Telegram publishing…</div>
+  <section id="sign-in" aria-labelledby="sign-in-title" hidden>
+    <h2 id="sign-in-title">1. Sign in with Telegram</h2>
+    <p>Telegram confirms which account will own the set. Use the account where you want the stickers to appear.</p>
+    <p><a class="button primary" href="/api/reaction-stickers/telegram/start">Sign in with Telegram</a></p>
+    <p class="note">Start <a href="https://t.me/stickerslopbot" target="_blank" rel="noopener noreferrer">@stickerslopbot</a> in Telegram first so it can publish your set.</p>
+  </section>
+  <form id="publish-form" hidden>
+    <section aria-labelledby="pack-title-heading">
+      <h2 id="pack-title-heading">2. Name your set</h2>
+      <p id="account-line" class="account-line"></p>
+      <label for="title">Public pack title</label>
+      <input id="title" name="title" type="text" required maxlength="64" value="My Reaction Stickers" autocomplete="off">
+      <label for="slug">Short name</label>
+      <input id="slug" name="slug" type="text" required maxlength="32" pattern="[a-z][a-z0-9]*(?:_[a-z0-9]+)*" aria-describedby="slug-help" autocomplete="off">
+      <p id="slug-help" class="note">Lowercase letters, numbers, and underscores. The final Telegram name also includes “_by_stickerslopbot”.</p>
+    </section>
+    <section aria-labelledby="files-title">
+      <h2 id="files-title">3. Choose your ten PNGs</h2>
+      <p>These slots show the standard reaction order. If you made custom reactions, use the same positions and change their emoji. One side of each transparent PNG must be exactly 512 pixels; each file must be 512 KB or less. The whole upload must fit within 3.8 MB.</p>
+      <div id="file-list" class="file-list"></div>
+    </section>
+    <section class="review" aria-labelledby="review-title">
+      <h2 id="review-title">4. Review and publish</h2>
+      <p id="review-summary">Choose all ten PNGs to review the pack.</p>
+      <p>Publishing copies these images into a shareable Telegram sticker set owned by your signed-in account. This demo allows up to three upload attempts per account each day.</p>
+      <button id="publish-button" class="primary" type="submit" disabled>Publish these ten stickers to Telegram</button>
+      <p id="publish-status" role="status" aria-live="polite"></p>
+      <p id="pack-link" hidden></p>
+    </section>
+  </form>
+  <p class="note publish-privacy">The PNGs are sent to this site only when you publish. They are forwarded to Telegram and are not stored by this site. Telegram account verification uses @stickerslopbot; no bot token is entered here.</p>
+</main>
+<footer><strong>Reaction Stickers</strong><p><a href="/reaction-stickers">Back to the sticker demo</a></p></footer>
+</body>
+</html>
