@@ -26,7 +26,7 @@ Why not? They owned us, lock, stock, and barrel, and we'd had a chance to stop i
 
 "Sorry." I shook off the thought and leaned back in my chair. The "sun"—as much as there could be sun in a virtual environment—cast a little warmth on my face. Still didn't feel real. Everyone said it did, but let me tell you: I grow plants. Like, real-world plants. So I know a thing or two about how sun should feel.
 
-Anabelle cocked her head. She wore straight blonde hair and blue eyes that sparkled with starlight.
+Anabelle cocked her head. Straight blonde hair, blue eyes. Corporate-standard, like everybody's.
 
 "Something on your mind?"
 
@@ -36,7 +36,7 @@ Anabelle cocked her head. She wore straight blonde hair and blue eyes that spark
 
 "Or boring, I guess. Overwhelming, but boring."
 
-Anabelle gave a wicked smile. She slid me a card with a virtual address. Private server. And the ID number was low—very low. Whatever this place was, it had history.
+Anabelle gave a wicked smile. She slid me a card with a virtual address. Private server. And the ID number was low. Triple zero, then a one. Whatever this place was, it had history.
 
 I turned the card over. No name. No pop-up holo-ad for the VIP experience at some virtual bar. Just a scrawled ID: `zoo://001.server/knockthree`.
 
@@ -46,7 +46,7 @@ I blinked. “This isn’t one of those NSFW LARPs, is it? I swear to god if I w
 
 Anabelle rolled her eyes. “It’s not like that. Or—okay—if that’s your thing, they’d let you. But no. It’s quiet. Safe. Weird. I dunno.” She shrugged. “It just helped when I needed it.”
 
-That made me pause. I’d never heard her talk like that—soft-edged, vulnerable. She was usually the sarcastic one in the break room, the only person who made me laugh during All-Hands.
+That made me pause. I’d never heard her talk like that. She was usually the sarcastic one in the break room, the only person who made me laugh during All-Hands.
 
 “Just knock three times,” Anabelle said. “And don’t bring your work avatar—or anything Stinky Pete’s seen before. New skin, new handle. The Zoo will cover the rest.”
 
@@ -92,7 +92,7 @@ There was not a lick of sunlight to be found on the server.
 
 It was a void where gentle, late-summer thunderstorms seemed to drag on forever. Ahead of me, a single two-story building rose from the darkness, its lights in the windows welcoming me. I could hear laughter, music, conversation—and not a _single advertisement._
 
-Everything was so clear here! Puddles gently sloshed against my shoes. The streetlight hummed above. And the wind-- the wind! I could feel it slide over my body in tiny rivulets, each gust its own experience.
+Everything was crisp here! Puddles sloshed against my shoes. The streetlight hummed above. And the wind-- the wind! I could feel it slide over my body in tiny rivulets, each gust its own experience.
 
 _Who in the hell coded this place?_ I reached for the doorknocker and gave it three raps.
 
@@ -110,7 +110,7 @@ And at the bar stood Anabelle.
 
 Or—her _self,_ I guess. Her avatar wasn’t corporate-standard anymore. No pressed blouse or sensible shoes. Instead:
 
-A tall, plush-furred cat, coat patterned in cream and honey, wearing soft suspenders over a barista’s apron. Her ears flicked when someone nearby swore. Her tail curled thoughtfully around one ankle as she dried a glass with a rag that might’ve been coded from static.
+A tall, plush-furred cat, coat patterned in cream and honey, wearing soft suspenders over a barista’s apron. Her ears flicked when someone nearby swore. Her tail curled around one ankle as she dried a glass with a rag that might’ve been coded from static.
 
 Nearby, a half-dozen other creatures milled at the bar, minding their own business. One, a lady in a low-poly fox costume, tipped her white cane in my direction when we met eyes. "Welcome home," she said, her smile warm.
 
@@ -128,7 +128,7 @@ I opened my mouth. Closed it again. I nodded toward what I could only explain as
 
 She tilted her head, whiskers twitching. “No clue. You looked like you needed it.”
 
-I sipped, and the feeling of campfires and toasted marshmallows washed over me. Not the actual things - just... just a _feeling_ of kindness, of safety, of trust.
+I sipped, and the feeling of campfires and toasted marshmallows hit me. Not the actual things - just... just a _feeling_ of kindness, of safety, of trust.
 
 "This is incredible," I said.
 
@@ -181,8 +181,8 @@ Kat lifted her chin.
 The voices at the bar shifted, doubled, blurred—  
 someone had antlers now, someone else unfurled wings, and a tiny child in the back became a full-grown bear between one blink and the next.
 
-Jamie stared at her own reflection in a rain-streaked window. It kept flickering—sometimes herself, sometimes… a shark?  
-She tried to click through the menu, desperate for the familiar grid of avatar options.
+I stared at my own reflection in a rain-streaked window. It kept flickering—sometimes me, sometimes… a shark?  
+I tried to click through the menu, desperate for the familiar grid of avatar options.
 
 Nothing.  
 No logout button.  
@@ -196,7 +196,7 @@ A gentle, cartoonish paw landed on my shoulder.
 
 Jack, the proprietor, looked more animated than anyone else in the room—a wiry rabbit with a wry smile and eyes older than the sky. His avatar glowed as if he were a cel-shaded cartoon badly fitting in with reality.
 
-"Howdy! Been a while since we had new blood-- oh, right." He took my shoulders into his big, fuzzy paws and began to breathe, slowly and intentionally, until I matched his rhythm. We stayed like that until I couldn't hear my heartbeat pulsing in my ears anymore.
+"Howdy! Been a while since we had new blood-- oh, right." He took my shoulders into his big, fuzzy paws and began to breathe, slowly, until I matched his rhythm. We stayed like that until I couldn't hear my heartbeat pulsing in my ears anymore.
 
 "What was that?"
 
@@ -208,7 +208,7 @@ I kept tapping at my wrist. "Am I dreaming? Why is there no logout?
 
 Jack held out a paw. "None of that, dear."
 
-“I didn’t mean to come to a server like this," I said. I half-expected Anabelle to bust out in laughter, as if this were all an elaborate prank.
+“I didn’t mean to come to a server like this," I said. I half-expected Anabelle to bust out laughing and yell _gotcha._
 
 "I’m not—I’m not _like you people._ I’m just visiting.”
 
@@ -216,7 +216,7 @@ Jack held out a paw. "None of that, dear."
 
 "Jamie," I said. "No last name."
 
-He nodded and extended his hand. We shook. I felt so silly shaking hands with a rabbit paw, but I smiled and did it anyway.
+He nodded and extended his paw. I shook it, grinning like an idiot.
 
 "You're still safe," he said. "We just have regulars who, uh, don't logout much. Just click your heels three times and think about going home."
 
@@ -232,7 +232,7 @@ I clicked my heels and, sure enough, a doorway appeared beside me. Through it I 
 
 "I'm still so confused. Why get rid of the logout menu?"
 
-Jack smiled, put his paws over my hands, and led me to the door. "Some answers have to be earned," he said, smile growing ever warmer.
+Jack smiled, put his paws over my hands, and led me to the door. "Some answers have to be earned," he said.
 
 "I hope you come back to seek them."
 
@@ -240,7 +240,7 @@ Jack smiled, put his paws over my hands, and led me to the door. "Some answers h
 
 ## 03
 
-Overhead, I heard Stinky's camera whirr as it zoomed in to take my vitals. The room was clean again—antiseptic, almost—with the clothes properly put away and the greige surfaces shimmering with a freshly polished sheen.
+Overhead, I heard Stinky's camera whirr as it zoomed in to take my vitals. The room was clean again—antiseptic, almost—with the clothes put away and the greige surfaces freshly polished.
 
 "Your blood pressure is elevated. As I said before, private servers can harbor malware—"
 
@@ -262,13 +262,15 @@ I ignored her and went about watering my two pots of chives. It wasn't much, but
 
 "And... fuck." She slapped her thighs, but the fur stifled the sound. "I just made an assumption that you could use something like this, and it was probably stupid to bring you here."
 
+"Mm." I kept watering.
+
 "I thought maybe you'd see it and _get it,_ you know? The freedom. The joy. The room to breathe without someone labeling you broken.
 
 "I'm really sorry, Jamie."
 
-For a moment I felt my world blur. The greige gave way to colorful, neon purple sharkskin. My hands grew long and slender, and I felt a sudden rush of power, as if I could leap into the ocean and swim forever—
+For a moment I felt my world blur. The greige gave way to neon purple sharkskin. My hands grew long and slender, and power rushed up my spine, like I could leap into the ocean and swim forever—
 
-_Oh._ That's not how that's supposed to happen.
+_Oh._ That's not supposed to happen.
 
 "Still there?"
 
@@ -280,7 +282,7 @@ The hologram tried to wrap one fuzzy arm over my shoulder, but it just clipped t
 
 "Why?"
 
-She smiled and swung the camera to capture the scene going on in the universe. Someone had brought a milkshake to the bar that was turning everyone into cows, and the whole place had been wrecked in the process. Mysterious spurts of milk flew in from off-camera, and Anabelle ducked them with the easy agility of someone who'd seen things like this before.
+She smiled and swung the camera to capture the scene going on in the universe. Someone had brought a milkshake to the bar that was turning everyone into cows, and the whole place had been wrecked in the process. Mysterious spurts of milk flew in from off-camera, and Anabelle ducked them without looking up.
 
 "Because it's fun!" She leaned in, whispering. "And besides, Stinky Pete can see you blushing."
 
@@ -310,9 +312,7 @@ I stared at my hands. They still felt a little… slippery. But I could move the
 
 "See you soon?"
 
-Her voice shook me back to reality. The slipperiness was gone, and I felt a heaviness in my heart. Not that I thought I was a shark at heart or anything like that. I just liked, well...
-
-I guess I liked being *different*.
+Her voice shook me back to reality. The slipperiness was gone, and I felt a heaviness in my heart. Not that I thought I was a shark at heart. I just liked, well...
 
 My eyes narrowed and I looked into the camera to show I was serious. "But you promise, no kids involved, right?"
 
@@ -321,8 +321,6 @@ My eyes narrowed and I looked into the camera to show I was serious. "But you pr
 "The Kats?"
 
 "Long story," she said. "Doesn't matter."
-
-I thought long and hard.
 
 "...Okay. But why wasn't there a logout button?"
 
@@ -338,7 +336,7 @@ I ordered a standard protein ramen from the Vend-O-Matic in the building's basem
 
 But I loved it. The polarized glass took just enough UVA out of the air to make the light tolerable, and if you closed your eyes and imagined hard enough you could make believe that you were in one of those open-air food stalls of old, enjoying a taco and a gentle breeze.
 
-Those certainly were the days!
+Not that I'd ever been to one.
 
 Behind me, a man put a dollar into the machine and punched some buttons. Nothing happened. He banged on it. Stinky's Friend flashed a red warning light.
 
@@ -348,7 +346,7 @@ Usually I'd let him struggle. But today, I guess meeting Kat had me feeling char
 
 "You gotta sweet-talk the machine."
 
-He looked at me and his eyes widened with recognition. I felt terror cling at my throat.
+He looked at me and his eyes widened with recognition. My throat went tight.
 
 "Do I know you?"
 
@@ -370,7 +368,7 @@ He put a cup into the machine and, soon after, he had a bowl of ramen to match m
 
 He loosened the top button of his shirt and his face went beet red. "You sure do talk nicely to machines, don't you?"
 
-"I'm learning how to be better with people, too." I shrugged. I kept catching Geoff staring, though, and before he could do anything dangerous, I knew I needed to end the encounter early.
+"I'm learning how to be better with people, too." I shrugged. I kept catching Geoff staring, though, and before either of us could make it any weirder, I knew I needed to end the encounter.
 
 "Enjoy your ramen," I said. "See you around, Geoff!"
 
@@ -393,7 +391,7 @@ Oh god, he thought I was _flirting_. He could break in while I'm out and do _hor
 
 "...no. I'm just a dumbass."
 
-Stinky Pete's all-watching eye glinted, as if to rub it in my face.
+Stinky Pete's all-watching eye glinted. Smug little bastard.
 
 "We are all stupid from time to time." He hummed a little tune to cover his thought process. "If you like, I could activate additional security precautions. An extra deadbolt is available for the low price of $2.99 a month. Financing and discounted rates are available!"
 
@@ -431,7 +429,7 @@ I flushed. "What did I do?"
 
 I glanced at Anabelle, but she was already pouring another drink, tail flicking in silent laughter.
 
-“So what are you?” she pressed again, playful but hungry for a connection. "_Really._ Under the vanilla Corpo avatar."
+“So what are you?” she pressed again, leaning in. "_Really._ Under the vanilla Corpo avatar."
 
 I almost made a joke—almost ran for cover. Instead, maybe for the first time, I told the truth.
 
@@ -451,7 +449,7 @@ I nodded.
 
 She smiled. "That'd be telling."
 
-The soda fizzed like it had secrets. Kat watched, caught somewhere between hope and terror.
+The soda fizzed like it had secrets. Kat watched me, ears halfway flat.
 
 It was the first thing someone had offered me without asking for something back.
 
@@ -459,7 +457,7 @@ It was the first thing someone had offered me without asking for something back.
 
 ----
 
-Anabelle said nothing because no words were needed. She took my hand and, giggling, led me to one of the rooms at the back of the bar.
+Anabelle took my hand and, giggling, led me to one of the rooms at the back of the bar.
 
 The floor rippled.
 
@@ -483,7 +481,7 @@ She shrugged. “Look, you’re transforming. If you stay wrapped in corporate s
 
 I hesitated.
 
-Then, slowly, I shrugged off the Corpo avatar’s blazer overlay. Before I could think better of it I tossed off everything—button-up, name badge, efficiency-optimized flats—dissolved into mist. What was left was just… me. In soft, comfortable underclothes, the way I sometimes imagined myself on nights when the world didn’t hurt so much.
+Then, slowly, I shrugged off the Corpo avatar’s blazer overlay. Before I could think better of it I tossed off everything—button-up, name badge, efficiency-optimized flats—and watched it dissolve into mist. What was left was just… me. In soft, comfortable underclothes, the way I sometimes imagined myself on nights when the world didn’t hurt so much.
 
 Anabelle tilted her head.
 
@@ -519,7 +517,7 @@ Anabelle slid up behind me and put her paws on my shoulders.
 
 “You can keep her.”
 
-I turned. She didn't move. She just watched me, eyes full of something like pride.
+I turned. She didn't move. She just watched me, eyes full of pride.
 
 “Or let her go,” she added. “That’s the trick of this place. You choose.”
 
@@ -531,7 +529,7 @@ I took one more step into the surf. My reflection rippled.
 
 I yelped and spun. Jack stood ankle-deep in the waves, shading his eyes. Next to him, Vivian’s low-poly vixen shimmered in the moonlight, white cane tucked at her side.
 
-“You’re glowing,” she said, warm smile on her face. Her eyes were closed but friendly.
+“You’re glowing,” she said, smiling. Her eyes were closed but friendly.
 
 "I thought you were blind."
 
@@ -569,13 +567,11 @@ My body slid into the water like a hand meeting a glove and I moved through the 
 
 Later, after hours of swimming Anabelle begged me to come back to the bar. 
 
-There, I was still wearing the shell of a purple shark. And I felt so silly at how proud it made me feel. The ocean may have _felt_ real but I knew, deep down, that I'd never be that shark. And that eventually, when bedtime rolled around, I'd log out of this space and just be... _Jamie._
+There, I was still wearing the shell of a purple shark. And God, I was proud of it. The ocean may have _felt_ real but I knew, deep down, that I'd never be that shark. And that eventually, when bedtime rolled around, I'd log out of this space and just be... _Jamie._
 
 It was stupid. Stupid to feel proud. Stupid to want to stay like this. But I did.
 
-Why did that hurt so much?
-
-They crowded around me at the bar, peppering me with questions. I answered freely, loosely, as if a burden had been lifted from my shoulders. (After all, it wasn't _me_ that was talking - it was the big purple shark!)
+They crowded around me at the bar, peppering me with questions. I answered everything. No dodging. (After all, it wasn't _me_ that was talking - it was the big purple shark!)
 
 “Where’d you learn to swim like that?” Jack asked.
 
@@ -585,7 +581,7 @@ They crowded around me at the bar, peppering me with questions. I answered freel
 
 The purple shark raised her hand almost as if to dismiss the question. “Virtual cubicle farm. Grey on grey on grey. My boss is an algorithm named Stinky Pete.”
 
-Anabelle nodded in agreement. A small cat child - barely a toddler! - hid behind her legs. It felt, well, _maternal_ somehow. Sure, we were all roleplaying, but we were still _there_. It's hard to explain.
+Anabelle nodded in agreement. A small cat child - barely a toddler! - hid behind her legs. It felt, well, _maternal_. Sure, we were all roleplaying, but we were still _there_. It's hard to explain.
 
 “Do you do this kind of thing often?” she asked. 
 
@@ -603,7 +599,7 @@ Everyone at the table nodded. "Sounds about right," Kat continued. "And yet, her
 
 My shark-face tilted. "Huh?"
 
-The cat's ears flicked with mild annoyance or smug joy - I wasn't a cat person at the time, so I couldn't know for sure.
+The cat's ears flicked with mild annoyance or smug joy - I didn't speak cat yet.
 
 “You’ll never forget that feeling. First time you let go?” 
 
@@ -613,7 +609,7 @@ She smiled, just a little.
 
 I laughed. "You named yours too?"
 
-Kat was suddenly not there. She stared off into the distance, dazed.
+Kat wasn't there anymore. Her eyes stayed open and went nowhere.
 
 The small cat behind Anabelle’s legs—Kitten, I realized—scampered out and curled up around Kat’s ankles like a guard dog in miniature. Watching me with suspicion. Or warning. Or both.
 
@@ -625,7 +621,7 @@ Kit bounded out from the back rooms and grabbed Kat's shoulder. Shaking hard, he
 
 They nodded, sheepish. “Yeah. Me and Kat and Kitten come here a lot. More than we should, probably.”
 
-I patted a seat a couple stools down. Not crowding. Just close enough to be real. I felt silly flopping my fins on a bar chair -- it felt like Tiny Toons meets Cool World to me -- but the silliness made it easier somehow. Less dangerous, I guess.
+I patted a seat a couple stools down. Not crowding. Just close enough to be real. Flopping my fins onto a bar chair felt like Tiny Toons meets Cool World, but the goofiness made it easier. Less dangerous, I guess.
 
 "Is it okay if we just… sit for a minute?"
 
@@ -641,17 +637,17 @@ We sat like that—just breathing in the same space.
 
 Kit gave me a small, wry smile. "She wasn’t wrong."
 
-I reached out and touched him. I felt energy like lightning surge through me.
+I reached out and touched him. Static crackled up my arm.
 
 "I never really got it until tonight."
 
-A long, kind silence stretched around us like a warm quilt.
+A long, kind silence settled over the bar.
 
 "But don’t tell Kat. She won't let me live down being all mushy like this!"
 
 At long last, Kat began to stir. Without a word, she shambled off to a back room. But then, right before she reached for the doorknob, she sprinted back across the bar.
 
-She made a beeline for me and then, before I could react, threw her arms around me. She buried her face in my slick, new skin and squeezed as hard as a child that age could possibly manage.
+She made a beeline for me and then, before I could react, threw her arms around me. She buried her face in my slick, new skin and squeezed as hard as a kid her size could manage.
 
 "Thank you," she said. And then she ran to a private room, blushing and holding back tears. Kit and Kitten followed in tow.
 
@@ -681,7 +677,7 @@ I looked away.
 
 I laughed. "Yeah? Then where am I?"
 
-The fox held out her paw and I took it, expecting to feel something electric like I did with Kat. Instead, the touch felt _old_. Ancient, in a way that defies time and logic.
+The fox held out her paw and I took it, expecting to feel something electric like I did with Kat. Instead, the touch felt _old_. Ancient.
 
 "You’re in a place that doesn’t think love is scarce," she said. "and I know that's hard to trust when your whole life taught you otherwise."
 
@@ -692,8 +688,6 @@ The words came out of my mouth before I realized I was saying them.
 Jack's words came out rushed and _stern,_ for a jackrabbit. "Kid, _none_ of us do. But we still show up for each other.
 
 "We still care. We still _help,_ like you just did for the Kats."
-
-It hung in the air, heavy but gracious.
 
 Vivian gave my fin a squeeze. "You don't have to prove you belong here, Jamie. You just have to _decide_ you do."
 
@@ -707,13 +701,13 @@ Vivian squeezed harder. "And if you leave, we don’t chase.
 
 "But the door stays open."
 
-It was getting harder and harder to talk. I blamed the new face, though Viv and Jack disagree.
+It was getting harder and harder to talk. I blamed the new face, though Viv and Jack still disagree.
 
 "What if I mess it up?"
 
 "Then we clean it up," Jack said. "Together."
 
-The tears started flowing. I curled up into myself, hugging my new body with fins that shouldn't exist and friends I should never have known.
+Then I was crying. I curled up into myself, hugging my new body with fins that shouldn't exist and friends I should never have known.
 
 Friends?
 
@@ -721,7 +715,7 @@ _I don't have friends._
 
 "I don't think I'm okay," I said.
 
-Jack and Vivian stood from their chairs to surround me with warm hugs.
+Jack and Vivian stood from their chairs to surround me in a hug.
 
 The rabbit whispered in my ear. "You don’t have to be."  
 
@@ -733,7 +727,7 @@ They let me cry until the tears were all gone. Then, nodding, I clicked my heels
 
 "See you soon," I said.
 
-"See you soon!" the couple said, waving to me as I left. As I returned to my greige hell I tried to hold onto the feeling of sharkskin and warm, fuzzy hugs, hoping they'd keep my heart warm under Stinky's glowing eye.
+"See you soon!" the couple said, waving to me as I left. As I returned to my greige hell I tried to hold onto the feeling of sharkskin and fur, hoping it would last under Stinky's glowing eye.
 
 ----
 

@@ -24,7 +24,7 @@ test('the starting shelf keeps the approved reading order and canonical paths', 
     'On AI, Labor, and the End of the Moat',
     "Sighted people use the world around them to help them remember thing. When you can't do that, your brain builds something different. Something that might actually be better in some cases.",
   ]);
-  assert.deepEqual(shelf.map((item) => item.readingMinutes), [38, 31, 7, 8]);
+  assert.deepEqual(shelf.map((item) => item.readingMinutes), [38, 30, 7, 8]);
   assert.deepEqual(shelf.map((item) => item.cover?.alt), [
     'Black ink emblem of an android face and cart wheel on cloth-white paper.',
     'A sheltered open-air virtual bar overlooks a rainy neon city. A low-poly fox and painterly mouse, rabbit, cat, and human share drinks beneath the roof.',
