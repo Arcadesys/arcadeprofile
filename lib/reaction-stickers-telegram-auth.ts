@@ -27,6 +27,7 @@ export async function startTelegramLogin() {
     if (count > 60) throw new StickerUploadError(429, 'Telegram sign-in is busy. Please try again shortly.');
   } catch (error) {
     if (error instanceof StickerUploadError) throw error;
+    console.error('[reaction-stickers] Telegram login rate check failed', error instanceof Error ? error.message : 'unknown error');
     throw new StickerUploadError(503, 'Telegram sign-in is temporarily unavailable.');
   }
   const state = random(); const nonce = random(); const verifier = randomBytes(48).toString('base64url'); const browser = random();
@@ -34,7 +35,10 @@ export async function startTelegramLogin() {
   try {
     const saved = await redisCommand<string | null>(['SET', `reaction-stickers:login:${hash(state)}`, transaction, 'EX', 600, 'NX']);
     if (saved !== 'OK') throw new Error('state collision');
-  } catch { throw new StickerUploadError(503, 'Telegram sign-in is temporarily unavailable.'); }
+  } catch (error) {
+    console.error('[reaction-stickers] Telegram login state save failed', error instanceof Error ? error.message : 'unknown error');
+    throw new StickerUploadError(503, 'Telegram sign-in is temporarily unavailable.');
+  }
   const url = new URL(`${ISSUER}/auth`);
   url.search = new URLSearchParams({
     client_id: clientId, redirect_uri: callbackUrl(), response_type: 'code',

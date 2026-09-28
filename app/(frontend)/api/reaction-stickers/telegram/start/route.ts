@@ -7,7 +7,8 @@ export async function GET() {
     response.headers.set('Set-Cookie', login.cookie);
     response.headers.set('Cache-Control', 'no-store');
     return response;
-  } catch {
+  } catch (error) {
+    console.error('[reaction-stickers] Telegram login start failed', error instanceof Error ? error.message : 'unknown error');
     const origin = process.env.REACTION_STICKERS_PUBLIC_ORIGIN || 'https://www.thearcades.me';
     return Response.redirect(new URL('/reaction-stickers/publish.html?login=failed', origin), 303);
   }
