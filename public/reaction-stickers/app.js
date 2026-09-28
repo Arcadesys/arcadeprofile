@@ -36,7 +36,7 @@ function update() {
     item.textContent = label;
     list.append(item);
   }
-  status.textContent = result.error ? 'Complete the ten reactions to build your prompt.' : telegram ? 'Install the skill for Telegram publishing. This page only prepares the prompt.' : 'No installation needed to try a prompt.';
+  status.textContent = result.error ? 'Complete the ten reactions to build your prompt.' : telegram ? 'Make and download the ten PNGs in ChatGPT, then open the Telegram publisher.' : 'No installation needed to try a prompt.';
 }
 form.addEventListener('input', update);
 form.addEventListener('submit', event => event.preventDefault());

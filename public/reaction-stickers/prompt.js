@@ -23,7 +23,7 @@
       const title = (options.title || '').trim();
       prompt += '\n\nI also want a Telegram sticker set. After I review the preview, make one individual transparent static PNG per reaction, suitable for Telegram. Preserve the same character and reaction order.';
       if (title) prompt += ` Proposed pack title: ${title}.`;
-      prompt += ' Use the Reaction Stickers skill’s Telegram workflow if installed. Show me the exact ordered pack, emoji, and destination before publishing. Use my connected Bunch uploader if available; otherwise prepare the included local bot-script manifest and run it only in my configured local environment. Never ask me to paste bot credentials into chat. Publish only after I authorize that exact pack and destination. If uploading is unavailable, deliver the PNGs and manifest with clear local next steps. Report a Telegram link only after verifying the created set.';
+      prompt += ' Use the Reaction Stickers skill’s Telegram workflow if installed. Give me ten separate transparent 512px PNGs to download in this exact order. I can publish them at https://www.thearcades.me/reaction-stickers/publish.html with my own Telegram account after reviewing the files. A connected Bunch uploader or included local bot script is another option if I choose it. Never ask me to paste bot credentials into chat. Publish through a connected uploader only after I authorize that exact pack and destination. Report a Telegram link only after verifying the created set.';
     } else {
       prompt += ' This request is for a preview only, not publishing or a Telegram upload.';
     }
