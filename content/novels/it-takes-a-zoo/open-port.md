@@ -24,15 +24,15 @@ Viv asked if she wanted lunch. Kat said she had never had sushi. Anabelle said, 
 
 By the time the plates started coming around, Vivian was still here to ask Anabelle to tell her the belt. Kat was still new enough to the dress that she kept smoothing the front of it whenever nobody spoke. Nobody at that counter knew what the day would cost later. We only knew there was food, and a kid who had not expected to be invited, and enough room for one more stool.
 
+I caught up with them an hour and a half into lunch. Afterward, the four of us walked along the river. Viv's hand in mine. Anabelle beside us, Kat two steps ahead.
+
 The Zoo was only half-built when a car hit Viv.
 
 Not a self-driving car. That would have been cleaner—a company to sue, a firmware version to hate.
 
 This was a man in a twelve-year-old sedan, rolling a right through a crosswalk because he was late and the rain was bad and Viv was moving slower than his patience. No insurance. Of course no insurance. The universe likes a joke with paperwork.
 
-The call came while Anabelle was in the garage, headset in her hands.
-
-Nate got to the keys first. I got to the door second. Anabelle froze in the doorway, younger than she liked being.
+I called Nate from the hospital. He came.
 
 At the hospital, Viv was conscious. Furious about it. The doctors scanned her brain. Then they scanned it again.
 
