@@ -2078,7 +2078,14 @@ html[data-reading-width] .collection-index {
     justify-content: flex-start;
     padding: 1.5rem .75rem;
   }
+  .site-nav > .nav-logo,
+  .site-nav > .site-search {
+    flex-shrink: 0;
+  }
   .site-nav > ul {
+    /* Let links scroll instead of squeezing search and collapse off-screen. */
+    min-height: 0;
+    overflow-y: auto;
     display: grid;
     width: 100%;
     align-self: stretch;
@@ -2100,6 +2107,10 @@ html[data-reading-width] .collection-index {
     justify-items: center;
     padding: .55rem .25rem;
     line-height: 1;
+  }
+  .site-nav > ul > li > a:focus-visible {
+    /* Keep the focus ring inside the scrollable list. */
+    outline-offset: -4px;
   }
   .nav-more summary {
     width: 100%;
@@ -2133,6 +2144,7 @@ html[data-reading-width] .collection-index {
    icon-only strip so long-form content isn't fighting it for space. */
 @media (min-width: 961px) and (min-height: 701px) {
   .nav-collapse-toggle {
+    flex-shrink: 0;
     display: grid;
     place-items: center;
     width: 40px;
@@ -2160,8 +2172,14 @@ html[data-nav-collapsed="true"] {
   html[data-nav-collapsed="true"] .nav-label {
     display: none;
   }
+  html[data-nav-collapsed="true"] .site-nav > ul {
+    /* Use the rail's padding for the scrollport so icons fit beside a scrollbar. */
+    width: calc(100% + 1.5rem);
+    margin-inline: -.75rem;
+  }
   html[data-nav-collapsed="true"] .site-nav > ul > li:not(.nav-more) > a:not(.nav-logo) {
     min-height: 56px;
+    padding-inline: 0;
   }
   html[data-nav-collapsed="true"] body > main,
   html[data-nav-collapsed="true"] body > #__next,
