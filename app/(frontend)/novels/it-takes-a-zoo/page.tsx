@@ -55,6 +55,7 @@ export default function ZooCollectionPage() {
             <p className={styles.eyebrow}>A novel-in-stories</p>
             <h1>{ZOO_COLLECTION_TITLE}</h1>
             <p className={styles.lede}>{ZOO_COLLECTION_DESCRIPTION}</p>
+            <p>Jamie discovers the Zoo, a private virtual world where people choose their bodies and make room for each other. Follow its queer, furry found family through connected stories of art, grief, consent, and the work of building a place to belong.</p>
             <div className={styles.actions}>
               <Link href={ZOO_CHAPTERS[0].path}>Begin with Cold Boot</Link>
               <Link href="/projects/it-takes-a-zoo/it-takes-a-zoo-to-raise-the-child">Read the opening poem</Link>
@@ -65,7 +66,7 @@ export default function ZooCollectionPage() {
         <section className={styles.completeEdition} id="complete-pdf" aria-labelledby="complete-pdf-heading">
           <p className={styles.eyebrow}>Complete edition</p>
           <h2 id="complete-pdf-heading">Get the complete PDF</h2>
-          <p>Subscribe to fiction and download all {ZOO_CHAPTERS.length} published chapters as one large-print, high-contrast edition. The opening poem remains separate.</p>
+          <p>Subscribe to fiction and download all {ZOO_CHAPTERS.length} published chapters as one large-print, high-contrast edition. The opening poem remains separate. The combined PDF is a fixed edition; individual chapters may include later revisions.</p>
           <SubscriptionForm
             source="zoo-collection"
             audiences={['fiction']}
