@@ -19,7 +19,7 @@ const schema = z.object({
   audiences: z.array(z.enum(VALID_AUDIENCES)).min(1).transform(audienceList),
   source: z.enum(VALID_SOURCES).optional(),
   magnet: z.enum(VALID_MAGNETS).optional(),
-  updateMode: z.enum(VALID_UPDATE_MODES).default('replace'),
+  updateMode: z.enum(VALID_UPDATE_MODES).default('add'),
 });
 
 function json(body: Record<string, unknown>, status = 200) {

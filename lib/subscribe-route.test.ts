@@ -140,3 +140,38 @@ test('a malformed Postmark success receipt is treated as ambiguous and keeps the
   assert.equal(response.status, 202);
   assert.equal(deleteCooldown, false);
 });
+
+
+test('signup rejects replacement semantics before any provider or Redis call', async () => {
+  configure();
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    throw new Error('Replacement requests must be rejected before upstream calls');
+  };
+  const response = await POST(request({
+    email: 'reader@example.test', audiences: ['fiction'], updateMode: 'replace',
+  }));
+  assert.equal(response.status, 400);
+  assert.equal(calls, 0);
+});
+
+test('signup accepts additive mode explicitly or by default without changing suppression behavior', async () => {
+  configure();
+  let calls = 0;
+  globalThis.fetch = async (input, init) => {
+    calls += 1;
+    assert.match(String(input), /^https:\/\/api\.kit\.com\/v4\/subscribers\?/);
+    assert.equal(init?.method ?? 'GET', 'GET');
+    return Response.json({ subscribers: [{ id: 7, email_address: 'reader@example.test', state: 'cancelled' }] });
+  };
+  for (const mode of [undefined, 'add']) {
+    const response = await POST(request({
+      email: 'reader@example.test', audiences: ['fiction'],
+      ...(mode ? { updateMode: mode } : {}),
+    }));
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).confirmationRequired, true);
+  }
+  assert.equal(calls, 2);
+});
