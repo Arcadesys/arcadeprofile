@@ -1,7 +1,18 @@
 .main {
-  width: min(100% - 2rem, 72rem);
+  width: min(100% - 2rem, 74rem);
   margin: 0 auto;
   padding: clamp(2rem, 6vw, 5rem) 0 clamp(4rem, 8vw, 7rem);
+}
+
+/* Center within the space beside the fixed rail, including its collapsed state.
+   The explicit collapsed selector also overrides the shell's main margin.
+   Keep this desktop-only: a saved collapse preference persists on mobile. */
+@media (min-width: 961px) and (min-height: 701px) {
+  .main,
+  :global(html[data-nav-collapsed="true"]) .main {
+    width: min(calc(100% - var(--nav-rail-width) - 2rem), 74rem);
+    margin-left: calc(var(--nav-rail-width) + max(1rem, (100% - var(--nav-rail-width) - 74rem) / 2));
+  }
 }
 
 .header {
@@ -199,7 +210,6 @@
 
 /* Console panels use the same hard geometry as the home page without making
    the archive harder to scan. */
-.main { width: min(100% - 2rem, 74rem); }
 .eyebrow { color: var(--cyan); font-family: var(--font-mono); }
 .title { font-family: var(--font-barlow-condensed), sans-serif; font-weight: 700; letter-spacing: .01em; text-transform: uppercase; }
 .collection, .group, .collectionCard { border-radius: 0; border-color: #34343b; background: rgba(7, 7, 8, .9); clip-path: polygon(0 0, 98% 0, 100% 7%, 100% 93%, 98% 100%, 0 100%); }
