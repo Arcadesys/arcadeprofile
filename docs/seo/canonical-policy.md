@@ -119,32 +119,60 @@ post-release HTTP/HTML acceptance is pending; no indexing submission is included
 
 ## Validation of this candidate
 
-- Six dependency-free unit tests passed after TypeScript erasure with the cloud
-  Node 24 built-in runner, covering all mapped pairs, local route/PDF identity,
-  query suffixes, distinct/unmapped controls, encoded source rejection, and
-  invalid configuration targets. This is a focused fallback, not a full build
-- `git diff --check` passed
-- Repository `npm run test:site`, `npm run lint`, and `npm run build` were attempted
-  but blocked before running by absent `tsx`, `eslint`, and `vite` executables.
-  Dependency-install automatic reviews timed out. The repository's installed
-  Next docs were also unavailable; implementation uses the existing metadata API
-  after checking the current official [metadata](https://nextjs.org/docs/app/api-reference/functions/generate-metadata)
-  and [sitemap](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap) references
-- Full typecheck, integration tests, candidate emitted HTML and production
-  post-release checks remain required. No such check is represented as passed
+Revalidated on 2026-09-30 after dependency access recovered, using Node
+**22.23.3**, matching the CI runtime major version. The two canonical-specific
+TypeScript errors found in the initial draft (the test assertion overload and
+JSON-LD array inference in the verification script) are corrected.
 
-After dependencies are available, run `npm run lint`, `npx tsc --noEmit`,
-`npm test`, and `npm run build`. With a running candidate deployment, run:
+- Strict TypeScript check passed: `node_modules/.bin/tsc --noEmit`
+- Full site selection passed: **264 tests, zero failures or skips**, using
+  `node --import tsx --test $(find app lib scripts -name '*.test.ts' -print | sort)`.
+  This is the same file selection as `npm run test:site`; the direct Node runner
+  avoids a cloud-only IPC permission error in the `tsx` CLI wrapper
+- `npm run test:furry-history-board` passed: **19 tests in eight files**
+- `npm run lint` passed with no errors and four existing `no-img-element`
+  warnings in unrelated MFF and Cultural Weather Vane files
+- `npm run build` passed, including the Vite prebuild, Next production compile,
+  TypeScript validation and static route generation. A real local dependency
+  copy replaced the shared symlink to satisfy Turbopack's filesystem-root rule;
+  no repository dependency, lockfile or Next configuration change was needed
+- `git diff --check` passed
+- The installed Next 16.3.6 metadata, generated-metadata and sitemap documentation
+  was read after installation recovered
+
+Actual HTTP/HTML checks against that running Node 22 production build passed:
+
+- All three creative articles returned 200 and emitted the exact preferred work
+  URL in canonical, Open Graph and `BlogPosting` document identity
+- Query-string requests, including an untrusted `canonical` query parameter,
+  and percent-encoded slug requests emitted the same approved identity
+- Each article still linked to its original local `/pdf` route
+- The distinct `/projects/the-singularity-log/rabies-capitalism` control retained
+  its creative self-canonical and creative sitemap entry
+- Live creative sitemap omitted the three duplicate editions; `llms.txt` and RSS
+  reading links used work URLs while RSS GUIDs stayed at their historical URLs
+- `/latest` supplied the preferred discovery links; the legacy numeric
+  `/projects/bunch/1` route still returned 308 to `/projects/bunch/bunch`
+
+These checks establish local build and emitted-response correctness. They do
+not replace the new Vercel candidate deployment check or production acceptance.
+The initial draft's hosted preview failed before these corrections. Verify the
+updated head for [PR #378](https://github.com/Arcadesys/arcadeprofile/pull/378)
+and keep production post-release HTTP/HTML acceptance pending. GitHub Actions
+currently fails before its job steps, so no remote CI pass is claimed.
+
+With a running candidate deployment, the committed read-only check is:
 
 ```sh
 npm exec tsx scripts/verify-post-canonicals.ts http://localhost:3000
 ```
 
-That read-only check verifies destination self-canonicals, the distinct work
-case study, creative cross-domain canonical/OG/schema output, query and encoded
-requests, an unmapped article, both sitemaps, RSS GUID/link parity, and `llms.txt`.
-It follows no redirects and performs no indexing submissions. Work targets and
-the production creative origin must be indexable. On a local or preview origin,
-it reports and permits intentional noindex protections while checking metadata;
-that mode is explicitly not production indexing acceptance. Also verify
-candidate robots and existing local PDF/legacy routes before authorizing release.
+It verifies destination self-canonicals, the distinct work case study, creative
+canonical/OG/schema output, query and encoded requests, an unmapped article,
+both sitemaps, RSS GUID/link parity, and `llms.txt`. It follows no redirects and
+performs no indexing submissions. Work targets and the production creative
+origin must be indexable. On a local or preview origin, it reports and permits
+intentional noindex protections while checking metadata; that mode is explicitly
+not production indexing acceptance. Before release, recheck public robots and
+retained local PDF/legacy routes. The live work-target evidence above remains a
+separate destination-first check; no production creative deployment is implied.

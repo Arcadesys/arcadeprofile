@@ -48,7 +48,7 @@ test('configuration rejects unsafe, ambiguous and missing work targets', () => {
     `${WORK_SITE_URL}/blog/%62unch`, `${WORK_SITE_URL}/blog/a/../bunch`,
     `${WORK_SITE_URL}/`, `${WORK_SITE_URL}/work/bunch`, `${WORK_SITE_URL}/blog/bunch/`,
     ' https://work.thearcades.me/blog/bunch', '',
-  ]) assert.throws(() => validatePostCanonicalEditions([{ creativePath: source, canonicalUrl }]), undefined, canonicalUrl);
+  ]) assert.throws(() => validatePostCanonicalEditions([{ creativePath: source, canonicalUrl }]), TypeError, canonicalUrl);
   assert.throws(() => validatePostCanonicalEditions([POST_CANONICAL_EDITIONS[0], POST_CANONICAL_EDITIONS[0]]));
   assert.throws(() => validatePostCanonicalEditions([{ creativePath: '/projects/bunch/%62unch', canonicalUrl: `${WORK_SITE_URL}/blog/bunch` }]));
 });

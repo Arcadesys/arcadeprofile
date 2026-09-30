@@ -39,7 +39,7 @@ async function verifyArticle(url: string, canonicalUrl: string, type = 'BlogPost
     checkIndexability(meta.getAttribute('content') ?? '', url, 'robots meta', requireIndexable);
   }
   const documents = [...document.querySelectorAll('script[type="application/ld+json"]')]
-    .flatMap((element) => JSON.parse(element.textContent ?? '{}') as Record<string, unknown>);
+    .map((element) => JSON.parse(element.textContent ?? '{}') as Record<string, unknown>);
   const article = documents.find((entry) => entry['@type'] === type);
   assert.ok(article, `${url}: missing ${type} schema`);
   assert.equal(article.url, canonicalUrl, `${url}: schema URL mismatch`);
