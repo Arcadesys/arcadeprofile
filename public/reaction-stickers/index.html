@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Turn your character into ten reaction stickers in your own ChatGPT. Try a prompt, download the reusable skill, and make it yours.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://*.public.blob.vercel-storage.com; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Reaction Stickers — your character, ten reactions</title>
+  <link rel="canonical" href="https://www.thearcades.me/reaction-stickers">
+  <link rel="stylesheet" href="/reaction-stickers/styles.css">
+  <script src="/reaction-stickers/workflow.js" defer></script>
+  <script src="/reaction-stickers/prompt.js" defer></script>
+  <script src="/reaction-stickers/app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <a class="wordmark" href="/reaction-stickers">Reaction Stickers<span aria-hidden="true">✳</span></a>
+  <nav aria-label="Main"><a href="/projects/reaction-stickers">Project</a><a href="#try">Try the flow</a><a href="#install">Get the skill</a></nav>
+</header>
+<main id="main">
+  <section class="intro" aria-labelledby="title">
+    <div class="hero-copy">
+      <h1 id="title">Your character.<br><span>Ten little feelings.</span></h1>
+      <p class="lead">Make a sheet of reaction stickers with AI, in your own ChatGPT.</p>
+      <p>A wave, a laugh, a very sleepy face. Bring a character reference, choose your reactions, and make something you can send to friends.</p>
+      <div class="actions"><a class="button primary" href="#try">Make a prompt <span aria-hidden="true">↗</span></a><a class="button" href="#install">Download the skill</a></div>
+      <p class="note">This demo builds your prompt. Image generation happens in your chat app, using your account’s tools and limits.</p>
+      <ol class="steps" aria-label="How it works">
+        <li><strong>Bring your character</strong><span>Attach a reference in ChatGPT, or describe one.</span></li>
+        <li><strong>Give them ten reactions</strong><span>Use the everyday set or write your own.</span></li>
+        <li><strong>Keep the JPG preview</strong><span>Review the sheet and ask for any repairs.</span></li>
+      </ol>
+
+    </div>
+    <figure class="sample">
+      <figcaption><strong>One robot. Ten moods.</strong><span>A saved AI-generated example.</span></figcaption>
+      <a href="https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/6ac2ee6e44359159d8e7dbfb7a2aa7b5da64462e29a40a1cb8bb688807e1cea9/robot-reactions.jpg" aria-label="Open the robot sticker example at full size"><img src="https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/6ac2ee6e44359159d8e7dbfb7a2aa7b5da64462e29a40a1cb8bb688807e1cea9/robot-reactions.jpg" width="793" height="1983" alt="A mint-green robot with an orange scarf in ten labeled reactions: hello, love, laugh, thanks, yes, no, sad, angry, thinking, and sleepy."></a>
+      <p class="note">Open the image to see it larger. Your prompt changes below won’t change this saved example.</p>
+    </figure>
+  </section>
+      <figure class="reference">
+
+        <a href="https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/9a0d2ddc8dca6779577141796d29969cb17968ebfa0f7c69fbcf1294d453974b/robot-reference.png" aria-label="Open the robot reference sheet at full size"><img src="https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/9a0d2ddc8dca6779577141796d29969cb17968ebfa0f7c69fbcf1294d453974b/robot-reference.png" width="1536" height="1024" alt="Robot reference sheet: front, side, and back views of the mint-green robot, with cream face, orange scarf, mitten hands, and an orange-tipped antenna."></a>
+
+      <figcaption><strong>Start with the robot reference</strong><p class="note">Front, side, and back views, with the character’s colors and details.</p><a class="button" href="https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/9a0d2ddc8dca6779577141796d29969cb17968ebfa0f7c69fbcf1294d453974b/robot-reference.png?download=1" download>Download robot reference</a></figcaption></figure>
+  <section id="try" class="workshop" aria-labelledby="try-title">
+    <div class="section-heading"><h2 id="try-title">Try the flow</h2><p>Prepare here. Generate in your own chat.</p></div>
+    <noscript><p class="notice">Turn on JavaScript to customize a prompt, or download the skill below and attach a reference in ChatGPT.</p></noscript>
+    <div class="builder" id="builder" hidden>
+      <form id="options">
+        <fieldset><legend>1. Choose a character</legend>
+          <label class="choice"><input type="radio" name="character" value="reference" checked> My own character reference</label>
+          <label class="choice"><input type="radio" name="character" value="robot"> Try the example robot</label>
+          <p id="robot-download" hidden><a href="https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/9a0d2ddc8dca6779577141796d29969cb17968ebfa0f7c69fbcf1294d453974b/robot-reference.png?download=1" download>Download the robot reference to attach in ChatGPT</a></p>
+        </fieldset>
+        <p id="character-help" class="note">Attach your reference directly in ChatGPT. This page never receives your images.</p>
+        <label for="notes">Character details or changes <span class="optional">(optional)</span></label>
+        <textarea id="notes" rows="3" maxlength="1000" placeholder="For example: keep the purple jacket and make the poses extra dramatic."></textarea>
+        <fieldset><legend>2. Choose your reactions</legend>
+          <label for="reactions">Ten reactions, one per line <span class="optional">(optional)</span></label>
+          <p class="note" id="reactions-help">Leave this empty for hello, love, laugh, thanks, yes, no, sad, angry, thinking, and sleepy.</p>
+          <textarea id="reactions" rows="5" maxlength="810" aria-describedby="reactions-help reactions-error" placeholder="HELLO&#10;LOVE&#10;LAUGH&#10;…"></textarea>
+          <p id="reactions-error" class="error" role="status"></p>
+          <label class="choice"><input id="labels" type="checkbox" checked> Include large text labels</label>
+        </fieldset>
+        <fieldset><legend>3. Choose a finish</legend>
+          <label class="choice"><input type="radio" name="finish" value="preview" checked><span class="choice-copy"><strong>JPG preview</strong><span>Make the sheet to review and download.</span></span></label>
+          <label class="choice"><input type="radio" name="finish" value="telegram"><span class="choice-copy"><strong>Telegram sticker set</strong><span>Make the preview, then prepare a pack for review.</span></span></label>
+          <div id="telegram-options" class="finish-details" hidden>
+            <label for="pack-title">Pack title <span class="optional">(optional)</span></label>
+            <input id="pack-title" type="text" maxlength="64" placeholder="Robot Reactions">
+            <p class="note">The <a href="#install">downloadable skill</a> prepares the stickers. You can then <a href="/reaction-stickers/publish.html">publish them through this site</a> with your own Telegram account, or use a connected Bunch uploader or local bot.</p>
+          </div>
+        </fieldset>
+        <button type="reset" class="text-button">Reset to the everyday set</button>
+      </form>
+      <div class="handoff">
+        <h3>Your reaction sheet</h3>
+        <ol id="reaction-list" class="reaction-list" aria-label="Reactions in reading order"></ol>
+        <h3>4. Take it to ChatGPT</h3>
+        <p>Copy the prompt, open ChatGPT, and attach your own reference or the downloaded robot sheet. Then paste and send.</p>
+        <div id="telegram-handoff" class="handoff-steps" hidden>
+          <strong>For a Telegram set</strong>
+          <ol><li>Install the skill or plugin below.</li><li>Review and download the ten individual transparent PNGs.</li><li><a href="/reaction-stickers/publish.html">Sign in with Telegram and publish the set</a> after reviewing the exact files.</li></ol>
+          <p class="note">This prompt page does not receive images or credentials. The separate publisher receives your PNGs only when you choose to publish.</p>
+        </div>
+        <label for="prompt">Your ready-to-use prompt</label>
+        <textarea id="prompt" rows="8" readonly spellcheck="false"></textarea>
+        <div class="actions"><button id="copy" type="button" class="primary">Copy prompt</button><a class="button" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Open ChatGPT <span class="visually-hidden">in a new tab</span><span aria-hidden="true">↗</span></a></div>
+        <p id="copy-status" role="status" class="note">No installation needed to try a prompt.</p>
+      </div>
+    </div>
+  </section>
+  <section id="install" class="install" aria-labelledby="install-title">
+    <div class="section-heading"><h2 id="install-title">Make it a repeat thing.</h2><p>Keep the workflow in your own app.</p></div>
+    <div class="install-grid">
+      <article>
+        <h3>Download the skill</h3>
+        <p>The reusable instructions for a ten-reaction preview, plus optional Telegram set publishing.</p>
+        <a class="button primary" href="https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/f79f33176e3d9a3c3aeb5af600a310821b8e35f61d78670d129acb1c8d662b67/make-reaction-stickers.zip?download=1" download>Download skill ZIP</a>
+        <p class="note">Skill uploads depend on your account and workspace settings. If Skills is unavailable, use the prompt above.</p>
+        <details class="skill-install"><summary>Install in ChatGPT</summary>
+        <ol>
+          <li>Open <strong>Plugins → Skills → Create → Upload from your computer</strong>.</li>
+          <li>Choose the downloaded skill and complete the scan and installation. If the picker asks for an individual skill file, extract the ZIP and select <code>SKILL.md</code>.</li>
+          <li>Start a new chat, attach your reference, and ask: <strong>Use make-reaction-stickers. Standard grouping.</strong></li>
+        </ol>
+        <p class="note">Skill uploads depend on your account and workspace settings. If Skills is unavailable, use the prompt above. <a href="https://help.openai.com/en/articles/20001066-skills-in-chatgpt" target="_blank" rel="noopener noreferrer">Check ChatGPT skill availability<span class="visually-hidden"> in a new tab</span></a>.</p></details>
+      </article>
+      <article>
+        <h3>Get the plugin package</h3>
+        <p>The same skill, packaged for a compatible ChatGPT desktop or Codex plugin setup.</p>
+        <a class="button" href="https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/b9d4a4bdf270b4fffbce6b92ad55451df211fa16ead476cf52cdcf29f8ada464/reaction-stickers-plugin.zip?download=1" download>Download plugin ZIP</a>
+        <details><summary>Install in desktop Work or Codex</summary><ol>
+          <li>Extract the ZIP and keep the <code>reaction-stickers</code> folder.</li>
+          <li>In a local Work or Codex chat, attach that folder and ask the built-in <strong>plugin-creator</strong> to register it in your personal marketplace.</li>
+          <li>Refresh or restart the app. In the Plugins Directory, choose the local source and install <strong>Reaction Stickers</strong>.</li>
+          <li>Start a new chat and attach your character reference.</li>
+        </ol><p>A ZIP download alone does not install the plugin. The skill ZIP is the simpler path when your app supports skill uploads.</p></details>
+        <details><summary>Manual Codex skill setup</summary><p>Extract the skill ZIP into <code>$CODEX_HOME/skills</code>, or <code>~/.codex/skills</code> with the default setup. Keep the entire <code>make-reaction-stickers</code> folder and preserve any existing version. Start a new chat, attach a reference, and say <strong>Use $make-reaction-stickers. Standard grouping.</strong></p></details>
+        <p><a href="https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/cc4a2cf96c0f1fd49fcc990e9d6699c6001dbe2f1773c7e15def21efd91dfe55/SETUP.md?download=1" download>Download the full setup guide</a> · <a href="https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/175677adea41bf328a0dda0e81e207620d1e7692bd5588a6efcdccc1f45005ed/SKILL.md?download=1" download>Read the skill instructions</a></p>
+      </article>
+    </div>
+    <div class="expectations"><h3>What you get</h3><p>One JPG preview sheet. Individual transparent stickers and a Telegram pack need a separate export and publishing step.</p><h3>Telegram set, when you ask</h3><p>Ask the skill for ten sticker-ready transparent PNGs. Then <a href="/reaction-stickers/publish.html">publish them here</a> to a set owned by your Telegram account after review. The skill also supports a connected Bunch uploader or a local script with your own bot. This prompt page does not upload images.</p><p>The download is free. Your chat app’s image generation access and usage limits apply. No API key, Telegram connection, or Bunch account is needed for the preview.</p></div>
+  </section>
+</main>
+<footer><strong>Reaction Stickers</strong><p>AI-assisted little expressions. Yours to make your own.</p><p>This page has no uploads, tracking, or generation service. Text you enter stays on this page until you copy it. <a href="https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/258087c73ea15ccf59647d0f7955cdb2dd2024ce20b3732a010514850d3f2a02/SHA256SUMS.txt">Download checksums</a></p></footer>
+</body>
+</html>

@@ -1,0 +1,23 @@
+.publish-page { max-width:1000px; padding-block:3rem 5rem; }
+.publish-heading { max-width:760px; margin-bottom:2rem; }
+.publish-heading p { max-width:62ch; }
+.publish-page>section,.publish-page form>section { margin-top:2rem; padding:clamp(1.2rem,3vw,2rem); border:2px solid var(--section-line); border-radius:22px; background:var(--surface); }
+.publish-page h2 { font-size:clamp(1.65rem,3vw,2.25rem); margin-bottom:.8rem; }
+.publish-page label:not(.file-choice) { display:block; font-weight:800; margin-top:1.35rem; margin-bottom:.35rem; }
+.publish-page input[type=text] { display:block; width:100%; max-width:650px; min-height:58px; padding:.65rem .85rem; border:2px solid var(--line); border-radius:12px; color:var(--ink); background:var(--field); }
+.publish-page input[type=file] { display:block; width:100%; max-width:100%; min-height:66px; padding:.35rem; overflow:hidden; border:2px solid var(--line); border-radius:12px; color:transparent; background:var(--field); cursor:pointer; }
+.publish-page input[type=file]::file-selector-button { min-height:48px; margin-right:.5rem; padding:.35rem .7rem; border:2px solid var(--button-border); border-radius:9px; color:var(--button-ink); background:var(--button-bg); font:700 .9rem Arial,Helvetica,sans-serif; cursor:pointer; }
+.file-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin-top:1.3rem; }
+.file-choice { min-width:0; padding:1rem; border:2px solid var(--line); border-radius:15px; background:var(--paper); }
+.file-choice label { display:block; margin-top:.75rem !important; margin-bottom:.35rem; font-size:1rem; font-weight:800; }
+.file-choice label:first-child { margin-top:0 !important; font-size:1.1rem; }
+.file-choice span { display:block; margin-top:.4rem; overflow-wrap:anywhere; color:var(--muted); font-size:.9rem; }
+.publish-page .file-choice input.emoji-input { max-width:120px; min-height:54px; }
+.review { background:var(--mint) !important; }
+.review button { margin-top:1.4rem; }
+#publish-status { margin-top:1rem; font-weight:700; }
+#pack-link { margin-top:1rem; font-size:1.15rem; font-weight:800; overflow-wrap:anywhere; }
+.account-line { padding:.7rem 1rem; border-radius:12px; background:var(--selected); font-weight:800; }
+.widget-slot { min-height:64px; margin-top:1.2rem; }
+.publish-privacy { max-width:70ch; margin-top:2rem; }
+@media(max-width:700px) { .file-list { grid-template-columns:1fr; } .publish-page { padding-block:2rem 3rem; } }

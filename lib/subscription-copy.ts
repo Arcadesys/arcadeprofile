@@ -15,7 +15,7 @@ export function endOfPieceCopy({
 }: EndOfPieceCopyInput): string {
   if (seriesActive && seriesTitle && totalParts && totalParts > 0) {
     const noun = totalParts === 1 ? 'installment' : 'installments';
-    return `${seriesTitle} currently has ${totalParts} ${noun}. Get the next one as it lands.`;
+    return `${seriesTitle} currently has ${totalParts} ${noun}. Get the next one in your inbox as it lands.`;
   }
 
   if (seriesTitle) {
@@ -23,5 +23,5 @@ export function endOfPieceCopy({
     return `Follow ${seriesTitle} for new ${pluralKind}.`;
   }
 
-  return `Get the next ${kind} as it arrives.`;
+  return `Get the next ${kind} in your inbox as it arrives.`;
 }

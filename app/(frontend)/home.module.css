@@ -420,6 +420,7 @@
 .recentRow h3 a { display: inline-flex; min-height: 44px; align-items: center; color: var(--home-text); }
 .recentRow h3 a:hover { color: #ffad68; text-shadow: none; }
 .recentRow p { color: var(--home-text-muted); font-size: .9rem; font-weight: 700; }
+.recentRow p.recentExcerpt { margin: 0 0 .45rem; max-width: 60ch; color: var(--home-text); font-size: 1.05rem; font-weight: 400; line-height: 1.55; }
 .recentActions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .recentActions a,
 .recentActions button { width: 100%; min-width: 0; min-height: 48px; padding: .6rem .8rem; border-color: #71646b; border-radius: 0; color: var(--home-text); font-family: var(--font-mono); font-size: 1rem; }

@@ -10,15 +10,39 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - dependencies
+    ignore:
+      # typescript-eslint (via eslint-config-next) does not support TS 7 yet;
+      # lint crashes on install. Drop this once typescript-eslint ships TS 7 support.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # eslint-plugin-react (via eslint-config-next) only supports ESLint <=9;
+      # ESLint 10 crashes lint. Drop this once it ships ESLint 10 support.
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      # Keep Node types on the major CI and Vercel run (Node 22). Bump by hand
+      # together with node-version in .github/workflows.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     groups:
+      # vite, its React plugin, and vitest pin each other through peer deps,
+      # so a lone vite major fails `npm ci` with ERESOLVE. Bump them together.
+      vite:
+        patterns:
+          - "vite"
+          - "vitest"
+          - "@vitejs/*"
+          - "@vitest/*"
       next:
         patterns:
           - "next"
           - "@next/*"
           - "eslint-config-next"
+      # @react-three/fiber caps its react peer range, so a react minor
+      # fails `npm ci` unless fiber moves in the same PR.
       react:
         patterns:
           - "react"
+          - "@react-three/*"
           - "react-dom"
           - "@types/react"
           - "@types/react-dom"

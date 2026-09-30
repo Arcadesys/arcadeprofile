@@ -99,6 +99,13 @@ export default async function HomePage() {
         </ul>
       </section>
 
+      <div className={styles.resume}>
+        <ContinueReadingBanner availablePaths={readingCatalog.map((piece) => piece.canonicalPath)} />
+        <ContinueToyBanner />
+      </div>
+
+      <StartReadingShelf items={shelf} heading="Choose your next read" headingId="home-start-reading" showCovers />
+
       <section className={styles.workLane} aria-labelledby="home-work-heading">
         <p className={styles.workEyebrow}>AI enablement &amp; transformation</p>
         <h2 id="home-work-heading">Hire me for the hard part.</h2>
@@ -113,13 +120,6 @@ export default async function HomePage() {
           <Link className={styles.workSecondary} href="/projects">Projects</Link>
         </div>
       </section>
-
-      <div className={styles.resume}>
-        <ContinueReadingBanner availablePaths={readingCatalog.map((piece) => piece.canonicalPath)} />
-        <ContinueToyBanner />
-      </div>
-
-      <StartReadingShelf items={shelf} heading="Choose your next read" headingId="home-start-reading" showCovers />
 
       <FeaturedCollectionCard collection={ZOO_FEATURED_COLLECTION} placement="home" />
 
@@ -157,7 +157,7 @@ export default async function HomePage() {
           <h2 id="recent-heading">Latest</h2>
           {recentPosts.length ? <ol className={styles.recentList}>{recentPosts.map((post) => (
             <li className={styles.recentRow} key={post.slug}>
-              <div><h3><Link href={post.href}>{post.title}</Link></h3><p>{post.groupTitle} · {formatSiteDate(post.date)}</p></div>
+              <div><h3><Link href={post.href}>{post.title}</Link></h3>{post.excerpt ? <p className={styles.recentExcerpt}>{post.excerpt}</p> : null}<p>{post.groupTitle} · {formatSiteDate(post.date)}</p></div>
               <div className={styles.recentActions}><PieceActions title={post.title} readHref={post.href} pdfHref={`${post.href}/pdf`} shareUrl={post.href} showRead={false} /></div>
             </li>
           ))}</ol> : <p>No recent publications are available yet.</p>}

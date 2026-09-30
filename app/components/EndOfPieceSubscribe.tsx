@@ -5,6 +5,7 @@ import SubscriptionForm from './SubscriptionForm';
 import styles from './EndOfPieceSubscribe.module.css';
 
 type Props = {
+  /** The reader's context; copy follows it, list membership does not. */
   audience: Audience;
   source: Source;
   kind: EndOfPieceKind;
@@ -12,6 +13,10 @@ type Props = {
   totalParts?: number;
   seriesActive?: boolean;
 };
+
+// Broadcasts target All Writing (or Essays), so the end-of-piece capture joins
+// All Writing — the same list the sitewide footer form already uses.
+const END_OF_PIECE_AUDIENCES: readonly Audience[] = ['all'];
 
 export default function EndOfPieceSubscribe(props: Props) {
   const { audience, source, kind, seriesTitle, totalParts, seriesActive } = props;
@@ -32,7 +37,7 @@ export default function EndOfPieceSubscribe(props: Props) {
       <p className={styles.copy}>{endOfPieceCopy({ kind, seriesTitle, totalParts, seriesActive })}</p>
       <SubscriptionForm
         source={source}
-        audiences={[audience]}
+        audiences={END_OF_PIECE_AUDIENCES}
         updateMode="add"
         presentation="compact"
         submitLabel="Send confirmation email"

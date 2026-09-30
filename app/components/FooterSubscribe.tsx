@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { hasEndOfPieceSignup } from '@/lib/end-of-piece-routes';
 import SubscriptionForm from './SubscriptionForm';
 
 export default function FooterSubscribe() {
@@ -16,7 +17,8 @@ export default function FooterSubscribe() {
     hasPieceSpecificSignup ||
     pathname === '/subscribe' ||
     pathname === '/queercolumns' || pathname.startsWith('/queercolumns/') ||
-    pathname === '/projects/queer-columns' || pathname.startsWith('/projects/queer-columns/')
+    pathname === '/projects/queer-columns' || pathname.startsWith('/projects/queer-columns/') ||
+    hasEndOfPieceSignup(pathname)
   ) return null;
 
   return (

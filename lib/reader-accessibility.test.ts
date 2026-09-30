@@ -69,7 +69,7 @@ test('long-form routes put next steps before the end-of-piece signup', () => {
   assert.ok(portfolioPiece.indexOf('<ReadingNextSteps') < portfolioPiece.indexOf('<EndOfPieceSubscribe'));
   assert.ok(labCaseStudy.indexOf('<EndOfPieceSubscribe') < labCaseStudy.indexOf('<div className={styles.pieceActions}>'));
   assert.match(endOfPieceSubscribe, /Send confirmation email/);
-  assert.match(endOfPieceSubscribe, /audiences=\{\[audience\]\}/);
+  assert.match(endOfPieceSubscribe, /END_OF_PIECE_AUDIENCES: readonly Audience\[\] = \['all'\]/);
   assert.match(endOfPieceSubscribe, /audience === 'queer-columns'/);
   assert.match(projectPost, /slug !== 'queer-columns'[\s\S]*?<EndOfPieceSubscribe/);
   assert.match(footerSubscribe, /hasPieceSpecificSignup/);
