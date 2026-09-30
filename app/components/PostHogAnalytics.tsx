@@ -1,14 +1,17 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { shouldTrackSiteAnalytics } from '@/lib/site-analytics';
 import { captureSiteEvent } from '@/lib/posthog-client';
 
 export function PostHogAnalytics() {
   const pathname = usePathname();
+  const previousPath = useRef<string | null>(null);
 
   useEffect(() => {
+    if (previousPath.current === pathname) return;
+    previousPath.current = pathname;
     if (!shouldTrackSiteAnalytics(pathname)) return;
     captureSiteEvent('$pageview');
   }, [pathname]);

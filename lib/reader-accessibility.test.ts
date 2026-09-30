@@ -107,5 +107,5 @@ test('reader telemetry initializes Vercel before cold-load reader effects', () =
 
   assert.match(telemetry, /useLayoutEffect/);
   assert.match(telemetry, /initializeReaderAnalytics\(\)/);
-  assert.match(telemetry, /injectAnalytics\(\{ framework: 'react' \}\)/);
+  assert.match(telemetry, /injectAnalytics\(\{ framework: 'react', beforeSend: sanitizeVercelAnalyticsEvent \}\)/);
 });
