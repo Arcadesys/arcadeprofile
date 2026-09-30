@@ -24,7 +24,7 @@
     "build:analytics-manifest": "node --import tsx scripts/build-analytics-manifest.ts"
   },
   "dependencies": {
-    "@react-pdf/renderer": "^4.6.1",
+    "@react-pdf/renderer": "^4.9.0",
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
     "@tailwindcss/typography": "^0.5.10",
