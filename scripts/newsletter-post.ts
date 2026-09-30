@@ -3,10 +3,13 @@ config({ path: ".env.local" });
 
 import { randomUUID } from "node:crypto";
 import {
+  closeSync,
   existsSync,
   mkdirSync,
+  openSync,
   readFileSync,
   renameSync,
+  unlinkSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
@@ -86,9 +89,39 @@ function saveReceipt(file: string, receipt: Receipt) {
 function loadReceipt(file: string, slug: string): Receipt {
   if (!existsSync(file)) return { version: 1, slug, attempts: [] };
   const receipt = JSON.parse(readFileSync(file, "utf8")) as Receipt;
-  if (receipt.version !== 1 || receipt.slug !== slug || !Array.isArray(receipt.attempts))
+  if (!receipt || receipt.version !== 1 || receipt.slug !== slug || !Array.isArray(receipt.attempts))
     throw new Error("The Kit receipt does not match this essay; refusing to reuse it.");
+  if (receipt.attempts.some((attempt) => !attempt
+    || !["pending", "scheduled"].includes(attempt.status)
+    || typeof attempt.id !== "string" || !attempt.id
+    || (attempt.status === "scheduled"
+      && (!Number.isSafeInteger(attempt.broadcastId) || (attempt.broadcastId ?? 0) <= 0)))) {
+    throw new Error("The Kit receipt has an invalid attempt; reconcile it before sending.");
+  }
   return receipt;
+}
+
+function claimSendLock(receiptFile: string): () => void {
+  mkdirSync(path.dirname(receiptFile), { recursive: true });
+  const lockFile = `${receiptFile}.lock`;
+  let descriptor: number;
+  try {
+    descriptor = openSync(lockFile, "wx", 0o600);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "EEXIST") {
+      throw new Error("This essay has an active or interrupted send lock. Reconcile the process, receipt, and Kit before removing the lock.");
+    }
+    throw error;
+  }
+  try {
+    writeFileSync(descriptor, `${JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() })}\n`);
+  } catch (error) {
+    closeSync(descriptor);
+    unlinkSync(lockFile);
+    throw error;
+  }
+  closeSync(descriptor);
+  return () => unlinkSync(lockFile);
 }
 
 async function sendPreview(input: {
@@ -170,63 +203,73 @@ async function main() {
   if (!apiKey) throw new Error("Kit broadcast API is not configured (KIT_API_KEY).");
 
   const receiptPath = path.join(process.cwd(), "data/newsletter-sends", `${post.slug}.kit.json`);
-  const receipt = loadReceipt(receiptPath, post.slug);
-  const latest = receipt.attempts.at(-1);
-  const legacy = readReceipt(legacyReceiptPath(post.slug));
-  if (legacy?.attempts.some((item) => !item.completedAt)) {
-    throw new Error("Resolve the interrupted legacy broadcast before using Kit.");
-  }
-  const priorLegacySuccess = Boolean(legacy?.attempts.some((item) => item.completedAt));
-  const serviceReceiptPath = path.join(
-    process.cwd(),
-    "data/newsletter-sends",
-    `${post.slug}.service.json`,
-  );
-  const serviceAttempts = existsSync(serviceReceiptPath)
-    ? (JSON.parse(readFileSync(serviceReceiptPath, "utf8")) as Array<{ status?: string }>)
-    : [];
-  if (serviceAttempts.some((item) => item.status === "pending")) {
-    throw new Error("Resolve the interrupted email-service broadcast before using Kit.");
-  }
-  const priorServiceSuccess = serviceAttempts.some((item) => item.status === "accepted");
-  if (latest?.status === "pending") {
-    throw new Error("A prior Kit request has an ambiguous result. Reconcile it in Kit before retrying.");
-  }
-  const priorBroadcast = latest?.status === "scheduled" || priorLegacySuccess || priorServiceSuccess;
-  if (priorBroadcast && !options.resend) {
-    throw new Error("This essay already has a scheduled Kit broadcast. Use --resend --reason to repeat it.");
-  }
-  if (options.resend && (!priorBroadcast || !options.reason?.trim())) {
-    throw new Error("--resend requires a prior scheduled broadcast and --reason \"<reason>\".");
-  }
+  // This claim covers both receipt inspection and provider submission. A crash
+  // leaves the lock in place for manual reconciliation; it never expires into
+  // an automatic retry. Separate checkouts still need shared operational history.
+  const releaseSendLock = claimSendLock(receiptPath);
+  try {
+    const receipt = loadReceipt(receiptPath, post.slug);
+    const latest = receipt.attempts.at(-1);
+    const legacy = readReceipt(legacyReceiptPath(post.slug));
+    if (legacy?.attempts.some((item) => !item.completedAt)) {
+      throw new Error("Resolve the interrupted legacy broadcast before using Kit.");
+    }
+    const priorLegacySuccess = Boolean(legacy?.attempts.some((item) => item.completedAt));
+    const serviceReceiptPath = path.join(
+      process.cwd(),
+      "data/newsletter-sends",
+      `${post.slug}.service.json`,
+    );
+    const serviceAttempts = existsSync(serviceReceiptPath)
+      ? (JSON.parse(readFileSync(serviceReceiptPath, "utf8")) as Array<{ status?: string }>)
+      : [];
+    if (serviceAttempts.some((item) => item.status === "pending")) {
+      throw new Error("Resolve the interrupted email-service broadcast before using Kit.");
+    }
+    const priorServiceSuccess = serviceAttempts.some((item) => item.status === "accepted");
+    if (receipt.attempts.some((item) => item.status === "pending")) {
+      throw new Error("A prior Kit request has an ambiguous result. Reconcile it in Kit before retrying.");
+    }
+    const priorBroadcast = latest?.status === "scheduled" || priorLegacySuccess || priorServiceSuccess;
+    if (priorBroadcast && !options.resend) {
+      throw new Error("This essay already has a scheduled Kit broadcast. Use --resend --reason to repeat it.");
+    }
+    if (options.resend && (!priorBroadcast || !options.reason?.trim())) {
+      throw new Error("--resend requires a prior scheduled broadcast and --reason \"<reason>\".");
+    }
 
-  const attempt: Attempt = {
-    id: randomUUID(),
-    startedAt: new Date().toISOString(),
-    status: "pending",
-    audienceSha256: hashTagAudience(tags),
-    tagCount: tags.length,
-    ...(options.reason?.trim() ? { reason: options.reason.trim() } : {}),
-  };
-  receipt.attempts.push(attempt);
-  saveReceipt(receiptPath, receipt);
+    const attempt: Attempt = {
+      id: randomUUID(),
+      startedAt: new Date().toISOString(),
+      status: "pending",
+      audienceSha256: hashTagAudience(tags),
+      tagCount: tags.length,
+      ...(options.reason?.trim() ? { reason: options.reason.trim() } : {}),
+    };
+    receipt.attempts.push(attempt);
+    saveReceipt(receiptPath, receipt);
 
-  // Kit excludes unsubscribed contacts from broadcasts. The local pending
-  // receipt also prevents an ambiguous API response from being retried as a
-  // duplicate send.
-  const result = await createAndScheduleKitBroadcast({
-    apiKey,
-    subject: post.title,
-    description: `Essay: ${post.title}`,
-    content: content.htmlBody,
-    tagIds: tags,
-    sendAt: new Date().toISOString(),
-  });
-  attempt.status = "scheduled";
-  attempt.broadcastId = result.id;
-  attempt.sendAt = result.sendAt;
-  saveReceipt(receiptPath, receipt);
-  console.log(`Kit broadcast ${result.id} scheduled. Receipt: ${receiptPath}`);
+    // Kit excludes unsubscribed contacts from broadcasts. The local pending
+    // receipt also prevents an ambiguous API response from being retried as a
+    // duplicate send.
+    const result = await createAndScheduleKitBroadcast({
+      apiKey,
+      subject: post.title,
+      description: `Essay: ${post.title}`,
+      content: content.htmlBody,
+      tagIds: tags,
+      sendAt: new Date().toISOString(),
+    });
+    attempt.status = "scheduled";
+    attempt.broadcastId = result.id;
+    attempt.sendAt = result.sendAt;
+    saveReceipt(receiptPath, receipt);
+    console.log(`Kit broadcast ${result.id} scheduled. Receipt: ${receiptPath}`);
+  } finally {
+    // Release only the local concurrency claim. In particular, preserve a
+    // pending receipt after any ambiguous provider response or failed save.
+    releaseSendLock();
+  }
 }
 
 main().catch((error) => {

@@ -25,5 +25,7 @@ export type Source = (typeof VALID_SOURCES)[number];
 export const VALID_MAGNETS = ['story', 'it-takes-a-zoo-complete'] as const;
 export type Magnet = (typeof VALID_MAGNETS)[number];
 
-export const VALID_UPDATE_MODES = ['replace', 'add'] as const;
+// Signup only adds consented topics. Replacing/removing existing preferences
+// needs a separate, explicitly confirmed preference-management flow.
+export const VALID_UPDATE_MODES = ['add'] as const;
 export type SubscriptionUpdateMode = (typeof VALID_UPDATE_MODES)[number];
