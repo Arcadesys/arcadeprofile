@@ -1,3 +1,4 @@
+import { buildPostCanonicalUrl } from '@/lib/post-canonical';
 import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -116,7 +117,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const titleWithoutGeneratedSuffix = stripGeneratedTitleSuffix(metaTitle, project.title, SITE_NAME);
   const metaDescription = post.meta?.description?.trim() || post.excerpt || undefined;
   const titleForOg = `${titleWithoutGeneratedSuffix} | ${project.title} | ${SITE_NAME}`;
-  const canonicalUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
+  const canonicalUrl = buildPostCanonicalUrl(slug, postSlug);
   return {
     title: `${titleWithoutGeneratedSuffix} | ${project.title}`,
     description: metaDescription,
@@ -165,7 +166,7 @@ export default async function ProjectPostPage({ params }: Props) {
 
   const readingCatalog = await getReadingCatalog();
 
-  const canonicalUrl = `${SITE_URL}${buildPostUrl(slug, postSlug)}`;
+  const canonicalUrl = buildPostCanonicalUrl(slug, postSlug);
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',

@@ -1,4 +1,5 @@
-import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
+import { buildPostCanonicalUrl } from '@/lib/post-canonical';
+import { buildGroupIntroUrl } from '@/lib/post-url';
 import type { MarkdownGroup, MarkdownPost } from '@/lib/markdown-posts';
 
 interface LlmsEntry {
@@ -44,7 +45,7 @@ export function buildLlmsIndex(
     '',
     ...posts.map((post) => entryLine({
       title: post.title,
-      url: `${canonicalSiteUrl}${buildPostUrl(post.group, post.slug)}`,
+      url: buildPostCanonicalUrl(post.group, post.slug, canonicalSiteUrl),
       description: post.excerpt,
     })),
     '',

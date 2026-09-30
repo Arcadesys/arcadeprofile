@@ -8,6 +8,7 @@ import ContinueToyBanner from '@/app/components/toys/ContinueToyBanner';
 import FeaturedCollectionCard from '@/app/components/FeaturedCollectionCard';
 import { PieceActions } from '@/app/components/PieceActions';
 import { buildPostUrl } from '@/lib/post-url';
+import { buildPostDiscoveryUrl } from '@/lib/post-canonical';
 import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
 import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
@@ -25,8 +26,9 @@ export default async function HomePage() {
   const [posts, urlMap, readingCatalog, shelf] = await Promise.all([getAllPosts(), buildPostUrlMap(), getReadingCatalog(), getStartReadingShelf()]);
   const recentPosts = posts.filter((post) => urlMap.has(post.slug)).slice(0, RECENT_POSTS_MAX).map((post) => {
     const location = urlMap.get(post.slug)!;
-    const href = buildPostUrl(location.groupSlug, post.slug);
-    return { ...post, href, groupTitle: location.groupTitle };
+    const href = buildPostDiscoveryUrl(location.groupSlug, post.slug);
+    const pdfHref = `${buildPostUrl(location.groupSlug, post.slug)}/pdf`;
+    return { ...post, href, pdfHref, groupTitle: location.groupTitle };
   });
 
   return (
@@ -158,7 +160,7 @@ export default async function HomePage() {
           {recentPosts.length ? <ol className={styles.recentList}>{recentPosts.map((post) => (
             <li className={styles.recentRow} key={post.slug}>
               <div><h3><Link href={post.href}>{post.title}</Link></h3>{post.excerpt ? <p className={styles.recentExcerpt}>{post.excerpt}</p> : null}<p>{post.groupTitle} · {formatSiteDate(post.date)}</p></div>
-              <div className={styles.recentActions}><PieceActions title={post.title} readHref={post.href} pdfHref={`${post.href}/pdf`} shareUrl={post.href} showRead={false} /></div>
+              <div className={styles.recentActions}><PieceActions title={post.title} readHref={post.href} pdfHref={post.pdfHref} shareUrl={post.href} showRead={false} /></div>
             </li>
           ))}</ol> : <p>No recent publications are available yet.</p>}
           <Link className={styles.button} href="/latest">View all latest writing <span aria-hidden="true">→</span></Link>
