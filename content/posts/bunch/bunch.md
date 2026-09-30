@@ -30,6 +30,8 @@ Over the past six years, I have experimented with every kind of system I could f
 
 ## Explore Bunch
 
+[Bunch: a context system for continuity across memory gaps](https://work.thearcades.me/work/bunch)
+
 **[Visit Bunch](https://system.thearcades.me/)** — Bunch’s home on the web.
 
 **[Install the Bunch demo plugin and skill](https://github.com/Arcadesys/bunch/blob/main/docs/demo-install.md)** — try Bunch in Codex with fictional people, shared tasks, notes, and catch-up records served by system.thearcades.me. The demo is read-only and needs no Bunch account.
