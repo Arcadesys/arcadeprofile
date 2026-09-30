@@ -1,3 +1,4 @@
+import { buildPostDiscoveryUrl } from '@/lib/post-canonical';
 import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
 import { notFound } from 'next/navigation';
@@ -10,7 +11,7 @@ import { projectCategoryLabels, projectResourceLabels, projectStatusLabels } fro
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import { JsonLd } from '@/lib/structured-data';
-import { buildPostUrl, buildGroupIntroUrl, partNum } from '@/lib/post-url';
+import { buildGroupIntroUrl, partNum } from '@/lib/post-url';
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 import { formatSiteDate } from '@/lib/site-time';
 import { resolveCanonicalUrl } from '@/lib/canonical-url';
@@ -47,7 +48,7 @@ function buildDrawerSections(
       ...first.posts.map((p) => ({
         num: partNum(p.partIndex),
         label: p.post.title,
-        href: buildPostUrl(groupSlug, p.post.slug),
+        href: buildPostDiscoveryUrl(groupSlug, p.post.slug),
         state: 'unread' as const,
       })),
     ],
@@ -59,7 +60,7 @@ function buildDrawerSections(
       items: section.posts.map((p) => ({
         num: partNum(p.partIndex),
         label: p.post.title,
-        href: buildPostUrl(groupSlug, p.post.slug),
+        href: buildPostDiscoveryUrl(groupSlug, p.post.slug),
         state: 'unread' as const,
       })),
     });
@@ -129,7 +130,7 @@ export default async function ProjectIntroPage({ params }: Props) {
   const hasNamedChapters = chapterSections.some((s) => s.slug !== null);
 
   const sections = buildDrawerSections(slug, project.title, chapterSections);
-  const nextPartHref = firstPost ? buildPostUrl(slug, firstPost.slug) : undefined;
+  const nextPartHref = firstPost ? buildPostDiscoveryUrl(slug, firstPost.slug) : undefined;
   const canonicalUrl = resolveCanonicalUrl(
     null,
     buildGroupIntroUrl(slug),
@@ -285,7 +286,7 @@ export default async function ProjectIntroPage({ params }: Props) {
                   : (posts.length === 1 ? 'part' : 'parts')}
               </SectionLabel>
               {firstPost && project.format !== 'collection' && (
-                <Link href={buildPostUrl(slug, firstPost.slug)} style={startReadingStyle}>Start reading →</Link>
+                <Link href={buildPostDiscoveryUrl(slug, firstPost.slug)} style={startReadingStyle}>Start reading →</Link>
               )}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -298,7 +299,7 @@ export default async function ProjectIntroPage({ params }: Props) {
                     {section.posts.map(({ post: p, partIndex }) => (
                       <li key={p.slug}>
                         <Link
-                          href={buildPostUrl(slug, p.slug)}
+                          href={buildPostDiscoveryUrl(slug, p.slug)}
                           style={collectionItemStyle}
                         >
                           {project.format !== 'collection' && (

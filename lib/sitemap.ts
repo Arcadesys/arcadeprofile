@@ -1,3 +1,4 @@
+import { mappedPostCanonicalUrl } from '@/lib/post-canonical';
 import type { MetadataRoute } from 'next';
 import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
 import { COLLECTION, COLLECTION_PATH } from '@/lib/collection';
@@ -72,7 +73,7 @@ export function buildMarkdownSitemapEntries(
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
-    ...posts.map((post) => ({
+    ...posts.filter((post) => !mappedPostCanonicalUrl(buildPostUrl(post.group, post.slug))).map((post) => ({
       url: `${siteUrl}${buildPostUrl(post.group, post.slug)}`,
       lastModified: new Date(post.updatedDate ?? post.publishDate),
       changeFrequency: 'monthly' as const,

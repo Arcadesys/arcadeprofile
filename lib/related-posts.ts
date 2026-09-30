@@ -1,5 +1,5 @@
+import { buildPostDiscoveryUrl } from '@/lib/post-canonical';
 import type { BlogPost, PostLocation } from './blog';
-import { buildPostUrl } from './post-url';
 
 export interface RelatedPost {
   slug: string;
@@ -56,7 +56,7 @@ export function getRelatedPosts(
       groupSlug: loc.groupSlug,
       groupTitle: loc.groupTitle,
       date: post.date,
-      href: buildPostUrl(loc.groupSlug, post.slug),
+      href: buildPostDiscoveryUrl(loc.groupSlug, post.slug),
     });
   }
   return related;

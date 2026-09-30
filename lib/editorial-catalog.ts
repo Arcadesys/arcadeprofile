@@ -1,6 +1,7 @@
+import { buildPostDiscoveryUrl } from '@/lib/post-canonical';
 import { COLLECTION, COLLECTION_PATH } from '@/lib/collection';
 import { buildPostUrlMap, getAllPosts, type BlogPost, type PostLocation } from '@/lib/blog';
-import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
+import { buildGroupIntroUrl } from '@/lib/post-url';
 import { getAllProjectHubs, type ProjectHub } from '@/lib/projects';
 import { ESSAY_GROUPS } from '@/lib/newsletter-post';
 
@@ -80,7 +81,7 @@ export function buildEditorialCatalog(
         title: post.title,
         description: post.excerpt,
         date: post.date,
-        href: buildPostUrl(location.groupSlug, post.slug),
+        href: buildPostDiscoveryUrl(location.groupSlug, post.slug),
       };
     });
 

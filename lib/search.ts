@@ -1,4 +1,5 @@
-import { buildGroupIntroUrl, buildPostUrl, loadMarkdownBlog } from '@/lib/blog';
+import { buildPostDiscoveryUrl } from '@/lib/post-canonical';
+import { buildGroupIntroUrl, loadMarkdownBlog } from '@/lib/blog';
 import type { LoadMarkdownPostsOptions } from '@/lib/markdown-posts';
 import { PORTFOLIO_WORKS, type PortfolioWork } from '@/lib/portfolio';
 
@@ -66,7 +67,7 @@ export async function buildSearchIndex(options: BuildSearchIndexOptions = {}): P
 
   const essays: SearchItem[] = posts.map((post) => ({
     title: post.title,
-    href: buildPostUrl(post.group, post.slug),
+    href: buildPostDiscoveryUrl(post.group, post.slug),
     kind: 'Essay',
     preview: preview(post.excerpt, post.markdownBody),
     searchText: [post.title, post.excerpt, groupTitles.get(post.group), ...post.tags, compactBodyTerms(post.markdownBody)].filter(Boolean).join(' '),
