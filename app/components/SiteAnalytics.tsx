@@ -3,11 +3,12 @@
 import { Analytics } from '@vercel/analytics/react';
 import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
+import { canCaptureBrowserAnalytics, shouldTrackSiteAnalytics, sanitizeVercelAnalyticsEvent } from '@/lib/site-analytics';
 import { PostHogAnalytics } from './PostHogAnalytics';
 
-/** Suppress both analytics clients on pages whose URL fragment is a bearer token. */
+/** Capture only source-owned public pages on the production origin. */
 export function SiteAnalytics() {
   const pathname = usePathname();
-  if (pathname === '/subscribe/verify' || pathname === '/subscribe/unsubscribe') return null;
-  return <><Suspense fallback={null}><PostHogAnalytics /></Suspense><Analytics /></>;
+  if (!shouldTrackSiteAnalytics(pathname) || !canCaptureBrowserAnalytics()) return null;
+  return <><Suspense fallback={null}><PostHogAnalytics /></Suspense><Analytics beforeSend={sanitizeVercelAnalyticsEvent} /></>;
 }

@@ -4,9 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "predev": "npm run build:furry-history-board",
+    "predev": "npm run build:analytics-manifest && npm run build:furry-history-board",
     "dev": "next dev",
-    "prebuild": "npm run build:furry-history-board",
+    "prebuild": "npm run build:analytics-manifest && npm run build:furry-history-board",
     "build": "next build",
     "build:furry-history-board": "vite build --config labs/furry-history-board/vite.config.ts",
     "start": "next start",
@@ -20,7 +20,8 @@
     "test": "npm run test:site && npm run test:furry-history-board",
     "test:site": "tsx --test $(find app lib scripts -name '*.test.ts' -print | sort)",
     "test:furry-history-board": "vitest run --config labs/furry-history-board/vitest.config.ts",
-    "email:test": "tsx scripts/send-test-email.ts"
+    "email:test": "tsx scripts/send-test-email.ts",
+    "build:analytics-manifest": "node --import tsx scripts/build-analytics-manifest.ts"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.6.1",
