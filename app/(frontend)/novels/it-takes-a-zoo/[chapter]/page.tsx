@@ -78,6 +78,7 @@ export default async function ZooChapterPage({ params }: Props) {
           kind="story"
           seriesTitle={ZOO_COLLECTION_TITLE}
           totalParts={ZOO_CHAPTERS.length}
+          seriesActive
         />
         <nav className={styles.readerNav} aria-label="Chapter navigation">
           {previous ? <Link href={previous.path}>← Chapter {previous.order}: {previous.title}</Link> : <Link href={ZOO_COLLECTION_PATH}>← Collection</Link>}

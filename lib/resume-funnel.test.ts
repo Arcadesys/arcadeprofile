@@ -35,7 +35,7 @@ test('the homepage offers the professional lane right after the first reading ch
   assert.ok(hero !== -1 && shelf > hero, 'the reading shelf must follow the homepage hero');
   assert.ok(workLane > shelf, 'the work lane must follow the first reading choices');
   assert.ok(bands > workLane, 'the work lane must precede the fiction and essay bands');
-  assert.match(home, /href="https:\/\/work\.thearcades\.me">\s*Work with me/);
+  assert.match(home, /href="https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_header">\s*Work with me/);
   assert.match(home, /href="\/resume">Read the resume/);
   assert.match(home, /href="\/resume\/pdf">Download PDF/);
 });

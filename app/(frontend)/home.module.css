@@ -213,6 +213,68 @@
 .portrait picture { display: block; width: 100%; }
 .portrait img { display: block; width: 100%; height: auto; object-fit: contain; }
 
+.entryPaths {
+  margin: 10px 0;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 2px solid var(--home-rule);
+  border-top: 5px solid var(--cyan);
+  color: var(--home-text);
+  background: var(--home-surface-raised);
+}
+
+.entryPaths h2 {
+  margin: 0 0 1rem;
+  color: #fff7ef;
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 3vw, 2.15rem);
+  line-height: 1.15;
+}
+
+.entryPaths ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entryPaths li { min-width: 0; }
+
+.entryPaths a {
+  display: grid;
+  min-height: 176px;
+  align-content: start;
+  gap: .65rem;
+  padding: 1rem;
+  border: 2px solid #51484d;
+  color: var(--home-text);
+  background: #0c0c0e;
+  text-decoration: none;
+}
+
+.entryPaths a:hover { border-color: var(--cyan); background: #211c20; text-shadow: none; }
+.entryPaths a:focus-visible { outline: 3px solid #fff7ef; outline-offset: 4px; }
+
+.entryPaths a strong {
+  color: #fff7ef;
+  font-family: var(--font-serif);
+  font-size: clamp(1.2rem, 1.7vw, 1.45rem);
+  line-height: 1.25;
+}
+
+.entryPaths a > span:not(.entryPathAction) { color: var(--home-text-muted); font-size: 1rem; line-height: 1.5; }
+
+.entryPathAction {
+  align-self: end;
+  margin-top: auto;
+  padding-top: .25rem;
+  color: #ffad68;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
 .resume { margin: 1.25rem 0; }
 
 .workLane {
@@ -372,6 +434,7 @@
 
 @media (max-width: 800px) {
   .heroEditorial { grid-template-columns: minmax(0, 1fr); }
+  .entryPaths ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .portrait { max-width: 420px; justify-self: center; }
   .brandBar { padding: 1rem; }
   .brandLockup { font-size: 1rem; letter-spacing: .04em; }
@@ -388,6 +451,8 @@
   .topActions { width: 100%; }
   .workWithMe, .topSubscribe { flex: 1 1 auto; justify-content: center; }
   .heroActions { gap: 1rem; }
+  .entryPaths ul { grid-template-columns: 1fr; }
+  .entryPaths a { min-height: 0; }
   .workActions { display: grid; }
   .workPrimary, .workSecondary { width: 100%; min-height: 56px; }
   .bands, .below { padding: 6px; }

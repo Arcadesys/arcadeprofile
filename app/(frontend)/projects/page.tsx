@@ -75,7 +75,7 @@ export default async function ProjectsPage() {
     else bucket = 'recent';
 
     const typeLetter = categoryToLetter(hub.category);
-    const cadence = bucket === 'active' ? cadenceFor(hub.category) : undefined;
+    const cadence = !isZooCollection && bucket === 'active' ? cadenceFor(hub.category) : undefined;
 
     const feedSource = bucket === 'active' ? groupPosts.slice(0, FEED_MAX) : [];
     const feed: FeedItem[] = feedSource.map((p) => toFeedItem(p, hub));
@@ -145,6 +145,12 @@ export default async function ProjectsPage() {
       entries={entries}
       pulse={pulse}
       weekCount={weekCount}
+      writingNow={{
+        title: ZOO_FEATURED_COLLECTION.title,
+        href: ZOO_FEATURED_COLLECTION.path,
+        chapterCount: ZOO_FEATURED_COLLECTION.chapterCount,
+        availability: ZOO_FEATURED_COLLECTION.availability,
+      }}
     />
   );
 

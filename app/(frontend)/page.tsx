@@ -37,7 +37,7 @@ export default async function HomePage() {
             <span>{SITE_PLATFORM_NAME}</span><b aria-hidden="true">/</b><strong>{SITE_NAME}</strong>
           </Link>
           <div className={styles.topActions}>
-            <a className={styles.workWithMe} href="https://work.thearcades.me">
+            <a className={styles.workWithMe} href="https://work.thearcades.me/?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_header">
               Work with me <span aria-hidden="true"> ↗</span>
             </a>
           </div>
@@ -71,6 +71,33 @@ export default async function HomePage() {
           </div>
         </div>
       </header>
+
+      <section className={styles.entryPaths} aria-labelledby="home-entry-paths-heading">
+        <h2 id="home-entry-paths-heading">Choose what brought you here</h2>
+        <ul>
+          <li>
+            <Link href="/novels/it-takes-a-zoo/cold-boot">
+              <strong>Read fiction</strong>
+              <span>Start <em>It Takes a Zoo</em> with “Cold Boot.”</span>
+              <span className={styles.entryPathAction}>Read Cold Boot <span aria-hidden="true">→</span></span>
+            </Link>
+          </li>
+          <li>
+            <Link href="/projects/queer-columns/the-safe-door">
+              <strong>Read essays and columns</strong>
+              <span>Begin with “The Safe Door,” a Queer Columns essay.</span>
+              <span className={styles.entryPathAction}>Read The Safe Door <span aria-hidden="true">→</span></span>
+            </Link>
+          </li>
+          <li>
+            <a href="https://work.thearcades.me/?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_entry">
+              <strong>Explore professional work</strong>
+              <span>See professional projects, case studies, and writing.</span>
+              <span className={styles.entryPathAction}>Visit the work site <span aria-hidden="true">↗</span></span>
+            </a>
+          </li>
+        </ul>
+      </section>
 
       <div className={styles.resume}>
         <ContinueReadingBanner availablePaths={readingCatalog.map((piece) => piece.canonicalPath)} />

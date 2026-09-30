@@ -52,6 +52,12 @@ interface Props {
   entries: IndexEntry[];
   pulse: PulseItem[];
   weekCount: number;
+  writingNow: {
+    title: string;
+    href: string;
+    chapterCount: number;
+    availability: string;
+  };
 }
 
 const FILTER_LABELS: Array<{ value: FilterValue; label: string }> = [
@@ -62,7 +68,7 @@ const FILTER_LABELS: Array<{ value: FilterValue; label: string }> = [
   { value: 'a', label: 'Audio/Video' },
 ];
 
-export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
+export default function ProjectsIndex({ entries, pulse, weekCount, writingNow }: Props) {
   const [filter, setFilter] = useState<FilterValue>('all');
   const [sort, setSort] = useState<'recent' | 'alpha'>('recent');
 
@@ -155,7 +161,16 @@ export default function ProjectsIndex({ entries, pulse, weekCount }: Props) {
         </section>
       ) : null}
 
-      <div className={styles.filters} id="project-index" tabIndex={-1} role="toolbar" aria-label="Filter and sort projects">
+      <section className={styles.writingNow} id="project-index" tabIndex={-1} aria-labelledby="writing-now-heading">
+        <p className={styles.writingNowLabel}>Writing now</p>
+        <h2 id="writing-now-heading"><Link href={writingNow.href}>{writingNow.title}</Link></h2>
+        <p className={styles.writingNowAvailability}>
+          {writingNow.chapterCount} chapters available now · {writingNow.availability}
+        </p>
+        <Link className={styles.writingNowLink} href={writingNow.href}>Read It Takes a Zoo <span aria-hidden="true">→</span></Link>
+      </section>
+
+      <div className={styles.filters} tabIndex={-1} role="toolbar" aria-label="Filter and sort projects">
         <span className={styles.filtersLabel}>Show</span>
         {FILTER_LABELS.map((opt) => (
           <button
