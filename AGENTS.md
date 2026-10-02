@@ -18,7 +18,7 @@ npm test
 npm run build
 npm run newsletter:post -- --slug <slug>
 npm run postmark:test
-npm run upload:image -- <path> --alt "<text>"
+npm run upload:image -- <path> --alt "<text>" [--caption "<text>"] [--used-in <slug>]
 npm run generate:portfolio
 npm run generate:zoo
 npm run generate:zoo-complete-edition
@@ -32,6 +32,12 @@ Use npm only. CI uses Node 20 and the built-in Node test runner through `tsx`.
 - Group manifests: `content/posts/<group>/_group.json`
 - Private drafts: `content/drafts`
 - Portfolio and collection reader Markdown: `data/portfolio-content`
+- Media library: `content/media/library.json` (schema in `lib/media-library.ts`)
+
+Images live in Vercel Blob; the media library is the committed catalog of them.
+`npm run upload:image` uploads content-addressed bytes, records the entry, and
+prints a figure line. Browse it locally at `/media` (404 in production). In post
+Markdown, a standalone `![alt](url "caption")` line renders as a captioned figure.
 
 Frontmatter is strict and validated by `lib/markdown-posts.ts`.
 `publishDate` is the only public visibility control. Future-dated files require

@@ -1,0 +1,446 @@
+{
+  "assets": [
+    {
+      "id": "aughtscon",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/aughtscon.png",
+      "sha256": "b90f10eeacd659b4b7fc712860f271f43001135360a99c72ad6c7a889100764f",
+      "mimeType": "image/png",
+      "byteSize": 2446783,
+      "alt": "an ai generated image of a mid 2000s furry con",
+      "usedIn": [
+        "the-mailbox-had-a-pulse"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "baseball-ground-throw",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/9f63e636d9ca2564e6bbe45bba74dca4f6be8be86ecd451d5e486861031ce0d0/01-baseball-ground-throw.png",
+      "sha256": "9f63e636d9ca2564e6bbe45bba74dca4f6be8be86ecd451d5e486861031ce0d0",
+      "mimeType": "image/png",
+      "byteSize": 249173,
+      "width": 1280,
+      "height": 960,
+      "alt": "Furball baseball ground throw in playtest lab",
+      "caption": "A throw to first in the baseball playtest lab.",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "bunch-hero-catch-up",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/e72f58f6cf2a0aaab6b2e79cc8ab5122b3a124514378651afce6a7883bcd38df/bunch-hero-catch-up.png",
+      "sha256": "e72f58f6cf2a0aaab6b2e79cc8ab5122b3a124514378651afce6a7883bcd38df",
+      "mimeType": "image/png",
+      "byteSize": 62853,
+      "alt": "Bunch’s catch-up screen for Addie Arcade, with “Help me resume my day” and its main action buttons.",
+      "usedIn": [
+        "bunch"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "bunch-the-lineup",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/542c8e1b7328379a4be1b7c8f520ec1bfe48cefab684dd238db78248eff86743/bunch-the-lineup.jpg",
+      "sha256": "542c8e1b7328379a4be1b7c8f520ec1bfe48cefab684dd238db78248eff86743",
+      "mimeType": "image/jpeg",
+      "byteSize": 221576,
+      "alt": "Nine cartoon animal characters posed together on a sunny beach, kites flying behind them. Four sit in front — a mouse, a cat, a grinning raccoon, and a rabbit in a red vest — and five stand behind, including a cat in a bright patterned sweater, a squirrel in overalls, a blue-haired wolf, and a blond figure in a denim jacket. Most wear glasses. Several flash peace signs.",
+      "usedIn": [
+        "bunch"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "derby-practice-betting-station",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/d2e1d8dd82bc58dd551f7812770012a74462bfbc48b2c194a5edc239a261e7ce/15-derby-practice-betting-station.gif",
+      "sha256": "d2e1d8dd82bc58dd551f7812770012a74462bfbc48b2c194a5edc239a261e7ce",
+      "mimeType": "image/gif",
+      "byteSize": 43984,
+      "width": 1200,
+      "height": 720,
+      "alt": "Derby practice betting station",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "dream-space-open-book",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/284069ded7dc61481e56741e6604e0f460ca55243e007c92530e73b792316d66/dream-space-open-book.webp",
+      "sha256": "284069ded7dc61481e56741e6604e0f460ca55243e007c92530e73b792316d66",
+      "mimeType": "image/webp",
+      "byteSize": 163854,
+      "alt": "An open book on a desk leads from a lamplit reading room into a moonlit landscape.",
+      "usedIn": [
+        "the-dream-space"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "dream-space-stay-in-room",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/f8f7a46512ccf0b9e57f0e3a4b59f544ac870651ba33da9f048b883e4830a158/dream-space-stay-in-room.webp",
+      "sha256": "f8f7a46512ccf0b9e57f0e3a4b59f544ac870651ba33da9f048b883e4830a158",
+      "mimeType": "image/webp",
+      "byteSize": 74288,
+      "alt": "An empty chair beside a set table in a quiet kitchen at night.",
+      "usedIn": [
+        "the-dream-space"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "essay-orchestration-conversation",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/9cb3034ae0a04088959ca39db5dcbeea131f58139d3a7c334165157c24e4ea9f/12-essay-orchestration-conversation.png",
+      "sha256": "9cb3034ae0a04088959ca39db5dcbeea131f58139d3a7c334165157c24e4ea9f",
+      "mimeType": "image/png",
+      "byteSize": 362271,
+      "width": 1481,
+      "height": 823,
+      "alt": "The conversation directing this essay and its project evidence",
+      "caption": "The moment I realized I was using the process I was trying to describe.",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "golf-flight",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/ad917db0dd78455e9d6f46cfee8302a45d59e71ac771f5e69bd6d6b93befb6a7/03-golf-flight.png",
+      "sha256": "ad917db0dd78455e9d6f46cfee8302a45d59e71ac771f5e69bd6d6b93befb6a7",
+      "mimeType": "image/png",
+      "byteSize": 83865,
+      "width": 1280,
+      "height": 979,
+      "alt": "Rogers Bark golf prototype with ball in flight",
+      "caption": "The Marovitz-inspired, one-hole golf prototype with a ball in flight.",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "it-takes-a-zoo",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/it-takes-a-zoo.png",
+      "sha256": "d9b5ad5ef910db899d8404f6c6dca94d04a45f7cd4a47d7ffc8955037e884327",
+      "mimeType": "image/png",
+      "byteSize": 2786553,
+      "alt": "It Takes a Zoo collection cover",
+      "usedIn": [
+        "it-takes-a-zoo"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "jebediah-hickory-portrait",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/cover.jpg",
+      "sha256": "656feb76b28c4c537a2dcd6753e2850341f4a8f0e7d2ebfc9788b3e44335b33c",
+      "mimeType": "image/jpeg",
+      "byteSize": 56276,
+      "alt": "Jebediah O. Hickory, a chicken-fried possum lawyer from Toontown Chicago, in the YouTube short that broke 1000 views.",
+      "usedIn": [
+        "death-of-the-creative-wall"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "moral-panic-mob",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/moral-panic-mob.jpg",
+      "sha256": "729132f6564635ba5e457d424b85ffaf83e421dbe25b11fa80822cf78892767d",
+      "mimeType": "image/jpeg",
+      "byteSize": 590551,
+      "alt": "\"A chaotic crowd storms the Bastille, weapons and smoke rising over the stone walls of the fortress.\" By Charles Thévenin — Carnavalet, Public Domain. https://commons.wikimedia.org/w/index.php?curid=1321984",
+      "usedIn": [
+        "how-to-run-a-successful-moral-panic"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "moxie-bowling",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/f1e510213b517b97fa4c0bf752724a396f1270356f25700daae984c22d667532/02-moxie-bowling.png",
+      "sha256": "f1e510213b517b97fa4c0bf752724a396f1270356f25700daae984c22d667532",
+      "mimeType": "image/png",
+      "byteSize": 135151,
+      "width": 622,
+      "height": 794,
+      "alt": "Moxie holding a bowling ball in the playable 3D scene",
+      "caption": "Moxie in the bowling scene. The glasses, hair, and low-poly shape make the character recognizable inside the game. (And yeah, she needs refinement, but not bad for a first pass!)",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "original-ascii-horse-race",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/5e8493aabc81f756eec85a89575b03e6fbd0667de0d716f49ca66a43129ac2d3/04-original-ascii-horse-race.gif",
+      "sha256": "5e8493aabc81f756eec85a89575b03e6fbd0667de0d716f49ca66a43129ac2d3",
+      "mimeType": "image/gif",
+      "byteSize": 51784,
+      "width": 1200,
+      "height": 720,
+      "alt": "Original ASCII horse race",
+      "caption": "Last year's ASCII horse race, replayed with practice credits.",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "original-blackjack-deal-hit-and-stand",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/e46f9ad17e9d303374c12c595e42b5344442ffae04760ce4185ff972d92c44ea/05-original-blackjack-deal-hit-and-stand.gif",
+      "sha256": "e46f9ad17e9d303374c12c595e42b5344442ffae04760ce4185ff972d92c44ea",
+      "mimeType": "image/gif",
+      "byteSize": 27082,
+      "width": 1200,
+      "height": 720,
+      "alt": "Original blackjack deal hit and stand",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "pine-arcade-carousel",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/90e0a091c7c8fe51dd5df6ab90786010142f21f95999627fbff1d9e3935735d9/16-pine-arcade-carousel.gif",
+      "sha256": "90e0a091c7c8fe51dd5df6ab90786010142f21f95999627fbff1d9e3935735d9",
+      "mimeType": "image/gif",
+      "byteSize": 621191,
+      "width": 1200,
+      "height": 720,
+      "alt": "Pine Arcade carousel",
+      "caption": "Pine Arcade turns through the installed attractions and opens a game card.",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "pine-jack-split-and-double",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/da311b7dc6b23a2c83715424d87923e3c9f88fc11174df924eba4e5abb8b1604/13-pine-jack-split-and-double.gif",
+      "sha256": "da311b7dc6b23a2c83715424d87923e3c9f88fc11174df924eba4e5abb8b1604",
+      "mimeType": "image/gif",
+      "byteSize": 127561,
+      "width": 1200,
+      "height": 720,
+      "alt": "Pine Jack split and double",
+      "caption": "Split eights, double the first hand, stand on the second: practice balance 100 → 106.",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "pine-jack-winning-hit-and-stand",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/814bd30bd7bc199fb2110081307c9c698c696ca0670958e6257942d4de78aa55/06-pine-jack-winning-hit-and-stand.gif",
+      "sha256": "814bd30bd7bc199fb2110081307c9c698c696ca0670958e6257942d4de78aa55",
+      "mimeType": "image/gif",
+      "byteSize": 79844,
+      "width": 1200,
+      "height": 720,
+      "alt": "Pine Jack winning hit and stand",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "pine3d-derby-finish",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/a8db58af2d79cf16b560543463d88ed6f3d8f773818e6e01bd560520da1461a8/14-pine3d-derby-finish.gif",
+      "sha256": "a8db58af2d79cf16b560543463d88ed6f3d8f773818e6e01bd560520da1461a8",
+      "mimeType": "image/gif",
+      "byteSize": 198976,
+      "width": 1200,
+      "height": 720,
+      "alt": "Pine3D Derby finish",
+      "caption": "A separate excerpt from later in the exhibition race, at the finish.",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "pine3d-derby-overview-and-follow-camera",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/1bb3116355a6ef209baabca204c607a58583a8006d81d3897de7346cf5edfc38/07-pine3d-derby-overview-and-follow-camera.gif",
+      "sha256": "1bb3116355a6ef209baabca204c607a58583a8006d81d3897de7346cf5edfc38",
+      "mimeType": "image/gif",
+      "byteSize": 675189,
+      "width": 1200,
+      "height": 720,
+      "alt": "Pine3D Derby overview and follow camera",
+      "caption": "Pine3D Derby: the same three horses, now on a track with overview and follow cameras. Exhibition play.",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "raise-our-cups",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/raise-our-cups.png",
+      "sha256": "8fbef42cf3af7bcfb1326af91515f8a8a6bb642f02835a8a2d0eae6c02154453",
+      "mimeType": "image/png",
+      "byteSize": 2311943,
+      "alt": "An ornate dark metal mug with a carrot emblem and purple illuminated circuitry.",
+      "usedIn": [
+        "it-takes-a-zoo-to-raise-the-child"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "reaction-stickers-robot-reference",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/reaction-stickers/9a0d2ddc8dca6779577141796d29969cb17968ebfa0f7c69fbcf1294d453974b/robot-reference.png",
+      "sha256": "9a0d2ddc8dca6779577141796d29969cb17968ebfa0f7c69fbcf1294d453974b",
+      "mimeType": "image/png",
+      "byteSize": 1524263,
+      "alt": "Reaction Stickers collection cover",
+      "usedIn": [
+        "reaction-stickers"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "rossi-sodium-streetlight",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/rossi-sodium-streetlight.jpg",
+      "sha256": "f394f9e7e32c7f38b9b2ebc52d3840f84abbdb361c5e31b77b5ffe2f604a3c22",
+      "mimeType": "image/jpeg",
+      "byteSize": 268928,
+      "alt": "A smiling man poses beside a glasses-wearing feline woman in a green dress outside a crowded venue.",
+      "usedIn": [
+        "why-transformation"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "shared-practice-house-cashier-and-pine-jack",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/8209ca82bd8745d8152015de3077d63c235b91a46ba5db7ebc623f25d8e444a9/08-shared-practice-house-cashier-and-pine-jack.gif",
+      "sha256": "8209ca82bd8745d8152015de3077d63c235b91a46ba5db7ebc623f25d8e444a9",
+      "mimeType": "image/gif",
+      "byteSize": 113836,
+      "width": 1200,
+      "height": 720,
+      "alt": "Shared practice house cashier and Pine Jack",
+      "caption": "The practice cashier and Pine Jack share a balance: deposit 20, play a winning hand, read 22, withdraw 20.",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "singularity-log",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/singularity-log.png",
+      "sha256": "ffcf24e9bfcde8691934f9121ada37982f837fff21d735a533bef06dcfe7af5a",
+      "mimeType": "image/png",
+      "byteSize": 1696205,
+      "alt": "The Singularity Log collection cover",
+      "usedIn": [
+        "the-singularity-log",
+        "the-stepladder"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "slow-blade-hero",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/slow-blade-hero.jpg",
+      "sha256": "fc12bc6e64759a18dc07806c1397b7f47aac55c4ef4e1e5508106e161d0056a8",
+      "mimeType": "image/jpeg",
+      "byteSize": 406125,
+      "alt": "Paul Atreides delivering the slow blade in the duel with Feyd-Rautha — Dune",
+      "usedIn": [
+        "the-slow-blade"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "slow-blade-hero-1",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/slow-blade-hero-1.jpg",
+      "sha256": "fc12bc6e64759a18dc07806c1397b7f47aac55c4ef4e1e5508106e161d0056a8",
+      "mimeType": "image/jpeg",
+      "byteSize": 406125,
+      "alt": "A stylized hand grips a long blade among translucent panels on a pink and brown background.",
+      "usedIn": [
+        "the-slow-blade"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "snow-leopard-self-portrait",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/snow-leopard-self-portrait.jpg",
+      "sha256": "ba29b4aff43b3a18186a1555d6dd923a4da5e9166191e896ebcfd40a94ce1306",
+      "mimeType": "image/jpeg",
+      "byteSize": 275808,
+      "alt": "A white snow leopard woman with green hair and glasses holds a white cane in an elevator selfie.",
+      "usedIn": [
+        "why-transformation"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "suited-rat-profile",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/image.png",
+      "sha256": "a2f5a2368c7673d3eb67af012b1fe13731dd28f2324a1ebaed93cb3930450b2e",
+      "mimeType": "image/png",
+      "byteSize": 266922,
+      "alt": "A suited anthropomorphic rat stands in profile against a sunset city skyline.",
+      "usedIn": [
+        "death-of-the-creative-wall"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "tak-storage-action",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/ee90bfd99af6b5afde1c54c84881f18f2f50d983daf741593dbd6bafa161dcec/11-tak-storage-action.gif",
+      "sha256": "ee90bfd99af6b5afde1c54c84881f18f2f50d983daf741593dbd6bafa161dcec",
+      "mimeType": "image/gif",
+      "byteSize": 4034102,
+      "width": 360,
+      "height": 640,
+      "alt": "Physical folding Tak board and piece storage",
+      "caption": "The physical folding Tak board and removable piece-storage trays.",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "tfc-ai-art",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/tfc-ai-art.png",
+      "sha256": "5c56d995b4ed40a1692b4ee4bb5ab83f545b76f7bc7ed22f93b9e17453f11579",
+      "mimeType": "image/png",
+      "byteSize": 2444321,
+      "alt": "AI Art Experiments collection cover",
+      "usedIn": [
+        "ai-art-experiments"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "turtle-generate",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/decd4d333882ca0001a6cd32c2ebcae999966224e1168fb0dcf6250a0af0970b/10-turtle-generate.jpg",
+      "sha256": "decd4d333882ca0001a6cd32c2ebcae999966224e1168fb0dcf6250a0af0970b",
+      "mimeType": "image/jpeg",
+      "byteSize": 294434,
+      "width": 1600,
+      "height": 1000,
+      "alt": "Turtle Blueprints natural language generation dialog",
+      "caption": "Select the part of the building, describe the change, press Generate.",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "turtle-wand",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/1c7f281ae3bed51a43a5d28deaa25ed2928ad3a27e9090a6e5530c62312409e3/09-turtle-wand.jpg",
+      "sha256": "1c7f281ae3bed51a43a5d28deaa25ed2928ad3a27e9090a6e5530c62312409e3",
+      "mimeType": "image/jpeg",
+      "byteSize": 340179,
+      "width": 1600,
+      "height": 1000,
+      "alt": "Turtle Blueprints 3D structure with selected blocks and editing wheel",
+      "caption": "The monitor region selected in the blueprint viewer, with the editing wheel open.",
+      "usedIn": [
+        "the-collapse-of-effort-and-the-birth-of-abundance"
+      ],
+      "addedAt": "2026-10-02T19:53:38.079Z"
+    }
+  ]
+}
