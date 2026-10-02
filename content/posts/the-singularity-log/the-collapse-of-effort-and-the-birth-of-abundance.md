@@ -23,35 +23,13 @@ seo:
     whether an idea deserves to exist and becomes how much polish it deserves.
 ---
 
-I always have ideas.
+I always have ideas. They simmer around like popcorn: some are obviously good, some are probably terrible, and some look delicious right up until I calculate what they would take to make.
 
-They simmer around like popcorn. Some are obviously good. Some are probably terrible. Some look delicious right up until I calculate what they would take to make.
+For most of my life, I have had a very useful internal censor, and it has saved me from scatterbrain projects more times than I can count. An idea had to get good enough to rise above a certain floor before I would actually make it. Sometimes I would sit with an idea for months or years, write a little ditty in a notebook, wait, combine it with another idea. Eventually, if the spark came together, maybe it became a story. Maybe it became a project.
 
-For most of my life, I have had a very useful internal censor.
+That filtering process has been part of my creative life for as long as I can remember. The internal math was ruthless, but it was usually right: three weekends. Needs an illustrator. Needs a backend. Needs networking. Needs a hundred pieces of art. Cute, but not worth it.
 
-It has saved me from scatterbrain projects more times than I can count.
-
-An idea had to get good enough to rise above a certain floor before I would actually make it. Sometimes I would sit with an idea for months or years. I would write a little ditty in a notebook. I would wait. I would combine it with another idea. Eventually, if the spark came together, maybe it became a story. Maybe it became a project.
-
-That filtering process has been part of my creative life for as long as I can remember.
-
-Three weekends.
-
-Needs an illustrator.
-
-Needs a backend.
-
-Needs networking.
-
-Needs a hundred pieces of art.
-
-Cute, but not worth it.
-
-The internal math was ruthless, but it was usually right.
-
-This week, the math stopped mathing.
-
-And that is fucking with me.
+This week, the math stopped mathing. And that is fucking with me.
 
 ## A silly idea for a gift
 
