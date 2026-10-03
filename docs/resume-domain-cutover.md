@@ -52,5 +52,12 @@ links to be served for a while before external caches recover.
 
 ## Release record
 
-- Cutover PR: pending
-- Production verification of redirects: pending
+- Cutover PR: #394, merged as `bb6493d` on 2026-10-03
+- Production deployment: `dpl_2g4R2cKRbEaNmRhVKkw3w1sQRJDS`, aliased to
+  `www.thearcades.me` and `thearcades.me`
+- Production verification (2026-10-03 ~17:23 UTC): `https://www.thearcades.me/resume`
+  returned 308 with `location: https://work.thearcades.me/resume`;
+  `https://www.thearcades.me/resume/pdf` returned 308 with
+  `location: https://work.thearcades.me/resume.pdf`. The destination PDF had
+  already been verified as 200 `application/pdf`.
+- Next: the removal batch above can proceed in its own change.
