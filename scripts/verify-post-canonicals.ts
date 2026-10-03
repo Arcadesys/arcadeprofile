@@ -5,7 +5,8 @@
  */
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
-import { POST_CANONICAL_EDITIONS, WORK_SITE_URL } from '../lib/post-canonical';
+import { WORK_SITE_URL } from '../lib/post-canonical';
+import { CREATIVE_ORIGINALS_WITH_WORK_COPIES as ORIGINALS } from '../lib/post-canonical-originals.fixture';
 import { SITE_URL } from '../lib/site-url';
 
 const candidate = new URL(process.argv[2] ?? 'http://localhost:3000');
@@ -48,18 +49,12 @@ async function verifyArticle(url: string, canonicalUrl: string, type = 'BlogPost
   console.log(`PASS ${url} -> ${canonicalUrl}`);
 }
 
-// The destination must be ready before the creative signal changes.
-for (const edition of POST_CANONICAL_EDITIONS) await verifyArticle(edition.canonicalUrl, edition.canonicalUrl);
-await verifyArticle(`${WORK_SITE_URL}/work/bunch`, `${WORK_SITE_URL}/work/bunch`, 'Article');
-const workSitemap = new JSDOM(await get(`${WORK_SITE_URL}/sitemap.xml`, 'xml'), { contentType: 'text/xml' }).window.document;
-const workUrls = new Set([...workSitemap.querySelectorAll('loc')].map((element) => element.textContent));
-for (const { canonicalUrl } of POST_CANONICAL_EDITIONS) assert.ok(workUrls.has(canonicalUrl), `${canonicalUrl}: missing work sitemap entry`);
-
-for (const { creativePath, canonicalUrl } of POST_CANONICAL_EDITIONS) {
-  await verifyArticle(`${candidate.origin}${creativePath}`, canonicalUrl, 'BlogPosting', requireCandidateIndexable);
-  await verifyArticle(`${candidate.origin}${creativePath}?utm_source=canonical-check&canonical=https%3A%2F%2Fevil.example`, canonicalUrl, 'BlogPosting', requireCandidateIndexable);
-  const encodedPath = creativePath.replace(/\/([^/]+)$/, (_, slug: string) => `/%${slug.charCodeAt(0).toString(16)}${slug.slice(1)}`);
-  await verifyArticle(`${candidate.origin}${encodedPath}`, canonicalUrl, 'BlogPosting', requireCandidateIndexable);
+// Map v2: creative originals are canonical; work copies point at them.
+// The original must be ready (self-canonical, indexable) before work copies point at it.
+for (const { creativePath } of ORIGINALS) {
+  const original = `${SITE_URL}${creativePath}`;
+  await verifyArticle(`${candidate.origin}${creativePath}`, original, 'BlogPosting', requireCandidateIndexable);
+  await verifyArticle(`${candidate.origin}${creativePath}?utm_source=canonical-check&canonical=https%3A%2F%2Fevil.example`, original, 'BlogPosting', requireCandidateIndexable);
 }
 const controlPath = '/projects/the-singularity-log/rabies-capitalism';
 await verifyArticle(`${candidate.origin}${controlPath}`, `${SITE_URL}${controlPath}`, 'BlogPosting', requireCandidateIndexable);
@@ -68,14 +63,24 @@ const creativeSitemap = new JSDOM(await get(`${candidate.origin}/sitemap.xml`, '
 const creativeUrls = new Set([...creativeSitemap.querySelectorAll('loc')].map((element) => element.textContent));
 const llms = await get(`${candidate.origin}/llms.txt`, 'text/plain', requireCandidateIndexable);
 const feed = new JSDOM(await get(`${candidate.origin}/feed.xml`, 'xml', requireCandidateIndexable), { contentType: 'text/xml' }).window.document;
-for (const { creativePath, canonicalUrl } of POST_CANONICAL_EDITIONS) {
-  assert.ok(!creativeUrls.has(`${SITE_URL}${creativePath}`), `${creativePath}: duplicate in creative sitemap`);
-  assert.ok(!creativeUrls.has(canonicalUrl), `${canonicalUrl}: foreign entry in creative sitemap`);
-  assert.ok(llms.includes(`](${canonicalUrl})`) && !llms.includes(`](${SITE_URL}${creativePath})`), `${creativePath}: llms mismatch`);
+for (const { creativePath, workCopyUrl } of ORIGINALS) {
+  assert.ok(creativeUrls.has(`${SITE_URL}${creativePath}`), `${creativePath}: missing from creative sitemap`);
+  assert.ok(!creativeUrls.has(workCopyUrl), `${workCopyUrl}: foreign entry in creative sitemap`);
+  assert.ok(llms.includes(`](${SITE_URL}${creativePath})`) && !llms.includes(`](${workCopyUrl})`), `${creativePath}: llms mismatch`);
   const item = [...feed.querySelectorAll('item')].find((entry) => entry.querySelector('guid')?.textContent === `${SITE_URL}${creativePath}`);
   assert.ok(item, `${creativePath}: RSS GUID changed`);
-  assert.equal(item.querySelector('link')?.textContent, canonicalUrl, `${creativePath}: RSS link mismatch`);
+  assert.equal(item.querySelector('link')?.textContent, `${SITE_URL}${creativePath}`, `${creativePath}: RSS link mismatch`);
 }
 assert.ok(creativeUrls.has(`${SITE_URL}${controlPath}`), 'Distinct control disappeared from sitemap');
-console.log('PASS sitemap, llms and stable RSS identities. Check robots.txt and retained PDF/legacy routes before release.');
-if (!requireCandidateIndexable) console.log(`PENDING production creative indexing acceptance: rerun against ${SITE_URL} after authorized deployment.`);
+
+// Work copies: point at the original and stay out of the work sitemap. Their
+// canonical cross-domain target is what makes them non-preferred, so they are
+// expected to remain indexable pages (no noindex).
+await verifyArticle(`${WORK_SITE_URL}/work/bunch`, `${WORK_SITE_URL}/work/bunch`, 'Article');
+const workSitemap = new JSDOM(await get(`${WORK_SITE_URL}/sitemap.xml`, 'xml'), { contentType: 'text/xml' }).window.document;
+const workUrls = new Set([...workSitemap.querySelectorAll('loc')].map((element) => element.textContent));
+for (const { creativePath, workCopyUrl } of ORIGINALS) {
+  await verifyArticle(workCopyUrl, `${SITE_URL}${creativePath}`);
+  assert.ok(!workUrls.has(workCopyUrl), `${workCopyUrl}: copy still in work sitemap`);
+}
+console.log('PASS originals, work copies, sitemaps, llms and stable RSS identities. Check robots.txt and retained PDF/legacy routes before release.');

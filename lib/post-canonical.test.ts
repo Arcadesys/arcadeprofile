@@ -6,18 +6,23 @@ import {
   validatePostCanonicalEditions,
 } from './post-canonical';
 import { buildPostUrl, parsePostPartSegment } from './post-url';
+import { CREATIVE_ORIGINALS_WITH_WORK_COPIES } from './post-canonical-originals.fixture';
 
-for (const edition of POST_CANONICAL_EDITIONS) {
-  const [, , group, slug] = edition.creativePath.split('/');
-  test(`${group}/${slug}: direct cross-domain identity and retained local routes`, () => {
-    assert.equal(buildPostCanonicalUrl(group, slug), edition.canonicalUrl);
-    assert.equal(buildPostDiscoveryUrl(group, slug), edition.canonicalUrl);
-    assert.equal(buildPostUrl(group, slug), edition.creativePath);
-    assert.equal(`${buildPostUrl(group, slug)}/pdf`, `${edition.creativePath}/pdf`);
-    assert.equal(mappedPostCanonicalUrl(`${edition.creativePath}?utm_source=test#read`), edition.canonicalUrl);
-    assert.equal(mappedPostCanonicalUrl(`https://www.thearcades.me${edition.creativePath}?test=1`), edition.canonicalUrl);
-    assert.equal(mappedPostCanonicalUrl(edition.canonicalUrl), undefined);
-    assert.equal(canonicalDiscoveryHref(edition.canonicalUrl), edition.canonicalUrl);
+const FIXTURE_EDITION = { creativePath: '/projects/bunch/bunch', canonicalUrl: `${WORK_SITE_URL}/blog/bunch` };
+
+test('map v2 maps nothing: creative originals own their canonical', () => {
+  assert.equal(POST_CANONICAL_EDITIONS.length, 0);
+});
+
+for (const { creativePath, workCopyUrl } of CREATIVE_ORIGINALS_WITH_WORK_COPIES) {
+  const [, , group, slug] = creativePath.split('/');
+  test(`${group}/${slug}: original self-canonicalizes and discovery stays local`, () => {
+    assert.equal(buildPostCanonicalUrl(group, slug), `https://www.thearcades.me${creativePath}`);
+    assert.equal(buildPostDiscoveryUrl(group, slug), creativePath);
+    assert.equal(buildPostUrl(group, slug), creativePath);
+    assert.equal(mappedPostCanonicalUrl(`${creativePath}?utm_source=test#read`), undefined);
+    assert.equal(mappedPostCanonicalUrl(`https://www.thearcades.me${creativePath}?canonical=${workCopyUrl}`), undefined);
+    assert.equal(canonicalDiscoveryHref(creativePath), creativePath);
   });
 }
 
@@ -49,6 +54,7 @@ test('configuration rejects unsafe, ambiguous and missing work targets', () => {
     `${WORK_SITE_URL}/`, `${WORK_SITE_URL}/work/bunch`, `${WORK_SITE_URL}/blog/bunch/`,
     ' https://work.thearcades.me/blog/bunch', '',
   ]) assert.throws(() => validatePostCanonicalEditions([{ creativePath: source, canonicalUrl }]), TypeError, canonicalUrl);
-  assert.throws(() => validatePostCanonicalEditions([POST_CANONICAL_EDITIONS[0], POST_CANONICAL_EDITIONS[0]]));
+  assert.doesNotThrow(() => validatePostCanonicalEditions([FIXTURE_EDITION]));
+  assert.throws(() => validatePostCanonicalEditions([FIXTURE_EDITION, FIXTURE_EDITION]));
   assert.throws(() => validatePostCanonicalEditions([{ creativePath: '/projects/bunch/%62unch', canonicalUrl: `${WORK_SITE_URL}/blog/bunch` }]));
 });

@@ -1,7 +1,7 @@
 import { buildPostUrl } from './post-url';
 import { SITE_URL } from './site-url';
 
-export const POST_CANONICAL_MAP_VERSION = '2026-09-30.1';
+export const POST_CANONICAL_MAP_VERSION = '2026-10-03.1';
 export const WORK_SITE_URL = 'https://work.thearcades.me';
 
 export type PostCanonicalEdition = Readonly<{
@@ -43,21 +43,13 @@ export function validatePostCanonicalEditions(
   }));
 }
 
-/** Verified public, indexable duplicates only. Evidence: docs/seo/canonical-policy.md. */
-export const POST_CANONICAL_EDITIONS = validatePostCanonicalEditions([
-  {
-    creativePath: '/projects/bunch/bunch',
-    canonicalUrl: 'https://work.thearcades.me/blog/bunch',
-  },
-  {
-    creativePath: '/projects/arcade-blog/four-stages-nobody-tells-you-about',
-    canonicalUrl: 'https://work.thearcades.me/blog/four-stages-nobody-tells-you-about',
-  },
-  {
-    creativePath: '/projects/the-singularity-log/claude-design-and-the-novel-t',
-    canonicalUrl: 'https://work.thearcades.me/blog/claude-design-and-the-novel-t',
-  },
-]);
+/**
+ * Creative articles whose canonical moves to the work imprint. Empty since map
+ * v2: thearcades.me owns original provenance, so its originals self-canonicalize
+ * and the work copies point here instead. The validator stays so any future
+ * owner-approved exception still fails closed. Evidence: docs/seo/canonical-policy.md.
+ */
+export const POST_CANONICAL_EDITIONS = validatePostCanonicalEditions([])
 
 const canonicalByPath = new Map(POST_CANONICAL_EDITIONS.map((edition) => [edition.creativePath, edition.canonicalUrl]));
 
