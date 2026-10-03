@@ -16,7 +16,7 @@ export const STORIES_HUB: Hub = {
 };
 
 export const ESSAYS_HUB: Hub = {
-  title: 'Essays on AI, Creativity & Accessibility',
+  title: 'Essays on Queer & Trans Life, AI, Creativity & Accessibility',
   description: 'Personal essays by Austen Tucker on trans and queer life, disability and accessibility, AI and creativity, and the craft of writing.',
   path: '/essays',
 };

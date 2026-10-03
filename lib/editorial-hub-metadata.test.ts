@@ -9,7 +9,7 @@ test('reading hubs have distinct descriptive titles and self-canonicals', () => 
   const essays = editorialHubMetadata(ESSAYS_HUB);
 
   assert.equal(stories.title, 'Free Queer & Furry Speculative Fiction');
-  assert.equal(essays.title, 'Essays on AI, Creativity & Accessibility');
+  assert.equal(essays.title, 'Essays on Queer & Trans Life, AI, Creativity & Accessibility');
   assert.notEqual(stories.description, essays.description);
   assert.equal(stories.alternates?.canonical, '/stories');
   assert.equal(essays.alternates?.canonical, '/essays');
