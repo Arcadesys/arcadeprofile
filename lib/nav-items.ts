@@ -1,3 +1,5 @@
+import { WORK_RESUME_URL } from './work-resume';
+
 export type NavItem = {
   id: string;
   label: string;
@@ -8,7 +10,7 @@ export type NavItem = {
 export const DEFAULT_NAV_ITEMS: NavItem[] = [
   { id: 'writing', label: 'Read', href: '/writing', isPrimary: false },
   { id: 'projects', label: 'Watch me build', href: '/projects', isPrimary: false },
-  { id: 'resume', label: 'Resume', href: '/resume', isPrimary: false },
+  { id: 'resume', label: 'Resume', href: WORK_RESUME_URL, isPrimary: false },
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
   { id: 'store', label: 'Store', href: '/store', isPrimary: false },
   { id: 'stories', label: 'Stories', href: '/stories', isPrimary: false },
@@ -24,7 +26,7 @@ export const ORIENTATION_NAV_ITEMS: readonly NavItem[] = [
   { id: 'writing', label: 'Read', href: '/writing', isPrimary: false },
   { id: 'blog', label: 'Blog', href: '/latest', isPrimary: false },
   { id: 'projects', label: 'Watch me build', href: '/projects', isPrimary: false },
-  { id: 'resume', label: 'Resume', href: '/resume', isPrimary: false },
+  { id: 'resume', label: 'Resume', href: WORK_RESUME_URL, isPrimary: false },
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
   { id: 'store', label: 'Store', href: '/store', isPrimary: false },
 ];
@@ -129,7 +131,7 @@ export const ABOUT_NAV_ITEM: NavItem = {
 export const RESUME_NAV_ITEM: NavItem = {
   id: 'resume',
   label: 'Resume',
-  href: '/resume',
+  href: WORK_RESUME_URL,
   isPrimary: false,
 };
 

@@ -15,7 +15,6 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
   { path: '/writing', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/bio', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/bibliography', changeFrequency: 'monthly', priority: 0.8 },
-  { path: '/resume', changeFrequency: 'monthly', priority: 0.9 },
   { path: '/projects', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/portfolio', changeFrequency: 'monthly', priority: 0.9 },
   ...PORTFOLIO_WORKS.map((work) => ({

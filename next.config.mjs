@@ -87,6 +87,18 @@ const nextConfig = {
         destination: 'https://docs.google.com/forms/d/e/1FAIpQLSeOpGMaOMJwCqu9WHUpJvjlYvRIgV6vC3BqdstVJvssPlWeqg/viewform?usp=dialog',
         permanent: false,
       },
+      // Résumé cutover (#287): the professional imprint owns the résumé.
+      // PDF maps to PDF; nothing points a download at an HTML page.
+      {
+        source: '/resume',
+        destination: 'https://work.thearcades.me/resume',
+        permanent: true,
+      },
+      {
+        source: '/resume/pdf',
+        destination: 'https://work.thearcades.me/resume.pdf',
+        permanent: true,
+      },
       {
         source: '/DID',
         destination: '/did',
