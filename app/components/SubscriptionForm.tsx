@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useId, useRef, useState } from 'react';
 
-import { applyPreferenceChange } from '@/lib/activecampaign-form';
+import { applyPreferenceChange } from '@/lib/subscription-preferences';
 import { useReaderEventTracker } from '@/lib/reader-analytics';
 import { submitSubscription } from '@/lib/subscription-client';
 import type {

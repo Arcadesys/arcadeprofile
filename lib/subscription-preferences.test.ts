@@ -5,7 +5,7 @@ import {
   applyPreferenceChange,
   hasAtLeastOnePreference,
   normalizePreferenceLabel,
-} from './activecampaign-form';
+} from './subscription-preferences';
 
 test('All is mutually exclusive with Fiction and Essays while Lab is independent', () => {
   const allAndLab = applyPreferenceChange(new Set(['all']), 'lab', true);
