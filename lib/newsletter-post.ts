@@ -84,7 +84,7 @@ export function prepareAttempt(options: {
   if (pending) {
     const currentHash = hashAudience(options.audience);
     if (pending.audienceSha256 !== currentHash) {
-      throw new Error('The ActiveCampaign audience changed during an interrupted send; refusing an ambiguous resume.');
+      throw new Error('The Kit audience changed during an interrupted send; refusing an ambiguous resume.');
     }
     return { receipt: options.receipt!, attempt: pending, resumed: true };
   }
