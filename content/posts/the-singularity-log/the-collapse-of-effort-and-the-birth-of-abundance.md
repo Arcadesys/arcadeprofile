@@ -49,39 +49,21 @@ That is my vibe.
 
 ![Furball baseball ground throw in playtest lab](https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/9f63e636d9ca2564e6bbe45bba74dca4f6be8be86ecd451d5e486861031ce0d0/01-baseball-ground-throw.png "A throw to first in the baseball playtest lab.")
 
-At first, I assumed the character models were going to look bad.
-
-So I decided to make that intentional.
-
-Nintendo 64 characters.
+At first, I assumed the character models were going to look bad, so I decided to make that intentional: Nintendo 64 characters.
 
 That changed everything.
 
-I already had a character in my harness named Moxie. Moxie is kind of the mascot of my website. She is everywhere. I have her inference saved, so I can generate her consistently whenever I want.
+I already had a character in my harness named Moxie, who is kind of the mascot of my website. She is everywhere, and I have her inference saved so I can generate her consistently whenever I want. I wondered what would happen if I took that inference and asked Astra to turn Moxie into a Nintendo 64 character.
 
-I thought: what if I take the inference I already have for Moxie and ask Astra to make Moxie a Nintendo 64 character?
-
-So I did it.
-
-It worked.
-
-It worked *really* well.
+So I did it, and it worked *really* well.
 
 ![Moxie holding a bowling ball in the playable 3D scene](https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/f1e510213b517b97fa4c0bf752724a396f1270356f25700daae984c22d667532/02-moxie-bowling.png "Moxie in the bowling scene. The glasses, hair, and low-poly shape make the character recognizable inside the game. (And yeah, she needs refinement, but not bad for a first pass!)")
 
-And because it only took me a few minutes, my brain immediately went to the dangerous place:
+And because it only took me a few minutes, my brain immediately went to the dangerous place: what if I did this at scale?
 
-What if I did this at scale?
+That question split into two more. How do I get my friends to upload their own fursonas into the game? And if I am already doing baseball, what else lives in this world?
 
-That split off another problem: how do I get my friends to upload their own fursonas into the game?
-
-Then another: if I am already doing baseball, what else lives in this world?
-
-Then another.
-
-Then another.
-
-One thing led to another led to another led to another led to another.
+From there, one thing led to another, then another, then another.
 
 ## Rogers Bark Municipal Club
 
@@ -93,13 +75,7 @@ Once I had baseball working, I started thinking about games like Pikmin, games w
 
 So I thought: what if we had a municipal club, but it was just our fursonas?
 
-Now we had a framing story.
-
-A neighborhood baseball field.
-
-A golf course.
-
-A municipal recreation complex populated by my friends.
+Now we had a framing story: a neighborhood baseball field, a golf course, a municipal recreation complex populated by my friends.
 
 I based the golf course on a real Chicago course near Montrose Harbor, partly because I am lazy and partly because I love the joke of taking a municipal sports club far too seriously.
 
@@ -115,23 +91,9 @@ But this is not a career strategy.
 
 It is a gift.
 
-And the only reason this gift is possible is that the cost of making something has gotten so low.
+And the only reason this gift is possible is that the cost of making something has gotten so low. Not zero, but low enough, and that distinction matters.
 
-Not zero.
-
-Low enough.
-
-That distinction matters.
-
-A few years ago, “make a baseball game for my friends” was an idea I could carry around for years.
-
-This week, I sat down for an afternoon and had a working prototype.
-
-If it sucked, I lost an afternoon.
-
-Big deal.
-
-If it was good, I put more time into it.
+A few years ago, “make a baseball game for my friends” was an idea I could carry around for years. This week, I sat down for an afternoon and had a working prototype. If it sucked, I had lost an afternoon. Big deal. If it was good, I could put more time into it.
 
 That is a completely different risk profile for an idea.
 
@@ -149,15 +111,7 @@ The question is:
 
 That is the switch.
 
-I have lots of things in my harness that work and that I do not care to share. I have one that checks my email. It does not need to be amazing because I am not selling it. I am not giving it away.
-
-It can be janky.
-
-If I am making something for myself, “works” may be enough.
-
-If I am making something for my friends, maybe I want charm.
-
-If I am making something public, maybe I want polish.
+I have lots of things in my harness that work and that I do not care to share. I have one that checks my email. It does not need to be amazing because I am not selling it or giving it away; it can be janky. If I am making something for myself, “works” may be enough. If I am making something for my friends, maybe I want charm. If I am making something public, maybe I want polish.
 
 The floor of creation has collapsed so far that I no longer need to decide what deserves existence.
 
@@ -167,45 +121,17 @@ That is a very different problem.
 
 And this was the first week where I really felt it.
 
-I had an unusual amount of free inference from DevDay. Basically unlimited ChatGPT inference.
-
-And I am unemployed right now.
-
-So not only did I have free inference.
-
-I had time.
+I had an unusual amount of free inference from DevDay, basically unlimited ChatGPT inference, and I am unemployed right now. For once I had both the compute and the time.
 
 You better fucking believe I used every single drop of it.
 
-For a few days, I got to live inside an artificial economy of abundance.
-
-I stopped rationing.
-
-That may have been the most important part.
+For a few days, I got to live inside an artificial economy of abundance, and I stopped rationing. That may have been the most important part.
 
 ## The old accountant goes offline
 
-The internal censor used to be my best friend.
+The internal censor used to be my best friend. It protected me from becoming the person with forty unfinished projects and nothing to show for any of them. It forced me to collate ideas, remix them, and wait for enough sparks to become a fire.
 
-It protected me from becoming the person with forty unfinished projects and nothing to show for any of them.
-
-It forced me to collate ideas.
-
-To remix them.
-
-To wait for enough sparks to become a fire.
-
-But when the cost of the first prototype collapses, that censor stops being purely useful.
-
-Because now I can test the idea.
-
-Not someday.
-
-Today.
-
-I can build the version that teaches me whether the thing has a pulse.
-
-And if it does not, I throw it away.
+But when the cost of the first prototype collapses, that censor stops being purely useful, because now I can test the idea today instead of preserving it for someday. I can build the version that teaches me whether the thing has a pulse, and if it does not, I throw it away.
 
 The cost of being wrong has collapsed.
 
@@ -225,23 +151,9 @@ Keep iterating until it feels good.
 
 And that works.
 
-This does not mean judgment disappears.
+This does not mean judgment disappears. It means judgment becomes the scarce resource: taste, intent, knowing whether the thing feels right, knowing when the weird detail is the whole point, knowing which compromises are charming and which are just broken.
 
-It means judgment becomes the scarce resource.
-
-Taste.
-
-Intent.
-
-Knowing whether the thing feels right.
-
-Knowing when the weird detail is the whole point.
-
-Knowing which compromises are charming and which are just broken.
-
-Implementation used to dominate the budget.
-
-Now implementation is increasingly something I orchestrate.
+Implementation used to dominate the budget. Now it is increasingly something I orchestrate.
 
 ## I do not really play Minecraft anymore
 
@@ -251,23 +163,9 @@ It is one of my favorite rituals because it is a chance to hang out with my clos
 
 The joke is that I do not really play Minecraft.
 
-I am on the Minecraft server.
+I am on the Minecraft server, and I am definitely doing things in Minecraft, but I am not really playing Minecraft anymore. I have probably spent around two thousand hours in this game across years and servers, and at some point you start seeing the seams.
 
-I am definitely doing things in Minecraft.
-
-But I am not playing Minecraft.
-
-I have probably spent around two thousand hours in this game across years and servers.
-
-At some point, you start seeing the seams.
-
-You stop seeing a cool area and start seeing the biome.
-
-You stop seeing a dungeon and start seeing the spawn rules.
-
-You know where the items come from.
-
-You know what the systems are doing.
+You stop seeing a cool area and start seeing the biome; you stop seeing a dungeon and start seeing the spawn rules. You know where the items come from and what the systems are doing.
 
 So instead of playing the game, I use the game as a canvas.
 
@@ -295,23 +193,11 @@ And I looked at it with completely different eyes.
 
 While I had been building the Rogers Bark Municipal Club, I had made a structural decision that turned out to matter a lot.
 
-I kept the game rules separate from the rendering engine.
+I kept the game rules separate from the rendering engine. Baseball rules were rules. Golf rules were rules. The simulation did not need to know what screen it lived on, partly because I wanted an agent to be able to tune the game overnight without looking at the visuals.
 
-Baseball rules were rules.
+Then I realized: it is just code.
 
-Golf rules were rules.
-
-The simulation did not need to know what screen it lived on.
-
-I had done that partly so an agent could tune the game overnight without needing to look at the visuals.
-
-And then I realized:
-
-It is just code.
-
-If blackjack exists as a clean ruleset in TypeScript, there is no reason it has to stay there.
-
-The LLM does not really care about rewriting the same idea in another language.
+If blackjack exists as a clean ruleset in TypeScript, there is no reason it has to stay there. The LLM does not really care about rewriting the same idea in another language.
 
 So I handed it the TypeScript that defined the games I had been making for the municipal project and said:
 
@@ -325,29 +211,9 @@ Please hold your applause.
 
 ![Pine3D Derby overview and follow camera](https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/1bb3116355a6ef209baabca204c607a58583a8006d81d3897de7346cf5edfc38/07-pine3d-derby-overview-and-follow-camera.gif "Pine3D Derby: the same three horses, now on a track with overview and follow cameras. Exhibition play.")
 
-I was not looking forward to rewriting blackjack in Pine3D.
+I was not looking forward to rewriting blackjack in Pine3D. It would have been a slog: I would write things, the model would get something wrong, I would fix it, something else would break, and I would keep chasing bugs through code that I did not actually care about.
 
-It would have been a slog.
-
-I would write things.
-
-The model would get something wrong.
-
-I would fix it.
-
-Something else would break.
-
-I would keep chasing bugs through code that I did not actually care about.
-
-But now I know enough to write the test harness first.
-
-I know enough to define the contracts.
-
-I know enough to hand the implementation off.
-
-And suddenly the middleman work disappears.
-
-What remains for me is idea, intent, and taste.
+But now I know enough to write the test harness first, define the contracts, and hand the implementation off. Suddenly the middleman work disappears, and what remains for me is idea, intent, and taste.
 
 It was electric.
 
@@ -389,21 +255,7 @@ I already knew which mod I wanted.
 
 I knew the format existed because the author had open-sourced it.
 
-The documentation was not especially complete.
-
-A few years ago, that might have killed the afternoon.
-
-Now I do not care.
-
-The LLM reads the source.
-
-It figures out the format.
-
-It writes the conversion layer.
-
-I describe what I want.
-
-The app produces the blueprint.
+The documentation was not especially complete, and a few years ago that might have killed the afternoon. Now I do not care. The LLM can read the source, figure out the format, and write the conversion layer. I describe what I want; the app produces the blueprint.
 
 ![Turtle Blueprints natural language generation dialog](https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/decd4d333882ca0001a6cd32c2ebcae999966224e1168fb0dcf6250a0af0970b/10-turtle-generate.jpg "Select the part of the building, describe the change, press Generate.")
 
@@ -421,17 +273,7 @@ And once you taste that, it changes you.
 
 ## I only want to orchestrate now
 
-I know there are people who love process.
-
-They love sitting down and doing the thing with their own hands.
-
-They love the code.
-
-They love the brush stroke.
-
-They love the act of craft for its own sake.
-
-That is beautiful.
+I know there are people who love process: sitting down and doing the thing with their own hands, loving the code, the brush stroke, the act of craft for its own sake. That is beautiful.
 
 I am not that kind of person.
 
@@ -479,45 +321,13 @@ It is closer to the part of creation I always wanted.
 
 This is not only happening in software.
 
-This week, I have also been iterating on a folding Tak board.
-
-A real physical object.
-
-Pins.
-
-Hinges.
-
-Friction fits.
-
-Storage.
-
-Clasp geometry.
-
-Filament.
-
-The extremely annoying fact that physics remains stubbornly unionized.
+This week, I have also been iterating on a folding Tak board, a real physical object with pins, hinges, friction fits, storage, clasp geometry, filament, and the extremely annoying fact that physics remains stubbornly unionized.
 
 ![Physical folding Tak board and piece storage](https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/ee90bfd99af6b5afde1c54c84881f18f2f50d983daf741593dbd6bafa161dcec/11-tak-storage-action.gif "The physical folding Tak board and removable piece-storage trays.")
 
-I can still be wrong.
+I can still be wrong. A print can fail, a hinge can bind, and a 200-gram print can still become a very educational piece of plastic.
 
-A print can still fail.
-
-A hinge can still bind.
-
-A 200-gram print can still be a very educational piece of plastic.
-
-But the cost of thinking again is radically lower.
-
-I can make a test coupon.
-
-Discover that I am wrong.
-
-Explain why.
-
-Revise the geometry.
-
-Print the next answer.
+But the cost of thinking again is radically lower. I can make a test coupon, discover that I am wrong, explain why, revise the geometry, and print the next answer.
 
 Some mistakes that once would have cost me days of CAD work now cost me one small test print and another pass.
 
@@ -541,33 +351,11 @@ That does not feel separate from the rest of this.
 
 It feels like I am emptying my to-do list.
 
-As a creator, you end up with this enormous backlog of things you cannot give time to.
+As a creator, you end up with this enormous backlog of things you cannot give time to: ideas you love, ideas you might love, little systems you wish existed, stories with one good scene and nowhere to go yet, applications you wish someone would make, tools that are annoying but not annoying enough to justify building.
 
-Ideas you love.
+Historically, a lot of that material stayed compressed into a note in a notebook, a half-page outline, a folder called “someday.”
 
-Ideas you might love.
-
-Little systems you wish existed.
-
-Stories with one good scene and nowhere to go yet.
-
-Applications you wish someone would make.
-
-Tools that are annoying but not annoying enough to justify building.
-
-Historically, a lot of that material stayed compressed.
-
-A note in a notebook.
-
-A half-page outline.
-
-A folder called “someday.”
-
-Now I can generate a version.
-
-Not necessarily the final version.
-
-A version.
+Now I can generate a version. Not necessarily the final version, but enough of one to find out what the idea actually is.
 
 If I have an idea for an application, I can try it and see if it works.
 
@@ -595,25 +383,11 @@ But a lot of software has historically been protected by the sheer inconvenience
 
 That inconvenience is disappearing.
 
-The interface is no longer the constraint.
-
-Documentation is no longer the constraint it once was.
-
-Language choice is increasingly not the constraint.
-
-A missing integration may no longer mean “I guess I cannot do that.”
-
-It may mean “fine, I will build the adapter.”
+The interface is no longer the constraint it once was. Neither is documentation, and increasingly neither is language choice. A missing integration may no longer mean “I guess I cannot do that.” It may mean, “fine, I will build the adapter.”
 
 And for personal software, weird community software, tiny tools, gifts, experiments, and local systems, the economics become almost absurd.
 
-A game for twelve friends can be worth making.
-
-A personalized character can be worth making.
-
-A weird little municipal golf course can be worth making.
-
-A Minecraft casino with a horse-racing screen hanging over a bar can be worth making.
+A game for twelve friends can be worth making. So can a personalized character, a weird little municipal golf course, or a Minecraft casino with a horse-racing screen hanging over a bar.
 
 ![Derby practice betting station](https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/d2e1d8dd82bc58dd551f7812770012a74462bfbc48b2c194a5edc239a261e7ce/15-derby-practice-betting-station.gif)
 
@@ -629,13 +403,7 @@ This week, I did not stop.
 
 And some of the things that would once have been dismissed as scope creep are exactly the things that make software delightful.
 
-Texture used to be expensive.
-
-Personalization used to be expensive.
-
-Weirdness used to be expensive.
-
-Now some of that cost is collapsing too.
+Texture, personalization, and weirdness used to be expensive. Now some of that cost is collapsing too.
 
 ## What becomes scarce when effort does not?
 
@@ -645,23 +413,9 @@ Obviously it does.
 
 The interesting question is what happens to creative judgment when feasibility stops being the primary filter.
 
-I used to ask:
+I used to ask, “Can I afford to make this?” Now that question barely survives contact with reality.
 
-Can I afford to make this?
-
-Now that question barely survives contact with reality.
-
-The better question is:
-
-How finished does this need to be?
-
-How much care does this idea deserve?
-
-Who is it for?
-
-What does it need to feel like?
-
-What should this thing be?
+The better questions are harder: How finished does this need to be? How much care does this idea deserve? Who is it for? What does it need to feel like? What should this thing be?
 
 That is a harder set of questions.
 
@@ -669,44 +423,18 @@ But I think it is also a more human set of questions.
 
 Because if implementation becomes abundant, then maybe we can justify making things for reasons that used to be economically ridiculous.
 
-Because it helps twelve people feel included.
-
-Because it makes the neighborhood chat laugh.
-
-Because my friends will recognize themselves in it.
-
-Because someone who could not participate before gets a door.
-
-Because winter is long and playing Minecraft with your family is nice.
-
-Because a silly gift is still a gift.
+Because it helps twelve people feel included. Because it makes the neighborhood chat laugh. Because my friends will recognize themselves in it, or someone who could not participate before gets a door. Because winter is long and playing Minecraft with your family is nice. Because a silly gift is still a gift.
 
 Because delight counts.
 
-Maybe that is what abundance buys us.
-
-Not just more productivity.
-
-More permission.
+Maybe that is what abundance buys us: not just more productivity, but more permission.
 
 ## The other side
 
-I do not think we are at the easy part of this transition.
+I do not think we are at the easy part of this transition. The path is long, the road is hard, and there are enormous questions about labor, ownership, trust, culture, power, and what happens when the economics of creative work change this quickly.
 
-The path is long.
+I do not know what happens when millions of people discover that the distance between “I wish this existed” and “I made a version” can collapse from months to hours, or what happens when the backlog starts to empty.
 
-The road is hard.
+But on the other side of this journey is a world of cognitive abundance the likes of which this world has never seen. I do not know what that does to us.
 
-There are enormous questions about labor, ownership, trust, culture, power, and what happens when the economics of creative work change this quickly.
-
-I do not know what all of this does to us.
-
-I do not know what happens when millions of people discover that the distance between “I wish this existed” and “I made a version” can collapse from months to hours.
-
-I do not know what happens when the backlog starts to empty.
-
-But on the other side of this journey is a world of cognitive abundance the likes of which this world has never seen.
-
-I do not know what that does to us.
-
-But I am excited to find out.
+I am excited to find out.
