@@ -10,6 +10,7 @@ import {
   buildResumeEditorialPiece,
 } from './resume';
 import { buildStaticSitemapEntries } from './sitemap';
+import { WORK_RESUME_PDF_URL, WORK_RESUME_URL } from './work-resume';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
@@ -36,8 +37,10 @@ test('the homepage offers the professional lane right after the first reading ch
   assert.ok(workLane > shelf, 'the work lane must follow the first reading choices');
   assert.ok(bands > workLane, 'the work lane must precede the fiction and essay bands');
   assert.match(home, /href="https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_header">\s*Work with me/);
-  assert.match(home, /href="\/resume">Read the resume/);
-  assert.match(home, /href="\/resume\/pdf">Download PDF/);
+  assert.match(home, /href=\{WORK_RESUME_URL\}>Read the resume/);
+  assert.match(home, /href=\{WORK_RESUME_PDF_URL\}>Download PDF/);
+  assert.equal(WORK_RESUME_URL, 'https://work.thearcades.me/resume');
+  assert.equal(WORK_RESUME_PDF_URL, 'https://work.thearcades.me/resume.pdf');
 });
 
 test('the reader funnel keeps its homepage entry points', () => {
@@ -49,17 +52,17 @@ test('the reader funnel keeps its homepage entry points', () => {
   assert.match(home, /href="\/essays">Read essays/);
 });
 
-test('the resume sits in the primary navigation rail and the footer', () => {
+test('the resume sits in the primary navigation rail and the footer, linking to the work site', () => {
   assert.ok(
-    ORIENTATION_NAV_ITEMS.some((item) => item.href === '/resume'),
+    ORIENTATION_NAV_ITEMS.some((item) => item.href === WORK_RESUME_URL),
     'the resume must be a primary orientation destination',
   );
 
   const navbar = source('app/components/NavbarClient.tsx');
-  assert.match(navbar, /case '\/resume':/, 'the resume needs a nav rail icon');
+  assert.match(navbar, /case WORK_RESUME_URL:/, 'the resume needs a nav rail icon');
 
   const footer = source('app/components/Footer.tsx');
-  assert.match(footer, /href="\/resume"/);
+  assert.match(footer, /href=\{WORK_RESUME_URL\}/);
 });
 
 test('the resume page renders from shared data and offers the PDF edition', () => {
@@ -111,10 +114,9 @@ test('resume accomplishments only cite proof that exists on the site', () => {
   }
 });
 
-test('the sitemap ranks the resume alongside the other landing surfaces', () => {
-  const entry = buildStaticSitemapEntries('https://www.thearcades.me')
-    .find((candidate) => candidate.url.endsWith('/resume'));
-
-  assert.ok(entry, 'the sitemap is missing the resume');
-  assert.ok((entry.priority ?? 0) >= 0.9, 'the resume should rank with the other landing pages');
+test('the résumé cutover redirects permanently and leaves this sitemap (#287)', () => {
+  assert.ok(!buildStaticSitemapEntries('https://www.thearcades.me').some((entry) => entry.url.endsWith('/resume')));
+  const config = source('next.config.mjs');
+  assert.match(config, /source: '\/resume',\s*destination: 'https:\/\/work\.thearcades\.me\/resume',\s*permanent: true/);
+  assert.match(config, /source: '\/resume\/pdf',\s*destination: 'https:\/\/work\.thearcades\.me\/resume\.pdf',\s*permanent: true/);
 });

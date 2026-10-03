@@ -23,7 +23,8 @@ test('sitemap lists the creative originals and never the work copies', () => {
   }
   assert.equal(urls.size, groups.length + posts.length);
   assert.ok(urls.has(`${SITE_URL}/projects/the-singularity-log/rabies-capitalism`));
-  assert.ok(buildStaticSitemapEntries(SITE_URL).some((entry) => entry.url === `${SITE_URL}/resume`));
+  // The résumé moved to the work imprint (#287) and left this sitemap.
+  assert.ok(!buildStaticSitemapEntries(SITE_URL).some((entry) => entry.url === `${SITE_URL}/resume`));
 });
 
 test('llms, search and editorial catalogs recommend the creative originals', async () => {

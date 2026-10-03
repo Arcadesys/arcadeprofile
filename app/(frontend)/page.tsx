@@ -19,6 +19,7 @@ import moxieHero960 from '@/public/images/moxie/moxie-sitting-text-gaze-960.webp
 import moxieHero1536 from '@/public/images/moxie/moxie-sitting-text-gaze.webp';
 
 import styles from './home.module.css';
+import { WORK_RESUME_PDF_URL, WORK_RESUME_URL } from '@/lib/work-resume';
 
 const RECENT_POSTS_MAX = 4;
 
@@ -116,8 +117,8 @@ export default async function HomePage() {
           make emerging tools useful in everyday work — not just purchased.
         </p>
         <div className={styles.workActions}>
-          <Link className={styles.workPrimary} href="/resume">Read the resume <span aria-hidden="true">→</span></Link>
-          <Link className={styles.workSecondary} href="/resume/pdf">Download PDF</Link>
+          <Link className={styles.workPrimary} href={WORK_RESUME_URL}>Read the resume <span aria-hidden="true">→</span></Link>
+          <Link className={styles.workSecondary} href={WORK_RESUME_PDF_URL}>Download PDF</Link>
           <Link className={styles.workSecondary} href="/lab">Case studies</Link>
           <Link className={styles.workSecondary} href="/projects">Projects</Link>
         </div>
