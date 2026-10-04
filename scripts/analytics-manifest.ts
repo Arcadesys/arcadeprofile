@@ -7,6 +7,7 @@ import { buildGroupIntroUrl, buildPostUrl } from '../lib/post-url';
 import { loadLabCaseStudies } from '../lib/lab-case-studies';
 import { PRIVATE_ROUTE_REWRITES } from '../lib/private-routes';
 import { SITE_URL } from '../lib/site-url';
+import { getReadingCatalog } from '../lib/reading-catalog';
 
 // Public pages intentionally absent from the sitemap. Keep this list explicit:
 // no route-prefix fallback, token/thanks pages, APIs or soft-published pages.
@@ -25,6 +26,13 @@ export function buildAnalyticsPublicPaths(now = new Date(), privateRoutes = PRIV
   ];
   const privatePaths = new Set([...Object.keys(privateRoutes), ...Object.values(privateRoutes)]);
   return [...new Set(paths)].filter((path) => !privatePaths.has(path)).sort();
+}
+
+/** Reporting cohort only; this never widens the collector's public allowlist. */
+export async function buildAnalyticsReaderPaths(publicPaths = buildAnalyticsPublicPaths()): Promise<string[]> {
+  const eligible = new Set(publicPaths);
+  const catalog = await getReadingCatalog();
+  return [...new Set(catalog.map((piece) => piece.canonicalPath))].filter((path) => eligible.has(path)).sort();
 }
 
 /** Only source-owned visible labels enter the browser; never visitor DOM text. */
