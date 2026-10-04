@@ -36,17 +36,16 @@ Redirects live in `next.config.mjs`. Navigation (rail and fallback), footer,
 homepage work lane, bio and site search link directly to the work URLs through
 `lib/work-resume.ts`. The `/resume` sitemap entry and analytics path are removed.
 
-## Remaining removal batch (after production verification)
+## Removal batch (done 2026-10-04)
 
-The page, PDF route, OpenGraph image, CSS module and `lib/resume.ts` data stay in
-the repository, unreachable behind the redirects, until the redirects are
-verified in production. Then remove them in a separate change together with the
-résumé funnel tests that read them.
+After the production redirect check, the unreachable page, PDF route, OpenGraph
+image, CSS module and `lib/resume.ts`, plus the funnel tests that read them, were
+removed. The redirects in `next.config.mjs` stay permanently.
 
 ## Rollback
 
-Revert the cutover commit. That restores the local routes, links and sitemap
-entry together; the retained page and PDF code means nothing needs rebuilding.
+Revert the removal commit and then the cutover commit (#394). Together they
+restore the local page, PDF route, links and sitemap entry.
 Permanent redirects can be cached by browsers, so a rollback also needs the old
 links to be served for a while before external caches recover.
 
@@ -60,4 +59,4 @@ links to be served for a while before external caches recover.
   `https://www.thearcades.me/resume/pdf` returned 308 with
   `location: https://work.thearcades.me/resume.pdf`. The destination PDF had
   already been verified as 200 `application/pdf`.
-- Next: the removal batch above can proceed in its own change.
+- Removal batch: this change, after the production verification above.
