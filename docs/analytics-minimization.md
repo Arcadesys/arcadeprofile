@@ -15,7 +15,7 @@ Do not merge or deploy this draft as part of validation without approval.
 - The claimed event URL must independently match the production origin and an
   eligible public path. Contradictory submitted host/path fields are rejected.
 - `npm run build:analytics-manifest` generates deterministic, source-owned JSON
-  path and MFF-label manifests. Both `prebuild` and `predev` run it **before** the
+  public-path, reader-reporting and MFF-label manifests. Both `prebuild` and `predev` run it **before** the
   existing furry-history-board build. No dependency or lockfile change is needed.
 - Paths come from the static sitemap catalog, published Markdown posts and their
   nonempty groups, and published Lab case studies. Retained creative editions
@@ -82,12 +82,17 @@ The event names and units remain:
   MFF external hrefs are reduced to origin; internal hrefs to public paths.
   MFF still coexists with the sitewide receipt; do not sum the two surfaces.
 
-Valid existing UUIDv4 anonymous IDs keep their existing localStorage lifetime;
+Valid existing UUIDv4 pseudonymous IDs keep their existing localStorage lifetime;
 sitewide session/window UUIDs keep their sessionStorage lifetime. Invalid stored
 IDs are replaced using the same generator/scopes. MFF does **not** gain session
 IDs. Restored entry JSON is rebuilt through the allowlist and rewritten sanitized;
 invalid/missing entry data uses fresh safe context. Storage failures and analytics
 failures remain nonblocking. No cross-site identity joining is introduced.
+
+Report distinct IDs as pseudonymous browser IDs, never people or anonymous readers.
+The `end-reached` marker is an end-reached receipt, never a finished-read count.
+Use the catalog-derived reader cohort and UTC bounds in [the scorecard](./funnel-scorecard.md)
+when publishing aggregate reader reports.
 
 Unapproved properties, person updates, supplied raw user agent, unsafe restored
 context and raw URLs are excluded at these PostHog boundaries. Campaign validation
