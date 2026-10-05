@@ -1463,53 +1463,6 @@ html[data-reading-width] .portfolio-index {
   .dd-intro-main.has-drawer, .dd-post-main.has-drawer { margin-left: auto; margin-right: auto; padding-inline: 1.5rem; }
 }
 
-/* ActiveCampaign form 7: preserve the account-owned form while repairing the
-   generated embed for large text, high contrast, visible focus, and touch. */
-.activecampaign-form {
-  width: min(100%, 680px);
-  margin: 3rem 0 0;
-  overflow-wrap: anywhere;
-}
-.activecampaign-form--compact {
-  margin-top: 0;
-}
-.activecampaign-form ._form_7 {
-  width: 100%;
-  max-width: 100%;
-}
-.activecampaign-form form._form_7,
-.activecampaign-form form._form_7 * {
-  max-width: 100%;
-  box-sizing: border-box;
-}
-.activecampaign-form form._form_7 :is(input, textarea, select, button, label, legend, p, ._form-title, ._form-thank-you, ._error-inner) {
-  font-size: 18px !important;
-  line-height: 1.6 !important;
-}
-.activecampaign-form form._form_7 :is(input[type="text"], input[type="email"], input[type="tel"], input[type="date"], textarea, select, button[type="submit"], ._submit) {
-  min-height: 56px !important;
-}
-.activecampaign-form form._form_7 :is(input[type="checkbox"], input[type="radio"]) {
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 28px !important;
-}
-.activecampaign-form form._form_7 :is(input, textarea, select, button, a):focus-visible {
-  outline: 4px solid var(--accent) !important;
-  outline-offset: 4px !important;
-}
-.activecampaign-form form._form_7 ._form-thank-you,
-.activecampaign-form form._form_7 ._error-inner {
-  color: var(--fg) !important;
-}
-
-@media (max-width: 760px) {
-  .activecampaign-form {
-    width: 100%;
-    margin-top: 2rem;
-  }
-}
-
 .prose .footnote-ref {
   font-size: 0.75em;
   vertical-align: super;

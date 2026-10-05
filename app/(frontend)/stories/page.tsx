@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { SITE_NAME } from '@/lib/site-brand';
 
 import EditorialIndex from '@/app/components/EditorialIndex';
 import type { FeaturedCollection } from '@/app/components/FeaturedCollectionCard';
@@ -7,12 +6,10 @@ import { getEditorialCatalog } from '@/lib/editorial-catalog';
 import { COLLECTION, COLLECTION_PATH, COLLECTION_TITLE } from '@/lib/collection';
 import { PORTFOLIO_WORKS } from '@/lib/portfolio';
 import { ZOO_FEATURED_COLLECTION } from '@/lib/zoo-collection-meta';
-import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
+import { editorialHubMetadata, STORIES_HUB } from '@/lib/editorial-hub-metadata';
 
 export const dynamic = 'force-dynamic';
 
-const title = 'Free Queer & Furry Speculative Fiction';
-const description = 'Free short stories and a serial novel about queer found family, furry shapeshifters, and surviving a hypercapitalist world — read online or download the PDF editions.';
 const collectionCover = COLLECTION[0]!;
 
 const FEATURED_COLLECTIONS: readonly FeaturedCollection[] = [
@@ -33,13 +30,7 @@ const FEATURED_COLLECTIONS: readonly FeaturedCollection[] = [
   },
 ];
 
-export const metadata: Metadata = {
-  title,
-  description,
-  alternates: { canonical: '/stories' },
-  openGraph: { type: 'website', title: `${title} | ${SITE_NAME}`, description, url: '/stories', images: [DEFAULT_SOCIAL_IMAGE] },
-  twitter: { card: 'summary_large_image', title: `${title} | ${SITE_NAME}`, description, images: [DEFAULT_SOCIAL_IMAGE.url] },
-};
+export const metadata: Metadata = editorialHubMetadata(STORIES_HUB);
 
 export default async function StoriesPage() {
   const catalog = await getEditorialCatalog();

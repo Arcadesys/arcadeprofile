@@ -56,6 +56,6 @@ test('reader copy leaves canonical discovery and local sequential reading distin
   assert.ok(myBrain && coldBoot);
   assert.equal(nextPiece(myBrain, catalog)?.canonicalPath, '/projects/arcade-blog/four-stages-nobody-tells-you-about');
   assert.equal(nextPiece(coldBoot, catalog)?.canonicalPath, '/novels/it-takes-a-zoo/gallery-view');
-  assert.equal(canonicalDiscoveryHref('/projects/bunch/bunch'), 'https://work.thearcades.me/blog/bunch');
-  assert.equal(canonicalDiscoveryHref('/projects/arcade-blog/four-stages-nobody-tells-you-about'), 'https://work.thearcades.me/blog/four-stages-nobody-tells-you-about');
+  assert.equal(canonicalDiscoveryHref('/projects/bunch/bunch'), '/projects/bunch/bunch');
+  assert.equal(canonicalDiscoveryHref('/projects/arcade-blog/four-stages-nobody-tells-you-about'), '/projects/arcade-blog/four-stages-nobody-tells-you-about');
 });

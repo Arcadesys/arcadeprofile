@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { POST_CANONICAL_EDITIONS } from './post-canonical';
+import { CREATIVE_ORIGINALS_WITH_WORK_COPIES } from './post-canonical-originals.fixture';
 import { sanitizeAnalyticsPayload, sanitizeEntryContext, sanitizeReaderProperties } from './analytics-payload';
 
 const id = '9e833036-9f38-44d9-9d26-3d9c1b332f94';
@@ -64,10 +64,12 @@ test('MFF events preserve numeric milestones and exact public labels with separa
 });
 
 
-test('reader completion and merged-main canonical recommendation destinations remain measurable', () => {
+test('reader completion and recommendations to the creative originals remain measurable', () => {
   assert.ok(sanitizeAnalyticsPayload(payload('end-reached', { ...reader, placement: 'reader-end' }), 'sitewide'));
-  for (const { canonicalUrl, creativePath } of POST_CANONICAL_EDITIONS) {
-    const props = sanitizeReaderProperties({ ...reader, canonicalId: creativePath, placement: 'recommended-reading', destination: `${canonicalUrl}?secret#token` });
-    assert.ok(props); assert.equal(props.destination, canonicalUrl); assert.equal(props.canonicalId, creativePath);
+  for (const { creativePath, workCopyUrl } of CREATIVE_ORIGINALS_WITH_WORK_COPIES) {
+    const props = sanitizeReaderProperties({ ...reader, canonicalId: creativePath, placement: 'recommended-reading', destination: `${creativePath}?secret#token` });
+    assert.ok(props); assert.equal(props.destination, creativePath); assert.equal(props.canonicalId, creativePath);
+    // Unmapped work URLs are no longer recommendation targets and stay unrecorded.
+    assert.equal(sanitizeReaderProperties({ ...reader, canonicalId: creativePath, placement: 'recommended-reading', destination: workCopyUrl }), null);
   }
 });

@@ -2,6 +2,7 @@ import { buildPostDiscoveryUrl } from '@/lib/post-canonical';
 import { buildGroupIntroUrl, loadMarkdownBlog } from '@/lib/blog';
 import type { LoadMarkdownPostsOptions } from '@/lib/markdown-posts';
 import { PORTFOLIO_WORKS, type PortfolioWork } from '@/lib/portfolio';
+import { WORK_RESUME_URL } from '@/lib/work-resume';
 
 export type SearchItem = {
   title: string;
@@ -14,7 +15,7 @@ export type SearchItem = {
 const PAGES: SearchItem[] = [
   { title: 'Read', href: '/writing', kind: 'Page', preview: 'Stories, essays, collections, and places to begin reading.', searchText: 'read writing stories essays collections' },
   { title: 'Watch me build', href: '/projects', kind: 'Page', preview: 'Experiments, software, creative tools, and ongoing projects.', searchText: 'projects software experiments build tools' },
-  { title: 'Resume', href: '/resume', kind: 'Page', preview: 'Austen Tucker’s professional experience, skills, and selected work.', searchText: 'resume work experience skills career Austen Tucker' },
+  { title: 'Resume', href: WORK_RESUME_URL, kind: 'Page', preview: 'Austen Tucker’s professional experience, skills, and selected work.', searchText: 'resume work experience skills career Austen Tucker' },
   { title: 'About', href: '/bio', kind: 'Page', preview: 'About Austen, the Arcades, and the work made here.', searchText: 'about bio Austen Arcades' },
   { title: 'Store', href: '/store', kind: 'Page', preview: 'Books and other things you can take home.', searchText: 'store books buy shop' },
   { title: 'Case Studies', href: '/lab', kind: 'Page', preview: 'AI engineering and product case studies from the lab.', searchText: 'case studies lab AI engineering product' },
