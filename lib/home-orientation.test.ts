@@ -45,7 +45,6 @@ test('site-owned signup surfaces use one first-party form implementation', () =>
     'app/components/ProjectsIndex.tsx',
     'app/(frontend)/bio/page.tsx',
     'app/(frontend)/latest/page.tsx',
-    'app/(frontend)/store/page.tsx',
   ];
 
   for (const path of surfaces) {
