@@ -12,7 +12,7 @@ export const DEFAULT_NAV_ITEMS: NavItem[] = [
   { id: 'projects', label: 'Watch me build', href: '/projects', isPrimary: false },
   { id: 'resume', label: 'Resume', href: WORK_RESUME_URL, isPrimary: false },
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
-  { id: 'store', label: 'Store', href: '/store', isPrimary: false },
+  { id: 'books', label: 'Books', href: '/books', isPrimary: false },
   { id: 'stories', label: 'Stories', href: '/stories', isPrimary: false },
   { id: 'essays', label: 'Essays', href: '/essays', isPrimary: false },
   { id: 'lab', label: 'Case Studies', href: '/lab', isPrimary: false },
@@ -28,7 +28,7 @@ export const ORIENTATION_NAV_ITEMS: readonly NavItem[] = [
   { id: 'projects', label: 'Watch me build', href: '/projects', isPrimary: false },
   { id: 'resume', label: 'Resume', href: WORK_RESUME_URL, isPrimary: false },
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
-  { id: 'store', label: 'Store', href: '/store', isPrimary: false },
+  { id: 'books', label: 'Books', href: '/books', isPrimary: false },
 ];
 
 const PRIMARY_NAV_HREFS = ORIENTATION_NAV_ITEMS.map((item) => item.href);
