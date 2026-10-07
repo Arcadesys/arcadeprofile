@@ -1,55 +1,215 @@
+export type BookStage = 'available' | 'forthcoming' | 'development';
+export type BookSection = 'current' | 'next' | '2027' | 'development' | 'backlist';
+
+export type BookAction = {
+  label: string;
+  href: string;
+  external?: boolean;
+};
+
 export interface BookInfo {
+  slug: string;
   title: string;
   description: string;
+  stage: BookStage;
+  section: BookSection;
+  releaseYear?: number;
+  format?: string;
+  publisher?: string;
+  series?: string;
+  seriesPosition?: number;
   coverImage?: string;
-  buyLink?: string;
-  buyLabel?: string;
-  hasBuyButton?: boolean;
-  hasPreview?: boolean;
+  coverAlt?: string;
+  editionNote?: string;
+  actions: readonly BookAction[];
+  nextSlug?: string;
 }
 
-export const books: Record<string, BookInfo> = {
-  'tfcch1': {
-    title: 'The Two-Flat Cats',
-    description: 'A story about toons living in a world where cartoons are real.',
-    coverImage: '/preview/covers/book.svg',
-    hasBuyButton: false,
-    hasPreview: true
+export const BOOKS: readonly BookInfo[] = [
+  {
+    slug: 'this-is-what-i-do-for-fun',
+    title: 'This is what I do for fun',
+    description:
+      'A collection of short fiction: androids, kitsune, hypersleep pods, and the smallest casino in Paris.',
+    stage: 'available',
+    section: 'current',
+    releaseYear: 2026,
+    format: 'Short-fiction collection',
+    publisher: 'Free Play Publishing',
+    actions: [
+      { label: 'Read the collection', href: '/this-is-what-i-do-for-fun' },
+    ],
+    nextSlug: 'estelles-children',
   },
-  'baitandswitch': {
+  {
+    slug: 'estelles-children',
+    title: "Estelle's Children",
+    description:
+      'A Chicago witch’s parlor opens onto a growing sisterhood, told through oral histories, letters, journals, photographs, and the people carrying a family history forward.',
+    stage: 'forthcoming',
+    section: 'next',
+    releaseYear: 2026,
+    format: 'Fiction',
+    publisher: 'Free Play Publishing',
+    actions: [
+      { label: 'Read the preview', href: '/novels/estelles-children' },
+    ],
+    nextSlug: 'bait-and-switch',
+  },
+  {
+    slug: 'bait-and-switch',
     title: 'Bait and Switch',
-    description: "In Fenton's world, some kids are toons. Some think the change is biological. Others think the change is social. But some kids turn into toons, and Fenton's father just wants it to stop. He's even built a Realist movement to ban toons from the real world, hoping that it will keep his own children from following in their estranged mother's cartoon footsteps. Tensions rise as the Realists lobby to get their ban set into law, and toons fight for their right to be themselves. Fenton's father knows he can count on his two boys to stand behind him and his dream of building a safe, a toon-free reality. It's just too bad that Fenton's becoming a toon.... Cover artwork by Dustin Friend.",
+    description:
+      'Fenton’s father is building a movement to ban toons from the real world just as Fenton starts becoming one.',
+    stage: 'forthcoming',
+    section: '2027',
+    releaseYear: 2027,
+    format: 'Novel',
+    publisher: 'Free Play Publishing',
+    series: 'Ink and Paint Trilogy',
+    seriesPosition: 1,
     coverImage: '/images/books/baitandswitch.jpg',
-    buyLink: 'https://www.amazon.com/Bait-Switch-Austen-Crowder/dp/145631890X/ref=sr_1_1?crid=2CJTH7Z4LZZGY&dib=eyJ2IjoiMSJ9.GTj60YzLgvYFEjjUMZgiOV0jxYYsgbH2rBKoPTelYOak2iPXr6_THQwMOtkoGxAm0aWciS3X5hWCOCAJE33bYH21Sndgij6m3m9hi-lfUHVZM32HLyVTVx3KBT2GYFs3-C3aG9CHFBgbg4Ab1TGhBg.Q13mdXJ95tkJxETwESmGDoiiiWaFOijJd0MKTwSEouE&dib_tag=se&keywords=bait+and+switch+austen&qid=1708037120&sprefix=bait+and+switch+austen%2Caps%2C125&sr=8-1',
-    buyLabel: 'Buy on Amazon',
-    hasBuyButton: true,
-    hasPreview: false
+    coverAlt: 'Cover of Bait and Switch.',
+    editionNote: 'A new Free Play Publishing edition is planned for 2027.',
+    actions: [],
+    nextSlug: 'the-painted-cat',
   },
-  'thepaintedcat': {
+  {
+    slug: 'the-painted-cat',
     title: 'The Painted Cat',
-    description: "Janet lives in two worlds. In one world, she is Miss Perch, teacher at a small school deep in the corn grids, helping kids who are turning into cartoon find their way out of town. In the other, she is Bunny Cat, and paints herself up to be the very same type of cartoon cat her small town has grown to hate. The wall separating those two worlds is starting to break down. Between rekindling a relationship with an old college flame and discovering how much she loves being Bunny Cat her two worlds are starting to merge. Keeping up the appearances of two separate lives is bad enough, but when kids start getting sent away for turning toon she knows she can't stand on the sideline any longer. Two things are for sure: the two worlds won't stay distinct for much longer, and Janet won't come out unscathed.",
+    description:
+      'Janet keeps two lives: small-town teacher Miss Perch and Bunny Cat, the cartoon self she paints into being. The wall between them is starting to crack.',
+    stage: 'forthcoming',
+    section: '2027',
+    releaseYear: 2027,
+    format: 'Novel',
+    publisher: 'Free Play Publishing',
+    series: 'Ink and Paint Trilogy',
+    seriesPosition: 2,
     coverImage: '/images/books/thepaintedcat.jpg',
-    buyLink: 'https://furplanet.com/shop/item.aspx?itemid=778',
-    buyLabel: 'Buy from FurPlanet',
-    hasBuyButton: true,
-    hasPreview: false
+    coverAlt: 'Cover of The Painted Cat.',
+    editionNote: 'A new Free Play Publishing edition is planned for 2027.',
+    actions: [],
+    nextSlug: 'the-two-flat-cats',
   },
-  'afuzzyplace': {
+  {
+    slug: 'the-two-flat-cats',
+    title: 'The Two-Flat Cats',
+    description:
+      'The concluding novel in the Ink and Paint Trilogy, returning as part of the new Free Play Publishing editions.',
+    stage: 'forthcoming',
+    section: '2027',
+    releaseYear: 2027,
+    format: 'Novel',
+    publisher: 'Free Play Publishing',
+    series: 'Ink and Paint Trilogy',
+    seriesPosition: 3,
+    editionNote: 'The trilogy finale is planned for publication with the first two books in 2027.',
+    actions: [],
+    nextSlug: 'it-takes-a-zoo',
+  },
+  {
+    slug: 'it-takes-a-zoo',
+    title: 'It Takes a Zoo',
+    description:
+      'Jamie discovers the Zoo, a private virtual world where people choose their bodies and make room for each other.',
+    stage: 'forthcoming',
+    section: '2027',
+    releaseYear: 2027,
+    format: 'Novel-in-stories',
+    publisher: 'Free Play Publishing',
+    actions: [
+      { label: 'Read the serial', href: '/novels/it-takes-a-zoo' },
+    ],
+    nextSlug: 'butterfly-exe',
+  },
+  {
+    slug: 'butterfly-exe',
+    title: 'butterfly.exe',
+    description: 'A novel in development.',
+    stage: 'development',
+    section: 'development',
+    releaseYear: 2028,
+    format: 'Novel',
+    publisher: 'Free Play Publishing',
+    actions: [],
+    nextSlug: 'the-witch-who-sold-the-world',
+  },
+  {
+    slug: 'the-witch-who-sold-the-world',
+    title: 'The Witch Who Sold the World',
+    description: 'A novel in development.',
+    stage: 'development',
+    section: 'development',
+    releaseYear: 2028,
+    format: 'Novel',
+    publisher: 'Free Play Publishing',
+    actions: [],
+  },
+  {
+    slug: 'a-fuzzy-place',
     title: 'A Fuzzy Place',
-    description: "Furry fiction and I have a complicated relationship. For the past ten years I've been in and out of the furry community. Conventions, art trades, commissions, badges, even suits – I tried it all. Most of my best friends came from the fandom and continue to be the reason I come back year after year. It's not a bad fandom at all; it's young, vibrant, and the thing that kept me from feeling alone in my darkest moments. This collection contains works from every stage of my time in furry. Revised works from high school, works from long nights at college, stories that helped me escape the stresses of teaching, and even some memoir make appearances here. These stories let me find my way through some tough times, express feelings I didn't want to admit were there, and ultimately find peace with an identity as an awesome trans woman. It's been a long, complicated road but furry is always there, hiding just under the fuzzy places of memory.",
+    description:
+      'Stories and memoir from a decade in furry, tracing identity, community, and the places that helped shape a life.',
+    stage: 'available',
+    section: 'backlist',
+    format: 'Collection',
     coverImage: '/images/books/afuzzyplace.jpg',
-    buyLink: 'https://www.amazon.com/Fuzzy-Place-Stories-Shaped-Subculture-ebook/dp/B00H7K7EYQ/ref=sr_1_1?crid=1RI5RYHEZO4QO&dib=eyJ2IjoiMSJ9.ghbjBJ7ipOEeqafDq5ag6XEs-9TExXmW8AYUUlk9I8XbCrItCD0mtsv5VyAw6NEL.bQhlJRZ_vlc4hTZRFNHLb_Ce1lkcsLdxmb6vzrC8Gyc&dib_tag=se&keywords=a+fuzzy+place+austen&qid=1708037222&sprefix=a+fuzzy+place+austen%2Caps%2C125&sr=8-1',
-    buyLabel: 'Buy on Amazon',
-    hasBuyButton: true,
-    hasPreview: false
+    coverAlt: 'Cover of A Fuzzy Place.',
+    actions: [
+      { label: 'Buy on Amazon', href: 'https://www.amazon.com/dp/B00H7K7EYQ', external: true },
+    ],
+    nextSlug: 'closet-cats',
   },
-  'closetcats': {
+  {
+    slug: 'closet-cats',
     title: 'Closet Cats',
-    description: "Three romantic short stories about lesbians, trans people, catgirls, and dragons. Ginny's Magic: Evelyn lands a date with the catgirl from the next world over, and take a little trip through Chicago's Boystown neighborhood. Dragons in the Middle: Dave lands himself in a pickle after a one night stand with a wishing dragoness. Closet Cat: Stuck in a rut, Charlie's marriage depends on a collar and cat ears provided by a witch he knew in college.",
+    description:
+      'Three romantic short stories about lesbians, trans people, catgirls, dragons, magic, and becoming more yourself.',
+    stage: 'available',
+    section: 'backlist',
+    format: 'Short-story collection',
     coverImage: '/images/books/closetcats.jpg',
-    buyLink: 'https://www.amazon.com/Closet-Cats-Austen-Tucker-ebook/dp/B0B311T8P1/ref=sr_1_1?crid=26C247NRZJ9R&dib=eyJ2IjoiMSJ9.Bos87-7Oqm7USJVQw4C4345ltr8O4WierNrLyL5dscLRz9RFMuCYg5lhN6IrwZnqiKapuxbpK1eVgHTm2yF3u-AP6F8yfJGh-XGjBQPyg7g.77iXUtFAfZSnafnpykWd9mcOLRboWmuqNh_lTOnvmns&dib_tag=se&keywords=closet+cats+austen&qid=1708037182&sprefix=closet+cats+austen%2Caps%2C132&sr=8-1',
-    buyLabel: 'Buy on Amazon',
-    hasBuyButton: true,
-    hasPreview: false
+    coverAlt: 'Cover of Closet Cats.',
+    actions: [
+      { label: 'Buy on Amazon', href: 'https://www.amazon.com/dp/B0B311T8P1', external: true },
+    ],
+    nextSlug: 'this-is-what-i-do-for-fun',
+  },
+];
+
+export const HOME_BOOK_SLUGS = [
+  'this-is-what-i-do-for-fun',
+  'estelles-children',
+  'bait-and-switch',
+] as const;
+
+const BOOK_BY_SLUG = new Map(BOOKS.map((book) => [book.slug, book]));
+
+export function getBook(slug: string): BookInfo | undefined {
+  return BOOK_BY_SLUG.get(slug);
+}
+
+export function bookPath(book: BookInfo): string {
+  return `/books/${book.slug}`;
+}
+
+export function bookStatusLabel(book: BookInfo): string {
+  if (book.stage === 'available') {
+    return book.section === 'backlist'
+      ? 'Backlist · available now'
+      : book.releaseYear
+        ? `${book.releaseYear} · available now`
+        : 'Available now';
   }
-};
+  if (book.stage === 'forthcoming') {
+    return book.releaseYear ? `Coming ${book.releaseYear}` : 'Coming soon';
+  }
+  return book.releaseYear ? `In development · ${book.releaseYear}` : 'In development';
+}
+
+export const HOME_BOOKS = HOME_BOOK_SLUGS.map((slug) => {
+  const book = getBook(slug);
+  if (!book) throw new Error(`Unknown home-book slug: ${slug}`);
+  return book;
+});
