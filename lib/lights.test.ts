@@ -4,7 +4,7 @@ import test from 'node:test';
 import { getDefaultLightMode, isLightMode, LIGHTS_STORAGE_KEY } from './lights';
 
 test('discovery and interactive routes default to lights on', () => {
-  for (const path of ['/', '/stories', '/essays', '/latest', '/lab', '/projects', '/portfolio', '/toys/demo', '/store', '/subscribe']) {
+  for (const path of ['/', '/stories', '/essays', '/latest', '/lab', '/projects', '/portfolio', '/toys/demo', '/books', '/subscribe']) {
     assert.equal(getDefaultLightMode(path), 'on', path);
   }
 });

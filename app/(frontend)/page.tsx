@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import type { CSSProperties } from 'react';
 
 import StartReadingShelf from '@/app/components/StartReadingShelf';
@@ -20,6 +21,7 @@ import moxieHero1536 from '@/public/images/moxie/moxie-sitting-text-gaze.webp';
 
 import styles from './home.module.css';
 import { WORK_RESUME_PDF_URL, WORK_RESUME_URL } from '@/lib/work-resume';
+import { HOME_BOOKS, bookPath, bookStatusLabel } from '@/data/books';
 
 const RECENT_POSTS_MAX = 4;
 
@@ -109,6 +111,46 @@ export default async function HomePage() {
 
       <StartReadingShelf items={shelf} heading="Choose your next read" headingId="home-start-reading" showCovers />
 
+      <section className={styles.booksShelf} aria-labelledby="home-books-heading">
+        <div className={styles.booksShelfHeader}>
+          <div>
+            <p className={styles.booksEyebrow}>Free Play Publishing</p>
+            <h2 id="home-books-heading">Books by Austen Tucker</h2>
+          </div>
+          <Link href="/books">See the full shelf <span aria-hidden="true">→</span></Link>
+        </div>
+        <div className={styles.homeBookGrid}>
+          {HOME_BOOKS.map((book) => (
+            <article className={styles.homeBookCard} key={book.slug}>
+              <Link href={bookPath(book)}>
+                <div className={styles.homeBookCover}>
+                  {book.coverImage ? (
+                    <Image
+                      src={book.coverImage}
+                      alt={book.coverAlt ?? `Cover of ${book.title}.`}
+                      width={400}
+                      height={600}
+                      sizes="(max-width: 540px) 70vw, 250px"
+                    />
+                  ) : (
+                    <div className={styles.homeBookFallback} aria-hidden="true">
+                      <span>{book.publisher ?? 'The Arcades'}</span>
+                      <strong>{book.title}</strong>
+                      <small>Austen Tucker</small>
+                    </div>
+                  )}
+                </div>
+                <div className={styles.homeBookCopy}>
+                  <p>{bookStatusLabel(book)}</p>
+                  <h3>{book.title}</h3>
+                  <span>Explore book <span aria-hidden="true">→</span></span>
+                </div>
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className={styles.workLane} aria-labelledby="home-work-heading">
         <p className={styles.workEyebrow}>AI enablement &amp; transformation</p>
         <h2 id="home-work-heading">Hire me for the hard part.</h2>
@@ -141,7 +183,7 @@ export default async function HomePage() {
         <Link href="/lab">Case studies</Link>
         <Link href="/projects">Projects</Link>
         <Link href="/toys">Games</Link>
-        <Link href="/store">Store</Link>
+        <Link href="/books">Books</Link>
       </nav>
 
       <section className={styles.below}>
