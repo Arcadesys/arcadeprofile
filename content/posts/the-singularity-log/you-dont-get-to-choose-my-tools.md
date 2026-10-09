@@ -37,11 +37,13 @@ I want to establish something before we go any further: nobody owes me a seat at
 
 If someone doesn't like AI-assisted work, they can decline to play. They can decide that the environmental cost, labor questions, training-data concerns, or their own personal boundary makes the experience unappealing. Those are real issues, and an invitation is not a subpoena.
 
+Saying "I don't want AI-assisted work in my life" isn't the same as saying "you didn't make anything." The first is a boundary. The second is a claim about someone else's creativity, judgment, effort, and care. A refusal doesn't settle that claim, and it doesn't have to make it. You can decline the invitation without erasing the work that went into it.
+
 What bothered me was something adjacent to that entirely reasonable right.
 
 The objection wasn't about a scene, a rule, a tone problem, an encounter, or a piece of prose someone had actually read. It was about the tool I used while making the thing. The work had been sorted into the unacceptable bin before anyone could encounter the work itself.
 
-I know the familiar reply: tools are not neutral. Fair enough. A choice of tool can have ethical consequences. But that doesn't settle the more interesting question of whether a person who wants to enjoy your work also gets to prescribe the process by which you're allowed to make it.
+I know the familiar reply: tools are not neutral. Fair enough. A choice of tool can have ethical consequences. But declining work made with a tool isn't, by itself, prescribing what its maker is allowed to use. The line I'm trying to draw is where a refusal becomes a verdict that no creativity, judgment, effort, or care went into the work. Those are different claims.
 
 To me, that's a very strange claim.
 
