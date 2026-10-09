@@ -37,13 +37,15 @@ I want to establish something before we go any further: nobody owes me a seat at
 
 If someone doesn't like AI-assisted work, they can decline to play. They can decide that the environmental cost, labor questions, training-data concerns, or their own personal boundary makes the experience unappealing. Those are real issues, and an invitation is not a subpoena.
 
-Saying "I don't want AI-assisted work in my life" isn't the same as saying "you didn't make anything." The first is a boundary. The second is a claim about someone else's creativity, judgment, effort, and care. A refusal doesn't settle that claim, and it doesn't have to make it. You can decline the invitation without erasing the work that went into it.
-
 What bothered me was something adjacent to that entirely reasonable right.
 
 The objection wasn't about a scene, a rule, a tone problem, an encounter, or a piece of prose someone had actually read. It was about the tool I used while making the thing. The work had been sorted into the unacceptable bin before anyone could encounter the work itself.
 
-I know the familiar reply: tools are not neutral. Fair enough. A choice of tool can have ethical consequences. But declining work made with a tool isn't, by itself, prescribing what its maker is allowed to use. The line I'm trying to draw is where a refusal becomes a verdict that no creativity, judgment, effort, or care went into the work. Those are different claims.
+There's a distinction worth making here. Declining an invitation isn't the same thing as controlling another person's tools. You have every right to decide what you play, read, buy, or support, including decisions based on how something was made. I don't dispute that right.
+
+But your decision not to participate doesn't settle the question of whether the work involved creativity, judgment, effort, or care. Those are separate claims. You can object to my process without pretending there was no artist behind it.
+
+And that's the part I want other creators to hear. Someone else's boundary is not a verdict on your legitimacy. Their refusal can be sincere, principled, and painful all at once. You can respect it without accepting their judgment of what you've made.
 
 To me, that's a very strange claim.
 
