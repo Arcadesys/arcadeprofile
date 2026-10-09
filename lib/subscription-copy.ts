@@ -7,21 +7,17 @@ type EndOfPieceCopyInput = {
   seriesActive?: boolean;
 };
 
+const ALL_WRITING_COPY = "Join All Writing for stories, essays, and build notes when they're ready.";
+
 export function endOfPieceCopy({
-  kind,
   seriesTitle,
   totalParts,
   seriesActive = false,
 }: EndOfPieceCopyInput): string {
   if (seriesActive && seriesTitle && totalParts && totalParts > 0) {
     const noun = totalParts === 1 ? 'installment' : 'installments';
-    return `${seriesTitle} currently has ${totalParts} ${noun}. Get the next one in your inbox as it lands.`;
+    return `${seriesTitle} currently has ${totalParts} ${noun}. ${ALL_WRITING_COPY}`;
   }
 
-  if (seriesTitle) {
-    const pluralKind = kind === 'story' ? 'stories' : kind === 'essay' ? 'essays' : 'build notes';
-    return `Follow ${seriesTitle} for new ${pluralKind}.`;
-  }
-
-  return `Get the next ${kind} in your inbox as it arrives.`;
+  return ALL_WRITING_COPY;
 }
