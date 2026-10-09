@@ -1,13 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
+import release from '@/data/toys/message-in-a-bottle-release.json';
 import { TOY_CATALOG } from '@/data/toys/catalog';
 import { buildToyMetadata } from '@/lib/toys/metadata';
 import shelfStyles from '../toys.module.css';
 import styles from './module.module.css';
 
 const toy = TOY_CATALOG.find(({ id }) => id === 'message-in-a-bottle')!;
-const moduleUrl = 'https://message-in-a-bottle-alpha.vercel.app';
 
 export const metadata = buildToyMetadata({
   title: toy.title,
@@ -57,8 +57,8 @@ export default function MessageInABottlePage() {
           </p>
         </aside>
         <div className={styles.actions}>
-          <a className={styles.primary} href={`${moduleUrl}/`}>Read the illustrated module →</a>
-          <a href={`${moduleUrl}/downloads/message-in-a-bottle-illustrated-guide.zip`}>
+          <a className={styles.primary} href={release.guidePath}>Read the illustrated module →</a>
+          <a href={release.download.url}>
             Download the illustrated guide (ZIP)
           </a>
         </div>
@@ -76,11 +76,26 @@ export default function MessageInABottlePage() {
           Requires the <em>Savage Worlds Adventure Edition</em> core rules.
           This is a free fan module; the guide includes the fan notice and credits.
         </p>
+      </section>
+
+      <section aria-labelledby="mcp-companion" className={styles.details}>
+        <h2 id="mcp-companion">Keep the session moving with MCP</h2>
         <p>
-          The <a href={`${moduleUrl}/app/`}>earlier GM runner</a> also has scene
-          cards, PDFs, and player handouts. It predates the illustrated guide’s
-          expanded maze and cyclotron encounters.
+          An optional Game Master companion brings the campaign into a
+          compatible desktop AI client. Pull up scene briefings, track revealed
+          clues and pressure clocks, record your table’s decisions, and get
+          session recaps with less page-flipping.
         </p>
+        <p>
+          It runs locally on your computer, and the GM directs every change.
+          It follows the 24-scene campaign outline; use the illustrated guide
+          for the expanded maze and cyclotron mechanics.
+        </p>
+        <div className={styles.actions}>
+          <a href="https://github.com/Arcadesys/message-in-a-bottle/blob/main/mcp/README.md">
+            Set up the MCP companion →
+          </a>
+        </div>
       </section>
 
       <footer className={styles.credits}>

@@ -1,0 +1,113 @@
+Message in a Bottle: license scope and attribution
+
+Licensor: Austen Tucker-Crowder
+Copyright (c) 2026 Austen Tucker-Crowder in original copyrightable
+contributions, only to the extent the licensor holds those rights.
+Source: https://github.com/Arcadesys/message-in-a-bottle
+
+This release contains separately licensed original contributions and
+excluded third-party material. It is not licensed as one undifferentiated
+package. A file's format or location does not expand the grants below.
+
+MIT software grant
+------------------
+The licensor's original software contributions in these files are licensed
+under the MIT License, whose complete text and copyright notice are in
+LICENSE-MIT:
+
+- app/runner.mjs
+- scripts/build-site.mjs
+- app/run-state.mjs
+- app/module.css
+- app/illustrated-guide/styles.css and app/illustrated-guide/script.js
+- Original HTML interface and layout code in index.html, app/index.html,
+  app/module.html, app/handouts.html, and app/illustrated-guide/index.html
+- Original workflow code in .github/workflows/
+
+Campaign prose, data, images, third-party material, and referenced GitHub
+Actions are outside this software grant. Embedded original campaign
+content has the separate content license below. Keep the complete MIT
+copyright and permission notice with copies or substantial portions of
+the covered software.
+
+CC BY 4.0 content grant
+----------------------
+The licensor's original campaign prose, handouts, characters, scene
+descriptions, and adventure procedures in source/, app/campaign.json,
+app/module.md, app/handouts.md, app/illustrated-guide/stat-blocks.md,
+and app/illustrated-guide/encounters.md,
+and the same original content reproduced
+in HTML and PDFs, are licensed under Creative Commons Attribution 4.0
+International (CC BY 4.0). source/sessions.mjs holds campaign data and is
+in this content scope, rather than the software scope.
+
+The licensor's original copyrightable illustration contributions, only
+to the extent the licensor holds those rights, in these files and their
+PDF reproductions are also licensed under CC BY 4.0:
+
+- app/assets/chicago-snowglobe.webp
+- app/assets/primordial-archipelago.webp
+- app/assets/thompson-maze.webp
+- Identical copies of these three illustrations in app/illustrated-guide/images/
+
+Human-directed AI tools assisted production. This grant does not claim
+exclusive copyright in every generated element or impose new restrictions
+on public-domain elements or uses permitted by copyright exceptions.
+
+The complete, unmodified CC BY 4.0 legal text is in LICENSE-CC-BY-4.0.
+Canonical license: https://creativecommons.org/licenses/by/4.0/
+
+Credit the work and creator, retain supplied applicable copyright,
+license and disclaimer notices, provide a link to the license and source
+where reasonably practicable, and indicate changes as the license requires.
+A suggested credit is:
+
+  Message in a Bottle by Austen Tucker-Crowder,
+  https://github.com/Arcadesys/message-in-a-bottle,
+  licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
+  Changes: [describe your changes].
+
+CC BY 4.0 permits copying, adaptation and redistribution, including
+commercial reuse. No additional noncommercial restriction applies to the
+covered original contributions. The standard license terms control.
+
+Exclusions and the Savage Worlds fan edition
+-------------------------------------------
+Neither grant licenses rights the licensor does not hold. Excluded
+material includes Pinnacle Entertainment Group's Savage Worlds/SWADE
+rulebook text and other protected material, settings, logos and trademarks;
+app/assets/savage-worlds-fan.png and its identical copy in
+app/illustrated-guide/images/savage-worlds-fan.png; and any other third-party text, artwork,
+fonts or assets. Such material retains its own permissions and notices.
+The grants apply only to separable original contributions within mixed
+files, HTML, PDFs and the release ZIP. A bundled copy of excluded material
+does not become licensed under MIT or CC BY 4.0.
+
+The author's separate novels and private player materials are not covered.
+The tabletop remix's original contributions in this release are covered
+only as stated above. No endorsement or official Pinnacle approval is
+implied.
+
+The assembled Savage Worlds fan edition remains free under Pinnacle's
+separate, applicable Fan License:
+https://shop.peginc.com/pages/licensing
+
+Anyone publishing a Savage Worlds version must independently comply with
+Pinnacle's terms. The Fan License grants non-assignable permission to
+reference the system; it requires the unaltered fan logo on the front
+display and the notice below, prohibits charging or accepting compensation
+for the fan product, prohibits reproducing copyrighted works without
+express written permission, and excludes Pinnacle settings and other
+licensed properties. Pinnacle may change or revoke its permission.
+Commercial reuse of covered original contributions does not authorize
+selling this Savage Worlds package or using Pinnacle's protected material,
+branding or settings. This describes separate third-party requirements;
+it adds no restriction to MIT or CC BY 4.0 for covered original material.
+
+Required Savage Worlds fan notice
+--------------------------------
+This game references the Savage Worlds game system, available from Pinnacle
+Entertainment Group at www.peginc.com. Savage Worlds and all associated
+logos and trademarks are copyrights of Pinnacle Entertainment Group. Used
+with permission. Pinnacle makes no representation or warranty as to the
+quality, viability, or suitability for purpose of this product.

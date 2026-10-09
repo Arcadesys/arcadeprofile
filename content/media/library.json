@@ -144,6 +144,21 @@
       "addedAt": "2026-10-02T19:53:38.079Z"
     },
     {
+      "id": "message-in-a-bottle-archipelago",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/4953ba72c207071736ae206375630608536159bf4a62bf0c072f0fddb9f52228/primordial-archipelago.webp",
+      "sha256": "4953ba72c207071736ae206375630608536159bf4a62bf0c072f0fddb9f52228",
+      "mimeType": "image/webp",
+      "byteSize": 211056,
+      "width": 1672,
+      "height": 941,
+      "alt": "Fragments of reality float above a glowing primordial sea of fog",
+      "caption": "Message in a Bottle illustration produced with human-directed AI tools.",
+      "usedIn": [
+        "message-in-a-bottle"
+      ],
+      "addedAt": "2026-10-09T15:45:50.420Z"
+    },
+    {
       "id": "message-in-a-bottle-chicago",
       "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/c27d67a975531691181382d40f8880d28ace40c941551e76021ee38be37b387b/chicago-snowglobe.webp",
       "sha256": "c27d67a975531691181382d40f8880d28ace40c941551e76021ee38be37b387b",
@@ -157,6 +172,36 @@
         "message-in-a-bottle"
       ],
       "addedAt": "2026-10-09T15:33:00.189Z"
+    },
+    {
+      "id": "message-in-a-bottle-fan-logo",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/3a54347241721cff5891cde5a38cbfff54aeeb76257136b774948b81ccf9dd76/savage-worlds-fan.png",
+      "sha256": "3a54347241721cff5891cde5a38cbfff54aeeb76257136b774948b81ccf9dd76",
+      "mimeType": "image/png",
+      "byteSize": 1904963,
+      "width": 4500,
+      "height": 3000,
+      "alt": "Savage Worlds Fan logo",
+      "caption": "Pinnacle Entertainment Group fan logo, reproduced unchanged under the Savage Worlds Fan License.",
+      "usedIn": [
+        "message-in-a-bottle"
+      ],
+      "addedAt": "2026-10-09T15:45:51.577Z"
+    },
+    {
+      "id": "message-in-a-bottle-maze",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/0ef1a7e0266b68f228f7bd14ef145f7cd9562b1ade3ea945c9ea056f6b6d0a79/thompson-maze.webp",
+      "sha256": "0ef1a7e0266b68f228f7bd14ef145f7cd9562b1ade3ea945c9ea056f6b6d0a79",
+      "mimeType": "image/webp",
+      "byteSize": 452804,
+      "width": 1672,
+      "height": 941,
+      "alt": "The Thompson Center atrium folds into impossible corridors, balconies, and a security checkpoint",
+      "caption": "Message in a Bottle illustration produced with human-directed AI tools.",
+      "usedIn": [
+        "message-in-a-bottle"
+      ],
+      "addedAt": "2026-10-09T15:45:49.231Z"
     },
     {
       "id": "moral-panic-mob",
