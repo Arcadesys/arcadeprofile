@@ -34,7 +34,7 @@
     "@tailwindcss/typography": "^0.5.20",
     "@vercel/analytics": "^1.6.1",
     "@vercel/blob": "^2.8.0",
-    "dotenv": "^18.0.3",
+    "dotenv": "^18.0.5",
     "feed": "^5.2.0",
     "gray-matter": "^4.0.3",
     "jose": "^6.2.12",
