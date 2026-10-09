@@ -95,7 +95,9 @@ That was the point of making it.
 
 ## So I'm opening the notebook
 
-The campaign was called *Message in a Bottle*. It was built for Savage Worlds. I have been thinking about publishing the GM-facing material as an archive of the adventure that might have been, with all the spoilers left in. I've started [The Game You Didn't Play](/the-game-you-didnt-play.html), an archival companion that will need the original scenario notes before it can honestly disclose the full story.
+The campaign was called *Message in a Bottle*. It was built for Savage Worlds. I've published [Message in a Bottle: GM Guide](https://message-in-a-bottle-alpha.vercel.app/), an illustrated guide to the planned campaign, with full GM spoilers. It follows the eight planned gatherings and includes encounter expansions, stat blocks, and branching possibilities. New mechanics are marked as optional and unplaytested.
+
+If this campaign appeals to you, [reach out](/bio)! I haven’t refined it into a fully print-and-play module yet, but if there’s interest, I’d love to take it the rest of the way.
 
 Not as revenge against a person who declined a game. Nobody deserves to be singled out for deciding what they want to participate in.
 
@@ -125,4 +127,4 @@ And somewhere in the middle, perhaps, we can stop having the entire conversation
 
 ---
 
-*Process note: This essay was developed with AI assistance and human editorial direction. The linked campaign archive is being assembled from original notes; any planned plot details will be identified as plans, not events that actually occurred at a table.*
+*Process note: This essay was developed with AI assistance and human editorial direction. The linked guide distinguishes original campaign plans from new, unplaytested game material. Its scenes and possible outcomes are preparations for play.*
