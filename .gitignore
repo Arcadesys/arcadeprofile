@@ -4,6 +4,7 @@
 **/node_modules/
 /dist
 /build
+/chat-app/dist/
 .env
 .env.local
 .env.*.local
