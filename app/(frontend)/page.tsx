@@ -51,7 +51,7 @@ export default async function HomePage() {
           <div className={styles.heroCopy}>
             <p className={styles.byline}>Stories by Austen Tucker</p>
             <h1 className={styles.title}>Everything here used to be something else.</h1>
-            <p className={styles.subhead}>Speculative fiction, essays, and build notes by Austen Tucker.</p>
+            <p className={styles.subhead}>Stories about people who were told no, and what they built anyway.</p>
             <div className={styles.heroActions}>
               <Link className={styles.button} href="/start">Start Here <span aria-hidden="true">→</span></Link>
               <Link className={styles.latestLink} href="/latest">Latest <span aria-hidden="true">→</span></Link>
