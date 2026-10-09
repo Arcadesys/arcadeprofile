@@ -1,5 +1,7 @@
 # Public analytics payload contract (issue 292)
 
+The proposed bounded engagement/request-stage extension is documented in [engagement and conversions](engagement-and-conversions.md), preserving this eligibility and privacy boundary.
+
 This is a code-only reduction of existing analytics. It installs no provider,
 changes no dashboard/configuration/retention, and makes no subscriber writes.
 Do not merge or deploy this draft as part of validation without approval.

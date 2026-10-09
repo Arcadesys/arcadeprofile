@@ -1,11 +1,28 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { captureSiteEvent, captureMffEvent } from './posthog-client';
+import { captureSiteEvent, captureMffEvent, createEngagementSender } from './posthog-client';
 import { isAnalyticsId, sanitizeAnalyticsPayload } from './analytics-payload';
-import { isAnalyticsSessionId, readAnalyticsSession, SESSION_IDLE_MS } from './analytics-session';
+import { isAnalyticsSessionId, readAnalyticsSession, SESSION_IDLE_MS, SESSION_MAX_MS } from './analytics-session';
 import { analyticsBrowser } from './fixtures/analytics-browser';
 
 const id = '9e833036-9f38-44d9-9d26-3d9c1b332f94';
+
+test('reading flush keeps original page/session/campaign after navigation and blocked storage', (t) => {
+  const path = '/novels/it-takes-a-zoo/cold-boot';
+  const dom = analyticsBrowser(t, `${path}?utm_campaign=analytics-verification`);
+  const sent: { properties: Record<string, unknown> }[] = [];
+  t.mock.method(globalThis, 'fetch', async (_url: string, init: RequestInit) => { assert.equal(init.keepalive, true); sent.push(JSON.parse(String(init.body))); return new Response('{}'); });
+  const send = createEngagementSender({ canonicalId: path, contentType: 'chapter', placement: 'reader-body', destination: 'none' });
+  send({ active_seconds: 30, depth_percent: 25, engagement_checkpoint: '30s', engagement_version: 'visible_active_v1' });
+  Object.defineProperty(window, 'sessionStorage', { get: () => { throw new Error('blocked'); } });
+  dom.reconfigure({ url: 'https://www.thearcades.me/subscribe/verify#private-token' });
+  send({ active_seconds: 40, depth_percent: 75, engagement_checkpoint: 'final', engagement_version: 'visible_active_v1' });
+  assert.equal(sent.length, 2);
+  assert.equal(sent[1].properties.pathname, path);
+  assert.equal(sent[1].properties.$session_id, sent[0].properties.$session_id);
+  assert.equal(sent[1].properties.utm_campaign, 'analytics-verification');
+  assert.ok(!JSON.stringify(sent).includes('private-token'));
+});
 
 test('client sanitizes storage, preserves valid existing IDs/session and current context wins', (t) => {
   analyticsBrowser(t, '/stories?email=private#token');
@@ -106,4 +123,24 @@ test('receiver sanitizer accepts UUIDv7 sessions without accepting v7 visitor id
   // Validate exactly the shared boundary used by the HTTP receiver.
   assert.equal(sanitizeAnalyticsPayload({ event: '$pageview', distinct_id: id, properties }, 'sitewide')?.properties.$session_id, session.id);
   assert.equal(sanitizeAnalyticsPayload({ event: '$pageview', distinct_id: session.id, properties }, 'sitewide'), null);
+});
+
+
+test('frozen reading summaries expire at the original session limit and reject clock rollback', (t) => {
+  const path = '/novels/it-takes-a-zoo/cold-boot';
+  analyticsBrowser(t, path);
+  const original = 1_790_000_000_000;
+  let now = original;
+  t.mock.method(Date, 'now', () => now);
+  const fetch = t.mock.method(globalThis, 'fetch', async () => new Response('{}'));
+  const send = createEngagementSender({ canonicalId: path, contentType: 'chapter', placement: 'reader-body', destination: 'none' });
+  const snapshot = { active_seconds: 40, depth_percent: 50, engagement_checkpoint: 'final', engagement_version: 'visible_active_v1' } as const;
+  now = original - 1; send(snapshot);
+  now = original + SESSION_MAX_MS; send(snapshot);
+  assert.equal(fetch.mock.calls.length, 0);
+  now = original + 1000; send(snapshot);
+  assert.equal(fetch.mock.calls.length, 1);
+  assert.equal(JSON.parse(window.sessionStorage.getItem('arcade-posthog-session-v2')!).lastActivityAt, now);
+  now += SESSION_IDLE_MS; send(snapshot);
+  assert.equal(fetch.mock.calls.length, 1);
 });

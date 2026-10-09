@@ -101,6 +101,7 @@ function EnabledSubscriptionForm({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (pending || complete) return;
     if (selected.size === 0) {
       setError('Choose at least one email list.');
       return;
@@ -108,6 +109,8 @@ function EnabledSubscriptionForm({
 
     setPending(true);
     setError('');
+    const requestContext = { canonicalId: window.location.pathname, contentType: 'subscription', placement: source, destination: 'none' };
+    trackReaderEvent('signup-request', requestContext);
     try {
       const readingLink = readingLinkFor(selected);
       const payload = await submitSubscription(
@@ -131,6 +134,7 @@ function EnabledSubscriptionForm({
         ? 'Your request is recorded. Check your inbox; if no confirmation arrives, try again in 10 minutes.'
         : successMessage);
       if (payload.partial && payload.submitted && payload.failed?.length) {
+        trackReaderEvent('signup-failed', requestContext);
         setSelected(new Set(payload.failed));
         setError(
           `${payload.submitted.length ? `Confirmation requests were sent for ${audienceNames(payload.submitted)}. ` : `${payload.error ?? 'No email lists were selected.'} `}`
@@ -143,6 +147,7 @@ function EnabledSubscriptionForm({
       setDownloads(postSuccessDownload ? [postSuccessDownload, ...magnetDownloads] : magnetDownloads);
       setComplete(true);
     } catch (cause) {
+      trackReaderEvent('signup-failed', requestContext);
       setError(cause instanceof Error ? cause.message : 'Could not subscribe right now. Please try again.');
     } finally {
       setPending(false);

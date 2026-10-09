@@ -1,5 +1,7 @@
 # Sitewide PostHog session contract
 
+The proposed engagement/conversion extension is documented in [engagement and conversions](engagement-and-conversions.md); its versioned estimates and additional request stages take effect only after an approved release.
+
 The sitewide HTTP collector sends UUIDv7 `$session_id` values. PostHog requires UUIDv7 for custom sessions and a maximum 24-hour lifetime ([custom session IDs](https://posthog.com/docs/data/sessions#custom-session-ids)). The existing UUIDv4 `arcade-posthog-anonymous-id` visitor identity remains unchanged, independent of other sites. No identify, alias, replay, fingerprinting or cross-site joining is added.
 
 `arcade-posthog-session-v2` stores `{version:2,id,startedAt,lastActivityAt}` in tab-local session storage. IDs encode creation time and rotate on the first permitted event after 30 minutes without a captured event, at 24 hours, on invalid state or on clock rollback. Passive reading is not activity for this timer. Session state is updated only by existing allowlisted events. The tab's separate UUIDv4 `arcade-posthog-window-id` survives session rotations. Entry page/referrer/campaign attribution resets with a new session. Unavailable storage uses in-memory session state for the page lifetime; visitor fallback remains ephemeral as before.

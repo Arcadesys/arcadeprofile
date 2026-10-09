@@ -27,6 +27,11 @@ export function PostHogAnalytics() {
       const href = link.getAttribute('href');
       if (!href) return;
 
+      if (href.toLowerCase().startsWith('mailto:')) {
+        captureSiteEvent('site link clicked', { link_kind: 'contact' });
+        return;
+      }
+
       try {
         const url = new URL(href, window.location.href);
         if (!['http:', 'https:'].includes(url.protocol)) return;
@@ -39,6 +44,8 @@ export function PostHogAnalytics() {
               : undefined,
           link_kind: url.hostname === window.location.hostname ? 'internal' : 'external',
           destination_host: url.hostname,
+          destination_kind: url.origin === 'https://work.thearcades.me' && url.pathname === '/resume' ? 'resume'
+            : url.origin === 'https://work.thearcades.me' && url.pathname === '/resume.pdf' ? 'resume_pdf' : undefined,
         });
       } catch {
         // Malformed destinations are not useful to the reader-path report.
