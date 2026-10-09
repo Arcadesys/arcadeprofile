@@ -1,6 +1,6 @@
 ---
 id: you-dont-get-to-choose-my-tools
-title: You Don't Get to Choose My Tools
+title: You don't get to choose my paintbrush
 slug: you-dont-get-to-choose-my-tools
 group: the-singularity-log
 publishDate: '2026-10-09T04:00:00Z'
@@ -15,7 +15,7 @@ tags:
   - art
   - authorship
 seo:
-  title: You Don't Get to Choose My Tools
+  title: You don't get to choose my paintbrush
   description: >-
     A tabletop campaign, hours of human work, and the difference between saying
     no to a game and dictating the tools its creator may use.

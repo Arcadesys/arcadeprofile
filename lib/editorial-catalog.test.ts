@@ -81,7 +81,8 @@ test('default public catalog covers every Markdown fiction and writing post', as
   assert.deepEqual(catalog.fiction.map((group) => group.slug), ['it-takes-a-zoo']);
   assert.equal(catalog.fiction[0]?.posts[0]?.slug, 'it-takes-a-zoo-to-raise-the-child');
   assert.ok(catalog.essays.length > 0, 'the public catalog should contain essay groups');
-  assert.equal(catalog.essays.flatMap((group) => group.posts).length, 37);
+  assert.equal(catalog.essays.flatMap((group) => group.posts).length, 38);
+  assert.ok(catalog.essays.some((group) => group.slug === 'the-singularity-log' && group.posts.some((post) => post.slug === 'you-dont-get-to-choose-my-tools')));
   assert.ok(catalog.essays.some((group) => group.slug === 'queer-columns' && group.posts.some((post) => post.slug === 'the-safe-door')));
   assert.deepEqual(catalogSlugs, expectedSlugs);
 });

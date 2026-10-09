@@ -105,7 +105,7 @@ test('loader rejects filename and directory disagreement, duplicate ids and slug
   assert.throws(() => loadMarkdownPosts({ contentDirectory: fixture('empty-body') }), /nonempty Markdown body/);
 });
 
-test('checked-in public corpus contains 37 essays, the restored Zoo poem, and the sticker release', () => {
+test('checked-in public corpus contains 38 essays, the restored Zoo poem, and the sticker release', () => {
   const contentDirectory = path.join(process.cwd(), 'content', 'posts');
   const posts = loadMarkdownPosts({ contentDirectory });
   const groups = loadMarkdownGroups({ contentDirectory });
@@ -120,9 +120,13 @@ test('checked-in public corpus contains 37 essays, the restored Zoo poem, and th
     'white-cane-chronicles',
   ];
 
-  assert.equal(posts.length, 39);
+  assert.equal(posts.length, 40);
   assert.deepEqual(groups.map((group) => group.slug).sort(), [...essayGroups, 'it-takes-a-zoo', 'reaction-stickers'].sort());
-  assert.equal(posts.filter((post) => essayGroups.includes(post.group)).length, 37);
+  assert.equal(posts.filter((post) => essayGroups.includes(post.group)).length, 38);
+  const paintbrushEssay = posts.find((post) => post.group === 'the-singularity-log' && post.slug === 'you-dont-get-to-choose-my-tools');
+  assert.ok(paintbrushEssay);
+  assert.equal(paintbrushEssay.title, "You don't get to choose my paintbrush");
+  assert.equal(paintbrushEssay.seo?.title, paintbrushEssay.title);
   assert.equal(posts.some((post) => post.group === 'the-singularity-log' && post.slug === 'when-art-gets-cheap-enough-to-waste'), true);
   assert.equal(posts.some((post) => post.group === 'queer-columns' && post.slug === 'the-safe-door'), true);
   assert.equal(posts.some((post) => post.slug === 'it-takes-a-zoo-to-raise-the-child'), true);
