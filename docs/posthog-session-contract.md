@@ -1,0 +1,19 @@
+# Sitewide PostHog session contract
+
+The sitewide HTTP collector sends UUIDv7 `$session_id` values. PostHog requires UUIDv7 for custom sessions and a maximum 24-hour lifetime ([custom session IDs](https://posthog.com/docs/data/sessions#custom-session-ids)). The existing UUIDv4 `arcade-posthog-anonymous-id` visitor identity remains unchanged, independent of other sites. No identify, alias, replay, fingerprinting or cross-site joining is added.
+
+`arcade-posthog-session-v2` stores `{version:2,id,startedAt,lastActivityAt}` in tab-local session storage. IDs encode creation time and rotate on the first permitted event after 30 minutes without a captured event, at 24 hours, on invalid state or on clock rollback. Passive reading is not activity for this timer. Session state is updated only by existing allowlisted events. The tab's separate UUIDv4 `arcade-posthog-window-id` survives session rotations. Entry page/referrer/campaign attribution resets with a new session. Unavailable storage uses in-memory session state for the page lifetime; visitor fallback remains ephemeral as before.
+
+Existing UUIDv4 session storage is ignored by the new client. The receiver continues accepting legacy UUIDv4 session/window receipts during rollout and preserves raw visitor IDs, event names, production hostname and historical events. It derives `session_model=tab_uuidv7_v2` for UUIDv7 receipts and `legacy_v1` otherwise. Do not rewrite or backfill historical events. Rolling back the client leaves the old key available and legacy receipts still accepted.
+
+Historical main/hack UUIDv4 sessions did not populate native session reports. Their pageviews and raw session IDs remain historical observations, but native session counts, duration and bounce before/after this boundary are not directly comparable. Work already uses SDK-managed UUIDv7 sessions and has session-storage-only identity: do not combine its visitor counts with the creative site's persistent visitor identity. Record the actual production cutover time after release; a PR or successful build is not live verification.
+
+Pageleave and broad autocapture remain disabled. Native duration is at best the interval between observed events, not active reading time, and bounce is not a reliable engagement outcome with this sparse event contract. Use existing `reading-start`, `end-reached` and `onward-reading` with their documented trigger meanings instead. `end-reached` does not prove finished reading; `resume-click` means resume reading, not résumé navigation. Subscription request acceptance does not prove confirmed subscription. MFF has a separate overlapping stream: never sum its pageviews with sitewide pageviews. The raw canonical production host remains `www.thearcades.me`; historical host filters should explicitly include verified aliases where applicable.
+
+## Verification after an approved release
+
+1. Record deployed commit and UTC cutover time. Open a known public essay and navigate to another public page in the same tab, using no personal query values.
+2. Confirm one sitewide pageview per intended pathname transition, a stable visitor ID and UUIDv7 session ID, separate window ID, safe reconstructed URL, and `session_model=tab_uuidv7_v2`. Confirm native session receipt after ingestion settles; inspect saved/rendered reports separately.
+3. Verify existing public reader and onward-reading actions retain their names. Use mocked signup responses for acceptance-stage tests; do not send email or submit a live signup for this smoke test.
+4. Check no capture on verification/unsubscribe/private/unknown paths or preview hosts. Confirm blocked storage/analytics leaves navigation usable. Do not export raw visitor IDs or payloads in release evidence.
+5. Compare complete UTC periods by hostname and collection version, preserving the pre-release raw-event baseline. Do not claim improved engagement from the session coverage correction alone.

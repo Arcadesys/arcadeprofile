@@ -1,11 +1,14 @@
 'use client';
 
 import { buildSiteAnalyticsContext, canCaptureBrowserAnalytics } from '@/lib/site-analytics';
+import { readAnalyticsSession, type AnalyticsSession } from '@/lib/analytics-session';
 import { buildFreshEntryContext, isAnalyticsId, sanitizeAnalyticsPayload, sanitizeEntryContext, type AnalyticsSurface } from '@/lib/analytics-payload';
 
 const STORAGE_KEY = 'arcade-posthog-anonymous-id';
-const SESSION_KEY = 'arcade-posthog-session-id';
+const SESSION_KEY = 'arcade-posthog-session-v2';
+const WINDOW_KEY = 'arcade-posthog-window-id';
 const ENTRY_KEY = 'arcade-posthog-entry';
+const sessions = new WeakMap<Window, AnalyticsSession>();
 
 function getId(storage: 'localStorage' | 'sessionStorage', key: string) {
   try {
@@ -19,11 +22,11 @@ function getId(storage: 'localStorage' | 'sessionStorage', key: string) {
   }
 }
 
-function buildEntryContext() {
+function buildEntryContext(rotated: boolean) {
   let entry;
   try {
     const saved = window.sessionStorage.getItem(ENTRY_KEY);
-    if (saved) {
+    if (saved && !rotated) {
       const sanitized = sanitizeEntryContext(JSON.parse(saved));
       if (sanitized.landing_page) entry = sanitized;
     }
@@ -37,11 +40,21 @@ function capture(event: string, properties: Record<string, unknown>, surface: An
   if (!canCaptureBrowserAnalytics()) return;
   const context = buildSiteAnalyticsContext(window.location.pathname, window.location.href);
   if (!context || (surface === 'mff_manifesto' && context.pathname !== '/mff')) return;
-  const sessionId = surface === 'sitewide' ? getId('sessionStorage', SESSION_KEY) : undefined;
-  const entry = surface === 'sitewide' ? buildEntryContext() : {};
+  let sessionId: string | undefined;
+  let windowId: string | undefined;
+  let entry = {};
+  if (surface === 'sitewide') {
+    let storage: Storage | null = null;
+    try { storage = window.sessionStorage; } catch { /* Use tab memory. */ }
+    const { session, rotated } = readAnalyticsSession(storage, SESSION_KEY, sessions.get(window));
+    sessions.set(window, session);
+    sessionId = session.id;
+    windowId = getId('sessionStorage', WINDOW_KEY);
+    entry = buildEntryContext(rotated);
+  }
   const payload = sanitizeAnalyticsPayload({
     distinct_id: getId('localStorage', STORAGE_KEY), event,
-    properties: { ...properties, ...entry, ...context, $session_id: sessionId, $window_id: sessionId },
+    properties: { ...properties, ...entry, ...context, $session_id: sessionId, $window_id: windowId },
   }, surface);
   if (!payload) return;
   void fetch(surface === 'sitewide' ? '/api/analytics/posthog' : '/api/analytics/mff', {

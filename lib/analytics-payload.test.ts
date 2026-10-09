@@ -22,7 +22,7 @@ test('shared context strips arbitrary properties, person updates, full URLs and 
   assert.ok(result);
   assert.deepEqual(result.properties, {
     $referrer: 'https://example.com', referring_domain: 'example.com', utm_source: 'thearcades', utm_campaign: 'professional_handoff', utm_content: 'home_header',
-    pathname: '/stories', $pathname: '/stories', $host: 'www.thearcades.me', $current_url: `${site}/stories`, hostname: 'www.thearcades.me', analytics_surface: 'sitewide', $session_id: id, $window_id: id,
+    pathname: '/stories', $pathname: '/stories', $host: 'www.thearcades.me', $current_url: `${site}/stories`, hostname: 'www.thearcades.me', analytics_surface: 'sitewide', $session_id: id, $window_id: id, session_model: 'legacy_v1',
   });
   for (const content of ['home_header', 'home_entry', 'start_entry']) assert.equal(sanitizeEntryContext({ utm_campaign: 'professional_handoff', utm_content: content }).utm_content, content);
   for (const value of [null, [], 'secret', { landing_page: '/unknown', $session_id: 'forged', utm_source: 'a'.repeat(65), $referrer: 'javascript:secret' }]) assert.deepEqual(sanitizeEntryContext(value), {});

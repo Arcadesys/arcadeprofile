@@ -2,6 +2,7 @@ import mffLabels from '@/data/analytics-mff-labels.json';
 import { ANALYTICS_ORIGIN, buildSiteAnalyticsContext, publicAnalyticsPath } from '@/lib/site-analytics';
 import { VALID_SOURCES } from '@/lib/subscribe-types';
 import { POST_CANONICAL_EDITIONS } from '@/lib/post-canonical';
+import { isAnalyticsSessionId } from '@/lib/analytics-session';
 
 export type AnalyticsSurface = 'sitewide' | 'mff_manifesto';
 export type AnalyticsProperties = Record<string, string | number | boolean>;
@@ -129,7 +130,9 @@ export function sanitizeAnalyticsPayload(value: unknown, surface: AnalyticsSurfa
   for (const key of ['hostname', '$host']) if (input[key] !== undefined && input[key] !== context.$host) return null;
   const properties: AnalyticsProperties = { ...sanitizeEntryContext(input, surface), ...context, hostname: context.$host, analytics_surface: surface };
   if (surface === 'sitewide') {
-    for (const key of ['$session_id', '$window_id']) if (isAnalyticsId(input[key])) properties[key] = input[key];
+    // Preserve legacy receipts during rollout without changing visitor IDs.
+    for (const key of ['$session_id', '$window_id']) if (isAnalyticsId(input[key]) || isAnalyticsSessionId(input[key])) properties[key] = input[key];
+    properties.session_model = isAnalyticsSessionId(input.$session_id) ? 'tab_uuidv7_v2' : 'legacy_v1';
     if (payload.event === 'site link clicked') Object.assign(properties, sanitizeAnalyticsLink(input, surface));
     else if (payload.event !== '$pageview') {
       const reader = sanitizeReaderProperties(input);
