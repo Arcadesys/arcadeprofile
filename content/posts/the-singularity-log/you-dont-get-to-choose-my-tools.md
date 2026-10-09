@@ -95,7 +95,7 @@ That was the point of making it.
 
 ## So I'm opening the notebook
 
-The campaign was called *Message in a Bottle*. It was built for Savage Worlds. I have been thinking about publishing the GM-facing material as an archive of the adventure that might have been, with all the spoilers left in.
+The campaign was called *Message in a Bottle*. It was built for Savage Worlds. I have been thinking about publishing the GM-facing material as an archive of the adventure that might have been, with all the spoilers left in. I've started [The Game You Didn't Play](/the-game-you-didnt-play.html), an archival companion that will need the original scenario notes before it can honestly disclose the full story.
 
 Not as revenge against a person who declined a game. Nobody deserves to be singled out for deciding what they want to participate in.
 
