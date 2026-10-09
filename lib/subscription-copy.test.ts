@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { endOfPieceCopy } from './subscription-copy';
 
-const scope = "Join All Writing for stories, essays, and build notes when they're ready.";
+const scope = "Join All Writing for stories and essays when they're ready.";
 
 test('active series keeps its supplied count and discloses All Writing without promising a next installment', () => {
   assert.equal(

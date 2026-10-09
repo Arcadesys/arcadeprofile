@@ -18,7 +18,7 @@ const entries: Array<{ label: string; path: string; props: Props }> = [
   { label: 'portfolio piece', path: '/portfolio/a-story', props: { audience: 'fiction', source: 'portfolio-piece-end', kind: 'story' } },
   { label: 'Lab case study', path: '/lab/a-build', props: { audience: 'lab', source: 'lab-case-study-end', kind: 'build note' } },
 ];
-const scope = "Join All Writing for stories, essays, and build notes when they're ready.";
+const scope = "Join All Writing for stories and essays when they're ready.";
 
 describe('end-of-piece All Writing disclosure', () => {
   beforeEach(() => {
