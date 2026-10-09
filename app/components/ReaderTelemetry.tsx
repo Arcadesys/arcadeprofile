@@ -3,6 +3,8 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 
 import { useReaderEventTracker, type ReaderTelemetryProps } from '@/lib/reader-analytics';
+import { observeReading } from '@/lib/reading-engagement';
+import { createEngagementSender } from '@/lib/posthog-client';
 
 type Props = ReaderTelemetryProps & {
   children: ReactNode;
@@ -22,6 +24,7 @@ export default function ReaderTelemetry({
   destination,
 }: Props) {
   const endMarkerRef = useRef<HTMLSpanElement>(null);
+  const startMarkerRef = useRef<HTMLSpanElement>(null);
   const trackReaderEvent = useReaderEventTracker();
 
   useEffect(() => {
@@ -44,8 +47,17 @@ export default function ReaderTelemetry({
     return () => observer.disconnect();
   }, [canonicalId, contentType, destination, endPlacement, placement, trackReaderEvent]);
 
+  useEffect(() => {
+    const start = startMarkerRef.current;
+    const end = endMarkerRef.current;
+    if (!start || !end) return;
+    return observeReading({ window, document, bounds: () => ({ top: start.getBoundingClientRect().top, bottom: end.getBoundingClientRect().bottom }),
+      send: createEngagementSender({ canonicalId, contentType, placement, destination }) });
+  }, [canonicalId, contentType, destination, placement]);
+
   return (
     <>
+      <span ref={startMarkerRef} aria-hidden="true" data-reader-telemetry-start style={{ display: 'block', width: 1, height: 1 }} />
       {children}
       <span
         ref={endMarkerRef}

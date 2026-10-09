@@ -1,5 +1,7 @@
 # Reader funnel scorecard
 
+For newly reviewed organic reports, exclude whole same-site sessions known to contain `utm_campaign=analytics-verification` and preserve the exact existing internal/test-account exclusions on every step. Use the shared qualified-event definition in [engagement and conversions](./engagement-and-conversions.md#whole-session-qa-and-existing-test-account-exclusion); do not overwrite historical saved cohorts.
+
 ## Event and count definitions
 
 Use PostHog events from `www.thearcades.me`, filtered to `analytics_surface=sitewide` and the requested UTC date range. Current-page eligibility is the exact public-path allowlist in `data/analytics-public-paths.json`, enforced by the browser and receiver. Verification, unsubscribe, thanks, unknown/private and preview routes are excluded. The detailed payload and eligibility contract is in [analytics-minimization.md](./analytics-minimization.md).

@@ -8,6 +8,25 @@ const site = 'https://www.thearcades.me';
 const payload = (event = '$pageview', properties: Record<string, unknown> = {}) => ({ event, distinct_id: id, properties: { $current_url: `${site}/stories?email=secret#token`, ...properties } });
 const reader = { canonicalId: '/novels/it-takes-a-zoo/cold-boot', contentType: 'chapter', placement: 'reader-body', destination: 'none' };
 
+test('engagement requires matching public content and bounded metrics; QA labels survive', () => {
+  const fields = { ...reader, $current_url: `${site}${reader.canonicalId}?utm_campaign=analytics-verification`, active_seconds: 30, depth_percent: 50, engagement_checkpoint: '30s', engagement_version: 'forged', utm_campaign: 'analytics-verification', email: 'private@example.com' };
+  const result = sanitizeAnalyticsPayload(payload('reading-engagement', fields), 'sitewide');
+  assert.equal(result?.properties.active_seconds, 30); assert.equal(result?.properties.engagement_version, 'visible_active_v1');
+  assert.equal(result?.properties.utm_campaign, 'analytics-verification'); assert.equal(result?.properties.email, undefined);
+  for (const patch of [{ active_seconds: -1 }, { depth_percent: 99 }, { engagement_checkpoint: 'unknown' }, { canonicalId: '/stories' }]) assert.equal(sanitizeAnalyticsPayload(payload('reading-engagement', { ...fields, ...patch }), 'sitewide'), null);
+});
+
+test('résumé/contact intent enrich existing link receipts without forwarding addresses; signup remains a request stage', () => {
+  const contact = sanitizeAnalyticsPayload(payload('site link clicked', { link_kind: 'contact', href: 'mailto:private@example.com?body=private', email: 'private' }), 'sitewide');
+  assert.deepEqual(Object.fromEntries(Object.entries(contact!.properties).filter(([key]) => ['link_kind', 'conversion_stage', 'href', 'destination_host'].includes(key))), { link_kind: 'contact', conversion_stage: 'contact_intent' });
+  for (const kind of ['resume', 'resume_pdf']) {
+    const result = sanitizeAnalyticsPayload(payload('site link clicked', { link_kind: 'external', destination_host: 'work.thearcades.me', destination_kind: kind }), 'sitewide');
+    assert.equal(result?.properties.conversion_stage, kind === 'resume' ? 'resume_navigation_intent' : 'resume_download_intent');
+  }
+  assert.equal(sanitizeAnalyticsPayload(payload('site link clicked', { destination_host: 'evil.test', destination_kind: 'resume_pdf' }), 'sitewide')?.properties.conversion_stage, undefined);
+  for (const [name, stage] of [['signup request submitted', 'request_intent'], ['signup request failed', 'request_failed'], ['signup confirmation requested', 'verification_request_accepted']]) assert.equal(sanitizeAnalyticsPayload(payload(name, { ...reader, conversion_stage: 'active_subscription' }), 'sitewide')?.properties.conversion_stage, stage);
+});
+
 test('event allowlist and UUID shape reject arbitrary or malformed submissions', () => {
   for (const value of [null, [], 'secret', 42, {}, payload('unknown'), { ...payload(), distinct_id: 'private@example.com' }, { ...payload(), properties: [] }]) assert.equal(sanitizeAnalyticsPayload(value, 'sitewide'), null);
 });

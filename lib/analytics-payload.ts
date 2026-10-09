@@ -3,12 +3,13 @@ import { ANALYTICS_ORIGIN, buildSiteAnalyticsContext, publicAnalyticsPath } from
 import { VALID_SOURCES } from '@/lib/subscribe-types';
 import { POST_CANONICAL_EDITIONS } from '@/lib/post-canonical';
 import { isAnalyticsSessionId } from '@/lib/analytics-session';
+import { sanitizeEngagement } from '@/lib/reading-engagement';
 
 export type AnalyticsSurface = 'sitewide' | 'mff_manifesto';
 export type AnalyticsProperties = Record<string, string | number | boolean>;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const CAMPAIGN = /^[a-z0-9_-]{1,64}$/;
-const SITE_EVENTS = new Set(['$pageview', 'site link clicked', 'reading-start', 'end-reached', 'onward-reading', 'resume-click', 'signup confirmation requested']);
+const SITE_EVENTS = new Set(['$pageview', 'site link clicked', 'reading-start', 'end-reached', 'onward-reading', 'resume-click', 'signup confirmation requested', 'signup request submitted', 'signup request failed', 'reading-engagement']);
 const MFF_EVENTS = new Set(['$pageview', 'mff page viewed', 'mff scroll reached', 'mff section viewed', 'mff exhibit viewed', 'mff link clicked', 'mff sources opened']);
 const READER_TYPES = new Set(['essay', 'fiction', 'chapter', 'reading-hub', 'subscription']);
 const READER_PLACEMENTS = new Set<string>([...VALID_SOURCES, 'reader-body', 'reader-end', 'next-chapter', 'recommended-reading', 'resume-banner']);
@@ -68,6 +69,7 @@ function safeDomain(value: unknown): string | null {
 /** External paths are unnecessary here; retain host/origin, internal public path only. */
 export function sanitizeAnalyticsLink(input: Record<string, unknown>, surface: AnalyticsSurface): AnalyticsProperties {
   const result: AnalyticsProperties = {};
+  if (surface === 'sitewide' && input.link_kind === 'contact') return { link_kind: 'contact', conversion_stage: 'contact_intent' };
   let url: URL | null = null;
   if (typeof input.href === 'string' && input.href.length <= 4096) {
     try { url = new URL(input.href, ANALYTICS_ORIGIN); } catch { /* omit invalid href */ }
@@ -87,6 +89,10 @@ export function sanitizeAnalyticsLink(input: Record<string, unknown>, surface: A
     }
   }
   if (!result.link_kind && surface === 'mff_manifesto') result.link_kind = 'other';
+  if (surface === 'sitewide' && result.destination_host === 'work.thearcades.me' && ['resume', 'resume_pdf'].includes(String(input.destination_kind))) {
+    result.destination_kind = String(input.destination_kind);
+    result.conversion_stage = input.destination_kind === 'resume_pdf' ? 'resume_download_intent' : 'resume_navigation_intent';
+  }
   return result;
 }
 
@@ -138,6 +144,13 @@ export function sanitizeAnalyticsPayload(value: unknown, surface: AnalyticsSurfa
       const reader = sanitizeReaderProperties(input);
       if (!reader) return null;
       Object.assign(properties, reader);
+      if (payload.event === 'reading-engagement') {
+        const metrics = sanitizeEngagement(input);
+        if (!metrics || reader.canonicalId !== context.pathname) return null;
+        Object.assign(properties, metrics);
+      }
+      if (payload.event.startsWith('signup ')) properties.conversion_stage = payload.event === 'signup confirmation requested'
+        ? 'verification_request_accepted' : payload.event === 'signup request submitted' ? 'request_intent' : 'request_failed';
     }
   } else {
     const addLabel = (key: keyof typeof mffLabels) => {
