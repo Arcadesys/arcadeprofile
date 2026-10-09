@@ -36,3 +36,27 @@ test("Kit broadcast is scheduled with a deduping any-tag filter", async () => {
 test("missing tag ids fail closed before a broadcast request", () => {
   assert.throws(() => getEssayTagIds({ KIT_TAG_ALL_WRITING_ID: "23851250" }), /KIT_TAG_ESSAYS_ID/);
 });
+
+
+test("Kit schedule receipts require a positive broadcast ID and an actual send timestamp", async () => {
+  for (const broadcast of [
+    undefined,
+    { id: 0, send_at: "2026-09-23T15:00:00Z" },
+    { id: -1, send_at: "2026-09-23T15:00:00Z" },
+    { id: 4.5, send_at: "2026-09-23T15:00:00Z" },
+    { id: 44 },
+    { id: 44, send_at: null },
+    { id: 44, send_at: "not-a-date" },
+    { id: 44, send_at: 123 },
+  ]) {
+    await assert.rejects(createAndScheduleKitBroadcast({
+      apiKey: "test-key",
+      subject: "Essay",
+      description: "Essay: Essay",
+      content: "<p>Body</p>",
+      tagIds: [1, 2],
+      sendAt: "2026-09-23T15:00:00.000Z",
+      fetchImpl: async () => Response.json({ broadcast }, { status: 201 }),
+    }), /invalid broadcast receipt/);
+  }
+});

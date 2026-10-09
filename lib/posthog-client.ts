@@ -1,110 +1,76 @@
 'use client';
 
-import { buildSiteAnalyticsContext } from '@/lib/site-analytics';
+import { buildSiteAnalyticsContext, canCaptureBrowserAnalytics } from '@/lib/site-analytics';
+import { readAnalyticsSession, type AnalyticsSession } from '@/lib/analytics-session';
+import { buildFreshEntryContext, isAnalyticsId, sanitizeAnalyticsPayload, sanitizeEntryContext, type AnalyticsSurface } from '@/lib/analytics-payload';
 
 const STORAGE_KEY = 'arcade-posthog-anonymous-id';
-const SESSION_KEY = 'arcade-posthog-session-id';
+const SESSION_KEY = 'arcade-posthog-session-v2';
+const WINDOW_KEY = 'arcade-posthog-window-id';
 const ENTRY_KEY = 'arcade-posthog-entry';
-const SAFE_CAMPAIGN_VALUE = /^[a-z0-9_-]{1,64}$/;
+const sessions = new WeakMap<Window, AnalyticsSession>();
 
-function getDistinctId() {
+function getId(storage: 'localStorage' | 'sessionStorage', key: string) {
   try {
-    const existing = window.localStorage.getItem(STORAGE_KEY);
-    if (existing) return existing;
+    const existing = window[storage].getItem(key);
+    if (isAnalyticsId(existing)) return existing;
     const created = crypto.randomUUID();
-    window.localStorage.setItem(STORAGE_KEY, created);
+    window[storage].setItem(key, created);
     return created;
   } catch {
     return crypto.randomUUID();
   }
 }
 
-function getSessionId() {
-  try {
-    const existing = window.sessionStorage.getItem(SESSION_KEY);
-    if (existing) return existing;
-    const created = crypto.randomUUID();
-    window.sessionStorage.setItem(SESSION_KEY, created);
-    return created;
-  } catch {
-    return crypto.randomUUID();
-  }
-}
-
-function buildEntryContext() {
+function buildEntryContext(rotated: boolean) {
+  let entry;
   try {
     const saved = window.sessionStorage.getItem(ENTRY_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved) as Record<string, unknown>;
-      return parsed;
+    if (saved && !rotated) {
+      const sanitized = sanitizeEntryContext(JSON.parse(saved));
+      if (sanitized.landing_page) entry = sanitized;
     }
-  } catch {
-    // Fall through to a fresh entry context.
-  }
-
-  const entry: Record<string, string> = {
-    landing_page: window.location.pathname,
-  };
-
-  try {
-    if (document.referrer) {
-      const referrer = new URL(document.referrer);
-      if (referrer.protocol === 'http:' || referrer.protocol === 'https:') {
-        entry.$referrer = referrer.origin;
-        entry.referring_domain = referrer.hostname;
-      }
-    }
-  } catch {
-    // Invalid referrers are simply ignored.
-  }
-
-  try {
-    const params = new URL(window.location.href).searchParams;
-    for (const key of ['source', 'medium', 'campaign', 'content', 'term']) {
-      const value = params.get(`utm_${key}`)?.toLowerCase();
-      if (value && SAFE_CAMPAIGN_VALUE.test(value)) entry[`utm_${key}`] = value;
-    }
-  } catch {
-    // Malformed URLs cannot contribute campaign context.
-  }
-
-  try {
-    window.sessionStorage.setItem(ENTRY_KEY, JSON.stringify(entry));
-  } catch {
-    // Analytics remains best-effort when session storage is unavailable.
-  }
-
+  } catch { /* Fall through to fresh, sanitized entry context. */ }
+  entry ??= buildFreshEntryContext(window.location.href, document.referrer);
+  try { window.sessionStorage.setItem(ENTRY_KEY, JSON.stringify(entry)); } catch { /* Best effort. */ }
   return entry;
 }
 
-/** Only page and UI context belongs here; never pass form values or token URLs. */
-export function captureSiteEvent(event: string, properties: Record<string, unknown> = {}) {
+function capture(event: string, properties: Record<string, unknown>, surface: AnalyticsSurface) {
+  if (!canCaptureBrowserAnalytics()) return;
   const context = buildSiteAnalyticsContext(window.location.pathname, window.location.href);
-  if (!context) return;
+  if (!context || (surface === 'mff_manifesto' && context.pathname !== '/mff')) return;
+  let sessionId: string | undefined;
+  let windowId: string | undefined;
+  let entry = {};
+  if (surface === 'sitewide') {
+    let storage: Storage | null = null;
+    try { storage = window.sessionStorage; } catch { /* Use tab memory. */ }
+    const { session, rotated } = readAnalyticsSession(storage, SESSION_KEY, sessions.get(window));
+    sessions.set(window, session);
+    sessionId = session.id;
+    windowId = getId('sessionStorage', WINDOW_KEY);
+    entry = buildEntryContext(rotated);
+  }
+  const payload = sanitizeAnalyticsPayload({
+    distinct_id: getId('localStorage', STORAGE_KEY), event,
+    properties: { ...properties, ...entry, ...context, $session_id: sessionId, $window_id: windowId },
+  }, surface);
+  if (!payload) return;
+  void fetch(surface === 'sitewide' ? '/api/analytics/posthog' : '/api/analytics/mff', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), keepalive: true,
+  }).catch(() => { /* Analytics must never interrupt reading, navigation or signup. */ });
+}
 
-  const sessionId = getSessionId();
-  const entry = buildEntryContext();
+/** No form values or token URLs. Both this boundary and the receiver enforce it. */
+export function captureSiteEvent(event: string, properties: Record<string, unknown> = {}) {
+  capture(event, properties, 'sitewide');
+}
 
-  const body = JSON.stringify({
-    distinct_id: getDistinctId(),
-    event,
-    properties: {
-      ...properties,
-      ...context,
-      ...entry,
-      hostname: window.location.hostname,
-      $session_id: sessionId,
-      $window_id: sessionId,
-      analytics_surface: 'sitewide',
-    },
-  });
-
-  void fetch('/api/analytics/posthog', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body,
-    keepalive: true,
-  }).catch(() => {
-    // Analytics must never interrupt navigation, reading, or a signup.
-  });
+export function captureMffEvent(event: string, properties: Record<string, unknown> = {}) {
+  capture(event, {
+    ...properties,
+    // Preserve MFF's referrer on every event, and UTMs only on its page receipt.
+    ...sanitizeEntryContext({ $referrer: document.referrer }, 'mff_manifesto'),
+  }, 'mff_manifesto');
 }

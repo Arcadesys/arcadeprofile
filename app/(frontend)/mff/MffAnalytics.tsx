@@ -1,47 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
-const STORAGE_KEY = 'arcade-posthog-anonymous-id';
-
-function getDistinctId() {
-  try {
-    const existing = window.localStorage.getItem(STORAGE_KEY);
-    if (existing) return existing;
-    const created = crypto.randomUUID();
-    window.localStorage.setItem(STORAGE_KEY, created);
-    return created;
-  } catch {
-    return crypto.randomUUID();
-  }
-}
+import { captureMffEvent as capture } from '@/lib/posthog-client';
+import { canCaptureBrowserAnalytics } from '@/lib/site-analytics';
+import { buildFreshEntryContext } from '@/lib/analytics-payload';
 
 function normalizeLabel(value: string | null | undefined) {
   return value?.replace(/\s+/g, ' ').trim().slice(0, 160) || undefined;
-}
-
-function capture(event: string, properties: Record<string, unknown> = {}) {
-  const body = JSON.stringify({
-    distinct_id: getDistinctId(),
-    event,
-    properties: {
-      ...properties,
-      pathname: window.location.pathname,
-      hostname: window.location.hostname,
-      $current_url: window.location.href,
-      $referrer: document.referrer || undefined,
-      analytics_surface: 'mff_manifesto',
-    },
-  });
-
-  void fetch('/api/analytics/mff', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body,
-    keepalive: true,
-  }).catch(() => {
-    // Analytics must never interrupt reading.
-  });
 }
 
 function sectionFor(element: Element) {
@@ -60,19 +26,19 @@ function sectionFor(element: Element) {
 }
 
 export function MffAnalytics() {
+  // One receipt per mounted visit/milestone, including Strict Mode effect replay.
+  const visit = useRef({ pageViewed: false, reached: new Set<number>(), sections: new Set<string>(), exhibits: new Set<string>() });
   useEffect(() => {
+    if (!canCaptureBrowserAnalytics()) return;
     const root = document.getElementById('mff-page');
     if (!root) return;
 
-    const params = new URLSearchParams(window.location.search);
-    capture('mff page viewed', {
-      utm_source: params.get('utm_source') || undefined,
-      utm_medium: params.get('utm_medium') || undefined,
-      utm_campaign: params.get('utm_campaign') || undefined,
-      landing_page: window.location.pathname,
-    });
+    if (!visit.current.pageViewed) {
+      visit.current.pageViewed = true;
+      capture('mff page viewed', buildFreshEntryContext(window.location.href, document.referrer, 'mff_manifesto'));
+    }
 
-    const reached = new Set<number>();
+    const reached = visit.current.reached;
     const milestones = [25, 50, 75, 90, 100];
 
     const onScroll = () => {
@@ -87,8 +53,8 @@ export function MffAnalytics() {
       }
     };
 
-    const viewedSections = new Set<string>();
-    const viewedExhibits = new Set<string>();
+    const viewedSections = visit.current.sections;
+    const viewedExhibits = visit.current.exhibits;
 
     const observer = new IntersectionObserver(
       (entries) => {

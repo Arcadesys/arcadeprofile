@@ -34,7 +34,7 @@ export async function createAndScheduleKitBroadcast(input: {
   tagIds: number[];
   sendAt: string;
   fetchImpl?: typeof fetch;
-}): Promise<{ id: number; sendAt: string | null }> {
+}): Promise<{ id: number; sendAt: string }> {
   const response = await (input.fetchImpl ?? fetch)(
     "https://api.kit.com/v4/broadcasts",
     {
@@ -64,11 +64,12 @@ export async function createAndScheduleKitBroadcast(input: {
   );
   if (!response.ok) throw new Error("Kit broadcast request failed");
   const payload = (await response.json()) as {
-    broadcast?: { id?: number; send_at?: string | null };
+    broadcast?: { id?: number; send_at?: unknown };
   };
   const broadcast = payload.broadcast;
-  if (!broadcast || !Number.isSafeInteger(broadcast.id)) {
+  if (!broadcast || !Number.isSafeInteger(broadcast.id) || (broadcast.id ?? 0) <= 0
+    || typeof broadcast.send_at !== "string" || !Number.isFinite(Date.parse(broadcast.send_at))) {
     throw new Error("Kit returned an invalid broadcast receipt");
   }
-  return { id: broadcast.id!, sendAt: broadcast.send_at ?? null };
+  return { id: broadcast.id!, sendAt: broadcast.send_at };
 }

@@ -25,7 +25,17 @@ test('projects is the landing door for builds, case studies, portfolio, and toys
   assert.match(projects, /href: '\/portfolio'/);
   assert.match(projects, /href: '\/toys'/);
   assert.match(projects, /<Link key=\{section.image\} href=\{section.href\}>/);
-  assert.match(projects, /id="project-index"/);
+  assert.match(projects, /className=\{styles\.writingNow\} id="project-index"/);
+  assert.match(projects, /Writing now/);
+  assert.match(projects, /writingNow\.chapterCount} chapters available now/);
+  assert.match(projects, /writingNow\.availability/);
+  assert.match(projects, /Read It Takes a Zoo/);
+  assert.match(projects, /aria-label="Filter and sort projects"/);
+
+  const page = source('app/(frontend)/projects/page.tsx');
+  assert.match(page, /title: ZOO_FEATURED_COLLECTION\.title/);
+  assert.match(page, /href: ZOO_FEATURED_COLLECTION\.path/);
+  assert.match(page, /const cadence = !isZooCollection && bucket === 'active'/);
 });
 
 test('site-owned signup surfaces use one first-party form implementation', () => {
@@ -35,7 +45,6 @@ test('site-owned signup surfaces use one first-party form implementation', () =>
     'app/components/ProjectsIndex.tsx',
     'app/(frontend)/bio/page.tsx',
     'app/(frontend)/latest/page.tsx',
-    'app/(frontend)/store/page.tsx',
   ];
 
   for (const path of surfaces) {

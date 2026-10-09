@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
-import { createVerificationToken, decryptSignupEmail, encryptSignupEmail, parseVerificationToken, redisCommand, sendVerificationEmail, verificationSiteUrl } from './writing-signup';
+import { createVerificationToken, decryptSignupEmail, encryptSignupEmail, parseVerificationToken, redisCommand, saveChallengeIfStatus, sendVerificationEmail, verificationSiteUrl } from './writing-signup';
 
 const previous = process.env.SIGNUP_LINK_SECRET;
 afterEach(() => { if (previous === undefined) delete process.env.SIGNUP_LINK_SECRET; else process.env.SIGNUP_LINK_SECRET = previous; });
@@ -41,6 +41,47 @@ test('Redis accepts Vercel-injected Upstash credentials when direct Upstash name
     });
     assert.equal(requestUrl, 'https://redis.example');
     assert.equal(value, 'PONG');
+  } finally {
+    for (const [name, value] of Object.entries(prior)) { if (value === undefined) delete process.env[name]; else process.env[name] = value; }
+  }
+});
+
+test('signup state transitions write only daily aggregate verification and Kit-active-ready counters atomically', async () => {
+  const prior = Object.fromEntries(['UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN'].map((name) => [name, process.env[name]]));
+  try {
+    process.env.UPSTASH_REDIS_REST_URL = 'https://redis.example';
+    process.env.UPSTASH_REDIS_REST_TOKEN = 'redis-test';
+    const verifiedAt = Date.UTC(2026, 8, 24, 12);
+    const activeAt = verifiedAt + 60_000;
+    const commands: unknown[][] = [];
+    const fetcher: typeof fetch = async (_input, init) => {
+      const command = JSON.parse(String(init?.body)) as unknown[];
+      commands.push(command);
+      return Response.json({ result: 'updated' });
+    };
+
+    await saveChallengeIfStatus('a'.repeat(32), {
+      audiences: ['fiction'], createdAt: verifiedAt - 1000, verifiedAt, status: 'processing',
+    }, 'pending', undefined, fetcher);
+    await saveChallengeIfStatus('b'.repeat(32), {
+      audiences: ['fiction'], createdAt: verifiedAt - 1000, verifiedAt, kitActiveAt: activeAt, status: 'complete',
+    }, 'awaiting-kit', undefined, fetcher);
+
+    assert.equal(commands.length, 2);
+    for (const command of commands) {
+      assert.equal(command[0], 'EVAL');
+      assert.match(String(command[1]), /if not current\.verifiedAt and next\.verifiedAt/);
+      assert.match(String(command[1]), /if not current\.kitActiveAt and next\.kitActiveAt/);
+      assert.match(String(command[1]), /HINCRBY/);
+      assert.match(String(command[1]), /34560000/);
+    }
+    assert.equal(commands[0][2], 4);
+    assert.equal(commands[0][5], 'writing:metrics:2026-09-24');
+    assert.equal(commands[0][6], 'writing:metrics:none');
+    assert.equal(commands[1][5], 'writing:metrics:2026-09-24');
+    assert.equal(commands[1][6], 'writing:metrics:2026-09-24');
+    assert.equal(JSON.parse(String(commands[1][8])).kitActiveAt, activeAt);
+    assert.match(String(commands[1][1]), /kit_active_ready/);
   } finally {
     for (const [name, value] of Object.entries(prior)) { if (value === undefined) delete process.env[name]; else process.env[name] = value; }
   }

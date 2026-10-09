@@ -18,5 +18,10 @@ export function endOfPieceCopy({
     return `${seriesTitle} currently has ${totalParts} ${noun}. Get the next one in your inbox as it lands.`;
   }
 
+  if (seriesTitle) {
+    const pluralKind = kind === 'story' ? 'stories' : kind === 'essay' ? 'essays' : 'build notes';
+    return `Follow ${seriesTitle} for new ${pluralKind}.`;
+  }
+
   return `Get the next ${kind} in your inbox as it arrives.`;
 }

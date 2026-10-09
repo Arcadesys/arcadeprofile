@@ -1,3 +1,4 @@
+import { buildPostCanonicalUrl } from '@/lib/post-canonical';
 import { Feed } from 'feed';
 import { SITE_NAME } from '@/lib/site-brand';
 import { buildPostUrl, buildPostUrlMap, getPublishedPostsForRss } from '@/lib/blog';
@@ -39,7 +40,7 @@ export async function GET() {
     feed.addItem({
       title: post.title,
       id: postLink,
-      link: postLink,
+      link: buildPostCanonicalUrl(loc.groupSlug, post.slug),
       description: post.excerpt,
       content: htmlBody,
       date: new Date(post.date),

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { Metadata } from 'next';
 
 import { SITE_NAME } from '@/lib/site-brand';
@@ -6,7 +7,7 @@ import styles from './start.module.css';
 
 export const metadata: Metadata = {
   title: 'Start here',
-  description: 'A few clear ways into Austen Tucker’s work: professional writing, projects to explore, and creative writing.',
+  description: 'Choose a place to begin: speculative fiction, essays and columns, or professional work.',
   alternates: { canonical: '/start' },
 };
 
@@ -43,10 +44,10 @@ const routes = [
   },
 ] as const;
 
-const introductions = [
-  { label: 'When in Crisis, Make Tea', href: 'https://work.thearcades.me/blog/when-in-crisis-make-tea', detail: 'Start with a small, grounding practice.' },
-  { label: 'The Dream Space', href: 'https://www.thearcades.me/projects/on-writing/the-dream-space', detail: 'Step into the writing and imagination side.' },
-  { label: 'WizWor', href: 'https://wizwor.vercel.app/', detail: 'Meet the playful AI experiment.' },
+const entryChoices = [
+  { label: 'Read fiction', title: 'Cold Boot', href: '/novels/it-takes-a-zoo/cold-boot', detail: 'Start It Takes a Zoo, a novel in stories about found family and survival.', action: 'Read Cold Boot' },
+  { label: 'Read essays and columns', title: 'The Safe Door', href: '/projects/queer-columns/the-safe-door', detail: 'Begin with a Queer Columns essay about safety, community, and building another map.', action: 'Read The Safe Door' },
+  { label: 'Explore professional work', title: 'The Arcades Work', href: 'https://work.thearcades.me/?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=start_entry', detail: 'See professional projects, case studies, and writing.', action: 'Visit the work site' },
 ] as const;
 
 export default function StartPage() {
@@ -59,15 +60,16 @@ export default function StartPage() {
       </header>
 
       <section className={styles.introductions} aria-labelledby="start-with-heading">
-        <h2 id="start-with-heading">Start with one of these</h2>
+        <h2 id="start-with-heading">Choose a place to begin</h2>
         <ul>
-          {introductions.map((item) => (
+          {entryChoices.map((item) => (
             <li key={item.href}>
-              <a href={item.href}>
-                <strong>{item.label}</strong>
+              <Link href={item.href}>
+                <span className={styles.choiceLabel}>{item.label}</span>
+                <strong>{item.title}</strong>
                 <span>{item.detail}</span>
-                <span className={styles.follow} aria-hidden="true">Read or explore →</span>
-              </a>
+                <span className={styles.follow}>{item.action} <span aria-hidden="true">{item.href.startsWith('http') ? '↗' : '→'}</span></span>
+              </Link>
             </li>
           ))}
         </ul>

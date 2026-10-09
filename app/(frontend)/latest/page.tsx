@@ -1,7 +1,8 @@
+import { buildPostDiscoveryUrl } from '@/lib/post-canonical';
 import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
 import Link from 'next/link';
-import { getAllPosts, buildPostUrl, buildPostUrlMap } from '@/lib/blog';
+import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { buildGroupIntroUrl } from '@/lib/post-url';
 import { formatSiteDate } from '@/lib/site-time';
 import SubscriptionForm from '@/app/components/SubscriptionForm';
@@ -52,7 +53,7 @@ export default async function LatestPage() {
           const rawText = post.excerpt || markdownToPlaintext(post.markdownBody);
           const teaser = rawText ? first100Words(rawText) : '';
           const loc = urlMap.get(post.slug)!;
-          const href = buildPostUrl(loc.groupSlug, post.slug);
+          const href = buildPostDiscoveryUrl(loc.groupSlug, post.slug);
 
           return (
             <li key={post.slug}>

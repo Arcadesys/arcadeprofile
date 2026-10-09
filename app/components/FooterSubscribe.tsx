@@ -6,7 +6,15 @@ import SubscriptionForm from './SubscriptionForm';
 
 export default function FooterSubscribe() {
   const pathname = usePathname();
+  const segments = pathname.split('/').filter(Boolean);
+  const hasPieceSpecificSignup =
+    (segments[0] === 'novels' && segments[1] === 'it-takes-a-zoo' && segments.length === 3) ||
+    (segments[0] === 'projects' && segments.length === 3 && segments[1] !== 'queer-columns') ||
+    (segments[0] === 'this-is-what-i-do-for-fun' && segments.length === 2) ||
+    (segments[0] === 'portfolio' && segments.length === 2) ||
+    (segments[0] === 'lab' && segments.length === 2);
   if (
+    hasPieceSpecificSignup ||
     pathname === '/subscribe' ||
     pathname === '/queercolumns' || pathname.startsWith('/queercolumns/') ||
     pathname === '/projects/queer-columns' || pathname.startsWith('/projects/queer-columns/') ||

@@ -1,9 +1,11 @@
 'use client';
 
-import { inject } from '@vercel/analytics';
+import { inject, type BeforeSend } from '@vercel/analytics';
 import { track } from '@vercel/analytics/react';
 import { useLayoutEffect, useState } from 'react';
 import { captureSiteEvent } from '@/lib/posthog-client';
+import { canCaptureBrowserAnalytics, sanitizeVercelAnalyticsEvent } from '@/lib/site-analytics';
+import { sanitizeReaderProperties } from '@/lib/analytics-payload';
 
 /**
  * The reader event payload intentionally contains only page and UI context.
@@ -28,7 +30,7 @@ export type ReaderEventSender = (
   properties: ReaderTelemetryProps,
 ) => void;
 
-type AnalyticsInjector = (options: { framework: 'react' }) => void;
+type AnalyticsInjector = (options: { framework: 'react'; beforeSend: BeforeSend }) => void;
 
 /**
  * Starts Vercel's own in-memory queue before reader effects can call track().
@@ -36,8 +38,9 @@ type AnalyticsInjector = (options: { framework: 'react' }) => void;
  * later and does not inject another one. Failures stay nonblocking.
  */
 export function initializeReaderAnalytics(injectAnalytics: AnalyticsInjector = inject): void {
+  if (!canCaptureBrowserAnalytics()) return;
   try {
-    injectAnalytics({ framework: 'react' });
+    injectAnalytics({ framework: 'react', beforeSend: sanitizeVercelAnalyticsEvent });
   } catch {
     // Analytics must never block reading, navigation, or a successful signup.
   }
@@ -85,12 +88,15 @@ export function useReaderEventTracker() {
 
   const [tracker] = useState(() =>
     createReaderEventTracker((event, properties) => {
+      if (!canCaptureBrowserAnalytics()) return;
+      const safeProperties = sanitizeReaderProperties(properties);
+      if (!safeProperties) return;
       try {
-        track(event, properties);
+        track(event, safeProperties);
       } catch {
         // The PostHog receipt remains useful if Vercel Analytics is unavailable.
       }
-      captureSiteEvent(event === 'signup-success' ? 'signup confirmation requested' : event, properties);
+      captureSiteEvent(event === 'signup-success' ? 'signup confirmation requested' : event, safeProperties);
     }),
   );
   return tracker;

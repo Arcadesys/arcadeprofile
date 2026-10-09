@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { analyticsBrowser } from './fixtures/analytics-browser';
 
 import {
   createReaderEventTracker,
@@ -42,7 +43,8 @@ test('reader telemetry absorbs analytics sender failures', () => {
   assert.equal(tracker('signup-success', context), false);
 });
 
-test('reader telemetry initializes the SDK queue before a cold-load event', () => {
+test('reader telemetry initializes the SDK queue before a cold-load event', (t) => {
+  analyticsBrowser(t);
   let queueReady = false;
   const sent: string[] = [];
 
@@ -56,10 +58,27 @@ test('reader telemetry initializes the SDK queue before a cold-load event', () =
   assert.deepEqual(sent, ['reading-start']);
 });
 
-test('reader telemetry keeps a failed SDK initialization nonblocking', () => {
+test('reader telemetry keeps a failed SDK initialization nonblocking', (t) => {
+  analyticsBrowser(t);
   assert.doesNotThrow(() => {
     initializeReaderAnalytics(() => {
       throw new Error('analytics blocked');
     });
   });
+});
+
+
+test('early reader injection installs the reducer before tracking and never injects on preview/private paths', (t) => {
+  const dom = analyticsBrowser(t);
+  let calls = 0;
+  initializeReaderAnalytics((options) => {
+    calls += 1;
+    assert.equal(options.framework, 'react');
+    assert.deepEqual(options.beforeSend({ type: 'pageview', url: 'https://www.thearcades.me/stories?secret#token' }), { type: 'pageview', url: 'https://www.thearcades.me/stories' });
+  });
+  for (const url of ['https://preview.vercel.app/stories', 'https://www.thearcades.me/subscribe/verify#token']) {
+    dom.reconfigure({ url });
+    initializeReaderAnalytics(() => { calls += 1; });
+  }
+  assert.equal(calls, 1);
 });

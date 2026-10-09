@@ -30,7 +30,7 @@ test('cron tags only the selected audiences saved by explicit verification and n
       calls.push({ url, command });
       if (command[0] === 'SMEMBERS') return Response.json({ result: ['a'.repeat(32)] });
       if (command[0] === 'GET') return Response.json({ result: JSON.stringify(challenge) });
-      if (command[0] === 'EVAL') { challenge = JSON.parse(String(command[6])) as Record<string, unknown>; return Response.json({ result: 'updated' }); }
+      if (command[0] === 'EVAL') { challenge = JSON.parse(String(command[8])) as Record<string, unknown>; return Response.json({ result: 'updated' }); }
       return Response.json({ result: 1 });
     }
     calls.push({ url });
@@ -97,7 +97,7 @@ test('cron sends one selected welcome only after an explicitly verified challeng
           claims.set(key, String(command[5]));
           return Response.json({ result: 1 });
         }
-        challenge = JSON.parse(String(command[6])) as Record<string, unknown>;
+        challenge = JSON.parse(String(command[8])) as Record<string, unknown>;
         return Response.json({ result: 'updated' });
       }
       return Response.json({ result: 1 });

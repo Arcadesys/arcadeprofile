@@ -1,0 +1,365 @@
+.main {
+  --books-surface: #151316;
+  --books-raised: #1e1a1e;
+  --books-text: #f7efe8;
+  --books-muted: #cfc2b9;
+  --books-rule: #5a4f56;
+  width: min(calc(100% - 138px - 2rem), 1320px);
+  margin: 0 auto 0 calc(138px + max(1rem, (100vw - 138px - 1320px) / 2));
+  padding: 2rem 0 5rem;
+  color: var(--books-text);
+}
+
+.shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero,
+.section,
+.detailHero,
+.nextShelf {
+  border: 2px solid var(--books-rule);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, .035), transparent 52%),
+    var(--books-surface);
+}
+
+.hero {
+  padding: clamp(1.6rem, 4vw, 3.5rem);
+  border-top: 6px solid var(--accent);
+}
+
+.kicker,
+.status,
+.metaLabel {
+  margin: 0;
+  color: #ffad68;
+  font-family: var(--font-mono);
+  font-size: .9rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.hero h1,
+.detailBody h1 {
+  margin: .45rem 0 1rem;
+  color: #fff7ef;
+  font-family: var(--font-serif);
+  font-size: clamp(2.6rem, 6vw, 5.4rem);
+  line-height: .95;
+  letter-spacing: -.045em;
+  text-wrap: balance;
+}
+
+.lede {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--books-muted);
+  font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+  line-height: 1.6;
+}
+
+.imprint {
+  max-width: 62ch;
+  margin: 1.25rem 0 0;
+  padding-top: 1rem;
+  border-top: 2px solid var(--books-rule);
+  color: var(--books-text);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.section {
+  padding: clamp(1.25rem, 3vw, 2rem);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.sectionHeader h2,
+.nextShelf h2 {
+  margin: 0;
+  color: #fff7ef;
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 3vw, 2.65rem);
+  line-height: 1;
+}
+
+.sectionHeader p {
+  max-width: 50ch;
+  margin: 0;
+  color: var(--books-muted);
+  line-height: 1.5;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 1rem;
+}
+
+.card {
+  min-width: 0;
+  padding: 1rem;
+  border: 2px solid #4c4349;
+  background: #0d0d0f;
+}
+
+.coverLink {
+  display: block;
+  margin-bottom: 1rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.coverFrame {
+  position: relative;
+  width: min(100%, 290px);
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 2px solid #71636c;
+  background: #171317;
+}
+
+.coverFrame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fallbackCover {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+  background:
+    linear-gradient(135deg, rgba(255, 138, 0, .16), transparent 48%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 5px),
+    #111114;
+}
+
+.fallbackCover span,
+.fallbackCover small {
+  color: #ffad68;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.fallbackCover strong {
+  color: #fff7ef;
+  font-family: var(--font-serif);
+  font-size: clamp(1.7rem, 3vw, 2.6rem);
+  line-height: .98;
+  text-wrap: balance;
+}
+
+.card h3 {
+  margin: .45rem 0 .6rem;
+  font-family: var(--font-serif);
+  font-size: 1.55rem;
+  line-height: 1.08;
+}
+
+.card h3 a {
+  color: #fff7ef;
+}
+
+.card p {
+  color: var(--books-muted);
+  line-height: 1.55;
+}
+
+.series {
+  margin: .35rem 0 0;
+  color: #f2d4bc;
+  font-size: .92rem;
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem;
+  margin-top: 1rem;
+}
+
+.actions a {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: .65rem .9rem;
+  border: 2px solid #71636c;
+  color: #fff7ef;
+  background: #171719;
+  font-family: var(--font-mono);
+  font-size: .9rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.actions a:first-child {
+  border-color: var(--cyan);
+}
+
+.actions a:hover {
+  background: #2a2329;
+  text-shadow: none;
+}
+
+.detailHero {
+  display: grid;
+  grid-template-columns: minmax(220px, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  border-top: 6px solid var(--accent);
+}
+
+.detailCover .coverFrame {
+  width: 100%;
+}
+
+.detailBody {
+  align-self: center;
+}
+
+.detailBody h1 {
+  font-size: clamp(2.5rem, 5vw, 4.8rem);
+}
+
+.detailDescription {
+  max-width: 58ch;
+  color: var(--books-text);
+  font-size: clamp(1.12rem, 1.7vw, 1.3rem);
+  line-height: 1.65;
+}
+
+.metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem .75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.metadata li {
+  padding: .45rem .65rem;
+  border: 1px solid var(--books-rule);
+  color: var(--books-muted);
+  font-family: var(--font-mono);
+  font-size: .82rem;
+}
+
+.editionNote,
+.permanentHome {
+  max-width: 58ch;
+  margin: 1rem 0 0;
+  padding: 1rem;
+  border-left: 4px solid var(--cyan);
+  color: var(--books-muted);
+  background: #0d0d0f;
+  line-height: 1.6;
+}
+
+.breadcrumb {
+  margin-bottom: 1rem;
+}
+
+.breadcrumb a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  color: #ffad68;
+  font-family: var(--font-mono);
+  font-weight: 800;
+}
+
+.nextShelf {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border-top-color: var(--cyan);
+}
+
+.nextShelf p {
+  color: var(--books-muted);
+}
+
+.nextShelf a {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  margin-top: .5rem;
+  color: #fff7ef;
+  font-family: var(--font-mono);
+  font-weight: 800;
+}
+
+.main a:focus-visible {
+  outline: 3px solid #fff7ef;
+  outline-offset: 4px;
+}
+
+@media (max-width: 960px), (max-height: 700px) {
+  .main {
+    width: min(100% - 2rem, 1320px);
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .detailHero {
+    grid-template-columns: 1fr;
+  }
+
+  .detailCover {
+    width: min(78vw, 340px);
+  }
+
+  .sectionHeader {
+    align-items: start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 540px) {
+  .main {
+    width: calc(100% - 1rem);
+    padding-top: .5rem;
+  }
+
+  .hero,
+  .section,
+  .detailHero,
+  .nextShelf {
+    border-left-width: 1px;
+    border-right-width: 1px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .coverFrame {
+    width: min(74vw, 280px);
+  }
+
+  .actions {
+    display: grid;
+  }
+
+  .actions a {
+    width: 100%;
+  }
+}

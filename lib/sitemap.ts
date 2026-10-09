@@ -1,9 +1,11 @@
+import { mappedPostCanonicalUrl } from '@/lib/post-canonical';
 import type { MetadataRoute } from 'next';
 import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
 import { COLLECTION, COLLECTION_PATH } from '@/lib/collection';
 import { PORTFOLIO_WORKS } from '@/lib/portfolio';
 import type { MarkdownGroup, MarkdownPost } from '@/lib/markdown-posts';
 import { ZOO_CHAPTERS, ZOO_COLLECTION_PATH } from '@/lib/zoo-collection';
+import { BOOKS, bookPath } from '@/data/books';
 
 export type SitemapEntry = MetadataRoute.Sitemap[number];
 
@@ -14,7 +16,12 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
   { path: '/writing', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/bio', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/bibliography', changeFrequency: 'monthly', priority: 0.8 },
-  { path: '/resume', changeFrequency: 'monthly', priority: 0.9 },
+  { path: '/books', changeFrequency: 'monthly', priority: 0.9 },
+  ...BOOKS.map((book) => ({
+    path: bookPath(book),
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  })),
   { path: '/projects', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/portfolio', changeFrequency: 'monthly', priority: 0.9 },
   ...PORTFOLIO_WORKS.map((work) => ({
@@ -49,7 +56,6 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
   { path: '/toys/the-day-i-split-in-two', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/toys/cultural-weather-vane', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/latest', changeFrequency: 'daily', priority: 0.9 },
-  { path: '/store', changeFrequency: 'monthly', priority: 0.7 },
 ];
 
 export function buildStaticSitemapEntries(siteUrl: string): SitemapEntry[] {
@@ -72,7 +78,7 @@ export function buildMarkdownSitemapEntries(
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
-    ...posts.map((post) => ({
+    ...posts.filter((post) => !mappedPostCanonicalUrl(buildPostUrl(post.group, post.slug))).map((post) => ({
       url: `${siteUrl}${buildPostUrl(post.group, post.slug)}`,
       lastModified: new Date(post.updatedDate ?? post.publishDate),
       changeFrequency: 'monthly' as const,

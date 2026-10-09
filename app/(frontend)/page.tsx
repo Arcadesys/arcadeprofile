@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import type { CSSProperties } from 'react';
 
 import StartReadingShelf from '@/app/components/StartReadingShelf';
@@ -8,6 +9,7 @@ import ContinueToyBanner from '@/app/components/toys/ContinueToyBanner';
 import FeaturedCollectionCard from '@/app/components/FeaturedCollectionCard';
 import { PieceActions } from '@/app/components/PieceActions';
 import { buildPostUrl } from '@/lib/post-url';
+import { buildPostDiscoveryUrl } from '@/lib/post-canonical';
 import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
 import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
@@ -18,6 +20,8 @@ import moxieHero960 from '@/public/images/moxie/moxie-sitting-text-gaze-960.webp
 import moxieHero1536 from '@/public/images/moxie/moxie-sitting-text-gaze.webp';
 
 import styles from './home.module.css';
+import { WORK_RESUME_PDF_URL, WORK_RESUME_URL } from '@/lib/work-resume';
+import { HOME_BOOKS, bookPath, bookStatusLabel } from '@/data/books';
 
 const RECENT_POSTS_MAX = 4;
 
@@ -25,8 +29,9 @@ export default async function HomePage() {
   const [posts, urlMap, readingCatalog, shelf] = await Promise.all([getAllPosts(), buildPostUrlMap(), getReadingCatalog(), getStartReadingShelf()]);
   const recentPosts = posts.filter((post) => urlMap.has(post.slug)).slice(0, RECENT_POSTS_MAX).map((post) => {
     const location = urlMap.get(post.slug)!;
-    const href = buildPostUrl(location.groupSlug, post.slug);
-    return { ...post, href, groupTitle: location.groupTitle };
+    const href = buildPostDiscoveryUrl(location.groupSlug, post.slug);
+    const pdfHref = `${buildPostUrl(location.groupSlug, post.slug)}/pdf`;
+    return { ...post, href, pdfHref, groupTitle: location.groupTitle };
   });
 
   return (
@@ -37,7 +42,7 @@ export default async function HomePage() {
             <span>{SITE_PLATFORM_NAME}</span><b aria-hidden="true">/</b><strong>{SITE_NAME}</strong>
           </Link>
           <div className={styles.topActions}>
-            <a className={styles.workWithMe} href="https://work.thearcades.me">
+            <a className={styles.workWithMe} href="https://work.thearcades.me/?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_header">
               Work with me <span aria-hidden="true"> ↗</span>
             </a>
           </div>
@@ -72,12 +77,79 @@ export default async function HomePage() {
         </div>
       </header>
 
+      <section className={styles.entryPaths} aria-labelledby="home-entry-paths-heading">
+        <h2 id="home-entry-paths-heading">Choose what brought you here</h2>
+        <ul>
+          <li>
+            <Link href="/novels/it-takes-a-zoo/cold-boot">
+              <strong>Read fiction</strong>
+              <span>Start <em>It Takes a Zoo</em> with “Cold Boot.”</span>
+              <span className={styles.entryPathAction}>Read Cold Boot <span aria-hidden="true">→</span></span>
+            </Link>
+          </li>
+          <li>
+            <Link href="/projects/queer-columns/the-safe-door">
+              <strong>Read essays and columns</strong>
+              <span>Begin with “The Safe Door,” a Queer Columns essay.</span>
+              <span className={styles.entryPathAction}>Read The Safe Door <span aria-hidden="true">→</span></span>
+            </Link>
+          </li>
+          <li>
+            <a href="https://work.thearcades.me/?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_entry">
+              <strong>Explore professional work</strong>
+              <span>See professional projects, case studies, and writing.</span>
+              <span className={styles.entryPathAction}>Visit the work site <span aria-hidden="true">↗</span></span>
+            </a>
+          </li>
+        </ul>
+      </section>
+
       <div className={styles.resume}>
         <ContinueReadingBanner availablePaths={readingCatalog.map((piece) => piece.canonicalPath)} />
         <ContinueToyBanner />
       </div>
 
       <StartReadingShelf items={shelf} heading="Choose your next read" headingId="home-start-reading" showCovers />
+
+      <section className={styles.booksShelf} aria-labelledby="home-books-heading">
+        <div className={styles.booksShelfHeader}>
+          <div>
+            <p className={styles.booksEyebrow}>Free Play Publishing</p>
+            <h2 id="home-books-heading">Books by Austen Tucker</h2>
+          </div>
+          <Link href="/books">See the full shelf <span aria-hidden="true">→</span></Link>
+        </div>
+        <div className={styles.homeBookGrid}>
+          {HOME_BOOKS.map((book) => (
+            <article className={styles.homeBookCard} key={book.slug}>
+              <Link href={bookPath(book)}>
+                <div className={styles.homeBookCover}>
+                  {book.coverImage ? (
+                    <Image
+                      src={book.coverImage}
+                      alt={book.coverAlt ?? `Cover of ${book.title}.`}
+                      width={400}
+                      height={600}
+                      sizes="(max-width: 540px) 70vw, 250px"
+                    />
+                  ) : (
+                    <div className={styles.homeBookFallback} aria-hidden="true">
+                      <span>{book.publisher ?? 'The Arcades'}</span>
+                      <strong>{book.title}</strong>
+                      <small>Austen Tucker</small>
+                    </div>
+                  )}
+                </div>
+                <div className={styles.homeBookCopy}>
+                  <p>{bookStatusLabel(book)}</p>
+                  <h3>{book.title}</h3>
+                  <span>Explore book <span aria-hidden="true">→</span></span>
+                </div>
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className={styles.workLane} aria-labelledby="home-work-heading">
         <p className={styles.workEyebrow}>AI enablement &amp; transformation</p>
@@ -87,8 +159,8 @@ export default async function HomePage() {
           make emerging tools useful in everyday work — not just purchased.
         </p>
         <div className={styles.workActions}>
-          <Link className={styles.workPrimary} href="/resume">Read the resume <span aria-hidden="true">→</span></Link>
-          <Link className={styles.workSecondary} href="/resume/pdf">Download PDF</Link>
+          <Link className={styles.workPrimary} href={WORK_RESUME_URL}>Read the resume <span aria-hidden="true">→</span></Link>
+          <Link className={styles.workSecondary} href={WORK_RESUME_PDF_URL}>Download PDF</Link>
           <Link className={styles.workSecondary} href="/lab">Case studies</Link>
           <Link className={styles.workSecondary} href="/projects">Projects</Link>
         </div>
@@ -111,7 +183,7 @@ export default async function HomePage() {
         <Link href="/lab">Case studies</Link>
         <Link href="/projects">Projects</Link>
         <Link href="/toys">Games</Link>
-        <Link href="/store">Store</Link>
+        <Link href="/books">Books</Link>
       </nav>
 
       <section className={styles.below}>
@@ -131,7 +203,7 @@ export default async function HomePage() {
           {recentPosts.length ? <ol className={styles.recentList}>{recentPosts.map((post) => (
             <li className={styles.recentRow} key={post.slug}>
               <div><h3><Link href={post.href}>{post.title}</Link></h3>{post.excerpt ? <p className={styles.recentExcerpt}>{post.excerpt}</p> : null}<p>{post.groupTitle} · {formatSiteDate(post.date)}</p></div>
-              <div className={styles.recentActions}><PieceActions title={post.title} readHref={post.href} pdfHref={`${post.href}/pdf`} shareUrl={post.href} showRead={false} /></div>
+              <div className={styles.recentActions}><PieceActions title={post.title} readHref={post.href} pdfHref={post.pdfHref} shareUrl={post.href} showRead={false} /></div>
             </li>
           ))}</ol> : <p>No recent publications are available yet.</p>}
           <Link className={styles.button} href="/latest">View all latest writing <span aria-hidden="true">→</span></Link>

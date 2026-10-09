@@ -1,4 +1,14 @@
 .main { width: min(100% - 2rem, 72rem); margin: 0 auto; padding: clamp(2rem, 6vw, 5rem) 0 6rem; }
+
+/* Use the same rail-aware gutters as Stories and Essays, including saved collapse. */
+@media (min-width: 961px) and (min-height: 701px) {
+  .main,
+  :global(html[data-nav-collapsed="true"]) .main {
+    width: min(calc(100% - var(--nav-rail-width) - 2rem), 72rem);
+    margin-left: calc(var(--nav-rail-width) + max(1rem, (100% - var(--nav-rail-width) - 72rem) / 2));
+  }
+}
+
 .header { max-width: 46rem; margin-bottom: clamp(2.5rem, 6vw, 4.5rem); }
 .header p { margin: 0 0 .75rem; color: var(--cyan); font-family: var(--font-mono); font-size: 1rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .header h1 { margin: 0 0 1rem; color: var(--fg); font-family: var(--font-barlow-condensed), sans-serif; font-size: clamp(3.5rem, 9vw, 6rem); font-weight: 700; line-height: .9; text-transform: uppercase; }

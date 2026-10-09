@@ -54,21 +54,25 @@ test('project prose has an article landmark and mobile controls have accessible 
   assert.match(css, /\.dd-toggle[\s\S]*?position: static[\s\S]*?min-height: 56px/);
 });
 
-test('long-form routes offer the end-of-piece signup after next steps', () => {
+test('long-form routes put next steps before the end-of-piece signup', () => {
   const projectPost = source('app/(frontend)/projects/[slug]/[postSlug]/page.tsx');
   const zooChapter = source('app/(frontend)/novels/it-takes-a-zoo/[chapter]/page.tsx');
   const collectionStory = source('app/(frontend)/this-is-what-i-do-for-fun/[slug]/page.tsx');
   const portfolioPiece = source('app/(frontend)/portfolio/[slug]/page.tsx');
   const labCaseStudy = source('app/(frontend)/lab/[slug]/page.tsx');
   const endOfPieceSubscribe = source('app/components/EndOfPieceSubscribe.tsx');
+  const footerSubscribe = source('app/components/FooterSubscribe.tsx');
 
   assert.ok(projectPost.indexOf('<ReadingNextSteps') < projectPost.indexOf('<EndOfPieceSubscribe'));
   assert.ok(zooChapter.indexOf('<ReadingNextSteps') < zooChapter.indexOf('<EndOfPieceSubscribe'));
   assert.ok(collectionStory.indexOf('<ReadingNextSteps') < collectionStory.indexOf('<EndOfPieceSubscribe'));
   assert.ok(portfolioPiece.indexOf('<ReadingNextSteps') < portfolioPiece.indexOf('<EndOfPieceSubscribe'));
   assert.ok(labCaseStudy.indexOf('<EndOfPieceSubscribe') < labCaseStudy.indexOf('<div className={styles.pieceActions}>'));
-  assert.match(endOfPieceSubscribe, /<SubscriptionForm/);
+  assert.match(endOfPieceSubscribe, /Send confirmation email/);
   assert.match(endOfPieceSubscribe, /END_OF_PIECE_AUDIENCES: readonly Audience\[\] = \['all'\]/);
+  assert.match(endOfPieceSubscribe, /audience === 'queer-columns'/);
+  assert.match(projectPost, /slug !== 'queer-columns'[\s\S]*?<EndOfPieceSubscribe/);
+  assert.match(footerSubscribe, /hasPieceSpecificSignup/);
 });
 
 test('project captures map fiction, writing, and build work to their matching lists', () => {
@@ -103,5 +107,5 @@ test('reader telemetry initializes Vercel before cold-load reader effects', () =
 
   assert.match(telemetry, /useLayoutEffect/);
   assert.match(telemetry, /initializeReaderAnalytics\(\)/);
-  assert.match(telemetry, /injectAnalytics\(\{ framework: 'react' \}\)/);
+  assert.match(telemetry, /injectAnalytics\(\{ framework: 'react', beforeSend: sanitizeVercelAnalyticsEvent \}\)/);
 });

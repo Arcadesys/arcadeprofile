@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 
 /* ── Fonts ──────────────────────────────────────────────── */
 @font-face {
@@ -1464,53 +1463,6 @@ html[data-reading-width] .portfolio-index {
   .dd-intro-main.has-drawer, .dd-post-main.has-drawer { margin-left: auto; margin-right: auto; padding-inline: 1.5rem; }
 }
 
-/* ActiveCampaign form 7: preserve the account-owned form while repairing the
-   generated embed for large text, high contrast, visible focus, and touch. */
-.activecampaign-form {
-  width: min(100%, 680px);
-  margin: 3rem 0 0;
-  overflow-wrap: anywhere;
-}
-.activecampaign-form--compact {
-  margin-top: 0;
-}
-.activecampaign-form ._form_7 {
-  width: 100%;
-  max-width: 100%;
-}
-.activecampaign-form form._form_7,
-.activecampaign-form form._form_7 * {
-  max-width: 100%;
-  box-sizing: border-box;
-}
-.activecampaign-form form._form_7 :is(input, textarea, select, button, label, legend, p, ._form-title, ._form-thank-you, ._error-inner) {
-  font-size: 18px !important;
-  line-height: 1.6 !important;
-}
-.activecampaign-form form._form_7 :is(input[type="text"], input[type="email"], input[type="tel"], input[type="date"], textarea, select, button[type="submit"], ._submit) {
-  min-height: 56px !important;
-}
-.activecampaign-form form._form_7 :is(input[type="checkbox"], input[type="radio"]) {
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 28px !important;
-}
-.activecampaign-form form._form_7 :is(input, textarea, select, button, a):focus-visible {
-  outline: 4px solid var(--accent) !important;
-  outline-offset: 4px !important;
-}
-.activecampaign-form form._form_7 ._form-thank-you,
-.activecampaign-form form._form_7 ._error-inner {
-  color: var(--fg) !important;
-}
-
-@media (max-width: 760px) {
-  .activecampaign-form {
-    width: 100%;
-    margin-top: 2rem;
-  }
-}
-
 .prose .footnote-ref {
   font-size: 0.75em;
   vertical-align: super;
@@ -2078,7 +2030,14 @@ html[data-reading-width] .collection-index {
     justify-content: flex-start;
     padding: 1.5rem .75rem;
   }
+  .site-nav > .nav-logo,
+  .site-nav > .site-search {
+    flex-shrink: 0;
+  }
   .site-nav > ul {
+    /* Let links scroll instead of squeezing search and collapse off-screen. */
+    min-height: 0;
+    overflow-y: auto;
     display: grid;
     width: 100%;
     align-self: stretch;
@@ -2100,6 +2059,10 @@ html[data-reading-width] .collection-index {
     justify-items: center;
     padding: .55rem .25rem;
     line-height: 1;
+  }
+  .site-nav > ul > li > a:focus-visible {
+    /* Keep the focus ring inside the scrollable list. */
+    outline-offset: -4px;
   }
   .nav-more summary {
     width: 100%;
@@ -2133,6 +2096,7 @@ html[data-reading-width] .collection-index {
    icon-only strip so long-form content isn't fighting it for space. */
 @media (min-width: 961px) and (min-height: 701px) {
   .nav-collapse-toggle {
+    flex-shrink: 0;
     display: grid;
     place-items: center;
     width: 40px;
@@ -2160,8 +2124,14 @@ html[data-nav-collapsed="true"] {
   html[data-nav-collapsed="true"] .nav-label {
     display: none;
   }
+  html[data-nav-collapsed="true"] .site-nav > ul {
+    /* Use the rail's padding for the scrollport so icons fit beside a scrollbar. */
+    width: calc(100% + 1.5rem);
+    margin-inline: -.75rem;
+  }
   html[data-nav-collapsed="true"] .site-nav > ul > li:not(.nav-more) > a:not(.nav-logo) {
     min-height: 56px;
+    padding-inline: 0;
   }
   html[data-nav-collapsed="true"] body > main,
   html[data-nav-collapsed="true"] body > #__next,

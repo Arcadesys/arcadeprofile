@@ -35,6 +35,18 @@ function inlineMarkdownToHtml(value: string): string {
   return html;
 }
 
+/**
+ * A standalone `![alt](url "caption")` line is a figure; the optional title is
+ * its caption. Images inside a paragraph stay inline.
+ */
+function figureHtml(alt: string, src: string, caption: string | undefined): string | null {
+  const safe = safeHref(src);
+  if (!safe) return null;
+  const image = `<img src="${escapeHtml(safe)}" alt="${escapeHtml(alt)}" loading="lazy" decoding="async" />`;
+  const figcaption = caption?.trim() ? `<figcaption>${inlineMarkdownToHtml(caption.trim())}</figcaption>` : '';
+  return `<figure>${image}${figcaption}</figure>`;
+}
+
 function youtubeLink(id: string, label: string): string {
   const videoUrl = `https://www.youtube.com/shorts/${id}`;
   const safeLabel = escapeHtml(label);
@@ -56,8 +68,13 @@ export function markdownToSafeHtml(markdown: string, options: { allowEmbeds?: bo
     const heading = /^(#{1,6})\s+(.+)$/.exec(line);
     const list = /^(\s*)(-|\d+\.)\s+(.+)$/.exec(line);
     const youtube = /^@\[youtube\]\(([A-Za-z0-9_-]{11}) "([^"\n]+)"\)$/.exec(line);
+    const figure = /^!\[([^\]]+)\]\(([^\s)]+)(?:\s+"([^"\n]*)")?\)$/.exec(line.trim());
+    const figureBlock = figure ? figureHtml(figure[1], figure[2], figure[3]) : null;
     if (!line.trim()) {
       flushParagraph();
+    } else if (figureBlock) {
+      flushParagraph();
+      blocks.push(figureBlock);
     } else if (youtube) {
       flushParagraph();
       const link = youtubeLink(youtube[1], youtube[2]);
@@ -105,7 +122,7 @@ export function markdownToSafeHtml(markdown: string, options: { allowEmbeds?: bo
 export function markdownToPlaintext(markdown: string): string {
   return markdown
     .replace(/@\[youtube\]\([A-Za-z0-9_-]{11} "([^"\n]+)"\)/g, '$1')
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/!\[([^\]]*)\]\([^\s)]*(?:\s+"[^"\n]*")?\)/g, '$1')
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
     .replace(/^#{1,6}\s+/gm, '')
     .replace(/^>\s?/gm, '')

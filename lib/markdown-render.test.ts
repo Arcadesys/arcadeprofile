@@ -37,3 +37,13 @@ test('renders underscore emphasis and accessible privacy-enhanced YouTube embeds
 test('produces readable plaintext for teasers', () => {
   assert.equal(markdownToPlaintext('## Hello\n\nRead [this](https://example.test) **now**.'), 'Hello Read this now.');
 });
+
+test('renders standalone images as figures with optional escaped captions', () => {
+  const markdown = 'Before.\n![Moxie bowling](https://example.test/moxie.png "Moxie in the bowling scene (first pass) <b>!</b>")\n\n![Plain](https://example.test/plain.gif)\n\nInline ![icon](https://example.test/icon.png) stays inline.\n\n![bad](javascript:alert(1) "x")';
+  const html = markdownToSafeHtml(markdown);
+  assert.match(html, /<p>Before\.<\/p>\n<figure><img src="https:\/\/example\.test\/moxie\.png" alt="Moxie bowling" loading="lazy" decoding="async" \/><figcaption>Moxie in the bowling scene \(first pass\) &lt;b&gt;!&lt;\/b&gt;<\/figcaption><\/figure>/);
+  assert.match(html, /<figure><img src="https:\/\/example\.test\/plain\.gif" alt="Plain" loading="lazy" decoding="async" \/><\/figure>/);
+  assert.match(html, /<p>Inline <img src="https:\/\/example\.test\/icon\.png" alt="icon" \/> stays inline\.<\/p>/);
+  assert.doesNotMatch(html, /src="javascript:/);
+  assert.equal(markdownToPlaintext('A ![Moxie](https://example.test/m.png "Caption (with parens)") b'), 'A Moxie b');
+});

@@ -33,3 +33,6 @@ services/email/.env*
 # once committed as a stray gitlink, which broke `git submodule foreach`
 # in every CI checkout cleanup.
 .claude/worktrees/
+
+# Local newsletter concurrency claims are not portable send history.
+/data/newsletter-sends/*.kit.json.lock

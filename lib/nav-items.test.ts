@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import test from 'node:test';
+import { WORK_RESUME_URL } from './work-resume';
 
 import {
   ensureCollectionNavItem,
@@ -60,7 +61,7 @@ test('ensureCoreNavItems keeps fallback destinations available for the editorial
   assert.deepEqual(
     items.map((item) => item.href),
     [
-      '/projects', '/resume', '/portfolio', '/lab', '/this-is-what-i-do-for-fun', '/toys',
+      '/projects', WORK_RESUME_URL, '/portfolio', '/lab', '/this-is-what-i-do-for-fun', '/toys',
       '/bio', '/stories', '/essays',
     ],
   );
@@ -72,7 +73,7 @@ test('buildNavigationModel uses the requested orientation destinations for fallb
     { id: 'custom-writing', label: 'Stories', href: '/writing', isPrimary: true },
     { id: 'custom-projects', label: 'Projects', href: '/projects', isPrimary: true },
     { id: 'custom-bio', label: 'Biography', href: '/bio', isPrimary: true },
-    { id: 'custom-store', label: 'Shop', href: '/store', isPrimary: true },
+    { id: 'custom-books', label: 'Books', href: '/books', isPrimary: true },
     { id: 'custom-subscribe', label: 'Mail', href: '/subscribe', isPrimary: false },
   ]);
   // The primary lane no longer carries Subscribe while email signups are
@@ -81,9 +82,9 @@ test('buildNavigationModel uses the requested orientation destinations for fallb
     ['Read', '/writing'],
     ['Blog', '/latest'],
     ['Watch me build', '/projects'],
-    ['Resume', '/resume'],
+    ['Resume', WORK_RESUME_URL],
     ['About', '/bio'],
-    ['Store', '/store'],
+    ['Books', '/books'],
   ];
 
   assert.deepEqual(fallback.primary.map(({ label, href }) => [label, href]), expected);
@@ -116,7 +117,7 @@ test('buildNavigationModel reserves the compact header for editorial essentials'
   // '/subscribe' no longer has a reserved primary slot while email signups
   // are paused site-wide; a passed-in subscribe item now lands in "more".
   assert.deepEqual(model.primary.map((item) => item.href), [
-    '/writing', '/latest', '/projects', '/resume', '/bio', '/store',
+    '/writing', '/latest', '/projects', WORK_RESUME_URL, '/bio', '/books',
   ]);
   assert.deepEqual(model.more.map((item) => item.href), ['/stories', '/essays', '/lab', '/subscribe', '/toys']);
 });

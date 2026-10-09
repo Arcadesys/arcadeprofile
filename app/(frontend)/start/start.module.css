@@ -95,8 +95,16 @@
   text-decoration: none;
 }
 
-.introductions a { min-height: 150px; }
+.introductions a { min-height: 190px; }
 .route a { min-height: 144px; }
+
+.choiceLabel {
+  color: #ffad68;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
 
 .introductions a strong,
 .route a strong {

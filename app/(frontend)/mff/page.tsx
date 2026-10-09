@@ -13,8 +13,11 @@ const TITLE = 'Leave the Door Open';
 const DESCRIPTION = 'On Midwest FurFest, generative AI, and the community I still want to call home.';
 const CANONICAL_PATH = '/mff';
 const MFF_PUBLIC = true;
-const MANIFESTO_VERSION = '1.0.1';
+const MANIFESTO_VERSION = '1.1.0';
 const MANIFESTO_DATE = 'September 17, 2026';
+const MFF_POLICY_URL = 'https://www.furfest.org/vendors/alley/rules';
+const MFF_POLICY_SCREENSHOT_URL =
+  'https://api.microlink.io/?url=https%3A%2F%2Fwww.furfest.org%2Fvendors%2Falley%2Frules&screenshot=true&scroll=h2%3Anth-of-type(5)&waitForSelector=h2%3Anth-of-type(5)&meta=false&embed=screenshot.url';
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -202,6 +205,42 @@ export default function MidwestFurFestPage() {
             You can be deeply skeptical of generative AI and still agree with that sentence. That is the
             entire reason I am writing it down.
           </p>
+
+          <figure className={styles.exhibit}>
+            <figcaption className={styles.exhibitHead}>
+              <p className={styles.tag}>Primary source &middot; added October 4, 2026</p>
+              <h3>What Midwest FurFest&rsquo;s rule actually says</h3>
+              <p className={styles.exhibitPunch}>
+                The current policy reaches works &ldquo;displayed, exhibited, sold or played,&rdquo; not
+                only merchandise offered for sale.
+              </p>
+            </figcaption>
+            <a
+              className={styles.exhibitMediaLink}
+              href={MFF_POLICY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                className={styles.exhibitImage}
+                src={MFF_POLICY_SCREENSHOT_URL}
+                alt="Screenshot of the Generative AI section of Midwest FurFest's Alley and Marketplace Rules"
+                width={1200}
+                height={1080}
+                loading="lazy"
+              />
+            </a>
+            <p className={styles.exhibitBody}>
+              This screenshot is rendered from Midwest FurFest&rsquo;s live Alley &amp; Marketplace
+              Rules page. It was added to this public record on October 4, 2026; the linked policy page
+              remains the controlling primary source if MFF later changes the text.
+            </p>
+            <p className={styles.exhibitLink}>
+              <a href={MFF_POLICY_URL} target="_blank" rel="noopener noreferrer">
+                Read Midwest FurFest&rsquo;s Alley &amp; Marketplace Rules &rarr;
+              </a>
+            </p>
+          </figure>
 
           <h2>Name the harm</h2>
 
@@ -872,6 +911,15 @@ export default function MidwestFurFestPage() {
             here, whatever the answer is.
           </p>
           <div className={styles.changelog}>
+            <div className={styles.changeVersion}>v1.1.0</div>
+            <div>
+              <strong>October 4, 2026</strong>
+              <p>
+                Added Midwest FurFest&rsquo;s current Generative AI rule as a primary-source screenshot
+                exhibit and direct source link, and added the policy itself to the source list. The core
+                thesis, requested alternatives, and stated commitment are unchanged.
+              </p>
+            </div>
             <div className={styles.changeVersion}>v1.0.1</div>
             <div>
               <strong>September 22, 2026</strong>
@@ -905,6 +953,14 @@ export default function MidwestFurFestPage() {
             </p>
             <p className={styles.sourceGroupLabel}>Current convention and platform AI policies</p>
             <ol>
+              <li>
+                <a href={MFF_POLICY_URL} target="_blank" rel="noopener noreferrer">
+                  Midwest FurFest, &ldquo;Alley &amp; Marketplace Rules&rdquo;
+                </a>{' '}
+                (current) &mdash; the primary source for the policy discussed above, including its
+                prohibition on works that use generative AI in the final product and its statement that
+                generative AI has no place at Midwest FurFest.
+              </li>
               <li>
                 <a href="https://indyfurcon.org/artists-alley-marketplace-policies/" target="_blank" rel="noopener noreferrer">
                   IndyFurCon, &ldquo;Artists Alley &amp; Marketplace Policies&rdquo;
