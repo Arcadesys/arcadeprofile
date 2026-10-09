@@ -17,7 +17,7 @@
     "postmark:test": "tsx scripts/send-test-email.ts",
     "upload:image": "tsx scripts/upload-image.ts",
     "newsletter:post": "tsx scripts/newsletter-post.ts",
-    "test": "npm run test:site && npm run test:furry-history-board && npm run test:subscription",
+    "test": "npm run test:subscription && npm run test:site && npm run test:furry-history-board",
     "audit:live": "tsx scripts/live-audit.ts",
     "test:seo": "tsx --test scripts/seo-rendered.check.ts",
     "test:site": "tsx --test $(find app lib scripts -name '*.test.ts' -print | sort)",
