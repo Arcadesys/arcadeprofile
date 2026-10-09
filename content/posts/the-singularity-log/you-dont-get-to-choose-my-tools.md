@@ -95,7 +95,7 @@ That was the point of making it.
 
 ## So I'm opening the notebook
 
-The campaign was called *Message in a Bottle*. It was built for Savage Worlds. I've published [Message in a Bottle: GM Guide](https://message-in-a-bottle-alpha.vercel.app/), an illustrated guide to the planned campaign, with full GM spoilers. It follows the eight planned gatherings and includes encounter expansions, stat blocks, and branching possibilities. New mechanics are marked as optional and unplaytested.
+The campaign was called *Message in a Bottle*. It was built for Savage Worlds. I've published [Message in a Bottle: GM Guide](https://www.thearcades.me/toys/message-in-a-bottle/guide.html), an illustrated guide to the planned campaign, with full GM spoilers. It follows the eight planned gatherings and includes encounter expansions, stat blocks, and branching possibilities. New mechanics are marked as optional and unplaytested.
 
 If this campaign appeals to you, [reach out](/bio)! I haven’t refined it into a fully print-and-play module yet, but if there’s interest, I’d love to take it the rest of the way.
 
