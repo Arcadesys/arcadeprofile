@@ -33,13 +33,17 @@ function validSession(value: unknown, now: number): value is AnalyticsSession {
     && now - session.startedAt! < SESSION_MAX_MS && now - session.lastActivityAt! < SESSION_IDLE_MS;
 }
 
-/** Memory fallback preserves event grouping when a tab cannot use storage. */
+/** Tab memory is authoritative after capture; storage bootstraps a page reload. */
 export function readAnalyticsSession(storage: Pick<Storage, 'getItem' | 'setItem'> | null, key: string, fallback?: AnalyticsSession, now = Date.now()) {
   let previous: unknown = fallback;
-  try {
-    const saved = storage?.getItem(key);
-    if (saved) previous = JSON.parse(saved);
-  } catch { /* Keep the tab's memory fallback. */ }
+  // A readable old record can survive quota/read-only write failures. Never
+  // replace the tab's newer activity or migrated session with that stale record.
+  if (fallback === undefined) {
+    try {
+      const saved = storage?.getItem(key);
+      if (saved) previous = JSON.parse(saved);
+    } catch { /* Create a fresh tab session. */ }
+  }
   const rotated = !validSession(previous, now);
   const session: AnalyticsSession = rotated
     ? { version: SESSION_VERSION, id: uuidV7(now), startedAt: now, lastActivityAt: now }

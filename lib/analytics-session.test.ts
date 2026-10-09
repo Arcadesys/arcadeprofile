@@ -47,3 +47,30 @@ test('unavailable storage uses tab memory without creating an ID per event', () 
   assert.equal(readAnalyticsSession(null, 'session', first, time + 1).session.id, first.id);
   assert.notEqual(readAnalyticsSession(blocked, 'session', first, time + SESSION_IDLE_MS).session.id, first.id);
 });
+
+test('readable but unwritable storage cannot replace newer active tab memory', () => {
+  const saved = storage();
+  const initial = readAnalyticsSession(saved, 'session', undefined, time).session;
+  const readOnly = { getItem: saved.getItem, setItem: () => { throw new Error('quota'); } };
+  let latest = readAnalyticsSession(readOnly, 'session', undefined, time + SESSION_IDLE_MS / 2).session;
+  for (const elapsed of [SESSION_IDLE_MS, SESSION_IDLE_MS * 1.5, SESSION_IDLE_MS * 2]) {
+    const next = readAnalyticsSession(readOnly, 'session', latest, time + elapsed);
+    assert.equal(next.rotated, false); assert.equal(next.session.id, initial.id);
+    assert.equal(next.session.lastActivityAt, time + elapsed);
+    latest = next.session;
+  }
+  assert.equal(JSON.parse(saved.getItem('session')!).lastActivityAt, time);
+});
+
+test('expired readable state migrates once even when replacement writes fail', () => {
+  const saved = storage();
+  const expired = readAnalyticsSession(saved, 'session', undefined, time).session;
+  const readOnly = { getItem: saved.getItem, setItem: () => { throw new Error('read-only'); } };
+  const migrated = readAnalyticsSession(readOnly, 'session', undefined, time + SESSION_MAX_MS);
+  assert.equal(migrated.rotated, true); assert.notEqual(migrated.session.id, expired.id);
+  for (const elapsed of [1, 1000]) {
+    const next = readAnalyticsSession(readOnly, 'session', migrated.session, time + SESSION_MAX_MS + elapsed);
+    assert.equal(next.rotated, false); assert.equal(next.session.id, migrated.session.id);
+  }
+  assert.equal(JSON.parse(saved.getItem('session')!).id, expired.id);
+});
