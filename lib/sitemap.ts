@@ -54,6 +54,7 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
   { path: '/toys/justice-porn', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/toys/shoot-em-up', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/toys/the-day-i-split-in-two', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/toys/message-in-a-bottle', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/toys/cultural-weather-vane', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/latest', changeFrequency: 'daily', priority: 0.9 },
 ];

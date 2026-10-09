@@ -144,6 +144,21 @@
       "addedAt": "2026-10-02T19:53:38.079Z"
     },
     {
+      "id": "message-in-a-bottle-chicago",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/c27d67a975531691181382d40f8880d28ace40c941551e76021ee38be37b387b/chicago-snowglobe.webp",
+      "sha256": "c27d67a975531691181382d40f8880d28ace40c941551e76021ee38be37b387b",
+      "mimeType": "image/webp",
+      "byteSize": 281402,
+      "width": 1536,
+      "height": 1024,
+      "alt": "Chicago’s illuminated skyline enclosed in a glass snow globe beneath dark clouds",
+      "caption": "Illustration for Message in a Bottle, produced with human-directed AI tools.",
+      "usedIn": [
+        "message-in-a-bottle"
+      ],
+      "addedAt": "2026-10-09T15:33:00.189Z"
+    },
+    {
       "id": "moral-panic-mob",
       "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/moral-panic-mob.jpg",
       "sha256": "729132f6564635ba5e457d424b85ffaf83e421dbe25b11fa80822cf78892767d",

@@ -5,9 +5,6 @@ export type ToyCatalogEntry = {
   kind: string;
   status: string;
   description: string;
-  outcomeCount: number;
-  completionMode: 'branching' | 'linear';
-  nextToyId: string;
   isNew?: boolean;
   /**
    * Optional cover art. Toys without artwork fall back to a typographic cover
@@ -19,7 +16,18 @@ export type ToyCatalogEntry = {
     width: number;
     height: number;
   };
-};
+} & (
+  | {
+      completionMode: 'branching' | 'linear';
+      outcomeCount: number;
+      nextToyId: string;
+    }
+  | {
+      completionMode: 'tabletop';
+      outcomeCount?: never;
+      nextToyId?: never;
+    }
+);
 
 export const TOY_CATALOG: readonly ToyCatalogEntry[] = [
   {
@@ -132,6 +140,22 @@ export const TOY_CATALOG: readonly ToyCatalogEntry[] = [
       alt: 'Cultural Weather Vane showing album covers and news photographs plotted across cultural mood axes.',
       width: 1600,
       height: 1000,
+    },
+  },
+  {
+    id: 'message-in-a-bottle',
+    title: 'Message in a Bottle',
+    href: '/toys/message-in-a-bottle',
+    kind: 'Tabletop adventure',
+    status: 'Free module',
+    description:
+      'Chicago is trapped in a bottle. Bring your table: a free Savage Worlds adventure with GM secrets, branching encounters, and ready-to-use stat blocks.',
+    completionMode: 'tabletop',
+    image: {
+      src: 'https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/c27d67a975531691181382d40f8880d28ace40c941551e76021ee38be37b387b/chicago-snowglobe.webp',
+      alt: 'Chicago’s illuminated skyline enclosed in a glass snow globe beneath dark clouds',
+      width: 1536,
+      height: 1024,
     },
   },
 ];

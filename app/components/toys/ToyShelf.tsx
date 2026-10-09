@@ -23,6 +23,7 @@ function progressLabel(
   toy: ToyCatalogEntry,
   progress: ToyProgress | undefined,
 ): string {
+  if (toy.completionMode === 'tabletop') return toy.status;
   if (toy.completionMode === 'linear' && progress?.endingIds.length) {
     return 'Completed';
   }
@@ -38,6 +39,7 @@ function actionLabel(
   toy: ToyCatalogEntry,
   progress: ToyProgress | undefined,
 ): string {
+  if (toy.completionMode === 'tabletop') return 'Read the module';
   if (progress && !progress.atEnding && progress.visitedPassageIds.length > 1) {
     return 'Continue playing';
   }
