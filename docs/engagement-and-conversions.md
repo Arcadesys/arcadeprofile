@@ -42,7 +42,35 @@ Provider outcomes already have daily, atomic `writing:metrics:YYYY-MM-DD` fields
 
 Create new versioned reports only after an approved release and observed receipts. Preserve the old reader dashboard and its fixed 53-path, www-only historical cohort. Give the new body cohort its own explicit manifest/revision; do not silently widen historical paths or rewrite old counts. Record both cutovers (session repair versus this engagement pass). New fields are absent historically; do not backfill or treat them as historical zeros.
 
-Apply one half-open UTC interval (`start <= timestamp < end`), production canonical `hostname=www.thearcades.me`, `analytics_surface=sitewide`, and the same traffic cohort to **every** participating event. Exclude `utm_campaign=analytics-verification`. Exclude the known untagged controlled-test interval 2026-10-04 21:36:30–21:43:50 UTC from organic historical claims, documenting endpoint inclusivity with the reporting reviewer. Native bounce/duration will change as explicit engagement events are added; they remain event-spacing diagnostics, not active time. Use the same raw or Regular cohort in both numerator and denominator.
+Apply one half-open UTC interval (`start <= timestamp < end`), production canonical `hostname=www.thearcades.me`, `analytics_surface=sitewide`, and the same traffic cohort to **every** participating event. Exclude whole sessions known to contain `utm_campaign=analytics-verification`, and retain existing internal/test-account exclusions as defined below. Exclude the known untagged controlled-test interval 2026-10-04 21:36:30–21:43:50 UTC from organic historical claims, documenting endpoint inclusivity with the reporting reviewer. Native bounce/duration will change as explicit engagement events are added; they remain event-spacing diagnostics, not active time. Use the same raw or Regular cohort in both numerator and denominator.
+
+### Whole-session QA and existing test-account exclusion
+
+Every denominator, numerator, funnel step and distribution below uses the same qualified event set. Exclude the **whole same-site session** if any retained event in that session is known to have `utm_campaign=analytics-verification`, even when its later SPA events have no campaign property. Build the QA-session set from all retained events through the recorded export time, **before** report-date, route, event-name, engagement-version, traffic-cohort or test-account filters. A marker before the report window or on a discovery page still excludes the session. Do not search only candidate funnel events or individually remove tagged rows.
+
+Preserve the exact existing internal/test-account exclusions and their enabled report/dashboard settings. Apply their existing predicates to every event/step, alongside the QA-session exclusion; adding the QA set must not disable, replace or weaken them. SQL/report definitions must carry the corresponding existing exclusion predicates rather than assume an unrelated UI control will supply them. Record those predicates/settings and the QA-set export time with the reviewed report; do not invent a new test-account property or collect identities to implement this. See PostHog's [internal/test-user filtering](https://posthog.com/docs/data/test-accounts) for the provider's filtering surfaces.
+
+Concrete definition template (report logic, not an executed/saved query):
+
+```text
+scope = existing project + this site's canonical production hostname
+qa_sessions = DISTINCT nonempty $session_id from ALL retained scope events
+              where timestamp < export_utc
+                and utm_campaign = 'analytics-verification'
+
+qualified_events = scope events where start_utc <= timestamp < end_utc
+                   and existing production/surface predicates
+                   and existing internal/test-account exclusions
+                   and the report's reviewed route + raw/Regular cohort
+                   and nonempty $session_id NOT IN qa_sessions
+
+denominator = qualifying denominator keys from qualified_events
+numerator   = matching qualifying outcome keys from qualified_events
+```
+
+For example, session A has a tagged discovery-page receipt before `start_utc`, then an untagged article pageview and untagged intent inside the window. All A receipts are excluded, including its pageview denominator. Untagged session B remains eligible only if it also passes the unchanged test-account, route and traffic predicates. A known internal/test session C stays excluded even if it has no QA campaign. QA-set construction must not depend on whether A has the new engagement property or qualifies as Regular traffic.
+
+Use only existing session IDs within this site/project; do not join visitors/sites or introduce capture to propagate the tag. Missing session IDs are excluded from session-based rates and disclosed as unavailable coverage. Individually tagged missing-session receipts can still be excluded directly, but no other receipt can be assigned to their unknown session. Known untagged test intervals retain their separate exclusions. Retention gaps and late-arriving markers can change the known QA set; record the export snapshot and coverage limits rather than silently rewriting old saved reports.
 
 | New report | Denominator | Numerator / value |
 | --- | --- | --- |
