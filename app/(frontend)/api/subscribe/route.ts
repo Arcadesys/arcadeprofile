@@ -34,15 +34,25 @@ export async function POST(request: NextRequest) {
   if (!apiKey) return json({ error: 'Signup is temporarily unavailable.' }, 503);
   if (!process.env.POSTMARK_SERVER_TOKEN?.trim() || !process.env.POSTMARK_FROM_EMAIL?.trim()) return json({ error: 'Signup is temporarily unavailable.' }, 503);
   try {
+    // Atomic, shared pre-provider admission. Fail closed if Redis is unavailable.
+    // The global budget also bounds requests distributed across many addresses.
+    const admissionScript = `local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],ARGV[1]) end; return n`;
+    const globalWindow = Math.floor(Date.now() / 3600000);
+    const globalCount = await redisCommand<number>(['EVAL', admissionScript, 1, `writing:signup-global:${globalWindow}`, 3600]);
+    if (globalCount > 500) return json({ error: 'Too many signup requests. Please try again later.' }, 429);
+    const admissionKey = `writing:signup-admission:${signupEmailDigest(email)}`;
+    const admitted = await redisCommand<string | null>(['SET', admissionKey, '1', 'EX', 60, 'NX']);
+    if (admitted !== 'OK') return json({ ok: true, confirmationRequired: true, ...(parsed.data.magnet ? { magnet: MAGNETS[parsed.data.magnet] } : {}) });
+    // Claim recipient-wide delivery cooldown before any metered Kit request.
+    const cooldownKey = signupCooldownKey(email);
+    const id = newChallengeId();
+    const claimed = await redisCommand<string | null>(['SET', cooldownKey, id, 'EX', 600, 'NX']);
+    if (claimed !== 'OK') return json({ ok: true, confirmationRequired: true, ...(parsed.data.magnet ? { magnet: MAGNETS[parsed.data.magnet] } : {}) });
     // Read only. Suppressed states must not receive a verification message or any Kit writes.
     const subscriber = await lookupKitSubscriber(email, apiKey);
     if (subscriber && ['cancelled', 'bounced', 'complained'].includes(subscriber.state)) {
       return json({ ok: true, confirmationRequired: true, ...(parsed.data.magnet ? { magnet: MAGNETS[parsed.data.magnet] } : {}) });
     }
-    const id = newChallengeId();
-    const cooldownKey = signupCooldownKey(email, parsed.data.audiences);
-    const claimed = await redisCommand<string | null>(['SET', cooldownKey, id, 'EX', 600, 'NX']);
-    if (claimed !== 'OK') return json({ ok: true, confirmationRequired: true, ...(parsed.data.magnet ? { magnet: MAGNETS[parsed.data.magnet] } : {}) });
     const createdAt = Date.now();
     const challenge: SignupChallenge = {
       encryptedEmail: encryptSignupEmail(email),
