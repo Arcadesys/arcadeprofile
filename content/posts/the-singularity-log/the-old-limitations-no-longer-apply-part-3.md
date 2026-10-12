@@ -15,7 +15,7 @@ seo:
   description: "Personal accessibility, furry sports games, handmade pieces, and useful projects that never needed a market."
 ---
 
-*The Singularity Log · Part 3 of 4*
+*A Singularity Log Special · Part 3 of 4*
 
 ## In this series
 
