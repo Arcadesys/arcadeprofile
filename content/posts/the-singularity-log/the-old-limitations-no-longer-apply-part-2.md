@@ -15,7 +15,7 @@ seo:
   description: "What happens to subscription moats and the kill zone when people can afford to build their own software?"
 ---
 
-*The Singularity Log · Part 2 of 4*
+*A Singularity Log Special · Part 2 of 4*
 
 ## In this series
 
@@ -59,7 +59,7 @@ I care whether the software works. A broken application can wreck a deadline. Th
 
 He brings years of technical experience and describes funded collaborators. Expertise hasn't evaporated. But if recreating familiar capabilities becomes a tractable engineering project, the incumbent has to defend its position with more than the expense of producing them the first time.
 
-That's what I mean by the [SaaSacre](https://www.axios.com/2026/02/09/ai-software-saas). Software used to be a moat: the labor and capital needed to build an alternative protected the owner from competition. An industry that spent decades automating everyone else's work is confronting the automation of its own production.
+That's why CTOs around the country are trying to outrun what they're deeming the *SaaSacre*. Software used to be a moat: the labor and capital needed to build an alternative protected the owner from competition. An industry that spent decades automating everyone else's work is confronting the automation of its own production.
 
 A prototype isn't a reliable commercial service. Not every application can be rebuilt in an afternoon. But a business whose chief advantage was the cost of reproducing its product faces a customer who can choose between renting a convenience and making one. [My own entertainment system](/projects/the-singularity-log/the-old-limitations-no-longer-apply-part-1) began crossing that gap in an afternoon, even with the TV-control integration left to fix.
 

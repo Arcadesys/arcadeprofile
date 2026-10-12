@@ -15,7 +15,7 @@ seo:
   description: "A failed TV command, a Raspberry Pi, and the price of admission: how AI lets the idea come before the programming apprenticeship."
 ---
 
-*The Singularity Log · Part 1 of 4*
+*A Singularity Log Special · Part 1 of 4*
 
 ## In this series
 

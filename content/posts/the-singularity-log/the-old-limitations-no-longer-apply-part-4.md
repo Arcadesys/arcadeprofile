@@ -15,7 +15,7 @@ seo:
   description: "Cheaper experiments, uneven abundance, and a world of personal and community tools that do not need a business model."
 ---
 
-*The Singularity Log · Part 4 of 4*
+*A Singularity Log Special · Part 4 of 4*
 
 ## In this series
 
