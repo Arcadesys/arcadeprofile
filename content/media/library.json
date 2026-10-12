@@ -231,6 +231,174 @@
       "addedAt": "2026-10-02T19:53:38.079Z"
     },
     {
+      "id": "old-limitations-part-01-hero-v2",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/f09bcf9b60188310edee3181cd305206918ccb22ab77e23a54e63ae5ce2827ce/part-01-hero-v2.png",
+      "sha256": "f09bcf9b60188310edee3181cd305206918ccb22ab77e23a54e63ae5ce2827ce",
+      "mimeType": "image/png",
+      "byteSize": 2715068,
+      "width": 1672,
+      "height": 941,
+      "alt": "Simple pencil outlines of a desk with a central computer, a carved bird and game pieces at left, and a guitar at right; behind it, people work in a workshop and garden.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-1"
+      ],
+      "addedAt": "2026-10-12T16:08:55.622Z"
+    },
+    {
+      "id": "old-limitations-part-01-keepers-hall",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/4f4af99a73f59b215ab8a09faf50ab13dd87fe1ba3ad332fd6f9881e549b433f/part-01-keepers-hall.jpg",
+      "sha256": "4f4af99a73f59b215ab8a09faf50ab13dd87fe1ba3ad332fd6f9881e549b433f",
+      "mimeType": "image/jpeg",
+      "byteSize": 37965,
+      "width": 581,
+      "height": 645,
+      "alt": "The Keeper’s Hall, with large catalog and recommendation choices above persistent TV controls.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-1"
+      ],
+      "addedAt": "2026-10-12T16:08:56.122Z"
+    },
+    {
+      "id": "old-limitations-part-01-tv-queue-controls",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/2c37fe5d8a325e8c18d09262e80a07cd90d8ed1183cf7ea1dca3e4f6ab09c89c/part-01-tv-queue-controls.jpg",
+      "sha256": "2c37fe5d8a325e8c18d09262e80a07cd90d8ed1183cf7ea1dca3e4f6ab09c89c",
+      "mimeType": "image/jpeg",
+      "byteSize": 80490,
+      "width": 1070,
+      "height": 760,
+      "alt": "RetroMachine’s TV queue shows a Turn on TV button, ten queued songs, and a Ready to play status.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-1"
+      ],
+      "addedAt": "2026-10-12T16:08:56.642Z"
+    },
+    {
+      "id": "old-limitations-part-02-games-catalog",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/0afb997ddde986fe72c61a1e9463dd15e813e1b83b34ee8947e8e6f505c586eb/part-02-games-catalog.jpg",
+      "sha256": "0afb997ddde986fe72c61a1e9463dd15e813e1b83b34ee8947e8e6f505c586eb",
+      "mimeType": "image/jpeg",
+      "byteSize": 85991,
+      "width": 581,
+      "height": 645,
+      "alt": "RetroMachine’s Games catalog filtered for Super Mario, showing readable game cards, system labels, search, and TV controls.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-2"
+      ],
+      "addedAt": "2026-10-12T16:08:59.162Z"
+    },
+    {
+      "id": "old-limitations-part-02-hero-v2",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/2e153b5af168201935d14bd33a38dd67283f4b31bfe979be9fc786563bb72780/part-02-hero-v2.png",
+      "sha256": "2e153b5af168201935d14bd33a38dd67283f4b31bfe979be9fc786563bb72780",
+      "mimeType": "image/png",
+      "byteSize": 3824697,
+      "width": 1672,
+      "height": 941,
+      "alt": "The same desk, computer, bird, game pieces, guitar, workshop, and garden drawn in dark ink, with added crosshatching, tool details, and plant shapes.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-2"
+      ],
+      "addedAt": "2026-10-12T16:08:58.623Z"
+    },
+    {
+      "id": "old-limitations-part-02-videos-catalog",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/f22828ba7e084904566e4649cc1b8fa1d081fce8341de6195e787d613d1ffffe/part-02-videos-catalog.jpg",
+      "sha256": "f22828ba7e084904566e4649cc1b8fa1d081fce8341de6195e787d613d1ffffe",
+      "mimeType": "image/jpeg",
+      "byteSize": 72857,
+      "width": 581,
+      "height": 645,
+      "alt": "RetroMachine’s Videos catalog shows Xena episodes with cover art, episode titles, year labels, and a TV-episode filter.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-2"
+      ],
+      "addedAt": "2026-10-12T16:08:59.635Z"
+    },
+    {
+      "id": "old-limitations-part-03-add-media-by-intention",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/e72fd10a697f6224306d1f48213aa9dc9621d471bb09cb7179852b52ce306fa0/part-03-add-media-by-intention.jpg",
+      "sha256": "e72fd10a697f6224306d1f48213aa9dc9621d471bb09cb7179852b52ce306fa0",
+      "mimeType": "image/jpeg",
+      "byteSize": 31013,
+      "width": 1070,
+      "height": 760,
+      "alt": "The Add media dialog offers YouTube and Film vault tabs and a labeled field for a video URL or artist and song.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-3"
+      ],
+      "addedAt": "2026-10-12T16:09:02.473Z"
+    },
+    {
+      "id": "old-limitations-part-03-game-details",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/2d85f7ea79a3197fdab952213b85fb5a046c22d9324cd5d1dabbd11815b16ee6/part-03-game-details.jpg",
+      "sha256": "2d85f7ea79a3197fdab952213b85fb5a046c22d9324cd5d1dabbd11815b16ee6",
+      "mimeType": "image/jpeg",
+      "byteSize": 60680,
+      "width": 581,
+      "height": 645,
+      "alt": "The 10-Pin Bowling detail panel shows catalog artwork, genre and player tags, and a Play on TV button.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-3"
+      ],
+      "addedAt": "2026-10-12T16:09:02.021Z"
+    },
+    {
+      "id": "old-limitations-part-03-hero-v2",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/7ed8c268d3b20f42c643421e22c899cd4e893e930a7caea2b894ea71fdf05b27/part-03-hero-v2.png",
+      "sha256": "7ed8c268d3b20f42c643421e22c899cd4e893e930a7caea2b894ea71fdf05b27",
+      "mimeType": "image/png",
+      "byteSize": 3841253,
+      "width": 1672,
+      "height": 941,
+      "alt": "The same workshop-and-garden composition with colored foreground objects and people, while much of the roof, walls, and distant landscape remains unpainted linework.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-3"
+      ],
+      "addedAt": "2026-10-12T16:09:01.533Z"
+    },
+    {
+      "id": "old-limitations-part-04-catalog-filters",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/7b16d31eaeab2bc53fcffd4cdf5f497f1d92a79c7761d322566f11fab4c921d4/part-04-catalog-filters.jpg",
+      "sha256": "7b16d31eaeab2bc53fcffd4cdf5f497f1d92a79c7761d322566f11fab4c921d4",
+      "mimeType": "image/jpeg",
+      "byteSize": 56062,
+      "width": 581,
+      "height": 645,
+      "alt": "RetroMachine’s filter panel shows labeled buttons for favorites, video availability, game genres, and eras.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-4"
+      ],
+      "addedAt": "2026-10-12T16:09:05.437Z"
+    },
+    {
+      "id": "old-limitations-part-04-hero-v2",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/47ec32a37fdabf520e304277c33335092a07f1f345037bea2b6b6ccaf9c717d3/part-04-hero-v2.png",
+      "sha256": "47ec32a37fdabf520e304277c33335092a07f1f345037bea2b6b6ccaf9c717d3",
+      "mimeType": "image/png",
+      "byteSize": 3960255,
+      "width": 1672,
+      "height": 941,
+      "alt": "The same scene finished in layered color and texture: a computer, carved bird, game pieces, and guitar on a desk, with people making, repairing, and gardening behind it.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-4"
+      ],
+      "addedAt": "2026-10-12T16:09:04.395Z"
+    },
+    {
+      "id": "old-limitations-part-04-keeper-intention",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/b88f6105b2abd0922f7528e6cbaabc6f3be1395737198be07b84365574d279fb/part-04-keeper-intention.jpg",
+      "sha256": "b88f6105b2abd0922f7528e6cbaabc6f3be1395737198be07b84365574d279fb",
+      "mimeType": "image/jpeg",
+      "byteSize": 41644,
+      "width": 581,
+      "height": 645,
+      "alt": "The Keeper offers four large numbered choices, including Find me a game and Surprise me, plus a field for a custom response.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-4"
+      ],
+      "addedAt": "2026-10-12T16:09:04.927Z"
+    },
+    {
       "id": "original-ascii-horse-race",
       "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/5e8493aabc81f756eec85a89575b03e6fbd0667de0d716f49ca66a43129ac2d3/04-original-ascii-horse-race.gif",
       "sha256": "5e8493aabc81f756eec85a89575b03e6fbd0667de0d716f49ca66a43129ac2d3",
