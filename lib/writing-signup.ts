@@ -221,8 +221,8 @@ export async function releaseSignupLock(key: string, value: string, fetcher: typ
   await redisCommand(['EVAL', script, 1, key, value], fetcher);
 }
 export const challengeTtlMilliseconds = TTL_SECONDS * 1000;
-export function signupCooldownKey(email: string, selected: Audience[]) {
-  const digest = createHmac('sha256', signingSecret()).update(`${email.toLowerCase()}\n${[...selected].sort().join(',')}`).digest('hex');
+export function signupCooldownKey(email: string, _selected?: Audience[]) {
+  const digest = signupEmailDigest(email);
   return `writing:send-cooldown:${digest}`;
 }
 
