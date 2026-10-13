@@ -22,13 +22,7 @@ export default function EndOfPieceSubscribe(props: Props) {
   const { audience, source, kind, seriesTitle, totalParts, seriesActive } = props;
   if (audience === 'queer-columns' || audience === 'work-ai' || audience === 'th4f' || audience === 'all') return null;
 
-  const heading = seriesTitle
-    ? `Get updates from ${seriesTitle} by email`
-    : audience === 'fiction'
-      ? 'Get new fiction by email'
-      : audience === 'essays'
-        ? 'Get new essays by email'
-        : 'Get new build notes by email';
+  const heading = 'Get new writing by email';
 
   return (
     <section className={styles.capture} aria-labelledby="end-of-piece-subscribe-heading">
@@ -41,7 +35,7 @@ export default function EndOfPieceSubscribe(props: Props) {
         updateMode="add"
         presentation="compact"
         submitLabel="Send confirmation email"
-        successMessage="Check your inbox to confirm your subscription."
+        successMessage="Check your inbox to confirm your All Writing request."
       />
     </section>
   );
