@@ -40,6 +40,11 @@
   text-shadow: none;
 }
 
+.actions a.purchase:hover {
+  background: #ffad68;
+  color: #171317;
+}
+
 .actions a:focus-visible {
   outline: 3px solid #fff7ef;
   outline-offset: 4px;
