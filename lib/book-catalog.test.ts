@@ -13,8 +13,8 @@ test('the eight-story book sells Kindle first and keeps the seven free stories s
   assert.equal(book.actions[0].label, 'Buy on Kindle · $4.99');
   assert.equal(book.actions[0].href, 'https://www.amazon.com/dp/B0HM8J2Z87');
   assert.equal(book.actions[0].kind, 'purchase');
-  assert.equal(book.actions[1].label, 'Read seven stories free');
-  assert.equal(book.actions[1].href, '/this-is-what-i-do-for-fun');
+  assert.equal(book.actions[2].label, 'Read seven stories free');
+  assert.equal(book.actions[2].href, '/this-is-what-i-do-for-fun');
   assert.equal(COLLECTION.length, 7);
   assert.ok(!COLLECTION.some((story) => story.slug === 'foxtails'));
   assert.match(book.description, /Eight stories/);
@@ -23,18 +23,24 @@ test('the eight-story book sells Kindle first and keeps the seven free stories s
   assert.equal(HOME_BOOKS[0].coverImage, book.coverImage);
 });
 
-test('unverified paperback has its ISBN and price but no purchase link or offer', () => {
+test('the user-verified paperback has its ISBN, clean purchase URL and USD offer', () => {
   const book = getBook('this-is-what-i-do-for-fun')!;
-  assert.deepEqual(book.paperback, { isbn: '9798160804194', price: '12.99', status: 'coming-soon' });
-  assert.ok(!book.actions.some((action) => action.bookFormat === 'Paperback'));
+  assert.deepEqual(book.paperback, { isbn: '9798160804194', price: '12.99', status: 'available' });
+  assert.equal(book.actions[1].label, 'Buy the paperback · $12.99');
+  assert.equal(book.actions[1].href, 'https://www.amazon.com/dp/B0HMFDFVNH');
+  assert.equal(book.actions[1].external, true);
   const schema = bookJsonLd(book);
   assert.equal(schema.isbn, '9798160804194');
   assert.equal(schema.workExample?.[0].bookFormat, 'https://schema.org/Paperback');
-  assert.equal(schema.offers?.length, 1);
+  assert.equal(schema.offers?.length, 2);
   assert.equal(schema.offers[0].price, '4.99');
   assert.equal(schema.offers[0].priceCurrency, 'USD');
   assert.equal(schema.offers[0].url, book.actions[0].href);
   assert.equal(schema.offers[0].itemOffered.bookFormat, 'https://schema.org/EBook');
+  assert.equal(schema.offers[1].price, '12.99');
+  assert.equal(schema.offers[1].priceCurrency, 'USD');
+  assert.equal(schema.offers[1].url, 'https://www.amazon.com/dp/B0HMFDFVNH');
+  assert.equal(schema.offers[1].itemOffered.bookFormat, 'https://schema.org/Paperback');
 });
 
 test('original Bait and Switch remains available while The Painted Cat is out of circulation', () => {

@@ -88,17 +88,22 @@ test('structured data parses and article identity agrees with the canonical', as
   }
 });
 
-test('the book offers Kindle without advertising an unverified paperback offer', async () => {
+test('the book offers Kindle first and the user-verified paperback second', async () => {
   const { body } = await get('/books/this-is-what-i-do-for-fun');
   const book = jsonLd(body).find((entity) => entity['@type'] === 'Book');
   assert.ok(book);
   assert.equal(book.isbn, '9798160804194');
   const offers = book.offers as Array<Record<string, unknown>>;
-  assert.equal(offers.length, 1);
+  assert.equal(offers.length, 2);
   assert.equal(offers[0].url, 'https://www.amazon.com/dp/B0HM8J2Z87');
   assert.equal(offers[0].price, '4.99');
   assert.equal(offers[0].priceCurrency, 'USD');
-  assert.match(body, /Paperback coming soon/);
+  assert.equal(offers[1].url, 'https://www.amazon.com/dp/B0HMFDFVNH');
+  assert.equal(offers[1].price, '12.99');
+  assert.equal(offers[1].priceCurrency, 'USD');
+  assert.doesNotMatch(body, /Paperback coming soon/);
+  assert.ok(body.indexOf('Buy on Kindle') < body.indexOf('Buy the paperback'));
+  assert.ok(body.indexOf('Buy the paperback') < body.indexOf('Read seven stories free'));
   assert.ok(body.indexOf('Buy on Kindle') < body.indexOf('Read seven stories free'));
 });
 
@@ -119,6 +124,8 @@ test('every free story points to the book above the story and before newsletter 
     assert.match(body, /From the collection/);
     assert.match(body, /href="\/books\/this-is-what-i-do-for-fun">Buy<\/a>/);
     assert.match(body, /href="https:\/\/www.amazon.com\/dp\/B0HM8J2Z87"/);
+    assert.match(body, /href="https:\/\/www.amazon.com\/dp\/B0HMFDFVNH"/);
+    assert.doesNotMatch(body, /Paperback coming soon/);
     assert.ok(body.indexOf('id="story-book-heading"') < body.indexOf('id="end-of-piece-subscribe-heading"'));
     assert.doesNotMatch(body, /All seven stories/);
   }
