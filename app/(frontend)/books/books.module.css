@@ -323,6 +323,10 @@
     grid-template-columns: 1fr;
   }
 
+  .detailBody {
+    grid-row: 1;
+  }
+
   .detailCover {
     width: min(78vw, 340px);
   }

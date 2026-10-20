@@ -53,7 +53,7 @@ const sections: readonly {
   {
     id: '2027',
     title: '2027',
-    description: 'The Ink and Paint Trilogy and It Takes a Zoo.',
+    description: 'New Ink and Paint Trilogy editions and It Takes a Zoo.',
   },
   {
     id: 'development',
@@ -63,7 +63,7 @@ const sections: readonly {
   {
     id: 'backlist',
     title: 'Backlist',
-    description: 'Earlier books that are still available.',
+    description: 'Earlier editions and their current availability.',
   },
 ];
 
@@ -104,6 +104,8 @@ function BookCard({ book }: { book: BookInfo }) {
         </p>
       ) : null}
       <p>{book.description}</p>
+      {book.author ? <p>Published as {book.author}</p> : null}
+      {book.editionNote ? <p>{book.editionNote}</p> : null}
       <div className={styles.actions}>
         <Link href={bookPath(book)}>View book</Link>
         {primaryAction ? (
