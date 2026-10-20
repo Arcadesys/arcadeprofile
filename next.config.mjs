@@ -109,6 +109,11 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        // Keep MCP POSTs on the site origin; clients may reject cross-origin redirects.
+        source: '/mcp',
+        destination: 'https://arcades-public-mcp.vercel.app/mcp',
+      },
+      {
         source: '/reaction-stickers',
         destination: '/reaction-stickers/index.html',
       },
