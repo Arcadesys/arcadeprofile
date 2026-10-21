@@ -228,7 +228,8 @@ export async function runKitEmail(argv: string[], dependencies: {
       const attempt = receipt.attempts.find((item) => item.broadcastId === id);
       requireThat(attempt?.state === 'draft' && attempt.contentSha256 === contentSha256 && attempt.audienceSha256 === hashTagAudience(tags), 'Broadcast ID must belong to a matching locally verified draft. Create/review a new draft for changed input.');
       const draft = verifiedDraft(await getKitBroadcast(connection, id), id, input.subject, input.preview, content.htmlBody, tags);
-      requireThat(draft.email_template?.id === attempt.templateId, 'Kit draft template changed. Review it before sending.');
+      const templateId = draft.email_template?.id;
+      requireThat(templateId !== undefined && templateId === attempt.templateId, 'Kit draft template is missing or changed. Review it before sending.');
       for (const link of links) {
         let url: URL;
         try { url = new URL(link); } catch { throw new OperatorError('Every body link must be an absolute HTTP(S) URL.'); }
@@ -242,7 +243,7 @@ export async function runKitEmail(argv: string[], dependencies: {
       attempt.sendAt = values['--send-at'] ? new Date(sendAt).toISOString() : new Date(Date.now() + 60000).toISOString();
       if (values['--reason']) attempt.reasonSha256 = sha(values['--reason']);
       save(file, receipt);
-      await scheduleKitBroadcastDraft({ ...connection, id, sendAt: attempt.sendAt });
+      await scheduleKitBroadcastDraft({ ...connection, id, sendAt: attempt.sendAt, templateId });
       attempt.state = 'scheduled';
       save(file, receipt);
       log(`Kit broadcast ${id} scheduled for ${attempt.sendAt}. Provider acceptance is not inbox delivery.`);

@@ -126,16 +126,18 @@ export async function getKitBroadcast(input: KitConnection, id: number): Promise
 }
 
 export async function scheduleKitBroadcastDraft(
-  input: KitBroadcastInput & { id: number; sendAt: string },
+  input: KitBroadcastInput & { id: number; sendAt: string; templateId: number },
 ): Promise<void> {
   if (!Number.isSafeInteger(input.id) || input.id <= 0) throw new Error("Invalid Kit broadcast ID.");
+  if (!Number.isSafeInteger(input.templateId) || input.templateId <= 0) throw new Error("A verified Kit template ID is required.");
   const payload = await kitBroadcastRequest(input, `/${input.id}`, "PUT", {
-    ...kitBroadcastFields(input), send_at: input.sendAt,
-  }) as { broadcast?: { id?: number; send_at?: string; public?: boolean; status?: unknown } };
+    ...kitBroadcastFields(input), send_at: input.sendAt, email_template_id: input.templateId,
+  }) as { broadcast?: { id?: number; send_at?: string; public?: boolean; status?: unknown; email_template?: { id?: unknown } | null } };
   const broadcast = payload?.broadcast;
   // Kit can save the requested timestamp while still retaining a draft.
   // Only a sending lifecycle confirms acceptance; all other results stay pending.
   if (broadcast?.id !== input.id || broadcast.public !== false
+    || broadcast.email_template?.id !== input.templateId
     || typeof broadcast.status !== "string"
     || !["scheduled", "sending", "completed"].includes(broadcast.status)
     || typeof broadcast.send_at !== "string"

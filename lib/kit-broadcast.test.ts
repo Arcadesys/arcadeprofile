@@ -65,13 +65,13 @@ test("Kit schedule receipts require a positive broadcast ID and an actual send t
 test("draft scheduling accepts only confirmed sending lifecycle states", async () => {
   for (const status of ["scheduled", "sending", "completed"]) {
     await scheduleKitBroadcastDraft({
-      apiKey: "test-key", id: 44, subject: "Newsletter", description: "Preview",
+      apiKey: "test-key", id: 44, templateId: 5, subject: "Newsletter", description: "Preview",
       content: "<p>Body</p>", tagIds: [1], sendAt: "2099-10-20T12:00:00.000Z",
       fetchImpl: async (url, init) => {
         assert.equal(String(url), "https://api.kit.com/v4/broadcasts/44");
         assert.equal(init?.method, "PUT");
         return Response.json({ broadcast: {
-          id: 44, public: false, send_at: "2099-10-20T12:00:00Z", status,
+          id: 44, public: false, send_at: "2099-10-20T12:00:00Z", status, email_template: { id: 5 },
         } });
       },
     });

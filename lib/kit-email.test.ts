@@ -20,6 +20,7 @@ function fixture(t: TestContext) {
   const broadcasts = new Map<number, Record<string, unknown>>();
   const output: string[] = [];
   let nextId = 40;
+  let defaultTemplateId = 5;
   let broken = false;
   let failWrite = false;
   let inspect: (() => void) | undefined;
@@ -42,7 +43,7 @@ function fixture(t: TestContext) {
       inspect?.();
       if (failWrite) throw new Error('fixture-secret subscriber@example.invalid');
       const id = method === 'POST' ? ++nextId : Number(address.split('/').at(-1));
-      const broadcast = { ...(broadcasts.get(id) ?? {}), ...body, id, status: body.send_at ? 'scheduled' : 'draft', email_template: { id: 5 }, email_address: 'subscriber@example.invalid' };
+      const broadcast = { ...(broadcasts.get(id) ?? {}), ...body, id, status: body.send_at ? 'scheduled' : 'draft', email_template: { id: body.email_template_id ?? defaultTemplateId }, email_address: 'subscriber@example.invalid' };
       broadcasts.set(id, broadcast);
       return Response.json({ broadcast });
     }
@@ -57,6 +58,7 @@ function fixture(t: TestContext) {
   const send = (id = 41, args: string[] = []) => run(['--send', '--broadcast-id', String(id), '--confirm', subject, ...args]);
   const receipt = () => JSON.parse(readFileSync(receiptFile(), 'utf8'));
   return { root, env, fetchImpl, calls, broadcasts, output, run, send, receipt, receiptFile,
+    setDefaultTemplate: (id: number) => { defaultTemplateId = id; },
     breakLinks: () => { broken = true; }, failWrites: () => { failWrite = true; }, inspect: (callback: () => void) => { inspect = callback; } };
 }
 
@@ -287,4 +289,59 @@ test('matching ID/time/public without a sending lifecycle retains the pending se
     await assert.rejects(f.send(41, ['--resend', '--reason', 'Intentional repeat']), /Ambiguous pending/);
     assert.equal(f.calls.length, calls, 'Pending lifecycle cannot be retried or bypassed');
   }
+});
+
+
+test('scheduling pins the reviewed draft template when the account default changes', async (t) => {
+  const f = fixture(t);
+  await f.run(['--draft']);
+  assert.equal(f.receipt().attempts[0].templateId, 5);
+  f.setDefaultTemplate(9);
+  assert.deepEqual(f.broadcasts.get(41)?.email_template, { id: 5 }, 'Changing the account default leaves the stored draft unchanged');
+  await f.send();
+  const update = f.calls.find((call) => call.method === 'PUT')!;
+  assert.equal(update.body.email_template_id, 5, 'PUT must explicitly pin the reviewed ID instead of selecting default 9');
+  assert.deepEqual(f.broadcasts.get(41)?.email_template, { id: 5 });
+  assert.equal(f.receipt().attempts[0].state, 'scheduled');
+});
+
+
+test('a mismatched or missing template in the schedule response leaves the send pending', async (t) => {
+  for (const template of [{ id: 9 }, null, undefined, { id: '5' }, { id: 0 }]) {
+    const f = fixture(t);
+    await f.run(['--draft']);
+    const outputCount = f.output.length;
+    await assert.rejects(f.run(['--send', '--broadcast-id', '41', '--confirm', subject], {
+      fetchImpl: async (url: RequestInfo | URL, init?: RequestInit) => {
+        const response = await f.fetchImpl(url, init);
+        if (init?.method !== 'PUT') return response;
+        const payload = await response.json();
+        assert.equal(JSON.parse(String(init.body)).email_template_id, 5);
+        assert.equal(payload.broadcast.status, 'scheduled');
+        payload.broadcast.email_template = template;
+        return Response.json(payload);
+      },
+    }), /reconcile any pending/);
+    assert.equal(f.receipt().attempts[0].state, 'send-pending');
+    assert.equal(f.output.length, outputCount);
+    const count = f.calls.length;
+    await assert.rejects(f.send(), /Ambiguous pending/);
+    assert.equal(f.calls.length, count);
+  }
+});
+
+test('a draft without a verified template ID cannot fall back to the account default on send', async (t) => {
+  const f = fixture(t);
+  await f.run(['--draft'], { fetchImpl: async (url: RequestInfo | URL, init?: RequestInit) => {
+    const response = await f.fetchImpl(url, init);
+    if (init?.method !== 'GET') return response;
+    const payload = await response.json();
+    payload.broadcast.email_template = null;
+    f.broadcasts.get(41)!.email_template = null;
+    return Response.json(payload);
+  } });
+  assert.equal(f.receipt().attempts[0].templateId, undefined);
+  await assert.rejects(f.send(), /template is missing or changed/);
+  assert.equal(f.calls.some((call) => call.method === 'PUT'), false);
+  assert.equal(f.receipt().attempts[0].state, 'draft');
 });
