@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
 import { GET } from '@/app/(frontend)/api/kit/reconcile-confirmations/route';
 
-const names = ['CRON_SECRET', 'KIT_API_KEY', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'KV_REST_API_URL', 'KV_REST_API_TOKEN'];
+const names = ['CRON_SECRET', 'KIT_API_KEY', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'KV_REST_API_URL', 'KV_REST_API_TOKEN', 'WELCOME_SERIES_ENABLED'];
 const saved = Object.fromEntries(names.map((name) => [name, process.env[name]]));
 const originalFetch = globalThis.fetch;
 afterEach(() => { globalThis.fetch = originalFetch; for (const name of names) { if (saved[name] === undefined) delete process.env[name]; else process.env[name] = saved[name]; } });
@@ -27,6 +27,7 @@ test('cron stays fail-closed when Kit or the Redis ledger is not configured', as
 });
 
 test('cron accepts Vercel-injected Upstash credentials', async () => {
+  delete process.env.WELCOME_SERIES_ENABLED;
   process.env.CRON_SECRET = 'cron-secret-with-at-least-16';
   process.env.KIT_API_KEY = 'kit-test';
   delete process.env.UPSTASH_REDIS_REST_URL;
@@ -42,5 +43,6 @@ test('cron accepts Vercel-injected Upstash credentials', async () => {
     headers: { authorization: 'Bearer cron-secret-with-at-least-16' },
   }));
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { ok: true, checked: 0, tagged: 0, pending: 0, failed: 0, remaining: 0 });
+  assert.deepEqual(await response.json(), { ok: true, checked: 0, tagged: 0, pending: 0, failed: 0, remaining: 0,
+    series: { checked: 0, sent: 0, stopped: 0, uncertain: 0, deferred: 0, failed: 0 } });
 });

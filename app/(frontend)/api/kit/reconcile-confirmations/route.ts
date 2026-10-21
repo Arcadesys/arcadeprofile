@@ -1,3 +1,4 @@
+import { runDueWelcomeSeries } from '@/lib/welcome-series';
 import { timingSafeEqual } from 'node:crypto';
 
 import { reconcileVerifiedKitSignups } from '@/lib/kit-confirmation-reconciliation';
@@ -25,9 +26,10 @@ export async function GET(request: Request) {
   if (!apiKey || !redisUrl || !redisToken) return json({ error: 'not_configured' }, 503);
   try {
     const result = await reconcileVerifiedKitSignups({ apiKey });
-    return result.failed === 0
-      ? json({ ok: true, ...result })
-      : json({ ok: false, ...result }, 502);
+    const series = await runDueWelcomeSeries({ apiKey });
+    return result.failed === 0 && series.failed === 0
+      ? json({ ok: true, ...result, series })
+      : json({ ok: false, ...result, series }, 502);
   } catch {
     // Provider responses and subscriber data are intentionally excluded.
     return json({ error: 'reconciliation_failed' }, 502);
