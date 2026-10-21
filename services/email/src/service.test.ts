@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Store } from "./store.js";
 import { EmailService } from "./service.js";
-import { KitAdapter, postmarkTransactional } from "./adapters.js";
+import { KitAdapter, transactionalMail } from "./adapters.js";
 import { ingestKit, ingestPostmark, validSignature } from "./webhooks.js";
 import { subscription, type Broadcast } from "./contracts.js";
 const input = (audiences: string[], updateMode = "replace") =>
@@ -197,19 +197,19 @@ test("transactional adapter uses transactional stream, reports provider rejectio
     textBody: "Test",
   };
   await assert.rejects(
-    postmarkTransactional(
+    transactionalMail(
       txn,
-      { token: "key", from: "sender@example.com", stream: "outbound" },
       async () => Response.json({ ErrorCode: 406, MessageID: "" }),
+      { POSTMARK_SERVER_TOKEN: "key", EMAIL_FROM: "sender@example.com", POSTMARK_TRANSACTIONAL_STREAM: "outbound" },
     ),
   );
-  const result = await postmarkTransactional(
+  const result = await transactionalMail(
     txn,
-    { token: "key", from: "sender@example.com", stream: "outbound" },
     async (_url, init) => {
       assert.equal(JSON.parse(String(init?.body)).MessageStream, "outbound");
       return Response.json({ ErrorCode: 0, MessageID: "abc" });
     },
+    { POSTMARK_SERVER_TOKEN: "key", EMAIL_FROM: "sender@example.com", POSTMARK_TRANSACTIONAL_STREAM: "outbound" },
   );
   assert.equal(result.providerId, "abc");
 });

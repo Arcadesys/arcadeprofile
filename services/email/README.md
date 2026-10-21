@@ -2,8 +2,10 @@
 
 A separately runnable Node 22 service. SQLite is the authority for subscribers,
 audience preferences, consent evidence, suppressions, and delivery attempts.
-Kit receives subscriber copies only when preparing a newsletter. Postmark remains
-the transactional adapter. The Next.js site holds no delivery-vendor credentials.
+Kit receives subscriber copies only when preparing a newsletter. Transactional delivery uses the shared `lib/mail-transport.ts` in the repository
+root, with Postmark as default and Resend selected by `MAIL_PROVIDER=resend`.
+This is historical infrastructure, not a prerequisite for the live Next.js signup;
+the live site has its own selected-provider credentials.
 
 ## Run
 
@@ -25,13 +27,22 @@ secret store (the process does not automatically read dotenv files):
 | `EMAIL_FROM` | Verified sending address |
 | `KIT_API_KEY` | Kit V4 API key |
 | `KIT_WEBHOOK_SECRET` | Modern webhook endpoint signing secret |
-| `POSTMARK_SERVER_TOKEN` | Transactional Postmark server token |
+| `MAIL_PROVIDER` | `postmark` (default) or `resend`; no fallback |
+| `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME` | Resend sending key, verified sender, optional name |
+| `POSTMARK_SERVER_TOKEN` | Postmark token when Postmark is selected |
 | `POSTMARK_TRANSACTIONAL_STREAM` | Transactional stream; default `outbound` |
-| `POSTMARK_WEBHOOK_KEY` | Independent webhook password |
+| `POSTMARK_WEBHOOK_KEY` | Independent legacy webhook password; required for Postmark, optional for Resend (endpoint rejects requests if absent) |
 | `EMAIL_SENDS_ENABLED` | Only literal `true` enables delivery; omitted means disabled |
 | `HOST`, `PORT` | Defaults `127.0.0.1`, `4318` |
 
-Use the Dockerfile with a persistent `/data` volume for an independent deployment.
+The Docker build context is now the **repository root**, so it can copy the
+shared transport: `docker build -f services/email/Dockerfile .`. Use a persistent
+`/data` volume for an independent deployment. Disable Resend domain open/click
+tracking before any Resend cutover. Stable service job IDs become Resend
+idempotency keys, while existing SQLite `needs_review` guards remain authoritative;
+no automatic retry is introduced. Postmark webhook ingestion remains available;
+this change does not add Resend webhook handling or establish production suppression
+synchronization for this historical service.
 Run one service instance on a private volume behind HTTPS. Do not put SQLite on
 an ephemeral/serverless filesystem or shared network volume. Limit access to the
 database directory; it contains personal data. Back up using SQLite's backup API

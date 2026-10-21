@@ -1,8 +1,8 @@
 # Email architecture and acceptance record
 
-## Current source contract (updated 2026-09-30)
+## Current source contract (updated 2026-10-20)
 
-The active signup and essay-broadcast paths call Kit, Postmark, and Redis
+The active signup and essay-broadcast paths call Kit, the selected mail provider, and Redis
 **directly**. They do not depend on deploying `services/email` or setting
 `EMAIL_SERVICE_URL`. The earlier standalone-service cutover plan in this document
 is superseded. This record describes source behavior; it does not establish that
@@ -12,7 +12,7 @@ configuration have been verified.
 - **Kit** owns subscriber status, topic form memberships/tags, double opt-in, and
   essay broadcasts. Cancelled, bounced, and complained addresses are not
   reactivated by the signup flow.
-- **Postmark** sends explicitly addressed signup verification messages and CLI
+- **Transactional mail** (`lib/mail-transport.ts`) sends explicitly addressed signup verification messages and CLI
   previews. It also implements the separately gated writing welcome.
 - **Upstash Redis** (or the Vercel-injected compatible connection) owns short-lived
   signup challenges, cooldowns/claim leases, durable welcome deduplication, and
@@ -20,13 +20,127 @@ configuration have been verified.
 - `lib/email-service.ts` and `services/email` remain historical code. In
   particular, `npm run postmark:test` and `npm run email:test` still invoke that
   legacy service through `scripts/send-test-email.ts`; they do **not** test the
-  current direct Postmark preview or signup path. Use the explicitly addressed
+  current direct provider preview or signup path. Use the explicitly addressed
   newsletter preview below for that CLI path.
 
 Primary implementation: `app/(frontend)/api/subscribe/route.ts`,
 `app/(frontend)/api/subscribe/verify/route.ts`, `lib/writing-signup.ts`,
 `lib/kit-confirmation-reconciliation.ts`, `lib/writing-welcome-email.ts`,
 `scripts/newsletter-post.ts`, and `lib/kit-broadcast.ts`.
+
+## Provider selection and cutover
+
+The only sending HTTP implementation is `lib/mail-transport.ts`. Signup,
+welcome, explicit CLI previews, and the historical service transactional adapter
+all call it. Kit broadcasts and legacy Postmark webhook ingestion are unchanged.
+`MAIL_PROVIDER` accepts exactly `postmark` or `resend`; unset/blank keeps Postmark.
+An unsupported value or missing selected-provider key/from address fails closed;
+there is no fallback, dual send, or automatic retry. Signup validates sender
+configuration before Kit/Redis calls; welcome validates before acquiring a claim;
+the historical service validates before opening its store.
+
+Postmark uses `POSTMARK_SERVER_TOKEN`, `POSTMARK_FROM_EMAIL`, optional
+`POSTMARK_FROM_NAME`, and existing transactional/broadcast stream settings.
+The historical service retains `EMAIL_FROM` as its Postmark sender. Resend uses
+`RESEND_API_KEY`, `RESEND_FROM_EMAIL`, optional `RESEND_FROM_NAME`; no Postmark
+sending credential is needed when Resend is selected. HTML, plain text, custom
+headers (including both RFC 8058 headers), and service-request metadata remain.
+Postmark streams remain unchanged. Resend records `message_stream` and `category`
+tags (`signup-verification`, `writing-welcome`, `newsletter-preview`,
+`legacy-transactional`); it uses the transactional API even for explicit previews.
+Kit remains the broadcast provider.
+
+Resend tracking is configured **per domain**, not per email: disable open and
+click tracking in the domain dashboard before switching. The adapter cannot
+prove dashboard settings with a sending-only key. Postmark verification/welcome
+still explicitly send `TrackOpens: false` and `TrackLinks: None`.
+
+Operator order (no step is performed by merging this PR):
+
+1. The user has confirmed `mail.thearcades.me` is Verified in Resend and chosen
+   `austen@mail.thearcades.me`. Recheck it remains Verified; keep tracking off.
+2. Create a Sending-access key restricted to that domain. Add `RESEND_API_KEY`
+   as a sensitive Vercel Production variable and `RESEND_FROM_EMAIL` with the
+   chosen address; optionally set `RESEND_FROM_NAME=The Arcades`.
+3. After merge and configuration, set `MAIL_PROVIDER=resend` in Production,
+   redeploy, then test signup with your own address. Verify inbox receipt,
+   explicit confirmation and the selected Kit memberships. Keep the welcome gate
+   unchanged; do not activate it merely to test this migration.
+4. Only after successful delivery, remove `POSTMARK_SERVER_TOKEN` from Vercel
+   and retire old Postmark DKIM/`pm-bounces` records after checking other users.
+   Preserve root iCloud MX/SPF and DMARC. No DNS or secret changes are part of this PR.
+
+### Acceptance and uncertainty
+
+`sendMail()` returns a provider message ID only with a valid positive receipt.
+`MailRejectedError` means a definite refusal. `MailAmbiguousError` means unknown
+outcome: retain the signup cooldown or permanent welcome claim. A compatibility
+export `PostmarkRejectedError` aliases `MailRejectedError` for stacked callers;
+new callers should import the neutral class directly. Errors contain no provider
+body, recipient, token, secret, or original fetch error/cause.
+
+- Postmark: HTTP 4xx and explicit numeric nonzero `ErrorCode` are refusals, as
+  before. Missing/wrong-type `ErrorCode`, malformed JSON, missing message ID,
+  network errors and 5xx are unknown. This closes the old missing-`ErrorCode`
+  loophole that could release a guard on an incomplete receipt.
+- Resend: documented validation/auth/permission/parameter errors (400, 401, 403,
+  404, 405, 422) and named rate/daily/monthly quota errors (429) are refusals.
+  Classification requires a documented name/status pair; malformed or unfamiliar
+  responses remain unknown. HTTP 408, **both 409 idempotency conflicts**, 5xx,
+  timeouts, missing receipts and invalid JSON remain unknown. A concurrent or
+  conflicting keyed request can mean an earlier request already sent.
+- Resend's `Idempotency-Key` lasts 24 hours. Verification keys hash the stable
+  challenge token; welcome keys use the existing keyed address digest; service
+  keys use the stable job ID. Neither raw tokens nor addresses are keys/tags.
+  Explicit previews have no durable send identity and intentionally get no key.
+  Idempotency supplements the existing Redis/SQLite guards; it does not replace
+  them, shorten retention, reclaim leases or authorize retries after uncertainty.
+
+Resend Free currently allows 100 emails/day and 3,000/month, counting previews
+and enabled welcomes too; a signup is not necessarily the only mail for an
+address. Daily quota resets at midnight UTC. Current default API rate limit is
+10 requests/second per team (check the account's Usage page). Named 429 refusals
+release signup/welcome guards; signup returns its existing generic failure and
+welcome returns `rejected`. Nothing queues or automatically resends after quota
+reset. A reader must retry once capacity returns. Uncertain requests keep their
+existing guards and require reconciliation. Upgrade ahead of a launch spike or
+accept delayed new signups; do not bypass guards to force a send.
+
+Current provider references checked for this change:
+[send API and custom headers](https://resend.com/docs/api-reference/emails/send-email),
+[idempotency](https://resend.com/docs/dashboard/emails/idempotency-keys),
+[error names/status codes](https://resend.com/docs/api-reference/errors),
+[rate and quota response headers](https://resend.com/docs/api-reference/rate-limit),
+[account quotas](https://resend.com/docs/knowledge-base/account-quotas-and-limits),
+[domain tracking](https://resend.com/changelog/update-click-open-tracking-via-api).
+
+### Follow-up for existing PRs (branches unchanged)
+
+- **#434**, based on #433: in `lib/writing-welcome-email.ts`, make
+  `writingWelcomeSenderConfig()` delegate to `readMailConfig()` and replace the
+  Postmark fetch in `sendWelcomeContent()` with `sendMail()`, preserving both
+  unsubscribe headers, bodies and disabled tracking. Add a caller-supplied stable
+  per-step key to that helper; in `lib/welcome-series.ts` pass a key containing
+  the keyed digest **and series step**, so the three different messages do not
+  collide within Resend's 24-hour window. Use `MailRejectedError` for its existing
+  refusal transition; leave leases/uncertain states intact. Keep the once-only
+  helper's digest key for the legacy single welcome. Adapt `lib/welcome-series.test.ts`
+  for both providers and missing/unknown receipts, and reconcile its README/docs edits.
+- **#435**: replace `lib/postmark-preview.ts`'s request with `sendMail()` and
+  `readMailConfig(input.env)`, retaining explicit single-address validation,
+  injected fetch/env, preview prefix, both bodies and 30-second timeout. Its
+  `scripts/newsletter-post.ts` extraction should retain the neutral acceptance
+  output. Update `lib/kit-email.ts`, `lib/kit-email.test.ts`, README, migration
+  docs, and `.claude/skills/kit-email/SKILL.md` provider/config language; keep
+  preview sends explicit and separate from Kit broadcasts. No preview dedupe key
+  should collapse intentional tests.
+- **#436**, stacked on #434: keep its `signupFlow`, `kitDoiFallback`, direct-active
+  copy and lease changes in `lib/writing-signup.ts` while retaining this PR's
+  `sendMail()` call, stable verification key and neutral error alias. Merge its
+  `/api/subscribe` route edit with selected-provider preflight, never restore the
+  Postmark-only env check. Retain tests proving both provider selections work
+  with its signup modes; reconcile README/docs wording. It inherits #434's
+  per-step welcome transport change; do not add a second sending implementation.
 
 ## Seven-topic signup and consent
 
@@ -41,7 +155,7 @@ use the existing public IDs in that mapping.
    message and no new memberships.
 2. For an eligible address, it stores AES-GCM encrypted email, a keyed email
    digest, and the selected topics in a 24-hour Redis challenge, then sends one
-   Postmark verification email. A keyed ten-minute cooldown for the same
+   first-party verification email. A keyed ten-minute cooldown for the same
    address/topic set is retained after an ambiguous provider response.
 3. The verification URL carries its signed token in the fragment. The page
    removes the fragment before rendering. Reading the page does not opt in;
@@ -93,7 +207,7 @@ Kit subscribers must not be welcomed by bulk enumeration.
 
 The welcome includes an RFC 8058 one-click unsubscribe header and an accessible
 linked unsubscribe page. GET is inert; the page button and one-click POST update
-Kit state. A definite Postmark rejection can release the welcome claim; a
+Kit state. A definite mail-provider rejection can release the welcome claim; a
 timeout or ambiguous response retains it for reconciliation. Provider acceptance
 is not proof of delivery.
 
@@ -108,8 +222,9 @@ Configure through the deployment/operator secret store, never committed files:
 - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`, or compatible
   `KV_REST_API_URL` / `KV_REST_API_TOKEN`
 - `SIGNUP_LINK_SECRET` and `CRON_SECRET`
-- `POSTMARK_SERVER_TOKEN`, `POSTMARK_FROM_EMAIL`, and, if configured,
-  `POSTMARK_FROM_NAME` / `POSTMARK_TRANSACTIONAL_STREAM`
+- `MAIL_PROVIDER` (unset/blank defaults to `postmark`); for Postmark,
+  `POSTMARK_SERVER_TOKEN`, `POSTMARK_FROM_EMAIL`, and optional `POSTMARK_FROM_NAME` / `POSTMARK_TRANSACTIONAL_STREAM`
+- For Resend: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, optional `RESEND_FROM_NAME`
 - `NEXT_PUBLIC_SITE_URL` for the intended production host
 
 Signup/confirmation must fail closed when their required configuration is
@@ -126,7 +241,7 @@ in `lib/newsletter-post.ts`. Future-dated/private content is ineligible.
 # Read-only content/audience summary; no provider calls.
 npm run newsletter:post -- --slug <slug>
 
-# One explicitly approved preview recipient, through Postmark.
+# One explicitly approved preview recipient, through the selected provider.
 npm run newsletter:post -- --slug <slug> --preview-to <approved-test-address>
 
 # Separately approved broadcast; verifies the public production essay URL first.

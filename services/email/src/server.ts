@@ -4,7 +4,7 @@ import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { Store } from "./store.js";
 import { EmailService } from "./service.js";
-import { KitAdapter, postmarkTransactional } from "./adapters.js";
+import { KitAdapter, transactionalMail, transactionalMailConfig } from "./adapters.js";
 import { subscription, broadcast, transactional } from "./contracts.js";
 import { ingestKit, ingestPostmark, validSignature } from "./webhooks.js";
 function required(name: string) {
@@ -20,19 +20,16 @@ if (
 )
   throw new Error("Use distinct keys of at least 32 characters");
 const kitSecret = required("KIT_WEBHOOK_SECRET");
-const postmarkSecret = required("POSTMARK_WEBHOOK_KEY");
+const mailConfig = transactionalMailConfig(); // Fail before creating a store or accepting requests.
+const postmarkSecret = mailConfig.provider === 'postmark'
+  ? required("POSTMARK_WEBHOOK_KEY") : process.env.POSTMARK_WEBHOOK_KEY;
 const dbFile = required("EMAIL_DATABASE_PATH");
 mkdirSync(dirname(dbFile), { recursive: true, mode: 0o700 });
 const store = new Store(dbFile);
 const service = new EmailService(
   store,
   new KitAdapter(required("KIT_API_KEY"), required("EMAIL_FROM")),
-  (input) =>
-    postmarkTransactional(input, {
-      token: required("POSTMARK_SERVER_TOKEN"),
-      from: required("EMAIL_FROM"),
-      stream: process.env.POSTMARK_TRANSACTIONAL_STREAM ?? "outbound",
-    }),
+  (input) => transactionalMail(input),
   process.env.EMAIL_SENDS_ENABLED === "true",
 );
 function equal(a: string, b: string) {
@@ -63,7 +60,7 @@ createServer(async (req, res) => {
     if (
       !kit &&
       !(postmark
-        ? equal(
+        ? Boolean(postmarkSecret) && equal(
             authorization,
             `Basic ${Buffer.from(`postmark:${postmarkSecret}`).toString("base64")}`,
           )

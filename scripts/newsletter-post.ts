@@ -1,3 +1,4 @@
+import { sendMail } from '../lib/mail-transport';
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
@@ -130,29 +131,11 @@ async function sendPreview(input: {
   htmlBody: string;
   textBody: string;
 }) {
-  const token = process.env.POSTMARK_SERVER_TOKEN?.trim();
-  const from = process.env.POSTMARK_FROM_EMAIL?.trim();
-  if (!token || !from) throw new Error("Postmark preview is not configured.");
-  const response = await fetch("https://api.postmarkapp.com/email", {
-    method: "POST",
-    headers: {
-      "X-Postmark-Server-Token": token,
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
-      From: process.env.POSTMARK_FROM_NAME?.trim()
-        ? `${process.env.POSTMARK_FROM_NAME.trim()} <${from}>`
-        : from,
-      To: input.to,
-      Subject: `[Preview] ${input.subject}`,
-      HtmlBody: input.htmlBody,
-      TextBody: input.textBody,
-      MessageStream: process.env.POSTMARK_TRANSACTIONAL_STREAM?.trim() || "outbound",
-    }),
-    signal: AbortSignal.timeout(30000),
+  await sendMail({
+    to: input.to, subject: `[Preview] ${input.subject}`,
+    html: input.htmlBody, text: input.textBody,
+    category: 'newsletter-preview', timeoutMs: 30000,
   });
-  if (!response.ok) throw new Error("Postmark preview request failed.");
 }
 
 async function main() {
@@ -193,7 +176,7 @@ async function main() {
 
   if (options.previewTo) {
     await sendPreview({ to: options.previewTo, subject: post.title, ...content });
-    console.log("Preview accepted by Postmark.");
+    console.log("Preview accepted by mail provider.");
     return;
   }
 

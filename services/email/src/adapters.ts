@@ -1,3 +1,4 @@
+import { readMailConfig, sendMail } from '../../../lib/mail-transport.js';
 import { z } from "zod";
 import type { Broadcast, Transactional, Suppression } from "./contracts.js";
 export interface NewsletterAdapter {
@@ -92,32 +93,19 @@ export class KitAdapter implements NewsletterAdapter {
     return { providerId: String(result.broadcast.id) };
   }
 }
-export async function postmarkTransactional(
+export function transactionalMailConfig(env: Record<string, string | undefined> = process.env) {
+  // The legacy service historically used EMAIL_FROM for Postmark.
+  return readMailConfig({ ...env, POSTMARK_FROM_EMAIL: env.EMAIL_FROM ?? env.POSTMARK_FROM_EMAIL, POSTMARK_FROM_NAME: undefined });
+}
+export async function transactionalMail(
   input: Transactional,
-  config: { token: string; from: string; stream: string },
   fetchImpl: typeof fetch = fetch,
+  env: Record<string, string | undefined> = process.env,
 ) {
-  const response = await fetchImpl("https://api.postmarkapp.com/email", {
-    method: "POST",
-    headers: {
-      "X-Postmark-Server-Token": config.token,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      From: config.from,
-      To: input.to,
-      Subject: input.subject,
-      HtmlBody: input.htmlBody,
-      TextBody: input.textBody,
-      MessageStream: config.stream,
-      Metadata: { service_request: input.id },
-    }),
-    signal: AbortSignal.timeout(30000),
-  });
-  if (!response.ok)
-    throw new Error(`Transactional provider failed (${response.status})`);
-  const result = z
-    .object({ ErrorCode: z.literal(0), MessageID: z.string().min(1) })
-    .parse(await response.json());
-  return { providerId: result.MessageID };
+  const providerId = await sendMail({
+    to: input.to, subject: input.subject, html: input.htmlBody, text: input.textBody,
+    category: 'legacy-transactional', metadata: { service_request: input.id },
+    idempotencyKey: `service-request/${input.id}`, timeoutMs: 30000,
+  }, { fetcher: fetchImpl, config: transactionalMailConfig(env) });
+  return { providerId };
 }

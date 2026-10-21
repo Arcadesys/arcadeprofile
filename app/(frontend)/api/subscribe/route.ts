@@ -1,6 +1,7 @@
+import { MailRejectedError, readMailConfig } from '@/lib/mail-transport';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { audienceList, challengeTtlMilliseconds, createVerificationToken, encryptSignupEmail, lookupKitSubscriber, newChallengeId, PostmarkRejectedError, putChallenge, redisCommand, sendVerificationEmail, signupCooldownKey, signupEmailDigest, type SignupChallenge } from '@/lib/writing-signup';
+import { audienceList, challengeTtlMilliseconds, createVerificationToken, encryptSignupEmail, lookupKitSubscriber, newChallengeId, putChallenge, redisCommand, sendVerificationEmail, signupCooldownKey, signupEmailDigest, type SignupChallenge } from '@/lib/writing-signup';
 import { VALID_AUDIENCES, VALID_MAGNETS, VALID_SOURCES, VALID_UPDATE_MODES, type Magnet } from '@/lib/subscribe-types';
 import { parseBody } from '@/lib/validation';
 
@@ -32,7 +33,8 @@ export async function POST(request: NextRequest) {
   const email = parsed.data.email.toLowerCase();
   const apiKey = process.env.KIT_API_KEY?.trim();
   if (!apiKey) return json({ error: 'Signup is temporarily unavailable.' }, 503);
-  if (!process.env.POSTMARK_SERVER_TOKEN?.trim() || !process.env.POSTMARK_FROM_EMAIL?.trim()) return json({ error: 'Signup is temporarily unavailable.' }, 503);
+  try { readMailConfig(); }
+  catch { return json({ error: 'Signup is temporarily unavailable.' }, 503); }
   try {
     // Read only. Suppressed states must not receive a verification message or any Kit writes.
     const subscriber = await lookupKitSubscriber(email, apiKey);
@@ -53,14 +55,14 @@ export async function POST(request: NextRequest) {
       ...(subscriber ? { subscriberId: subscriber.id } : {}),
       status: 'pending',
     };
-    let attemptedPostmark = false;
+    let attemptedMail = false;
     try {
       await putChallenge(id, challenge);
       const token = createVerificationToken(id, createdAt + challengeTtlMilliseconds);
-      attemptedPostmark = true;
+      attemptedMail = true;
       await sendVerificationEmail({ email, token, audiences: challenge.audiences });
     } catch (error) {
-      if (!attemptedPostmark || error instanceof PostmarkRejectedError) {
+      if (!attemptedMail || error instanceof MailRejectedError) {
         await redisCommand(['DEL', cooldownKey]);
         await redisCommand(['DEL', `writing:challenge:${id}`]);
         throw error;

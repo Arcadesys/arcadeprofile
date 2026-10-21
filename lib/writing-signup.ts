@@ -1,4 +1,7 @@
 import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { sendMail } from './mail-transport';
+// Compatibility for stacked callers; new code should import MailRejectedError.
+export { MailRejectedError as PostmarkRejectedError } from './mail-transport';
 import type { Audience } from './subscribe-types';
 
 export type SignupChallenge = {
@@ -167,8 +170,6 @@ export async function lookupKitSubscriber(email: string, apiKey: string, fetcher
 }
 
 export async function sendVerificationEmail(input: { email: string; token: string; audiences: Audience[] }, fetcher: typeof fetch = fetch) {
-  const serverToken = env('POSTMARK_SERVER_TOKEN');
-  const from = env('POSTMARK_FROM_EMAIL');
   const site = verificationSiteUrl();
   const labels: Record<Audience, string> = { all: 'All writing', fiction: 'Fiction', essays: 'Essays', lab: "The Arcades' Lab", 'queer-columns': 'Queer Columns', 'work-ai': 'Work / AI', th4f: 'TH4F' };
   const selectedAudiences = new Set(input.audiences);
@@ -179,28 +180,12 @@ export async function sendVerificationEmail(input: { email: string; token: strin
   const verifyUrl = `${site}/subscribe/verify#${input.token}`;
   const html = `<p>You requested email updates from The Arcades.</p><p><strong>Your topics:</strong> ${selected.join(', ')}.</p><p>To start receiving them, confirm your request:</p><p><a href="${verifyUrl}">Confirm my subscription</a></p><p>This link expires in 24 hours. After you confirm here, Kit may send additional confirmation emails before delivery begins.</p><p>If you didn’t make this request, ignore this message. We won’t add these choices from it.</p>`;
   const text = `You requested email updates from The Arcades.\n\nYour topics: ${selected.join(', ')}.\n\nTo start receiving them, confirm your request:\n${verifyUrl}\n\nThis link expires in 24 hours. After you confirm here, Kit may send additional confirmation emails before delivery begins.\n\nIf you didn’t make this request, ignore this message. We won’t add these choices from it.`;
-  const response = await fetcher('https://api.postmarkapp.com/email', {
-    method: 'POST',
-    headers: { 'X-Postmark-Server-Token': serverToken, 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({
-      From: process.env.POSTMARK_FROM_NAME?.trim() ? `${process.env.POSTMARK_FROM_NAME.trim()} <${from}>` : from,
-      To: input.email,
-      Subject: 'Confirm your updates from The Arcades',
-      HtmlBody: html,
-      TextBody: text,
-      MessageStream: process.env.POSTMARK_TRANSACTIONAL_STREAM?.trim() || 'outbound',
-      TrackLinks: 'None',
-      TrackOpens: false,
-    }),
-    signal: AbortSignal.timeout(15000),
-  });
-  if (response.status >= 400 && response.status < 500) throw new PostmarkRejectedError();
-  if (!response.ok) throw new Error('Postmark delivery result is ambiguous');
-  let receipt: { ErrorCode?: unknown; MessageID?: unknown };
-  try { receipt = await response.json() as { ErrorCode?: unknown; MessageID?: unknown }; }
-  catch { throw new Error('Postmark delivery receipt was invalid'); }
-  if (receipt.ErrorCode !== 0) throw new PostmarkRejectedError();
-  if (typeof receipt.MessageID !== 'string' || !receipt.MessageID) throw new Error('Postmark delivery receipt was incomplete');
+  await sendMail({
+    to: input.email, subject: 'Confirm your updates from The Arcades', html, text,
+    category: 'signup-verification', disableTracking: true,
+    // Stable per challenge; neither a raw token nor an address reaches provider metadata.
+    idempotencyKey: `signup-verification/${createHash('sha256').update(input.token).digest('hex')}`,
+  }, { fetcher });
 }
 
 export function verificationSiteUrl() {
@@ -224,8 +209,4 @@ export const challengeTtlMilliseconds = TTL_SECONDS * 1000;
 export function signupCooldownKey(email: string, selected: Audience[]) {
   const digest = createHmac('sha256', signingSecret()).update(`${email.toLowerCase()}\n${[...selected].sort().join(',')}`).digest('hex');
   return `writing:send-cooldown:${digest}`;
-}
-
-export class PostmarkRejectedError extends Error {
-  constructor() { super('Verification email was rejected'); }
 }
