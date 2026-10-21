@@ -41,8 +41,10 @@ test('the shared footer keeps the general signup off Queer Columns', () => {
   assert.match(footerSubscribe, /audiences=\{\['all'\]\}/);
   assert.match(footerSubscribe, /Send confirmation email/);
   assert.match(footerSubscribe, /pathname === '\/queercolumns'/);
-  assert.match(queerColumns, /Subscribe to Queer Columns/);
-  assert.match(queerColumns, /austen-tucker\.kit\.com\/e422068d6d/);
+  assert.match(queerColumns, /Get the next column/);
+  assert.match(queerColumns, /<SubscriptionForm/);
+  assert.match(queerColumns, /audiences=\{\['queer-columns'\]\}/);
+  assert.doesNotMatch(queerColumns, /kit\.com|KitSignup/);
 });
 
 test('project prose has an article landmark and mobile controls have accessible sizing', () => {

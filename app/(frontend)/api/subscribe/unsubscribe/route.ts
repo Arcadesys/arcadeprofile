@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { parseKitUnsubscribeToken } from '@/lib/writing-signup';
+import { parseResendUnsubscribeToken } from '@/lib/writing-signup';
+import { unsubscribeResendContact } from '@/lib/resend-contacts';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -22,21 +23,14 @@ export async function POST(request: Request) {
     if (body.get('List-Unsubscribe') === 'One-Click') token = url.searchParams.get('token');
   }
   if (!token) return reply({ error: 'This unsubscribe link is invalid.' }, 400);
-  let identity: ReturnType<typeof parseKitUnsubscribeToken>;
-  try { identity = parseKitUnsubscribeToken(token); } catch { identity = null; }
+  let identity: ReturnType<typeof parseResendUnsubscribeToken>;
+  try { identity = parseResendUnsubscribeToken(token); } catch { identity = null; }
   if (!identity) return reply({ error: 'This unsubscribe link is invalid.' }, 400);
-  const apiKey = process.env.KIT_API_KEY?.trim();
+  const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) return reply({ error: 'Unsubscribe is temporarily unavailable. Please retry.' }, 503);
 
   try {
-    const response = await fetch(`https://api.kit.com/v4/subscribers/${identity.subscriberId}/unsubscribe`, {
-      method: 'POST',
-      headers: { 'X-Kit-Api-Key': apiKey, 'Content-Type': 'application/json' },
-      body: '{}',
-      signal: AbortSignal.timeout(10000),
-      cache: 'no-store',
-    });
-    if (!response.ok) return reply({ error: 'Unsubscribe could not be completed. Please retry.' }, 502);
+    await unsubscribeResendContact(identity.subscriberId, apiKey);
     return reply({ ok: true });
   } catch {
     // Do not log tokens, subscriber IDs, or provider response bodies.

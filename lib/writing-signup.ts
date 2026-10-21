@@ -1,7 +1,5 @@
 import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { sendMail } from './mail-transport';
-// Compatibility for stacked callers; new code should import MailRejectedError.
-export { MailRejectedError as PostmarkRejectedError } from './mail-transport';
 import type { Audience } from './subscribe-types';
 
 export type SignupChallenge = {
@@ -11,11 +9,11 @@ export type SignupChallenge = {
   source?: string | null;
   createdAt: number;
   verifiedAt?: number;
-  kitActiveAt?: number;
+  resendSubscribedAt?: number;
   processingUntil?: number;
   processingToken?: string;
-  subscriberId?: number;
-  status: 'pending' | 'processing' | 'awaiting-kit' | 'complete' | 'blocked' | 'cancelled';
+  subscriberId?: string;
+  status: 'pending' | 'processing' | 'complete' | 'blocked' | 'cancelled';
 };
 
 const TTL_SECONDS = 60 * 60 * 24;
@@ -76,17 +74,17 @@ export function signupEmailDigest(email: string) {
   return createHmac('sha256', signingSecret()).update(`writing-email\n${email.trim().toLowerCase()}`).digest('hex');
 }
 
-export function createKitUnsubscribeToken(subscriberId: number, emailDigest: string) {
-  if (!Number.isSafeInteger(subscriberId) || subscriberId <= 0 || !/^[a-f0-9]{64}$/.test(emailDigest)) throw new Error('Unsubscribe identity is invalid');
+export function createResendUnsubscribeToken(subscriberId: string, emailDigest: string) {
+  if (!/^[a-f0-9-]{20,64}$/i.test(subscriberId) || !/^[a-f0-9]{64}$/.test(emailDigest)) throw new Error('Unsubscribe identity is invalid');
   const payload = `${subscriberId}.${emailDigest}`;
   return `${payload}.${sign(`unsubscribe:${payload}`)}`;
 }
 
-export function parseKitUnsubscribeToken(token: string) {
+export function parseResendUnsubscribeToken(token: string) {
   if (token.length > 256) return null;
   const [idText, emailDigest, signature, extra] = token.split('.');
-  const subscriberId = Number(idText);
-  if (!idText || !Number.isSafeInteger(subscriberId) || subscriberId <= 0 || !emailDigest || !/^[a-f0-9]{64}$/.test(emailDigest) || !signature || extra) return null;
+  const subscriberId = idText;
+  if (!/^[a-f0-9-]{20,64}$/i.test(subscriberId) || !emailDigest || !/^[a-f0-9]{64}$/.test(emailDigest) || !signature || extra) return null;
   const expected = Buffer.from(sign(`unsubscribe:${idText}.${emailDigest}`));
   const actual = Buffer.from(signature);
   if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) return null;
@@ -133,41 +131,20 @@ export async function saveChallengeIfStatus(
   expectedProcessingToken?: string,
   fetcher: typeof fetch = fetch,
 ): Promise<'updated' | SignupChallenge['status'] | 'missing'> {
-  if (challenge.status === 'complete' && !challenge.kitActiveAt) challenge.kitActiveAt = Date.now();
+  if (challenge.status === 'complete' && !challenge.resendSubscribedAt) challenge.resendSubscribedAt = Date.now();
   const retentionEnd = challenge.verifiedAt ? challenge.verifiedAt + 30 * 24 * 60 * 60 * 1000 : challenge.createdAt + TTL_SECONDS * 1000;
-  const ttl = ['processing', 'awaiting-kit'].includes(challenge.status)
+  const ttl = challenge.status === 'processing'
     ? Math.max(1, Math.ceil((retentionEnd - Date.now()) / 1000))
     : 0;
-  const script = `local raw=redis.call('GET',KEYS[1]); if not raw then return 'missing' end; local current=cjson.decode(raw); if current.status~=ARGV[1] then return current.status end; if ARGV[6]~='' and current.processingToken~=ARGV[6] then return 'lease_mismatch' end; local next=cjson.decode(ARGV[2]); redis.call('SET',KEYS[1],ARGV[2],'KEEPTTL'); if tonumber(ARGV[3])>0 then redis.call('EXPIRE',KEYS[1],ARGV[3]) end; if ARGV[4]=='awaiting-kit' then redis.call('SADD',KEYS[2],ARGV[5]) else redis.call('SREM',KEYS[2],ARGV[5]) end; if not current.verifiedAt and next.verifiedAt and ARGV[7]~='' then redis.call('HINCRBY',KEYS[3],'first_party_verified',1); redis.call('EXPIRE',KEYS[3],34560000) end; if not current.kitActiveAt and next.kitActiveAt and ARGV[8]~='' then redis.call('HINCRBY',KEYS[4],'kit_active_ready',1); redis.call('EXPIRE',KEYS[4],34560000) end; return 'updated'`;
+  const script = `local raw=redis.call('GET',KEYS[1]); if not raw then return 'missing' end; local current=cjson.decode(raw); if current.status~=ARGV[1] then return current.status end; if ARGV[6]~='' and current.processingToken~=ARGV[6] then return 'lease_mismatch' end; local next=cjson.decode(ARGV[2]); redis.call('SET',KEYS[1],ARGV[2],'KEEPTTL'); if tonumber(ARGV[3])>0 then redis.call('EXPIRE',KEYS[1],ARGV[3]) end; if not current.verifiedAt and next.verifiedAt and ARGV[7]~='' then redis.call('HINCRBY',KEYS[2],'first_party_verified',1); redis.call('EXPIRE',KEYS[2],34560000) end; if not current.resendSubscribedAt and next.resendSubscribedAt and ARGV[8]~='' then redis.call('HINCRBY',KEYS[3],'resend_subscribed_ready',1); redis.call('EXPIRE',KEYS[3],34560000) end; return 'updated'`;
   const verifiedDay = challenge.verifiedAt ? new Date(challenge.verifiedAt).toISOString().slice(0, 10) : '';
-  const kitActiveDay = challenge.kitActiveAt ? new Date(challenge.kitActiveAt).toISOString().slice(0, 10) : '';
-  const result = await redisCommand<string>(['EVAL', script, 4, `writing:challenge:${id}`, challengeIndexKey(), verifiedDay ? `writing:metrics:${verifiedDay}` : 'writing:metrics:none', kitActiveDay ? `writing:metrics:${kitActiveDay}` : 'writing:metrics:none', expectedStatus, JSON.stringify(challenge), ttl, challenge.status, id, expectedProcessingToken ?? '', verifiedDay, kitActiveDay], fetcher);
-  if (result === 'updated' || result === 'missing' || ['pending', 'processing', 'awaiting-kit', 'complete', 'blocked', 'cancelled'].includes(result)) return result as 'updated' | SignupChallenge['status'] | 'missing';
+  const resendSubscribedDay = challenge.resendSubscribedAt ? new Date(challenge.resendSubscribedAt).toISOString().slice(0, 10) : '';
+  const result = await redisCommand<string>(['EVAL', script, 3, `writing:challenge:${id}`, verifiedDay ? `writing:metrics:${verifiedDay}` : 'writing:metrics:none', resendSubscribedDay ? `writing:metrics:${resendSubscribedDay}` : 'writing:metrics:none', expectedStatus, JSON.stringify(challenge), ttl, challenge.status, id, expectedProcessingToken ?? '', verifiedDay, resendSubscribedDay], fetcher);
+  if (result === 'updated' || result === 'missing' || ['pending', 'processing', 'complete', 'blocked', 'cancelled'].includes(result)) return result as 'updated' | SignupChallenge['status'] | 'missing';
   throw new Error('Signup ledger status was invalid');
 }
 
-export function challengeIndexKey() { return 'writing:awaiting-kit'; }
 export function audienceList(input: Audience[]) { return [...new Set(input)].filter((value) => audiences.includes(value)); }
-
-export async function lookupKitSubscriber(email: string, apiKey: string, fetcher: typeof fetch = fetch) {
-  const url = new URL('https://api.kit.com/v4/subscribers');
-  url.searchParams.set('email_address', email);
-  url.searchParams.set('status', 'all');
-  url.searchParams.set('slim', 'true');
-  url.searchParams.set('per_page', '10');
-  const response = await fetcher(url, { headers: { 'X-Kit-Api-Key': apiKey }, signal: AbortSignal.timeout(8000), cache: 'no-store' });
-  if (!response.ok) throw new Error('Kit subscriber lookup failed');
-  const body = await response.json() as { subscribers?: Array<{ id?: unknown; state?: unknown; email_address?: unknown }> };
-  if (!Array.isArray(body.subscribers)) throw new Error('Kit subscriber response was invalid');
-  const matches = body.subscribers.filter((entry) => typeof entry.email_address === 'string' && entry.email_address.toLowerCase() === email.toLowerCase());
-  if (matches.length > 1) throw new Error('Kit subscriber response was ambiguous');
-  const found = matches[0];
-  if (!found) return null;
-  if (typeof found.id !== 'number' || !Number.isSafeInteger(found.id) || found.id <= 0 || typeof found.state !== 'string') {
-    throw new Error('Kit subscriber response was invalid');
-  }
-  return { id: found.id, state: found.state };
-}
 
 export async function sendVerificationEmail(input: { email: string; token: string; audiences: Audience[] }, fetcher: typeof fetch = fetch) {
   const site = verificationSiteUrl();
@@ -178,8 +155,8 @@ export async function sendVerificationEmail(input: { email: string; token: strin
     .filter((audience) => !selectedAudiences.has('all') || (audience !== 'fiction' && audience !== 'essays'))
     .map((audience) => audience === 'all' ? 'All writing (fiction and essays)' : labels[audience]);
   const verifyUrl = `${site}/subscribe/verify#${input.token}`;
-  const html = `<p>You requested email updates from The Arcades.</p><p><strong>Your topics:</strong> ${selected.join(', ')}.</p><p>To start receiving them, confirm your request:</p><p><a href="${verifyUrl}">Confirm my subscription</a></p><p>This link expires in 24 hours. After you confirm here, Kit may send additional confirmation emails before delivery begins.</p><p>If you didn’t make this request, ignore this message. We won’t add these choices from it.</p>`;
-  const text = `You requested email updates from The Arcades.\n\nYour topics: ${selected.join(', ')}.\n\nTo start receiving them, confirm your request:\n${verifyUrl}\n\nThis link expires in 24 hours. After you confirm here, Kit may send additional confirmation emails before delivery begins.\n\nIf you didn’t make this request, ignore this message. We won’t add these choices from it.`;
+  const html = `<p>You requested email updates from The Arcades.</p><p><strong>Your topics:</strong> ${selected.join(', ')}.</p><p>To start receiving them, confirm your request:</p><p><a href="${verifyUrl}">Confirm my subscription</a></p><p>This link expires in 24 hours. We will not send a second confirmation email.</p><p>If you didn’t make this request, ignore this message. We won’t add these choices from it.</p>`;
+  const text = `You requested email updates from The Arcades.\n\nYour topics: ${selected.join(', ')}.\n\nTo start receiving them, confirm your request:\n${verifyUrl}\n\nThis link expires in 24 hours. We will not send a second confirmation email.\n\nIf you didn’t make this request, ignore this message. We won’t add these choices from it.`;
   await sendMail({
     to: input.email, subject: 'Confirm your updates from The Arcades', html, text,
     category: 'signup-verification', disableTracking: true,
@@ -206,7 +183,7 @@ export async function releaseSignupLock(key: string, value: string, fetcher: typ
   await redisCommand(['EVAL', script, 1, key, value], fetcher);
 }
 export const challengeTtlMilliseconds = TTL_SECONDS * 1000;
-export function signupCooldownKey(email: string, selected: Audience[]) {
-  const digest = createHmac('sha256', signingSecret()).update(`${email.toLowerCase()}\n${[...selected].sort().join(',')}`).digest('hex');
+export function signupCooldownKey(email: string) {
+  const digest = signupEmailDigest(email);
   return `writing:send-cooldown:${digest}`;
 }

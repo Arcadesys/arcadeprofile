@@ -1,7 +1,8 @@
 import { MailRejectedError, readMailConfig } from '@/lib/mail-transport';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { audienceList, challengeTtlMilliseconds, createVerificationToken, encryptSignupEmail, lookupKitSubscriber, newChallengeId, putChallenge, redisCommand, sendVerificationEmail, signupCooldownKey, signupEmailDigest, type SignupChallenge } from '@/lib/writing-signup';
+import { audienceList, challengeTtlMilliseconds, createVerificationToken, encryptSignupEmail, newChallengeId, putChallenge, redisCommand, sendVerificationEmail, signupCooldownKey, signupEmailDigest, type SignupChallenge } from '@/lib/writing-signup';
+import { findResendContact, isResendSuppressed } from '@/lib/resend-contacts';
 import { VALID_AUDIENCES, VALID_MAGNETS, VALID_SOURCES, VALID_UPDATE_MODES, type Magnet } from '@/lib/subscribe-types';
 import { parseBody } from '@/lib/validation';
 import { subscriberGiftFiles } from '@/lib/subscriber-gift';
@@ -29,20 +30,31 @@ export async function POST(request: NextRequest) {
   const parsed = await parseBody(schema, request);
   if (!parsed.ok) return parsed.response;
   const email = parsed.data.email.toLowerCase();
-  const apiKey = process.env.KIT_API_KEY?.trim();
+  const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) return json({ error: 'Signup is temporarily unavailable.' }, 503);
   try { readMailConfig(); }
   catch { return json({ error: 'Signup is temporarily unavailable.' }, 503); }
   try {
-    // Read only. Suppressed states must not receive a verification message or any Kit writes.
-    const subscriber = await lookupKitSubscriber(email, apiKey);
-    if (subscriber && ['cancelled', 'bounced', 'complained'].includes(subscriber.state)) {
-      return json({ ok: true, confirmationRequired: true, ...(parsed.data.magnet ? { magnet: MAGNETS[parsed.data.magnet] } : {}) });
-    }
+    // Shared pre-provider admission protects Resend and verification delivery
+    // even when an attacker distributes requests across many addresses.
+    const admissionScript = `local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],ARGV[1]) end; return n`;
+    const globalWindow = Math.floor(Date.now() / 3600000);
+    const globalCount = await redisCommand<number>(['EVAL', admissionScript, 1, `writing:signup-global:${globalWindow}`, 3600]);
+    if (globalCount > 500) return json({ error: 'Too many signup requests. Please try again later.' }, 429);
+    const admissionKey = `writing:signup-admission:${signupEmailDigest(email)}`;
+    const admitted = await redisCommand<string | null>(['SET', admissionKey, '1', 'EX', 60, 'NX']);
+    if (admitted !== 'OK') return json({ ok: true, confirmationRequired: true, ...(parsed.data.magnet ? { magnet: MAGNETS[parsed.data.magnet] } : {}) });
+    // Claim recipient-wide delivery cooldown before any provider request. The
+    // key uses the address digest only, never selected topic/audience values.
     const id = newChallengeId();
-    const cooldownKey = signupCooldownKey(email, parsed.data.audiences);
+    const cooldownKey = signupCooldownKey(email);
     const claimed = await redisCommand<string | null>(['SET', cooldownKey, id, 'EX', 600, 'NX']);
     if (claimed !== 'OK') return json({ ok: true, confirmationRequired: true, ...(parsed.data.magnet ? { magnet: MAGNETS[parsed.data.magnet] } : {}) });
+    // Read only. No provider write occurs until the explicit confirmation POST.
+    const subscriber = await findResendContact(email, apiKey);
+    if (subscriber?.unsubscribed || await isResendSuppressed(email, apiKey)) {
+      return json({ ok: true, confirmationRequired: true, ...(parsed.data.magnet ? { magnet: MAGNETS[parsed.data.magnet] } : {}) });
+    }
     const createdAt = Date.now();
     const challenge: SignupChallenge = {
       encryptedEmail: encryptSignupEmail(email),

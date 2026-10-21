@@ -20,7 +20,7 @@ Filter the current `pathname` to that exact list, never a broad prefix or `landi
 | Signup request | `signup confirmation requested`, `canonicalId`, `placement` | First-party signup request was accepted and a confirmation step was requested. It does not establish that the reader clicked the confirmation link. |
 | Professional handoff click | `site link clicked`, `destination_host=work.thearcades.me`, `link_kind=external` | Activation of a professional-work link; this is intent. Compare its aggregate count with work-site arrivals tagged by the handoff campaign, without joining visitors. |
 | First-party verified | Daily Redis aggregate `first_party_verified` | A signed confirmation action was claimed once by the first-party endpoint. Count is by UTC day and is independent of PostHog identity. |
-| Kit-active ready | Daily Redis aggregate `kit_active_ready` | Kit reported the verified subscriber active and the stored audience updates completed. This is eligibility for Kit delivery, not proof that an email or broadcast was delivered. Count is by UTC day and is independent of PostHog identity. |
+| Resend-subscribed ready | Daily Redis aggregate `resend_subscribed_ready` | The reader explicitly confirmed and Resend reported the contact subscribed with requested topics saved. This is eligibility for delivery, not proof that an email or broadcast was delivered. Count is by UTC day and is independent of PostHog identity. |
 
 Reader event capture is deduplicated per event/control/context during one mounted visit. A genuine remount or return visit can produce another receipt. Sitewide `$pageview` is once per path transition; `site link clicked` counts eligible activations and is not the same unit as a deduplicated reader next-action event.
 
@@ -30,7 +30,7 @@ The collector uses a pseudonymous browser UUID in localStorage and a separate UU
 
 Saved report titles, column labels and narrative must use “end reached” or “end-reached receipts,” never “finished reads.” Label distinct-ID counts “pseudonymous browser IDs”; persistent browser IDs are neither unique people nor anonymous readers. State the event unit and cohort alongside every count.
 
-The Redis aggregates are written atomically with the challenge status transition. A single explicit verification claim increments `first_party_verified`; the later successful transition to `complete` increments `kit_active_ready`. Retries and repeated completion attempts cannot increment either stage again. These are request-transition counts, not unique subscriber counts; one address may make more than one request. The counters contain only the stage totals, use `writing:metrics:YYYY-MM-DD` hashes, and expire after 400 days. Read them with `HGETALL writing:metrics:YYYY-MM-DD`; do not export the challenge ledger or join totals to PostHog visitors, email addresses, subscriber IDs, or tokens.
+The Redis aggregates are written atomically with the challenge status transition. A single explicit verification claim increments `first_party_verified`; the later successful transition to `complete` increments `resend_subscribed_ready`. Retries and repeated completion attempts cannot increment either stage again. These are request-transition counts, not unique subscriber counts; one address may make more than one request. The counters contain only the stage totals, use `writing:metrics:YYYY-MM-DD` hashes, and expire after 400 days. Read them with `HGETALL writing:metrics:YYYY-MM-DD`; do not export the challenge ledger or join totals to PostHog visitors, email addresses, subscriber IDs, or tokens.
 
 ## 14-day comparison
 
@@ -47,9 +47,9 @@ Resolve each period to explicit half-open bounds, `start_utc <= timestamp < end_
 | Signup requests (intent) | — | — | `signup confirmation requested` |
 | Professional handoff clicks (intent) | — | — | `site link clicked`, destination host `work.thearcades.me` |
 | First-party verifications | N/A before aggregate deployment | — | Sum daily Redis `first_party_verified` |
-| Kit-active ready states | N/A before aggregate deployment | — | Sum daily Redis `kit_active_ready`; not an email delivery receipt |
+| Resend-subscribed ready states | N/A before aggregate deployment | — | Sum daily Redis `resend_subscribed_ready`; not an email delivery receipt |
 
-The table reports raw receipt or request-transition counts, not a conversion funnel. Do not divide its rows into conversion rates: page transitions, mounted reader milestones, link activations and request transitions have different units. A separate pathway analysis must first define the same eligible content cohort, event order, deduplication rule, identifier/storage limitations and time window for every step. Show its numerator and denominator explicitly and keep content types separate; a visit need not include every step. Do not connect first-party or Kit-active aggregates to browser IDs or calculate rates from those provider counts. Mark low-volume or incomplete rows as insufficient evidence; do not infer conversion improvement from a small number of events.
+The table reports raw receipt or request-transition counts, not a conversion funnel. Do not divide its rows into conversion rates: page transitions, mounted reader milestones, link activations and request transitions have different units. A separate pathway analysis must first define the same eligible content cohort, event order, deduplication rule, identifier/storage limitations and time window for every step. Show its numerator and denominator explicitly and keep content types separate; a visit need not include every step. Do not connect first-party or Resend-subscribed aggregates to browser IDs or calculate rates from those provider counts. Mark low-volume or incomplete rows as insufficient evidence; do not infer conversion improvement from a small number of events.
 
 ## Work handoff
 

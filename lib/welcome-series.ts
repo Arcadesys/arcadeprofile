@@ -4,6 +4,7 @@ import { VALID_AUDIENCES, type Audience } from './subscribe-types';
 import { newProcessingToken, redisCommand, signupEmailDigest } from './writing-signup';
 import { sendWelcomeContent, writingWelcomeSenderConfig, type WelcomeDeliveryResult } from './writing-welcome-email';
 import { buildWelcomeSeriesEmail } from './welcome-series-copy';
+import { lookupResendContactById } from './resend-contacts';
 
 const DAY = 86400000;
 const RETENTION = 30 * DAY;
@@ -13,7 +14,7 @@ const INDEX = 'writing:welcome-series:due';
 const key = (digest: string) => `writing:welcome-series:${digest}`;
 type Status = 'pending' | 'claimed' | 'sending' | 'uncertain';
 export type SeriesRecord = {
-  subscriberId: number;
+  subscriberId: string;
   audiences: Audience[];
   step: number;
   enrolledAt: number;
@@ -54,7 +55,7 @@ return 1`;
 
 function readRecord(raw: string): SeriesRecord {
   const r = JSON.parse(raw) as SeriesRecord;
-  if (!Number.isSafeInteger(r.subscriberId) || r.subscriberId <= 0 || !Array.isArray(r.audiences)
+  if (typeof r.subscriberId !== 'string' || !/^[a-f0-9-]{20,64}$/i.test(r.subscriberId) || !Array.isArray(r.audiences)
     || !r.audiences.length || r.audiences.some((a) => !VALID_AUDIENCES.includes(a))
     || !r.audiences.some(isArcadesAudience) || !Number.isInteger(r.step) || r.step < 0 || r.step > 2
     || !Number.isFinite(r.enrolledAt) || !Number.isFinite(r.nextDue) || !Number.isFinite(r.expiresAt)
@@ -73,31 +74,24 @@ async function transition(digest: string, raw: string, next: SeriesRecord | null
     live ? JSON.stringify(live) : '', live ? Math.max(1, live.expiresAt - now) : 1, score, digest], context.fetcher) === 1;
 }
 
-async function recipient(subscriberId: number, digest: string, context: Context) {
-  const response = await (context.fetcher ?? fetch)(`https://api.kit.com/v4/subscribers/${subscriberId}`, {
-    headers: { 'X-Kit-Api-Key': context.apiKey }, signal: AbortSignal.timeout(8000), cache: 'no-store',
-  });
-  if (response.status === 404) return null;
-  if (!response.ok) throw new Error('Welcome subscriber lookup unavailable');
-  const data = await response.json() as { subscriber?: { id?: unknown; state?: unknown; email_address?: unknown } };
-  const subscriber = data.subscriber;
-  if (subscriber?.id !== subscriberId || typeof subscriber.state !== 'string') throw new Error('Invalid welcome subscriber');
-  if (subscriber.state !== 'active') return null;
-  const email = typeof subscriber.email_address === 'string' ? subscriber.email_address.trim().toLowerCase() : '';
+async function recipient(subscriberId: string, digest: string, context: Context) {
+  const subscriber = await lookupResendContactById(subscriberId, context.apiKey, context.fetcher);
+  if (!subscriber || subscriber.unsubscribed) return null;
+  const email = subscriber.email.trim().toLowerCase();
   // Address changes require a fresh explicit consent flow; never redirect a series.
   if (!email || !email.includes('@') || signupEmailDigest(email) !== digest) return null;
   return email;
 }
 
-/** Called ONLY at the existing first-party-confirmed + Kit-active welcome sites.
- * Imports and unclaimed/DOI-pending signups never enter by scanning Kit forms.
+/** Called only after first-party confirmation and a subscribed Resend contact.
+ * Imported contacts never enter by bulk enumeration.
  */
-export async function enrollWelcomeSeries(input: { subscriberId: number; emailDigest: string; audiences: Audience[] } & Context): Promise<Result> {
+export async function enrollWelcomeSeries(input: { subscriberId: string; emailDigest: string; audiences: Audience[] } & Context): Promise<Result> {
   if (!welcomeSeriesEnabled()) return 'disabled';
   if (!input.audiences.some(isArcadesAudience)) return 'disabled';
-  if (!/^[a-f0-9]{64}$/.test(input.emailDigest) || !Number.isSafeInteger(input.subscriberId) || input.subscriberId <= 0
+  if (!/^[a-f0-9]{64}$/.test(input.emailDigest) || !/^[a-f0-9-]{20,64}$/i.test(input.subscriberId)
     || input.audiences.some((a) => !VALID_AUDIENCES.includes(a))) throw new Error('Invalid welcome enrollment');
-  if (!input.apiKey.trim()) throw new Error('Kit is not configured');
+  if (!input.apiKey.trim()) throw new Error('Resend is not configured');
   writingWelcomeSenderConfig();
   buildWelcomeSeriesEmail(0, 'https://www.thearcades.me/subscribe/unsubscribe');
   if (!await recipient(input.subscriberId, input.emailDigest, input)) return 'stopped';

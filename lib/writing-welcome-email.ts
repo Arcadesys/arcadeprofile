@@ -1,4 +1,4 @@
-import { createKitUnsubscribeToken, newProcessingToken, redisCommand, verificationSiteUrl } from './writing-signup';
+import { createResendUnsubscribeToken, newProcessingToken, redisCommand, verificationSiteUrl } from './writing-signup';
 import { MailRejectedError, readMailConfig, sendMail } from './mail-transport';
 import type { Audience } from './subscribe-types';
 
@@ -87,7 +87,7 @@ export function writingWelcomeSenderConfig() {
 
 export async function sendWelcomeContent(input: {
   email: string;
-  subscriberId: number;
+  subscriberId: string;
   emailDigest: string;
   idempotencyKey: string;
   buildContent: (unsubscribeUrl: string) => { subject: string; html: string; text: string };
@@ -96,7 +96,7 @@ export async function sendWelcomeContent(input: {
   const { email, subscriberId, emailDigest, fetcher } = input;
   const config = writingWelcomeSenderConfig();
   const baseUrl = verificationSiteUrl();
-  const unsubscribeToken = createKitUnsubscribeToken(subscriberId, emailDigest);
+  const unsubscribeToken = createResendUnsubscribeToken(subscriberId, emailDigest);
   const unsubscribeUrl = `${baseUrl}/subscribe/unsubscribe#${unsubscribeToken}`;
   const oneClickUnsubscribeUrl = `${baseUrl}/api/subscribe/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`;
   const content = input.buildContent(unsubscribeUrl);
@@ -116,7 +116,7 @@ export type WelcomeDeliveryResult = 'sent' | 'already-claimed' | 'uncertain' | '
 /** Claim once per HMAC email digest; a claim is durable across signup challenges. */
 export async function sendWritingWelcomeOnce(input: {
   email: string;
-  subscriberId: number;
+  subscriberId: string;
   emailDigest: string;
   audiences: Audience[];
   fetcher?: typeof fetch;

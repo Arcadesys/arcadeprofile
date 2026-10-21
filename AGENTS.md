@@ -5,9 +5,9 @@
 Arcades Profile is a Next.js 16 / React 19 personal site deployed on Vercel.
 Public essays, project manifests, portfolio reader bodies, and collection reader
 bodies are repository-owned Markdown. Vercel Blob URLs provide media and
-downloads. Kit owns subscriber status, double opt-in and broadcasts. The shared mail
-transport sends first-party signup verification, gated welcomes and explicit
-previews; Postmark is the default and Resend is selected with MAIL_PROVIDER.
+downloads. Resend Contacts own subscriber status, and Resend Topics store
+preferences and broadcasts. The shared mail transport sends first-party signup
+verification, gated welcomes and explicit previews through Resend.
 
 ## Commands
 
@@ -18,7 +18,6 @@ npx tsc --noEmit
 npm test
 npm run build
 npm run newsletter:post -- --slug <slug>
-npm run postmark:test
 npm run upload:image -- <path> --alt "<text>" [--caption "<text>"] [--used-in <slug>]
 npm run generate:portfolio
 npm run generate:zoo
@@ -92,50 +91,15 @@ applies to imports, syndication, migrations, and republication. Decision record:
 
 ## Email
 
-`/api/subscribe` does an exact Kit status read, then stores the submitted email
-as AES-GCM ciphertext plus selected preferences in a 24-hour Upstash challenge and sends one
-explicitly addressed first-party verification email. It performs no Kit writes.
-The same email/audience bundle uses a keyed ten-minute Redis cooldown to avoid
-repeat sends after ambiguous provider responses.
-The verification URL carries its signed token in a fragment; the page clears
-that fragment before rendering and only an explicit POST button can claim it.
-After the click, active Kit subscribers get the requested form memberships and
-tags. New or inactive subscribers get the requested double-opt-in form
-memberships; email ciphertext is removed as soon as Kit returns a subscriber ID.
-The Redis record then retains only Kit subscriber ID and selected
-preferences for up to 30 days. Kit can send an additional confirmation before
-delivery begins. A daily authenticated cron checks only these Redis-verified
-records and tags only their stored audience choices after Kit reports `active`.
-It never infers selections from raw form-member listings. Configure Kit form
-and audience tag IDs, `KIT_TAG_ARCADEPROFILE_ID`, `KIT_API_KEY`, `CRON_SECRET`,
-`UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` or Vercel-injected
-`KV_REST_API_URL`/`KV_REST_API_TOKEN`, `SIGNUP_LINK_SECRET`, and
-the selected transactional sender (see `lib/mail-transport.ts`). The site must fail closed when those values
-are missing. Kit Free can delay tags until the daily cron runs.
+`/api/subscribe` performs a read-only Resend Contacts status check, then stores an AES-GCM encrypted email and selected topics in a 24-hour Upstash challenge and sends one first-party verification email. It makes no provider writes until the reader explicitly confirms by POST. Confirm creates or updates the Resend contact as subscribed and opts in only the selected Topics; topic changes are additive. Existing unsubscribed/suppressed contacts are never resubscribed. The keyed ten-minute Redis cooldown prevents repeat verification sends after ambiguous provider responses.
 
-The approved Writing welcome is one-time per address, after explicit link claim
-and Kit-active checks. With multiple choices, select one copy in this order:
-All Writing, Fiction, Essays, Lab; keep all selected memberships and tags. Do
-not welcome imported contacts or Kit DOI-pending subscribers. Welcome emails
-carry an RFC 8058 one-click unsubscribe header and an accessible linked page.
-The page GET is inert and its button explicitly submits; both update Kit state.
-Exclude `/subscribe/verify` and `/subscribe/unsubscribe` from analytics so
-their token fragments are never captured.
-Keep writing welcome delivery disabled unless `WRITING_WELCOME_ENABLED=true`
-is deliberately configured after coordinator review. Signup verification
-emails use the selected provider independently of this welcome gate.
+The signed verification token is carried in the URL fragment and cleared before rendering; only the explicit button POST can claim it. The Redis record keeps the Resend contact ID and selected preferences for up to 30 days, never plaintext email. There is no second confirmation email and no reconciliation cron. Configure `RESEND_API_KEY` (Full access: Contacts, Topics, Suppressions, and Broadcasts), `RESEND_SEND_API_KEY` (domain-restricted Sending access for `mail.thearcades.me`), `RESEND_TOPIC_*_ID`, `RESEND_SEGMENT_ESSAY_BROADCAST_ID`, mail sender values, `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` or Vercel KV equivalents, `SIGNUP_LINK_SECRET`, and `CRON_SECRET`. Signup must fail closed if required configuration is missing.
 
-`npm run newsletter:post` flags:
+The approved welcome series enrolls only after first-party confirmation and a subscribed Resend contact. Its queue stores a Resend contact ID, not a plaintext email; each send re-reads contact state and stops when unsubscribed. Keep `WELCOME_SERIES_ENABLED` default off and preserve the legacy `WRITING_WELCOME_ENABLED` gate. Both welcome paths retain once-only dedupe. Unsubscribe is global for the Resend contact, preserving the prior site's one-click and fallback semantics. GET stays inert; the explicit page button and RFC 8058 POST update Resend state. Exclude `/subscribe/verify` and `/subscribe/unsubscribe` from analytics.
 
-- no flag: dry run
-- `--preview-to <email>`: explicit test
-- `--send`: verify the production URL, target All Writing OR Essays tags, and
-  schedule the Kit broadcast
-- `--resend --reason "<reason>"`: intentional repeat after a completed send
+`npm run newsletter:post` defaults to a dry run. `--send` verifies the production essay URL, creates a Resend Broadcast draft targeting the saved “All Writing OR Essays” segment, then explicitly schedules it. `--resend --reason "<reason>"` is required for intentional repeats after completed sends. Receipts remain non-PII; reconcile an ambiguous pending request in Resend before retrying.
 
-Receipts under `data/newsletter-sends` must remain non-PII. An ambiguous
-pending Kit request must be reconciled in Kit before retrying. Kit excludes
-unsubscribed contacts from broadcasts.
+Migration scripts are owner-run only from the main checkout. They read `.env.kit.local` for the final read-only export/suppression sync and `.env.resend.local` for full-access import. Never commit either file or the private snapshot. Follow `docs/kit-removal-runbook.md`; this PR must not merge before import counts are verified.
 
 ## Conventions
 

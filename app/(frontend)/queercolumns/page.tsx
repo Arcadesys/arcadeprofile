@@ -8,14 +8,13 @@ import { SITE_NAME } from '@/lib/site-brand';
 import { SITE_URL } from '@/lib/site-url';
 import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 import { JsonLd } from '@/lib/structured-data';
-import KitSignup from './KitSignup';
+import SubscriptionForm from '@/app/components/SubscriptionForm';
 
 import styles from './queercolumns.module.css';
 
 export const dynamic = 'force-dynamic';
 
 const description = 'Queer Columns is a monthly column by Austen Tucker on trans life, queer history, and the policies that shape our lives. Let people be people.';
-const signupUrl = 'https://austen-tucker.kit.com/e422068d6d?utm_source=thearcades.me&utm_medium=site&utm_campaign=queer_columns';
 
 export const metadata: Metadata = {
   title: 'Queer Columns',
@@ -137,8 +136,7 @@ export default async function QueerColumnsPage() {
               <p>One essay a month. Queer Columns is its own email topic.</p>
             </div>
             <div className={styles.signupForm}>
-              <KitSignup />
-              <a className={styles.signupLink} href={signupUrl}>Subscribe to Queer Columns on Kit <span aria-hidden="true">↗</span></a>
+              <SubscriptionForm source="projects" audiences={['queer-columns']} updateMode="add" submitLabel="Send confirmation email" successMessage="Check your inbox to confirm your subscription." />
               <Link className={styles.signupLink} href="/subscribe">Choose from all email topics <span aria-hidden="true">→</span></Link>
             </div>
           </section>

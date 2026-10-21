@@ -31,6 +31,7 @@ no automatic scheduler, secret preview route, reaction store, or webhook ledger.
 4. Optionally use `npm run newsletter:post -- --slug <slug>`.
 
 The newsletter command is dry-run by default, accepts only the six essay groups,
-and always targets ActiveCampaign All + Essays. Postmark sends previews and
-broadcasts. Non-PII receipts under `data/newsletter-sends` prevent accidental
-duplicates and support metadata-based resume.
+and targets the configured Resend segment for All Writing or Essays. Resend sends
+explicit test previews and the CLI creates a draft before explicitly scheduling
+a broadcast. Non-PII receipts under `data/newsletter-sends` prevent accidental
+duplicates and hold ambiguous results for reconciliation.

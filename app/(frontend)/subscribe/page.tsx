@@ -19,7 +19,7 @@ export default function SubscribePage() {
         Choose your email updates
       </h1>
       <p style={{ maxWidth: '62ch', color: 'var(--fg-muted)', fontSize: '1.125rem', lineHeight: 1.8 }}>
-        Choose what you want to hear about. We&rsquo;ll send a confirmation email for your request. Kit may send additional confirmation emails before delivery begins.
+        Choose what you want to hear about. We&rsquo;ll send one first-party confirmation email for your request.
       </p>
       <SubscriptionForm
         source="subscribe-page"
