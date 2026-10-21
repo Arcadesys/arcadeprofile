@@ -24,6 +24,12 @@ globalThis.fetch = async (url, init) => {
   if (address === "https://example.invalid/projects/arcade-blog/fixture-essay") {
     return new Response("Fixture", { status: process.env.MOCK_MODE === "unpublished" ? 404 : 200 });
   }
+  if (address === "https://api.resend.com/emails") {
+    assert.deepEqual(body.to, ["preview@example.invalid"]);
+    if (process.env.MOCK_MODE === "resend-reject") return Response.json({ name: "validation_error", message: "preview@example.invalid fixture-private-token fixture-resend-key" }, { status: 403 });
+    if (process.env.MOCK_MODE === "resend-timeout") throw new Error("preview@example.invalid fixture-private-token fixture-resend-key");
+    return Response.json({ id: "fixture-preview" });
+  }
   if (address === "https://api.postmarkapp.com/email") {
     assert.equal(body.To, "preview@example.invalid");
     return Response.json({ ErrorCode: 0, MessageID: "fixture-preview" });
@@ -242,4 +248,21 @@ test("CLI blocks corrupt receipt attempts and pending history hidden before a sc
     assert.equal(broadcasts(f.calls()).length, 0);
     assert.equal(existsSync(f.lock), false);
   }
+});
+
+
+test("Resend CLI preview is explicit, private, and fails closed", async (t) => {
+  const f = fixture(t);
+  const env = { MAIL_PROVIDER: "resend", RESEND_API_KEY: "fixture-resend-key", RESEND_FROM_EMAIL: "sender@mail.example.invalid" };
+  for (const mode of ["success", "resend-reject", "resend-timeout"]) {
+    const result = await f.start(["--preview-to", "preview@example.invalid"], mode, env).result;
+    assert.equal(result.code, mode === "success" ? 0 : 1, result.output);
+    assert.doesNotMatch(result.output, /preview@example.invalid|fixture-private-token|fixture-resend-key/);
+  }
+  const before = f.calls().length;
+  const missing = await f.start(["--preview-to", "preview@example.invalid"], "success", { ...env, RESEND_API_KEY: "" }).result;
+  assert.equal(missing.code, 1); assert.match(missing.output, /RESEND_API_KEY/);
+  assert.equal(f.calls().length, before);
+  assert.equal(existsSync(f.receipt), false);
+  assert.equal(broadcasts(f.calls()).length, 0);
 });

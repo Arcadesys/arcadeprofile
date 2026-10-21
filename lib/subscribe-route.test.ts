@@ -3,7 +3,7 @@ import { afterEach, test } from 'node:test';
 import { NextRequest } from 'next/server';
 import { POST } from '@/app/(frontend)/api/subscribe/route';
 
-const names = ['KIT_API_KEY', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'SIGNUP_LINK_SECRET', 'POSTMARK_SERVER_TOKEN', 'POSTMARK_FROM_EMAIL', 'POSTMARK_FROM_NAME', 'POSTMARK_TRANSACTIONAL_STREAM'];
+const names = ['MAIL_PROVIDER', 'RESEND_API_KEY', 'RESEND_FROM_EMAIL', 'KIT_API_KEY', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'SIGNUP_LINK_SECRET', 'POSTMARK_SERVER_TOKEN', 'POSTMARK_FROM_EMAIL', 'POSTMARK_FROM_NAME', 'POSTMARK_TRANSACTIONAL_STREAM'];
 const saved = Object.fromEntries(names.map((name) => [name, process.env[name]]));
 const originalFetch = globalThis.fetch;
 afterEach(() => {
@@ -11,6 +11,7 @@ afterEach(() => {
   for (const name of names) { if (saved[name] === undefined) delete process.env[name]; else process.env[name] = saved[name]; }
 });
 function configure() {
+  delete process.env.MAIL_PROVIDER;
   process.env.KIT_API_KEY = 'kit-test';
   process.env.UPSTASH_REDIS_REST_URL = 'https://redis.example';
   process.env.UPSTASH_REDIS_REST_TOKEN = 'redis-test';
@@ -174,4 +175,50 @@ test('signup accepts additive mode explicitly or by default without changing sup
     assert.equal((await response.json()).confirmationRequired, true);
   }
   assert.equal(calls, 2);
+});
+
+for (const outcome of ['success', 'quota', 'conflict', 'missing-receipt', 'timeout'] as const) {
+  test(`Resend signup ${outcome}: preserves challenge/cooldown semantics without outputting private data`, async () => {
+    configure();
+    process.env.MAIL_PROVIDER = 'resend'; process.env.RESEND_API_KEY = 'fixture-resend-key'; process.env.RESEND_FROM_EMAIL = 'sender@mail.example.invalid';
+    delete process.env.POSTMARK_SERVER_TOKEN; delete process.env.POSTMARK_FROM_EMAIL;
+    const commands: string[][] = [];
+    let claimed = false;
+    let sends = 0;
+    globalThis.fetch = async (input, init) => {
+      const url = String(input);
+      if (url.startsWith('https://api.kit.com/v4/subscribers?')) return Response.json({ subscribers: [] });
+      if (url === 'https://redis.example') {
+        const command = JSON.parse(String(init?.body)) as string[]; commands.push(command);
+        if (command[0] === 'SET' && String(command[1]).startsWith('writing:send-cooldown:')) {
+          if (claimed) return Response.json({ result: null }); claimed = true;
+        }
+        return Response.json({ result: 'OK' });
+      }
+      assert.equal(url, 'https://api.resend.com/emails'); sends++;
+      const body = JSON.parse(String(init?.body));
+      assert.deepEqual(body.to, ['reader@example.invalid']);
+      assert.match(body.html, /subscribe\/verify#/); assert.match(body.text, /subscribe\/verify#/);
+      assert.match(new Headers(init?.headers).get('Idempotency-Key')!, /^signup-verification\/[a-f0-9]{64}$/);
+      if (outcome === 'quota') return Response.json({ name: 'daily_quota_exceeded', message: 'reader@example.invalid fixture-resend-key' }, { status: 429 });
+      if (outcome === 'conflict') return Response.json({ name: 'concurrent_idempotent_requests' }, { status: 409 });
+      if (outcome === 'missing-receipt') return Response.json({});
+      if (outcome === 'timeout') throw new Error('reader@example.invalid fixture-resend-key');
+      return Response.json({ id: 'fixture-id' });
+    };
+    const response = await POST(request({ email: 'reader@example.invalid', audiences: ['all'] }));
+    assert.equal(response.status, outcome === 'success' ? 200 : outcome === 'quota' ? 502 : 202);
+    assert.doesNotMatch(await response.text(), /reader@example.invalid|fixture-resend-key/);
+    assert.equal(commands.filter((command) => command[0] === 'DEL').length, outcome === 'quota' ? 2 : 0);
+    if (['conflict', 'missing-receipt', 'timeout'].includes(outcome)) {
+      assert.equal((await POST(request({ email: 'reader@example.invalid', audiences: ['all'] }))).status, 200);
+      assert.equal(sends, 1);
+    }
+  });
+}
+
+test('missing Resend configuration fails before Kit, Redis or mail calls', async () => {
+  configure(); process.env.MAIL_PROVIDER = 'resend'; delete process.env.RESEND_API_KEY; delete process.env.RESEND_FROM_EMAIL;
+  globalThis.fetch = async () => { assert.fail('No partial requests allowed'); };
+  assert.equal((await POST(request({ email: 'reader@example.invalid', audiences: ['all'] }))).status, 503);
 });

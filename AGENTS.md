@@ -5,8 +5,9 @@
 Arcades Profile is a Next.js 16 / React 19 personal site deployed on Vercel.
 Public essays, project manifests, portfolio reader bodies, and collection reader
 bodies are repository-owned Markdown. Vercel Blob URLs provide media and
-downloads. Kit owns newsletter signup confirmation and broadcast delivery;
-Postmark is used only for explicitly addressed previews.
+downloads. Kit owns subscriber status, double opt-in and broadcasts. The shared mail
+transport sends first-party signup verification, gated welcomes and explicit
+previews; Postmark is the default and Resend is selected with MAIL_PROVIDER.
 
 ## Commands
 
@@ -93,7 +94,7 @@ applies to imports, syndication, migrations, and republication. Decision record:
 
 `/api/subscribe` does an exact Kit status read, then stores the submitted email
 as AES-GCM ciphertext plus selected preferences in a 24-hour Upstash challenge and sends one
-explicitly addressed Postmark verification email. It performs no Kit writes.
+explicitly addressed first-party verification email. It performs no Kit writes.
 The same email/audience bundle uses a keyed ten-minute Redis cooldown to avoid
 repeat sends after ambiguous provider responses.
 The verification URL carries its signed token in a fragment; the page clears
@@ -109,7 +110,7 @@ It never infers selections from raw form-member listings. Configure Kit form
 and audience tag IDs, `KIT_TAG_ARCADEPROFILE_ID`, `KIT_API_KEY`, `CRON_SECRET`,
 `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` or Vercel-injected
 `KV_REST_API_URL`/`KV_REST_API_TOKEN`, `SIGNUP_LINK_SECRET`, and
-the Postmark transactional sender. The site must fail closed when those values
+the selected transactional sender (see `lib/mail-transport.ts`). The site must fail closed when those values
 are missing. Kit Free can delay tags until the daily cron runs.
 
 The approved Writing welcome is one-time per address, after explicit link claim
@@ -122,7 +123,7 @@ Exclude `/subscribe/verify` and `/subscribe/unsubscribe` from analytics so
 their token fragments are never captured.
 Keep writing welcome delivery disabled unless `WRITING_WELCOME_ENABLED=true`
 is deliberately configured after coordinator review. Signup verification
-emails use Postmark independently of this welcome gate.
+emails use the selected provider independently of this welcome gate.
 
 `npm run newsletter:post` flags:
 
