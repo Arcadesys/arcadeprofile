@@ -3,7 +3,7 @@ import { existsSync, readFileSync, writeFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { RESEND_TOPICS } from '../lib/subscription-audiences';
-import { applyResendImportRow, planResendImport } from '../lib/resend-import-plan';
+import { applyResendImportRow, backfillResendDefaultTopics, planResendImport } from '../lib/resend-import-plan';
 
 const gitMeta = statSync('.git', { throwIfNoEntry: false });
 if (!gitMeta?.isDirectory() || execFileSync('git', ['branch', '--show-current'], { encoding: 'utf8' }).trim() !== 'main') throw new Error('Run Resend import only from the owner main checkout on main');
@@ -12,7 +12,7 @@ config({ path: '.env.resend.local', override: true });
 config({ path: '.env.resend.topics' });
 const resendKey = process.env.RESEND_CONTACTS_API_KEY?.trim();
 const args = process.argv.slice(2); const value = (flag: string) => { const i = args.indexOf(flag); return i >= 0 ? args[i + 1] : undefined; };
-const snapshotPath = value('--snapshot'); const apply = args.includes('--apply'); const sync = args.includes('--sync-unsubscribes');
+const snapshotPath = value('--snapshot'); const apply = args.includes('--apply'); const sync = args.includes('--sync-unsubscribes'); const backfill = args.includes('--backfill-default-topics');
 if (!snapshotPath || !existsSync(snapshotPath)) throw new Error('--snapshot must name a Kit export snapshot');
 if ((apply || sync) && !resendKey) throw new Error('RESEND_CONTACTS_API_KEY is required in .env.resend.local');
 const subscribedSegmentId = process.env.RESEND_SEGMENT_SUBSCRIBED_BROADCAST_ID?.trim() ?? '';
@@ -52,7 +52,26 @@ async function currentKitStates() {
 }
 
 console.log(JSON.stringify(planResendImport(snapshot.subscribers)));
-if (sync) {
+if (backfill) {
+  const candidates = snapshot.subscribers!.filter((row) => row.state === 'active');
+  const untagged = candidates.filter((row) => (row.topics ?? []).length === 0).length;
+  if (!apply) {
+    console.log(JSON.stringify({ backfill_dry_run: true, active_candidates: candidates.length, untagged_default_topic_candidates: untagged, topics: ['All Writing', 'Fiction', 'Essays'] }));
+  } else {
+    if (!resendKey) throw new Error('RESEND_CONTACTS_API_KEY is required in .env.resend.local');
+    if (!/^[a-f0-9-]{20,64}$/i.test(subscribedSegmentId)) throw new Error('RESEND_SEGMENT_SUBSCRIBED_BROADCAST_ID is required in .env.resend.local');
+    const topicIds = Object.fromEntries(Object.entries(topicEnv).map(([topic, env]) => [topic, process.env[env]?.trim() ?? '']));
+    let backfilled = 0, segmentRepaired = 0, skipped = 0, suppressed = 0;
+    for (const row of candidates) {
+      const result = await backfillResendDefaultTopics(row, topicIds, subscribedSegmentId, (url, method, payload) => api(url, method, payload));
+      if (result === 'backfilled') backfilled += 1;
+      else if (result === 'segment-repaired') segmentRepaired += 1;
+      else if (result === 'suppressed') suppressed += 1;
+      else skipped += 1;
+    }
+    console.log(JSON.stringify({ backfilled, segment_repaired: segmentRepaired, skipped, suppressed }));
+  }
+} else if (sync) {
   const kit = await currentKitStates(); let updated = 0;
   for (const row of snapshot.subscribers!) {
     const state = kit.get(row.email.toLowerCase()); if (!state || !['cancelled','bounced','complained'].includes(state)) continue;
@@ -78,4 +97,4 @@ if (sync) {
     writeFileSync(checkpoint, String(index + 1), { mode: 0o600 });
   }
   console.log(JSON.stringify({ subscribed, suppressed, skipped }));
-} else if (args.some((a) => a.startsWith('--'))) throw new Error('Use --apply or --sync-unsubscribes explicitly; otherwise this is a dry run.');
+} else if (args.some((a) => a.startsWith('--'))) throw new Error('Use --apply, --backfill-default-topics, or --sync-unsubscribes explicitly; otherwise this is a dry run.');
