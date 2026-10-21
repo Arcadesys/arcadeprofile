@@ -35,41 +35,89 @@ export async function createAndScheduleKitBroadcast(input: {
   sendAt: string;
   fetchImpl?: typeof fetch;
 }): Promise<{ id: number; sendAt: string }> {
-  const response = await (input.fetchImpl ?? fetch)(
-    "https://api.kit.com/v4/broadcasts",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Kit-Api-Key": input.apiKey,
-      },
-      body: JSON.stringify({
-        content: input.content,
-        description: input.description,
-        public: false,
-        published_at: new Date().toISOString(),
-        preview_text: input.description,
-        subject: input.subject,
-        send_at: input.sendAt,
-        subscriber_filter: [
-          {
-            all: null,
-            any: [{ type: "tag", ids: input.tagIds }],
-            none: null,
-          },
-        ],
-      }),
-      signal: AbortSignal.timeout(30000),
-    },
-  );
-  if (!response.ok) throw new Error("Kit broadcast request failed");
-  const payload = (await response.json()) as {
-    broadcast?: { id?: number; send_at?: unknown };
-  };
-  const broadcast = payload.broadcast;
+  const payload = await kitBroadcastRequest(input, "", "POST", {
+    ...kitBroadcastFields(input),
+    published_at: new Date().toISOString(),
+    send_at: input.sendAt,
+  });
+  const receipt = payload as { broadcast?: { id?: number; send_at?: unknown } };
+  const broadcast = receipt.broadcast;
   if (!broadcast || !Number.isSafeInteger(broadcast.id) || (broadcast.id ?? 0) <= 0
     || typeof broadcast.send_at !== "string" || !Number.isFinite(Date.parse(broadcast.send_at))) {
     throw new Error("Kit returned an invalid broadcast receipt");
   }
   return { id: broadcast.id!, sendAt: broadcast.send_at };
+}
+
+export type KitBroadcastInput = {
+  apiKey: string;
+  subject: string;
+  content: string;
+  description: string;
+  tagIds: number[];
+  fetchImpl?: typeof fetch;
+};
+
+type KitConnection = Pick<KitBroadcastInput, "apiKey" | "fetchImpl">;
+
+export function kitTagFilter(tagIds: number[]) {
+  if (!tagIds.length || tagIds.some((id) => !Number.isSafeInteger(id) || id <= 0)) {
+    throw new Error("Kit broadcast requires positive tag IDs.");
+  }
+  return [{ all: null, any: [{ type: "tag", ids: [...new Set(tagIds)] }], none: null }];
+}
+
+export function kitBroadcastFields(input: KitBroadcastInput) {
+  return {
+    content: input.content,
+    description: input.description,
+    preview_text: input.description,
+    subject: input.subject,
+    public: false,
+    published_at: null,
+    subscriber_filter: kitTagFilter(input.tagIds),
+  };
+}
+
+async function kitBroadcastRequest(
+  input: KitConnection, suffix: string, method: string, body?: unknown,
+): Promise<unknown> {
+  const response = await (input.fetchImpl ?? fetch)(`https://api.kit.com/v4/broadcasts${suffix}`, {
+    method,
+    headers: { "Content-Type": "application/json", "X-Kit-Api-Key": input.apiKey },
+    ...(body ? { body: JSON.stringify(body) } : {}),
+    signal: AbortSignal.timeout(30000),
+  });
+  // Never include provider bodies, headers or transport errors in operator output.
+  if (!response.ok) throw new Error("Kit broadcast request failed");
+  return response.json();
+}
+
+export async function createKitBroadcastDraft(input: KitBroadcastInput): Promise<number> {
+  const payload = await kitBroadcastRequest(input, "", "POST", {
+    ...kitBroadcastFields(input), send_at: null,
+  }) as { broadcast?: { id?: number } };
+  const id = payload?.broadcast?.id;
+  if (!Number.isSafeInteger(id) || (id ?? 0) <= 0) throw new Error("Invalid Kit draft ID.");
+  return id!;
+}
+
+export async function getKitBroadcast(input: KitConnection, id: number): Promise<unknown> {
+  if (!Number.isSafeInteger(id) || id <= 0) throw new Error("Invalid Kit broadcast ID.");
+  return kitBroadcastRequest(input, `/${id}`, "GET");
+}
+
+export async function scheduleKitBroadcastDraft(
+  input: KitBroadcastInput & { id: number; sendAt: string },
+): Promise<void> {
+  if (!Number.isSafeInteger(input.id) || input.id <= 0) throw new Error("Invalid Kit broadcast ID.");
+  const payload = await kitBroadcastRequest(input, `/${input.id}`, "PUT", {
+    ...kitBroadcastFields(input), send_at: input.sendAt,
+  }) as { broadcast?: { id?: number; send_at?: string; public?: boolean } };
+  const broadcast = payload?.broadcast;
+  if (broadcast?.id !== input.id || broadcast.public !== false
+    || typeof broadcast.send_at !== "string"
+    || Date.parse(broadcast.send_at) !== Date.parse(input.sendAt)) {
+    throw new Error("Kit returned an invalid schedule receipt; reconcile before retrying.");
+  }
 }

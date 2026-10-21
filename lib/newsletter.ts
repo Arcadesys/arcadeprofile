@@ -65,24 +65,42 @@ export function buildPostNewsletterContent(
     : '';
 
   return {
-    htmlBody: `
-      <div style="margin:0; padding:24px 16px; background-color:${EMAIL_BACKGROUND}; color:${EMAIL_TEXT};">
-        <article style="max-width:600px; margin:0 auto; font-family: Georgia, serif; color:${EMAIL_TEXT}; background-color:${EMAIL_BACKGROUND}; line-height:1.7;">
+    htmlBody: newsletterFrame(`
           ${heroHtml}
           <h1 style="font-size:2rem; line-height:1.2; margin:0 0 1rem; color:${EMAIL_TEXT};">${escapedTitle}</h1>
           ${escapedExcerpt ? `<p style="font-size:1.05rem; color:${EMAIL_MUTED}; margin:0 0 1.5rem;">${escapedExcerpt}</p>` : ''}
           <div style="color:${EMAIL_TEXT};">${contentHtml}</div>
           <p style="margin-top:2rem;">
             <a href="${postUrl}" style="color:${EMAIL_TEXT}; font-weight:700; font-size:1.05rem;">Read essay on the site</a>
-          </p>
-        </article>
-      </div>
-    `.trim(),
+          </p>`),
     textBody: [
       post.title,
       excerpt,
       markdownToPlaintext(post.markdownBody),
       `Read on the site: ${postUrl}`,
     ].filter(Boolean).join('\n\n'),
+  };
+}
+
+function newsletterFrame(body: string): string {
+  return `
+      <div style="margin:0; padding:24px 16px; background-color:${EMAIL_BACKGROUND}; color:${EMAIL_TEXT};">
+        <article style="max-width:600px; margin:0 auto; font-family: Georgia, serif; color:${EMAIL_TEXT}; background-color:${EMAIL_BACKGROUND}; line-height:1.7;">
+          ${body}
+        </article>
+      </div>
+    `.trim();
+}
+
+export function buildNewsletterContent(subject: string, preview: string, markdown: string): NewsletterContent {
+  const body = markdownToSafeHtml(markdown)
+    .replace(/&amp;amp;/g, '&amp;')
+    .replace(/<a href=/g, '<a style="color:#111827; text-decoration:underline; display:inline-block; padding:8px 0;" href=')
+    .replace(/<img /g, '<img style="max-width:100%; height:auto;" ');
+  // Same email frame as essays, with larger base copy for standalone broadcasts.
+  return {
+    htmlBody: newsletterFrame(`<h1 style="font-size:2rem; line-height:1.2;">${escapeHtml(subject)}</h1><p>${escapeHtml(preview)}</p>${body}`)
+      .replace('font-family: Georgia, serif;', 'font-family: Georgia, serif; font-size:20px; overflow-wrap:anywhere;'),
+    textBody: [subject, preview, markdownToPlaintext(markdown), ...[...new Set([...markdown.matchAll(/\]\((https?:\/\/[^\s)]+)\)/g)].map((match) => match[1]))]].join('\n\n'),
   };
 }

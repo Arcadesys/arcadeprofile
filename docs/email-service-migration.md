@@ -327,3 +327,41 @@ in Git history for audit/rollback analysis. Do not revive its deployment or
 ActiveCampaign export steps as prerequisites for the current direct path. A code
 rollback alone is not an email-state rollback; preserve current suppression,
 consent, and send history and reconcile provider state before any rollback send.
+
+## Standalone Markdown broadcasts
+
+`npm run kit:email` and `.claude/skills/kit-email/SKILL.md` extend the essay
+workflow without replacing it. They reuse `lib/kit-broadcast.ts`, audience tag IDs
+from `lib/subscription-audiences.ts`, and the essay email frame. Both CLIs now use
+`lib/postmark-preview.ts` for their single explicitly addressed preview path.
+
+The default standalone mode is offline and renders subject, preview, HTML/text,
+links and OR tag targeting. Kit's [stats endpoint](https://developers.kit.com/api-reference/broadcasts/get-stats-for-a-broadcast)
+reports delivery counts; no unsaved tag-union estimate is documented. Do not infer
+an active unique audience by summing tags or printing subscriber records.
+
+Draft POST explicitly sets `send_at: null`, `public: false`, `published_at: null`.
+A GET must verify the draft state, copy and targeting before a non-PII receipt is
+marked ready. Send rechecks that exact ID and template, verifies HTTP 200 for
+rendered links/images, requires exact-subject confirmation and current-conversation
+approval, then updates the existing draft. Kit's [update prose](https://developers.kit.com/api-reference/broadcasts/update-a-broadcast)
+currently conflicts with the [create contract](https://developers.kit.com/api-reference/broadcasts/create-a-broadcast)
+about `public` while scheduling. This CLI always preserves `public: false` and
+requires a matching returned schedule; never publish to the web as a workaround.
+Provider behavior on this account remains a separate live acceptance gate.
+
+Standalone receipts use a normalized subject hash, content/audience hashes, Kit
+ID/template, timestamps and hashed resend reason under `data/newsletter-sends`.
+The exclusive lock is acquired before reading history; a pending record is saved
+before POST/PUT, and retained after any uncertain response or failed final save.
+The same lock/recovery and single-workspace limitations described above apply.
+Changed copy under the same subject requires a new reviewed draft; an intentional
+repeat additionally requires `--resend --reason` on draft and send. A changed
+subject or other sending tool is outside this local duplicate guard. Reconcile
+Kit history before a first launch send or any recovery from missing history.
+
+The dedicated ignored `.env.kit.local` is operator-managed. Paste the V4 key from
+Kit Settings → Developer → V4 keys locally; deployment env pulls redact sensitive
+values. Never retrieve credentials automatically or echo them. No real provider
+calls, configuration changes, delivery, deployment or welcome activation are
+established by the mocked implementation tests.

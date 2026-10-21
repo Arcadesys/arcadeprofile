@@ -1,7 +1,7 @@
-import { sendMail } from '../lib/mail-transport';
 import { config } from "dotenv";
 config({ path: ".env.local" });
 
+import { sendPreview } from "../lib/postmark-preview";
 import { randomUUID } from "node:crypto";
 import {
   closeSync,
@@ -123,19 +123,6 @@ function claimSendLock(receiptFile: string): () => void {
   }
   closeSync(descriptor);
   return () => unlinkSync(lockFile);
-}
-
-async function sendPreview(input: {
-  to: string;
-  subject: string;
-  htmlBody: string;
-  textBody: string;
-}) {
-  await sendMail({
-    to: input.to, subject: `[Preview] ${input.subject}`,
-    html: input.htmlBody, text: input.textBody,
-    category: 'newsletter-preview', timeoutMs: 30000,
-  });
 }
 
 async function main() {

@@ -104,3 +104,42 @@ Writing welcome delivery is independently gated: set
 `WRITING_WELCOME_ENABLED=true` only after review; unset or any other value
 keeps the welcome inactive while signup confirmations and audience updates
 continue.
+
+## Standalone Kit emails
+
+The Claude Code `/kit-email` skill prepares broadcasts beyond essays using Kit's
+free-plan v4 REST API (no Kit MCP). Start offline:
+
+```bash
+npm run kit:email -- --file /absolute/path/email.md
+# Section-based approval documents supply audience explicitly:
+npm run kit:email -- --file /Users/arcades/.ao/data/artifacts/arcades-websites-4/launch-email-draft.md --audience all,essays,fiction
+```
+
+Use YAML `subject`, `preview`, `audience: [all, essays]` plus a Markdown body, or
+labeled `## Subject`, `## Preview text`, `## Body` sections with `--audience`.
+Dry run prints HTML/text and OR tag targeting, makes no requests or writes, and
+works without credentials. Recipient estimate is unavailable offline; Kit's
+broadcast stats report delivery counts rather than an unsaved tag-union estimate.
+
+For an operator-authorized draft, add `--draft`; it creates and reads back
+`send_at: null`, `public: false`, then prints a Kit edit link/ID. Separately approved
+sending requires `--send --broadcast-id <id> --confirm "<exact subject>"`, a matching
+local draft and provider readback, HTTP 200 for all body links, and optional future
+`--send-at <ISO time>`. Default scheduling is one minute ahead. Previews use only
+the shared explicitly addressed Postmark path with `--preview-to <approved-address>`.
+Neither send nor preview is authorized by asking for a draft.
+
+The CLI reads **`.env.kit.local`** (ignored/untracked). The operator must paste
+`KIT_API_KEY` from Kit → Settings → Developer → V4 keys there; `vercel env pull`
+returns redacted sensitive values. Never print or commit this file/key. Selected
+writing tag IDs and approved-preview Postmark settings use the existing variable
+names. No credential discovery or deployment configuration is performed.
+
+See [.claude/skills/kit-email/SKILL.md](.claude/skills/kit-email/SKILL.md) for approval,
+input, audience and recovery rules. Non-PII history is
+`data/newsletter-sends/email-<subject-hash>.kit.json`; keep it in one controlled
+workspace. Pending/ambiguous requests and stale locks require reconciliation,
+never automatic retry. Intentional repeats need a new reviewed draft, and both
+commands need `--resend --reason "<non-personal reason>"`. Subject changes, manual
+sends and separate workspaces are not coordinated by this local guard.

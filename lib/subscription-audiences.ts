@@ -22,12 +22,14 @@ const tags: Record<Audience, string> = {
   th4f: '23808390',
 };
 
-function resolve(value: string): string {
-  return /^\d+$/.test(value) ? value : process.env[value]?.trim() ?? '';
+function resolve(value: string, env: Record<string, string | undefined> = process.env): string {
+  return /^\d+$/.test(value) ? value : env[value]?.trim() ?? '';
 }
 
 export function kitFormId(audience: Audience): string { return resolve(forms[audience]); }
-export function kitTagId(audience: Audience): string { return resolve(tags[audience]); }
+export function kitTagSource(audience: Audience): string { return tags[audience]; }
+export function kitTagIdFromEnv(audience: Audience, env: Record<string, string | undefined> = process.env): string { return resolve(tags[audience], env); }
+export function kitTagId(audience: Audience): string { return kitTagIdFromEnv(audience); }
 export function isArcadesAudience(audience: Audience): boolean {
   return audience !== 'work-ai' && audience !== 'th4f';
 }
