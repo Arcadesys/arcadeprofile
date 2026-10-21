@@ -160,7 +160,7 @@ function EnabledSubscriptionForm({
     return (
       <div ref={statusRef} className={styles.status} role="status" aria-live="polite" tabIndex={-1}>
         <strong>{completionMessage}</strong>
-        <p>Kit may send additional confirmation emails for the topics you chose before delivery begins.</p>
+        <p>We will send one confirmation email. Your selected topics begin after you confirm.</p>
         {downloads.length > 0 ? (
           <div className={styles.downloads}>
             {downloads.map((download) => <a key={download.href} href={download.href}>{download.label}</a>)}
@@ -215,7 +215,7 @@ function EnabledSubscriptionForm({
 
       <p className={styles.terms}>Updates when they&rsquo;re ready. Free. Unsubscribe whenever.</p>
       {showPreferences ? (
-        <p className={styles.terms}>You will confirm this request once. Kit may send additional confirmation emails for the topics you choose.</p>
+        <p className={styles.terms}>You will confirm this request once. We will not send a second confirmation email.</p>
       ) : null}
       <button className={styles.submit} type="submit" disabled={pending}>{pending ? 'Subscribing…' : submitLabel}</button>
       {error ? <div ref={statusRef} className={`${styles.status} ${styles.error}`} role="alert" aria-live="assertive" tabIndex={-1}>{error}</div> : null}

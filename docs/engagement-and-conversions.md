@@ -36,7 +36,7 @@ Main captures the original sanitized public page, entry and existing session/win
 
 Existing `signup-success` remains the Vercel acceptance name. Its PostHog mapping stays `signup confirmation requested`. Browser request/acceptance signals intentionally do not reveal whether an address was suppressed or already active. Confirmation/unsubscribe routes remain excluded.
 
-Provider outcomes already have daily, atomic `writing:metrics:YYYY-MM-DD` fields `first_party_verified` and `kit_active_ready`. The former is a claimed first-party challenge; the latter requires verified Kit-active readiness and requested preference synchronization. They are request transitions, not unique subscribers or delivery receipts. Read aggregate hashes only, never join email digests, tokens or Kit IDs to PostHog identities. Provider totals cannot supply an attributed browser conversion rate.
+Provider outcomes have daily, atomic `writing:metrics:YYYY-MM-DD` fields `first_party_verified` and `resend_subscribed_ready`. The former is a claimed first-party challenge; the latter requires explicit confirmation and a subscribed Resend contact. They are request transitions, not unique subscribers or delivery receipts. Read aggregate hashes only, never join email digests, tokens or Resend IDs to PostHog identities. Provider totals cannot supply an attributed browser conversion rate.
 
 ## New report definitions and migration
 

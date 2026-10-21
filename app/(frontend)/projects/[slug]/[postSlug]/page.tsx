@@ -24,7 +24,7 @@ import {
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
 import ReaderTelemetry from '@/app/components/ReaderTelemetry';
-import KitSignup from '@/app/(frontend)/queercolumns/KitSignup';
+import SubscriptionForm from '@/app/components/SubscriptionForm';
 import queerColumnsStyles from '@/app/(frontend)/queercolumns/queercolumns.module.css';
 
 import { absoluteSiteUrl, SITE_URL } from '@/lib/site-url';
@@ -292,8 +292,7 @@ export default async function ProjectPostPage({ params }: Props) {
                 <p>One essay a month, sent to your inbox.</p>
               </div>
               <div className={queerColumnsStyles.signupForm}>
-                <KitSignup />
-                <a className={queerColumnsStyles.signupLink} href="https://austen-tucker.kit.com/e422068d6d?utm_source=thearcades.me&utm_medium=site&utm_campaign=queer_columns">Subscribe to Queer Columns on Kit <span aria-hidden="true">↗</span></a>
+                <SubscriptionForm source="post" audiences={['queer-columns']} updateMode="add" submitLabel="Send confirmation email" successMessage="Check your inbox to confirm your subscription." />
               </div>
             </section>
           )}

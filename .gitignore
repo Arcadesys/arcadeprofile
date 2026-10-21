@@ -36,3 +36,5 @@ services/email/.env*
 
 # Local newsletter concurrency claims are not portable send history.
 /data/newsletter-sends/*.kit.json.lock
+/data/newsletter-sends/*.resend.json
+/data/newsletter-sends/*.resend.json.lock

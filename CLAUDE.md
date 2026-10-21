@@ -5,5 +5,4 @@ Arcades Profile is a database-free Next.js 16 / React 19 site. Follow
 operations.
 
 Public essays are validated Markdown under `content/posts`. Private drafts are
-under `content/drafts`. Kit owns subscriber status and preferences. The shared mail transport
-sends transactional email via Postmark (default) or opt-in Resend, and Vercel Blob URLs remain in use for media and downloads.
+under `content/drafts`. Resend Contacts own subscriber status, with seven Resend Topics for preferences. The shared mail transport sends through Resend; Vercel Blob URLs remain in use for media and downloads.

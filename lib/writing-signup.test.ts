@@ -46,7 +46,7 @@ test('Redis accepts Vercel-injected Upstash credentials when direct Upstash name
   }
 });
 
-test('signup state transitions write only daily aggregate verification and Kit-active-ready counters atomically', async () => {
+test('signup state transitions write only daily aggregate verification and Resend-subscribed-ready counters atomically', async () => {
   const prior = Object.fromEntries(['UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN'].map((name) => [name, process.env[name]]));
   try {
     process.env.UPSTASH_REDIS_REST_URL = 'https://redis.example';
@@ -64,24 +64,24 @@ test('signup state transitions write only daily aggregate verification and Kit-a
       audiences: ['fiction'], createdAt: verifiedAt - 1000, verifiedAt, status: 'processing',
     }, 'pending', undefined, fetcher);
     await saveChallengeIfStatus('b'.repeat(32), {
-      audiences: ['fiction'], createdAt: verifiedAt - 1000, verifiedAt, kitActiveAt: activeAt, status: 'complete',
-    }, 'awaiting-kit', undefined, fetcher);
+      audiences: ['fiction'], createdAt: verifiedAt - 1000, verifiedAt, resendSubscribedAt: activeAt, status: 'complete',
+    }, 'processing', undefined, fetcher);
 
     assert.equal(commands.length, 2);
     for (const command of commands) {
       assert.equal(command[0], 'EVAL');
       assert.match(String(command[1]), /if not current\.verifiedAt and next\.verifiedAt/);
-      assert.match(String(command[1]), /if not current\.kitActiveAt and next\.kitActiveAt/);
+      assert.match(String(command[1]), /if not current\.resendSubscribedAt and next\.resendSubscribedAt/);
       assert.match(String(command[1]), /HINCRBY/);
       assert.match(String(command[1]), /34560000/);
     }
-    assert.equal(commands[0][2], 4);
-    assert.equal(commands[0][5], 'writing:metrics:2026-09-24');
-    assert.equal(commands[0][6], 'writing:metrics:none');
+    assert.equal(commands[0][2], 3);
+    assert.equal(commands[0][4], 'writing:metrics:2026-09-24');
+    assert.equal(commands[0][5], 'writing:metrics:none');
+    assert.equal(commands[1][4], 'writing:metrics:2026-09-24');
     assert.equal(commands[1][5], 'writing:metrics:2026-09-24');
-    assert.equal(commands[1][6], 'writing:metrics:2026-09-24');
-    assert.equal(JSON.parse(String(commands[1][8])).kitActiveAt, activeAt);
-    assert.match(String(commands[1][1]), /kit_active_ready/);
+    assert.equal(JSON.parse(String(commands[1][7])).resendSubscribedAt, activeAt);
+    assert.match(String(commands[1][1]), /resend_subscribed_ready/);
   } finally {
     for (const [name, value] of Object.entries(prior)) { if (value === undefined) delete process.env[name]; else process.env[name] = value; }
   }
@@ -103,24 +103,24 @@ test('verification links use a trusted Vercel preview host and keep production c
   }
 });
 
-test('verification email explains the second confirmation and presents overlapping topics once', async () => {
-  const names = ['POSTMARK_SERVER_TOKEN', 'POSTMARK_FROM_EMAIL', 'VERCEL_ENV', 'NEXT_PUBLIC_SITE_URL'];
+test('verification email explains one first-party confirmation and presents overlapping topics once', async () => {
+  const names = ['RESEND_API_KEY', 'RESEND_FROM_EMAIL', 'VERCEL_ENV', 'NEXT_PUBLIC_SITE_URL'];
   const prior = Object.fromEntries(names.map((name) => [name, process.env[name]]));
   try {
-    process.env.POSTMARK_SERVER_TOKEN = 'test-token';
-    process.env.POSTMARK_FROM_EMAIL = 'reply@example.com';
+    process.env.RESEND_API_KEY = 'test-token';
+    process.env.RESEND_FROM_EMAIL = 'reply@example.com';
     process.env.VERCEL_ENV = 'production';
     process.env.NEXT_PUBLIC_SITE_URL = 'https://thearcades.me';
     let body: Record<string, string> = {};
     await sendVerificationEmail({ email: 'reader@example.com', token: 'test-token', audiences: ['all', 'fiction', 'essays', 'lab'] }, async (_url, init) => {
       body = JSON.parse(String(init?.body)) as Record<string, string>;
-      return Response.json({ ErrorCode: 0, MessageID: 'test-message' });
+      return Response.json({ id: 'test-message' });
     });
-    assert.equal(body.Subject, 'Confirm your updates from The Arcades');
-    assert.match(body.HtmlBody, /All writing \(fiction and essays\), The Arcades' Lab/);
-    assert.doesNotMatch(body.HtmlBody, /All writing[^<]*, Fiction, Essays/);
-    assert.match(body.TextBody, /Kit may send additional confirmation emails/);
-    assert.match(body.TextBody, /https:\/\/thearcades\.me\/subscribe\/verify#test-token/);
+    assert.equal(body.subject, 'Confirm your updates from The Arcades');
+    assert.match(body.html, /All writing \(fiction and essays\), The Arcades' Lab/);
+    assert.doesNotMatch(body.html, /All writing[^<]*, Fiction, Essays/);
+    assert.match(body.text, /will not send a second confirmation email/);
+    assert.match(body.text, /https:\/\/thearcades\.me\/subscribe\/verify#test-token/);
   } finally {
     for (const [name, value] of Object.entries(prior)) { if (value === undefined) delete process.env[name]; else process.env[name] = value; }
   }

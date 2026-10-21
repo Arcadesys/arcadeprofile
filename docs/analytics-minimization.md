@@ -70,7 +70,7 @@ The event names and units remain:
   control/context is still deduped, unlike sitewide link clicks. An end marker
   means reaching the end, not comprehension. `signup-success` still goes to Vercel;
   its PostHog mapping remains `signup confirmation requested`, not verification,
-  Kit activation or delivery.
+  Resend subscription or delivery.
 - MFF retains `$pageview` receiver compatibility and its existing page, scroll,
   section, exhibit, link and sources events, under `mff_manifesto`. Scroll accepts
   only 25/50/75/90/100. Section/heading/exhibit/link labels must exactly match
@@ -139,8 +139,8 @@ receiver now consistently returns 502, as MFF already did.
 Expect fewer receipts when excluding preview/development/private/unknown traffic
 and removing duplicate Strict Mode effects. URL and external-link cardinality
 will shrink. Do not compare pre/post totals as growth without noting this boundary
-change. Existing first-party verified/Kit-active-ready aggregate counters and
-400-day retention are untouched; those outcomes remain separate from browser intent.
+change. First-party verification and Resend-subscribed-ready outcomes remain
+aggregate counters with 400-day retention; they stay separate from browser intent.
 
 Review the mocked fixtures and verify preview capture stays off before an approved
 release. After an independently approved deployment, permitted aggregate receipt

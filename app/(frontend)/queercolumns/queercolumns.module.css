@@ -198,40 +198,22 @@
 
 .signupForm { min-width: 0; }
 
-.signupForm :global(.formkit-form) {
+.signupForm :global(form) {
   max-width: none !important;
 }
 
-.signupForm :global(.formkit-form label[for='queer-columns-email']) {
-  display: block;
-  margin-bottom: .5rem;
-  color: #161b2b;
-  font-weight: 700;
-}
-
-.signupForm :global(.formkit-header),
-.signupForm :global(.formkit-subheader),
-.signupForm :global(.formkit-guarantee) {
-  display: none !important;
-}
-
-/* This form has its own Kit rule assigning the Queer Columns audience tag. */
-.signupForm :global(.formkit-form div[role='button']:has(> fieldset[data-group='checkboxes'])) {
-  display: none !important;
-}
-
-.signupForm :global(.formkit-form input),
-.signupForm :global(.formkit-form button),
-.signupForm :global(.formkit-form label) {
+.signupForm :global(form input),
+.signupForm :global(form button),
+.signupForm :global(form label) {
   font-size: 1.125rem !important;
 }
 
-.signupForm :global(.formkit-form input[type='email']),
-.signupForm :global(.formkit-form button[type='submit']) {
+.signupForm :global(form input[type='email']),
+.signupForm :global(form button[type='submit']) {
   min-height: 48px;
 }
 
-.signupForm :global(.formkit-form :is(input, button, a):focus-visible) {
+.signupForm :global(form :is(input, button, a):focus-visible) {
   outline: 3px solid #0c1020 !important;
   outline-offset: 3px;
 }
