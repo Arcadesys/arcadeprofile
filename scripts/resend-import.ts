@@ -4,6 +4,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { RESEND_TOPICS } from '../lib/subscription-audiences';
 import { applyResendImportRow, backfillResendDefaultTopics, planResendImport } from '../lib/resend-import-plan';
+import { assertCompleteKitSnapshotForUnsubscribeSync, assertKitNonActiveStateCoverage, assertSafeDefaultTopicBackfill, kitListUrl, type KitExportSnapshot } from '../lib/kit-export';
 
 const gitMeta = statSync('.git', { throwIfNoEntry: false });
 if (!gitMeta?.isDirectory() || execFileSync('git', ['branch', '--show-current'], { encoding: 'utf8' }).trim() !== 'main') throw new Error('Run Resend import only from the owner main checkout on main');
@@ -17,8 +18,10 @@ if (!snapshotPath || !existsSync(snapshotPath)) throw new Error('--snapshot must
 if ((apply || sync) && !resendKey) throw new Error('RESEND_CONTACTS_API_KEY is required in .env.resend.local');
 const subscribedSegmentId = process.env.RESEND_SEGMENT_SUBSCRIBED_BROADCAST_ID?.trim() ?? '';
 if ((apply || sync) && !/^[a-f0-9-]{20,64}$/i.test(subscribedSegmentId)) throw new Error('RESEND_SEGMENT_SUBSCRIBED_BROADCAST_ID is required in .env.resend.local');
-const snapshot = JSON.parse(readFileSync(snapshotPath, 'utf8')) as { subscribers?: Array<{ email: string; state: string; topics: string[]; created_at: string }> };
+const snapshot = JSON.parse(readFileSync(snapshotPath, 'utf8')) as KitExportSnapshot;
 if (!Array.isArray(snapshot.subscribers)) throw new Error('Snapshot is invalid');
+if (backfill) assertSafeDefaultTopicBackfill(snapshot);
+if (sync) assertCompleteKitSnapshotForUnsubscribeSync(snapshot);
 const topicEnv: Record<string, string> = Object.fromEntries(RESEND_TOPICS.map(({ audience, env }) => [audience, env]));
 let lastResendRequest = 0;
 async function api(url: string, method = 'GET', payload?: unknown) {
@@ -39,7 +42,7 @@ async function currentKitStates() {
   if (!kitKey) throw new Error('KIT_API_KEY is required in .env.kit.local for unsubscribe sync');
   const map = new Map<string, string>(); let after = '';
   for (let page = 0; page < 1000; page += 1) {
-    const url = new URL('https://api.kit.com/v4/subscribers'); url.searchParams.set('per_page', '100'); if (after) url.searchParams.set('after', after);
+    const url = kitListUrl('subscribers', after);
     const response = await fetch(url, { headers: { 'X-Kit-Api-Key': kitKey }, signal: AbortSignal.timeout(20000), cache: 'no-store' });
     if (response.status === 429) { await new Promise((resolve) => setTimeout(resolve, Math.max(1000, Number(response.headers.get('retry-after') ?? 2) * 1000))); page -= 1; continue; }
     if (!response.ok) throw new Error('Kit unsubscribe sync GET failed');
@@ -48,6 +51,7 @@ async function currentKitStates() {
     for (const row of data.subscribers) if (row.email_address && row.state) map.set(row.email_address.toLowerCase(), row.state);
     if (!data.pagination?.has_next) break; if (!data.pagination.end_cursor || data.pagination.end_cursor === after) throw new Error('Kit pagination cursor was invalid'); after = data.pagination.end_cursor;
   }
+  assertKitNonActiveStateCoverage(map.values());
   return map;
 }
 

@@ -52,4 +52,4 @@ Follow [`kit-removal-runbook.md`](kit-removal-runbook.md). Migration scripts are
 
 ### Operational boundaries
 
-This change does not establish that the contacts were imported, production variables were changed, the site was deployed, or a live signup/unsubscribe passed. The PR must not merge until the owner completes the import and cutover runbook. `hack.thearcades.me` (TH4F) and `work.thearcades.me` have separate Kit use; TH4F is outside this change and work.thearcades.me is handled separately.
+The initial contact import is complete according to the owner, but the cutover is not complete until the owner reruns a fresh Kit export with `status=all` and `include=tags`, applies the default-topic backfill after reviewing its dry run, performs the final unsubscribe sync, and verifies counts and segment membership. The scripts reject missing state/tag coverage. This document does not establish that production variables changed, the site deployed, or live signup/unsubscribe passed. `hack.thearcades.me` (TH4F) and `work.thearcades.me` have separate Kit use; TH4F is outside this change and work.thearcades.me is handled separately.
