@@ -65,8 +65,10 @@ The four writing audiences use `KIT_TAG_ALL_WRITING_ID`, `KIT_TAG_FICTION_ID`,
 `KIT_TAG_ESSAYS_ID`, and `KIT_TAG_LAB_ID`. Only selected keys need their configured
 IDs in that local file or operator environment. The other keys retain the public
 IDs in `lib/subscription-audiences.ts`. Never guess IDs. If preview is separately
-approved, that same local file/environment needs `POSTMARK_SERVER_TOKEN` and
-`POSTMARK_FROM_EMAIL`; optional name/stream use the existing preview settings.
+approved, that same local file/environment must provide the existing selected
+mail provider configuration via `readMailConfig()`. With Resend selected, that is
+`MAIL_PROVIDER=resend`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL` and optional
+`RESEND_FROM_NAME`. Do not change selection or retrieve credentials as a side effect.
 Dry run works without any credentials or IDs.
 
 ## Dry run first
@@ -142,8 +144,10 @@ address, then run:
 npm run kit:email -- --file /absolute/path/email.md --preview-to <approved-address>
 ```
 
-Uses only `lib/postmark-preview.ts`, the existing explicitly addressed Postmark
-path, with `[Preview]` subject and transactional stream. Multiple recipients and
+Uses the extracted `sendPreview()` helper and `lib/mail-transport.ts` with the
+selected provider, `[Preview]` subject, both bodies, transactional stream, and
+30-second timeout. Each approved preview is intentional: no deduplication key
+collapses repeated tests. No automatic retries or provider fallback. Multiple recipients and
 combined preview/draft/send modes are rejected. Never use Kit subscriber/tag APIs
 to send previews. Do not print the recipient or provider response. Do not retry an
 uncertain preview; reconcile it first.
@@ -237,5 +241,5 @@ state the specific gap instead of assuming the website is required for ordinary 
 ## Tools
 
 - Bash `npm run kit:email` (`scripts/kit-email.ts`) — dry run, private Kit draft,
-  approved scheduling, approved single-address Postmark preview, or read-only
+  approved scheduling, approved single-address selected-provider preview, or read-only
   history/stats/counts.

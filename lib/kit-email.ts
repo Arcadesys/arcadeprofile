@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { createKitBroadcastDraft, getKitBroadcast, hashTagAudience, scheduleKitBroadcastDraft } from './kit-broadcast';
 import { buildKitReport, KitReportError, type KitReportOptions } from './kit-email-reporting';
 import { buildNewsletterContent } from './newsletter';
+import { MailAmbiguousError, MailRejectedError } from './mail-transport';
 import { sendPreview } from './postmark-preview';
 import { VALID_AUDIENCES, type Audience } from './subscribe-types';
 import { kitTagIdFromEnv, kitTagSource } from './subscription-audiences';
@@ -141,8 +142,10 @@ export async function runKitEmail(argv: string[], dependencies: {
   const env = dependencies.env ?? process.env;
   const fetchImpl = dependencies.fetchImpl ?? fetch;
   const log = (message: string) => {
-    for (const key of ['KIT_API_KEY', 'POSTMARK_SERVER_TOKEN']) {
-      if (env[key]) message = message.split(env[key]!).join('[redacted]');
+    for (const [key, secret] of Object.entries(env)) {
+      if (secret && (key.endsWith('_API_KEY') || key.endsWith('_SERVER_TOKEN'))) {
+        message = message.split(secret).join('[redacted]');
+      }
     }
     (dependencies.log ?? console.log)(message);
   };
@@ -175,8 +178,14 @@ export async function runKitEmail(argv: string[], dependencies: {
       return;
     }
     if (values['--preview-to']) {
-      await sendPreview({ to: values['--preview-to'], subject: input.subject, ...content, fetchImpl, env });
-      log('Preview accepted by Postmark for the single explicitly addressed recipient.');
+      try {
+        await sendPreview({ to: values['--preview-to'], subject: input.subject, ...content, fetchImpl, env });
+      } catch (error) {
+        if (error instanceof MailRejectedError) throw new OperatorError('Selected mail provider configuration or preview request was rejected.');
+        if (error instanceof MailAmbiguousError) throw new OperatorError('Preview outcome is unknown. Reconcile with the selected mail provider before retrying.');
+        throw error;
+      }
+      log('Preview accepted by the selected mail provider for the single explicitly addressed recipient.');
       return;
     }
     if (flags.has('--send')) {

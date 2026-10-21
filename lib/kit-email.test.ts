@@ -15,7 +15,7 @@ function fixture(t: TestContext) {
   const root = mkdtempSync(path.join(tmpdir(), 'kit-email-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   writeFileSync(path.join(root, 'launch.md'), source);
-  const env = { KIT_API_KEY: 'fixture-secret', KIT_TAG_ALL_WRITING_ID: '11', KIT_TAG_ESSAYS_ID: '12', KIT_TAG_FICTION_ID: '13', POSTMARK_SERVER_TOKEN: 'fixture-postmark-secret', POSTMARK_FROM_EMAIL: 'sender@example.invalid' };
+  const env = { KIT_API_KEY: 'fixture-secret', KIT_TAG_ALL_WRITING_ID: '11', KIT_TAG_ESSAYS_ID: '12', KIT_TAG_FICTION_ID: '13', MAIL_PROVIDER: 'resend', RESEND_API_KEY: 'fixture-mail-secret', RESEND_FROM_EMAIL: 'sender@example.invalid' };
   const calls: { url: string; method: string; body: Record<string, unknown> }[] = [];
   const broadcasts = new Map<number, Record<string, unknown>>();
   const output: string[] = [];
@@ -30,10 +30,12 @@ function fixture(t: TestContext) {
     const body = init?.body ? JSON.parse(String(init.body)) : {};
     calls.push({ url: address, method, body });
     if (address.startsWith('https://example.invalid/')) return new Response(null, { status: broken ? 404 : 200 });
-    if (address === 'https://api.postmarkapp.com/email') {
-      assert.equal(body.To, 'preview@example.invalid');
-      assert.match(body.Subject, /^\[Preview\]/);
-      return Response.json({ ErrorCode: 0 });
+    if (address === 'https://api.resend.com/emails') {
+      assert.deepEqual(body.to, ['preview@example.invalid']);
+      assert.equal(new Headers(init?.headers).get('Authorization'), 'Bearer fixture-mail-secret');
+      assert.equal(new Headers(init?.headers).has('Idempotency-Key'), false);
+      assert.match(body.subject, /^\[Preview\]/);
+      return Response.json({ id: 'fixture-preview' });
     }
     assert.match(address, /^https:\/\/api\.kit\.com\/v4\/broadcasts(?:\/\d+)?$/);
     if (method === 'POST' || method === 'PUT') {
@@ -102,7 +104,7 @@ test('draft POST is unscheduled/private; GET verifies fields and saves non-PII r
   assert.deepEqual(f.calls[0].body.subscriber_filter, [{ all: null, any: [{ type: 'tag', ids: [11, 12, 13] }], none: null }]);
   assert.equal(f.receipt().attempts[0].state, 'draft');
   assert.match(f.output.join('\n'), /https:\/\/app\.kit\.com\/broadcasts\/41\/edit/);
-  assert.doesNotMatch(f.output.join('\n') + readFileSync(f.receiptFile(), 'utf8'), /fixture-secret|fixture-postmark-secret|subscriber@|sender@/);
+  assert.doesNotMatch(f.output.join('\n') + readFileSync(f.receiptFile(), 'utf8'), /fixture-secret|fixture-mail-secret|subscriber@|sender@/);
   await f.run(['--draft']);
   assert.deepEqual(f.calls.map((call) => call.method), ['POST', 'GET', 'GET']);
 });
@@ -201,15 +203,17 @@ test('invalid configuration, conflicting modes, corrupt receipts and locks fail 
   assert.equal(f.calls.some((call) => call.method === 'PUT'), false);
 });
 
-test('preview uses only the single explicitly addressed Postmark path', async (t) => {
+test('preview uses only the single explicitly addressed selected-provider transport', async (t) => {
   const f = fixture(t);
   await f.run(['--preview-to', 'preview@example.invalid']);
   assert.equal(f.calls.length, 1);
-  assert.equal(f.calls[0].url, 'https://api.postmarkapp.com/email');
-  assert.doesNotMatch(f.output.join('\n'), /preview@|sender@|fixture-postmark-secret/);
+  assert.equal(f.calls[0].url, 'https://api.resend.com/emails');
+  assert.doesNotMatch(f.output.join('\n'), /preview@|sender@|fixture-mail-secret/);
   assert.equal(existsSync(path.join(f.root, 'data')), false);
+  await f.run(['--preview-to', 'preview@example.invalid']);
+  assert.equal(f.calls.length, 2, 'Separate intentional previews must not be collapsed');
   await assert.rejects(f.run(['--preview-to', 'preview@example.invalid,second@example.invalid']), /reconcile/);
-  assert.equal(f.calls.length, 1);
+  assert.equal(f.calls.length, 2);
 });
 
 test('rendered links preserve query separators', async (t) => {
@@ -249,9 +253,9 @@ test('the exclusive lock blocks a concurrent writer before its provider request'
 
 test('dry output redacts configured secrets even if copy contains them', async (t) => {
   const f = fixture(t);
-  writeFileSync(path.join(f.root, 'launch.md'), source.replace('Hey friends,', 'fixture-secret fixture-postmark-secret'));
+  writeFileSync(path.join(f.root, 'launch.md'), source.replace('Hey friends,', 'fixture-secret fixture-mail-secret'));
   await f.run();
-  assert.doesNotMatch(f.output.join('\n'), /fixture-secret|fixture-postmark-secret/);
+  assert.doesNotMatch(f.output.join('\n'), /fixture-secret|fixture-mail-secret/);
   assert.match(f.output.join('\n'), /redacted/);
 });
 
@@ -344,4 +348,23 @@ test('a draft without a verified template ID cannot fall back to the account def
   await assert.rejects(f.send(), /template is missing or changed/);
   assert.equal(f.calls.some((call) => call.method === 'PUT'), false);
   assert.equal(f.receipt().attempts[0].state, 'draft');
+});
+
+
+test('preview rejection and uncertain outcomes stay provider-neutral and never retry', async (t) => {
+  for (const [result, message] of [
+    [Response.json({ name: 'validation_error', message: 'fixture-mail-secret preview@example.invalid' }, { status: 422 }), /rejected/],
+    [Response.json({ id: '' }), /outcome is unknown/],
+  ] as const) {
+    const f = fixture(t);
+    let calls = 0;
+    await assert.rejects(f.run(['--preview-to', 'preview@example.invalid'], { fetchImpl: async () => { calls++; return result; } }), (error: Error) => {
+      assert.match(error.message, message);
+      assert.doesNotMatch(error.message, /fixture-mail-secret|preview@/);
+      return true;
+    });
+    assert.equal(calls, 1);
+    assert.deepEqual(f.output, []);
+    assert.equal(existsSync(path.join(f.root, 'data')), false);
+  }
 });

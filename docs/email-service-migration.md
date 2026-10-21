@@ -18,9 +18,9 @@ configuration have been verified.
   signup challenges, cooldowns/claim leases, durable welcome deduplication, and
   aggregate confirmation counts.
 - `lib/email-service.ts` and `services/email` remain historical code. In
-  particular, `npm run postmark:test` and `npm run email:test` still invoke that
-  legacy service through `scripts/send-test-email.ts`; they do **not** test the
-  current direct provider preview or signup path. Use the explicitly addressed
+  particular, `npm run email:test` still invokes that
+  legacy service through `scripts/send-test-email.ts`; it does **not** test the
+  current shared-transport preview or signup path. Use the explicitly addressed
   newsletter preview below for that CLI path.
 
 Primary implementation: `app/(frontend)/api/subscribe/route.ts`,
@@ -28,61 +28,45 @@ Primary implementation: `app/(frontend)/api/subscribe/route.ts`,
 `lib/kit-confirmation-reconciliation.ts`, `lib/writing-welcome-email.ts`,
 `scripts/newsletter-post.ts`, and `lib/kit-broadcast.ts`.
 
-## Provider selection and cutover
+## Provider selection and transport
 
 The only sending HTTP implementation is `lib/mail-transport.ts`. Signup,
-welcome, explicit CLI previews, and the historical service transactional adapter
-all call it. Kit broadcasts and legacy Postmark webhook ingestion are unchanged.
-`MAIL_PROVIDER` accepts exactly `postmark` or `resend`; unset/blank keeps Postmark.
-An unsupported value or missing selected-provider key/from address fails closed;
-there is no fallback, dual send, or automatic retry. Signup validates sender
-configuration before Kit/Redis calls; welcome validates before acquiring a claim;
-the historical service validates before opening its store.
+welcome, explicit CLI previews and the historical service transactional adapter
+all call it. Kit remains the broadcast provider; its keys, targeting and receipts
+stay separate from transactional mail.
 
-Postmark uses `POSTMARK_SERVER_TOKEN`, `POSTMARK_FROM_EMAIL`, optional
-`POSTMARK_FROM_NAME`, and existing transactional/broadcast stream settings.
-The historical service retains `EMAIL_FROM` as its Postmark sender. Resend uses
-`RESEND_API_KEY`, `RESEND_FROM_EMAIL`, optional `RESEND_FROM_NAME`; no Postmark
-sending credential is needed when Resend is selected. HTML, plain text, custom
-headers (including both RFC 8058 headers), and service-request metadata remain.
-Postmark streams remain unchanged. Resend records `message_stream` and `category`
-tags (`signup-verification`, `writing-welcome`, `newsletter-preview`,
-`legacy-transactional`); it uses the transactional API even for explicit previews.
-Kit remains the broadcast provider.
+`MAIL_PROVIDER` selects the transport. Keep the existing selection explicit;
+unsupported values or missing selected-provider credentials fail closed, with no
+fallback, dual send or automatic retry. Signup validates sender configuration
+before Kit/Redis calls, welcome validates before acquiring a claim, and the
+historical service validates before opening its store.
 
-Resend tracking is configured **per domain**, not per email: disable open and
-click tracking in the domain dashboard before switching. The adapter cannot
-prove dashboard settings with a sending-only key. Postmark verification/welcome
-still explicitly send `TrackOpens: false` and `TrackLinks: None`.
+For selected Resend transport, configuration is `MAIL_PROVIDER=resend`,
+`RESEND_API_KEY`, `RESEND_FROM_EMAIL` and optional `RESEND_FROM_NAME`. This CLI
+reads existing operator configuration only; it does not change variables, flags,
+DNS, sender authentication or deployments. The shared transport retains legacy
+compatibility internally; do not depend on an unset/blank selection for Resend.
 
-Operator order (no step is performed by merging this PR):
+HTML, plain text, custom headers (including RFC 8058 headers) and service-request
+metadata remain. Resend records `message_stream` and `category` tags and uses its
+transactional API for explicit previews. Those previews have no durable send
+identity or idempotency key; separate approved tests must remain separate sends.
 
-1. The user has confirmed `mail.thearcades.me` is Verified in Resend and chosen
-   `austen@mail.thearcades.me`. Recheck it remains Verified; keep tracking off.
-2. Create a Sending-access key restricted to that domain. Add `RESEND_API_KEY`
-   as a sensitive Vercel Production variable and `RESEND_FROM_EMAIL` with the
-   chosen address; optionally set `RESEND_FROM_NAME=The Arcades`.
-3. After merge and configuration, set `MAIL_PROVIDER=resend` in Production,
-   redeploy, then test signup with your own address. Verify inbox receipt,
-   explicit confirmation and the selected Kit memberships. Keep the welcome gate
-   unchanged; do not activate it merely to test this migration.
-4. Only after successful delivery, remove `POSTMARK_SERVER_TOKEN` from Vercel
-   and retire old Postmark DKIM/`pm-bounces` records after checking other users.
-   Preserve root iCloud MX/SPF and DMARC. No DNS or secret changes are part of this PR.
+Resend tracking is configured per domain. A sending-only key cannot establish
+tracking or sender-authentication state. The coordinator reports that production
+has selected Resend and the user confirmed a live signup confirmation arrived.
+This branch does not repeat that live test or independently verify production.
+Do not reactivate retired integrations or alter root mail/DNS records as part of
+newsletter operations. Welcome activation remains a separate approval gate.
 
 ### Acceptance and uncertainty
 
 `sendMail()` returns a provider message ID only with a valid positive receipt.
 `MailRejectedError` means a definite refusal. `MailAmbiguousError` means unknown
-outcome: retain the signup cooldown or permanent welcome claim. A compatibility
-export `PostmarkRejectedError` aliases `MailRejectedError` for stacked callers;
-new callers should import the neutral class directly. Errors contain no provider
+outcome: retain the signup cooldown or permanent welcome claim. Callers use the
+neutral transport error classes directly. Errors contain no provider
 body, recipient, token, secret, or original fetch error/cause.
 
-- Postmark: HTTP 4xx and explicit numeric nonzero `ErrorCode` are refusals, as
-  before. Missing/wrong-type `ErrorCode`, malformed JSON, missing message ID,
-  network errors and 5xx are unknown. This closes the old missing-`ErrorCode`
-  loophole that could release a guard on an incomplete receipt.
 - Resend: documented validation/auth/permission/parameter errors (400, 401, 403,
   404, 405, 422) and named rate/daily/monthly quota errors (429) are refusals.
   Classification requires a documented name/status pair; malformed or unfamiliar
@@ -118,7 +102,7 @@ Current provider references checked for this change:
 
 - **#434**, based on #433: in `lib/writing-welcome-email.ts`, make
   `writingWelcomeSenderConfig()` delegate to `readMailConfig()` and replace the
-  Postmark fetch in `sendWelcomeContent()` with `sendMail()`, preserving both
+  provider request in `sendWelcomeContent()` with `sendMail()`, preserving both
   unsubscribe headers, bodies and disabled tracking. Add a caller-supplied stable
   per-step key to that helper; in `lib/welcome-series.ts` pass a key containing
   the keyed digest **and series step**, so the three different messages do not
@@ -126,19 +110,17 @@ Current provider references checked for this change:
   refusal transition; leave leases/uncertain states intact. Keep the once-only
   helper's digest key for the legacy single welcome. Adapt `lib/welcome-series.test.ts`
   for both providers and missing/unknown receipts, and reconcile its README/docs edits.
-- **#435**: replace `lib/postmark-preview.ts`'s request with `sendMail()` and
-  `readMailConfig(input.env)`, retaining explicit single-address validation,
-  injected fetch/env, preview prefix, both bodies and 30-second timeout. Its
-  `scripts/newsletter-post.ts` extraction should retain the neutral acceptance
-  output. Update `lib/kit-email.ts`, `lib/kit-email.test.ts`, README, migration
-  docs, and `.claude/skills/kit-email/SKILL.md` provider/config language; keep
-  preview sends explicit and separate from Kit broadcasts. No preview dedupe key
-  should collapse intentional tests.
+- **#435**: the extracted `sendPreview()` helper now calls `sendMail()` with
+  `readMailConfig(input.env)` and injected fetch. It retains single-address
+  validation, prefix, both bodies and the 30-second timeout; the essay CLI keeps
+  neutral acceptance output. The standalone CLI and skill use selected-provider
+  configuration and wording. Previews remain explicit and separate from Kit
+  broadcasts, without a key that would collapse intentional tests.
 - **#436**, stacked on #434: keep its `signupFlow`, `kitDoiFallback`, direct-active
   copy and lease changes in `lib/writing-signup.ts` while retaining this PR's
   `sendMail()` call, stable verification key and neutral error alias. Merge its
   `/api/subscribe` route edit with selected-provider preflight, never restore the
-  Postmark-only env check. Retain tests proving both provider selections work
+  provider-specific env check. Retain tests proving both provider selections work
   with its signup modes; reconcile README/docs wording. It inherits #434's
   per-step welcome transport change; do not add a second sending implementation.
 
@@ -222,8 +204,7 @@ Configure through the deployment/operator secret store, never committed files:
 - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`, or compatible
   `KV_REST_API_URL` / `KV_REST_API_TOKEN`
 - `SIGNUP_LINK_SECRET` and `CRON_SECRET`
-- `MAIL_PROVIDER` (unset/blank defaults to `postmark`); for Postmark,
-  `POSTMARK_SERVER_TOKEN`, `POSTMARK_FROM_EMAIL`, and optional `POSTMARK_FROM_NAME` / `POSTMARK_TRANSACTIONAL_STREAM`
+- Existing explicit `MAIL_PROVIDER` and its selected-provider key/from settings
 - For Resend: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, optional `RESEND_FROM_NAME`
 - `NEXT_PUBLIC_SITE_URL` for the intended production host
 
@@ -333,7 +314,8 @@ consent, and send history and reconcile provider state before any rollback send.
 `npm run kit:email` and `.claude/skills/kit-email/SKILL.md` extend the essay
 workflow without replacing it. They reuse `lib/kit-broadcast.ts`, audience tag IDs
 from `lib/subscription-audiences.ts`, and the essay email frame. Both CLIs now use
-`lib/postmark-preview.ts` for their single explicitly addressed preview path.
+the extracted `sendPreview()` helper with `lib/mail-transport.ts` for their
+single explicitly addressed selected-provider preview path.
 
 The default standalone mode is offline and renders subject, preview, HTML/text,
 links and OR tag targeting. Kit's [stats endpoint](https://developers.kit.com/api-reference/broadcasts/get-stats-for-a-broadcast)

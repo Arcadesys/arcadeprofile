@@ -82,21 +82,23 @@ is sent to imported contacts unless they submit the signup form and claim its
 confirmation link.
 
 `lib/mail-transport.ts` sends signup verification emails, gated welcomes, and
-explicitly addressed previews. `MAIL_PROVIDER` accepts `postmark` or `resend`;
-unset/blank keeps Postmark. There is no fallback between providers. Missing or
-invalid selected-provider credentials fail before signup Kit/Redis work or a
-welcome claim.
+explicitly addressed previews through the selected mail provider. Kit broadcasts
+remain separate. There is no fallback between providers. Missing or invalid
+selected-provider credentials fail before signup Kit/Redis work or a welcome claim.
 
-For Postmark, keep `POSTMARK_SERVER_TOKEN` and `POSTMARK_FROM_EMAIL` (optional
-`POSTMARK_FROM_NAME` and stream settings). For Resend, verify the sending domain,
-disable its open/click tracking in Resend, then configure `RESEND_API_KEY`,
-`RESEND_FROM_EMAIL`, optional `RESEND_FROM_NAME`, and `MAIL_PROVIDER=resend` in
-Vercel production and redeploy. Merging this change alone keeps Postmark selected.
-Never commit credentials. Both bodies and custom unsubscribe headers are retained.
-Resend uses stable challenge/welcome/job idempotency keys where available; unknown
-outcomes still retain local guards and never trigger automatic retries.
+Keep the existing provider selection explicit. Resend uses `MAIL_PROVIDER=resend`,
+`RESEND_API_KEY`, `RESEND_FROM_EMAIL` and optional `RESEND_FROM_NAME`. Keys stay in
+the operator's secret store or ignored local file, never in Git or chat. The
+transport preserves both bodies and custom unsubscribe headers. Tracking for
+Resend is a domain setting; sending-only credentials cannot verify it. Do not
+change provider selection, credentials, sender authentication, tracking or welcome
+flags as part of newsletter work.
+
+Stable verification/welcome/job keys supplement existing durable guards. Explicit
+previews intentionally have no deduplication key: each approved test is a separate
+send. Uncertain outcomes require reconciliation and never trigger automatic retries.
 See [the migration contract](docs/email-service-migration.md) for response mapping,
-operator cutover steps, quota behavior, and related-PR integration notes.
+quota behavior and related integration notes.
 
 The historical `services/email` transactional path also uses this transport;
 Kit broadcasts remain on Kit.
@@ -127,14 +129,14 @@ For an operator-authorized draft, add `--draft`; it creates and reads back
 sending requires `--send --broadcast-id <id> --confirm "<exact subject>"`, a matching
 local draft and provider readback, HTTP 200 for all body links, and optional future
 `--send-at <ISO time>`. Default scheduling is one minute ahead. Previews use only
-the shared explicitly addressed Postmark path with `--preview-to <approved-address>`.
+the shared explicitly addressed selected-provider transport with `--preview-to <approved-address>`.
 Neither send nor preview is authorized by asking for a draft.
 
 The CLI reads **`.env.kit.local`** (ignored/untracked). The operator must paste
 `KIT_API_KEY` from Kit → Settings → Developer → V4 keys there; `vercel env pull`
 returns redacted sensitive values. Never print or commit this file/key. Selected
-writing tag IDs and approved-preview Postmark settings use the existing variable
-names. No credential discovery or deployment configuration is performed.
+writing tag IDs and approved-preview mail settings use the existing selected-provider
+configuration. No credential discovery or deployment configuration is performed.
 
 See [.claude/skills/kit-email/SKILL.md](.claude/skills/kit-email/SKILL.md) for approval,
 input, audience and recovery rules. Non-PII history is
