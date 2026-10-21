@@ -5,16 +5,20 @@ import test from 'node:test';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
-test('homepage has the reader-first conversion copy with signups currently paused', () => {
+test('homepage sells the featured book before signup and reading discovery', () => {
   const home = source('app/(frontend)/page.tsx');
 
-  assert.match(home, /<h1 className=\{styles\.title\}>Everything here used to be something else\.<\/h1>/);
-  assert.doesNotMatch(home, /New work every two weeks/);
-  // Email signups are paused site-wide (see SubscriptionForm.tsx); the
-  // homepage hero intentionally has no <SubscriptionForm /> right now.
-  assert.doesNotMatch(home, /<SubscriptionForm/);
-  assert.match(home, /<Link className=\{styles\.button\} href="\/start">Start Here/);
-  assert.match(home, /<Link className=\{styles\.latestLink\} href="\/latest">Latest/);
+  assert.match(home, /<p className=\{styles\.tagline\}>Everything here used to be something else\.<\/p>/);
+  assert.match(home, /getBook\('this-is-what-i-do-for-fun'\)/);
+  assert.match(home, /headingAs="h1"[\s\S]*placement="home_hero"/);
+  assert.match(home, /pitch="Strange lives, remade\."/);
+  assert.match(home, /<SubscriptionForm[\s\S]*audiences=\{\['all'\]\}[\s\S]*magnet="subscriber-exclusive"/);
+  assert.match(home, /<StartReadingShelf[\s\S]*items=\{readingPicks\}[\s\S]*columns=\{3\}/);
+  assert.ok(home.indexOf('className={styles.hero}') < home.indexOf('className={styles.signup}'));
+  assert.ok(home.indexOf('className={styles.signup}') < home.indexOf('items={readingPicks}'));
+  assert.doesNotMatch(home, /entryPaths|workLane|FeaturedCollectionCard|ContinueReadingBanner|ContinueToyBanner/);
+  const footerSignup = source('app/components/FooterSubscribe.tsx');
+  assert.match(footerSignup, /pathname === '\/'/);
 });
 
 test('projects is the landing door for builds, case studies, portfolio, and toys', () => {

@@ -10,20 +10,24 @@ export default function StartReadingShelf({
   heading = 'Start reading',
   compact = false,
   showCovers = false,
+  columns = 2,
+  description = `${items.length} good places to enter the work.`,
   headingId = 'start-reading-heading',
 }: {
   items: readonly DiscoveryReadingItem[];
   heading?: string;
   compact?: boolean;
+  columns?: 2 | 3;
+  description?: string;
   /** Enables only verified cover assets; text-first shelves stay unchanged. */
   showCovers?: boolean;
   headingId?: string;
 }) {
   return (
-    <section className={[styles.shelf, compact && styles.compact].filter(Boolean).join(' ')} aria-labelledby={headingId}>
+    <section className={[styles.shelf, compact && styles.compact, columns === 3 && styles.threeColumn].filter(Boolean).join(' ')} aria-labelledby={headingId}>
       <div className={styles.heading}>
         <h2 id={headingId}>{heading}</h2>
-        <p>Four good places to enter the work.</p>
+        <p>{description}</p>
       </div>
       <ol className={styles.list}>
         {items.map((item) => (

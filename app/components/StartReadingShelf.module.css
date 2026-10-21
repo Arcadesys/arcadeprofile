@@ -3,6 +3,7 @@
 .heading h2 { margin: 0; color: var(--fg); font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3rem); line-height: 1; }
 .heading p { margin: 0; color: var(--fg-muted); font-size: 1.05rem; }
 .list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 12px; margin: 0; padding: 12px; list-style: none; border: 1px solid #35353a; background: #09090a; }
+.threeColumn .list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .item { display: grid; align-content: start; gap: .8rem; padding: clamp(1.25rem, 3vw, 1.75rem); border: 2px solid #51484d; border-left: 5px solid var(--cyan); background: var(--surface); }
 .item:nth-child(2), .item:nth-child(4) { border-left-color: var(--pink); }
 .withCover { grid-template-rows: auto auto auto 1fr auto auto; }
@@ -26,7 +27,7 @@
 .compact .item h3 { font-size: 1.3rem; }
 .compact .read { min-height: 44px; font-size: .9rem; }
 @container reading-shelf (max-width: 46rem) {
-  .list { grid-template-columns: 1fr; }
+  .list, .threeColumn .list { grid-template-columns: 1fr; }
   .coverLink { min-height: 260px; }
   .cover { height: min(100cqw, 360px); max-height: 360px; }
 }

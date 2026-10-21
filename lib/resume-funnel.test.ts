@@ -9,20 +9,10 @@ import { WORK_RESUME_PDF_URL, WORK_RESUME_URL } from './work-resume';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
-test('the homepage offers the professional lane right after the first reading choices', () => {
+test('the homepage keeps one small work link in its brand bar', () => {
   const home = source('app/(frontend)/page.tsx');
-  const hero = home.indexOf('</header>');
-  const shelf = home.indexOf('<StartReadingShelf');
-  const workLane = home.indexOf('className={styles.workLane}');
-  const bands = home.indexOf('className={styles.bands}');
-
-  assert.ok(workLane !== -1, 'homepage is missing the professional work lane');
-  assert.ok(hero !== -1 && shelf > hero, 'the reading shelf must follow the homepage hero');
-  assert.ok(workLane > shelf, 'the work lane must follow the first reading choices');
-  assert.ok(bands > workLane, 'the work lane must precede the fiction and essay bands');
+  assert.equal((home.match(/Work with me/g) ?? []).length, 1);
   assert.match(home, /href="https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_header">\s*Work with me/);
-  assert.match(home, /href=\{WORK_RESUME_URL\}>Read the resume/);
-  assert.match(home, /href=\{WORK_RESUME_PDF_URL\}>Download PDF/);
   assert.equal(WORK_RESUME_URL, 'https://work.thearcades.me/resume');
   assert.equal(WORK_RESUME_PDF_URL, 'https://work.thearcades.me/resume.pdf');
 });
@@ -30,10 +20,8 @@ test('the homepage offers the professional lane right after the first reading ch
 test('the reader funnel keeps its homepage entry points', () => {
   const home = source('app/(frontend)/page.tsx');
 
-  assert.match(home, /<Link className=\{styles\.button\} href="\/start">Start Here/);
-  assert.match(home, /<Link className=\{styles\.latestLink\} href="\/latest">Latest/);
-  assert.match(home, /href="\/stories">Read fiction/);
-  assert.match(home, /href="\/essays">Read essays/);
+  assert.match(home, /href="\/stories">All stories/);
+  assert.match(home, /href="\/essays">All essays/);
 });
 
 test('the resume sits in the primary navigation rail and the footer, linking to the work site', () => {

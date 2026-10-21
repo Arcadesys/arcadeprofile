@@ -67,6 +67,37 @@ test('link counts retain safe path/host context while query/hash and non-HTTP va
   for (const href of ['mailto:private@example.com', 'javascript:secret', '/subscribe/verify#token', '/unknown?secret', 'https://example.com/private?secret']) assert.equal(sanitizeAnalyticsPayload(payload('site link clicked', { href }), 'sitewide')?.properties.href, undefined);
 });
 
+test('homepage Amazon book clicks retain only fixed placement and format labels', () => {
+  const properties = (href: string, destinationKind: string) => sanitizeAnalyticsPayload(payload('site link clicked', {
+    $current_url: `${site}/`, href, link_kind: 'external', destination_host: 'www.amazon.com',
+    destination_kind: destinationKind, placement: 'home_hero',
+  }), 'sitewide')?.properties;
+  const kindle = properties('https://www.amazon.com/dp/B0HM8J2Z87?tag=private#offer', 'amazon_kindle');
+  assert.equal(kindle?.href, undefined);
+  assert.equal(kindle?.destination_host, 'www.amazon.com');
+  assert.equal(kindle?.destination_kind, 'amazon_kindle');
+  assert.equal(kindle?.placement, 'home_hero');
+  const paperback = properties('https://www.amazon.com/dp/B0HMFDFVNH', 'amazon_paperback');
+  assert.equal(paperback?.destination_kind, 'amazon_paperback');
+  assert.equal(paperback?.placement, 'home_hero');
+
+  for (const invalid of [
+    { destination_kind: 'amazon_kindle', placement: 'footer' },
+    { destination_kind: 'amazon_kindle', placement: 'home_hero', href: 'https://www.amazon.com/gp/cart' },
+    { destination_kind: 'amazon_paperback', placement: 'home_hero', href: 'https://evil.test/dp/B0HMFDFVNH' },
+  ]) {
+    const linkFields: Record<string, unknown> = {
+      $current_url: `${site}/`, href: 'https://www.amazon.com/dp/B0HM8J2Z87',
+      link_kind: 'external', destination_host: 'www.amazon.com', destination_kind: 'amazon_kindle', placement: 'home_hero',
+    };
+    const result = sanitizeAnalyticsPayload(payload('site link clicked', {
+      ...linkFields, ...invalid,
+    }), 'sitewide');
+    assert.equal(result?.properties.destination_kind, undefined);
+    assert.equal(result?.properties.placement, undefined);
+  }
+});
+
 test('MFF events preserve numeric milestones and exact public labels with separate property allowlists', () => {
   const mff = (event: string, properties: Record<string, unknown> = {}) => sanitizeAnalyticsPayload(payload(event, { $current_url: `${site}/mff?secret#token`, ...properties }), 'mff_manifesto');
   for (const percent of [25, 50, 75, 90, 100]) assert.equal(mff('mff scroll reached', { percent })?.properties.percent, percent);

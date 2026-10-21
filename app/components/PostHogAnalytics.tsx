@@ -41,11 +41,15 @@ export function PostHogAnalytics() {
             ? url.pathname
             : url.hostname === 'work.thearcades.me'
               ? url.origin
+              : url.hostname === 'www.amazon.com' && /^\/dp\/[A-Z0-9]{10}$/i.test(url.pathname)
+                ? url.href
               : undefined,
           link_kind: url.hostname === window.location.hostname ? 'internal' : 'external',
           destination_host: url.hostname,
           destination_kind: url.origin === 'https://work.thearcades.me' && url.pathname === '/resume' ? 'resume'
-            : url.origin === 'https://work.thearcades.me' && url.pathname === '/resume.pdf' ? 'resume_pdf' : undefined,
+            : url.origin === 'https://work.thearcades.me' && url.pathname === '/resume.pdf' ? 'resume_pdf'
+              : link.dataset.analyticsDestination,
+          placement: link.dataset.analyticsPlacement,
         });
       } catch {
         // Malformed destinations are not useful to the reader-path report.
