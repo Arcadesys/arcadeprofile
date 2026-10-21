@@ -298,7 +298,7 @@ export default function ProjectsIndex({ entries, pulse, weekCount, writingNow }:
           source="project-hub"
           audiences={['lab']}
           updateMode="add"
-          magnet="story"
+          magnet="subscriber-exclusive"
           submitLabel="Send me build notes"
         />
       </section>

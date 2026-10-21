@@ -23,6 +23,7 @@ export default function SubscribePage() {
       </p>
       <SubscriptionForm
         source="subscribe-page"
+        magnet="subscriber-exclusive"
         audiences={[]}
         updateMode="add"
         showPreferences

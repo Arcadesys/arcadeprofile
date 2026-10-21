@@ -4,15 +4,13 @@ import { z } from 'zod';
 import { audienceList, challengeTtlMilliseconds, createVerificationToken, encryptSignupEmail, lookupKitSubscriber, newChallengeId, putChallenge, redisCommand, sendVerificationEmail, signupCooldownKey, signupEmailDigest, type SignupChallenge } from '@/lib/writing-signup';
 import { VALID_AUDIENCES, VALID_MAGNETS, VALID_SOURCES, VALID_UPDATE_MODES, type Magnet } from '@/lib/subscribe-types';
 import { parseBody } from '@/lib/validation';
+import { subscriberGiftFiles } from '@/lib/subscriber-gift';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const MAGNETS: Record<Magnet, { files: Array<{ url: string; filename: string; label: string }> }> = {
-  story: { files: [
-    { url: '/lead-magnets/la-ligne-du-marais.pdf', filename: 'la-ligne-du-marais.pdf', label: 'PDF' },
-    { url: '/lead-magnets/la-ligne-du-marais.epub', filename: 'la-ligne-du-marais.epub', label: 'EPUB' },
-  ] },
+  'subscriber-exclusive': { files: subscriberGiftFiles() },
   'it-takes-a-zoo-complete': { files: [{ url: '/novels/it-takes-a-zoo/complete/pdf', filename: 'it-takes-a-zoo-complete.pdf', label: 'Complete PDF' }] },
 };
 const schema = z.object({

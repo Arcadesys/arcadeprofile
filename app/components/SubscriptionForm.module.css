@@ -93,3 +93,6 @@
 @media (max-width: 560px) {
   .submit { width: 100%; }
 }
+
+.gift { font-size: 18px; line-height: 1.7; overflow-wrap: anywhere; }
+.gift p { margin: 0 0 .5rem; }

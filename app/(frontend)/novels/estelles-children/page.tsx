@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { SITE_NAME } from '@/lib/site-brand';
+import SubscriptionForm from '@/app/components/SubscriptionForm';
 
 import styles from './estelles-children.module.css';
 
@@ -56,6 +57,17 @@ export default function EstellesChildrenPreviewPage() {
             This page is an introduction to <em>Estelle&apos;s Children</em>. It does not include the
             full book or a download.
           </p>
+        </section>
+
+        <section aria-labelledby="opening-heading" className={styles.section}>
+          <h2 id="opening-heading">Read the opening story first</h2>
+          <SubscriptionForm
+            source="novel-preview"
+            audiences={['fiction']}
+            updateMode="add"
+            magnet="subscriber-exclusive"
+            submitLabel="Send me Broomsticks"
+          />
         </section>
 
         <p className={styles.backLink}><Link href="/start">Explore more writing and projects</Link></p>

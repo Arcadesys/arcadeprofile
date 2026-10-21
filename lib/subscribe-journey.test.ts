@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server';
 import { POST as requestSignup } from '@/app/(frontend)/api/subscribe/route';
 import { POST as confirmSignup } from '@/app/(frontend)/api/subscribe/verify/route';
 import { reconcileVerifiedKitSignups } from './kit-confirmation-reconciliation';
+import { subscriberGiftFiles } from './subscriber-gift';
 
 const envNames = [
   'KIT_API_KEY', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'SIGNUP_LINK_SECRET',
@@ -107,6 +108,19 @@ async function submitAndConfirm(audiences: string[]) {
     }));
   };
 }
+
+test('exclusive signup returns configured gift downloads and rejects the retired story magnet', async () => {
+  const kit = setupKitJourney('active');
+  const signup = (magnet: string) => requestSignup(new NextRequest('https://www.thearcades.me/api/subscribe', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ email: 'reader@example.com', audiences: ['fiction'], magnet }),
+  }));
+  const response = await signup('subscriber-exclusive');
+  assert.equal(response.status, 200);
+  assert.deepEqual((await response.json()).magnet, { files: subscriberGiftFiles() });
+  assert.equal(kit.kitWrites.length, 0);
+  assert.equal((await signup('story')).status, 400);
+});
 
 test('mixed Queer Columns and Work choices survive the email confirmation and reach only their Kit audiences', async () => {
   const kit = setupKitJourney('active');

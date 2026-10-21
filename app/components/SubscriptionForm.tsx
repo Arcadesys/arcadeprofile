@@ -13,6 +13,7 @@ import type {
 } from '@/lib/subscribe-types';
 
 import styles from './SubscriptionForm.module.css';
+import { SUBSCRIBER_GIFT, subscriberGiftFiles } from '@/lib/subscriber-gift';
 
 type Download = { href: string; label: string };
 
@@ -172,6 +173,13 @@ function EnabledSubscriptionForm({
 
   return (
     <form className={`${styles.form} ${presentation === 'compact' ? styles.compact : ''}`} onSubmit={submit} noValidate={false}>
+      {magnet === 'subscriber-exclusive' ? (
+        <div className={styles.gift}>
+          <p><strong>Subscriber-only: {SUBSCRIBER_GIFT.title}</strong></p>
+          <p>{SUBSCRIBER_GIFT.description}</p>
+          <p>{subscriberGiftFiles().length ? 'Get the PDF and EPUB with your signup.' : 'Draft offer — the piece is not available yet.'}</p>
+        </div>
+      ) : null}
       <div className={styles.field}>
         <label htmlFor={emailId}>Email address</label>
         <input
