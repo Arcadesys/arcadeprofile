@@ -7,8 +7,6 @@ type EndOfPieceCopyInput = {
   seriesActive?: boolean;
 };
 
-const ALL_WRITING_COPY = "Join All Writing for stories and essays when they're ready.";
-
 export function endOfPieceCopy({
   seriesTitle,
   totalParts,

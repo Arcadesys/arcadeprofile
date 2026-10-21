@@ -25,7 +25,6 @@
     "test:site": "tsx --test $(find app lib scripts -name '*.test.ts' -print | sort)",
     "test:furry-history-board": "vitest run --config labs/furry-history-board/vitest.config.ts",
     "test:subscription": "vitest run --config vitest.subscription.config.ts",
-    "email:test": "tsx scripts/send-test-email.ts",
     "build:analytics-manifest": "node --import tsx scripts/build-analytics-manifest.ts",
     "sticker-chat:build": "node scripts/build-reaction-stickers-chat-widget.mjs",
     "sticker-chat:serve": "npm run sticker-chat:build && node scripts/reaction-stickers-chat-server.mjs"

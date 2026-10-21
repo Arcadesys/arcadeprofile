@@ -49,7 +49,7 @@ describe('end-of-piece All Writing disclosure', () => {
       email: 'reader@example.test', audiences: ['all'], source: props.source, updateMode: 'add',
     });
     expect(await screen.findByRole('status')).toHaveTextContent('Check your inbox to confirm your All Writing request.');
-    expect(screen.getByText('Kit may send additional confirmation emails for the topics you chose before delivery begins.')).toBeVisible();
+    expect(screen.getByText('We will send one confirmation email. Your selected topics begin after you confirm.')).toBeVisible();
     expect(screen.getByRole('link', { name: 'Browse the writing' })).toHaveAttribute('href', '/writing');
     expect(mocks.track.mock.calls.map(([event]) => event)).toEqual(['signup-request', 'signup-success']);
     expect(JSON.stringify(mocks.track.mock.calls)).not.toContain('reader@example.test');
