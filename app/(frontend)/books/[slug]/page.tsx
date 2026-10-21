@@ -6,7 +6,8 @@ import { notFound } from 'next/navigation';
 import { BOOKS, bookPath, bookStatusLabel, getBook, type BookInfo } from '@/data/books';
 import { JsonLd } from '@/lib/structured-data';
 import { SITE_NAME } from '@/lib/site-brand';
-import { SITE_URL } from '@/lib/site-url';
+import { bookJsonLd } from '@/lib/book-schema';
+import BookActions from '@/app/components/BookActions';
 
 import styles from '../books.module.css';
 
@@ -74,32 +75,7 @@ export default async function BookPage({ params }: Props) {
   if (!book) notFound();
 
   const nextBook = book.nextSlug ? getBook(book.nextSlug) : undefined;
-  const bookUrl = `${SITE_URL}${bookPath(book)}`;
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Book',
-    '@id': `${bookUrl}#book`,
-    name: book.title,
-    description: book.description,
-    url: bookUrl,
-    author: { '@id': `${SITE_URL}/#person` },
-    mainEntityOfPage: bookUrl,
-    ...(book.publisher
-      ? { publisher: { '@type': 'Organization', name: book.publisher } }
-      : {}),
-    ...(book.series
-      ? {
-          isPartOf: {
-            '@type': 'BookSeries',
-            name: book.series,
-            ...(book.seriesPosition ? { position: book.seriesPosition } : {}),
-          },
-        }
-      : {}),
-    ...(book.stage === 'available' && book.releaseYear
-      ? { datePublished: String(book.releaseYear) }
-      : {}),
-  };
+  const jsonLd = bookJsonLd(book);
 
   const permanentHomeCopy =
     book.stage === 'development'
@@ -126,6 +102,7 @@ export default async function BookPage({ params }: Props) {
             <p className={styles.detailDescription}>{book.description}</p>
 
             <ul className={styles.metadata} aria-label="Book details">
+              <li>By {book.author ?? 'Austen Tucker'}</li>
               {book.format ? <li>{book.format}</li> : null}
               {book.publisher ? <li>{book.publisher}</li> : null}
               {book.series ? (
@@ -138,19 +115,7 @@ export default async function BookPage({ params }: Props) {
             {book.editionNote ? <p className={styles.editionNote}>{book.editionNote}</p> : null}
             {permanentHomeCopy ? <p className={styles.permanentHome}>{permanentHomeCopy}</p> : null}
 
-            {book.actions.length ? (
-              <div className={styles.actions}>
-                {book.actions.map((action) => (
-                  action.external ? (
-                    <a key={action.href} href={action.href} target="_blank" rel="noreferrer">
-                      {action.label} <span aria-hidden="true">↗</span>
-                    </a>
-                  ) : (
-                    <Link key={action.href} href={action.href}>{action.label}</Link>
-                  )
-                ))}
-              </div>
-            ) : null}
+            <BookActions book={book} />
           </div>
         </article>
 

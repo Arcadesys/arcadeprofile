@@ -7,6 +7,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { SITE_URL } from '../lib/site-url';
+import { COLLECTION } from '../lib/collection';
 
 const BASE = (process.env.SEO_BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
 
@@ -32,6 +33,9 @@ const PAGES: Array<{ path: string; schema?: string }> = [
   { path: '/' },
   { path: '/stories' },
   { path: '/essays' },
+  { path: '/books/this-is-what-i-do-for-fun', schema: 'Book' },
+  { path: '/this-is-what-i-do-for-fun', schema: 'CollectionPage' },
+  { path: '/this-is-what-i-do-for-fun/carl', schema: 'ShortStory' },
   { path: '/novels/it-takes-a-zoo', schema: 'CollectionPage' },
   { path: '/novels/it-takes-a-zoo/cold-boot', schema: 'Chapter' },
   { path: '/projects/the-singularity-log/rabies-capitalism', schema: 'BlogPosting' },
@@ -81,6 +85,49 @@ test('structured data parses and article identity agrees with the canonical', as
       assert.equal(id, expectedUrl(path), `${path} mainEntityOfPage`);
       assert.ok(typeof entity.datePublished === 'string', `${path} datePublished`);
     }
+  }
+});
+
+test('the book offers Kindle first and the user-verified paperback second', async () => {
+  const { body } = await get('/books/this-is-what-i-do-for-fun');
+  const book = jsonLd(body).find((entity) => entity['@type'] === 'Book');
+  assert.ok(book);
+  assert.equal(book.isbn, '9798160804194');
+  const offers = book.offers as Array<Record<string, unknown>>;
+  assert.equal(offers.length, 2);
+  assert.equal(offers[0].url, 'https://www.amazon.com/dp/B0HM8J2Z87');
+  assert.equal(offers[0].price, '4.99');
+  assert.equal(offers[0].priceCurrency, 'USD');
+  assert.equal(offers[1].url, 'https://www.amazon.com/dp/B0HMFDFVNH');
+  assert.equal(offers[1].price, '12.99');
+  assert.equal(offers[1].priceCurrency, 'USD');
+  assert.doesNotMatch(body, /Paperback coming soon/);
+  assert.ok(body.indexOf('Buy on Kindle') < body.indexOf('Buy the paperback'));
+  assert.ok(body.indexOf('Buy the paperback') < body.indexOf('Read seven stories free'));
+  assert.ok(body.indexOf('Buy on Kindle') < body.indexOf('Read seven stories free'));
+});
+
+test('the collection has seven reading links and a book-only Foxtails card', async () => {
+  const { body } = await get('/this-is-what-i-do-for-fun');
+  assert.match(body, /Seven of the eight stories are free/);
+  assert.match(body, /Buy on Kindle/);
+  assert.match(body, /<h2>Foxtails<\/h2>/);
+  assert.doesNotMatch(body, /href="[^\"]*\/foxtails(?:\/|\")/);
+  const textMarkup = body.replaceAll('<!-- -->', '');
+  for (const story of COLLECTION) assert.ok(textMarkup.includes(`Read ${story.title}`));
+});
+
+test('every free story points to the book above the story and before newsletter signup', async () => {
+  for (const story of COLLECTION) {
+    const { status, body } = await get(`/this-is-what-i-do-for-fun/${story.slug}`);
+    assert.equal(status, 200);
+    assert.match(body, /From the collection/);
+    assert.match(body, /href="\/books\/this-is-what-i-do-for-fun">Buy<\/a>/);
+    assert.match(body, /href="https:\/\/www.amazon.com\/dp\/B0HM8J2Z87"/);
+    assert.match(body, /href="https:\/\/www.amazon.com\/dp\/B0HMFDFVNH"/);
+    assert.doesNotMatch(body, /Paperback coming soon/);
+    assert.ok(body.indexOf('id="story-book-heading"') < body.indexOf('id="end-of-piece-subscribe-heading"'));
+    assert.doesNotMatch(body, /All seven stories/);
   }
 });
 

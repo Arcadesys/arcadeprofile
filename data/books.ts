@@ -1,11 +1,15 @@
-export type BookStage = 'available' | 'forthcoming' | 'development';
+export type BookStage = 'available' | 'forthcoming' | 'development' | 'out-of-print';
 export type BookSection = 'current' | 'next' | '2027' | 'development' | 'backlist';
 
-export type BookAction = {
+type BookActionBase = {
   label: string;
   href: string;
-  external?: boolean;
 };
+
+export type BookAction = BookActionBase & (
+  | { kind: 'purchase'; external: true; bookFormat: 'EBook' | 'Paperback'; price?: string }
+  | { kind?: 'read'; external?: boolean; bookFormat?: never; price?: never }
+);
 
 export interface BookInfo {
   slug: string;
@@ -13,7 +17,9 @@ export interface BookInfo {
   description: string;
   stage: BookStage;
   section: BookSection;
+  author?: string;
   releaseYear?: number;
+  paperback?: { isbn: string; price: string; status: 'available' | 'coming-soon' };
   format?: string;
   publisher?: string;
   series?: string;
@@ -30,14 +36,19 @@ export const BOOKS: readonly BookInfo[] = [
     slug: 'this-is-what-i-do-for-fun',
     title: 'This is what I do for fun',
     description:
-      'A collection of short fiction: androids, kitsune, hypersleep pods, and the smallest casino in Paris.',
+      'Eight stories by Austen Tucker: androids, kitsune, hypersleep pods, and the smallest casino in Paris. Read seven free; Foxtails is only in the book.',
     stage: 'available',
     section: 'current',
     releaseYear: 2026,
     format: 'Short-fiction collection',
     publisher: 'Free Play Publishing',
+    coverImage: '/images/books/this-is-what-i-do-for-fun.jpg',
+    coverAlt: 'Cover of This is what I do for fun by Austen Tucker.',
+    paperback: { isbn: '9798160804194', price: '12.99', status: 'available' },
     actions: [
-      { label: 'Read the collection', href: '/this-is-what-i-do-for-fun' },
+      { label: 'Buy on Kindle · $4.99', href: 'https://www.amazon.com/dp/B0HM8J2Z87', external: true, kind: 'purchase', bookFormat: 'EBook', price: '4.99' },
+      { label: 'Buy the paperback · $12.99', href: 'https://www.amazon.com/dp/B0HMFDFVNH', external: true, kind: 'purchase', bookFormat: 'Paperback', price: '12.99' },
+      { label: 'Read seven stories free', href: '/this-is-what-i-do-for-fun', kind: 'read' },
     ],
     nextSlug: 'estelles-children',
   },
@@ -61,17 +72,21 @@ export const BOOKS: readonly BookInfo[] = [
     title: 'Bait and Switch',
     description:
       'Fenton’s father is building a movement to ban toons from the real world just as Fenton starts becoming one.',
-    stage: 'forthcoming',
-    section: '2027',
-    releaseYear: 2027,
+    stage: 'available',
+    section: 'backlist',
+    author: 'Austen Crowder',
+    releaseYear: 2010,
     format: 'Novel',
-    publisher: 'Free Play Publishing',
+    publisher: 'Anthropomorphic Dreams Publishing',
     series: 'Ink and Paint Trilogy',
     seriesPosition: 1,
     coverImage: '/images/books/baitandswitch.jpg',
     coverAlt: 'Cover of Bait and Switch.',
-    editionNote: 'A new Free Play Publishing edition is planned for 2027.',
-    actions: [],
+    editionNote: 'The original 2010 edition, published as Austen Crowder, is still on sale. A new Free Play Publishing edition is coming in 2027.',
+    actions: [
+      { label: 'Buy paperback', href: 'https://www.amazon.com/dp/145631890X', external: true, kind: 'purchase', bookFormat: 'Paperback' },
+      { label: 'Buy on Kindle', href: 'https://www.amazon.com/dp/B004XD9WZO', external: true, kind: 'purchase', bookFormat: 'EBook' },
+    ],
     nextSlug: 'the-painted-cat',
   },
   {
@@ -79,16 +94,16 @@ export const BOOKS: readonly BookInfo[] = [
     title: 'The Painted Cat',
     description:
       'Janet keeps two lives: small-town teacher Miss Perch and Bunny Cat, the cartoon self she paints into being. The wall between them is starting to crack.',
-    stage: 'forthcoming',
-    section: '2027',
-    releaseYear: 2027,
+    stage: 'out-of-print',
+    section: 'backlist',
+    author: 'Austen Crowder',
+    releaseYear: 2015,
     format: 'Novel',
-    publisher: 'Free Play Publishing',
     series: 'Ink and Paint Trilogy',
     seriesPosition: 2,
     coverImage: '/images/books/thepaintedcat.jpg',
     coverAlt: 'Cover of The Painted Cat.',
-    editionNote: 'A new Free Play Publishing edition is planned for 2027.',
+    editionNote: 'The 2015 edition, published as Austen Crowder, is out of circulation at the author’s request. A new Free Play Publishing edition is planned for 2027.',
     actions: [],
     nextSlug: 'the-two-flat-cats',
   },
@@ -148,6 +163,7 @@ export const BOOKS: readonly BookInfo[] = [
   },
   {
     slug: 'a-fuzzy-place',
+    author: 'Austen Crowder',
     title: 'A Fuzzy Place',
     description:
       'Stories and memoir from a decade in furry, tracing identity, community, and the places that helped shape a life.',
@@ -157,7 +173,7 @@ export const BOOKS: readonly BookInfo[] = [
     coverImage: '/images/books/afuzzyplace.jpg',
     coverAlt: 'Cover of A Fuzzy Place.',
     actions: [
-      { label: 'Buy on Amazon', href: 'https://www.amazon.com/dp/B00H7K7EYQ', external: true },
+      { label: 'Buy on Kindle · $0.99', href: 'https://www.amazon.com/dp/B00H7K7EYQ', external: true, kind: 'purchase', bookFormat: 'EBook', price: '0.99' },
     ],
     nextSlug: 'closet-cats',
   },
@@ -172,7 +188,7 @@ export const BOOKS: readonly BookInfo[] = [
     coverImage: '/images/books/closetcats.jpg',
     coverAlt: 'Cover of Closet Cats.',
     actions: [
-      { label: 'Buy on Amazon', href: 'https://www.amazon.com/dp/B0B311T8P1', external: true },
+      { label: 'Buy on Kindle · $0.99', href: 'https://www.amazon.com/dp/B0B311T8P1', external: true, kind: 'purchase', bookFormat: 'EBook', price: '0.99' },
     ],
     nextSlug: 'this-is-what-i-do-for-fun',
   },
@@ -195,6 +211,7 @@ export function bookPath(book: BookInfo): string {
 }
 
 export function bookStatusLabel(book: BookInfo): string {
+  if (book.stage === 'out-of-print') return 'Out of circulation';
   if (book.stage === 'available') {
     return book.section === 'backlist'
       ? 'Backlist · available now'

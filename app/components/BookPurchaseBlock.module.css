@@ -1,0 +1,70 @@
+.block {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 1.5rem;
+  margin: 2.5rem 0;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border: 2px solid #71636c;
+  border-top: 5px solid #ffad68;
+  background: #171317;
+  color: #fff7ef;
+}
+
+.cover {
+  display: block;
+  width: 140px;
+  max-width: 100%;
+  height: auto;
+}
+
+.body {
+  min-width: 0;
+}
+
+.body h2 {
+  margin: 0 0 .75rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.2;
+}
+
+.body h2 a {
+  color: #fff7ef;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+
+.body p {
+  font-size: 1.125rem;
+  line-height: 1.65;
+}
+
+.block a:focus-visible {
+  outline: 3px solid #fff7ef;
+  outline-offset: 4px;
+}
+
+.provenance {
+  margin: .5rem 0 1rem;
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.provenance a {
+  display: inline-block;
+  min-height: 44px;
+  padding-block: .35rem;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+
+.provenance a:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 4px;
+}
+
+@media (max-width: 540px) {
+  .block {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}

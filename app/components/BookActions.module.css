@@ -1,0 +1,63 @@
+.group {
+  margin-top: 1.25rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+
+.actions a {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  padding: .75rem 1rem;
+  border: 2px solid #ffad68;
+  border-radius: .35rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.4;
+  text-align: center;
+  text-decoration: none;
+}
+
+.purchase {
+  background: #ffad68;
+  color: #171317;
+}
+
+.secondary {
+  background: #171317;
+  color: #fff7ef;
+}
+
+.actions a:hover {
+  border-color: #fff7ef;
+  text-decoration: underline;
+  text-shadow: none;
+}
+
+.actions a.purchase:hover {
+  background: #ffad68;
+  color: #171317;
+}
+
+.actions a:focus-visible {
+  outline: 3px solid #fff7ef;
+  outline-offset: 4px;
+}
+
+.pending {
+  margin: .9rem 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 540px) {
+  .actions {
+    display: grid;
+  }
+}
