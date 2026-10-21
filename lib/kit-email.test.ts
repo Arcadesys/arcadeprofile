@@ -260,3 +260,31 @@ test('every audience resolves through the existing mapping without a fallback', 
   });
   assert.deepEqual(f.calls[0].body.subscriber_filter, [{ all: null, any: [{ type: 'tag', ids: [14, 23866437, 23808390, 23806915] }], none: null }]);
 });
+
+test('matching ID/time/public without a sending lifecycle retains the pending send guard', async (t) => {
+  for (const status of ['draft', 'aborted', undefined, 'unknown', null]) {
+    const f = fixture(t);
+    await f.run(['--draft']);
+    const outputCount = f.output.length;
+    await assert.rejects(f.run(['--send', '--broadcast-id', '41', '--confirm', subject], {
+      fetchImpl: async (url: RequestInfo | URL, init?: RequestInit) => {
+        const response = await f.fetchImpl(url, init);
+        if (init?.method !== 'PUT') return response;
+        const payload = await response.json();
+        // Everything but lifecycle matches the approved schedule request.
+        assert.equal(payload.broadcast.id, 41);
+        assert.equal(payload.broadcast.public, false);
+        assert.equal(payload.broadcast.send_at, JSON.parse(String(init.body)).send_at);
+        payload.broadcast.status = status;
+        return Response.json(payload);
+      },
+    }), /reconcile any pending/);
+    assert.equal(f.receipt().attempts[0].state, 'send-pending');
+    assert.equal(f.receipt().attempts[0].broadcastId, 41);
+    assert.equal(f.output.length, outputCount, 'Never print scheduling success without lifecycle confirmation');
+    const calls = f.calls.length;
+    await assert.rejects(f.send(), /Ambiguous pending/);
+    await assert.rejects(f.send(41, ['--resend', '--reason', 'Intentional repeat']), /Ambiguous pending/);
+    assert.equal(f.calls.length, calls, 'Pending lifecycle cannot be retried or bypassed');
+  }
+});

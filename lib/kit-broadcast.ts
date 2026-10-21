@@ -131,9 +131,13 @@ export async function scheduleKitBroadcastDraft(
   if (!Number.isSafeInteger(input.id) || input.id <= 0) throw new Error("Invalid Kit broadcast ID.");
   const payload = await kitBroadcastRequest(input, `/${input.id}`, "PUT", {
     ...kitBroadcastFields(input), send_at: input.sendAt,
-  }) as { broadcast?: { id?: number; send_at?: string; public?: boolean } };
+  }) as { broadcast?: { id?: number; send_at?: string; public?: boolean; status?: unknown } };
   const broadcast = payload?.broadcast;
+  // Kit can save the requested timestamp while still retaining a draft.
+  // Only a sending lifecycle confirms acceptance; all other results stay pending.
   if (broadcast?.id !== input.id || broadcast.public !== false
+    || typeof broadcast.status !== "string"
+    || !["scheduled", "sending", "completed"].includes(broadcast.status)
     || typeof broadcast.send_at !== "string"
     || Date.parse(broadcast.send_at) !== Date.parse(input.sendAt)) {
     throw new Error("Kit returned an invalid schedule receipt; reconcile before retrying.");
