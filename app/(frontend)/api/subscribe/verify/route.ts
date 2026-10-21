@@ -42,6 +42,8 @@ export async function POST(request: Request) {
       await saveChallengeIfStatus(token.id, challenge, 'processing', lockToken);
       return json({ error: 'This address is suppressed and cannot be resubscribed.' }, 409);
     }
+    // Retain encryptedEmail while welcome delivery is pending so a rejected send
+    // can retry after the processing lease expires. Clear it only on completion.
     challenge.subscriberId = applied.contactId;
     if (await saveChallengeIfStatus(token.id, challenge, 'processing', lockToken) !== 'updated') return json({ error: 'This request has already changed. Refresh and try again.' }, 409);
     if (challenge.audiences.some(isArcadesAudience) && challenge.emailDigest) {
