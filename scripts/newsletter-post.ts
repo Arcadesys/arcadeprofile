@@ -16,7 +16,7 @@ import {
 import path from "node:path";
 import {
   createAndScheduleResendBroadcast,
-  getEssaySegmentIds,
+  getSubscribedSegmentIds,
   hashSegmentAudience,
 } from "../lib/resend-broadcast";
 import {
@@ -46,6 +46,7 @@ type Attempt = {
   startedAt: string;
   status: "pending" | "scheduled";
   segmentSha256: string;
+  topicSha256: string;
   segmentCount: number;
   broadcastId?: string;
   sendAt?: string | null;
@@ -168,7 +169,8 @@ async function main() {
       slug: post.slug,
       group: post.group,
       productionUrl,
-      targetSegments: ["All Writing OR Essays"],
+      targetSegments: ["All Subscribed Contacts"],
+      topic: "Essays",
       subject: post.title,
     }, null, 2));
     return;
@@ -181,7 +183,9 @@ async function main() {
   }
 
   await verifyProductionEssayUrl(productionUrl);
-  const segments = getEssaySegmentIds();
+  const segments = getSubscribedSegmentIds();
+  const essaysTopicId = process.env.RESEND_TOPIC_ESSAYS_ID?.trim() ?? '';
+  if (!/^[a-f0-9-]{20,64}$/i.test(essaysTopicId)) throw new Error("RESEND_TOPIC_ESSAYS_ID is not configured.");
   const apiKey = process.env.RESEND_CONTACTS_API_KEY?.trim();
   if (!apiKey) throw new Error("Resend broadcast API is not configured (RESEND_CONTACTS_API_KEY).");
 
@@ -226,6 +230,7 @@ async function main() {
       startedAt: new Date().toISOString(),
       status: "pending",
       segmentSha256: hashSegmentAudience(segments),
+      topicSha256: hashSegmentAudience([essaysTopicId]),
       segmentCount: segments.length,
       ...(options.reason?.trim() ? { reason: options.reason.trim() } : {}),
     };
@@ -241,7 +246,7 @@ async function main() {
       apiKey, from: `${process.env.RESEND_FROM_NAME?.trim() || "Austen Tucker"} <${fromEmail}>`,
       subject: post.title, description: `Essay: ${post.title}`,
       html: `${content.htmlBody}<p><a href="{{{RESEND_UNSUBSCRIBE_URL}}}">Unsubscribe</a></p>`,
-      segmentIds: segments, sendAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+      segmentIds: segments, topicId: essaysTopicId, sendAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
     });
     attempt.status = "scheduled";
     attempt.broadcastId = result.id;

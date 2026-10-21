@@ -12,5 +12,15 @@ export const RESEND_TOPICS: ReadonlyArray<{ audience: Audience; name: string; en
 ];
 const topicByAudience = new Map(RESEND_TOPICS.map((topic) => [topic.audience, topic]));
 export function resendTopicId(audience: Audience) { const env = topicByAudience.get(audience)?.env; return env ? process.env[env]?.trim() ?? '' : ''; }
+
+/** All Writing includes both Fiction and Essays in topic-scoped broadcasts. */
+export function expandConfirmedTopics(audiences: readonly Audience[]): Audience[] {
+  const topics = new Set<Audience>(audiences);
+  if (topics.has('all')) {
+    topics.add('fiction');
+    topics.add('essays');
+  }
+  return [...topics];
+}
 export function topicEnvByName(name: string) { return RESEND_TOPICS.find((topic) => topic.name === name)?.env; }
 export function isArcadesAudience(audience: Audience) { return audience !== 'work-ai' && audience !== 'th4f'; }

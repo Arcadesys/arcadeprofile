@@ -1,26 +1,26 @@
 import type { Audience } from './subscribe-types';
-import { resendTopicId } from './subscription-audiences';
+import { expandConfirmedTopics, resendTopicId } from './subscription-audiences';
 
 type Contact = { id: string; email: string; unsubscribed: boolean };
 const base = 'https://api.resend.com';
 function headers(key: string) { return { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }; }
-export function essayBroadcastSegmentId(env: Record<string, string | undefined> = process.env) {
-  const id = env.RESEND_SEGMENT_ESSAY_BROADCAST_ID?.trim() ?? '';
-  if (!/^[a-f0-9-]{20,64}$/i.test(id)) throw new Error('Resend essay broadcast segment is not configured');
+export function subscribedBroadcastSegmentId(env: Record<string, string | undefined> = process.env) {
+  const id = env.RESEND_SEGMENT_SUBSCRIBED_BROADCAST_ID?.trim() ?? '';
+  if (!/^[a-f0-9-]{20,64}$/i.test(id)) throw new Error('Resend subscribed broadcast segment is not configured');
   return id;
 }
 async function body(response: Response) {
   if (!response.ok) throw new Error('Resend contact request failed');
   return await response.json() as Record<string, unknown>;
 }
-export async function syncEssayBroadcastSegment(contactId: string, member: boolean, apiKey: string, fetcher: typeof fetch = fetch) {
-  const segmentId = essayBroadcastSegmentId();
+export async function syncSubscribedBroadcastSegment(contactId: string, member: boolean, apiKey: string, fetcher: typeof fetch = fetch) {
+  const segmentId = subscribedBroadcastSegmentId();
   const method = member ? 'POST' : 'DELETE';
   const response = await fetcher(`${base}/contacts/${encodeURIComponent(contactId)}/segments/${encodeURIComponent(segmentId)}`, {
     method, headers: headers(apiKey), signal: AbortSignal.timeout(10000),
   });
   // Removing an already-absent membership is an idempotent success.
-  if (!response.ok && !(method === 'DELETE' && response.status === 404)) await body(response);
+  if (!response.ok && !(method === 'DELETE' && response.status === 404) && !(method === 'POST' && response.status === 409)) await body(response);
 }
 export async function findResendContact(email: string, apiKey: string, fetcher: typeof fetch = fetch): Promise<Contact | null> {
   const url = `${base}/contacts/${encodeURIComponent(email.trim().toLowerCase())}`;
@@ -42,7 +42,7 @@ export async function isResendSuppressed(email: string, apiKey: string, fetcher:
 /** Explicit confirmation only. Existing global suppression is never cleared. */
 export async function confirmResendContact(input: { email: string; audiences: Audience[]; apiKey: string; fetcher?: typeof fetch }) {
   const fetcher = input.fetcher ?? fetch;
-  const topics = [...new Set(input.audiences)].map((topic) => ({ id: resendTopicId(topic), subscription: 'opt_in' }));
+  const topics = expandConfirmedTopics(input.audiences).map((topic) => ({ id: resendTopicId(topic), subscription: 'opt_in' }));
   if (topics.some((topic) => !topic.id)) throw new Error('A Resend topic is not configured');
   if (await isResendSuppressed(input.email, input.apiKey, fetcher)) return { ok: false as const, suppressed: true as const };
   let contact = await findResendContact(input.email, input.apiKey, fetcher);
@@ -66,9 +66,7 @@ export async function confirmResendContact(input: { email: string; audiences: Au
     method: 'PATCH', headers: headers(input.apiKey), body: JSON.stringify(topics), signal: AbortSignal.timeout(10000),
   });
   await body(response);
-  if (input.audiences.some((audience) => audience === 'all' || audience === 'essays')) {
-    await syncEssayBroadcastSegment(contact.id, true, input.apiKey, fetcher);
-  }
+  await syncSubscribedBroadcastSegment(contact.id, true, input.apiKey, fetcher);
   return { ok: true as const, contactId: contact.id };
 }
 
@@ -77,7 +75,7 @@ export async function unsubscribeResendContact(contactId: string, apiKey: string
     method: 'PATCH', headers: headers(apiKey), body: JSON.stringify({ unsubscribed: true }), signal: AbortSignal.timeout(10000),
   });
   await body(response);
-  await syncEssayBroadcastSegment(contactId, false, apiKey, fetcher);
+  await syncSubscribedBroadcastSegment(contactId, false, apiKey, fetcher);
 }
 
 export async function lookupResendContactById(id: string, apiKey: string, fetcher: typeof fetch = fetch): Promise<Contact | null> {

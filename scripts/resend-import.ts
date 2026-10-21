@@ -15,8 +15,8 @@ const args = process.argv.slice(2); const value = (flag: string) => { const i = 
 const snapshotPath = value('--snapshot'); const apply = args.includes('--apply'); const sync = args.includes('--sync-unsubscribes');
 if (!snapshotPath || !existsSync(snapshotPath)) throw new Error('--snapshot must name a Kit export snapshot');
 if ((apply || sync) && !resendKey) throw new Error('RESEND_CONTACTS_API_KEY is required in .env.resend.local');
-const essaySegmentId = process.env.RESEND_SEGMENT_ESSAY_BROADCAST_ID?.trim() ?? '';
-if ((apply || sync) && !/^[a-f0-9-]{20,64}$/i.test(essaySegmentId)) throw new Error('RESEND_SEGMENT_ESSAY_BROADCAST_ID is required in .env.resend.local');
+const subscribedSegmentId = process.env.RESEND_SEGMENT_SUBSCRIBED_BROADCAST_ID?.trim() ?? '';
+if ((apply || sync) && !/^[a-f0-9-]{20,64}$/i.test(subscribedSegmentId)) throw new Error('RESEND_SEGMENT_SUBSCRIBED_BROADCAST_ID is required in .env.resend.local');
 const snapshot = JSON.parse(readFileSync(snapshotPath, 'utf8')) as { subscribers?: Array<{ email: string; state: string; topics: string[]; created_at: string }> };
 if (!Array.isArray(snapshot.subscribers)) throw new Error('Snapshot is invalid');
 const topicEnv: Record<string, string> = Object.fromEntries(RESEND_TOPICS.map(({ audience, env }) => [audience, env]));
@@ -28,7 +28,8 @@ async function api(url: string, method = 'GET', payload?: unknown) {
     lastResendRequest = Date.now();
     const response = await fetch(url, { method, headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' }, ...(payload === undefined ? {} : { body: JSON.stringify(payload) }), signal: AbortSignal.timeout(20000) });
     if (response.status === 429) { const retry = Number(response.headers.get('retry-after') ?? 2); await new Promise((resolve) => setTimeout(resolve, Math.max(1000, retry * 1000))); continue; }
-    if (!response.ok && response.status !== 404) throw new Error('Resend import request failed');
+    if (!response.ok && response.status !== 404 && !(method === 'POST' && url.includes('/segments/') && response.status === 409)) throw new Error('Resend import request failed');
+    if (response.status === 409 && method === 'POST' && url.includes('/segments/')) return {};
     return response.status === 404 ? null : await response.json() as Record<string, unknown>;
   }
   throw new Error('Resend import rate limit did not clear');
@@ -58,7 +59,7 @@ if (sync) {
     const found = await api(`https://api.resend.com/contacts/${encodeURIComponent(row.email.toLowerCase())}`);
     if (!found) continue; const c = (found.contact ?? found) as Record<string, unknown>; if (c.id) {
       await api(`https://api.resend.com/contacts/${encodeURIComponent(String(c.id))}`, 'PATCH', { unsubscribed: true });
-      await api(`https://api.resend.com/contacts/${encodeURIComponent(String(c.id))}/segments/${encodeURIComponent(essaySegmentId)}`, 'DELETE');
+      await api(`https://api.resend.com/contacts/${encodeURIComponent(String(c.id))}/segments/${encodeURIComponent(subscribedSegmentId)}`, 'DELETE');
       updated += 1;
     }
   }
@@ -70,7 +71,7 @@ if (sync) {
   let subscribed = 0, suppressed = 0, skipped = 0;
   for (let index = Math.max(0, saved); index < snapshot.subscribers.length; index += 1) {
     const row = snapshot.subscribers[index];
-    const result = await applyResendImportRow(row, topicIds, essaySegmentId, (url, method, payload) => api(url, method, payload));
+    const result = await applyResendImportRow(row, topicIds, subscribedSegmentId, (url, method, payload) => api(url, method, payload));
     if (result === 'subscribed') subscribed += 1;
     else if (result === 'suppressed') suppressed += 1;
     else skipped += 1;

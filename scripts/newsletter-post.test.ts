@@ -11,6 +11,7 @@ const tsx = import.meta.resolve('tsx');
 const slug = 'fixture-essay';
 const broadcastId = '550e8400-e29b-41d4-a716-446655440000';
 const segmentId = '550e8400-e29b-41d4-a716-446655440001';
+const topicId = '550e8400-e29b-41d4-a716-446655440002';
 
 const mockFetch = `
 import assert from 'node:assert/strict';
@@ -53,7 +54,7 @@ function fixture(t: TestContext) {
   const calls = () => existsSync(path.join(root, 'calls.jsonl')) ? readFileSync(path.join(root, 'calls.jsonl'), 'utf8').trim().split('\n').map((line) => JSON.parse(line) as Call) : [];
   const start = (args: string[] = ['--send'], mode = 'success', env: Record<string, string> = {}) => {
     const child = spawn(process.execPath, ['--import', tsx, '--import', pathToFileURL(preload).href, script, '--slug', slug, ...args], { cwd: root,
-      env: { PATH: process.env.PATH, NODE_ENV: 'test', NEXT_PUBLIC_SITE_URL: 'https://example.invalid', RESEND_API_KEY: 'fixture-send-key', RESEND_CONTACTS_API_KEY: 'fixture-full-key', RESEND_SEGMENT_ESSAY_BROADCAST_ID: segmentId,
+      env: { PATH: process.env.PATH, NODE_ENV: 'test', NEXT_PUBLIC_SITE_URL: 'https://example.invalid', RESEND_API_KEY: 'fixture-send-key', RESEND_CONTACTS_API_KEY: 'fixture-full-key', RESEND_SEGMENT_SUBSCRIBED_BROADCAST_ID: segmentId, RESEND_TOPIC_ESSAYS_ID: topicId,
         RESEND_FROM_EMAIL: 'sender@mail.example.invalid', RESEND_FROM_NAME: 'Austen', BROADCAST_ID: broadcastId, MOCK_MODE: mode, ...env } });
     t.after(() => { if (child.exitCode === null) child.kill('SIGKILL'); }); let output = '';
     child.stdout.on('data', (data) => { output += data; }); child.stderr.on('data', (data) => { output += data; });
@@ -79,7 +80,7 @@ test('send creates a draft then schedules it, with a non-PII duplicate guard', a
   assert.equal(receipt.attempts[0].status, 'scheduled'); assert.equal(receipt.attempts[0].broadcastId, broadcastId);
   assert.doesNotMatch(readFileSync(f.receipt, 'utf8'), /@|fixture-full-key/);
   const calls = sends(f.calls()); assert.equal(calls.length, 2);
-  assert.equal(calls[0].url, 'https://api.resend.com/broadcasts'); assert.equal(calls[0].body?.segmentId, segmentId);
+  assert.equal(calls[0].url, 'https://api.resend.com/broadcasts'); assert.equal(calls[0].body?.segment_id, segmentId); assert.equal(calls[0].body?.topic_id, topicId);
   assert.match(String(calls[0].body?.html), /\{\{\{RESEND_UNSUBSCRIBE_URL\}\}\}/);
   assert.equal(calls[1].url, `https://api.resend.com/broadcasts/${broadcastId}/send`); assert.ok(calls[1].body?.scheduled_at);
   const blocked = await f.start().result; assert.equal(blocked.code, 1); assert.match(blocked.output, /already has a scheduled Resend broadcast/);
@@ -88,7 +89,7 @@ test('send creates a draft then schedules it, with a non-PII duplicate guard', a
 
 test('production URL validation and missing config fail before broadcast operations', async (t) => {
   const f = fixture(t);
-  for (const [mode, env] of [['unpublished', {}], ['success', { RESEND_CONTACTS_API_KEY: '' }], ['success', { RESEND_SEGMENT_ESSAY_BROADCAST_ID: '' }]] as const) {
+  for (const [mode, env] of [['unpublished', {}], ['success', { RESEND_CONTACTS_API_KEY: '' }], ['success', { RESEND_SEGMENT_SUBSCRIBED_BROADCAST_ID: '' }], ['success', { RESEND_TOPIC_ESSAYS_ID: '' }]] as const) {
     const result = await f.start(['--send'], mode, env).result; assert.equal(result.code, 1, result.output);
   }
   assert.equal(sends(f.calls()).length, 0); assert.equal(existsSync(f.receipt), false);
