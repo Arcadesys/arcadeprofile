@@ -16,6 +16,7 @@ export const VALID_SOURCES = [
   'collection-story-end',
   'portfolio-piece-end',
   'lab-case-study-end',
+  'novel-preview',
   'project-hub',
   'store-top',
   'store-bottom',

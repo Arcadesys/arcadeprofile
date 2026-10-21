@@ -1,9 +1,8 @@
 export type GiftFile = { url: string; filename: string; label: string };
 export type SubscriberGift = { title: string; description: string; files: GiftFile[] };
 
-// BLOCKED: Austen must supply a NEW subscriber-only piece, not in the book.
-// Replace this single assignment with the approved title, description and URLs.
-export const SUBSCRIBER_GIFT: SubscriberGift = { title: '[EXCLUSIVE PIECE TITLE]', description: '[ONE-LINE DESCRIPTION]', files: [{ url: '[EXCLUSIVE PIECE PDF URL]', filename: '[EXCLUSIVE PIECE PDF FILENAME]', label: 'PDF' }, { url: '[EXCLUSIVE PIECE EPUB URL]', filename: '[EXCLUSIVE PIECE EPUB FILENAME]', label: 'EPUB' }] };
+// The gift edition is offered to subscribers; an earlier Toonpunk version is public.
+export const SUBSCRIBER_GIFT: SubscriberGift = { title: 'Broomsticks', description: "The opening story of Estelle's Children, forthcoming from Free Play Publishing — early, for subscribers only.", files: [{ url: '/lead-magnets/broomsticks.pdf', filename: 'broomsticks.pdf', label: 'PDF' }, { url: '/lead-magnets/broomsticks.epub', filename: 'broomsticks.epub', label: 'EPUB' }] };
 
 // Placeholder URLs must never become live download links, in HTML or the API.
 export function subscriberGiftFiles(gift: SubscriberGift = SUBSCRIBER_GIFT): GiftFile[] {

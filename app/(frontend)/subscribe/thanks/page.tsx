@@ -62,7 +62,7 @@ export default async function SubscribeThanksPage({
             Your subscriber-only piece
           </h2>
           <p style={{ margin: '0 0 1.25rem', color: 'var(--fg-muted)', fontSize: '1.125rem', lineHeight: 1.7 }}>
-            <em>{SUBSCRIBER_GIFT.title}</em> — {SUBSCRIBER_GIFT.description}. A piece that&rsquo;s not in the book.
+            <em>{SUBSCRIBER_GIFT.title}</em> — {SUBSCRIBER_GIFT.description}
           </p>
           {giftFiles.length ? (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>

@@ -109,7 +109,7 @@ async function submitAndConfirm(audiences: string[]) {
   };
 }
 
-test('exclusive signup returns no placeholder downloads and rejects the retired story magnet', async () => {
+test('exclusive signup returns configured gift downloads and rejects the retired story magnet', async () => {
   const kit = setupKitJourney('active');
   const signup = (magnet: string) => requestSignup(new NextRequest('https://www.thearcades.me/api/subscribe', {
     method: 'POST', headers: { 'content-type': 'application/json' },

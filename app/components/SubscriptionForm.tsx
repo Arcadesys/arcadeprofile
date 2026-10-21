@@ -177,7 +177,7 @@ function EnabledSubscriptionForm({
         <div className={styles.gift}>
           <p><strong>Subscriber-only: {SUBSCRIBER_GIFT.title}</strong></p>
           <p>{SUBSCRIBER_GIFT.description}</p>
-          <p>A piece that&rsquo;s not in the book. {subscriberGiftFiles().length ? 'Included with your signup.' : 'Draft offer — the piece is not available yet.'}</p>
+          <p>{subscriberGiftFiles().length ? 'Get the PDF and EPUB with your signup.' : 'Draft offer — the piece is not available yet.'}</p>
         </div>
       ) : null}
       <div className={styles.field}>
