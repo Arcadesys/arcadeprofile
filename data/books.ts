@@ -4,6 +4,7 @@ export type BookSection = 'current' | 'next' | '2027' | 'development' | 'backlis
 type BookActionBase = {
   label: string;
   href: string;
+  analyticsDestination?: 'amazon_kindle' | 'amazon_paperback';
 };
 
 export type BookAction = BookActionBase & (
@@ -46,8 +47,8 @@ export const BOOKS: readonly BookInfo[] = [
     coverAlt: 'Cover of This is what I do for fun by Austen Tucker.',
     paperback: { isbn: '9798160804194', price: '12.99', status: 'available' },
     actions: [
-      { label: 'Buy on Kindle · $4.99', href: 'https://www.amazon.com/dp/B0HM8J2Z87', external: true, kind: 'purchase', bookFormat: 'EBook', price: '4.99' },
-      { label: 'Buy the paperback · $12.99', href: 'https://www.amazon.com/dp/B0HMFDFVNH', external: true, kind: 'purchase', bookFormat: 'Paperback', price: '12.99' },
+      { label: 'Buy on Kindle · $4.99', href: 'https://www.amazon.com/dp/B0HM8J2Z87', external: true, kind: 'purchase', bookFormat: 'EBook', price: '4.99', analyticsDestination: 'amazon_kindle' },
+      { label: 'Buy the paperback · $12.99', href: 'https://www.amazon.com/dp/B0HMFDFVNH', external: true, kind: 'purchase', bookFormat: 'Paperback', price: '12.99', analyticsDestination: 'amazon_paperback' },
       { label: 'Read seven stories free', href: '/this-is-what-i-do-for-fun', kind: 'read' },
     ],
     nextSlug: 'estelles-children',

@@ -5,13 +5,12 @@ import test from 'node:test';
 
 const source = (relativePath: string) => fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8');
 
-test('homepage places the Zoo feature between resume controls and exploration bands', () => {
+test('homepage includes Cold Boot in its three compact reading picks', () => {
   const homepage = source('app/(frontend)/page.tsx');
-  const resume = homepage.indexOf(`className={styles.resume}`);
-  const feature = homepage.indexOf('collection={ZOO_FEATURED_COLLECTION} placement="home"');
-  const bands = homepage.indexOf(`className={styles.bands}`);
-
-  assert.ok(resume !== -1 && feature > resume && bands > feature);
+  const discovery = source('lib/reader-discovery.ts');
+  assert.match(homepage, /<StartReadingShelf[\s\S]*items=\{readingPicks\}/);
+  assert.match(discovery, /const coldBoot = getZooChapter\('cold-boot'\)/);
+  assert.match(discovery, /title: coldBoot\.title/);
 });
 
 test('Stories supplies both featured collections before the other fiction shelves', () => {

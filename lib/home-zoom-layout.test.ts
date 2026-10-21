@@ -36,14 +36,17 @@ test('homepage stops reserving the nav rail gutter under the same query that col
   assert.ok(home.lastIndexOf('138px') < firstMedia);
 });
 
-test('homepage controls keep readable text and full-size touch targets', () => {
+test('book-first homepage controls keep readable text and full-size touch targets', () => {
   const home = source('app/(frontend)/home.module.css');
+  const purchase = source('app/components/BookActions.module.css');
+  const book = source('app/components/BookPurchaseBlock.module.css');
   const feature = source('app/components/FeaturedCollectionCard.module.css');
 
   assert.ok(Number(firstRule(home, '.brandLockup').match(/min-height:\s*(\d+)px/)?.[1]) >= 44);
   assert.ok(remValue(firstRule(home, '.brandLockup'), 'font-size') >= 1);
-  assert.ok(remValue(firstRule(home, '.topSubscribe'), 'font-size') >= 1);
-  assert.ok(remValue(firstRule(home, '.button'), 'font-size') >= 1);
-  assert.ok(remValue(firstRule(home, '.recentActions button'), 'font-size') >= 1);
+  assert.ok(Number(firstRule(purchase, '.actions a.purchase').match(/min-height:\s*(\d+)px/)?.[1]) >= 48);
+  assert.ok(remValue(firstRule(book, '.readFree'), 'font-size') >= 1);
+  assert.match(home, /@media \(max-width: 360px\)/);
+  assert.match(home, /@media \(prefers-reduced-motion: reduce\)/);
   assert.ok(remValue(firstRule(feature, '.secondaryAction'), 'font-size') >= 1);
 });

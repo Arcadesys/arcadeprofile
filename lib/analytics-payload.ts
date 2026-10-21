@@ -93,6 +93,13 @@ export function sanitizeAnalyticsLink(input: Record<string, unknown>, surface: A
     result.destination_kind = String(input.destination_kind);
     result.conversion_stage = input.destination_kind === 'resume_pdf' ? 'resume_download_intent' : 'resume_navigation_intent';
   }
+  const purchaseKind = input.destination_kind;
+  if (surface === 'sitewide' && result.destination_host === 'www.amazon.com' && input.placement === 'home_hero'
+    && ['amazon_kindle', 'amazon_paperback'].includes(String(purchaseKind))
+    && typeof input.href === 'string' && /^https:\/\/www\.amazon\.com\/dp\/[A-Z0-9]{10}(?:[?#].*)?$/i.test(input.href)) {
+    result.destination_kind = String(purchaseKind);
+    result.placement = 'home_hero';
+  }
   return result;
 }
 

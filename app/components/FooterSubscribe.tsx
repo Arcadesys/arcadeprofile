@@ -14,6 +14,7 @@ export default function FooterSubscribe() {
     (segments[0] === 'portfolio' && segments.length === 2) ||
     (segments[0] === 'lab' && segments.length === 2);
   if (
+    pathname === '/' ||
     hasPieceSpecificSignup ||
     pathname === '/subscribe' ||
     pathname === '/queercolumns' || pathname.startsWith('/queercolumns/') ||

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { getStartReadingShelf } from './reader-discovery';
+import { getHomeReadingPicks, getStartReadingShelf } from './reader-discovery';
 
 test('the starting shelf keeps the approved reading order and canonical paths', async () => {
   const shelf = await getStartReadingShelf();
@@ -31,4 +31,15 @@ test('the starting shelf keeps the approved reading order and canonical paths', 
     'Cover of Rabies Capitalism by Austen Tucker: a snarling bull stands on crumbling foundations in a black, ivory, and rust woodcut illustration.',
     "Cover of I Thought I Had a Bad Memory. I Don't. by Austen Tucker: scattered fragments join a continuous ivory ribbon, forming an ordered path against a navy background.",
   ]);
+});
+
+test('homepage reading row keeps one collection story, Cold Boot, and an essay', async () => {
+  const picks = await getHomeReadingPicks();
+  assert.deepEqual(picks.map((item) => item.title), ['Carl', 'Cold Boot', 'Rabies Capitalism']);
+  assert.deepEqual(picks.map((item) => item.href), [
+    '/this-is-what-i-do-for-fun/carl',
+    '/novels/it-takes-a-zoo/cold-boot',
+    '/projects/the-singularity-log/rabies-capitalism',
+  ]);
+  assert.deepEqual(picks.map((item) => item.kind), ['fiction', 'fiction', 'essay']);
 });

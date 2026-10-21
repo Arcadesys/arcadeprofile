@@ -57,7 +57,11 @@ The event names and units remain:
   do not add one; public A → B → A does. Strict Mode replay is deduplicated; a real
   remount is a fresh visit. This is a visit receipt, not a reader outcome.
 - `site link clicked`: each eligible link activation, safe internal public `href`
-  or the existing professional origin, `link_kind`, and `destination_host`.
+  or the existing professional origin, `link_kind`, and `destination_host`. The
+  homepage book buttons may additionally retain only `placement=home_hero` and
+  `destination_kind=amazon_kindle|amazon_paperback` when the source href is a
+  public Amazon `/dp/{ASIN}` link. The product path, query, fragment, and ASIN
+  are never retained.
 - `reading-start`, `end-reached`, `onward-reading`, `resume-click` and
   `signup confirmation requested`: existing public `canonicalId`, content type,
   placement and safe destination. Keep `reader-end` completion placement and the
