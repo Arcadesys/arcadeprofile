@@ -72,6 +72,8 @@ test('signup state transitions write only daily aggregate verification and Kit-a
       assert.equal(command[0], 'EVAL');
       assert.match(String(command[1]), /if not current\.verifiedAt and next\.verifiedAt/);
       assert.match(String(command[1]), /if not current\.kitActiveAt and next\.kitActiveAt/);
+      assert.match(String(command[1]), /if not current\.kitDoiFallback and next\.kitDoiFallback/);
+      assert.match(String(command[1]), /kit_doi_fallback/);
       assert.match(String(command[1]), /HINCRBY/);
       assert.match(String(command[1]), /34560000/);
     }

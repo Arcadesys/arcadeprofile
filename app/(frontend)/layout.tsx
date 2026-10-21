@@ -11,6 +11,8 @@ import { LIGHTS_BOOTSTRAP_SCRIPT } from '@/lib/lights';
 import { NAV_COLLAPSE_BOOTSTRAP_SCRIPT } from '@/lib/nav-collapse';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_NAME_UPPER, SITE_TITLE_DEFAULT } from '@/lib/site-brand';
 import { SITE_URL } from '@/lib/site-url';
+import { kitDirectActiveSignupEnabled } from '@/lib/signup-mode';
+import { SignupModeProvider } from '../components/SignupModeContext';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -127,6 +129,7 @@ export default function FrontendLayout({
         <JsonLd data={websiteJsonLd} />
         <JsonLd data={personJsonLd} />
         <LightsProvider>
+          <SignupModeProvider directActive={kitDirectActiveSignupEnabled()}>
           <a className="skip-link" href="#main-content">Skip to content</a>
           <div className="nav-wrapper">
             <Navbar />
@@ -134,6 +137,7 @@ export default function FrontendLayout({
           <span className="skip-target" id="main-content" tabIndex={-1} />
           {children}
           <Footer />
+          </SignupModeProvider>
         </LightsProvider>
         <SiteAnalytics />
       </body>

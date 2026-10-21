@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       await putChallenge(id, challenge);
       const token = createVerificationToken(id, createdAt + challengeTtlMilliseconds);
       attemptedMail = true;
-      await sendVerificationEmail({ email, token, audiences: challenge.audiences });
+      await sendVerificationEmail({ email, token, audiences: challenge.audiences, kitDoiFallback: subscriber?.state === 'inactive' });
     } catch (error) {
       if (!attemptedMail || error instanceof MailRejectedError) {
         await redisCommand(['DEL', cooldownKey]);

@@ -3,8 +3,12 @@ import { sendMail } from './mail-transport';
 // Compatibility for stacked callers; new code should import MailRejectedError.
 export { MailRejectedError as PostmarkRejectedError } from './mail-transport';
 import type { Audience } from './subscribe-types';
+import { kitDirectActiveSignupEnabled } from './signup-mode';
 
 export type SignupChallenge = {
+  // Pinned at the first explicit confirm POST; missing means the legacy flow.
+  signupFlow?: 'direct-active' | 'legacy-fallback';
+  kitDoiFallback?: true;
   encryptedEmail?: string;
   emailDigest?: string;
   audiences: Audience[];
@@ -138,7 +142,7 @@ export async function saveChallengeIfStatus(
   const ttl = ['processing', 'awaiting-kit'].includes(challenge.status)
     ? Math.max(1, Math.ceil((retentionEnd - Date.now()) / 1000))
     : 0;
-  const script = `local raw=redis.call('GET',KEYS[1]); if not raw then return 'missing' end; local current=cjson.decode(raw); if current.status~=ARGV[1] then return current.status end; if ARGV[6]~='' and current.processingToken~=ARGV[6] then return 'lease_mismatch' end; local next=cjson.decode(ARGV[2]); redis.call('SET',KEYS[1],ARGV[2],'KEEPTTL'); if tonumber(ARGV[3])>0 then redis.call('EXPIRE',KEYS[1],ARGV[3]) end; if ARGV[4]=='awaiting-kit' then redis.call('SADD',KEYS[2],ARGV[5]) else redis.call('SREM',KEYS[2],ARGV[5]) end; if not current.verifiedAt and next.verifiedAt and ARGV[7]~='' then redis.call('HINCRBY',KEYS[3],'first_party_verified',1); redis.call('EXPIRE',KEYS[3],34560000) end; if not current.kitActiveAt and next.kitActiveAt and ARGV[8]~='' then redis.call('HINCRBY',KEYS[4],'kit_active_ready',1); redis.call('EXPIRE',KEYS[4],34560000) end; return 'updated'`;
+  const script = `local raw=redis.call('GET',KEYS[1]); if not raw then return 'missing' end; local current=cjson.decode(raw); if current.status~=ARGV[1] then return current.status end; if ARGV[6]~='' and current.processingToken~=ARGV[6] then return 'lease_mismatch' end; local next=cjson.decode(ARGV[2]); redis.call('SET',KEYS[1],ARGV[2],'KEEPTTL'); if tonumber(ARGV[3])>0 then redis.call('EXPIRE',KEYS[1],ARGV[3]) end; if ARGV[4]=='awaiting-kit' then redis.call('SADD',KEYS[2],ARGV[5]) else redis.call('SREM',KEYS[2],ARGV[5]) end; if not current.verifiedAt and next.verifiedAt and ARGV[7]~='' then redis.call('HINCRBY',KEYS[3],'first_party_verified',1); redis.call('EXPIRE',KEYS[3],34560000) end; if not current.kitDoiFallback and next.kitDoiFallback and ARGV[7]~='' then redis.call('HINCRBY',KEYS[3],'kit_doi_fallback',1); redis.call('EXPIRE',KEYS[3],34560000) end; if not current.kitActiveAt and next.kitActiveAt and ARGV[8]~='' then redis.call('HINCRBY',KEYS[4],'kit_active_ready',1); redis.call('EXPIRE',KEYS[4],34560000) end; return 'updated'`;
   const verifiedDay = challenge.verifiedAt ? new Date(challenge.verifiedAt).toISOString().slice(0, 10) : '';
   const kitActiveDay = challenge.kitActiveAt ? new Date(challenge.kitActiveAt).toISOString().slice(0, 10) : '';
   const result = await redisCommand<string>(['EVAL', script, 4, `writing:challenge:${id}`, challengeIndexKey(), verifiedDay ? `writing:metrics:${verifiedDay}` : 'writing:metrics:none', kitActiveDay ? `writing:metrics:${kitActiveDay}` : 'writing:metrics:none', expectedStatus, JSON.stringify(challenge), ttl, challenge.status, id, expectedProcessingToken ?? '', verifiedDay, kitActiveDay], fetcher);
@@ -169,7 +173,7 @@ export async function lookupKitSubscriber(email: string, apiKey: string, fetcher
   return { id: found.id, state: found.state };
 }
 
-export async function sendVerificationEmail(input: { email: string; token: string; audiences: Audience[] }, fetcher: typeof fetch = fetch) {
+export async function sendVerificationEmail(input: { email: string; token: string; audiences: Audience[]; kitDoiFallback?: boolean }, fetcher: typeof fetch = fetch) {
   const site = verificationSiteUrl();
   const labels: Record<Audience, string> = { all: 'All writing', fiction: 'Fiction', essays: 'Essays', lab: "The Arcades' Lab", 'queer-columns': 'Queer Columns', 'work-ai': 'Work / AI', th4f: 'TH4F' };
   const selectedAudiences = new Set(input.audiences);
@@ -178,8 +182,11 @@ export async function sendVerificationEmail(input: { email: string; token: strin
     .filter((audience) => !selectedAudiences.has('all') || (audience !== 'fiction' && audience !== 'essays'))
     .map((audience) => audience === 'all' ? 'All writing (fiction and essays)' : labels[audience]);
   const verifyUrl = `${site}/subscribe/verify#${input.token}`;
-  const html = `<p>You requested email updates from The Arcades.</p><p><strong>Your topics:</strong> ${selected.join(', ')}.</p><p>To start receiving them, confirm your request:</p><p><a href="${verifyUrl}">Confirm my subscription</a></p><p>This link expires in 24 hours. After you confirm here, Kit may send additional confirmation emails before delivery begins.</p><p>If you didn’t make this request, ignore this message. We won’t add these choices from it.</p>`;
-  const text = `You requested email updates from The Arcades.\n\nYour topics: ${selected.join(', ')}.\n\nTo start receiving them, confirm your request:\n${verifyUrl}\n\nThis link expires in 24 hours. After you confirm here, Kit may send additional confirmation emails before delivery begins.\n\nIf you didn’t make this request, ignore this message. We won’t add these choices from it.`;
+  const afterConfirm = kitDirectActiveSignupEnabled() && !input.kitDoiFallback
+    ? 'Open the link and press Confirm subscription to start your selected updates. New subscriptions need no second confirmation email.'
+    : 'After you confirm here, Kit may send additional confirmation emails before delivery begins.';
+  const html = `<p>You requested email updates from The Arcades.</p><p><strong>Your topics:</strong> ${selected.join(', ')}.</p><p>To start receiving them, confirm your request:</p><p><a href="${verifyUrl}">Confirm my subscription</a></p><p>This link expires in 24 hours. ${afterConfirm}</p><p>If you didn’t make this request, ignore this message. We won’t add these choices from it.</p>`;
+  const text = `You requested email updates from The Arcades.\n\nYour topics: ${selected.join(', ')}.\n\nTo start receiving them, confirm your request:\n${verifyUrl}\n\nThis link expires in 24 hours. ${afterConfirm}\n\nIf you didn’t make this request, ignore this message. We won’t add these choices from it.`;
   await sendMail({
     to: input.email, subject: 'Confirm your updates from The Arcades', html, text,
     category: 'signup-verification', disableTracking: true,

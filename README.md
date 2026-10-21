@@ -65,11 +65,12 @@ days. A keyed ten-minute Redis cooldown
 coalesces repeat requests for the same email and audience bundle; an ambiguous
 mail-provider response does not trigger an immediate duplicate email.
 
-On explicit confirmation, an already-active Kit subscriber receives the
+With `KIT_DIRECT_ACTIVE_SIGNUP` unset/false (the default), an already-active
+Kit subscriber receives the
 selected form memberships and audience tags. A new or inactive subscriber is
 created or reused as inactive and added to each selected double-opt-in form.
 Kit may send a second confirmation email for new or inactive contacts. The approved Writing welcome is sent at most once per address, only after the reader claims the first-party verification link and Kit reports active. For multiple choices, one copy is selected in this order: All Writing, Fiction, Essays, Lab; every selected membership and tag remains intact. Imported contacts and DOI-pending subscribers do not receive the welcome. It includes an RFC 8058 one-click unsubscribe header and a linked fallback page; the page requires an explicit button, while the one-click POST updates Kit. Token pages are excluded from PostHog analytics.
-daily authenticated Vercel cron at `/api/kit/reconcile-confirmations` reads
+The daily authenticated Vercel cron at `/api/kit/reconcile-confirmations` reads
 only Redis records created by successful signed confirmation POSTs, rechecks
 Kit's subscriber state, and tags only those recorded selections after Kit
 reports active. It never infers preferences from raw Kit form-member listings.
@@ -80,6 +81,34 @@ Configure `KIT_API_KEY`, `CRON_SECRET`, the four form and audience tag IDs,
 `.env.example`. Kit Free can delay tags until the next daily cron. No mailing
 is sent to imported contacts unless they submit the signup form and claim its
 confirmation link.
+
+`KIT_DIRECT_ACTIVE_SIGNUP=true` is a **draft, inactive option** for a single
+first-party confirmation: only after the explicit Confirm POST, create a new
+Kit subscriber with v4 `state: active` and add the selected audience tags
+immediately. Existing active subscribers get additive tags. New/active signups
+request no forms or Kit confirmation email and need no form IDs. Retain the
+form IDs for inactive fallbacks and rollback.
+The mode is pinned when confirmation starts, so retries do not switch flows.
+The cron continues draining legacy/fallback DOI records and skips direct-mode records;
+`first_party_verified` and `kit_active_ready` both advance on a successful direct
+signup. The same #434 welcome dispatcher can enroll immediately if its separate
+welcome gate is approved and enabled; its shared permanent dedupe prevents a
+second enrollment.
+
+Existing inactive contacts use the **approved legacy fallback**: selected DOI
+forms, Kit's confirmation, then tags and the welcome only after the daily cron
+observes active. They are never deleted/recreated or falsely activated by an
+upsert. `kit_doi_fallback` counts these confirmed requests once in the existing
+aggregate metrics (by first-party verification day), without storing new PII.
+Fallback success copy explains that Kit may send one more confirmation email.
+Asking Kit support whether inactive-to-active via API is possible is an open
+follow-up, **not an activation blocker**. See the [API notes, consent evidence
+and activation checklist](docs/email-service-migration.md#direct-active-signup-draft-default-off).
+Keep this flag unset/false until the user approves activation. No provider,
+configuration, flag changes or live sends are part of this draft. Changing the
+Vercel flag later requires a new deployment so prerendered signup copy and the
+server use the same configuration.
+
 
 `lib/mail-transport.ts` sends signup verification emails, gated welcomes, and
 explicitly addressed previews. `MAIL_PROVIDER` accepts `postmark` or `resend`;
@@ -112,7 +141,7 @@ not bulk enrolled. The series shares legacy once-per-address dedupe, stores no
 email address, and re-reads Kit by ID before each step (enrollment/day 3/day 7).
 Records expire after 30 days; ambiguous sends are held, never blindly retried.
 
-Both flags remain off by default; no env values are changed:
+Both welcome flags remain off by default; no env values are changed:
 
 - `WELCOME_SERIES_ENABLED=true`, legacy unset/false: series only.
 - Both unset/false: no welcome enrollment or sends.

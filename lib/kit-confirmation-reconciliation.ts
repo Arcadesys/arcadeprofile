@@ -4,7 +4,7 @@ import { deliverWritingWelcome } from './welcome-delivery';
 
 type Fetcher = typeof fetch;
 
-/** Reconcile only audience choices stored after a signed verification POST. */
+/** Drain legacy DOI records only. Direct mode completes in the confirm POST. */
 export async function reconcileVerifiedKitSignups(input: { apiKey: string; fetcher?: Fetcher }) {
   const fetcher = input.fetcher ?? fetch;
   const ids = await redisCommand<string[]>(['SMEMBERS', challengeIndexKey()], fetcher);
@@ -16,7 +16,7 @@ export async function reconcileVerifiedKitSignups(input: { apiKey: string; fetch
   for (const id of ids.slice(0, 200)) {
     if (!/^[a-f0-9]{32}$/.test(id)) { await redisCommand(['SREM', challengeIndexKey(), id], fetcher); continue; }
     const challenge = await getChallenge(id, fetcher);
-    if (!challenge || challenge.status !== 'awaiting-kit' || !challenge.subscriberId) {
+    if (!challenge || challenge.signupFlow === 'direct-active' || challenge.status !== 'awaiting-kit' || !challenge.subscriberId) {
       await redisCommand(['SREM', challengeIndexKey(), id], fetcher);
       continue;
     }

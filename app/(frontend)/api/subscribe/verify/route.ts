@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { parseVerificationToken, getChallenge, decryptSignupEmail, newProcessingToken, redisCommand, releaseSignupLock, saveChallengeIfStatus } from '@/lib/writing-signup';
 import { deliverWritingWelcome } from '@/lib/welcome-delivery';
-import { signupEmailDigest } from '@/lib/writing-signup';
+import { lookupKitSubscriber, signupEmailDigest } from '@/lib/writing-signup';
+import { kitDirectActiveSignupEnabled } from '@/lib/signup-mode';
 import type { Audience } from '@/lib/subscribe-types';
 import { isArcadesAudience, kitFormId, kitTagId } from '@/lib/subscription-audiences';
 
@@ -58,6 +59,7 @@ export async function POST(request: Request) {
     const priorProcessingToken = challenge.status === 'processing' ? challenge.processingToken : undefined;
     if (challenge.status === 'pending') {
       challenge.status = 'processing';
+      if (kitDirectActiveSignupEnabled()) challenge.signupFlow = 'direct-active';
       challenge.verifiedAt = Date.now();
       delete challenge.source;
       challenge.processingToken = lockToken;
@@ -71,12 +73,18 @@ export async function POST(request: Request) {
       if (result !== 'updated') return json({ error: 'This request has already changed. Refresh and try again.' }, 409);
     }
     const activeLeaseToken = challenge.processingToken!;
+    let directActive = challenge.signupFlow === 'direct-active';
 
     // This request follows an explicit user button press. Recheck the known Kit
-    // subscriber state; create an inactive record only for a new signup.
+    // subscriber state. Direct mode also looks up new challenges again before
+    // creation, in case the address became suppressed after the signup request.
     let subscriberId = challenge.subscriberId;
     let state: string | undefined;
     let subscriberEmail: string | undefined;
+    if (directActive && !subscriberId && challenge.encryptedEmail) {
+      const existing = await lookupKitSubscriber(decryptSignupEmail(challenge.encryptedEmail), apiKey);
+      subscriberId = existing?.id;
+    }
     if (subscriberId) {
       const response = await fetch(`https://api.kit.com/v4/subscribers/${subscriberId}`, {
         headers: { 'X-Kit-Api-Key': apiKey }, signal: AbortSignal.timeout(10000), cache: 'no-store',
@@ -100,7 +108,7 @@ export async function POST(request: Request) {
       subscriberEmail = email.trim().toLowerCase();
       const response = await fetch('https://api.kit.com/v4/subscribers', {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Kit-Api-Key': apiKey },
-        body: JSON.stringify({ email_address: email, state: 'inactive' }),
+        body: JSON.stringify({ email_address: email, state: directActive ? 'active' : 'inactive' }),
         signal: AbortSignal.timeout(10000), cache: 'no-store',
       });
       if (!response.ok) return json({ error: 'Kit could not accept this signup yet. Please retry the confirmation.' }, 502);
@@ -141,18 +149,29 @@ export async function POST(request: Request) {
       return json({ error: 'Kit cannot accept this address. No preferences were added.' }, 409);
     }
 
+    // Kit v4 create explicitly cannot update an existing subscriber's state.
+    // Existing inactive contacts use the approved legacy DOI fallback unchanged.
+    // Pin it and atomically count it once before any form writes. Never delete
+    // or recreate a contact, or pretend an upsert activated it.
+    if (directActive && state !== 'active') {
+      challenge.signupFlow = 'legacy-fallback';
+      challenge.kitDoiFallback = true;
+      if (await saveChallengeIfStatus(token.id, challenge, 'processing', activeLeaseToken) !== 'updated') return json({ error: 'This request has already changed. Refresh and try again.' }, 409);
+      directActive = false;
+    }
+
     const configured = challenge.audiences.map((audience) => ({
       audience,
-      formId: kitFormId(audience),
+      formId: directActive ? '' : kitFormId(audience),
       tagId: kitTagId(audience),
     }));
     const provenanceTagId = process.env.KIT_TAG_ARCADEPROFILE_ID?.trim();
-    if ((challenge.audiences.some(isArcadesAudience) && (!provenanceTagId || !/^\d+$/.test(provenanceTagId))) || configured.some(({ formId, tagId }) => !/^\d+$/.test(formId) || !/^\d+$/.test(tagId))) {
+    if ((challenge.audiences.some(isArcadesAudience) && (!provenanceTagId || !/^\d+$/.test(provenanceTagId))) || configured.some(({ formId, tagId }) => (!directActive && !/^\d+$/.test(formId)) || !/^\d+$/.test(tagId))) {
       return json({ error: 'Signup preferences are temporarily unavailable.' }, 503);
     }
     // Form membership endpoints are idempotent. A partial failure can be retried
     // from this same signed challenge without duplicating membership.
-    const memberships = await Promise.all(configured.map(async ({ formId }) => {
+    const memberships = await Promise.all((directActive ? [] : configured).map(async ({ formId }) => {
       try { return await kitPost(`https://api.kit.com/v4/forms/${formId}/subscribers/${subscriberId}`, apiKey, { referrer: 'https://www.thearcades.me/subscribe' }); }
       catch { return false; }
     }));

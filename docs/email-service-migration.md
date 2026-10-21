@@ -133,13 +133,11 @@ Current provider references checked for this change:
   docs, and `.claude/skills/kit-email/SKILL.md` provider/config language; keep
   preview sends explicit and separate from Kit broadcasts. No preview dedupe key
   should collapse intentional tests.
-- **#436**, stacked on #434: keep its `signupFlow`, `kitDoiFallback`, direct-active
-  copy and lease changes in `lib/writing-signup.ts` while retaining this PR's
-  `sendMail()` call, stable verification key and neutral error alias. Merge its
-  `/api/subscribe` route edit with selected-provider preflight, never restore the
-  Postmark-only env check. Retain tests proving both provider selections work
-  with its signup modes; reconcile README/docs wording. It inherits #434's
-  per-step welcome transport change; do not add a second sending implementation.
+- **#436**, stacked on #434: signup modes, fallback counters/copy and leases are
+  integrated with `sendMail()`, the stable verification key and compatibility
+  alias. `/api/subscribe` retains selected-provider preflight and neutral error
+  handling. Both provider selections have mocked signup-mode coverage. Welcome
+  delivery is inherited from #434 with digest+step keys; no extra sender is added.
 
 ## Seven-topic signup and consent
 
@@ -160,13 +158,15 @@ use the existing public IDs in that mapping.
    removes the fragment before rendering. Reading the page does not opt in;
    the reader must explicitly press the confirmation button, which submits a
    POST. Cancellation is available only before confirmation processing begins.
-4. Confirmation rechecks the Kit address and status. It adds only the selected
+4. With `KIT_DIRECT_ACTIVE_SIGNUP` unset/false, confirmation rechecks the Kit
+   address and status. It adds only the selected
    form memberships. Active subscribers also receive those selected tags. New
    or inactive subscribers enter the selected double-opt-in forms and may need
    further Kit confirmation before delivery begins. Ciphertext is removed as
    soon as a matching Kit subscriber ID is retained.
 5. `/api/kit/reconcile-confirmations`, authenticated with `CRON_SECRET`, processes
-   only the Redis-verified pending records and their stored choices. It checks
+   only legacy/fallback Redis-verified pending records and their stored choices.
+   Direct records are excluded independently of the flag. It checks
    Kit status before tagging; it never treats raw form-member listings as
    consent. `vercel.json` schedules it daily at 08:00 UTC. Pending verified
    records have a bounded 30-day retention window, so Kit Free may delay tagging
@@ -209,6 +209,137 @@ linked unsubscribe page. GET is inert; the page button and one-click POST update
 Kit state. A definite mail-provider rejection can release the welcome claim; a
 timeout or ambiguous response retains it for reconciliation. Provider acceptance
 is not proof of delivery.
+
+## Direct active signup: draft, default off
+
+`KIT_DIRECT_ACTIVE_SIGNUP` is enabled only by `true` (case-insensitive, trimmed);
+unset, false and other values preserve the existing flow above. This is an
+approved consent-flow design, **not approval to activate it**. No live Kit or
+mail-provider call, email, environment change, deployment or merge was performed for
+this draft.
+
+On the explicit first-party confirmation POST, direct mode rechecks the matching
+Kit identity/state, including an exact email lookup for a challenge without a Kit
+ID. New subscribers are created via `POST /v4/subscribers` with `state: active`.
+Existing active subscribers are reused. Selected tags and the existing Arcades
+provenance tag (when applicable) are applied immediately. No form endpoints,
+form membership, hosted Kit signup page or Kit DOI email are requested. Existing
+memberships are preserved; this is additive only. Cancelled, bounced, complained
+and unknown states remain blocked. A matching Kit ID replaces ciphertext before
+subsequent form/tag/welcome work. Partial failures retain the signed challenge
+for retry. The sole form fallback is an inactive subscriber, as described below.
+
+The first successful claim records `signupFlow: direct-active` alongside the
+existing non-address challenge fields. Retries retain that mode even if the flag
+is later disabled. Already-processing legacy records retain their old behavior;
+legacy `awaiting-kit` records still drain through the daily cron after activation.
+Successful new/active direct records never enter that queue; inactive fallback
+records enter it exactly as legacy DOI records do. The cron also removes any stale direct
+index entries without provider calls. Completed direct signups advance both
+`first_party_verified` and `kit_active_ready` via the existing atomic transitions;
+replays and retries do not count twice. Failures may leave a legitimate gap
+between these counts. They measure transitions, not inbox delivery.
+
+The existing #434 dispatcher receives the same first-party-confirmed + Kit-active
+eligibility immediately after tagging and a fresh Kit-active/identity check.
+It enrolls only if its **separate** welcome flag permits it. No new enrollment
+store or dedupe is added; the existing permanent keyed-address marker prevents
+repeat confirmations, later topic additions and cron from double-enrolling.
+
+### API contract and approved inactive fallback
+
+Checked against official docs on 2026-10-20:
+
+- [Create a subscriber](https://developers.kit.com/api-reference/subscribers/create-a-subscriber)
+  supports creating a new subscriber as `active` (also the default). An existing
+  address is an upsert, but the docs explicitly exclude state updates.
+- [Update a subscriber](https://developers.kit.com/api-reference/subscribers/update-a-subscriber)
+  accepts email, first name and custom fields; it documents no state parameter.
+- [Tag a subscriber](https://developers.kit.com/api-reference/tags/tag-a-subscriber)
+  accepts an existing subscriber ID independently of form membership. Thus
+  active creation followed by tagging is documented; inactive activation is not.
+- [Subscriber status and consent policy](https://help.kit.com/en/articles/2502651-the-subscriber-profile-page-and-status)
+  requires explicit consent for reactivation. This flow applies a stricter rule:
+  cancelled/bounced/complained contacts are never reactivated by signup.
+
+**Approved narrower behavior:** the original design allowed someone who never
+confirmed Kit DOI to become active after first-party confirmation. The current
+v4 contract does not document that transition. The coordinator approved retaining
+the **unchanged legacy path for inactive contacts**, replacing the original
+inactive-to-active acceptance criterion: add only the selected DOI forms, let
+Kit send its own confirmation, then apply tags through daily reconciliation
+once Kit reports active. No welcome enrolls before that active check.
+
+The confirmation POST pins `signupFlow: legacy-fallback` and a non-PII boolean
+`kitDoiFallback` before the form calls. The same atomic challenge transition
+increments daily aggregate `kit_doi_fallback` **once per confirmed challenge**,
+against its original first-party verification day. Retries/replays do not count
+again. It counts fallback selection even if a later form request fails; compare
+it with reconciliation errors, not with unique subscriber totals. Flag-off
+legacy requests do not increment this new fallback counter.
+
+Pre-confirmation UI describes one first-party email and a next step rather than
+promising that every existing contact is ready. The verification email preserves
+legacy copy for an address already known inactive. Fallback confirmation success
+explicitly explains that Kit may send one more confirmation email. Signup API
+responses do not expose subscriber state. No new per-address source, IP or user
+agent is collected. A race in which creation returns an existing inactive contact
+also takes the same fallback. Unknown/suppressed states are still blocked.
+
+**Open follow-up, not an activation blocker:** ask Kit support whether a supported
+v4 inactive-to-active method is possible. No support request or live test is
+performed here. Never use an undocumented activation route, fabricate success,
+or delete/recreate a subscriber. Mocked upserts preserve existing states.
+
+### Consent evidence and its limits
+
+Opt-in is the explicit signed confirmation **POST**, following the verification
+email listing selected topics. The token is cleared from the URL fragment and
+GET is inert. Redis records the first-party `verifiedAt`, keyed digest, Kit ID,
+selected audiences, flow and later `kitActiveAt` within the existing bounded
+challenge lifetime; completed direct records retain the existing TTL rather
+than creating a permanent consent ledger. Aggregate counters persist separately
+and cannot prove one person's consent. Source is still removed on claim. No IP,
+user agent, new email copy, new PII field or raw token log is stored.
+
+Kit returns `created_at` for the subscriber; it establishes record creation, not
+the selected-topic consent event, and is older for an existing contact. Kit's
+[subscriber analytics](https://help.kit.com/en/articles/14085468-understanding-the-subscriber-analytics-dashboard-in-kit)
+distinguishes an API source type, while its [attribution guide](https://help.kit.com/en/articles/9904027-subscriber-attribution-how-subscribers-first-found-you)
+says API additions do not get Form/UTM attribution. Neither establishes the
+first-party button press or a durable topic-consent record. No custom `source`
+field is added to Kit. Account-specific source display is unverified.
+
+**Open decision:** if long-term per-subscriber consent evidence is required,
+approve the minimum fields, consent-text version, retention, access and deletion
+policy separately. The existing short-lived event plus provider metadata is not
+a durable audit trail. No additional evidence store is built in this draft.
+
+### Direct signup activation checklist
+
+1. Obtain explicit user approval to activate this consent change, including the
+   approved inactive DOI fallback above. Review the stacked #434 dependency; welcome
+   activation remains separately gated.
+2. Verify Kit's sender/domain authentication, sending eligibility and suppression
+   state. Review any existing tag-triggered automations; direct new/active signup removes form calls, while inactive fallback retains
+   them; tags may already trigger account-side actions. Verify the selected mail provider
+   verification sender/domain separately. No account check is claimed here.
+3. Only after approval, set `KIT_DIRECT_ACTIVE_SIGNUP=true` in the intended Vercel
+   environment and redeploy the approved revision. The server passes only the
+   public mode boolean to shared signup UI; prerendered copy must be rebuilt with
+   the same flag. Keep welcome flags unchanged unless separately approved.
+4. Watch confirmation/form/tag errors and retries; daily aggregate
+   `first_party_verified`, `kit_active_ready`, `kit_doi_fallback` and the
+   verification/active gap; Kit active status and selected tags,
+   suppression/complaints and provider delivery. Expect old DOI records to drain
+   through cron along with new inactive fallbacks; successful new/active direct
+   records need no reconciliation.
+   Verify one confirmation/no forms for new/active, plus DOI/reconciliation for
+   inactive fallback, only with a separately
+   approved test address/send; mocks do not establish provider/inbox behavior.
+5. To pause new direct claims, unset/disable the flag and redeploy after approval.
+   Processing direct records stay pinned; legacy records keep draining. Disabling
+   does not remove tags, undo consent/state changes or replay welcome enrollment.
 
 ## Welcome series: default off, in-house delivery
 
@@ -375,6 +506,10 @@ Configure through the deployment/operator secret store, never committed files:
 - `NEXT_PUBLIC_SITE_URL` for the intended production host
 - `WELCOME_SERIES_ENABLED` and `WRITING_WELCOME_ENABLED` remain unset/false;
   see the separate series activation checklist above
+
+Retain Kit form IDs for inactive fallbacks and flag-off rollback; direct
+new/active signup needs only the audience tags. `KIT_DIRECT_ACTIVE_SIGNUP` stays
+unset/false until separately approved.
 
 Signup/confirmation must fail closed when their required configuration is
 missing. This document is not permission to create credentials, configure

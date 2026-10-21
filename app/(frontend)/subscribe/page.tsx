@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import SubscriptionForm from '@/app/components/SubscriptionForm';
 import { SITE_NAME } from '@/lib/site-brand';
+import { kitDirectActiveSignupEnabled, signupConfirmationCopy } from '@/lib/signup-mode';
 
 export const metadata: Metadata = {
   title: 'Subscribe',
@@ -19,7 +20,7 @@ export default function SubscribePage() {
         Choose your email updates
       </h1>
       <p style={{ maxWidth: '62ch', color: 'var(--fg-muted)', fontSize: '1.125rem', lineHeight: 1.8 }}>
-        Choose what you want to hear about. We&rsquo;ll send a confirmation email for your request. Kit may send additional confirmation emails before delivery begins.
+        Choose what you want to hear about. {signupConfirmationCopy(kitDirectActiveSignupEnabled())}
       </p>
       <SubscriptionForm
         source="subscribe-page"

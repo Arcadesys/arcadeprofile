@@ -2,10 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useDirectActiveSignup } from '@/app/components/SignupModeContext';
 
 type Outcome = 'ready' | 'working' | 'complete' | 'awaiting-kit' | 'cancelled' | 'error' | 'missing';
 
 export default function VerificationClient() {
+  const directActive = useDirectActiveSignup();
   const [token, setToken] = useState('');
   const [outcome, setOutcome] = useState<Outcome>('ready');
   const [message, setMessage] = useState('Nothing happens until you choose to confirm. If you did not request this email, you can close this page.');
@@ -56,7 +58,9 @@ export default function VerificationClient() {
         setMessage('This signup request was cancelled. No emails were added.');
       } else if (body.status === 'awaiting-kit') {
         setOutcome('awaiting-kit');
-        setMessage('Your request is confirmed. If your address is new or inactive in Kit, Kit may send one more confirmation before emails begin.');
+        setMessage(directActive
+          ? 'Your request is confirmed. Your existing subscription still needs Kit confirmation. Kit may send one more confirmation email before emails begin.'
+          : 'Your request is confirmed. If your address is new or inactive in Kit, Kit may send one more confirmation before emails begin.');
       } else {
         setOutcome('complete');
         setMessage('You are subscribed to the emails you chose. You can unsubscribe from any email.');
@@ -71,7 +75,7 @@ export default function VerificationClient() {
     <main className="signup-verify" aria-labelledby="verify-title">
       <p className="signup-verify__eyebrow">The Arcades</p>
       <h1 id="verify-title">Confirm your subscription</h1>
-      <p>The email we sent lists exactly what you signed up for. Confirm below to get those emails. Kit may ask you to confirm once more before delivery begins.</p>
+      <p>The email we sent lists exactly what you signed up for. {directActive ? 'Confirm below to start those emails. If another step is needed, it will appear here.' : 'Confirm below to get those emails. Kit may ask you to confirm once more before delivery begins.'}</p>
       {!['complete', 'awaiting-kit', 'cancelled', 'error', 'missing'].includes(outcome) ? (
         <div className="signup-verify__actions">
           <button type="button" disabled={outcome === 'working'} onClick={() => void submit('confirm')}>Confirm subscription</button>

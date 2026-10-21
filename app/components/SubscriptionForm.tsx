@@ -14,6 +14,7 @@ import type {
 
 import styles from './SubscriptionForm.module.css';
 import { SUBSCRIBER_GIFT, subscriberGiftFiles } from '@/lib/subscriber-gift';
+import { useDirectActiveSignup } from './SignupModeContext';
 
 type Download = { href: string; label: string };
 
@@ -73,6 +74,7 @@ function EnabledSubscriptionForm({
   successMessage = 'Check your inbox to confirm your subscription.',
   postSuccessDownload,
 }: SubscriptionFormProps) {
+  const directActive = useDirectActiveSignup();
   const emailId = useId();
   const statusRef = useRef<HTMLDivElement>(null);
   const firstChoiceRef = useRef<HTMLInputElement>(null);
@@ -160,7 +162,7 @@ function EnabledSubscriptionForm({
     return (
       <div ref={statusRef} className={styles.status} role="status" aria-live="polite" tabIndex={-1}>
         <strong>{completionMessage}</strong>
-        <p>Kit may send additional confirmation emails for the topics you chose before delivery begins.</p>
+        <p>{directActive ? 'Open the link in that email and press Confirm subscription. New subscriptions need no second confirmation email.' : 'Kit may send additional confirmation emails for the topics you chose before delivery begins.'}</p>
         {downloads.length > 0 ? (
           <div className={styles.downloads}>
             {downloads.map((download) => <a key={download.href} href={download.href}>{download.label}</a>)}
@@ -215,7 +217,7 @@ function EnabledSubscriptionForm({
 
       <p className={styles.terms}>Updates when they&rsquo;re ready. Free. Unsubscribe whenever.</p>
       {showPreferences ? (
-        <p className={styles.terms}>You will confirm this request once. Kit may send additional confirmation emails for the topics you choose.</p>
+        <p className={styles.terms}>{directActive ? 'One confirmation email. Open its link and press Confirm subscription to start your selected updates.' : 'You will confirm this request once. Kit may send additional confirmation emails for the topics you choose.'}</p>
       ) : null}
       <button className={styles.submit} type="submit" disabled={pending}>{pending ? 'Subscribing…' : submitLabel}</button>
       {error ? <div ref={statusRef} className={`${styles.status} ${styles.error}`} role="alert" aria-live="assertive" tabIndex={-1}>{error}</div> : null}
