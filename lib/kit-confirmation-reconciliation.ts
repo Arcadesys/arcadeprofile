@@ -1,6 +1,6 @@
 import { isArcadesAudience, kitTagId } from './subscription-audiences';
 import { challengeIndexKey, getChallenge, redisCommand, saveChallengeIfStatus, signupEmailDigest } from './writing-signup';
-import { sendWritingWelcomeOnce } from './writing-welcome-email';
+import { deliverWritingWelcome } from './welcome-delivery';
 
 type Fetcher = typeof fetch;
 
@@ -71,7 +71,7 @@ export async function reconcileVerifiedKitSignups(input: { apiKey: string; fetch
           continue;
         }
         if (challenge.audiences.some(isArcadesAudience)) {
-          const welcome = await sendWritingWelcomeOnce({ email: currentEmail, subscriberId: challenge.subscriberId, emailDigest: challenge.emailDigest, audiences: challenge.audiences, fetcher });
+          const welcome = await deliverWritingWelcome({ email: currentEmail, subscriberId: challenge.subscriberId, emailDigest: challenge.emailDigest, audiences: challenge.audiences, fetcher });
           if (welcome === 'rejected') throw new Error('Writing welcome was rejected');
         }
       }

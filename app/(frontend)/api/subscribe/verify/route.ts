@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { parseVerificationToken, getChallenge, decryptSignupEmail, newProcessingToken, redisCommand, releaseSignupLock, saveChallengeIfStatus } from '@/lib/writing-signup';
-import { sendWritingWelcomeOnce } from '@/lib/writing-welcome-email';
+import { deliverWritingWelcome } from '@/lib/welcome-delivery';
 import { signupEmailDigest } from '@/lib/writing-signup';
 import type { Audience } from '@/lib/subscribe-types';
 import { isArcadesAudience, kitFormId, kitTagId } from '@/lib/subscription-audiences';
@@ -183,7 +183,7 @@ export async function POST(request: Request) {
         }
         subscriberEmail = currentEmail;
         if (challenge.audiences.some(isArcadesAudience)) {
-          const welcome = await sendWritingWelcomeOnce({ email: subscriberEmail, subscriberId, emailDigest: challenge.emailDigest, audiences: challenge.audiences });
+          const welcome = await deliverWritingWelcome({ email: subscriberEmail, subscriberId, emailDigest: challenge.emailDigest, audiences: challenge.audiences });
           if (welcome === 'rejected') return json({ error: 'Preferences are saved, but the welcome email was rejected. Retry to request it again.' }, 502);
         }
       }

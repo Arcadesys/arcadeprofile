@@ -81,21 +81,34 @@ export function buildWritingWelcomeEmail(audiences: Audience[], unsubscribeUrl?:
   return { audience, subject: message.subject, preview: message.preview, html, text };
 }
 
-async function sendWritingWelcome(email: string, subscriberId: number, emailDigest: string, audiences: Audience[], fetcher: typeof fetch) {
+export function writingWelcomeSenderConfig() {
+  return readMailConfig();
+}
+
+export async function sendWelcomeContent(input: {
+  email: string;
+  subscriberId: number;
+  emailDigest: string;
+  idempotencyKey: string;
+  buildContent: (unsubscribeUrl: string) => { subject: string; html: string; text: string };
+  fetcher: typeof fetch;
+}) {
+  const { email, subscriberId, emailDigest, fetcher } = input;
+  const config = writingWelcomeSenderConfig();
   const baseUrl = verificationSiteUrl();
   const unsubscribeToken = createKitUnsubscribeToken(subscriberId, emailDigest);
   const unsubscribeUrl = `${baseUrl}/subscribe/unsubscribe#${unsubscribeToken}`;
   const oneClickUnsubscribeUrl = `${baseUrl}/api/subscribe/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`;
-  const content = buildWritingWelcomeEmail(audiences, unsubscribeUrl);
+  const content = input.buildContent(unsubscribeUrl);
   return sendMail({
     to: email, subject: content.subject, html: content.html, text: content.text,
     category: 'writing-welcome', disableTracking: true,
-    idempotencyKey: `writing-welcome/${emailDigest}`,
+    idempotencyKey: input.idempotencyKey,
     headers: {
       'List-Unsubscribe': `<${oneClickUnsubscribeUrl}>`,
       'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
     },
-  }, { fetcher });
+  }, { fetcher, config });
 }
 
 export type WelcomeDeliveryResult = 'sent' | 'already-claimed' | 'uncertain' | 'rejected' | 'disabled';
@@ -109,7 +122,7 @@ export async function sendWritingWelcomeOnce(input: {
   fetcher?: typeof fetch;
 }): Promise<WelcomeDeliveryResult> {
   if (process.env.WRITING_WELCOME_ENABLED?.trim().toLowerCase() !== 'true') return 'disabled';
-  readMailConfig();
+  writingWelcomeSenderConfig();
   if (!/^[a-f0-9]{64}$/.test(input.emailDigest)) throw new Error('Writing welcome email digest is invalid');
   const fetcher = input.fetcher ?? fetch;
   const primary = primaryWritingWelcomeAudience(input.audiences);
@@ -120,7 +133,9 @@ export async function sendWritingWelcomeOnce(input: {
   if (claimed !== 'OK') return 'already-claimed';
   let messageId: string;
   try {
-    messageId = await sendWritingWelcome(input.email, input.subscriberId, input.emailDigest, input.audiences, fetcher);
+    messageId = await sendWelcomeContent({ ...input, fetcher,
+      idempotencyKey: `writing-welcome/${input.emailDigest}`,
+      buildContent: (url) => buildWritingWelcomeEmail(input.audiences, url) });
   } catch (error) {
     if (error instanceof MailRejectedError) {
       const script = `if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end`;

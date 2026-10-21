@@ -87,11 +87,13 @@ unset/blank keeps Postmark. There is no fallback between providers. Missing or
 invalid selected-provider credentials fail before signup Kit/Redis work or a
 welcome claim.
 
-For Postmark, keep `POSTMARK_SERVER_TOKEN` and `POSTMARK_FROM_EMAIL` (optional
-`POSTMARK_FROM_NAME` and stream settings). For Resend, verify the sending domain,
-disable its open/click tracking in Resend, then configure `RESEND_API_KEY`,
-`RESEND_FROM_EMAIL`, optional `RESEND_FROM_NAME`, and `MAIL_PROVIDER=resend` in
-Vercel production and redeploy. Merging this change alone keeps Postmark selected.
+Production has explicitly selected Resend, and the user confirmed receipt of a
+signup confirmation from `austen@mail.thearcades.me`. Selected Resend config uses
+`RESEND_API_KEY`, `RESEND_FROM_EMAIL` and optional `RESEND_FROM_NAME`; open/click
+tracking must be disabled on the sending domain. The code default remains
+Postmark for compatibility; its configuration is recorded in the migration
+contract. Do not restore Postmark credentials or change provider selection for
+this series. No environment values or account settings change in this PR.
 Never commit credentials. Both bodies and custom unsubscribe headers are retained.
 Resend uses stable challenge/welcome/job idempotency keys where available; unknown
 outcomes still retain local guards and never trigger automatic retries.
@@ -100,7 +102,33 @@ operator cutover steps, quota behavior, and related-PR integration notes.
 
 The historical `services/email` transactional path also uses this transport;
 Kit broadcasts remain on Kit.
-Writing welcome delivery is independently gated: set
-`WRITING_WELCOME_ENABLED=true` only after review; unset or any other value
-keeps the welcome inactive while signup confirmations and audience updates
-continue.
+
+`lib/mail-transport.ts` sends signup verification and explicitly addressed previews. The draft
+three-email welcome series now runs in-house using Kit status reads, the selected mail provider,
+Upstash and the existing daily `0 8 * * *` cron. No Kit Sequence or paid automation
+is needed. At the same first-party-confirmed + Kit-active welcome points,
+`lib/welcome-delivery.ts` dispatches one path; imported/DOI-pending contacts are
+not bulk enrolled. The series shares legacy once-per-address dedupe, stores no
+email address, and re-reads Kit by ID before each step (enrollment/day 3/day 7).
+Records expire after 30 days; ambiguous sends are held, never blindly retried.
+
+Both flags remain off by default; no env values are changed:
+
+- `WELCOME_SERIES_ENABLED=true`, legacy unset/false: series only.
+- Both unset/false: no welcome enrollment or sends.
+- Legacy `WRITING_WELCOME_ENABLED=true` alone: old single welcome only.
+- Both true: conflict fails closed at dispatch/cron. Shared dedupe also prevents
+  receiving both paths across configuration changes.
+
+Keep `WRITING_WELCOME_ENABLED` unset/false. The series is **draft only** and must
+stay disabled until the user approves the [activation checklist](docs/email-service-migration.md#activation-checklist--requires-separate-user-approval),
+including sender authentication, selected-provider tracking/classification and plan volume, real gift
+links and a separately approved single preview to the user's own inbox. No real
+preview or test email is authorized here. Rough steady-state provider volume is
+`4 × new eligible subscribers + approved preview recipients + other traffic`;
+see the same document for quota and daily-capacity limits.
+
+The series uses `sendMail()` with a stable `welcome-series/<digest>/step-<step>`
+key. Different steps cannot collide; retries of the same step keep the same key.
+The single welcome retains `writing-welcome/<digest>`. These provider keys
+supplement Redis claims and never permit retrying uncertain outcomes.

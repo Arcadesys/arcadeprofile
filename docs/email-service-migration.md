@@ -13,7 +13,7 @@ configuration have been verified.
   essay broadcasts. Cancelled, bounced, and complained addresses are not
   reactivated by the signup flow.
 - **Transactional mail** (`lib/mail-transport.ts`) sends explicitly addressed signup verification messages and CLI
-  previews. It also implements the separately gated writing welcome.
+  previews. It also implements the separately gated writing welcome and in-house series.
 - **Upstash Redis** (or the Vercel-injected compatible connection) owns short-lived
   signup challenges, cooldowns/claim leases, durable welcome deduplication, and
   aggregate confirmation counts.
@@ -26,6 +26,7 @@ configuration have been verified.
 Primary implementation: `app/(frontend)/api/subscribe/route.ts`,
 `app/(frontend)/api/subscribe/verify/route.ts`, `lib/writing-signup.ts`,
 `lib/kit-confirmation-reconciliation.ts`, `lib/writing-welcome-email.ts`,
+`lib/welcome-delivery.ts`, `lib/welcome-series.ts`, `lib/welcome-series-copy.ts`,
 `scripts/newsletter-post.ts`, and `lib/kit-broadcast.ts`.
 
 ## Provider selection and cutover
@@ -54,6 +55,11 @@ Resend tracking is configured **per domain**, not per email: disable open and
 click tracking in the domain dashboard before switching. The adapter cannot
 prove dashboard settings with a sending-only key. Postmark verification/welcome
 still explicitly send `TrackOpens: false` and `TrackLinks: None`.
+
+Production status supplied by the user: Resend is selected and a signup
+confirmation arrived from `austen@mail.thearcades.me`. This worker performed no
+live send or provider read. The following cutover steps are a historical/operator
+reference; do not restore Postmark or repeat configuration changes for the series.
 
 Operator order (no step is performed by merging this PR):
 
@@ -114,18 +120,11 @@ Current provider references checked for this change:
 [account quotas](https://resend.com/docs/knowledge-base/account-quotas-and-limits),
 [domain tracking](https://resend.com/changelog/update-click-open-tracking-via-api).
 
-### Follow-up for existing PRs (branches unchanged)
+### Integration of stacked PRs
 
-- **#434**, based on #433: in `lib/writing-welcome-email.ts`, make
-  `writingWelcomeSenderConfig()` delegate to `readMailConfig()` and replace the
-  Postmark fetch in `sendWelcomeContent()` with `sendMail()`, preserving both
-  unsubscribe headers, bodies and disabled tracking. Add a caller-supplied stable
-  per-step key to that helper; in `lib/welcome-series.ts` pass a key containing
-  the keyed digest **and series step**, so the three different messages do not
-  collide within Resend's 24-hour window. Use `MailRejectedError` for its existing
-  refusal transition; leave leases/uncertain states intact. Keep the once-only
-  helper's digest key for the legacy single welcome. Adapt `lib/welcome-series.test.ts`
-  for both providers and missing/unknown receipts, and reconcile its README/docs edits.
+- **#434**, based on #433: integrated below. Welcome/series delivery uses the
+  shared transport, neutral rejection handling, caller-supplied digest+step
+  keys, and both-provider mocked tests. Leases and uncertain states are retained.
 - **#435**: replace `lib/postmark-preview.ts`'s request with `sendMail()` and
   `readMailConfig(input.env)`, retaining explicit single-address validation,
   injected fetch/env, preview prefix, both bodies and 30-second timeout. Its
@@ -211,6 +210,154 @@ Kit state. A definite mail-provider rejection can release the welcome claim; a
 timeout or ambiguous response retains it for reconciliation. Provider acceptance
 is not proof of delivery.
 
+## Welcome series: default off, in-house delivery
+
+Kit Free remains the list/status/consent authority. No Kit Sequence, paid automation,
+new provider, new cron or new credential retrieval is needed for this series.
+`lib/welcome-delivery.ts` replaces the single-welcome call at the **same two existing
+eligibility points**: the explicit first-party verification POST after Kit-active
+recheck, and verified-ledger reconciliation after double opt-in becomes active.
+That existing bridge is sufficient; this does not require a new Kit tag bridge.
+Only the stored, explicitly selected audiences are used. All Writing, Fiction,
+Essays, Lab and Queer Columns qualify; Work / AI or TH4F alone do not. Imported
+contacts are not enumerated or backfilled. An imported/existing contact can qualify
+only if they personally submit and claim a new signup, under the existing rules.
+
+### Flag interaction
+
+No environment values are changed by this implementation. Both flags default off.
+
+| WELCOME_SERIES_ENABLED | WRITING_WELCOME_ENABLED | Confirmed-signup dispatch / due series |
+| --- | --- | --- |
+| unset/false | unset/false | No enrollment or welcome sends |
+| true | unset/false | Series only; legacy welcome not called |
+| unset/false | true | Legacy single welcome only; series paused |
+| true | true | Conflict: both dispatch and due series fail closed |
+
+Leave `WRITING_WELCOME_ENABLED` unset/false. The legacy flag's original gate remains
+intact. Both paths atomically compete for the **same permanent HMAC address key**,
+`writing:welcome:<digest>`. A previous legacy success, in-flight/ambiguous legacy
+attempt, or series enrollment blocks the other path, even across flag changes and
+repeated signup challenges. Never delete this key to retry a series. The series
+returns immediately without Redis/provider requests when its gate is off.
+Selected-provider signup verification is independent of both welcome flags.
+
+### Storage, timing and stop behavior
+
+An atomic Redis Lua enrollment writes the shared dedupe marker, the series record
+and its due-index entry together. Records contain Kit subscriber ID, selected
+audiences, current step, enrollment/next-due/expiry timestamps, status and claim
+lease fields. The key contains the HMAC digest. **No address or email ciphertext
+is stored in the series.** Before each send the address and status are read from
+Kit by subscriber ID, and the address digest must still match. A non-active,
+missing, or changed-address subscriber is stopped and their series record/index
+entry deleted. No unsubscribe or audience updates are added by the engine.
+
+Records expire 30 days after enrollment, including stalled/ambiguous records;
+updates preserve that original deadline. The HMAC-only once-per-address marker
+stays durable, as in the legacy welcome. Completed/stopped records are deleted
+immediately. Stale index members without a live record are removed by the cron.
+
+Email 1 is attempted at enrollment. Emails 2 and 3 become due at enrollment +3 and
++7 days. The existing authenticated `/api/kit/reconcile-confirmations` cron also
+runs the due queue at `0 8 * * *`; `vercel.json` is unchanged. On Hobby, daily
+cron timing has hour-level precision, so expect the first daily invocation after
+a step becomes due, rather than an exact delivery hour. A run processes at most
+50 due records and at most one step per selected record. Backlogs, outages,
+provider errors and function time limits can delay delivery; monitor aggregate
+`series.checked/sent/stopped/uncertain/deferred/failed` counts and queue age.
+Fifty cron steps/day is a cap, not proven production throughput. Two delayed
+steps per enrolled subscriber imply roughly 750 new subscribers/month at that
+cap in steady state, before retries and runtime limits. Review capacity before
+using larger volume estimates as an operating promise.
+
+[Vercel's current limits](https://vercel.com/docs/cron-jobs/usage-and-pricing)
+allow daily Hobby crons (currently up to 100 jobs/project); this implementation
+reuses the existing job. It adds no schedule or plan dependency.
+
+### Leases and ambiguous-send recovery
+
+Each step is claimed by an atomic compare-and-set with a two-minute lease.
+Pre-send leases can be reclaimed after expiry; stale workers cannot transition
+someone else's claim. After re-reading Kit, a **durable sending state is stored
+before the mail transport is called**. Success advances exactly that step atomically, with
+its next-due index update. The third success deletes the series record.
+
+A timeout, 5xx, incomplete/malformed receipt, or crash/lost commit after a possible
+provider acceptance holds that exact step as sending/uncertain. It is never
+automatically resent or advanced. An expired sending lease becomes uncertain,
+not sendable. Uncertain records are removed from the due index, retain their
+30-day expiry and keep the permanent address marker. A definite rejection can
+retry after one day, within original retention. Kit read errors defer without
+sending. Provider acceptance is not proof of inbox delivery.
+
+Before repairing a held step, independently reconcile the attempt with the selected provider.
+Only proof of non-acceptance permits a controlled CAS reset of that exact step;
+confirmed acceptance permits a controlled advance/reindex. Unknown means hold.
+No automated maintenance/reset tool or blind retry is included. Do not remove
+shared dedupe keys, reset a whole cohort, or log addresses/tokens/provider bodies.
+
+Delivery delegates to `lib/mail-transport.ts`: `writingWelcomeSenderConfig()`
+reads only the selected provider through `readMailConfig()`, and
+`sendWelcomeContent()` calls `sendMail()` with both bodies, disabled tracking,
+and the existing RFC 8058 one-click headers and linked fallback page. Resend
+tracking is a domain setting and must remain disabled before activation. No
+welcome or series code calls a provider endpoint directly.
+
+Each series message uses the caller-supplied stable key
+`welcome-series/<HMAC digest>/step-<0|1|2>`. Different steps cannot collide even
+if overdue messages run within the same provider idempotency window; retries
+retain their own step's key. The single welcome retains
+`writing-welcome/<HMAC digest>`. No plaintext address is included.
+`MailRejectedError` follows the existing definite-refusal transition; unknown
+receipts, unfamiliar errors, Resend idempotency conflicts and timeouts hold the durable uncertain
+state. Redis leases, retention and permanent dedupe remain authoritative.
+
+### Activation checklist — requires separate user approval
+
+All items below are future approval gates, not authorization to send now:
+
+1. Read/approve all three emails and the Broomsticks PDF/EPUB from parent draft
+   PR #433; verify real gift URLs after a separately authorized deployment.
+2. Verify approved sender/domain authentication (DKIM/SPF/DMARC), reply handling,
+   required sender/footer details and appropriate selected-provider message classification and tracking settings.
+   Resolve any necessary stream configuration separately; no env values change here.
+3. Confirm the actual selected-provider plan, monthly allowance, other sender traffic,
+   daily queue/runtime capacity, Redis retention and unsubscribe behavior.
+4. Review shared legacy dedupe markers; do not backfill/import subscribers or
+   reset prior welcome claims. Ensure any proposed Kit sequence stays inactive.
+5. Obtain explicit, separate approval for **one live preview to the user's own
+   inbox only**. Confirm the exact recipient and send scope in that task. Do not
+   enable the global series just to preview it, and do not send previews/tests
+   to real addresses as part of this draft work. Until then use rendered local
+   HTML and mocked-provider tests only.
+6. Only after the user approves activation and the actual deployment: enable
+   `WELCOME_SERIES_ENABLED=true` through the approved operator workflow, while
+   leaving `WRITING_WELCOME_ENABLED` unset/false. This checklist does not perform
+   that change. Verify aggregate enrollment/step results without logging PII.
+7. Rollback: disable the series flag to stop enrollment and sends. Queued records
+   remain until their original TTL; resuming can process overdue pending steps.
+   Uncertain steps stay held. Never enable both flags or delete dedupe to recover.
+
+### Monthly selected-provider volume
+
+For N newly enrolled subscribers completing the series, one verification each,
+P explicitly approved preview recipient-sends, and O other mail, the steady-state
+estimate is **4N + P + O**. Add abandoned/repeated/non-series verification attempts,
+known-rejection retries and cohort carryover. Kit DOI and Kit broadcasts are
+separate and do not count toward the selected sending provider.
+
+Examples with four preview recipient-sends: N=20 gives 84/month; N=25 gives
+104/month; N=100 gives 404/month. Budget against the actual Resend account's
+daily and monthly quota and other traffic, using the provider contract above.
+The old Postmark-only pricing estimate is superseded; do not configure or switch
+back to Postmark for this series. No account settings or plans change in this PR.
+
+The existing daily cron processes at most 50 due records. At two delayed steps
+per completed journey, roughly 750 new journeys/month is an arithmetic ceiling
+before retries/runtime limits, not measured production capacity. Kit stays on
+its list/status API; paid Kit sequences are not required.
+
 ## Required configuration
 
 Configure through the deployment/operator secret store, never committed files:
@@ -226,6 +373,8 @@ Configure through the deployment/operator secret store, never committed files:
   `POSTMARK_SERVER_TOKEN`, `POSTMARK_FROM_EMAIL`, and optional `POSTMARK_FROM_NAME` / `POSTMARK_TRANSACTIONAL_STREAM`
 - For Resend: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, optional `RESEND_FROM_NAME`
 - `NEXT_PUBLIC_SITE_URL` for the intended production host
+- `WELCOME_SERIES_ENABLED` and `WRITING_WELCOME_ENABLED` remain unset/false;
+  see the separate series activation checklist above
 
 Signup/confirmation must fail closed when their required configuration is
 missing. This document is not permission to create credentials, configure
