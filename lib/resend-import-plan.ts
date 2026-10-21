@@ -16,9 +16,10 @@ export function planResendImport(subscribers: Array<{ state: string; topics: str
 export type ImportRow = { email: string; state: string; topics: string[] };
 export type ImportRequest = (url: string, method?: string, payload?: unknown) => Promise<Record<string, unknown> | null>;
 
-export async function applyResendImportRow(row: ImportRow, topicIds: Record<string, string>, request: ImportRequest) {
+export async function applyResendImportRow(row: ImportRow, topicIds: Record<string, string>, segmentId: string, request: ImportRequest) {
   const state = IMPORT_STATE[row.state] ?? 'skip';
   if (state === 'skip') return 'skipped' as const;
+  if (!/^[a-f0-9-]{20,64}$/i.test(segmentId)) throw new Error('Resend essay broadcast segment is not configured');
   const email = row.email.trim().toLowerCase();
   if (state === 'subscribed') {
     if (await request(`https://api.resend.com/suppressions/${encodeURIComponent(email)}`)) return 'skipped' as const;
@@ -32,11 +33,18 @@ export async function applyResendImportRow(row: ImportRow, topicIds: Record<stri
   if (!contact || typeof contact.id !== 'string') throw new Error('Resend contact receipt was invalid');
   if (state === 'unsubscribed') {
     await request(`https://api.resend.com/contacts/${encodeURIComponent(contact.id)}`, 'PATCH', { unsubscribed: true });
+    await request(`https://api.resend.com/contacts/${encodeURIComponent(contact.id)}/segments/${encodeURIComponent(segmentId)}`, 'DELETE');
     return 'suppressed' as const;
   }
-  if (contact.unsubscribed === true) return 'skipped' as const;
+  if (contact.unsubscribed === true) {
+    await request(`https://api.resend.com/contacts/${encodeURIComponent(contact.id)}/segments/${encodeURIComponent(segmentId)}`, 'DELETE');
+    return 'skipped' as const;
+  }
   const topics = (row.topics ?? []).map((topic) => topicIds[topic] ? { id: topicIds[topic], subscription: 'opt_in' } : null)
     .filter((topic): topic is { id: string; subscription: string } => topic !== null);
   if (topics.length) await request(`https://api.resend.com/contacts/${encodeURIComponent(contact.id)}/topics`, 'PATCH', topics);
+  if ((row.topics ?? []).some((topic) => topic === 'all' || topic === 'essays')) {
+    await request(`https://api.resend.com/contacts/${encodeURIComponent(contact.id)}/segments/${encodeURIComponent(segmentId)}`, 'POST');
+  }
   return 'subscribed' as const;
 }

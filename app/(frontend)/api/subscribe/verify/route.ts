@@ -42,13 +42,13 @@ export async function POST(request: Request) {
       await saveChallengeIfStatus(token.id, challenge, 'processing', lockToken);
       return json({ error: 'This address is suppressed and cannot be resubscribed.' }, 409);
     }
-    challenge.subscriberId = applied.contactId; delete challenge.encryptedEmail;
+    challenge.subscriberId = applied.contactId;
     if (await saveChallengeIfStatus(token.id, challenge, 'processing', lockToken) !== 'updated') return json({ error: 'This request has already changed. Refresh and try again.' }, 409);
     if (challenge.audiences.some(isArcadesAudience) && challenge.emailDigest) {
       const welcome = await deliverWritingWelcome({ email, subscriberId: applied.contactId, emailDigest: challenge.emailDigest, audiences: challenge.audiences });
       if (welcome === 'rejected') return json({ error: 'Preferences are saved, but the welcome email was rejected. Retry to request it again.' }, 502);
     }
-    challenge.status = 'complete'; delete challenge.processingToken; delete challenge.processingUntil;
+    challenge.status = 'complete'; delete challenge.encryptedEmail; delete challenge.processingToken; delete challenge.processingUntil;
     if (await saveChallengeIfStatus(token.id, challenge, 'processing', lockToken) !== 'updated') return json({ error: 'This request was already completed.' }, 409);
     return json({ ok: true, status: 'complete', preferences: challenge.audiences.map((audience) => labels[audience]) });
   } catch { return json({ error: 'Confirmation could not be completed. Please retry this link.' }, 502); }

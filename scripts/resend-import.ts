@@ -15,6 +15,8 @@ const args = process.argv.slice(2); const value = (flag: string) => { const i = 
 const snapshotPath = value('--snapshot'); const apply = args.includes('--apply'); const sync = args.includes('--sync-unsubscribes');
 if (!snapshotPath || !existsSync(snapshotPath)) throw new Error('--snapshot must name a Kit export snapshot');
 if ((apply || sync) && !resendKey) throw new Error('RESEND_CONTACTS_API_KEY is required in .env.resend.local');
+const essaySegmentId = process.env.RESEND_SEGMENT_ESSAY_BROADCAST_ID?.trim() ?? '';
+if ((apply || sync) && !/^[a-f0-9-]{20,64}$/i.test(essaySegmentId)) throw new Error('RESEND_SEGMENT_ESSAY_BROADCAST_ID is required in .env.resend.local');
 const snapshot = JSON.parse(readFileSync(snapshotPath, 'utf8')) as { subscribers?: Array<{ email: string; state: string; topics: string[]; created_at: string }> };
 if (!Array.isArray(snapshot.subscribers)) throw new Error('Snapshot is invalid');
 const topicEnv: Record<string, string> = Object.fromEntries(RESEND_TOPICS.map(({ audience, env }) => [audience, env]));
@@ -54,7 +56,11 @@ if (sync) {
   for (const row of snapshot.subscribers!) {
     const state = kit.get(row.email.toLowerCase()); if (!state || !['cancelled','bounced','complained'].includes(state)) continue;
     const found = await api(`https://api.resend.com/contacts/${encodeURIComponent(row.email.toLowerCase())}`);
-    if (!found) continue; const c = (found.contact ?? found) as Record<string, unknown>; if (c.id) { await api(`https://api.resend.com/contacts/${encodeURIComponent(String(c.id))}`, 'PATCH', { unsubscribed: true }); updated += 1; }
+    if (!found) continue; const c = (found.contact ?? found) as Record<string, unknown>; if (c.id) {
+      await api(`https://api.resend.com/contacts/${encodeURIComponent(String(c.id))}`, 'PATCH', { unsubscribed: true });
+      await api(`https://api.resend.com/contacts/${encodeURIComponent(String(c.id))}/segments/${encodeURIComponent(essaySegmentId)}`, 'DELETE');
+      updated += 1;
+    }
   }
   console.log(JSON.stringify({ sync_unsubscribes_updated: updated }));
 } else if (apply) {
@@ -64,7 +70,7 @@ if (sync) {
   let subscribed = 0, suppressed = 0, skipped = 0;
   for (let index = Math.max(0, saved); index < snapshot.subscribers.length; index += 1) {
     const row = snapshot.subscribers[index];
-    const result = await applyResendImportRow(row, topicIds, (url, method, payload) => api(url, method, payload));
+    const result = await applyResendImportRow(row, topicIds, essaySegmentId, (url, method, payload) => api(url, method, payload));
     if (result === 'subscribed') subscribed += 1;
     else if (result === 'suppressed') suppressed += 1;
     else skipped += 1;
