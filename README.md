@@ -45,4 +45,4 @@ npm run newsletter:post -- --slug <slug> --send
 
 The CLI targets a broad configured Resend segment of confirmed contacts and scopes every broadcast to the Essays topic so topic opt-outs are respected. All Writing signup consent also opts into Fiction and Essays Topics. Receipts under `data/newsletter-sends` are non-PII; reconcile ambiguous requests in Resend before retrying. For Resend configuration, API permissions, migration, and cutover, read [`docs/email-service-migration.md`](docs/email-service-migration.md) and [`docs/kit-removal-runbook.md`](docs/kit-removal-runbook.md).
 
-The Kit-removal PR must not merge until the owner completes the import and verifies counts. Migration scripts run only from the owner's main checkout; they do not run in the application or deployment.
+The initial Kit-to-Resend import is complete; the owner still needs to run the default-topic backfill and final unsubscribe sync from a fresh all-state, tag-inclusive Kit export. Migration scripts run only from the owner's main checkout; the backfill and sync fail closed when export coverage is incomplete. Follow [`docs/kit-removal-runbook.md`](docs/kit-removal-runbook.md).

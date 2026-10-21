@@ -30,7 +30,9 @@ npm run resend:import -- --snapshot /private/tmp/kit-export-cutover.json --backf
 
 Apply adds the 3 approved opt-ins only to active contacts with no Kit topic tags. It does not create contacts, clear a global unsubscribe, or write topic preferences for contacts with Kit tags. For every active Kit contact it also repairs membership in `All Subscribed Contacts`, which is used by topic-scoped broadcasts. Repeating the operation is safe. A suppression, missing contact, or Resend contact marked unsubscribed is skipped. It prints counts only.
 
-`kit:export` uses Kit v4 GET requests only. It writes a mode-600 snapshot outside the repository, including subscriber email/state, tags mapped to topics, `created_at`, and broadcast subject/status/send date/recipient counts. It prints counts only. The export covers active (89), inactive (1), cancelled/unsubscribed (7), bounced (7), complained (0), and the past 20 broadcasts. Reconcile the fresh export against these read-only counts before applying.
+`kit:export` uses Kit v4 GET requests only. Subscriber requests explicitly set `status=all` and `include=tags`; Kit otherwise returns active contacts only. It writes a mode-600 version-2 snapshot outside the repository, including subscriber email/state, tags mapped to topics, `created_at`, and broadcast subject/status/send date/recipient counts. It prints aggregate counts only. The export covers active (89), inactive (1), cancelled/unsubscribed (7), bounced (7), complained (0), and the past 20 broadcasts. Reconcile the fresh export against these read-only counts before applying.
+
+The exporter maps Kit's returned tag IDs (All Writing `23851250`, Fiction `23851251`, Essays `23851252`, Lab `23851253`, Queer Columns `23866437`, Work / AI `23806915`, TH4F `23808390`) to topics; it does not depend on `KIT_TAG_*` environment variables. If an active subscriber has a tag the exporter cannot classify, export stops without writing a snapshot. The export records aggregate total and active tagged-subscriber counts. The backfill refuses snapshots without tag inclusion, with zero tagged active subscribers, or with aggregate tag counts inconsistent with the rows. This prevents an active-only or tag-empty snapshot from turning tagged readers into default-topic candidates.
 
 `resend:topics` creates any missing opt-out Topics in that same shared Resend team, including both `Work / AI` and `TH4F`, and saves their IDs to the untracked mode-600 `.env.resend.topics`. Topic names and deployment variable names are fixed as follows:
 
@@ -57,7 +59,7 @@ npm run kit:export -- /private/tmp/kit-export-cutover.json
 npm run resend:import -- --snapshot /private/tmp/kit-export-cutover.json --sync-unsubscribes
 ```
 
-This mode reads current Kit status, updates Resend global suppression for addresses now cancelled, bounced, or complained, and removes those contacts from the broad subscribed segment. It never clears a Resend suppression. Confirm the final sync count, then compare Resend totals and segment membership to the snapshot before merging.
+This mode reads current Kit status using `status=all`, updates Resend global suppression for addresses now cancelled, bounced, or complained, and removes those contacts from the broad subscribed segment. It never clears a Resend suppression. It refuses a snapshot without all-state/tag-coverage metadata or without the known inactive, cancelled, and bounced states; it applies the same state check to the current Kit response. Confirm the final sync count, then compare Resend totals and segment membership to the snapshot before merging.
 
 ## Deploy and verify
 

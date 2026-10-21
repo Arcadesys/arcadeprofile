@@ -99,7 +99,7 @@ The approved welcome series enrolls only after first-party confirmation and a su
 
 `npm run newsletter:post` defaults to a dry run. `--send` verifies the production essay URL, creates a Resend Broadcast draft targeting the broad “All Subscribed Contacts” segment and passes the Essays topic scope, then explicitly schedules it. `--resend --reason "<reason>"` is required for intentional repeats after completed sends. Receipts remain non-PII; reconcile an ambiguous pending request in Resend before retrying.
 
-Migration scripts are owner-run only from the main checkout. They read `.env.kit.local` for the final read-only export/suppression sync and `.env.resend.local` for full-access import. Never commit either file or the private snapshot. Follow `docs/kit-removal-runbook.md`; this PR must not merge before import counts are verified.
+Migration scripts are owner-run only from the main checkout. They read `.env.kit.local` for the read-only export/final suppression sync and `.env.resend.local` for the full-access import. The Kit export must request `status=all` and `include=tags`; the default-topic backfill rejects missing or empty tag coverage, and unsubscribe sync rejects snapshots without non-active states. Never commit either key file or the private snapshot. Follow `docs/kit-removal-runbook.md` through backfill, final sync, and count verification before closing Kit.
 
 ## Conventions
 
