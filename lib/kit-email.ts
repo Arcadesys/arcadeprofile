@@ -4,6 +4,7 @@ import path from 'node:path';
 import matter from 'gray-matter';
 import { z } from 'zod';
 import { createKitBroadcastDraft, getKitBroadcast, hashTagAudience, scheduleKitBroadcastDraft } from './kit-broadcast';
+import { buildKitReport, KitReportError, type KitReportOptions } from './kit-email-reporting';
 import { buildNewsletterContent } from './newsletter';
 import { sendPreview } from './postmark-preview';
 import { VALID_AUDIENCES, type Audience } from './subscribe-types';
@@ -56,25 +57,45 @@ export function parseKitEmail(markdown: string, explicitAudience?: string) {
 function options(argv: string[]) {
   const values: Record<string, string> = {};
   const flags = new Set<string>();
-  const booleanFlags = ['--draft', '--send', '--resend'];
-  const valueFlags = ['--file', '--audience', '--broadcast-id', '--confirm', '--reason', '--send-at', '--preview-to'];
+  const booleanFlags = ['--draft', '--send', '--resend', '--list', '--counts'];
+  const valueFlags = ['--file', '--audience', '--broadcast-id', '--confirm', '--reason', '--send-at', '--preview-to', '--stats', '--subject', '--limit', '--max-pages'];
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     requireThat(!flags.has(arg) && values[arg] === undefined, 'Repeated command option.');
     if (booleanFlags.includes(arg)) flags.add(arg);
     else {
-      requireThat(valueFlags.includes(arg), 'Unknown option. Use --file <markdown> [--draft | --send | --preview-to <address>].');
+      requireThat(valueFlags.includes(arg), 'Unknown option. Use --file <markdown>, --list, --stats <id> or --counts.');
       const value = argv[++i];
       requireThat(value && !value.startsWith('--'), 'Command option is missing a value.');
       values[arg] = value;
     }
   }
-  requireThat(values['--file'], '--file <markdown> is required.');
-  requireThat(Number(flags.has('--draft')) + Number(flags.has('--send')) + Number(!!values['--preview-to']) <= 1, 'Choose only one of --draft, --send or --preview-to.');
-  requireThat(!flags.has('--resend') || (flags.has('--send') || flags.has('--draft')), '--resend requires --draft or --send.');
-  requireThat(!values['--reason'] || flags.has('--resend'), '--reason requires --resend.');
-  requireThat(flags.has('--send') || !['--confirm', '--send-at', '--broadcast-id'].some((flag) => values[flag]), 'Send options require --send.');
-  return { values, flags };
+  const reporting = flags.has('--list') || flags.has('--counts') || values['--stats'] !== undefined;
+  let report: KitReportOptions | undefined;
+  if (reporting) {
+    requireThat(Number(flags.has('--list')) + Number(flags.has('--counts')) + Number(values['--stats'] !== undefined) === 1, 'Choose one read-only mode: --list, --stats <id> or --counts.');
+    requireThat(!['--draft', '--send', '--resend'].some((flag) => flags.has(flag))
+      && !['--file', '--audience', '--broadcast-id', '--confirm', '--reason', '--send-at', '--preview-to'].some((flag) => values[flag] !== undefined), 'Read-only modes cannot be combined with file, audience, preview or send options.');
+    const integer = (value: string | undefined, fallback: number, maximum: number) => {
+      if (value === undefined) return fallback;
+      requireThat(/^\d+$/.test(value) && Number(value) > 0 && Number(value) <= maximum && Number.isSafeInteger(Number(value)), 'Read-only numeric option is outside its allowed range.');
+      return Number(value);
+    };
+    requireThat(flags.has('--list') || (!values['--subject'] && !values['--limit']), '--subject and --limit require --list.');
+    requireThat(!values['--stats'] || !values['--max-pages'], '--stats does not use --max-pages.');
+    if (values['--stats']) report = { mode: 'stats', id: integer(values['--stats'], 0, Number.MAX_SAFE_INTEGER) };
+    else if (flags.has('--counts')) report = { mode: 'counts', maxPages: integer(values['--max-pages'], 20, 100) };
+    else report = { mode: 'list', subject: values['--subject'], limit: integer(values['--limit'], 25, 1000), maxPages: integer(values['--max-pages'], 20, 100) };
+  }
+  if (!report) {
+    requireThat(!['--subject', '--limit', '--max-pages'].some((flag) => values[flag] !== undefined), 'Reporting options require --list or --counts.');
+    requireThat(values['--file'], '--file <markdown> is required.');
+    requireThat(Number(flags.has('--draft')) + Number(flags.has('--send')) + Number(!!values['--preview-to']) <= 1, 'Choose only one of --draft, --send or --preview-to.');
+    requireThat(!flags.has('--resend') || (flags.has('--send') || flags.has('--draft')), '--resend requires --draft or --send.');
+    requireThat(!values['--reason'] || flags.has('--resend'), '--reason requires --resend.');
+    requireThat(flags.has('--send') || !['--confirm', '--send-at', '--broadcast-id'].some((flag) => values[flag]), 'Send options require --send.');
+  }
+  return { values, flags, report };
 }
 
 function save(file: string, receipt: Receipt) {
@@ -126,7 +147,17 @@ export async function runKitEmail(argv: string[], dependencies: {
     (dependencies.log ?? console.log)(message);
   };
   try {
-    const { values, flags } = options(argv);
+    const { values, flags, report } = options(argv);
+    if (report) {
+      const apiKey = env.KIT_API_KEY?.trim();
+      requireThat(apiKey, 'KIT_API_KEY is missing. The operator must paste their V4 key into untracked .env.kit.local.');
+      try { log(JSON.stringify(await buildKitReport(report, { apiKey, fetchImpl }), null, 2)); }
+      catch (error) {
+        if (error instanceof KitReportError) throw new OperatorError(error.message);
+        throw new OperatorError('Kit read-only report failed. No writes were made. Check configuration/API availability; no raw provider response was printed.');
+      }
+      return;
+    }
     const input = parseKitEmail(readFileSync(path.resolve(root, values['--file']), 'utf8'), values['--audience']);
     const content = buildNewsletterContent(input.subject, input.preview, input.body);
     const targeting = input.audience.map((key) => ({ key, tag: kitTagSource(key), id: kitTagIdFromEnv(key, env) || null }));
@@ -178,7 +209,7 @@ export async function runKitEmail(argv: string[], dependencies: {
         const existing = receipt.attempts.findLast((item) => item.state === 'draft' && item.contentSha256 === contentSha256 && item.audienceSha256 === hashTagAudience(tags));
         if (existing) {
           verifiedDraft(await getKitBroadcast(connection, existing.broadcastId!), existing.broadcastId!, input.subject, input.preview, content.htmlBody, tags);
-          log(`Verified existing Kit draft ${existing.broadcastId}: https://app.kit.com/broadcasts/${existing.broadcastId}/edit`);
+          log(`Verified existing Kit draft ${existing.broadcastId} (template ID: ${existing.templateId ?? 'unavailable'}): https://app.kit.com/broadcasts/${existing.broadcastId}/edit`);
           return;
         }
         const attempt: Receipt['attempts'][number] = { attemptId: randomUUID(), startedAt: new Date().toISOString(), state: 'draft-pending', contentSha256, audienceSha256: hashTagAudience(tags), tagCount: tags.length };
@@ -190,7 +221,7 @@ export async function runKitEmail(argv: string[], dependencies: {
         attempt.templateId = draft.email_template?.id;
         attempt.state = 'draft';
         save(file, receipt);
-        log(`Verified private Kit draft ${attempt.broadcastId} (send_at: null, public: false): https://app.kit.com/broadcasts/${attempt.broadcastId}/edit`);
+        log(`Verified private Kit draft ${attempt.broadcastId} (send_at: null, public: false, template ID: ${attempt.templateId ?? 'unavailable'}): https://app.kit.com/broadcasts/${attempt.broadcastId}/edit`);
         return;
       }
       const id = Number(values['--broadcast-id']);

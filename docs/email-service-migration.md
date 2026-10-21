@@ -365,3 +365,27 @@ Kit Settings → Developer → V4 keys locally; deployment env pulls redact sens
 values. Never retrieve credentials automatically or echo them. No real provider
 calls, configuration changes, delivery, deployment or welcome activation are
 established by the mocked implementation tests.
+
+### Read-only Kit reporting
+
+The standalone CLI also offers `--list [--subject <substring>] [--limit <n>]
+[--max-pages <n>]`, `--stats <id>` and `--counts [--max-pages <n>]`. These need
+no file, perform GETs only and persist nothing. History follows cursor pages and
+marks incomplete scans or limited results, so a missing match is not automatically
+proof of no send. Status and `send_at` must be distinguished: a schedule/start date
+is not inbox delivery; aborted/sending broadcasts can require stats reconciliation.
+
+Counts use subscriber `include_total_count=true&per_page=1&slim=true` for `all`
+and `active`, discard any subscriber record, and never enumerate addresses. Tag
+pages request `include=subscriber_count`; their counts may overlap and do not
+claim an active unique audience. Unknown fields and address-like labels are removed
+from output. Stats preserve unavailable metrics as null and report raw provider
+rates with tracking flags. No reports authorize writes or bypass pending guards.
+
+Reference contracts: [broadcast list](https://developers.kit.com/api-reference/broadcasts/list-broadcasts),
+[subscriber totals](https://developers.kit.com/api-reference/subscribers/list-subscribers),
+[tag counts](https://developers.kit.com/api-reference/tags/list-tags).
+Routine drafting, history, stats, counts and approved sends do not require the Kit
+website. Known website requirements remain initial V4-key creation, account/billing,
+and sender/domain authentication. This source-only addition does not verify live
+credentials, counts, analytics or provider behavior on the user's account.

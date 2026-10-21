@@ -1,6 +1,6 @@
 ---
 name: kit-email
-description: Draft and send Kit email broadcasts from Markdown through the free-plan v4 REST API. Use when the user says "/kit-email", "email the list", "draft a Kit broadcast", "send a newsletter about X", or asks to prepare a mailing-list email.
+description: Draft, send and report on Kit email broadcasts through the free-plan v4 REST API. Use when the user says "/kit-email", "email the list", "draft a Kit broadcast", "send a newsletter about X", "was X already sent?", "show broadcast stats", "how many subscribers", or asks to prepare a mailing-list email.
 ---
 
 # kit-email
@@ -17,9 +17,12 @@ Kit draft, or send a previous email is not approval for this send. Preview appro
 must name one exact address; broadcast approval must cover the reviewed subject,
 body, audience and time. A typed CLI confirmation is a guard, not user approval.
 
-Show the user the dry-run subject, preview, rendered HTML/text and targeting first.
-Create the private Kit draft when requested, then show its ID and edit link before
-asking for broadcast or preview approval. If anything changes after approval,
+For a new email, show the user the dry-run subject, preview, rendered HTML/text
+and targeting first. Create the private Kit draft when requested, then show its
+verified fields, template ID, broadcast ID and optional edit link before asking
+for broadcast or preview approval. The link is a convenience, not a required
+website visit; API readback and dry-run output support approval in conversation.
+If anything changes after approval,
 show the new output and draft for review and obtain approval for the changed send.
 Do not send or preview as a way to test this skill.
 
@@ -79,12 +82,14 @@ Default mode has **no network calls or writes**. It prints subject, preview, HTM
 plain text, links, OR targeting, configured IDs or missing config names, and an
 unavailable recipient count. Kit's documented stats endpoint reports delivery
 counts, not a deduplicated estimate for an unsaved tag-union draft. Never sum tag
-counts or enumerate subscriber addresses. Check the current count in Kit when
-reviewing the draft, and label any unavailable count honestly.
+counts or enumerate subscriber addresses. Use `--counts` for current account/tag
+counts, but label the deduplicated OR estimate unavailable; tag totals are not that estimate.
 
 The launch document contains open audience/history decisions. Its proposed OR
 rule is not consent to send. Confirm the Fiction tag and intended offer/audience,
-and reconcile Kit history, including drafts, before creating a launch draft.
+and reconcile API history using `--list --subject "This is what I do for fun"`,
+including drafts, before creating a launch draft. Increase `--max-pages` if history
+is incomplete. Use `--stats <id>` for a possible prior send.
 Do not copy its private delivery URL or evidence notes into a public PR.
 
 ## Create and review the Kit draft
@@ -100,8 +105,11 @@ It reuses an identical locally verified draft on a repeated `--draft` invocation
 
 The body uses the existing essay frame, with large dark text on white, underlined
 links, and responsive images. Kit uses the account default template, as existing
-essay broadcasts do. Review the actual Kit template/footer/unsubscribe handling;
-local rendering does not prove inbox delivery or the final provider template.
+essay broadcasts do. The draft readback records its actual template ID and verifies its HTML/targeting.
+Show that ID and dry-run rendering in conversation. Local rendering does not
+prove inbox delivery or the provider-added footer/unsubscribe handling; an explicitly
+approved single-address preview is the delivery check. Do not require a website visit
+for routine approval. Template design changes are outside this command's scope.
 
 ## Separately approved broadcast
 
@@ -157,7 +165,67 @@ and separately approved send, both with `--resend --reason "<non-personal reason
 The already scheduled ID cannot be scheduled again. Resend cannot bypass pending
 or corrupt history. This is local protection: changed subjects, missing receipts,
 manual sends and separate checkouts are not a shared ledger. Use one controlled
-workspace and check Kit history before any launch or recovery send.
+workspace and check API history (`--list`, `--stats`) before any launch or recovery send.
+A failed or incomplete read is not proof of absence. If the reports cannot resolve an
+ambiguous attempt, keep the guard, explain the uncertainty and request the missing
+evidence/API operation; never delete history or require a website visit by default.
+
+## Read-only history, stats and counts
+
+These modes need `KIT_API_KEY` but **no Markdown file, send approval or Kit website
+visit**. They make GET requests only and create no receipts, locks or files. Never
+combine them with file/draft/send/preview options. Do not run live calls during
+implementation/tests; use mocked fetch.
+
+```bash
+# Recent broadcasts, newest created first; 25 displayed by default.
+npm run kit:email -- --list
+
+# Answer "was X already sent?" across pages, including drafts and scheduled items.
+npm run kit:email -- --list --subject "This is what I do for fun" --limit 100 --max-pages 100
+
+# One broadcast: recipients, open/click rate, unsubscribes and tracking flags.
+npm run kit:email -- --stats 12345
+
+# Account all/active subscriber totals and per-tag counts/IDs/names; no addresses.
+npm run kit:email -- --counts
+```
+
+`--list` uses slim broadcast pages (100/page), follows cursors, deduplicates IDs,
+and returns only ID, subject, status, created date and `sendAt`. `--subject` is a
+case-insensitive substring search. `--limit` is 1–1000 (default 25); `--max-pages`
+is 1–100 (default 20), also available for counts. `historyComplete: false` or
+`resultsLimited: true` means there may be older/additional matches. Do not claim
+"never sent" from incomplete history or a query whose subject may have changed.
+`completed` is provider completion; `scheduled` and `draft` are not a send.
+`sending` or `aborted` may have partial delivery: inspect stats before deciding.
+`sendAt` is Kit's schedule/start timestamp, not inbox delivery evidence.
+
+`--stats` returns raw Kit rates without assuming fraction/percentage units. Null
+means unavailable, not zero. Surface disabled tracking and privacy limitations;
+opens/clicks do not establish human readership. Old/missing stats or API errors
+must be reported as unavailable, never as zero or a successful empty lookup.
+
+`--counts` requests `include_total_count=true` for all and active subscribers,
+with `per_page=1&slim=true`; Kit can return one subscriber record, which is
+immediately discarded. Never page through it, print it, log it or persist it.
+Tags use `include=subscriber_count` and cursor pagination. Tag count status scope
+is not specified by that field; do not call it an active audience or sum overlapping
+tags. `tagsComplete: false` marks a partial tag inventory. Missing counts remain
+null. Names/subjects with address-like text are redacted; unknown provider fields
+and raw errors are never printed. No subscriber data is returned by these modes.
+
+For routine drafting, send-history checks, reporting and approved sends, stay in
+conversation and use the API. As far as the currently documented API supports,
+the tasks still requiring Kit's website are:
+
+- Creating the initial V4 API key (operator action; never paste it in chat).
+- Account and billing management.
+- Sender/domain authentication and its account/DNS setup.
+
+Do not send the user to Kit's website for history, stats or counts. Keep the edit
+link available as an optional convenience. If a future task hits a genuine API gap,
+state the specific gap instead of assuming the website is required for ordinary work.
 
 ## Don't
 
@@ -169,4 +237,5 @@ workspace and check Kit history before any launch or recovery send.
 ## Tools
 
 - Bash `npm run kit:email` (`scripts/kit-email.ts`) — dry run, private Kit draft,
-  approved scheduling, or approved single-address Postmark preview.
+  approved scheduling, approved single-address Postmark preview, or read-only
+  history/stats/counts.

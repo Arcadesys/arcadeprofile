@@ -143,3 +143,22 @@ workspace. Pending/ambiguous requests and stale locks require reconciliation,
 never automatic retry. Intentional repeats need a new reviewed draft, and both
 commands need `--resend --reason "<non-personal reason>"`. Subject changes, manual
 sends and separate workspaces are not coordinated by this local guard.
+
+Read-only reporting needs the same local V4 key and no Markdown file:
+
+```bash
+npm run kit:email -- --list
+npm run kit:email -- --list --subject "This is what I do for fun" --limit 100 --max-pages 100
+npm run kit:email -- --stats 12345
+npm run kit:email -- --counts
+```
+
+These modes make GET requests only and write no files. History includes status,
+subject and schedule/start date. Incomplete history/result-limit flags prevent a
+partial lookup being treated as proof that an email was never sent. Stats report
+Kit's raw rates, recipients, unsubscribes and tracking settings. Counts report
+all/active subscriber totals and per-tag counts; subscriber records are discarded,
+never printed or paged through. Tag counts overlap and do not estimate a unique
+active OR audience. Null means unavailable. Routine email work stays in the CLI;
+known website-only tasks are initial API-key creation, account/billing management,
+and sender/domain authentication. A draft edit link is optional convenience.

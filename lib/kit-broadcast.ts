@@ -79,10 +79,10 @@ export function kitBroadcastFields(input: KitBroadcastInput) {
   };
 }
 
-async function kitBroadcastRequest(
-  input: KitConnection, suffix: string, method: string, body?: unknown,
+async function kitApiRequest(
+  input: KitConnection, resource: string, method: string, body?: unknown,
 ): Promise<unknown> {
-  const response = await (input.fetchImpl ?? fetch)(`https://api.kit.com/v4/broadcasts${suffix}`, {
+  const response = await (input.fetchImpl ?? fetch)(`https://api.kit.com/v4/${resource}`, {
     method,
     headers: { "Content-Type": "application/json", "X-Kit-Api-Key": input.apiKey },
     ...(body ? { body: JSON.stringify(body) } : {}),
@@ -91,6 +91,24 @@ async function kitBroadcastRequest(
   // Never include provider bodies, headers or transport errors in operator output.
   if (!response.ok) throw new Error("Kit broadcast request failed");
   return response.json();
+}
+
+async function kitBroadcastRequest(
+  input: KitConnection, suffix: string, method: string, body?: unknown,
+): Promise<unknown> {
+  return kitApiRequest(input, `broadcasts${suffix}`, method, body);
+}
+
+export async function readKitResource(
+  input: KitConnection,
+  resource: 'broadcasts' | 'tags' | 'subscribers' | `broadcasts/${number}/stats`,
+  query = new URLSearchParams(),
+): Promise<unknown> {
+  if (!/^(?:broadcasts|tags|subscribers|broadcasts\/[1-9]\d*\/stats)$/.test(resource)) {
+    throw new Error("Invalid Kit read-only resource.");
+  }
+  const suffix = query.size ? `?${query}` : '';
+  return kitApiRequest(input, `${resource}${suffix}`, "GET");
 }
 
 export async function createKitBroadcastDraft(input: KitBroadcastInput): Promise<number> {
