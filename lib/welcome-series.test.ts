@@ -8,12 +8,12 @@ import { parseResendUnsubscribeToken, signupEmailDigest } from './writing-signup
 
 const DAY = 86400000;
 const START = Date.UTC(2026, 9, 20, 12);
-const names = ['MAIL_PROVIDER', 'RESEND_API_KEY', 'RESEND_SEND_API_KEY', 'RESEND_FROM_EMAIL', 'RESEND_FROM_NAME', 'WELCOME_SERIES_ENABLED', 'WRITING_WELCOME_ENABLED', 'SIGNUP_LINK_SECRET', 'RESEND_TOPIC_FICTION_ID', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN'];
+const names = ['MAIL_PROVIDER', 'RESEND_CONTACTS_API_KEY', 'RESEND_API_KEY', 'RESEND_FROM_EMAIL', 'RESEND_FROM_NAME', 'WELCOME_SERIES_ENABLED', 'WRITING_WELCOME_ENABLED', 'SIGNUP_LINK_SECRET', 'RESEND_TOPIC_FICTION_ID', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN'];
 const saved = Object.fromEntries(names.map((n) => [n, process.env[n]]));
 afterEach(() => { for (const n of names) { if (saved[n] === undefined) delete process.env[n]; else process.env[n] = saved[n]; } });
 
 function fixture() {
-  Object.assign(process.env, { MAIL_PROVIDER: 'resend', RESEND_API_KEY: 'resend-mock', RESEND_SEND_API_KEY: 'resend-send-mock', RESEND_FROM_EMAIL: 'writer@mail.example.invalid', RESEND_FROM_NAME: 'Austen', WELCOME_SERIES_ENABLED: 'true', WRITING_WELCOME_ENABLED: 'false',
+  Object.assign(process.env, { MAIL_PROVIDER: 'resend', RESEND_CONTACTS_API_KEY: 'resend-mock', RESEND_API_KEY: 'resend-send-mock', RESEND_FROM_EMAIL: 'writer@mail.example.invalid', RESEND_FROM_NAME: 'Austen', WELCOME_SERIES_ENABLED: 'true', WRITING_WELCOME_ENABLED: 'false',
     SIGNUP_LINK_SECRET: 'a-mocked-series-secret-with-at-least-32-characters', RESEND_TOPIC_FICTION_ID: 'topic-fiction', UPSTASH_REDIS_REST_URL: 'https://redis.example', UPSTASH_REDIS_REST_TOKEN: 'mock' });
   const values = new Map<string, { value: string; until?: number }>();
   const due = new Map<string, number>();

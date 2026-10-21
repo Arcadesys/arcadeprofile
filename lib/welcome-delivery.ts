@@ -10,7 +10,7 @@ export async function deliverWritingWelcome(input: {
     // Conflicting activation fails closed; never send both welcome paths.
     if (process.env.WRITING_WELCOME_ENABLED?.trim().toLowerCase() === 'true') return 'disabled';
     return enrollWelcomeSeries({ subscriberId: input.subscriberId, emailDigest: input.emailDigest,
-      audiences: input.audiences, apiKey: process.env.RESEND_API_KEY?.trim() ?? '', fetcher: input.fetcher });
+      audiences: input.audiences, apiKey: process.env.RESEND_CONTACTS_API_KEY?.trim() ?? '', fetcher: input.fetcher });
   }
   return sendWritingWelcomeOnce(input);
 }

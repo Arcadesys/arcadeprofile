@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
   const parsed = await parseBody(schema, request);
   if (!parsed.ok) return parsed.response;
   const email = parsed.data.email.toLowerCase();
-  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const apiKey = process.env.RESEND_CONTACTS_API_KEY?.trim();
   if (!apiKey) return json({ error: 'Signup is temporarily unavailable.' }, 503);
   try { readMailConfig(); }
   catch { return json({ error: 'Signup is temporarily unavailable.' }, 503); }

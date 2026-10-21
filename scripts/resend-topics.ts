@@ -7,8 +7,8 @@ import { ensureResendTopics } from '../lib/resend-topics';
 const gitMeta = statSync('.git', { throwIfNoEntry: false });
 if (!gitMeta?.isDirectory() || execFileSync('git', ['branch', '--show-current'], { encoding: 'utf8' }).trim() !== 'main') throw new Error('Run Resend topic setup only from the owner main checkout on main');
 config({ path: '.env.resend.local', override: true });
-const apiKey = process.env.RESEND_API_KEY?.trim();
-if (!apiKey) throw new Error('RESEND_API_KEY is required in .env.resend.local (Full access)');
+const apiKey = process.env.RESEND_CONTACTS_API_KEY?.trim();
+if (!apiKey) throw new Error('RESEND_CONTACTS_API_KEY is required in .env.resend.local (Full access)');
 
 async function api(input: RequestInfo | URL, init?: RequestInit) {
   for (let attempt = 0; attempt < 8; attempt += 1) {

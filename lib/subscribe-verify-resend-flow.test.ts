@@ -4,12 +4,12 @@ import { NextRequest } from 'next/server';
 import { POST } from '../app/(frontend)/api/subscribe/verify/route';
 import { createVerificationToken, encryptSignupEmail, signupEmailDigest } from './writing-signup';
 
-const names = ['RESEND_API_KEY', 'RESEND_TOPIC_FICTION_ID', 'WRITING_WELCOME_ENABLED', 'WELCOME_SERIES_ENABLED', 'SIGNUP_LINK_SECRET', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN'];
+const names = ['RESEND_CONTACTS_API_KEY', 'RESEND_TOPIC_FICTION_ID', 'WRITING_WELCOME_ENABLED', 'WELCOME_SERIES_ENABLED', 'SIGNUP_LINK_SECRET', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN'];
 const saved = Object.fromEntries(names.map((name) => [name, process.env[name]])); const oldFetch = globalThis.fetch;
 afterEach(() => { for (const name of names) { if (saved[name] === undefined) delete process.env[name]; else process.env[name] = saved[name]!; } globalThis.fetch = oldFetch; });
 
 test('only explicit confirm writes a subscribed Resend contact and saves its ID without plaintext email', async () => {
-  Object.assign(process.env, { RESEND_API_KEY: 'fixture-full-access', RESEND_TOPIC_FICTION_ID: 'topic-fiction', WRITING_WELCOME_ENABLED: 'false', WELCOME_SERIES_ENABLED: 'false', SIGNUP_LINK_SECRET: '0123456789abcdef0123456789abcdef', UPSTASH_REDIS_REST_URL: 'https://redis.test', UPSTASH_REDIS_REST_TOKEN: 'fixture' });
+  Object.assign(process.env, { RESEND_CONTACTS_API_KEY: 'fixture-full-access', RESEND_TOPIC_FICTION_ID: 'topic-fiction', WRITING_WELCOME_ENABLED: 'false', WELCOME_SERIES_ENABLED: 'false', SIGNUP_LINK_SECRET: '0123456789abcdef0123456789abcdef', UPSTASH_REDIS_REST_URL: 'https://redis.test', UPSTASH_REDIS_REST_TOKEN: 'fixture' });
   const challengeId = '0123456789abcdef0123456789abcdef'; const email = 'reader@example.test'; const now = Date.now();
   const challenge: Record<string, unknown> = { encryptedEmail: encryptSignupEmail(email), emailDigest: signupEmailDigest(email), audiences: ['fiction'], createdAt: now, status: 'pending' };
   const commands: unknown[][] = []; const resendCalls: Array<{ url: string; method: string; body?: unknown }> = [];

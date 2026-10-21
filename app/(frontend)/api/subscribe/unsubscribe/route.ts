@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   let identity: ReturnType<typeof parseResendUnsubscribeToken>;
   try { identity = parseResendUnsubscribeToken(token); } catch { identity = null; }
   if (!identity) return reply({ error: 'This unsubscribe link is invalid.' }, 400);
-  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const apiKey = process.env.RESEND_CONTACTS_API_KEY?.trim();
   if (!apiKey) return reply({ error: 'Unsubscribe is temporarily unavailable. Please retry.' }, 503);
 
   try {

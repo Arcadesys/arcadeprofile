@@ -6,8 +6,8 @@ The snapshot contains subscriber addresses and state. Keep it outside all reposi
 
 ## Prepare Resend
 
-1. Create a **Full access** Resend key for Contacts, Topics, Suppressions, and Broadcasts. Store it in an untracked `.env.resend.local` file in the repository root as `RESEND_API_KEY=...`. This key is required for the import, signup contact reads/writes, unsubscribe, welcome contact lookups, and Broadcasts.
-2. In the same Resend team, create a domain-restricted **Sending access** key for `mail.thearcades.me`. This send-only key is for transactional verification and welcome messages; it cannot manage contacts or broadcasts. It will be configured in Vercel as `RESEND_SEND_API_KEY`.
+1. Create a **Full access** Resend key for Contacts, Topics, Suppressions, and Broadcasts. Store it in an untracked `.env.resend.local` file in the repository root as `RESEND_CONTACTS_API_KEY=...`. This key is required for the import, signup contact reads/writes, unsubscribe, welcome contact lookups, and Broadcasts.
+2. Keep production `RESEND_API_KEY` as the existing domain-restricted **Sending access** key for `mail.thearcades.me`, used by the merged mail transport for transactional verification and welcome messages. Do not rename or replace it; it cannot manage contacts or broadcasts.
 3. Keep `.env.kit.local` in the repository root, untracked, with `KIT_API_KEY=...`. This is used only by the owner-run export and final unsubscribe synchronization. Never add either key file to Git.
 4. Create the saved segment `All Writing OR Essays` in the same Resend team and record its ID for Vercel `RESEND_SEGMENT_ESSAY_BROADCAST_ID`.
 
@@ -54,7 +54,7 @@ This mode reads current Kit status and updates Resend global suppression for add
 ## Deploy and verify
 
 1. Verify Resend contact and topic totals, including suppressed contacts, against the export summary. Check that the All Writing OR Essays segment is configured and that the transactional sender is `austen@mail.thearcades.me` on the verified `mail.thearcades.me` domain.
-2. Add `RESEND_API_KEY` (Full access), `RESEND_SEND_API_KEY` (domain-restricted Sending access), `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME`, all seven `RESEND_TOPIC_*_ID` values above, and `RESEND_SEGMENT_ESSAY_BROADCAST_ID` to the correct Vercel environments. Also configure the existing Redis, signing, cron, and site URL variables listed in `docs/email-service-migration.md`. Remove old Kit variables only after source deployment has completed and final sync is finished.
+2. Add `RESEND_CONTACTS_API_KEY` (Full access), `RESEND_FROM_EMAIL`, `RESEND_FROM_NAME`, all seven `RESEND_TOPIC_*_ID` values above, and `RESEND_SEGMENT_ESSAY_BROADCAST_ID` to the correct Vercel environments. Preserve the existing domain-restricted Sending key in `RESEND_API_KEY` unchanged. Also configure the existing Redis, signing, cron, and site URL variables listed in `docs/email-service-migration.md`. Remove old Kit variables only after source deployment has completed and final sync is finished.
 3. Merge the PR only after import and count verification. Deploy through the normal release process.
 4. Using your own address, test signup through the first-party verification email and explicit Confirm button. Confirm exactly one verification email arrives and selected Topics are set. Test the site's fallback unsubscribe page and one-click POST; verify the Resend contact becomes globally unsubscribed. These are live actions and must be done by the owner.
 5. Run the final `--sync-unsubscribes` once more. Then close the Kit account and revoke its API key. Delete `.env.kit.local`, the private export snapshot, and all `KIT_*` Vercel variables. Keep `.env.resend.local` untracked or remove it when no longer needed.

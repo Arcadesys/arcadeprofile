@@ -3,10 +3,10 @@ import { afterEach, test } from 'node:test';
 import { buildWritingWelcomeEmail, primaryWritingWelcomeAudience, sendWritingWelcomeOnce } from './writing-welcome-email';
 import { parseResendUnsubscribeToken, signupEmailDigest } from './writing-signup';
 
-const names = ['MAIL_PROVIDER','RESEND_SEND_API_KEY','RESEND_FROM_EMAIL','RESEND_FROM_NAME','SIGNUP_LINK_SECRET','UPSTASH_REDIS_REST_URL','UPSTASH_REDIS_REST_TOKEN','WRITING_WELCOME_ENABLED'];
+const names = ['MAIL_PROVIDER','RESEND_API_KEY','RESEND_FROM_EMAIL','RESEND_FROM_NAME','SIGNUP_LINK_SECRET','UPSTASH_REDIS_REST_URL','UPSTASH_REDIS_REST_TOKEN','WRITING_WELCOME_ENABLED'];
 const saved = Object.fromEntries(names.map((name) => [name, process.env[name]])); const contactId = '550e8400-e29b-41d4-a716-446655440000';
 afterEach(() => { for (const name of names) { if (saved[name] === undefined) delete process.env[name]; else process.env[name] = saved[name]!; } });
-function configure() { Object.assign(process.env, { MAIL_PROVIDER:'resend', RESEND_SEND_API_KEY:'fixture-key', RESEND_FROM_EMAIL:'austen@mail.thearcades.me', RESEND_FROM_NAME:'The Arcades', SIGNUP_LINK_SECRET:'writing-welcome-test-secret-with-at-least-32-chars', UPSTASH_REDIS_REST_URL:'https://redis.example', UPSTASH_REDIS_REST_TOKEN:'fixture', WRITING_WELCOME_ENABLED:'true' }); }
+function configure() { Object.assign(process.env, { MAIL_PROVIDER:'resend', RESEND_API_KEY:'fixture-key', RESEND_FROM_EMAIL:'austen@mail.thearcades.me', RESEND_FROM_NAME:'The Arcades', SIGNUP_LINK_SECRET:'writing-welcome-test-secret-with-at-least-32-chars', UPSTASH_REDIS_REST_URL:'https://redis.example', UPSTASH_REDIS_REST_TOKEN:'fixture', WRITING_WELCOME_ENABLED:'true' }); }
 function redisMock(ledger: Map<string,string>) { return async (input: RequestInfo | URL, init?: RequestInit) => { assert.equal(String(input), 'https://redis.example'); const c=JSON.parse(String(init?.body)) as Array<string|number>; if (c[0]==='SET') { const key=String(c[1]); if (c.includes('NX')&&ledger.has(key)) return Response.json({result:null}); ledger.set(key,String(c[2])); return Response.json({result:'OK'}); } if (c[0]==='EVAL') { const key=String(c[3]), prior=String(c[4]); if (ledger.get(key)!==prior) return Response.json({result:0}); if (String(c[1]).includes("redis.call('DEL'")) ledger.delete(key); else ledger.set(key,String(c[5])); return Response.json({result:1}); } throw new Error('Unexpected Redis command'); }; }
 
 test('welcome selection and approved copy retain deterministic preference priority', () => {

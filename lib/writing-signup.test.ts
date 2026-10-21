@@ -104,10 +104,10 @@ test('verification links use a trusted Vercel preview host and keep production c
 });
 
 test('verification email explains one first-party confirmation and presents overlapping topics once', async () => {
-  const names = ['RESEND_SEND_API_KEY', 'RESEND_FROM_EMAIL', 'VERCEL_ENV', 'NEXT_PUBLIC_SITE_URL'];
+  const names = ['RESEND_API_KEY', 'RESEND_FROM_EMAIL', 'VERCEL_ENV', 'NEXT_PUBLIC_SITE_URL'];
   const prior = Object.fromEntries(names.map((name) => [name, process.env[name]]));
   try {
-    process.env.RESEND_SEND_API_KEY = 'test-token';
+    process.env.RESEND_API_KEY = 'test-token';
     process.env.RESEND_FROM_EMAIL = 'reply@example.com';
     process.env.VERCEL_ENV = 'production';
     process.env.NEXT_PUBLIC_SITE_URL = 'https://thearcades.me';

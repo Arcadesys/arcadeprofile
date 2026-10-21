@@ -8,7 +8,7 @@ The first-party signup flow sends one verification email through `lib/mail-trans
 - Resend Topics express the seven preferences. Configure all seven Topics with opt-out defaults. After explicit confirmation, the site updates only selected topic IDs to `opt_in`; it does not opt out unselected topics.
 - Use Resend Segments for broadcast targeting. Configure `RESEND_SEGMENT_ESSAY_BROADCAST_ID` as the saved segment “All Writing OR Essays”. Broadcast creation is a draft first; the CLI schedules it only when `--send` is present.
 - Broadcast content includes `{{{RESEND_UNSUBSCRIBE_URL}}}`. Resend applies the unsubscribe destination and skips unsubscribed contacts.
-- Use two server keys. `RESEND_SEND_API_KEY` is a domain-restricted **Sending access** key for `mail.thearcades.me`, used only for verification and welcome mail. `RESEND_API_KEY` is a **Full access** key for Contacts, Topics, Suppressions, and Broadcasts; the server needs it for signup reads/writes, global unsubscribe, welcome contact lookups, and the newsletter CLI. Sending access is send-only and cannot manage contacts or broadcasts. ([API key permissions](https://resend.com/changelog/new-api-key-permissions)).
+- Keep the existing `RESEND_API_KEY` as a domain-restricted **Sending access** key for `mail.thearcades.me`, used only for verification and welcome mail. Add `RESEND_CONTACTS_API_KEY` as a **Full access** key for Contacts, Topics, Suppressions, and Broadcasts; the server needs it for signup reads/writes, global unsubscribe, welcome contact lookups, and the newsletter CLI. Sending access is send-only and cannot manage contacts or broadcasts. ([API key permissions](https://resend.com/changelog/new-api-key-permissions)).
 
 Resend's free marketing plan covers 1,000 contacts. The free transactional plan currently provides 3,000 emails/month and 100/day; Broadcasts count against marketing contacts rather than the transactional email quota. Recheck the [current pricing page](https://resend.com/pricing) before cutover. The default API limit is 10 requests/second per team across all keys; respect `retry-after` on 429 responses. Free transactional quotas return `x-resend-daily-quota` and `x-resend-monthly-quota` headers. ([Usage limits](https://resend.com/docs/api-reference/rate-limit))
 
@@ -18,8 +18,8 @@ API references: [create contact](https://resend.com/docs/api-reference/contacts/
 
 Configure through Vercel, not committed files:
 
-- `RESEND_API_KEY` — Full access key for Contacts, Topics, Suppressions, and Broadcasts.
-- `RESEND_SEND_API_KEY` — domain-restricted Sending access key for the verified `mail.thearcades.me` domain.
+- `RESEND_API_KEY` — existing domain-restricted Sending access key for the verified `mail.thearcades.me` domain.
+- `RESEND_CONTACTS_API_KEY` — Full access key for Contacts, Topics, Suppressions, and Broadcasts.
 - `RESEND_FROM_EMAIL=austen@mail.thearcades.me`, `RESEND_FROM_NAME`; `MAIL_PROVIDER=resend` for transactional verification/welcome mail.
 - `RESEND_TOPIC_ALL_WRITING_ID`, `RESEND_TOPIC_FICTION_ID`, `RESEND_TOPIC_ESSAYS_ID`, `RESEND_TOPIC_LAB_ID`, `RESEND_TOPIC_QUEER_COLUMNS_ID`, `RESEND_TOPIC_WORK_AI_ID`, `RESEND_TOPIC_TH4F_ID`.
 - `RESEND_SEGMENT_ESSAY_BROADCAST_ID` — segment matching All Writing OR Essays.

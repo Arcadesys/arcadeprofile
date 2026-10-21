@@ -17,10 +17,12 @@ import assert from 'node:assert/strict';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 globalThis.fetch = async (url, init) => {
   const address = String(url); const method = init?.method ?? 'GET'; const body = init?.body ? JSON.parse(String(init.body)) : undefined;
+  const authorization = new Headers(init?.headers).get('Authorization');
   appendFileSync('calls.jsonl', JSON.stringify({ url: address, method, body }) + '\\n');
   if (address === 'https://example.invalid/projects/arcade-blog/fixture-essay') return new Response('Fixture', { status: process.env.MOCK_MODE === 'unpublished' ? 404 : 200 });
-  if (address === 'https://api.resend.com/emails') { assert.deepEqual(body.to, ['preview@example.invalid']); return Response.json({ id: 'fixture-preview' }); }
+  if (address === 'https://api.resend.com/emails') { assert.equal(authorization, 'Bearer ' + process.env.RESEND_API_KEY); assert.deepEqual(body.to, ['preview@example.invalid']); return Response.json({ id: 'fixture-preview' }); }
   if (address === 'https://api.resend.com/broadcasts') {
+    assert.equal(authorization, 'Bearer ' + process.env.RESEND_CONTACTS_API_KEY);
     const receipt = JSON.parse(readFileSync('data/newsletter-sends/fixture-essay.resend.json', 'utf8'));
     assert.equal(receipt.attempts.at(-1).status, 'pending');
     assert.equal(existsSync('data/newsletter-sends/fixture-essay.resend.json.lock'), true);
@@ -51,7 +53,7 @@ function fixture(t: TestContext) {
   const calls = () => existsSync(path.join(root, 'calls.jsonl')) ? readFileSync(path.join(root, 'calls.jsonl'), 'utf8').trim().split('\n').map((line) => JSON.parse(line) as Call) : [];
   const start = (args: string[] = ['--send'], mode = 'success', env: Record<string, string> = {}) => {
     const child = spawn(process.execPath, ['--import', tsx, '--import', pathToFileURL(preload).href, script, '--slug', slug, ...args], { cwd: root,
-      env: { PATH: process.env.PATH, NODE_ENV: 'test', NEXT_PUBLIC_SITE_URL: 'https://example.invalid', RESEND_API_KEY: 'fixture-full-key', RESEND_SEGMENT_ESSAY_BROADCAST_ID: segmentId,
+      env: { PATH: process.env.PATH, NODE_ENV: 'test', NEXT_PUBLIC_SITE_URL: 'https://example.invalid', RESEND_API_KEY: 'fixture-send-key', RESEND_CONTACTS_API_KEY: 'fixture-full-key', RESEND_SEGMENT_ESSAY_BROADCAST_ID: segmentId,
         RESEND_FROM_EMAIL: 'sender@mail.example.invalid', RESEND_FROM_NAME: 'Austen', BROADCAST_ID: broadcastId, MOCK_MODE: mode, ...env } });
     t.after(() => { if (child.exitCode === null) child.kill('SIGKILL'); }); let output = '';
     child.stdout.on('data', (data) => { output += data; }); child.stderr.on('data', (data) => { output += data; });
@@ -67,7 +69,7 @@ function sends(calls: Call[]) { return calls.filter((call) => call.url.includes(
 test('dry run is read-only; explicit preview uses the sending-only key', async (t) => {
   const f = fixture(t); const dry = await f.start([]).result;
   assert.equal(dry.code, 0, dry.output); assert.match(dry.output, /"mode": "dry-run"/); assert.deepEqual(f.calls(), []); assert.equal(existsSync(f.receipt), false);
-  const preview = await f.start(['--preview-to', 'preview@example.invalid'], 'success', { RESEND_SEND_API_KEY: 'fixture-send-only' }).result;
+  const preview = await f.start(['--preview-to', 'preview@example.invalid'], 'success', { RESEND_API_KEY: 'fixture-send-only' }).result;
   assert.equal(preview.code, 0, preview.output); assert.equal(f.calls().length, 1); assert.equal(f.calls()[0].url, 'https://api.resend.com/emails');
 });
 
@@ -86,7 +88,7 @@ test('send creates a draft then schedules it, with a non-PII duplicate guard', a
 
 test('production URL validation and missing config fail before broadcast operations', async (t) => {
   const f = fixture(t);
-  for (const [mode, env] of [['unpublished', {}], ['success', { RESEND_API_KEY: '' }], ['success', { RESEND_SEGMENT_ESSAY_BROADCAST_ID: '' }]] as const) {
+  for (const [mode, env] of [['unpublished', {}], ['success', { RESEND_CONTACTS_API_KEY: '' }], ['success', { RESEND_SEGMENT_ESSAY_BROADCAST_ID: '' }]] as const) {
     const result = await f.start(['--send'], mode, env).result; assert.equal(result.code, 1, result.output);
   }
   assert.equal(sends(f.calls()).length, 0); assert.equal(existsSync(f.receipt), false);

@@ -10,11 +10,11 @@ if (!gitMeta?.isDirectory() || execFileSync('git', ['branch', '--show-current'],
 
 config({ path: '.env.resend.local', override: true });
 config({ path: '.env.resend.topics' });
-const resendKey = process.env.RESEND_API_KEY?.trim();
+const resendKey = process.env.RESEND_CONTACTS_API_KEY?.trim();
 const args = process.argv.slice(2); const value = (flag: string) => { const i = args.indexOf(flag); return i >= 0 ? args[i + 1] : undefined; };
 const snapshotPath = value('--snapshot'); const apply = args.includes('--apply'); const sync = args.includes('--sync-unsubscribes');
 if (!snapshotPath || !existsSync(snapshotPath)) throw new Error('--snapshot must name a Kit export snapshot');
-if ((apply || sync) && !resendKey) throw new Error('RESEND_API_KEY is required in .env.resend.local');
+if ((apply || sync) && !resendKey) throw new Error('RESEND_CONTACTS_API_KEY is required in .env.resend.local');
 const snapshot = JSON.parse(readFileSync(snapshotPath, 'utf8')) as { subscribers?: Array<{ email: string; state: string; topics: string[]; created_at: string }> };
 if (!Array.isArray(snapshot.subscribers)) throw new Error('Snapshot is invalid');
 const topicEnv: Record<string, string> = Object.fromEntries(RESEND_TOPICS.map(({ audience, env }) => [audience, env]));

@@ -6,8 +6,8 @@ export class MailAmbiguousError extends Error { constructor() { super('Mail outc
 
 export function readMailConfig(env: Record<string, string | undefined> = process.env): MailConfig {
   if ((env.MAIL_PROVIDER?.trim() || 'resend') !== 'resend') throw new MailConfigurationError('MAIL_PROVIDER must be resend');
-  const apiKey = env.RESEND_SEND_API_KEY?.trim(); const address = env.RESEND_FROM_EMAIL?.trim(); const name = env.RESEND_FROM_NAME?.trim();
-  if (!apiKey || /[\r\n]/.test(apiKey)) throw new MailConfigurationError('RESEND_SEND_API_KEY is not configured or invalid');
+  const apiKey = env.RESEND_API_KEY?.trim(); const address = env.RESEND_FROM_EMAIL?.trim(); const name = env.RESEND_FROM_NAME?.trim();
+  if (!apiKey || /[\r\n]/.test(apiKey)) throw new MailConfigurationError('RESEND_API_KEY is not configured or invalid');
   if (!address || !/^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(address)) throw new MailConfigurationError('RESEND_FROM_EMAIL is not configured or invalid');
   if (name && /[\r\n<>]/.test(name)) throw new MailConfigurationError('RESEND_FROM_NAME is invalid');
   return { apiKey, from: name ? `${name} <${address}>` : address };

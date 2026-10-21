@@ -182,8 +182,8 @@ async function main() {
 
   await verifyProductionEssayUrl(productionUrl);
   const segments = getEssaySegmentIds();
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  if (!apiKey) throw new Error("Resend broadcast API is not configured (RESEND_API_KEY).");
+  const apiKey = process.env.RESEND_CONTACTS_API_KEY?.trim();
+  if (!apiKey) throw new Error("Resend broadcast API is not configured (RESEND_CONTACTS_API_KEY).");
 
   const receiptPath = path.join(process.cwd(), "data/newsletter-sends", `${post.slug}.resend.json`);
   // This claim covers both receipt inspection and provider submission. A crash

@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   let parsed: z.infer<typeof schema>;
   try { parsed = schema.parse(await request.json()); } catch { return json({ error: 'This confirmation link is invalid or expired.' }, 400); }
   const token = parseVerificationToken(parsed.token); if (!token) return json({ error: 'This confirmation link is invalid or expired.' }, 400);
-  const apiKey = process.env.RESEND_API_KEY?.trim(); if (!apiKey) return json({ error: 'Confirmation is temporarily unavailable.' }, 503);
+  const apiKey = process.env.RESEND_CONTACTS_API_KEY?.trim(); if (!apiKey) return json({ error: 'Confirmation is temporarily unavailable.' }, 503);
   const lockKey = `writing:claim-lock:${token.id}`; const lockToken = newProcessingToken();
   try {
     if (await redisCommand<string | null>(['SET', lockKey, lockToken, 'EX', 120, 'NX']) !== 'OK') return json({ error: 'This request is already being processed. Please try again shortly.' }, 409);
