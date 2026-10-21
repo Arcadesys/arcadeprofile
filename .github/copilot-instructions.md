@@ -11,7 +11,7 @@ When a new idea surfaces mid-task (a "shiny object"), capture it as a GitHub iss
 ## Stack
 Next.js 16 App Router + React 19, deployed on Vercel. TypeScript throughout. Package manager is npm only. There is no database and no CMS: public essays are validated Markdown under `content/posts/<group>/<slug>.md`, with a `_group.json` manifest per group.
 
-Postmark is the outbound email delivery layer for transactional/test sends. Newsletter broadcasts go through Kit via the standalone `services/email` service (`lib/email-service.ts` is the site's client); that service owns subscriber consent, preferences, and suppression state locally. The service is not yet deployed anywhere — see `docs/email-service-migration.md` for status and the remaining cutover steps. Do not add new direct ActiveCampaign or Postmark-newsletter integrations; the AC account this site used is gone.
+Email uses Resend. The site owns signup requests and explicit confirmation; Resend Contacts hold subscriber state, Topics hold preferences, and Segments target newsletter broadcasts. See `docs/email-service-migration.md` for runtime configuration and `docs/kit-removal-runbook.md` for the owner-run migration and cutover. Do not restore Kit, ActiveCampaign, or Postmark integrations.
 
 Custom API routes live under `app/(frontend)/api/`.
 
