@@ -51,7 +51,9 @@ test('the welcome QR destination identifies Austen and offers working public nex
   assert.equal(status, 200);
   assert.match(body, /<h1[^>]*>Austen Tucker<\/h1>/);
   assert.match(body, /Builder · Leader · Writer/);
-  for (const href of ['https://work.thearcades.me/', 'https://work.thearcades.me/resume', '/books', '/writing', '/bio', 'mailto:austen.crowder@gmail.com']) {
+  assert.match(body, /id="welcome-book-heading"/);
+  assert.match(body, /Free Play Publishing mark/);
+  for (const href of ['https://work.thearcades.me/', 'https://work.thearcades.me/resume', '/books', '/books/this-is-what-i-do-for-fun', '/writing', '/bio', 'mailto:austen.crowder@gmail.com']) {
     assert.ok(body.includes(`href="${href}"`), `welcome link: ${href}`);
   }
 });
