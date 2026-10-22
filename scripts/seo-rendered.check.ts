@@ -31,6 +31,7 @@ function jsonLd(html: string): Array<Record<string, unknown>> {
 // also have work copies that point here (map v2, docs/seo/canonical-policy.md).
 const PAGES: Array<{ path: string; schema?: string }> = [
   { path: '/' },
+  { path: '/welcome' },
   { path: '/stories' },
   { path: '/essays' },
   { path: '/books/this-is-what-i-do-for-fun', schema: 'Book' },
@@ -44,6 +45,16 @@ const PAGES: Array<{ path: string; schema?: string }> = [
   { path: '/projects/the-singularity-log/claude-design-and-the-novel-t', schema: 'BlogPosting' },
 ];
 const expectedUrl = (path: string) => (path === '/' ? SITE_URL : `${SITE_URL}${path}`);
+
+test('the welcome QR destination identifies Austen and offers working public next steps', async () => {
+  const { status, body } = await get('/welcome');
+  assert.equal(status, 200);
+  assert.match(body, /<h1[^>]*>Austen Tucker<\/h1>/);
+  assert.match(body, /Builder · Leader · Writer/);
+  for (const href of ['https://work.thearcades.me/', 'https://work.thearcades.me/resume', '/books', '/writing', '/bio', 'mailto:austen.crowder@gmail.com']) {
+    assert.ok(body.includes(`href="${href}"`), `welcome link: ${href}`);
+  }
+});
 
 test('public pages emit one self-canonical, matching og:url, a title, a description and an absolute image', async () => {
   const seenTitles = new Map<string, string>();
