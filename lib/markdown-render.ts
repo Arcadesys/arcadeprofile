@@ -96,7 +96,18 @@ export function markdownToSafeHtml(markdown: string, options: { allowEmbeds?: bo
         index += 1;
       }
       index -= 1;
-      blocks.push(`<blockquote><p>${inlineMarkdownToHtml(quoted.join(' '))}</p></blockquote>`);
+      const rendered = quoted.map((raw) => {
+        const hardBreak = /(?: {2,}|\\)$/.test(raw);
+        return {
+          html: inlineMarkdownToHtml(hardBreak ? raw.replace(/(?: {2,}|\\)$/, '') : raw),
+          hardBreak,
+        };
+      });
+      const quoteBody = rendered.map((line, quoteIndex) => {
+        const separator = quoteIndex === 0 ? '' : rendered[quoteIndex - 1].hardBreak ? '<br />' : ' ';
+        return separator + line.html;
+      }).join('');
+      blocks.push(`<blockquote><p>${quoteBody}</p></blockquote>`);
     } else if (list) {
       flushParagraph();
       const ordered = /\d+\./.test(list[2]);
