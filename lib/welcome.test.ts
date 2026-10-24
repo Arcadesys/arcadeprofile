@@ -26,14 +26,31 @@ test('welcome has its own canonical, social preview, and sitemap entry', () => {
   assert.ok(buildStaticSitemapEntries(SITE_URL).some((entry) => entry.url === `${SITE_URL}/welcome`));
 });
 
-test('welcome uses labeled sections and the existing responsive keyboard-accessible layout', () => {
+test('welcome uses labeled sections and a route-scoped responsive keyboard-accessible layout', () => {
   assert.match(page, /aria-labelledby="welcome-next-heading"/);
   assert.match(page, /id="welcome-next-heading"/);
   assert.match(page, /aria-labelledby="welcome-more-heading"/);
   assert.match(page, /id="welcome-more-heading"/);
-  assert.match(page, /\.\.\/start\/start.module.css/);
-  const css = readFileSync('app/(frontend)/start/start.module.css', 'utf8');
+  assert.match(page, /\.\/welcome.module.css/);
+  const css = readFileSync('app/(frontend)/welcome/welcome.module.css', 'utf8');
   assert.match(css, /:focus-visible/);
-  assert.match(css, /@media \(max-width: 520px\)/);
+  assert.match(css, /@media \(max-width: 600px\)/);
   assert.match(css, /grid-template-columns: 1fr/);
+});
+
+
+test('welcome reserves the navigation rail and limits motion to explicit user preference', () => {
+  const css = readFileSync('app/(frontend)/welcome/welcome.module.css', 'utf8');
+  assert.match(css, /--welcome-rail: 0px/);
+  assert.match(css, /@media \(min-width: 961px\) and \(min-height: 701px\)\s*\{\s*\.main\.main \{ --welcome-rail: var\(--nav-rail-width, 0px\)/);
+  assert.match(css, /data-motion="calm"/);
+  assert.match(css, /data-reading-scale/);
+  assert.match(css, /data-font="hyperlegible"/);
+  assert.match(css, /@media \(prefers-reduced-motion: no-preference\)/);
+  assert.match(css, /min-height: 52px/);
+  assert.match(css, /min-height: 48px/);
+  assert.match(page, /<FreePlayColophon variant="mono"/);
+  assert.match(page, /getBook\('this-is-what-i-do-for-fun'\)/);
+  assert.match(page, /featuredBook.description/);
+  assert.match(page, /aria-labelledby="welcome-book-heading"/);
 });

@@ -1,0 +1,103 @@
+.main.main {
+  --welcome-rail: 0px;
+  --welcome-paper: #f4eadc;
+  --welcome-orange: #ffae61;
+  --welcome-ink: #181512;
+  --welcome-muted: #d2c6b8;
+  --welcome-rule: #766b60;
+  width: min(calc(100% - var(--welcome-rail) - 3rem), 1180px);
+  margin: 0 auto 0 calc(var(--welcome-rail) + max(1.5rem, (100% - var(--welcome-rail) - 1180px) / 2));
+  padding: 2rem 0 4rem;
+  color: var(--welcome-paper);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.main a { color: inherit; }
+.main a:focus-visible { outline: 4px solid #fff; outline-offset: 5px; }
+.masthead { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; font-size: 1rem; }
+.masthead > :first-child { font-family: var(--font-mono); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.masthead > :last-child { font-family: var(--font-serif); font-style: italic; color: var(--welcome-orange); }
+.ticket { display: grid; grid-template-columns: minmax(0, 2.15fr) minmax(0, 1fr); border: 2px solid var(--welcome-orange); }
+.ticketBody { padding: clamp(1.5rem, 4vw, 3.5rem); color: var(--welcome-ink); background: var(--welcome-orange); }
+.eyebrow { margin: 0; font-family: var(--font-mono); font-size: 1rem; font-weight: 700; line-height: 1.5; letter-spacing: .05em; text-transform: uppercase; }
+.ticket h1 { max-width: 8ch; margin: 1.25rem 0 1rem; color: inherit; font-family: var(--font-barlow-condensed), sans-serif; font-size: clamp(4rem, 8vw, 7.5rem); font-weight: 800; line-height: .88; letter-spacing: -.025em; text-transform: uppercase; }
+.roles { margin: 1.5rem 0 1rem; font-weight: 700; font-size: clamp(1.1rem, 2vw, 1.5rem); }
+.intro { max-width: 40ch; margin: 0 0 1.5rem; font-size: 1.125rem; }
+.heroLink { display: inline-flex; gap: 2rem; align-items: center; justify-content: space-between; min-height: 52px; padding: .65rem 1.15rem; border: 2px solid var(--welcome-ink); font-weight: 800; text-decoration: none; }
+.heroLink:hover { color: var(--welcome-paper); background: var(--welcome-ink); }
+.ticketBody a:focus-visible { outline-color: var(--welcome-ink); }
+.ticketStub { display: flex; flex-direction: column; justify-content: space-between; gap: 2rem; padding: clamp(1.25rem, 3vw, 2.5rem); border-left: 2px dashed var(--welcome-orange); background: #171513; }
+.imprint { display: flex; align-items: center; gap: .5rem; color: var(--welcome-orange); }
+.imprint > span:last-child { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 800; letter-spacing: .05em; }
+.imprint small { display: block; font-family: var(--font-serif); font-size: 1rem; font-weight: 400; font-style: italic; letter-spacing: .025em; color: var(--welcome-paper); }
+.stubMessage > p { margin: 1rem 0; font-family: var(--font-serif); font-size: clamp(2.2rem, 3.7vw, 3.5rem); line-height: 1.12; }
+.stubMessage em { color: var(--welcome-orange); font-weight: 400; }
+.admission { padding-top: 1rem; border-top: 1px solid var(--welcome-rule); font-family: var(--font-mono); font-size: 1rem; line-height: 1.6; }
+.destinations { margin-top: 3rem; }
+.sectionHeading { margin-bottom: 1.5rem; }
+.sectionHeading .eyebrow, .feature .eyebrow { color: var(--welcome-orange); }
+.sectionHeading h2 { margin: .4rem 0 0; font-family: var(--font-serif); font-size: clamp(1.8rem, 3vw, 2.6rem); line-height: 1.2; }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.card { display: flex; flex-direction: column; padding: clamp(1.25rem, 2.5vw, 2rem); border: 1px solid var(--welcome-rule); border-top: 4px solid var(--welcome-orange); background: #171513; text-decoration: none; }
+.cardTop { display: flex; justify-content: space-between; gap: 1rem; color: var(--welcome-orange); font-family: var(--font-mono); font-size: 1rem; font-weight: 700; }
+.cardTop > :last-child { font-size: 1.5rem; line-height: 1; }
+.card h3 { margin: 1.5rem 0 1rem; font-family: var(--font-serif); font-size: clamp(1.8rem, 3vw, 2.6rem); line-height: 1.12; font-weight: 400; }
+.card h3 em { color: var(--welcome-orange); }
+.card p { margin: 0 0 1.5rem; color: var(--welcome-muted); font-size: 1.0625rem; line-height: 1.6; }
+.action { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--welcome-rule); font-weight: 700; font-size: 1rem; }
+.card:hover { background: #24201b; border-color: var(--welcome-orange); }
+.feature { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 3rem); align-items: center; margin-top: 2rem; padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid var(--welcome-rule); background: #171513; }
+.coverLink { display: block; width: 100%; max-width: 210px; }
+.coverLink img { display: block; width: 100%; height: auto; box-shadow: 8px 8px 0 #4b3a29; }
+.feature h2 { max-width: 18ch; margin: .75rem 0 1rem; font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1.08; }
+.featureCopy > p:not(.eyebrow) { max-width: 52ch; color: var(--welcome-muted); }
+.textLink { display: inline-flex; align-items: center; gap: 1.5rem; min-height: 48px; font-weight: 700; text-underline-offset: .25em; }
+.more { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 2rem; padding: 1.5rem 0; border-top: 2px dashed var(--welcome-rule); }
+.more h2 { margin: 0; font-family: var(--font-serif); font-size: 1.4rem; font-weight: 400; }
+.more nav { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; }
+.more a { display: inline-flex; min-height: 48px; align-items: center; gap: .5rem; font-size: 1rem; font-weight: 700; text-underline-offset: .25em; }
+@media (prefers-reduced-motion: no-preference) {
+  .card, .heroLink, .coverLink { transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease; }
+  .card:hover, .coverLink:hover { transform: translateY(-4px); }
+}
+@media (max-width: 960px) {
+  .ticket { grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); }
+  .cards { grid-template-columns: 1fr; }
+  .card h3 br { display: none; }
+  .card h3 em::before { content: ' '; }
+}
+@media (max-width: 600px) {
+  .main.main { width: calc(100% - 2rem); margin: 0 1rem; padding-top: 1rem; }
+  .masthead { flex-wrap: wrap; font-size: 1rem; }
+  .ticket { grid-template-columns: 1fr; }
+  .ticket h1 { font-size: clamp(3.8rem, 17vw, 6rem); }
+  .ticketStub { border-left: 0; border-top: 2px dashed var(--welcome-orange); gap: 1.5rem; }
+  .stubMessage { display: none; }
+  .admission { padding-top: .75rem; }
+  .feature { grid-template-columns: 1fr; }
+  .coverLink { max-width: 150px; }
+  .feature h2 { font-size: 2rem; }
+  .more { padding-bottom: 2rem; }
+}
+/* The shared reader controls must also reach this span-wrapped route. */
+:global(html[data-reading-scale]) .intro,
+:global(html[data-reading-scale]) .card p,
+:global(html[data-reading-scale]) .featureCopy > p:not(.eyebrow) {
+  font-size: calc(1.125rem * var(--reading-scale, 1));
+  line-height: var(--reading-line-height, 1.6);
+}
+:global(html[data-font="hyperlegible"]) .main :is(h1, h2, h3, .stubMessage, .eyebrow, .roles),
+:global(html[data-font="dyslexic"]) .main :is(h1, h2, h3, .stubMessage, .eyebrow, .roles) {
+  font-family: var(--font-sans);
+  line-height: 1.2;
+}
+
+@media (min-width: 961px) and (min-height: 701px) {
+  .main.main { --welcome-rail: var(--nav-rail-width, 0px); }
+}
+:global(html[data-motion="calm"]) .main :is(.card, .heroLink, .coverLink) {
+  transition: none;
+  transform: none;
+}
