@@ -111,13 +111,26 @@ test('public reader PDF activation is classified without retaining its route or 
   assert.equal(pdf?.properties.conversion_stage, 'public_pdf_download_intent');
   assert.equal(pdf?.properties.href, undefined);
   assert.equal(pdf?.properties.destination_host, 'www.thearcades.me');
+  assert.deepEqual(sanitizeAnalyticsPayload(pdf, 'sitewide'), pdf);
   for (const [current, href] of [
     [`${site}/stories`, `${path}/pdf`],
     [`${site}${path}`, `${path}/not-pdf`],
     [`${site}${path}`, 'https://downloads.example.com/file.pdf'],
     [`${site}${path}`, `${path}/unknown/pdf`],
+    [`${site}/stories`, '/stories/pdf'],
   ]) {
     const result = sanitizeAnalyticsPayload(payload('site link clicked', { $current_url: current, href }), 'sitewide');
+    assert.notEqual(result?.properties.destination_kind, 'public_pdf');
+    assert.notEqual(result?.properties.conversion_stage, 'public_pdf_download_intent');
+  }
+  for (const properties of [
+    { $current_url: `${site}${path}`, link_kind: 'internal', destination_host: 'www.thearcades.me', destination_kind: 'public_pdf' },
+    { $current_url: `${site}${path}`, link_kind: 'internal', destination_host: 'www.thearcades.me', conversion_stage: 'public_pdf_download_intent' },
+    { $current_url: `${site}${path}`, link_kind: 'external', destination_host: 'downloads.example.com', destination_kind: 'public_pdf', conversion_stage: 'public_pdf_download_intent' },
+    { $current_url: `${site}/stories`, link_kind: 'internal', destination_host: 'www.thearcades.me', destination_kind: 'public_pdf', conversion_stage: 'public_pdf_download_intent' },
+    { $current_url: `${site}/subscribe/verify`, link_kind: 'internal', destination_host: 'www.thearcades.me', destination_kind: 'public_pdf', conversion_stage: 'public_pdf_download_intent' },
+  ]) {
+    const result = sanitizeAnalyticsPayload(payload('site link clicked', properties), 'sitewide');
     assert.notEqual(result?.properties.destination_kind, 'public_pdf');
     assert.notEqual(result?.properties.conversion_stage, 'public_pdf_download_intent');
   }

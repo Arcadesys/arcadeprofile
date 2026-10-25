@@ -88,6 +88,38 @@ test('receiver maps coarse native device/source, preserves receipt tuple, and co
   assert.equal(sent.length, 1);
 });
 
+test('public reader PDF intent survives capture, client preparation, and receiver sanitization without its route', async (t) => {
+  const path = '/novels/it-takes-a-zoo/cold-boot';
+  analyticsBrowser(t, path);
+  const requestBodies: Record<string, unknown>[] = [];
+  const forwarded: Record<string, unknown>[] = [];
+  t.mock.method(globalThis, 'fetch', async (url: string, init: RequestInit) => {
+    if (String(url).startsWith('/api/')) {
+      const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+      requestBodies.push(body);
+      return posthog(request(body));
+    }
+    forwarded.push(JSON.parse(String(init.body)) as Record<string, unknown>);
+    return new Response('{}', { status: 200 });
+  });
+
+  captureSiteEvent('site link clicked', { href: `${path}/pdf?private=secret#fragment` });
+  for (let i = 0; i < 100; i++) await Promise.resolve();
+
+  assert.equal(requestBodies.length, 1);
+  assert.equal(forwarded.length, 1);
+  for (const body of [...requestBodies, ...forwarded]) {
+    const properties = body.properties as Record<string, unknown>;
+    assert.equal(properties.destination_kind, 'public_pdf');
+    assert.equal(properties.conversion_stage, 'public_pdf_download_intent');
+    assert.equal(properties.href, undefined);
+    assert.equal(properties.pathname, path);
+    assert.ok(!JSON.stringify(body).includes('/pdf'));
+    assert.ok(!JSON.stringify(body).includes('secret'));
+    assert.ok(!JSON.stringify(body).includes('fragment'));
+  }
+});
+
 test('lost browser acknowledgments retry the same CTA UUID/timestamp and forward only once within the receiver window', async (t) => {
   analyticsBrowser(t, '/');
   let timerId = 0;

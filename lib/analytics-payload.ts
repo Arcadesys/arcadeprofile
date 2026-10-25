@@ -1,4 +1,5 @@
 import mffLabels from '@/data/analytics-mff-labels.json';
+import readerPaths from '@/data/analytics-reader-paths.json';
 import { ANALYTICS_ORIGIN, buildSiteAnalyticsContext, publicAnalyticsPath } from '@/lib/site-analytics';
 import { VALID_SOURCES } from '@/lib/subscribe-types';
 import { POST_CANONICAL_EDITIONS } from '@/lib/post-canonical';
@@ -11,6 +12,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{1
 const CAMPAIGN = /^[a-z0-9_-]{1,64}$/;
 const SITE_EVENTS = new Set(['$pageview', '$pageleave', 'site link clicked', 'reading-start', 'end-reached', 'onward-reading', 'resume-click', 'signup confirmation requested', 'signup request submitted', 'signup request failed', 'reading-engagement']);
 const MFF_EVENTS = new Set(['$pageview', 'mff page viewed', 'mff scroll reached', 'mff section viewed', 'mff exhibit viewed', 'mff link clicked', 'mff sources opened']);
+const READER_PATHS = new Set<string>(readerPaths);
 const READER_TYPES = new Set(['essay', 'fiction', 'chapter', 'reading-hub', 'subscription']);
 const READER_PLACEMENTS = new Set<string>([...VALID_SOURCES, 'reader-body', 'reader-end', 'next-chapter', 'recommended-reading', 'resume-banner']);
 
@@ -113,11 +115,19 @@ export function sanitizeAnalyticsLink(input: Record<string, unknown>, surface: A
       try {
         const url = new URL(input.href, ANALYTICS_ORIGIN);
         const parent = url.pathname.endsWith('/pdf') ? url.pathname.slice(0, -4) : '';
-        return url.origin === ANALYTICS_ORIGIN && parent === input.$pathname && publicAnalyticsPath(parent) ? parent : null;
+        return url.origin === ANALYTICS_ORIGIN && parent === input.$pathname && READER_PATHS.has(parent) && publicAnalyticsPath(parent) ? parent : null;
       } catch { return null; }
     })()
     : null;
-  if (surface === 'sitewide' && result.link_kind === 'internal' && publicPdfPath) {
+  // After minimization, the fixed kind/stage and exact reader source remain
+  // sufficient for an idempotent second pass without retaining the PDF route.
+  const minimizedPublicPdf = input.href === undefined && input.link_kind === 'internal'
+    && result.destination_host === new URL(ANALYTICS_ORIGIN).hostname
+    && input.destination_kind === 'public_pdf'
+    && input.conversion_stage === 'public_pdf_download_intent'
+    && typeof input.$pathname === 'string' && READER_PATHS.has(input.$pathname)
+    && publicAnalyticsPath(input.$pathname) === input.$pathname;
+  if (surface === 'sitewide' && result.link_kind === 'internal' && (publicPdfPath || minimizedPublicPdf)) {
     result.destination_kind = 'public_pdf';
     result.conversion_stage = 'public_pdf_download_intent';
   }
