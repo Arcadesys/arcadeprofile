@@ -105,6 +105,22 @@ export function sanitizeAnalyticsLink(input: Record<string, unknown>, surface: A
     result.destination_kind = String(purchaseKind);
     result.placement = 'home_hero';
   }
+  // Reader PDF routes are deliberately outside pageview eligibility. Classify
+  // only an internal /pdf link whose parent is an exact allowlisted public page;
+  // never retain the route itself or claim that a file was saved.
+  const publicPdfPath = typeof input.href === 'string' && result.link_kind === 'internal'
+    ? (() => {
+      try {
+        const url = new URL(input.href, ANALYTICS_ORIGIN);
+        const parent = url.pathname.endsWith('/pdf') ? url.pathname.slice(0, -4) : '';
+        return url.origin === ANALYTICS_ORIGIN && parent === input.$pathname && publicAnalyticsPath(parent) ? parent : null;
+      } catch { return null; }
+    })()
+    : null;
+  if (surface === 'sitewide' && result.link_kind === 'internal' && publicPdfPath) {
+    result.destination_kind = 'public_pdf';
+    result.conversion_stage = 'public_pdf_download_intent';
+  }
   // Placement is an allowlisted public control label, never DOM/link text.
   if (surface === 'sitewide' && input.$pathname === '/' && result.link_kind === 'internal'
     && typeof result.href === 'string' && ['home_sample', 'home_shelf', 'home_browse'].includes(String(input.placement))) {
