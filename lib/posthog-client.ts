@@ -5,12 +5,16 @@ import { readAnalyticsSession, SESSION_IDLE_MS, SESSION_MAX_MS, type AnalyticsSe
 import { buildFreshEntryContext, isAnalyticsId, sanitizeAnalyticsPayload, sanitizeEntryContext, type AnalyticsSurface } from '@/lib/analytics-payload';
 import { sanitizeEngagement, type EngagementSnapshot } from '@/lib/reading-engagement';
 import type { ReaderTelemetryProps } from '@/lib/reader-analytics';
+import { createAnalyticsTransport } from '@/lib/analytics-transport';
+import type { PageLeave } from '@/lib/page-lifecycle';
 
 const STORAGE_KEY = 'arcade-posthog-anonymous-id';
 const SESSION_KEY = 'arcade-posthog-session-v2';
 const WINDOW_KEY = 'arcade-posthog-window-id';
 const ENTRY_KEY = 'arcade-posthog-entry';
 const sessions = new WeakMap<Window, AnalyticsSession>();
+const transports = new WeakMap<Window, ReturnType<typeof createAnalyticsTransport>>();
+const entries = new WeakMap<Window, ReturnType<typeof sanitizeEntryContext>>();
 
 function getId(storage: 'localStorage' | 'sessionStorage', key: string) {
   try {
@@ -25,15 +29,16 @@ function getId(storage: 'localStorage' | 'sessionStorage', key: string) {
 }
 
 function buildEntryContext(rotated: boolean) {
-  let entry;
+  let entry = rotated ? undefined : entries.get(window);
   try {
     const saved = window.sessionStorage.getItem(ENTRY_KEY);
-    if (saved && !rotated) {
+    if (!entry && saved && !rotated) {
       const sanitized = sanitizeEntryContext(JSON.parse(saved));
       if (sanitized.landing_page) entry = sanitized;
     }
   } catch { /* Fall through to fresh, sanitized entry context. */ }
   entry ??= buildFreshEntryContext(window.location.href, document.referrer);
+  entries.set(window, entry);
   try { window.sessionStorage.setItem(ENTRY_KEY, JSON.stringify(entry)); } catch { /* Best effort. */ }
   return entry;
 }
@@ -61,9 +66,32 @@ function prepareCapture(event: string, properties: Record<string, unknown>, surf
 }
 
 function sendPayload(payload: NonNullable<ReturnType<typeof prepareCapture>>, surface: AnalyticsSurface) {
-  void fetch(surface === 'sitewide' ? '/api/analytics/posthog' : '/api/analytics/mff', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), keepalive: true,
-  }).catch(() => { /* Analytics must never interrupt reading, navigation or signup. */ });
+  const receipt = sanitizeAnalyticsPayload({ ...payload, uuid: crypto.randomUUID(), timestamp: new Date(Date.now()).toISOString() }, surface);
+  if (!receipt) return;
+  let transport = transports.get(window);
+  if (!transport) {
+    transport = createAnalyticsTransport({ fetch: (...args) => fetch(...args),
+      schedule: (callback, delay) => window.setTimeout(callback, delay), cancel: timer => window.clearTimeout(timer),
+      allowed: () => canCaptureBrowserAnalytics(String(payload.properties.$current_url)),
+    });
+    transports.set(window, transport);
+    window.addEventListener('pagehide', () => transport!.flush());
+  }
+  transport.send(surface === 'sitewide' ? '/api/analytics/posthog' : '/api/analytics/mff', JSON.stringify(receipt));
+}
+
+/** Pageleave retains the original public page/session after SPA navigation. */
+export function createPageVisitSender() {
+  const payload = prepareCapture('$pageview', { $pageview_id: crypto.randomUUID() }, 'sitewide');
+  if (!payload) return null;
+  const startedAt = Date.now();
+  const sessionStartedAt = Number.parseInt(String(payload.properties.$session_id).replaceAll('-', '').slice(0, 12), 16);
+  sendPayload(payload, 'sitewide');
+  return (snapshot: PageLeave) => {
+    if (Date.now() < startedAt || Date.now() - startedAt >= SESSION_IDLE_MS || Date.now() - sessionStartedAt >= SESSION_MAX_MS) return;
+    const leave = sanitizeAnalyticsPayload({ ...payload, event: '$pageleave', properties: { ...payload.properties, ...snapshot } }, 'sitewide');
+    if (leave) sendPayload(leave, 'sitewide');
+  };
 }
 
 function capture(event: string, properties: Record<string, unknown>, surface: AnalyticsSurface) {

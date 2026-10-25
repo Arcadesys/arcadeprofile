@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server';
 import { POST as posthog } from '../app/(frontend)/api/analytics/posthog/route';
 import { POST as mff } from '../app/(frontend)/api/analytics/mff/route';
 import { analyticsBrowser } from './fixtures/analytics-browser';
+import { captureSiteEvent } from './posthog-client';
 
 const origin = 'https://www.thearcades.me';
 const input = (path = '/stories') => ({ event: '$pageview', distinct_id: '9e833036-9f38-44d9-9d26-3d9c1b332f94', properties: { $current_url: `${origin}${path}?email=secret#token`, email: 'private@example.com', $set: { secret: true }, $raw_user_agent: 'forged', $geoip_disable: true } });
@@ -63,4 +64,59 @@ test('upstream rejection and network failure return 502 without logging payloads
   assert.equal(response.status, 502); assert.equal((await response.json()).error, 'upstream_failed');
   assert.equal(fetch.mock.calls.length, 2);
   assert.ok(!JSON.stringify(logs).includes('private')); assert.ok(!JSON.stringify(logs).includes('secret'));
+});
+
+test('receiver maps coarse native device/source, preserves receipt tuple, and coalesces duplicates', async (t) => {
+  analyticsBrowser(t);
+  const sent: Record<string, unknown>[] = [];
+  t.mock.method(globalThis, 'fetch', async (_url: string, init: RequestInit) => { sent.push(JSON.parse(String(init?.body))); return new Response('{}'); });
+  const receipt = { ...input(), uuid: crypto.randomUUID(), timestamp: new Date().toISOString(), properties: {
+    ...input().properties, $device_type: 'forged', $referrer: 'https://www.google.com/search?q=private', $referring_domain: 'forged', utm_source: 'NEWS', $set_once: { email: 'private' },
+  } };
+  const headers = { 'user-agent': 'Mozilla iPhone Mobile' };
+  const results = await Promise.all([posthog(request(receipt, undefined, headers)), posthog(request(receipt, undefined, headers))]);
+  assert.ok(results.every(response => response.status === 200));
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].uuid, receipt.uuid); assert.equal(sent[0].timestamp, receipt.timestamp);
+  const properties = sent[0].properties as Record<string, unknown>;
+  assert.equal(properties.$device_type, 'Mobile'); assert.equal(properties.$referring_domain, 'www.google.com');
+  assert.equal(properties.$referrer, 'https://www.google.com'); assert.equal(properties.utm_source, 'news'); assert.equal(properties.$set_once, undefined);
+  assert.equal((await posthog(request(receipt, undefined, headers))).status, 200); assert.equal(sent.length, 1);
+  assert.equal((await posthog(request({ ...receipt, timestamp: new Date(Date.parse(receipt.timestamp) - 1).toISOString() }, undefined, headers))).status, 400);
+  assert.equal(sent.length, 1);
+  assert.equal((await posthog(request({ ...receipt, uuid: crypto.randomUUID() }, undefined, { dnt: '1' }))).status, 204);
+  assert.equal(sent.length, 1);
+});
+
+test('lost browser acknowledgments retry the same CTA UUID/timestamp and forward only once within the receiver window', async (t) => {
+  analyticsBrowser(t, '/');
+  let timerId = 0;
+  const timers = new Map<number, { fn: () => void; delay: number }>();
+  t.mock.method(window, 'setTimeout', (fn: () => void, delay: number) => { timers.set(++timerId, { fn, delay }); return timerId; });
+  t.mock.method(window, 'clearTimeout', (id: number) => { timers.delete(id); });
+  const attempts: string[] = []; const forwarded: Record<string, unknown>[] = [];
+  t.mock.method(globalThis, 'fetch', async (url: string, init: RequestInit) => {
+    if (String(url).startsWith('/api/')) {
+      attempts.push(String(init?.body));
+      const response = await posthog(request(JSON.parse(String(init?.body))));
+      if (attempts.length < 3) throw new Error('acknowledgment lost after provider accepted');
+      return response;
+    }
+    assert.match(String(url), /^https:\/\/us\.i\.posthog\.com\/capture\//);
+    forwarded.push(JSON.parse(String(init?.body))); return new Response('{}');
+  });
+  captureSiteEvent('site link clicked', { href: 'https://www.amazon.com/dp/B0HM8J2Z87?private#token', placement: 'home_hero', destination_kind: 'amazon_kindle' });
+  for (let step = 0; step < 3; step++) {
+    for (let i = 0; i < 50; i++) await Promise.resolve();
+    const retry = [...timers.values()].find(timer => timer.delay < 5000);
+    if (retry) retry.fn();
+  }
+  for (let i = 0; i < 50; i++) await Promise.resolve();
+  assert.equal(attempts.length, 3); assert.equal(new Set(attempts).size, 1);
+  assert.equal(forwarded.length, 1);
+  const receipt = JSON.parse(attempts[0]);
+  assert.equal(forwarded[0].uuid, receipt.uuid); assert.equal(forwarded[0].timestamp, receipt.timestamp);
+  assert.equal(receipt.properties.placement, 'home_hero'); assert.equal(receipt.properties.destination_kind, 'amazon_kindle');
+  assert.ok(!attempts[0].includes('private')); assert.ok(!attempts[0].includes('B0HM8J2Z87'));
+  assert.equal(timers.size, 0);
 });

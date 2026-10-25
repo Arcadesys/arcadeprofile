@@ -13,6 +13,7 @@ export default function StartReadingShelf({
   columns = 2,
   description = `${items.length} good places to enter the work.`,
   headingId = 'start-reading-heading',
+  analyticsPlacement,
 }: {
   items: readonly DiscoveryReadingItem[];
   heading?: string;
@@ -22,6 +23,7 @@ export default function StartReadingShelf({
   /** Enables only verified cover assets; text-first shelves stay unchanged. */
   showCovers?: boolean;
   headingId?: string;
+  analyticsPlacement?: 'home_shelf';
 }) {
   return (
     <section className={[styles.shelf, compact && styles.compact, columns === 3 && styles.threeColumn].filter(Boolean).join(' ')} aria-labelledby={headingId}>
@@ -33,7 +35,7 @@ export default function StartReadingShelf({
         {items.map((item) => (
           <li key={item.href} className={[styles.item, showCovers && item.cover && styles.withCover].filter(Boolean).join(' ')}>
             {showCovers && item.cover ? (
-              <Link className={styles.coverLink} href={item.href} aria-label={`Read ${item.title}`}>
+              <Link className={styles.coverLink} href={item.href} aria-label={`Read ${item.title}`} data-analytics-placement={analyticsPlacement}>
                 <Image
                   className={styles.cover}
                   src={item.cover.src}
@@ -45,10 +47,10 @@ export default function StartReadingShelf({
               </Link>
             ) : null}
             <p className={styles.kind}>{item.kind}</p>
-            <h3><Link href={item.href}>{item.title}</Link></h3>
+            <h3><Link href={item.href} data-analytics-placement={analyticsPlacement}>{item.title}</Link></h3>
             {!compact ? <p className={styles.description}>{item.description}</p> : null}
             <p className={styles.meta}>About {item.readingMinutes} min read</p>
-            <Link className={styles.read} href={item.href}>Read {item.title} <span aria-hidden="true">→</span></Link>
+            <Link className={styles.read} href={item.href} data-analytics-placement={analyticsPlacement}>Read {item.title} <span aria-hidden="true">→</span></Link>
           </li>
         ))}
       </ol>

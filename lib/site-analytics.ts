@@ -35,6 +35,7 @@ export function isProductionAnalyticsEnvironment(nodeEnv: string | undefined, de
 /** Public env is optional on real production; preview hosts are independently denied. */
 export function canCaptureBrowserAnalytics(currentUrl = typeof window === 'undefined' ? '' : window.location.href) {
   if (!isProductionAnalyticsEnvironment(process.env.NODE_ENV, process.env.NEXT_PUBLIC_VERCEL_ENV)) return false;
+  if (typeof window !== 'undefined' && window.navigator.doNotTrack === '1') return false;
   try {
     const url = new URL(currentUrl);
     return buildSiteAnalyticsContext(url.pathname, currentUrl) !== null;

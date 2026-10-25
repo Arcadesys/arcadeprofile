@@ -78,10 +78,11 @@ export default async function HomePage() {
           description="Three quick ways into the stories and essays."
           compact
           columns={3}
+          analyticsPlacement="home_shelf"
         />
         <nav className={styles.readingLinks} aria-label="Browse writing">
-          <Link href="/stories">All stories <span aria-hidden="true">→</span></Link>
-          <Link href="/essays">All essays <span aria-hidden="true">→</span></Link>
+          <Link href="/stories" data-analytics-placement="home_browse">All stories <span aria-hidden="true">→</span></Link>
+          <Link href="/essays" data-analytics-placement="home_browse">All essays <span aria-hidden="true">→</span></Link>
         </nav>
       </section>
 

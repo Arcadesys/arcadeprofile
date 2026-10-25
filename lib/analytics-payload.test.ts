@@ -2,11 +2,46 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { CREATIVE_ORIGINALS_WITH_WORK_COPIES } from './post-canonical-originals.fixture';
 import { sanitizeAnalyticsPayload, sanitizeEntryContext, sanitizeReaderProperties } from './analytics-payload';
+import { readAnalyticsSession } from './analytics-session';
 
 const id = '9e833036-9f38-44d9-9d26-3d9c1b332f94';
 const site = 'https://www.thearcades.me';
 const payload = (event = '$pageview', properties: Record<string, unknown> = {}) => ({ event, distinct_id: id, properties: { $current_url: `${site}/stories?email=secret#token`, ...properties } });
 const reader = { canonicalId: '/novels/it-takes-a-zoo/cold-boot', contentType: 'chapter', placement: 'reader-body', destination: 'none' };
+
+test('receipt metadata is a complete bounded ISO/UUID tuple; provider-reserved fields cannot be injected', () => {
+  const now = new Date().toISOString();
+  const safe = { ...payload(), uuid: id, timestamp: now };
+  assert.equal(sanitizeAnalyticsPayload(safe, 'sitewide')?.timestamp, now);
+  assert.equal(sanitizeAnalyticsPayload(safe, 'sitewide')?.uuid, id);
+  for (const patch of [{ uuid: 'email@example.com' }, { timestamp: 'secret' }, { timestamp: '2026-02-30T00:00:00.000Z' }, { timestamp: new Date(Date.now() - 6 * 60_000).toISOString() }, { timestamp: undefined }, { uuid: undefined }]) assert.equal(sanitizeAnalyticsPayload({ ...safe, ...patch }, 'sitewide'), null);
+  const result = sanitizeAnalyticsPayload(payload('$pageview', { $device_type: 'Desktop', $referring_domain: 'forged', $initial_referring_domain: 'private', $set_once: { private: true }, $referrer: 'https://google.com/path?email=private#token' }), 'sitewide');
+  assert.equal(result?.properties.$device_type, undefined);
+  assert.equal(result?.properties.$referring_domain, 'google.com');
+  assert.equal(result?.properties.$initial_referring_domain, undefined);
+  assert.equal(result?.properties.$set_once, undefined);
+});
+
+test('pageleave requires original page/session and bounded metrics; arbitrary fields never survive', () => {
+  const fields = { $pageview_id: id, $session_id: readAnalyticsSession(null, 'session').session.id,
+    $prev_pageview_duration: 12.5, visible_seconds: 5, lifecycle_reason: 'pagehide',
+    $prev_pageview_pathname: '/subscribe/verify', email: 'private@example.com' };
+  const result = sanitizeAnalyticsPayload(payload('$pageleave', fields), 'sitewide');
+  assert.equal(result?.properties.$prev_pageview_pathname, '/stories');
+  assert.equal(result?.properties.email, undefined);
+  for (const patch of [{ $pageview_id: 'forged' }, { $session_id: id }, { visible_seconds: 13 }, { visible_seconds: -1 }, { visible_seconds: 0.5 }, { $prev_pageview_duration: Infinity }, { $prev_pageview_duration: 1800 }, { lifecycle_reason: 'private text' }]) assert.equal(sanitizeAnalyticsPayload(payload('$pageleave', { ...fields, ...patch }), 'sitewide'), null);
+});
+
+test('homepage reading placements survive only on public internal links from home', () => {
+  for (const placement of ['home_sample', 'home_shelf', 'home_browse']) {
+    const fields = { $current_url: `${site}/?private#token`, placement, href: '/stories?email=private#token', label: 'private text' };
+    const result = sanitizeAnalyticsPayload(payload('site link clicked', fields), 'sitewide');
+    assert.equal(result?.properties.placement, placement);
+    assert.equal(result?.properties.conversion_stage, 'reading_navigation_intent');
+    assert.equal(result?.properties.href, '/stories'); assert.equal(result?.properties.label, undefined);
+    for (const patch of [{ $current_url: `${site}/stories` }, { href: '/subscribe/verify#secret' }, { href: 'https://evil.test/private' }, { placement: 'private@example.com' }]) assert.equal(sanitizeAnalyticsPayload(payload('site link clicked', { ...fields, ...patch }), 'sitewide')?.properties.placement, undefined);
+  }
+});
 
 test('engagement requires matching public content and bounded metrics; QA labels survive', () => {
   const fields = { ...reader, $current_url: `${site}${reader.canonicalId}?utm_campaign=analytics-verification`, active_seconds: 30, depth_percent: 50, engagement_checkpoint: '30s', engagement_version: 'forged', utm_campaign: 'analytics-verification', email: 'private@example.com' };
@@ -40,7 +75,7 @@ test('shared context strips arbitrary properties, person updates, full URLs and 
   }), 'sitewide');
   assert.ok(result);
   assert.deepEqual(result.properties, {
-    $referrer: 'https://example.com', referring_domain: 'example.com', utm_source: 'thearcades', utm_campaign: 'professional_handoff', utm_content: 'home_header',
+    $referrer: 'https://example.com', referring_domain: 'example.com', $referring_domain: 'example.com', utm_source: 'thearcades', utm_campaign: 'professional_handoff', utm_content: 'home_header',
     pathname: '/stories', $pathname: '/stories', $host: 'www.thearcades.me', $current_url: `${site}/stories`, hostname: 'www.thearcades.me', analytics_surface: 'sitewide', $session_id: id, $window_id: id, session_model: 'legacy_v1',
   });
   for (const content of ['home_header', 'home_entry', 'start_entry']) assert.equal(sanitizeEntryContext({ utm_campaign: 'professional_handoff', utm_content: content }).utm_content, content);
@@ -80,6 +115,8 @@ test('homepage Amazon book clicks retain only fixed placement and format labels'
   const paperback = properties('https://www.amazon.com/dp/B0HMFDFVNH', 'amazon_paperback');
   assert.equal(paperback?.destination_kind, 'amazon_paperback');
   assert.equal(paperback?.placement, 'home_hero');
+  const sanitized = sanitizeAnalyticsPayload(payload('site link clicked', { $current_url: `${site}/`, href: 'https://www.amazon.com/dp/B0HM8J2Z87?secret', placement: 'home_hero', destination_kind: 'amazon_kindle' }), 'sitewide');
+  assert.deepEqual(sanitizeAnalyticsPayload(sanitized, 'sitewide'), sanitized);
 
   for (const invalid of [
     { destination_kind: 'amazon_kindle', placement: 'footer' },

@@ -21,10 +21,12 @@ function harness(t: TestContext, path = '/stories') {
   // JSDOM never executes/downloads inserted SDK scripts. All fetches are mocked.
   const dom = analyticsBrowser(t, path, '<div id="root"></div>');
   const sent: { event: string; properties: Record<string, unknown> }[] = [];
+  const leaves: typeof sent = [];
   const sdkCalls: { kind: string; value: unknown }[] = [];
   const errors: string[] = [], warnings: string[] = [];
   t.mock.method(globalThis, 'fetch', async (_url: string, init: RequestInit) => {
-    sent.push(JSON.parse(String(init.body))); return new Response('{}');
+    const receipt = JSON.parse(String(init.body));
+    (receipt.event === '$pageleave' ? leaves : sent).push(receipt); return new Response('{}');
   });
   t.mock.method(console, 'error', (...args: unknown[]) => { warnings.push(args.map(String).join(' ')); });
   window.va = (kind, value) => { sdkCalls.push({ kind, value }); };
@@ -53,7 +55,7 @@ function harness(t: TestContext, path = '/stories') {
     });
     return { root, serverMarkup, browserServerMarkup };
   }
-  return { dom, sent, sdkCalls, errors, warnings, hydrate, view };
+  return { dom, sent, leaves, sdkCalls, errors, warnings, hydrate, view };
 }
 
 test('frozen render-time browser gate reproduces hydration recovery independently of storage', async (t) => {
@@ -86,6 +88,7 @@ test('hydrated SiteAnalytics preserves private-route gating through actual histo
     async function navigate(path: string) { await act(async () => { window.history.pushState({}, '', path); root.render(f.view()); }); }
     assert.equal(f.sent.length, 1);
     await navigate('/subscribe/verify#local-test-token'); assert.equal(f.sent.length, 1);
+    assert.equal(f.leaves.length, 1); assert.equal(f.leaves[0].properties.pathname, '/stories');
     await navigate('/essays?email=private#local-test-token'); assert.equal(f.sent.length, 2);
     async function historyStep(direction: 'back' | 'forward') {
       await act(async () => {
@@ -150,6 +153,7 @@ test('private-to-public navigation activates analytics when Next commits history
     await act(async () => root.render(f.view(CommitOrderedNavigation)));
     assert.equal(window.location.pathname, '/subscribe/unsubscribe');
     assert.equal(f.sent.length, 1, 'Public-to-private commit must not capture');
+    assert.equal(f.leaves.length, 1); assert.equal(f.leaves[0].properties.pathname, '/stories');
     target = '/essays';
     await act(async () => root.render(f.view(CommitOrderedNavigation)));
     assert.deepEqual(f.sent.map(({ properties }) => properties.pathname), ['/stories', '/essays']);
