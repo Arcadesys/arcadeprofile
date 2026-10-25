@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
-import { shouldTrackSiteAnalytics } from '@/lib/site-analytics';
+import { isPublicReaderPdfDestination, shouldTrackSiteAnalytics } from '@/lib/site-analytics';
 import { captureSiteEvent, createPageVisitSender } from '@/lib/posthog-client';
 import { observePageLifecycle } from '@/lib/page-lifecycle';
 
@@ -48,7 +48,8 @@ export function PostHogAnalytics() {
       try {
         const url = new URL(href, window.location.href);
         if (!['http:', 'https:'].includes(url.protocol)) return;
-        if (!shouldTrackSiteAnalytics(url.pathname) && url.hostname === window.location.hostname) return;
+        const sameReaderPdf = isPublicReaderPdfDestination(window.location.pathname, url.pathname, window.location.origin, url.origin);
+        if (!shouldTrackSiteAnalytics(url.pathname) && url.hostname === window.location.hostname && !sameReaderPdf) return;
         captureSiteEvent('site link clicked', {
           href: url.hostname === window.location.hostname
             ? url.pathname

@@ -102,6 +102,40 @@ test('link counts retain safe path/host context while query/hash and non-HTTP va
   for (const href of ['mailto:private@example.com', 'javascript:secret', '/subscribe/verify#token', '/unknown?secret', 'https://example.com/private?secret']) assert.equal(sanitizeAnalyticsPayload(payload('site link clicked', { href }), 'sitewide')?.properties.href, undefined);
 });
 
+test('public reader PDF activation is classified without retaining its route or claiming a saved file', () => {
+  const path = '/novels/it-takes-a-zoo/cold-boot';
+  const pdf = sanitizeAnalyticsPayload(payload('site link clicked', {
+    $current_url: `${site}${path}`, href: `${path}/pdf?token=private#secret`,
+  }), 'sitewide');
+  assert.equal(pdf?.properties.destination_kind, 'public_pdf');
+  assert.equal(pdf?.properties.conversion_stage, 'public_pdf_download_intent');
+  assert.equal(pdf?.properties.href, undefined);
+  assert.equal(pdf?.properties.destination_host, 'www.thearcades.me');
+  assert.deepEqual(sanitizeAnalyticsPayload(pdf, 'sitewide'), pdf);
+  for (const [current, href] of [
+    [`${site}/stories`, `${path}/pdf`],
+    [`${site}${path}`, `${path}/not-pdf`],
+    [`${site}${path}`, 'https://downloads.example.com/file.pdf'],
+    [`${site}${path}`, `${path}/unknown/pdf`],
+    [`${site}/stories`, '/stories/pdf'],
+  ]) {
+    const result = sanitizeAnalyticsPayload(payload('site link clicked', { $current_url: current, href }), 'sitewide');
+    assert.notEqual(result?.properties.destination_kind, 'public_pdf');
+    assert.notEqual(result?.properties.conversion_stage, 'public_pdf_download_intent');
+  }
+  for (const properties of [
+    { $current_url: `${site}${path}`, link_kind: 'internal', destination_host: 'www.thearcades.me', destination_kind: 'public_pdf' },
+    { $current_url: `${site}${path}`, link_kind: 'internal', destination_host: 'www.thearcades.me', conversion_stage: 'public_pdf_download_intent' },
+    { $current_url: `${site}${path}`, link_kind: 'external', destination_host: 'downloads.example.com', destination_kind: 'public_pdf', conversion_stage: 'public_pdf_download_intent' },
+    { $current_url: `${site}/stories`, link_kind: 'internal', destination_host: 'www.thearcades.me', destination_kind: 'public_pdf', conversion_stage: 'public_pdf_download_intent' },
+    { $current_url: `${site}/subscribe/verify`, link_kind: 'internal', destination_host: 'www.thearcades.me', destination_kind: 'public_pdf', conversion_stage: 'public_pdf_download_intent' },
+  ]) {
+    const result = sanitizeAnalyticsPayload(payload('site link clicked', properties), 'sitewide');
+    assert.notEqual(result?.properties.destination_kind, 'public_pdf');
+    assert.notEqual(result?.properties.conversion_stage, 'public_pdf_download_intent');
+  }
+});
+
 test('homepage Amazon book clicks retain only fixed placement and format labels', () => {
   const properties = (href: string, destinationKind: string) => sanitizeAnalyticsPayload(payload('site link clicked', {
     $current_url: `${site}/`, href, link_kind: 'external', destination_host: 'www.amazon.com',

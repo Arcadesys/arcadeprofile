@@ -61,6 +61,12 @@ The event names and units remain:
 - `$pageleave`: one terminal public-visit receipt, with bounded elapsed/visible seconds and original public pathname, never the destination token/private URL. BFCache restoration starts a new visit. See the session contract for expiry/loss semantics.
 - `site link clicked`: each eligible link activation, safe internal public `href`
   or the existing professional origin, `link_kind`, and `destination_host`. The
+  exact reader page's same-origin `/pdf` action may additionally retain only
+  `destination_kind=public_pdf` and `conversion_stage=public_pdf_download_intent`;
+  the PDF route itself is intentionally omitted because PDF endpoints are not
+  pageview-eligible. A repeated sanitizer pass preserves this minimized pair only
+  with an internal same-host destination and an exact source path in the reader
+  manifest. This records a click, not a saved file.
   homepage book buttons may additionally retain only `placement=home_hero` and
   `destination_kind=amazon_kindle|amazon_paperback` when the source href is a
   public Amazon `/dp/{ASIN}` link. The product path, query, fragment, and ASIN
