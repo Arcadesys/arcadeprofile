@@ -1,8 +1,10 @@
 import publicPaths from '@/data/analytics-public-paths.json';
+import readerPaths from '@/data/analytics-reader-paths.json';
 import { SITE_URL } from '@/lib/site-url';
 import type { BeforeSendEvent } from '@vercel/analytics';
 
 const PUBLIC_PATHS = new Set(publicPaths);
+const READER_PATHS = new Set<string>(readerPaths);
 export const ANALYTICS_ORIGIN = SITE_URL;
 
 /** Exact source-owned routes only; encoded, private and unknown paths fail closed. */
@@ -14,6 +16,14 @@ export function publicAnalyticsPath(value: unknown): string | null {
 
 export function shouldTrackSiteAnalytics(pathname: string) {
   return publicAnalyticsPath(pathname) !== null;
+}
+
+/** Exact same-origin PDF child of a public reader; PDF routes stay pageview-ineligible. */
+export function isPublicReaderPdfDestination(sourcePath: unknown, targetPath: unknown, sourceOrigin: unknown, targetOrigin: unknown) {
+  return typeof sourcePath === 'string' && typeof targetPath === 'string'
+    && typeof sourceOrigin === 'string' && sourceOrigin === targetOrigin
+    && READER_PATHS.has(sourcePath) && publicAnalyticsPath(sourcePath) === sourcePath
+    && targetPath === `${sourcePath}/pdf`;
 }
 
 export function buildSiteAnalyticsContext(pathname: string, currentUrl: string) {

@@ -1,10 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { act, createElement as h } from 'react';
+import { createRoot } from 'react-dom/client';
+import { PathnameContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
 import { NextRequest } from 'next/server';
 import { POST as posthog } from '../app/(frontend)/api/analytics/posthog/route';
 import { POST as mff } from '../app/(frontend)/api/analytics/mff/route';
+import { PostHogAnalytics } from '../app/components/PostHogAnalytics';
 import { analyticsBrowser } from './fixtures/analytics-browser';
 import { captureSiteEvent } from './posthog-client';
+import { shouldTrackSiteAnalytics } from './site-analytics';
 
 const origin = 'https://www.thearcades.me';
 const input = (path = '/stories') => ({ event: '$pageview', distinct_id: '9e833036-9f38-44d9-9d26-3d9c1b332f94', properties: { $current_url: `${origin}${path}?email=secret#token`, email: 'private@example.com', $set: { secret: true }, $raw_user_agent: 'forged', $geoip_disable: true } });
@@ -118,6 +123,74 @@ test('public reader PDF intent survives capture, client preparation, and receive
     assert.ok(!JSON.stringify(body).includes('secret'));
     assert.ok(!JSON.stringify(body).includes('fragment'));
   }
+});
+
+test('document clicks track only the current reader PDF through the minimized receiver', async (t) => {
+  const path = '/novels/it-takes-a-zoo/cold-boot';
+  const dom = analyticsBrowser(t, path, `<div id="root"></div><a id="reader-pdf" href="${path}/pdf?private=secret#fragment">PDF</a><a id="other-reader-pdf" href="/novels/it-takes-a-zoo/open-port/pdf">Other reader PDF</a><a id="unlisted-pdf" href="/stories/pdf">Unlisted PDF</a><a id="private-pdf" href="/subscribe/verify/pdf?token=private">Private PDF</a><a id="external-pdf" href="https://downloads.example.test/chapters/cold-boot.pdf?private=external#fragment">External PDF</a><a id="ordinary-internal" href="/stories">Stories</a><a id="ordinary-external" href="https://example.test/about">External page</a>`);
+  assert.equal(shouldTrackSiteAnalytics(`${path}/pdf`), false);
+
+  const requestBodies: Record<string, unknown>[] = [];
+  const forwarded: Record<string, unknown>[] = [];
+  t.mock.method(globalThis, 'fetch', async (url: string, init: RequestInit) => {
+    if (String(url).startsWith('/api/')) {
+      const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+      requestBodies.push(body);
+      return posthog(request(body));
+    }
+    forwarded.push(JSON.parse(String(init.body)) as Record<string, unknown>);
+    return new Response('{}', { status: 200 });
+  });
+
+  const root = createRoot(document.getElementById('root')!);
+  await act(async () => root.render(h(PathnameContext.Provider, { value: path }, h(PostHogAnalytics))));
+  for (let i = 0; i < 100; i++) await Promise.resolve();
+  // Ignore the regular reader pageview; this test is about document-link intent.
+  requestBodies.length = 0;
+  forwarded.length = 0;
+
+  for (const id of ['reader-pdf', 'other-reader-pdf', 'unlisted-pdf', 'private-pdf', 'external-pdf', 'ordinary-internal', 'ordinary-external']) {
+    const link = document.getElementById(id)!;
+    link.addEventListener('click', event => event.preventDefault());
+    await act(async () => {
+      link.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+  }
+  for (let i = 0; i < 100; i++) await Promise.resolve();
+
+  assert.equal(requestBodies.length, 4);
+  assert.equal(forwarded.length, 4);
+  const received = requestBodies.map(body => body.properties as Record<string, unknown>);
+  const providerProperties = forwarded.map(body => body.properties as Record<string, unknown>);
+  const pdf = received.find(properties => properties.destination_kind === 'public_pdf');
+  const providerPdf = providerProperties.find(properties => properties.destination_kind === 'public_pdf');
+  const external = received.find(properties => properties.destination_host === 'downloads.example.test');
+  const ordinaryInternal = received.find(properties => properties.href === '/stories');
+  const ordinaryExternal = received.find(properties => properties.destination_host === 'example.test');
+  assert.ok(pdf);
+  assert.equal(pdf.conversion_stage, 'public_pdf_download_intent');
+  assert.equal(pdf.href, undefined);
+  assert.equal(pdf.pathname, path);
+  assert.ok(providerPdf);
+  assert.equal(providerPdf.conversion_stage, 'public_pdf_download_intent');
+  assert.equal(providerPdf.href, undefined);
+  assert.equal(providerPdf.pathname, path);
+  assert.ok(external);
+  assert.equal(external.destination_kind, undefined);
+  assert.equal(external.conversion_stage, undefined);
+  assert.ok(ordinaryInternal);
+  assert.equal(ordinaryInternal.destination_kind, undefined);
+  assert.equal(ordinaryInternal.conversion_stage, undefined);
+  assert.ok(ordinaryExternal);
+  assert.equal(ordinaryExternal.destination_kind, undefined);
+  assert.equal(ordinaryExternal.conversion_stage, undefined);
+  for (const body of [...requestBodies, ...forwarded]) {
+    assert.ok(!JSON.stringify(body).includes('/pdf'));
+    assert.ok(!JSON.stringify(body).includes('secret'));
+    assert.ok(!JSON.stringify(body).includes('fragment'));
+    assert.ok(!JSON.stringify(body).includes('token=private'));
+  }
+  await act(async () => root.unmount());
 });
 
 test('lost browser acknowledgments retry the same CTA UUID/timestamp and forward only once within the receiver window', async (t) => {

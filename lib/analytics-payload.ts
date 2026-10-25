@@ -1,6 +1,6 @@
 import mffLabels from '@/data/analytics-mff-labels.json';
 import readerPaths from '@/data/analytics-reader-paths.json';
-import { ANALYTICS_ORIGIN, buildSiteAnalyticsContext, publicAnalyticsPath } from '@/lib/site-analytics';
+import { ANALYTICS_ORIGIN, buildSiteAnalyticsContext, isPublicReaderPdfDestination, publicAnalyticsPath } from '@/lib/site-analytics';
 import { VALID_SOURCES } from '@/lib/subscribe-types';
 import { POST_CANONICAL_EDITIONS } from '@/lib/post-canonical';
 import { isAnalyticsSessionId } from '@/lib/analytics-session';
@@ -114,8 +114,7 @@ export function sanitizeAnalyticsLink(input: Record<string, unknown>, surface: A
     ? (() => {
       try {
         const url = new URL(input.href, ANALYTICS_ORIGIN);
-        const parent = url.pathname.endsWith('/pdf') ? url.pathname.slice(0, -4) : '';
-        return url.origin === ANALYTICS_ORIGIN && parent === input.$pathname && READER_PATHS.has(parent) && publicAnalyticsPath(parent) ? parent : null;
+        return isPublicReaderPdfDestination(input.$pathname, url.pathname, ANALYTICS_ORIGIN, url.origin) ? input.$pathname : null;
       } catch { return null; }
     })()
     : null;
