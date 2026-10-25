@@ -26,7 +26,9 @@ function observerMock(t: TestContext) {
 
 function captureMock(t: TestContext) {
   const sent: { event: string; properties: Record<string, unknown> }[] = [];
-  t.mock.method(globalThis, 'fetch', async (_url: string, init: RequestInit) => { sent.push(JSON.parse(String(init.body))); return new Response('{}'); });
+  // These original contracts count views/reader actions; terminal pageleaves
+  // have their own lifecycle coverage below and must not change those units.
+  t.mock.method(globalThis, 'fetch', async (_url: string, init: RequestInit) => { const value = JSON.parse(String(init.body)); if (value.event !== '$pageleave') sent.push(value); return new Response('{}'); });
   return sent;
 }
 

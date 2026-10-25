@@ -20,8 +20,8 @@ test('the homepage keeps one small work link in its brand bar', () => {
 test('the reader funnel keeps its homepage entry points', () => {
   const home = source('app/(frontend)/page.tsx');
 
-  assert.match(home, /href="\/stories">All stories/);
-  assert.match(home, /href="\/essays">All essays/);
+  assert.match(home, /href="\/stories"[^>]*>All stories/);
+  assert.match(home, /href="\/essays"[^>]*>All essays/);
 });
 
 test('the resume sits in the primary navigation rail and the footer, linking to the work site', () => {

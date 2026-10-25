@@ -3,18 +3,31 @@
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { shouldTrackSiteAnalytics } from '@/lib/site-analytics';
-import { captureSiteEvent } from '@/lib/posthog-client';
+import { captureSiteEvent, createPageVisitSender } from '@/lib/posthog-client';
+import { observePageLifecycle } from '@/lib/page-lifecycle';
 
 export function PostHogAnalytics() {
   const pathname = usePathname();
   const previousPath = useRef<string | null>(null);
+  const visit = useRef<ReturnType<typeof observePageLifecycle> | null>(null);
+  const generation = useRef(0);
 
   useEffect(() => {
     if (previousPath.current === pathname) return;
+    visit.current?.('navigation');
+    visit.current = null;
     previousPath.current = pathname;
     if (!shouldTrackSiteAnalytics(pathname)) return;
-    captureSiteEvent('$pageview');
+    visit.current = observePageLifecycle(window, document, createPageVisitSender);
   }, [pathname]);
+
+  useEffect(() => {
+    const mounted = ++generation.current;
+    // Strict Mode's immediate cleanup/setup must not terminate a real visit.
+    return () => { queueMicrotask(() => {
+      if (generation.current === mounted) { visit.current?.('unmount'); visit.current = null; }
+    }); };
+  }, []);
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {

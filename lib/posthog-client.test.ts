@@ -70,6 +70,21 @@ test('disabled browser context sends no events and creates no identity/entry sto
   assert.equal(fetch.mock.calls.length, 0);
 });
 
+test('DNT suppresses capture/storage; blocked sessionStorage retains first entry in tab memory', (t) => {
+  const dom = analyticsBrowser(t, '/stories?utm_source=first', '', 'https://source.example/private?q=secret');
+  const sent: { properties: Record<string, unknown> }[] = [];
+  t.mock.method(globalThis, 'fetch', async (_url: string, init: RequestInit) => { sent.push(JSON.parse(String(init?.body))); return new Response('{}'); });
+  Object.defineProperty(window.navigator, 'doNotTrack', { configurable: true, value: '1' });
+  captureSiteEvent('$pageview'); assert.equal(sent.length, 0); assert.equal(window.localStorage.length, 0);
+  Object.defineProperty(window.navigator, 'doNotTrack', { value: '0' });
+  Object.defineProperty(window, 'sessionStorage', { get: () => { throw new Error('blocked'); } });
+  captureSiteEvent('$pageview');
+  dom.reconfigure({ url: 'https://www.thearcades.me/essays?utm_source=second' }); captureSiteEvent('$pageview');
+  assert.equal(sent[1].properties.landing_page, '/stories'); assert.equal(sent[1].properties.utm_source, 'first');
+  assert.equal(sent[1].properties.$referring_domain, 'source.example');
+  assert.equal(sent[0].properties.$session_id, sent[1].properties.$session_id);
+});
+
 test('MFF client sends sanitized public labels and never adds sitewide session IDs', (t) => {
   analyticsBrowser(t, '/mff?private#token', '', 'https://example.com/private?secret#token');
   const sent: { properties: Record<string, unknown> }[] = [];
@@ -80,7 +95,7 @@ test('MFF client sends sanitized public labels and never adds sitewide session I
   assert.ok(!JSON.stringify(sent).includes('secret')); assert.ok(!JSON.stringify(sent).includes('private'));
 });
 
-test('capture remains fire-and-forget on 204/400/403/502 and rejected fetch, with no retries', async (t) => {
+test('capture remains nonblocking on 204/400/403/502 and rejected fetch', async (t) => {
   analyticsBrowser(t);
   const fetch = t.mock.method(globalThis, 'fetch', async () => new Response(null, { status: 204 }));
   for (const status of [204, 400, 403, 502]) {

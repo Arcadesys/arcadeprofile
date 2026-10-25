@@ -34,7 +34,7 @@ export default function BookPurchaseBlock({
         {pitch ? <p className={styles.pitch}>{pitch}</p> : null}
         <p className={styles.exclusive}>Eight stories, including <em>Foxtails</em> — only in the book.</p>
         <BookActions book={book} purchaseOnly placement={placement} />
-        {readAction ? <Link className={styles.readFree} href={readAction.href}>{readAction.label}</Link> : null}
+        {readAction ? <Link className={styles.readFree} href={readAction.href} data-analytics-placement={placement === 'home_hero' ? 'home_sample' : undefined}>{readAction.label}</Link> : null}
       </div>
     </aside>
   );
