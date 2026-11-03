@@ -63,6 +63,26 @@ export default function WelcomePage() {
         <p className={styles.intro}>Welcome. If you found your way here from my card, here’s a place to pick up the conversation.</p>
       </header>
 
+      <section className={styles.route} aria-labelledby="welcome-contact-heading" style={{ marginBottom: '1rem' }}>
+        <h2 id="welcome-contact-heading">Get in touch</h2>
+        <address style={{ fontStyle: 'normal' }}>
+          <ul style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 18rem), 1fr))' }}>
+            <li>
+              <a href="mailto:austen.crowder@gmail.com" style={{ minHeight: 0, overflowWrap: 'anywhere' }}>
+                <strong>Email</strong>
+                <span>austen.crowder@gmail.com</span>
+              </a>
+            </li>
+            <li>
+              <a href="tel:+13127207820" style={{ minHeight: 0 }}>
+                <strong>Phone</strong>
+                <span>312.720.7820</span>
+              </a>
+            </li>
+          </ul>
+        </address>
+      </section>
+
       <section className={styles.introductions} aria-labelledby="welcome-next-heading">
         <h2 id="welcome-next-heading">Where would you like to go?</h2>
         <ul>
