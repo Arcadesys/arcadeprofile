@@ -114,6 +114,10 @@ const nextConfig = {
         destination: 'https://arcades-public-mcp.vercel.app/mcp',
       },
       {
+        source: '/heinlein',
+        destination: '/heinlein/index.html',
+      },
+      {
         source: '/reaction-stickers',
         destination: '/reaction-stickers/index.html',
       },
