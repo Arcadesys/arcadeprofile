@@ -11,8 +11,7 @@ import styles from './estelles-children.module.css';
 
 const book = getBook('estelles-children')!;
 const title = "Estelle's Children";
-const description =
-  'Releases November 30, 2026. Ebook available for preorder. A preview of a novel told as an archive: a Chicago witch’s parlor, a growing sisterhood, and the records of a family history.';
+const description = book.description;
 const path = '/novels/estelles-children';
 
 export const metadata: Metadata = {
@@ -42,20 +41,12 @@ export default function EstellesChildrenPreviewPage() {
           <h1>{title}</h1>
           <p className={styles.lede}>{book.editionNote}</p>
           <BookActions book={book} purchaseOnly placement="estelle_preview" />
-          <p className={styles.lede}>
-            A Chicago witch’s parlor opens onto a sisterhood, recorded through oral histories,
-            letters, journals, photographs, and the people who carry a family history forward.
-          </p>
+          <p className={styles.lede}>{book.synopsis?.[0]}</p>
         </header>
 
         <section aria-labelledby="about-heading" className={styles.section}>
           <h2 id="about-heading">About this book</h2>
-          <p>
-            In Ravenswood, Lady Estelle Extravaganza welcomes trans folk who come to her magic
-            parlor looking for shelter, understanding, and a way forward. The story takes the shape
-            of an archive: a family history assembled from interviews and the records people leave
-            with one another.
-          </p>
+          {book.synopsis?.slice(1).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         </section>
 
         <section aria-labelledby="preview-heading" className={styles.note}>

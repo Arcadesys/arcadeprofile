@@ -99,7 +99,9 @@ export default async function BookPage({ params }: Props) {
           <div className={styles.detailBody}>
             <p className={styles.status}>{bookStatusLabel(book)}</p>
             <h1>{book.title}</h1>
-            <p className={styles.detailDescription}>{book.description}</p>
+            {(book.synopsis ?? [book.description]).map((paragraph) => (
+              <p className={styles.detailDescription} key={paragraph}>{paragraph}</p>
+            ))}
 
             <ul className={styles.metadata} aria-label="Book details">
               <li>By {book.author ?? 'Austen Tucker'}</li>
