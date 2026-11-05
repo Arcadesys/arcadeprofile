@@ -50,7 +50,7 @@ export default async function HomePage() {
         <div className={styles.releaseCopy}>
           <p className={styles.releaseDate}>Releases November 30, 2026</p>
           <h2 id="estelle-release-heading">Estelle&apos;s Children</h2>
-          <p>A Chicago witch’s parlor. A growing sisterhood. A family history told as an archive.</p>
+          {estelle.synopsis?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
           <p>The ebook is available for preorder.</p>
           <BookActions book={estelle} purchaseOnly placement="home_estelle_preorder" />
           <Link className={styles.releaseDetails} href="/books/estelles-children">Explore Estelle&apos;s Children <span aria-hidden="true">→</span></Link>

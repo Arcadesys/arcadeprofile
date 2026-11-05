@@ -116,3 +116,7 @@
 @media (max-width: 700px) {
   .cover { width: min(100%, 200px); }
 }
+
+.section p + p {
+  margin-top: 1rem;
+}

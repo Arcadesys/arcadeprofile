@@ -16,6 +16,7 @@ export interface BookInfo {
   slug: string;
   title: string;
   description: string;
+  synopsis?: readonly string[];
   stage: BookStage;
   section: BookSection;
   author?: string;
@@ -57,8 +58,14 @@ export const BOOKS: readonly BookInfo[] = [
   {
     slug: 'estelles-children',
     title: "Estelle's Children",
-    description:
-      'A Chicago witch’s parlor opens onto a growing sisterhood, told through oral histories, letters, journals, photographs, and the people carrying a family history forward.',
+    description: "Told through intertwined stories and forbidden records, Estelle's Children is a novel about trans inheritance, chosen family, and what happens when the people who opened the door become the ones holding the keys.",
+    synopsis: [
+      "Magic is real, and it belongs to the dolls.",
+      "For every trans kid who finds Lady Estelle Extravaganza's door, there is a hot meal, a spellbook, and a chance to build a life. She asks only one thing: pass it on.",
+      "Over a century, her children build a school, a Sisterhood, and a place in a world that never wanted them.",
+      "Then Glitter decides magic should belong to everyone.",
+      "Told through intertwined stories and forbidden records, Estelle's Children is a novel about trans inheritance, chosen family, and what happens when the people who opened the door become the ones holding the keys.",
+    ],
     stage: 'forthcoming',
     section: 'next',
     releaseYear: 2026,

@@ -184,6 +184,8 @@ test('Estelle’s Children shows the cover and preorder on each entry point with
     const { status, body } = await get(path);
     assert.equal(status, 200);
     assert.ok(body.includes('November 30, 2026'), `${path} release date`);
+    assert.ok(body.includes('Magic is real, and it belongs to the dolls.'), `${path} approved hook`);
+    assert.ok(body.includes('Then Glitter decides magic should belong to everyone.'), `${path} approved synopsis`);
     assert.ok(body.includes(`href="${preorderUrl}"`), `${path} preorder link`);
     assert.match(body, /<img[^>]+alt="Cover of Estelle’s Children by Austen Tucker:/);
     assert.ok(body.includes('estelles-children-approved-cover.webp'), `${path} approved cover`);
