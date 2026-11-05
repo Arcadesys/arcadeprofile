@@ -51,6 +51,11 @@
       "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/failover/47fbcb86e0a6c8b4ce06c2d6489ff53e6ba3a39d56397146c16e8f3e2a10f648/failover.pdf",
       "sha256": "47fbcb86e0a6c8b4ce06c2d6489ff53e6ba3a39d56397146c16e8f3e2a10f648",
       "bytes": 1647420
+    },
+    "follower-count": {
+      "url": "/editions/follower-count-b1f588c88c1d.pdf",
+      "sha256": "b1f588c88c1d7a7128ac51bce0c2b56b972fad815a6c8f3e0d7e80a41f3bc8ae",
+      "bytes": 1853665
     }
   }
 }

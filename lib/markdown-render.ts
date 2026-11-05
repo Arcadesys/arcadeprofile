@@ -12,7 +12,7 @@ function safeHref(value: string): string | null {
 }
 
 function inlineMarkdownToHtml(value: string): string {
-  let html = escapeHtml(value);
+  let html = escapeHtml(value).replace(/ {2,}\n/g, '<br />').replace(/\n/g, ' ');
   html = html.replace(/!\[([^\]]+)\]\(([^\s)]+)\)/g, (_match, alt: string, src: string) => {
     const safe = safeHref(src);
     return safe ? `<img src="${escapeHtml(safe)}" alt="${escapeHtml(alt)}" />` : escapeHtml(_match);
@@ -59,7 +59,7 @@ export function markdownToSafeHtml(markdown: string, options: { allowEmbeds?: bo
   const blocks: string[] = [];
   let paragraph: string[] = [];
   const flushParagraph = () => {
-    if (paragraph.length) blocks.push(`<p>${inlineMarkdownToHtml(paragraph.join(' '))}</p>`);
+    if (paragraph.length) blocks.push(`<p>${inlineMarkdownToHtml(paragraph.join('\n'))}</p>`);
     paragraph = [];
   };
 
@@ -123,7 +123,7 @@ export function markdownToSafeHtml(markdown: string, options: { allowEmbeds?: bo
       const tag = ordered ? 'ol' : 'ul';
       blocks.push(`<${tag}>${items.join('')}</${tag}>`);
     } else {
-      paragraph.push(line.trim());
+      paragraph.push(line);
     }
   }
   flushParagraph();

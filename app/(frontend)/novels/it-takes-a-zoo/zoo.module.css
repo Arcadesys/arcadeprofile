@@ -183,6 +183,15 @@
   background: transparent;
 }
 
+.chapterHero {
+  display: block;
+  width: min(100%, 30rem);
+  height: auto;
+  margin: 0 auto 2.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1rem 4rem #0007;
+}
+
 .readerHeader {
   margin-bottom: 3rem;
 }

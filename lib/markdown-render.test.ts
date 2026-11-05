@@ -54,3 +54,8 @@ test('keeps intentional line breaks inside a blockquote', () => {
   assert.match(html, /<blockquote><p>First<br \/>Second Third<br \/>Fourth<\/p><\/blockquote>/);
   assert.doesNotMatch(html, /First\\|Third  /);
 });
+
+test('Markdown hard breaks keep chat messages on separate lines', () => {
+  assert.equal(markdownToSafeHtml('*Jack:* Here.  \n*Vivian:* Jack?'), '<p><em>Jack:</em> Here.<br /><em>Vivian:</em> Jack?</p>');
+  assert.equal(markdownToSafeHtml('A wrapped\nparagraph.'), '<p>A wrapped paragraph.</p>');
+});

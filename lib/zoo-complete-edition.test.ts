@@ -15,9 +15,9 @@ test('the complete edition manifest describes the deterministic compiled PDF', a
   assert.equal(pdf.byteLength, assets.completeEdition.bytes);
   assert.equal(createHash('sha256').update(pdf).digest('hex'), assets.completeEdition.sha256);
   // This hashes the current reader compilation, not the separately pinned complete PDF.
-  // Open Port's reader revision does not republish the existing combined edition.
-  assert.equal(zooCompleteEditionHash(), 'c49a6d048074d71c57cf166ef83d0b8b4ce6b4e61fa7c86d3bcc8de6992de96e');
-  assert.match(zooCompleteEditionSource(), /"cold-boot"[\s\S]*"gallery-view"[\s\S]*"permissions"[\s\S]*"goodgirl-tv"[\s\S]*"soft-reset"[\s\S]*"open-port"[\s\S]*"failover"/);
+  // New reader chapters do not republish the existing combined edition.
+  assert.equal(zooCompleteEditionHash(), 'c2eac1fe1a0afc40d49921d1613d5e7b17692da754e62acdf951aea24d4202e7');
+  assert.match(zooCompleteEditionSource(), /"cold-boot"[\s\S]*"gallery-view"[\s\S]*"permissions"[\s\S]*"goodgirl-tv"[\s\S]*"soft-reset"[\s\S]*"open-port"[\s\S]*"failover"[\s\S]*"follower-count"/);
   assert.doesNotMatch(zooCompleteEditionSource(), /It takes a Zoo to raise a child,/);
 });
 

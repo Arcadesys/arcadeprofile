@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import { ZOO_CHAPTERS, ZOO_HERO, zooChapterToEditorialPiece } from './zoo-collection';
 
-test('the collection contains the seven canonical chapter editions in order', () => {
+test('the collection contains the eight published chapter editions in order', () => {
   assert.deepEqual(ZOO_CHAPTERS.map(({ title, slug, order }) => ({ title, slug, order })), [
     { title: 'Cold Boot', slug: 'cold-boot', order: 1 },
     { title: 'Gallery View', slug: 'gallery-view', order: 2 },
@@ -13,6 +14,7 @@ test('the collection contains the seven canonical chapter editions in order', ()
     { title: 'Soft Reset', slug: 'soft-reset', order: 5 },
     { title: 'Open Port', slug: 'open-port', order: 6 },
     { title: 'Failover', slug: 'failover', order: 7 },
+    { title: 'Follower Count', slug: 'follower-count', order: 8 },
   ]);
 });
 
@@ -22,7 +24,7 @@ test('chapter Markdown is full web text without planning notes or the separate p
     assert.doesNotMatch(chapter.markdown, /^# (?!#)/m);
     assert.doesNotMatch(chapter.markdown, /<!--|<claude>/i);
     assert.doesNotMatch(chapter.markdown, /It takes a Zoo to raise a child,/);
-    assert.match(chapter.pdfUrl, /^https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\//);
+    assert.match(chapter.pdfUrl, /^(https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\/|\/editions\/follower-count-[a-f0-9]{12}\.pdf$)/);
     assert.match(chapter.pdfSha256, /^[a-f0-9]{64}$/);
   }
   assert.match(ZOO_CHAPTERS[1].markdown, /collections\/it-takes-a-zoo\/gallery-view-artwork/);
@@ -43,8 +45,18 @@ test('the approved hero and PDF route contract are complete', () => {
   assert.ok(piece.blocks.length > 10);
 });
 
-test('the separate opening poem remains linked outside the seven-chapter edition', () => {
+test('the separate opening poem remains linked outside the published chapter edition', () => {
   const landing = fs.readFileSync(new URL('../app/(frontend)/novels/it-takes-a-zoo/page.tsx', import.meta.url), 'utf8');
   assert.match(landing, /Read the opening poem/);
   assert.match(landing, /it-takes-a-zoo-to-raise-the-child/);
+});
+
+test('Follower Count has the current opening, final scene and an exact downloadable PDF', () => {
+  const chapter = ZOO_CHAPTERS[7];
+  assert.match(chapter.markdown, /^## Vivian\n\nI had been polishing/);
+  assert.match(chapter.markdown, /Here\. How bad is it\?/);
+  assert.match(chapter.markdown, /The old guest routes were accepting connections on both clusters/);
+  const bytes = fs.readFileSync(`public${chapter.pdfUrl}`);
+  assert.equal(createHash('sha256').update(bytes).digest('hex'), chapter.pdfSha256);
+  assert.equal(bytes.subarray(0, 5).toString(), '%PDF-');
 });
