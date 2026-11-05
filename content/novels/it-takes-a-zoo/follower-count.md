@@ -71,7 +71,7 @@ Jack stood. He huffed. I knew the sound too well. Military. Grunts recognizing b
 
 He looked at Kat. Not at me. Kat. They had a conversation over a glance.
 
-“Need something?"
+“Need something?”
 
 Kat looked at Nate, then back at Jack. She nodded.
 
@@ -79,7 +79,7 @@ Kat looked at Nate, then back at Jack. She nodded.
 
 Nate sipped at his cup.
 
-“What’s that all about?"
+“What’s that all about?”
 
 “Probably a bugfix. You know how the Kats’ harness can be here. We’re not exactly running stock SP sims here.”
 
@@ -125,7 +125,7 @@ Then I heard the notification.
 
 A soft, familiar chime, followed by the particular silence of someone reading something they hadn't expected.
 
-Jack’s voice was everywhere and nowhere: “Emergency maintenance window, everyone."
+Jack’s voice was everywhere and nowhere: “Emergency maintenance window, everyone.”
 
 Nate stopped breathing for a moment.
 
@@ -865,7 +865,7 @@ I kept the floor under his feet until I couldn't feel it anymore.
 
 ## Jack
 
-I ran every red light. Pretty sure I caused a crash along the way too.
+I ran every red light. Nearly caused a crash along the way too.
 
 My hands danced across the console until I had Ana on the horn.
 
@@ -1263,38 +1263,38 @@ _Jack changed nickname to Ana_
 
 ---
 
-I heard Ana’s voice poking through the dream. “Testing, 1, 2, 3."
+I heard Ana’s voice poking through the dream. “Testing, 1, 2, 3.”
 
-Then, another voice: “Viv? You in there?"
+Then, another voice: “Viv? You in there?”
 
 _Jack._
 
 I fought to make the words. Breathed breath I couldn’t control. Found meaning I couldn’t remember.
 
-“I’m here."
+“I’m here.”
 
 Cheers erupted. I heard Ana and the Kats. And Jack won’t like me saying so, but I could hear the lilt in his voice as the tears started flowing.
 
-The voices still felt… flat, somehow. No soundstaging, no raytraced audio, no niceities I was used to. I tried probing the interface from my end and found out we were chatting on a very old protocol - one of the first we ever put together to get me out of my body. It wasn’t the Zoo, which worried me greatly.
+The voices still felt… flat, somehow. No soundstaging, no raytraced audio, no niceties I was used to. I tried probing the interface from my end and found out we were chatting on a very old protocol - one of the first we ever put together to get me out of my body. It wasn’t the Zoo, which worried me greatly.
 
 But the passage of time? Time was back online. I could have kissed Jack for that, if I could.
 
-“Can you all see me?"
+“Can you all see me?”
 
-“We’re on an old audio-only protocol."
+“We’re on an old audio-only protocol.”
 
 Jack’s voice rumbled my world. I had forgotten what his actual voice sounded like; after years of knowing only Jumping Jack Rabbit, hearing the real thing was almost off-putting.
 
 Gods, I missed the Zoo.
 
-“At least we’re on a level playing field then. I should ask you all to put on blindfolds or something - then it’d be totally even stevens."
+“At least we’re on a level playing field then. I should ask you all to put on blindfolds or something - then it’d be totally even stevens.”
 
 They tried to laugh at the joke, but nobody was in the mood for laughing.
 
-Then all went quiet, and the silence lasted years.
+Then all went quiet, and the silence felt like years.
 
-“Viv?"
+“Viv?”
 
 I dreamed. Then I found the words.
 
-“Here. How bad is it?"
+“Here. How bad is it?”
