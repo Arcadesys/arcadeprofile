@@ -80,7 +80,7 @@ export default async function BookPage({ params }: Props) {
   const permanentHomeCopy =
     book.stage === 'development'
       ? 'This book is in development. Cover art, release details, and formats will collect here as they become real.'
-      : book.stage === 'forthcoming'
+      : book.stage === 'forthcoming' && !book.releaseDate
         ? 'This is the permanent home for this edition. Release links and formats will appear here as publication gets closer.'
         : null;
 

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 
+import BookActions from '@/app/components/BookActions';
 import BookPurchaseBlock from '@/app/components/BookPurchaseBlock';
 import StartReadingShelf from '@/app/components/StartReadingShelf';
 import SubscriptionForm from '@/app/components/SubscriptionForm';
@@ -11,6 +13,7 @@ import { SITE_URL } from '@/lib/site-url';
 
 import styles from './home.module.css';
 
+const estelle = getBook('estelles-children')!;
 const book = getBook('this-is-what-i-do-for-fun')!;
 const homepageDescription = 'Discover This is what I do for fun by Austen Tucker: eight stories, including Foxtails, only in the book. Read seven stories free, get Broomsticks with the newsletter, and explore more fiction and essays.';
 
@@ -41,6 +44,18 @@ export default async function HomePage() {
           Work with me <span aria-hidden="true">↗</span>
         </a>
       </header>
+
+      <section className={styles.release} aria-labelledby="estelle-release-heading">
+        {estelle.coverImage ? <Image className={styles.releaseCover} src={estelle.coverImage} alt={estelle.coverAlt ?? `Cover of ${estelle.title}.`} width={1024} height={1536} sizes="(max-width: 700px) 200px, 220px" priority /> : null}
+        <div className={styles.releaseCopy}>
+          <p className={styles.releaseDate}>Releases November 30, 2026</p>
+          <h2 id="estelle-release-heading">Estelle&apos;s Children</h2>
+          <p>A Chicago witch’s parlor. A growing sisterhood. A family history told as an archive.</p>
+          <p>The ebook is available for preorder.</p>
+          <BookActions book={estelle} purchaseOnly placement="home_estelle_preorder" />
+          <Link className={styles.releaseDetails} href="/books/estelles-children">Explore Estelle&apos;s Children <span aria-hidden="true">→</span></Link>
+        </div>
+      </section>
 
       <section className={styles.hero} aria-labelledby="home-book-heading">
         <p className={styles.tagline}>Everything here used to be something else.</p>

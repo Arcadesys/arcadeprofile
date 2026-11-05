@@ -6,7 +6,7 @@ export function bookJsonLd(book: BookInfo) {
   const offers = book.actions.filter((action) => action.kind === 'purchase').map((action) => ({
     '@type': 'Offer',
     url: action.href,
-    availability: 'https://schema.org/InStock',
+    availability: action.availability === 'preorder' ? 'https://schema.org/PreOrder' : 'https://schema.org/InStock',
     ...(action.price ? { price: action.price, priceCurrency: 'USD' } : {}),
     itemOffered: {
       '@type': 'Book',
@@ -25,7 +25,7 @@ export function bookJsonLd(book: BookInfo) {
       ? { '@type': 'Person', name: book.author }
       : { '@id': `${SITE_URL}/#person` },
     mainEntityOfPage: url,
-    ...(book.coverImage ? { image: `${SITE_URL}${book.coverImage}` } : {}),
+    ...(book.coverImage ? { image: new URL(book.coverImage, SITE_URL).href } : {}),
     ...(book.publisher ? { publisher: { '@type': 'Organization', name: book.publisher } } : {}),
     ...(book.series ? {
       isPartOf: {
@@ -34,7 +34,8 @@ export function bookJsonLd(book: BookInfo) {
         ...(book.seriesPosition ? { position: book.seriesPosition } : {}),
       },
     } : {}),
-    ...(book.releaseYear && (book.stage === 'available' || book.stage === 'out-of-print')
+    ...(book.releaseDate ? { datePublished: book.releaseDate } : {}),
+    ...(!book.releaseDate && book.releaseYear && (book.stage === 'available' || book.stage === 'out-of-print')
       ? { datePublished: String(book.releaseYear) } : {}),
     ...(offers.length ? { offers } : {}),
     ...(book.paperback ? {
