@@ -73,7 +73,30 @@ test('backlist Kindle prices and author names match the confirmed catalog', () =
     assert.equal(book.actions[0].price, '0.99');
     assert.equal(book.actions[0].href, `https://www.amazon.com/dp/${asin}`);
   }
-  for (const book of BOOKS.filter((item) => item.stage !== 'available')) {
+  for (const book of BOOKS.filter((item) => item.stage !== 'available' && !item.actions.some((action) => action.kind === 'purchase' && action.availability === 'preorder'))) {
     assert.equal(bookJsonLd(book).offers, undefined, `${book.slug} must have no sale offers`);
   }
+});
+
+test('Estelle’s Children announces the November release without claiming immediate delivery', () => {
+  const book = getBook('estelles-children')!;
+  assert.equal(book.stage, 'forthcoming');
+  assert.equal(book.releaseDate, '2026-11-30');
+  assert.ok(book.coverImage?.startsWith('https://puhixbchomgvn0ti.public.blob.vercel-storage.com/'));
+  assert.match(book.coverAlt!, /Cover of Estelle’s Children by Austen Tucker/);
+  assert.equal(bookJsonLd(book).image, book.coverImage);
+  assert.equal(bookStatusLabel(book), 'Releases November 30, 2026');
+  assert.match(book.editionNote!, /ebook is available for preorder/);
+  assert.equal(bookJsonLd(book).datePublished, '2026-11-30');
+});
+
+test('preorders use PreOrder availability while existing purchases remain InStock', () => {
+  const book = getBook('estelles-children')!;
+  assert.equal(book.actions[0].href, 'https://www.amazon.com/dp/B0HQ8NL2SX');
+  assert.equal(book.actions[0].label, 'Preorder the ebook');
+  assert.equal(book.actions[0].kind, 'purchase');
+  const schema = bookJsonLd(book);
+  assert.equal(schema.offers?.[0].url, 'https://www.amazon.com/dp/B0HQ8NL2SX');
+  assert.equal(schema.offers?.[0].availability, 'https://schema.org/PreOrder');
+  assert.ok(bookJsonLd(getBook('this-is-what-i-do-for-fun')!).offers?.every((offer) => offer.availability === 'https://schema.org/InStock'));
 });

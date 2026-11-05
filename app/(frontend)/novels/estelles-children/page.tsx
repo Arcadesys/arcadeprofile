@@ -1,14 +1,18 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 
+import BookActions from '@/app/components/BookActions';
+import { getBook } from '@/data/books';
 import { SITE_NAME } from '@/lib/site-brand';
 import SubscriptionForm from '@/app/components/SubscriptionForm';
 
 import styles from './estelles-children.module.css';
 
+const book = getBook('estelles-children')!;
 const title = "Estelle's Children";
 const description =
-  'A preview of a novel told as an archive: a Chicago witch’s parlor, a growing sisterhood, and the records of a family history.';
+  'Releases November 30, 2026. Ebook available for preorder. A preview of a novel told as an archive: a Chicago witch’s parlor, a growing sisterhood, and the records of a family history.';
 const path = '/novels/estelles-children';
 
 export const metadata: Metadata = {
@@ -33,8 +37,11 @@ export default function EstellesChildrenPreviewPage() {
         </nav>
 
         <header className={styles.header}>
+          {book.coverImage ? <Image className={styles.cover} src={book.coverImage} alt={book.coverAlt ?? `Cover of ${title}.`} width={1024} height={1536} sizes="(max-width: 700px) 200px, 280px" priority /> : null}
           <p className={styles.eyebrow}>A novel · preview</p>
           <h1>{title}</h1>
+          <p className={styles.lede}>{book.editionNote}</p>
+          <BookActions book={book} purchaseOnly placement="estelle_preview" />
           <p className={styles.lede}>
             A Chicago witch’s parlor opens onto a sisterhood, recorded through oral histories,
             letters, journals, photographs, and the people who carry a family history forward.

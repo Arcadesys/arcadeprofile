@@ -176,3 +176,25 @@ test('retired résumé routes redirect permanently and missing pages 404', async
   assert.equal(pdf.headers.get('location'), 'https://work.thearcades.me/resume.pdf');
   assert.equal((await get('/definitely-not-a-real-page-seo-test')).status, 404);
 });
+
+
+test('Estelle’s Children shows the cover and preorder on each entry point with accurate release metadata', async () => {
+  const preorderUrl = 'https://www.amazon.com/dp/B0HQ8NL2SX';
+  for (const path of ['/', '/books/estelles-children', '/novels/estelles-children']) {
+    const { status, body } = await get(path);
+    assert.equal(status, 200);
+    assert.ok(body.includes('November 30, 2026'), `${path} release date`);
+    assert.ok(body.includes(`href="${preorderUrl}"`), `${path} preorder link`);
+    assert.match(body, /<img[^>]+alt="Cover of Estelle’s Children by Austen Tucker:/);
+  }
+  const { body } = await get('/books/estelles-children');
+  const book = jsonLd(body).find((entity) => entity['@type'] === 'Book');
+  assert.ok(book);
+  assert.equal(book.datePublished, '2026-11-30');
+  assert.match(String(book.image), /^https:\/\/puhixbchomgvn0ti\.public\.blob\.vercel-storage\.com\/images\//);
+  const offers = book.offers as Array<Record<string, unknown>>;
+  assert.equal(offers.length, 1);
+  assert.equal(offers[0].url, preorderUrl);
+  assert.equal(offers[0].availability, 'https://schema.org/PreOrder');
+  assert.deepEqual(canonicals(body), [`${SITE_URL}/books/estelles-children`]);
+});

@@ -8,7 +8,7 @@ type BookActionBase = {
 };
 
 export type BookAction = BookActionBase & (
-  | { kind: 'purchase'; external: true; bookFormat: 'EBook' | 'Paperback'; price?: string }
+  | { kind: 'purchase'; external: true; bookFormat: 'EBook' | 'Paperback'; price?: string; availability?: 'preorder' }
   | { kind?: 'read'; external?: boolean; bookFormat?: never; price?: never }
 );
 
@@ -20,6 +20,7 @@ export interface BookInfo {
   section: BookSection;
   author?: string;
   releaseYear?: number;
+  releaseDate?: string;
   paperback?: { isbn: string; price: string; status: 'available' | 'coming-soon' };
   format?: string;
   publisher?: string;
@@ -61,9 +62,14 @@ export const BOOKS: readonly BookInfo[] = [
     stage: 'forthcoming',
     section: 'next',
     releaseYear: 2026,
+    releaseDate: '2026-11-30',
+    editionNote: 'Releases November 30, 2026. The ebook is available for preorder.',
+    coverImage: 'https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/228474b0414dc1feaebb962b008679b8d100548db8d396725aa92a2496a9baa9/estelles-children-cover.webp',
+    coverAlt: 'Cover of Estelle’s Children by Austen Tucker: a cat-eared figure with a tail and trans pride ribbons conjures glowing butterflies beside the sea at sunset.',
     format: 'Fiction',
     publisher: 'Free Play Publishing',
     actions: [
+      { label: 'Preorder the ebook', href: 'https://www.amazon.com/dp/B0HQ8NL2SX', external: true, kind: 'purchase', bookFormat: 'EBook', availability: 'preorder', analyticsDestination: 'amazon_kindle' },
       { label: 'Read the preview', href: '/novels/estelles-children' },
     ],
     nextSlug: 'bait-and-switch',
@@ -221,6 +227,10 @@ export function bookStatusLabel(book: BookInfo): string {
         : 'Available now';
   }
   if (book.stage === 'forthcoming') {
+    if (book.releaseDate) {
+      const date = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${book.releaseDate}T00:00:00Z`));
+      return `Releases ${date}`;
+    }
     return book.releaseYear ? `Coming ${book.releaseYear}` : 'Coming soon';
   }
   return book.releaseYear ? `In development · ${book.releaseYear}` : 'In development';

@@ -105,6 +105,20 @@
       "addedAt": "2026-10-02T19:53:38.079Z"
     },
     {
+      "id": "estelles-children-cover",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/228474b0414dc1feaebb962b008679b8d100548db8d396725aa92a2496a9baa9/estelles-children-cover.webp",
+      "sha256": "228474b0414dc1feaebb962b008679b8d100548db8d396725aa92a2496a9baa9",
+      "mimeType": "image/webp",
+      "byteSize": 309528,
+      "width": 1024,
+      "height": 1535,
+      "alt": "Cover of Estelle’s Children by Austen Tucker: a cat-eared figure with a tail and trans pride ribbons conjures glowing butterflies beside the sea at sunset.",
+      "usedIn": [
+        "estelles-children"
+      ],
+      "addedAt": "2026-11-05T13:26:14.733Z"
+    },
+    {
       "id": "golf-flight",
       "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/ad917db0dd78455e9d6f46cfee8302a45d59e71ac771f5e69bd6d6b93befb6a7/03-golf-flight.png",
       "sha256": "ad917db0dd78455e9d6f46cfee8302a45d59e71ac771f5e69bd6d6b93befb6a7",

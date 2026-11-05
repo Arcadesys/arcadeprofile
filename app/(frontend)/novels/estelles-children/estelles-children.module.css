@@ -105,3 +105,14 @@
   .section,
   .note { padding: 1rem; }
 }
+
+.cover {
+  display: block;
+  width: min(100%, 280px);
+  height: auto;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 700px) {
+  .cover { width: min(100%, 200px); }
+}
