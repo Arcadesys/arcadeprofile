@@ -1,6 +1,51 @@
 {
   "assets": [
     {
+      "id": "03-gallery-view",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/d8e77595301108bec16021c5b1bcd014b482f677cc8a64fa7f57461b7a684793/03-gallery-view.jpg",
+      "sha256": "d8e77595301108bec16021c5b1bcd014b482f677cc8a64fa7f57461b7a684793",
+      "mimeType": "image/jpeg",
+      "byteSize": 502196,
+      "width": 1600,
+      "height": 2560,
+      "alt": "Gallery View cover: a mouse overlooks a towering gallery filled with illuminated paintings. Ivory title lettering sits above the scene, with an orange accent, the line A story from the Zoo, and the author credit By Austen Tucker.",
+      "caption": "Gallery View: deep shadows, warm amber light, and a recurring title treatment.",
+      "usedIn": [
+        "novel-writing-is-just-engineering-with-more-steps"
+      ],
+      "addedAt": "2026-11-05T22:38:07.380Z"
+    },
+    {
+      "id": "04-permissions",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/5a79b09d64bfb5a8a58ff9b1b0f86b7d6701c3d6f8ebb209cb5c5e4ffe3575f2/04-permissions.jpg",
+      "sha256": "5a79b09d64bfb5a8a58ff9b1b0f86b7d6701c3d6f8ebb209cb5c5e4ffe3575f2",
+      "mimeType": "image/jpeg",
+      "byteSize": 751201,
+      "width": 1600,
+      "height": 2560,
+      "alt": "Permissions cover: a rabbit writes at a cluttered workbench in warm amber light and deep shadow. An ivory serif title sits above the series line A story from the Zoo and the credit By Austen Tucker, with an orange accent.",
+      "caption": "Permissions: a different setting, with the same lettering hierarchy and warm light against deep shadow.",
+      "usedIn": [
+        "novel-writing-is-just-engineering-with-more-steps"
+      ],
+      "addedAt": "2026-11-05T22:38:08.273Z"
+    },
+    {
+      "id": "06-open-port",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/d17ab83bc17b01cfddc20f0ea76e864eb7387c12318859e87b7e41876b7e9ec8/06-open-port.jpg",
+      "sha256": "d17ab83bc17b01cfddc20f0ea76e864eb7387c12318859e87b7e41876b7e9ec8",
+      "mimeType": "image/jpeg",
+      "byteSize": 906341,
+      "width": 1600,
+      "height": 2560,
+      "alt": "Open Port cover: people gather around a hospital bed beneath a glowing geometric fox. Cool blue shadows contrast with amber light. Ivory title lettering, an orange accent, the line A story from the Zoo, and By Austen Tucker repeat the collection design.",
+      "caption": "Open Port: cooler blue shadows and a luminous amber fox, within the same visual family.",
+      "usedIn": [
+        "novel-writing-is-just-engineering-with-more-steps"
+      ],
+      "addedAt": "2026-11-05T22:38:09.533Z"
+    },
+    {
       "id": "aughtscon",
       "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/aughtscon.png",
       "sha256": "b90f10eeacd659b4b7fc712860f271f43001135360a99c72ad6c7a889100764f",
@@ -117,6 +162,20 @@
         "estelles-children"
       ],
       "addedAt": "2026-11-05T13:31:56.869Z"
+    },
+    {
+      "id": "follower-count-newsletter-cover",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/199f71cf1be81c18cb18f9f807d8a8cf79507703269907be6c472360de52c76c/cover.png",
+      "sha256": "199f71cf1be81c18cb18f9f807d8a8cf79507703269907be6c472360de52c76c",
+      "mimeType": "image/png",
+      "byteSize": 1762924,
+      "width": 1536,
+      "height": 1024,
+      "alt": "Follower Count cover by Austen Tucker: a mouse walks past a shadowed bar where a fox stands against warm amber shelves, with ivory lettering and cool blue shadows.",
+      "usedIn": [
+        "novel-writing-is-just-engineering-with-more-steps"
+      ],
+      "addedAt": "2026-11-05T22:38:10.773Z"
     },
     {
       "id": "golf-flight",
