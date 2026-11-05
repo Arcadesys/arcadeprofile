@@ -37,7 +37,7 @@ export default function EstellesChildrenPreviewPage() {
         </nav>
 
         <header className={styles.header}>
-          {book.coverImage ? <Image className={styles.cover} src={book.coverImage} alt={book.coverAlt ?? `Cover of ${title}.`} width={1024} height={1536} sizes="(max-width: 700px) 200px, 280px" priority /> : null}
+          {book.coverImage ? <Image className={styles.cover} src={book.coverImage} alt={book.coverAlt ?? `Cover of ${title}.`} width={900} height={1440} sizes="(max-width: 700px) 200px, 280px" priority /> : null}
           <p className={styles.eyebrow}>A novel · preview</p>
           <h1>{title}</h1>
           <p className={styles.lede}>{book.editionNote}</p>

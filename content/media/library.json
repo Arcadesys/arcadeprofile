@@ -106,17 +106,17 @@
     },
     {
       "id": "estelles-children-cover",
-      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/228474b0414dc1feaebb962b008679b8d100548db8d396725aa92a2496a9baa9/estelles-children-cover.webp",
-      "sha256": "228474b0414dc1feaebb962b008679b8d100548db8d396725aa92a2496a9baa9",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/b15b8caee1e94d28ee2cac9ea662f9a2fb0740ea1c3432ad8dea599cc579fddd/estelles-children-approved-cover.webp",
+      "sha256": "b15b8caee1e94d28ee2cac9ea662f9a2fb0740ea1c3432ad8dea599cc579fddd",
       "mimeType": "image/webp",
-      "byteSize": 309528,
-      "width": 1024,
-      "height": 1535,
-      "alt": "Cover of Estelle’s Children by Austen Tucker: a cat-eared figure with a tail and trans pride ribbons conjures glowing butterflies beside the sea at sunset.",
+      "byteSize": 256476,
+      "width": 900,
+      "height": 1440,
+      "alt": "Cover of Estelle’s Children by Austen Tucker: gold lettering above a brown journal with photographs, keys, a purple Emergency Hat charm, and a trans pride ribbon, surrounded by purple fabric, flowers, and a sleeping cat.",
       "usedIn": [
         "estelles-children"
       ],
-      "addedAt": "2026-11-05T13:26:14.733Z"
+      "addedAt": "2026-11-05T13:31:56.869Z"
     },
     {
       "id": "golf-flight",

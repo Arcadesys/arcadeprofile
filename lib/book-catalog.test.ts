@@ -82,8 +82,9 @@ test('Estelle’s Children announces the November release without claiming immed
   const book = getBook('estelles-children')!;
   assert.equal(book.stage, 'forthcoming');
   assert.equal(book.releaseDate, '2026-11-30');
-  assert.ok(book.coverImage?.startsWith('https://puhixbchomgvn0ti.public.blob.vercel-storage.com/'));
+  assert.equal(book.coverImage, 'https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/b15b8caee1e94d28ee2cac9ea662f9a2fb0740ea1c3432ad8dea599cc579fddd/estelles-children-approved-cover.webp');
   assert.match(book.coverAlt!, /Cover of Estelle’s Children by Austen Tucker/);
+  assert.match(book.coverAlt!, /brown journal/);
   assert.equal(bookJsonLd(book).image, book.coverImage);
   assert.equal(bookStatusLabel(book), 'Releases November 30, 2026');
   assert.match(book.editionNote!, /ebook is available for preorder/);

@@ -186,6 +186,8 @@ test('Estelle’s Children shows the cover and preorder on each entry point with
     assert.ok(body.includes('November 30, 2026'), `${path} release date`);
     assert.ok(body.includes(`href="${preorderUrl}"`), `${path} preorder link`);
     assert.match(body, /<img[^>]+alt="Cover of Estelle’s Children by Austen Tucker:/);
+    assert.ok(body.includes('estelles-children-approved-cover.webp'), `${path} approved cover`);
+    assert.ok(!body.includes('228474b0414dc1feaebb962b008679b8d100548db8d396725aa92a2496a9baa9'), `${path} must not show the superseded cover`);
   }
   const { body } = await get('/books/estelles-children');
   const book = jsonLd(body).find((entity) => entity['@type'] === 'Book');

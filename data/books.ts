@@ -64,8 +64,8 @@ export const BOOKS: readonly BookInfo[] = [
     releaseYear: 2026,
     releaseDate: '2026-11-30',
     editionNote: 'Releases November 30, 2026. The ebook is available for preorder.',
-    coverImage: 'https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/228474b0414dc1feaebb962b008679b8d100548db8d396725aa92a2496a9baa9/estelles-children-cover.webp',
-    coverAlt: 'Cover of Estelle’s Children by Austen Tucker: a cat-eared figure with a tail and trans pride ribbons conjures glowing butterflies beside the sea at sunset.',
+    coverImage: 'https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/b15b8caee1e94d28ee2cac9ea662f9a2fb0740ea1c3432ad8dea599cc579fddd/estelles-children-approved-cover.webp',
+    coverAlt: 'Cover of Estelle’s Children by Austen Tucker: gold lettering above a brown journal with photographs, keys, a purple Emergency Hat charm, and a trans pride ribbon, surrounded by purple fabric, flowers, and a sleeping cat.',
     format: 'Fiction',
     publisher: 'Free Play Publishing',
     actions: [
