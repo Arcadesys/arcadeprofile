@@ -46,7 +46,7 @@ export default async function HomePage() {
       </header>
 
       <section className={styles.release} aria-labelledby="estelle-release-heading">
-        {estelle.coverImage ? <Image className={styles.releaseCover} src={estelle.coverImage} alt={estelle.coverAlt ?? `Cover of ${estelle.title}.`} width={1024} height={1536} sizes="(max-width: 700px) 200px, 220px" priority /> : null}
+        {estelle.coverImage ? <Image className={styles.releaseCover} src={estelle.coverImage} alt={estelle.coverAlt ?? `Cover of ${estelle.title}.`} width={900} height={1440} sizes="(max-width: 700px) 200px, 220px" priority /> : null}
         <div className={styles.releaseCopy}>
           <p className={styles.releaseDate}>Releases November 30, 2026</p>
           <h2 id="estelle-release-heading">Estelle&apos;s Children</h2>
