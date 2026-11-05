@@ -2,12 +2,13 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { buildStaticSitemapEntries } from './sitemap';
+import { ZOO_CHAPTERS } from './zoo-collection';
 
-test('the static sitemap includes the Zoo collection and all seven chapters', () => {
+test('the static sitemap includes the Zoo collection and all published chapters', () => {
   const entries = buildStaticSitemapEntries('https://example.test');
   assert.equal(
     entries.filter((entry) => entry.url.includes('/novels/it-takes-a-zoo')).length,
-    8,
+    ZOO_CHAPTERS.length + 1,
   );
 });
 
