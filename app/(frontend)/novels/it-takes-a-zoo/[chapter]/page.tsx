@@ -55,12 +55,16 @@ export default async function ZooChapterPage({ params }: Props) {
       <ReadingContinuityTracker piece={readingPiece} />
       <article className={styles.reader}>
         <Link className={styles.backLink} href={ZOO_COLLECTION_PATH}>← All {ZOO_CHAPTERS.length} chapters</Link>
-        {chapter.slug === 'follower-count' && (
-          <Image className={styles.chapterHero} src={ZOO_HERO.url} alt={ZOO_HERO.alt} width={ZOO_HERO.width} height={ZOO_HERO.height} sizes="(max-width: 720px) 90vw, 480px" preload />
-        )}
         <header className={styles.readerHeader}>
-          <p className={styles.eyebrow}>Chapter {chapter.order} of {ZOO_CHAPTERS.length}</p>
-          <h1>{chapter.title}</h1>
+          <div className={styles.chapterTitle}>
+            <div>
+              <p className={styles.eyebrow}>Chapter {chapter.order} of {ZOO_CHAPTERS.length}</p>
+              <h1>{chapter.title}</h1>
+            </div>
+            {chapter.slug === 'follower-count' && (
+              <Image className={styles.chapterThumb} src={ZOO_HERO.url} alt="" width={ZOO_HERO.width} height={ZOO_HERO.height} sizes="88px" />
+            )}
+          </div>
           <p className={styles.byline}>By Austen Tucker</p>
           <p className={styles.description}>{chapter.description}</p>
           <p className={styles.meta}>{chapter.wordCount.toLocaleString('en-US')} words · about {chapter.readingMinutes} minutes</p>
