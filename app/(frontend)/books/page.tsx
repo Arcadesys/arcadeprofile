@@ -152,6 +152,11 @@ export default function BooksPage() {
             New releases, forthcoming books, and the backlist. This is the permanent shelf:
             one place to see what is out, what is next, and what is still being built.
           </p>
+          <div className={styles.actions}>
+            <Link href="/novels/it-takes-a-zoo/follower-count">
+              Step into the Zoo. Read Follower Count.
+            </Link>
+          </div>
           <p className={styles.imprint}>
             Free Play Publishing is Austen Tucker&apos;s independent publishing imprint.
             Individual book pages keep the same URL from first preview through publication.
