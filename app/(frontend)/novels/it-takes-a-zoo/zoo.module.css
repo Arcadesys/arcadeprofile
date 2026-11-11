@@ -183,17 +183,21 @@
   background: transparent;
 }
 
-.chapterHero {
-  display: block;
-  width: min(100%, 30rem);
+.chapterTitle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.chapterThumb {
+  width: clamp(3rem, 12vw, 5.5rem);
   height: auto;
-  margin: 0 auto 2.5rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 1rem 4rem #0007;
+  flex: none;
+  border-radius: .25rem;
 }
 
 .readerHeader {
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
 }
 
 .readerHeader h1 {
@@ -246,6 +250,10 @@
   margin-top: 2.7em;
   font-size: 1.65em;
   line-height: 1.2;
+}
+
+.body :global(.prose > :first-child) {
+  margin-top: 0;
 }
 
 .body :global(.prose img) {

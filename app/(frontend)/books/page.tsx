@@ -76,7 +76,7 @@ function Cover({ book }: { book: BookInfo }) {
           alt={book.coverAlt ?? `Cover of ${book.title}.`}
           width={600}
           height={900}
-          sizes="(max-width: 540px) 74vw, 290px"
+          sizes="(max-width: 600px) 160px, 224px"
         />
       ) : (
         <div className={styles.fallbackCover} aria-hidden="true">
@@ -90,33 +90,32 @@ function Cover({ book }: { book: BookInfo }) {
 }
 
 function BookCard({ book }: { book: BookInfo }) {
-  const primaryAction = book.actions[0];
+  const read = book.actions.find((action) => action.kind !== 'purchase' && !action.external);
+  const purchase = book.actions.find((action) => action.kind === 'purchase');
   return (
     <article className={styles.card}>
-      <Link className={styles.coverLink} href={bookPath(book)}>
-        <Cover book={book} />
-      </Link>
-      <p className={styles.status}>{bookStatusLabel(book)}</p>
-      <h3><Link href={bookPath(book)}>{book.title}</Link></h3>
-      {book.series ? (
-        <p className={styles.series}>
-          {book.series}{book.seriesPosition ? ` · Book ${book.seriesPosition}` : ''}
-        </p>
-      ) : null}
-      <p>{book.description}</p>
-      {book.author ? <p>Published as {book.author}</p> : null}
-      {book.editionNote ? <p>{book.editionNote}</p> : null}
-      <div className={styles.actions}>
-        <Link href={bookPath(book)}>View book</Link>
-        {primaryAction ? (
-          primaryAction.external ? (
-            <a href={primaryAction.href} target="_blank" rel="noreferrer">
-              {primaryAction.label} <span aria-hidden="true">↗</span>
-            </a>
-          ) : (
-            <Link href={primaryAction.href}>{primaryAction.label}</Link>
-          )
+      <Cover book={book} />
+      <div>
+        <p className={styles.status}>{bookStatusLabel(book)}</p>
+        <h3><Link href={bookPath(book)}>{book.title}</Link></h3>
+        {book.series ? (
+          <p className={styles.series}>
+            {book.series}{book.seriesPosition ? ` · Book ${book.seriesPosition}` : ''}
+          </p>
         ) : null}
+        <p>{book.description}</p>
+        {book.author ? <p>Published as {book.author}</p> : null}
+        {book.editionNote ? <p>{book.editionNote}</p> : null}
+        {(read || purchase) && (
+          <div className={styles.actions}>
+            {read && <Link href={read.href}>{read.label}</Link>}
+            {purchase && (
+              <a href={purchase.href} target="_blank" rel="noreferrer">
+                {purchase.label} <span aria-hidden="true">↗</span>
+              </a>
+            )}
+          </div>
+        )}
       </div>
     </article>
   );
@@ -153,8 +152,8 @@ export default function BooksPage() {
             one place to see what is out, what is next, and what is still being built.
           </p>
           <div className={styles.actions}>
-            <Link href="/novels/it-takes-a-zoo/follower-count">
-              Step into the Zoo. Read Follower Count.
+            <Link href="/novels/it-takes-a-zoo/cold-boot">
+              Read chapter one free: Cold Boot
             </Link>
           </div>
           <p className={styles.imprint}>
