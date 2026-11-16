@@ -5,13 +5,13 @@ import test from 'node:test';
 
 const source = (relativePath: string) => fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8');
 
-test('homepage places the Zoo feature between resume controls and exploration bands', () => {
+test('homepage places the Zoo feature after the resume controls and latest writing', () => {
   const homepage = source('app/(frontend)/page.tsx');
   const resume = homepage.indexOf(`className={styles.resume}`);
+  const latest = homepage.indexOf(`className={styles.recent}`);
   const feature = homepage.indexOf('collection={ZOO_FEATURED_COLLECTION} placement="home"');
-  const bands = homepage.indexOf(`className={styles.bands}`);
 
-  assert.ok(resume !== -1 && feature > resume && bands > feature);
+  assert.ok(resume !== -1 && latest > resume && feature > latest);
 });
 
 test('Stories supplies both featured collections before the other fiction shelves', () => {

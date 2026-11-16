@@ -33,7 +33,6 @@ export default async function WritingPage() {
   return (
     <main className={styles.main}>
       <header className={styles.header}>
-        <p>The Arcades</p>
         <h1>Writing</h1>
         <span>Fiction, essays, and the work that led here.</span>
       </header>

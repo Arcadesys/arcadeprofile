@@ -25,7 +25,7 @@ export default function MediaLibraryPage() {
   const newestFirst = [...assets].sort((a, b) => b.addedAt.localeCompare(a.addedAt) || a.id.localeCompare(b.id));
 
   return (
-    <main style={{ maxWidth: '1100px', margin: '0 auto', padding: 'clamp(2rem, 5vw, 4rem) 1rem', paddingLeft: 'calc(var(--nav-rail-width) + 1rem)' }}>
+    <main style={{ maxWidth: '1100px', margin: '0 auto', padding: 'clamp(2rem, 5vw, 4rem) 1rem' }}>
       <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', marginBottom: '0.25rem' }}>Media library</h1>
       <p style={{ color: 'var(--fg-muted)', marginBottom: '2rem' }}>
         {assets.length} images in <code>content/media/library.json</code>. Add more with{' '}

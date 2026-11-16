@@ -18,32 +18,24 @@ function remValue(declarations: string, property: string) {
   return Number(match[1]);
 }
 
-test('homepage stops reserving the nav rail gutter under the same query that collapses the rail', () => {
+test('homepage centres its column without reserving a navigation gutter', () => {
   const globals = source('app/globals.css');
   const home = source('app/(frontend)/home.module.css');
 
-  const navCollapse = globals.match(/@media ([^{]+?)\s*\{\s*\.site-nav\s*\{\s*position:\s*sticky/)?.[1];
-  assert.ok(navCollapse, 'nav rail collapse query not found in globals.css');
-
-  const block = home.match(new RegExp(`@media ${escape(navCollapse)}\\s*\\{([\\s\\S]*?)\\n\\}`))?.[1];
-  assert.ok(block, `home.module.css has no @media ${navCollapse} block`);
-  const main = firstRule(block, '.main');
-  assert.match(main, /margin-inline:\s*auto/);
-  assert.doesNotMatch(main, /138px/);
-
-  // The rail gutter may only be reserved by the base rule, never re-added inside a breakpoint.
-  const firstMedia = home.indexOf('@media');
-  assert.ok(home.lastIndexOf('138px') < firstMedia);
+  const main = firstRule(home, '.main');
+  assert.match(main, /margin:\s*0 auto/);
+  assert.doesNotMatch(home, /138px|--nav-rail-width/);
+  assert.doesNotMatch(globals, /138px|--nav-rail-width/);
 });
 
 test('homepage controls keep readable text and full-size touch targets', () => {
   const home = source('app/(frontend)/home.module.css');
   const feature = source('app/components/FeaturedCollectionCard.module.css');
 
-  assert.ok(Number(firstRule(home, '.brandLockup').match(/min-height:\s*(\d+)px/)?.[1]) >= 44);
-  assert.ok(remValue(firstRule(home, '.brandLockup'), 'font-size') >= 1);
-  assert.ok(remValue(firstRule(home, '.topSubscribe'), 'font-size') >= 1);
-  assert.ok(remValue(firstRule(home, '.button'), 'font-size') >= 1);
-  assert.ok(remValue(firstRule(home, '.recentActions button'), 'font-size') >= 1);
+  for (const selector of ['.button', '.latestLink', '.entryPathAction', '.entryPathMore a']) {
+    const rule = firstRule(home, selector);
+    assert.ok(remValue(rule, 'font-size') >= 1, `${selector} text must stay readable`);
+    assert.ok(Number(rule.match(/min-height:\s*(\d+)px/)?.[1]) >= 44, `${selector} needs a full-size target`);
+  }
   assert.ok(remValue(firstRule(feature, '.secondaryAction'), 'font-size') >= 1);
 });

@@ -5,14 +5,13 @@ import test from 'node:test';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
-test('the homepage exposes the professional site from its top-right hero controls', () => {
-  const home = source('app/(frontend)/page.tsx');
-  const controls = home.slice(home.indexOf('className={styles.topActions}'), home.indexOf('className={styles.heroEditorial}'));
-  assert.ok(controls.length > 0, 'top actions must precede the hero content');
+test('every page exposes the professional site from the top bar', () => {
+  const navbar = source('app/components/NavbarClient.tsx');
 
-  assert.match(controls, /className=\{styles\.workWithMe\} href="https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_header"/);
-  assert.match(controls, /Work with me/);
-  // The hero Subscribe link is removed while email signups are paused
-  // site-wide; see app/components/SubscriptionForm.tsx.
-  assert.doesNotMatch(controls, /href="\/subscribe"/);
+  assert.match(navbar, /https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=site_header/);
+  assert.match(navbar, /className="nav-cta" href=\{WORK_SITE_URL\}/);
+  assert.match(navbar, /Work with me/);
+  // No Subscribe link in the bar while email signups are paused site-wide;
+  // see app/components/SubscriptionForm.tsx.
+  assert.doesNotMatch(navbar, /href="\/subscribe"/);
 });

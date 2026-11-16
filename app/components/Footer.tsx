@@ -11,7 +11,7 @@ export default function Footer() {
         marginTop: 'clamp(3rem, 8vw, 6rem)',
         padding: 'clamp(2rem, 5vw, 3rem) 1rem',
         borderTop: '1px solid var(--border)',
-        background: 'var(--bg-deep)',
+        background: 'var(--bg)',
       }}
     >
       <div
@@ -32,9 +32,8 @@ export default function Footer() {
             flexWrap: 'wrap',
             gap: '0.5rem 1.25rem',
             justifyContent: 'center',
-            fontSize: '0.85rem',
-            fontFamily: 'var(--font-mono)',
-          }}
+            fontSize: '1rem',
+              }}
         >
           <Link href="/bio" style={{ color: 'var(--fg-muted)' }}>Bio</Link>
           <Link href="/resume" style={{ color: 'var(--fg-muted)' }}>Resume</Link>
@@ -52,11 +51,9 @@ export default function Footer() {
           style={{
             margin: 0,
             textAlign: 'center',
-            fontSize: '0.75rem',
+            fontSize: '0.9375rem',
             color: 'var(--fg-muted)',
-            fontFamily: 'var(--font-mono)',
-            letterSpacing: '0.04em',
-          }}
+              }}
         >
           © {new Date().getFullYear()} Austen Tucker · {SITE_NAME}
         </p>

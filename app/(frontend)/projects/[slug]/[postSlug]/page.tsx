@@ -244,21 +244,13 @@ export default async function ProjectPostPage({ params }: Props) {
       {drawer}
       <ReadingContinuityTracker piece={readingPiece} />
       <main className={postMainCls}>
-        <nav style={{ marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-          <Link href={introHref} style={navLinkStyle}>← {project.title}</Link>
-        </nav>
-
         <article className="longform-article">
-          <header style={{ marginBottom: '2.5rem' }}>
-            <div style={{ ...monoMutedStyle, marginBottom: '0.5rem' }}>
-              Part {partNum(partIndex)} / {partNum(posts.length)}
-            </div>
-            <h1 style={{ fontSize: '2rem', lineHeight: 1.2, marginBottom: '0.75rem' }}>
-              {post.title}
-            </h1>
-            <p style={{ fontSize: '0.8rem', color: 'var(--fg-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em', margin: 0 }}>
-              {formatSiteDate(post.date)}
-              {post.author && ` · ${post.author}`}
+          <header className="post-header">
+            <Link className="post-header__series" href={introHref}><span aria-hidden="true">← </span>{project.title}</Link>
+            <h1>{post.title}</h1>
+            {post.excerpt ? <p className="post-header__lede">{post.excerpt}</p> : null}
+            <p className="post-header__meta">
+              {post.author ? `${post.author} · ` : ''}{formatSiteDate(post.date)} · Part {partNum(partIndex)} of {partNum(posts.length)}
             </p>
           </header>
 
@@ -314,22 +306,3 @@ export default async function ProjectPostPage({ params }: Props) {
     </>
   );
 }
-
-const navLinkStyle: React.CSSProperties = {
-  display: 'inline-flex',
-  minHeight: '44px',
-  alignItems: 'center',
-  fontSize: '1rem',
-  color: 'var(--fg-muted)',
-  textDecoration: 'none',
-  fontFamily: 'var(--font-mono)',
-  letterSpacing: '0.04em',
-};
-
-const monoMutedStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-mono)',
-  fontSize: '0.7rem',
-  letterSpacing: '0.1em',
-  textTransform: 'uppercase',
-  color: 'var(--fg-muted)',
-};

@@ -24,20 +24,18 @@ const PROOF_ROUTES = new Set([
   '/portfolio',
 ]);
 
-test('the homepage offers the professional lane right after the first reading choices', () => {
+test('the homepage offers the professional lane alongside the first reading choices', () => {
   const home = source('app/(frontend)/page.tsx');
   const hero = home.indexOf('</header>');
-  const shelf = home.indexOf('<StartReadingShelf');
-  const workLane = home.indexOf('className={styles.workLane}');
-  const bands = home.indexOf('className={styles.bands}');
+  const paths = home.indexOf('className={styles.entryPaths}');
+  const latest = home.indexOf('className={styles.recent}');
 
-  assert.ok(workLane !== -1, 'homepage is missing the professional work lane');
-  assert.ok(hero !== -1 && shelf > hero, 'the reading shelf must follow the homepage hero');
-  assert.ok(workLane > shelf, 'the work lane must follow the first reading choices');
-  assert.ok(bands > workLane, 'the work lane must precede the fiction and essay bands');
-  assert.match(home, /href="https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_header">\s*Work with me/);
-  assert.match(home, /href="\/resume">Read the resume/);
-  assert.match(home, /href="\/resume\/pdf">Download PDF/);
+  assert.ok(hero !== -1 && paths > hero, 'the entry paths must follow the homepage hero');
+  assert.ok(latest > paths, 'the entry paths must precede the latest writing');
+  const lane = home.slice(paths, latest);
+  assert.match(lane, /href="https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_entry">\s*Visit the work site/);
+  assert.match(lane, /href="\/resume">Read the resume/);
+  assert.match(lane, /href="\/resume\/pdf">Download PDF/);
 });
 
 test('the reader funnel keeps its homepage entry points', () => {
@@ -45,18 +43,15 @@ test('the reader funnel keeps its homepage entry points', () => {
 
   assert.match(home, /<Link className=\{styles\.button\} href="\/start">Start Here/);
   assert.match(home, /<Link className=\{styles\.latestLink\} href="\/latest">Latest/);
-  assert.match(home, /href="\/stories">Read fiction/);
-  assert.match(home, /href="\/essays">Read essays/);
+  assert.match(home, /href="\/stories">All fiction/);
+  assert.match(home, /href="\/essays">All essays/);
 });
 
-test('the resume sits in the primary navigation rail and the footer', () => {
+test('the resume sits in the primary navigation and the footer', () => {
   assert.ok(
     ORIENTATION_NAV_ITEMS.some((item) => item.href === '/resume'),
     'the resume must be a primary orientation destination',
   );
-
-  const navbar = source('app/components/NavbarClient.tsx');
-  assert.match(navbar, /case '\/resume':/, 'the resume needs a nav rail icon');
 
   const footer = source('app/components/Footer.tsx');
   assert.match(footer, /href="\/resume"/);
