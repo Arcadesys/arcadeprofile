@@ -46,3 +46,16 @@ test('door targets and text keep the design system floors', () => {
   assert.ok(Number.parseFloat(declarationsFor('.doors span')['font-size']) >= 1);
   assert.ok(Number.parseFloat(declarationsFor('.doors em')['font-size']) >= 1);
 });
+
+test('the hub is called Read everywhere it names itself, matching the rail', () => {
+  const page = read('app/(frontend)/writing/page.tsx');
+  assert.match(page, /title: 'Read',/);
+  assert.match(page, /<h1>Read<\/h1>/);
+  assert.equal((page.match(/Read \| \$\{SITE_NAME\}/g) ?? []).length, 2, 'Open Graph and Twitter titles');
+  assert.doesNotMatch(page, /Writing \|/);
+  // The rail's label for /writing is the single source of the name.
+  const rail = read('lib/nav-items.ts').match(/label: '([^']+)', href: '\/writing'/);
+  assert.equal(rail?.[1], 'Read');
+  // The Queer Columns breadcrumb links back to this hub by the same name.
+  assert.match(read('app/(frontend)/queercolumns/page.tsx'), /<Link href="\/writing">Read<\/Link>/);
+});
