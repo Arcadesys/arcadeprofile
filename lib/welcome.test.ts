@@ -37,3 +37,10 @@ test('welcome uses labeled sections and the existing responsive keyboard-accessi
   assert.match(css, /@media \(max-width: 520px\)/);
   assert.match(css, /grid-template-columns: 1fr/);
 });
+
+test('welcome leads its contact block with a prominent LinkedIn link', () => {
+  assert.match(page, /const LINKEDIN_URL = 'https:\/\/www\.linkedin\.com\/in\/austen-tucker-0968a914'/);
+  const contact = page.slice(page.indexOf('id="welcome-contact-heading"'), page.indexOf('mailto:austen.crowder@gmail.com" style'));
+  assert.match(contact, /href=\{LINKEDIN_URL\}/);
+  assert.match(contact, /Connect on LinkedIn/);
+});
