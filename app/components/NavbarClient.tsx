@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
+import { isNavItemActive } from '@/lib/nav-active';
 import { buildNavigationModel, type NavItem } from '@/lib/nav-items';
 import { NAV_COLLAPSE_STORAGE_KEY } from '@/lib/nav-collapse';
 import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
@@ -59,7 +60,7 @@ function CollapseIcon({ collapsed }: { collapsed: boolean }) {
   );
 }
 
-export default function NavbarClient({ items, searchItems }: { items: NavItem[]; searchItems: SearchItem[] }) {
+export default function NavbarClient({ items, searchItems, readProjectSlugs = [] }: { items: NavItem[]; searchItems: SearchItem[]; readProjectSlugs?: readonly string[] }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -92,9 +93,7 @@ export default function NavbarClient({ items, searchItems }: { items: NavItem[];
   }, [mobileOpen]);
 
   const link = (item: NavItem) => {
-    const isActive = item.href === '/'
-      ? pathname === '/'
-      : pathname === item.href || pathname.startsWith(`${item.href}/`);
+    const isActive = isNavItemActive(item.href, pathname, readProjectSlugs);
     return (
       <Link
         key={item.id}
