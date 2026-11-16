@@ -1,0 +1,86 @@
+.nav {
+  margin-block-end: 0.5rem;
+}
+
+.trail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* Decorative separator: a second, empty alternative text keeps it out of the
+   accessible name in browsers that support it. */
+.item + .item::before {
+  content: '/';
+  content: '/' / '';
+  margin-inline: 0.6rem;
+  color: var(--accent);
+  font-size: 1.35em;
+}
+
+.link,
+.current {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+.link {
+  color: var(--fg-muted);
+  text-decoration: none;
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--fg);
+  text-shadow: none;
+}
+
+.current {
+  color: var(--fg);
+}
+
+/* Narrow screens: show the parent alone ("← Series title"). The whole trail
+   stays in the DOM; the current page is clipped, not removed, so it is still
+   announced, and the page title below it names it for sighted readers. */
+@media (max-width: 520px) {
+  .item:not(:nth-last-child(-n + 2)) {
+    display: none;
+  }
+
+  .item:last-child:not(:first-child) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .item:last-child:not(:first-child)::before {
+    content: none;
+  }
+
+  .item:nth-last-child(2)::before {
+    content: '\2190';
+    content: '\2190' / '';
+    margin-inline: 0 0.5rem;
+    color: var(--accent);
+    font-size: 1.1em;
+  }
+}
