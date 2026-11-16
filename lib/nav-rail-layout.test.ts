@@ -4,9 +4,12 @@ import path from 'node:path';
 import test from 'node:test';
 import postcss, { type Rule } from 'postcss';
 
+import { ORIENTATION_NAV_ITEMS } from './nav-items';
+
 const styles = postcss.parse(readFileSync(path.join(process.cwd(), 'app/globals.css'), 'utf8'));
 const desktopMedia = '(min-width: 961px) and (min-height: 701px)';
 const mobileMedia = '(max-width: 960px), (max-height: 700px)';
+const shortDesktopMedia = '(min-width: 961px) and (min-height: 701px) and (max-height: 839px)';
 
 function rulesFor(selector: string): Rule[] {
   const rules: Rule[] = [];
@@ -72,6 +75,54 @@ test('mobile and short desktop viewports retain their menu drawer and hide the c
   }
 });
 
+
+test('short desktop windows fit every rail destination without scrolling', () => {
+  const link = '.site-nav > ul > li:not(.nav-more) > a:not(.nav-logo)';
+  const px = (value: string) => Number.parseFloat(value) * (value.endsWith('rem') ? 16 : 1);
+  const list = declarations('.site-nav > ul', shortDesktopMedia);
+  const compactLink = declarations(link, shortDesktopMedia);
+  const icon = declarations('.nav-rail-icon', shortDesktopMedia);
+
+  const linkHeight = px(compactLink['min-height']);
+  assert.ok(linkHeight >= 56, 'compact links stay comfortably above the 44px target size');
+
+  // Icon, gap, one line of 1rem label and the link's own padding must fit inside it.
+  const linkContent = px(icon.height) + px(compactLink.gap) + 16 + 2 * px(compactLink['padding-block']);
+  assert.ok(linkContent <= linkHeight, 'the icon and label fit inside a compact link');
+
+  // Everything in the rail that is not the list: 48px of rail padding, the logo
+  // (48px + 25.6px margin), Search (70px + 8px) and the collapse toggle (40px + 12px).
+  const fixedParts = 48 + 73.6 + 78 + 52;
+  const count = ORIENTATION_NAV_ITEMS.length;
+  const listHeight = 2 * px(list['padding-block']) + count * linkHeight + (count - 1) * px(list.gap);
+  assert.ok(fixedParts + listHeight <= 701, 'the rail fits at the shortest desktop height');
+
+  // The full-size rail must already fit where the compact range ends.
+  const fullList = declarations('.site-nav > ul', desktopMedia);
+  const fullHeight = 2 * px(fullList['padding-block']) + count * px(declarations(link, desktopMedia)['min-height']) + (count - 1) * px(fullList.gap);
+  assert.ok(fixedParts + fullHeight <= 840, 'full-size links take over only once they fit');
+});
+
+test('the mobile bar reserves a slot for the Reading trigger instead of covering Menu', () => {
+  const wrapper = declarations('.nav-wrapper', mobileMedia);
+  assert.equal(wrapper['--reader-trigger-width'], '78px');
+  assert.equal(wrapper['--nav-bar-inset'], '1rem');
+
+  const dock = declarations('.nav-wrapper > .reading-dock', mobileMedia);
+  assert.equal(dock.position, 'fixed');
+  assert.equal(dock.right, 'var(--nav-bar-inset)');
+  assert.equal(declarations('.nav-wrapper > .reading-dock .dock-trigger', mobileMedia).width, 'var(--reader-trigger-width)');
+
+  // The trigger is outside the bar's flex row, so the bar itself keeps the
+  // slot clear; Menu and Search can never sit underneath it.
+  assert.equal(
+    declarations('.site-nav', mobileMedia)['padding-right'],
+    'calc(var(--nav-bar-inset) + var(--reader-trigger-width) + .5rem)',
+  );
+
+  // Mascot, wordmark, Menu, Search and Reading do not fit on one phone-width row.
+  assert.equal(declarations('.nav-logo-copy', '(max-width: 440px)').display, 'none');
+});
 
 test('collapsed rail scrollport keeps the full icon and inset focus ring beside a scrollbar', () => {
   const collapsed = 'html[data-nav-collapsed="true"]';
