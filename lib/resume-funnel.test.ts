@@ -9,18 +9,7 @@ import { WORK_RESUME_PDF_URL, WORK_RESUME_URL } from './work-resume';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
-/** Every route the resume is allowed to cite as on-site proof. */
-const PROOF_ROUTES = new Set([
-  '/lab',
-  '/lab/wizwor',
-  '/lab/toontok',
-  '/lab/arcadeprofile',
-  '/lab/conductor',
-  '/projects',
-  '/portfolio',
-]);
-
-test('the homepage offers the professional lane alongside the first reading choices', () => {
+test('the homepage keeps one door to the work site and no résumé links', () => {
   const home = source('app/(frontend)/page.tsx');
   const hero = home.indexOf('</header>');
   const paths = home.indexOf('className={styles.entryPaths}');
@@ -30,29 +19,32 @@ test('the homepage offers the professional lane alongside the first reading choi
   assert.ok(latest > paths, 'the entry paths must precede the latest writing');
   const lane = home.slice(paths, latest);
   assert.match(lane, /href="https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_entry">\s*Visit the work site/);
-  assert.match(lane, /href=\{WORK_RESUME_URL\}>Read the resume/);
-  assert.match(lane, /href=\{WORK_RESUME_PDF_URL\}>Download PDF/);
+  assert.doesNotMatch(home, /WORK_RESUME|Read the resume|Download PDF/);
+  assert.equal(WORK_RESUME_URL, 'https://work.thearcades.me/resume');
+  assert.equal(WORK_RESUME_PDF_URL, 'https://work.thearcades.me/resume.pdf');
 });
 
 test('the reader funnel keeps its homepage entry points', () => {
   const home = source('app/(frontend)/page.tsx');
 
   assert.match(home, /<Link className=\{styles\.button\} href="\/start">Start Here/);
-  assert.match(home, /<Link className=\{styles\.latestLink\} href="\/latest">Latest/);
+  assert.match(home, /<Link className=\{styles\.latestLink\} href="\/latest">Blog/);
   assert.match(home, /href="\/stories">All fiction/);
   assert.match(home, /href="\/essays">All essays/);
 });
 
-test('the resume is reached from the homepage lane and the footer, not the top bar', () => {
+test('the résumé is off the writing site; the footer keeps one door to the builder site', () => {
   assert.ok(
-    !ORIENTATION_NAV_ITEMS.some((item) => item.href === '/resume'),
+    !ORIENTATION_NAV_ITEMS.some((item) => item.href === '/resume' || item.href === WORK_RESUME_URL),
     'the top bar stays reserved for reading destinations',
   );
 
   const footer = source('app/components/Footer.tsx');
-  assert.match(footer, /href=\{WORK_RESUME_URL\}/);
+  assert.doesNotMatch(footer, /WORK_RESUME_URL/);
+  assert.match(footer, /BUILDER_SITE_NAV_ITEM\.href/);
+  assert.doesNotMatch(source('app/(frontend)/bio/page.tsx'), /WORK_RESUME_URL|View résumé/);
+  assert.doesNotMatch(source('lib/search.ts'), /WORK_RESUME_URL/);
 });
-
 
 test('the résumé cutover redirects permanently and leaves this sitemap (#287)', () => {
   assert.ok(!buildStaticSitemapEntries('https://www.thearcades.me').some((entry) => entry.url.endsWith('/resume')));

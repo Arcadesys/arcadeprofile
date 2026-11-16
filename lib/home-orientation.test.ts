@@ -63,3 +63,17 @@ test('homepage mounts the resume banner under the hero with the public reading c
   assert.ok(home.indexOf('</header>') < home.indexOf('<ContinueReadingBanner'));
   assert.match(source('app/components/ContinueReadingBanner.tsx'), /availablePaths = \[\]/);
 });
+
+test('homepage carries the promise, the Carl gift, and no toy banner', () => {
+  const home = source('app/(frontend)/page.tsx');
+  const brand = source('lib/site-brand.ts');
+
+  assert.match(brand, /SITE_PROMISE_HEADLINE = 'Strange fiction with heart\.'/);
+  assert.match(brand, /SITE_PROMISE_LINE = 'Everything here used to be something else\.'/);
+  assert.match(home, /<h1 className=\{styles\.title\}>\{SITE_PROMISE_LINE\}<\/h1>/);
+  assert.match(home, /\{SITE_PROMISE_HEADLINE\} Speculative fiction and essays/);
+  assert.equal((home.match(/<h1/g) ?? []).length, 1);
+  assert.match(home, /<SubscriptionForm[\s\S]*audiences=\{\['all'\]\}[\s\S]*magnet="carl"/);
+  assert.ok(home.indexOf('className={styles.recent}') < home.indexOf('className={styles.signup}'));
+  assert.doesNotMatch(home, /ContinueToyBanner|build notes/);
+});

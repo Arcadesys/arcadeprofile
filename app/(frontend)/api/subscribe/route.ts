@@ -5,13 +5,14 @@ import { audienceList, challengeTtlMilliseconds, createVerificationToken, encryp
 import { findResendContact, isResendSuppressed } from '@/lib/resend-contacts';
 import { VALID_AUDIENCES, VALID_MAGNETS, VALID_SOURCES, VALID_UPDATE_MODES, type Magnet } from '@/lib/subscribe-types';
 import { parseBody } from '@/lib/validation';
-import { subscriberGiftFiles } from '@/lib/subscriber-gift';
+import { BROOMSTICKS_GIFT, CARL_GIFT, subscriberGiftFiles } from '@/lib/subscriber-gift';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const MAGNETS: Record<Magnet, { files: Array<{ url: string; filename: string; label: string }> }> = {
-  'subscriber-exclusive': { files: subscriberGiftFiles() },
+  'subscriber-exclusive': { files: subscriberGiftFiles(BROOMSTICKS_GIFT) },
+  carl: { files: subscriberGiftFiles(CARL_GIFT) },
   'it-takes-a-zoo-complete': { files: [{ url: '/novels/it-takes-a-zoo/complete/pdf', filename: 'it-takes-a-zoo-complete.pdf', label: 'Complete PDF' }] },
 };
 const schema = z.object({

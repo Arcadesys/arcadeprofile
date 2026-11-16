@@ -45,11 +45,11 @@ export default function NextInSeries({ canonicalId, contentType, seriesTitle, ne
       canonicalId={canonicalId}
       contentType={contentType}
       placement="series-finished"
-      href="/projects"
+      href="/latest"
     >
       <span className={styles.label}>You finished {seriesTitle}</span>
-      <span className={styles.title}>Start another series</span>
-      <span className={styles.button}>See all series <span aria-hidden="true">→</span></span>
+      <span className={styles.title}>Find what to read next</span>
+      <span className={styles.button}>See everything <span aria-hidden="true">→</span></span>
     </ReaderLink>
   );
 }

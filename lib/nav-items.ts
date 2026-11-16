@@ -1,5 +1,3 @@
-import { WORK_RESUME_URL } from './work-resume';
-
 export type NavItem = {
   id: string;
   label: string;
@@ -10,18 +8,20 @@ export type NavItem = {
 export const DEFAULT_NAV_ITEMS: NavItem[] = [
   { id: 'writing', label: 'Read', href: '/writing', isPrimary: false },
   { id: 'projects', label: 'Watch me build', href: '/projects', isPrimary: false },
-  { id: 'resume', label: 'Resume', href: WORK_RESUME_URL, isPrimary: false },
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
   { id: 'books', label: 'Books', href: '/books', isPrimary: false },
   { id: 'stories', label: 'Stories', href: '/stories', isPrimary: false },
   { id: 'essays', label: 'Essays', href: '/essays', isPrimary: false },
-  { id: 'lab', label: 'Case Studies', href: '/lab', isPrimary: false },
   { id: 'portfolio', label: 'Portfolio', href: '/portfolio', isPrimary: false },
   { id: 'this-is-what-i-do-for-fun', label: 'Collection', href: '/this-is-what-i-do-for-fun', isPrimary: false },
   { id: 'toys', label: 'Toys', href: '/toys', isPrimary: false },
-  { id: 'latest', label: 'Latest', href: '/latest', isPrimary: false },
+  { id: 'latest', label: 'Blog', href: '/latest', isPrimary: false },
 ];
 
+/**
+ * thearcades.me is the writing site. The top bar carries reading destinations;
+ * builder work (résumé, case studies, demos) lives on work.thearcades.me.
+ */
 export const ORIENTATION_NAV_ITEMS: readonly NavItem[] = [
   { id: 'writing', label: 'Read', href: '/writing', isPrimary: false },
   { id: 'blog', label: 'Blog', href: '/latest', isPrimary: false },
@@ -29,6 +29,14 @@ export const ORIENTATION_NAV_ITEMS: readonly NavItem[] = [
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
   { id: 'books', label: 'Books', href: '/books', isPrimary: false },
 ];
+
+/** The one door from the writing site to the builder site. */
+export const BUILDER_SITE_NAV_ITEM: NavItem = {
+  id: 'builder-site',
+  label: 'Things I build',
+  href: 'https://work.thearcades.me/?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=footer',
+  isPrimary: false,
+};
 
 const PRIMARY_NAV_HREFS = ORIENTATION_NAV_ITEMS.map((item) => item.href);
 
@@ -127,19 +135,6 @@ export const ABOUT_NAV_ITEM: NavItem = {
   isPrimary: false,
 };
 
-export const RESUME_NAV_ITEM: NavItem = {
-  id: 'resume',
-  label: 'Resume',
-  href: WORK_RESUME_URL,
-  isPrimary: false,
-};
-
-/** The professional lane's landing page sits beside the build surfaces. */
-export function ensureResumeNavItem(items: NavItem[]): NavItem[] {
-  if (items.some((item) => item.href === RESUME_NAV_ITEM.href)) return items;
-  return insertAfter(items, '/projects', RESUME_NAV_ITEM);
-}
-
 export const SUBSCRIBE_NAV_ITEM: NavItem = {
   id: 'subscribe',
   label: 'Subscribe',
@@ -170,10 +165,8 @@ export function ensureCoreNavItems(items: NavItem[]): NavItem[] {
       ensureNavItem(
         ensureNavItem(
           ensureNavItem(
-            ensureResumeNavItem(
-              ensureToysNavItem(
-                ensureCollectionNavItem(ensureLabNavItem(ensurePortfolioNavItem(items))),
-              ),
+            ensureToysNavItem(
+              ensureCollectionNavItem(ensurePortfolioNavItem(items)),
             ),
             STORIES_NAV_ITEM,
           ),

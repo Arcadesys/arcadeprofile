@@ -4,6 +4,10 @@ import { enrollWelcomeSeries, processWelcomeSeriesStep, runDueWelcomeSeries, typ
 import { deliverWritingWelcome } from './welcome-delivery';
 import { sendWritingWelcomeOnce } from './writing-welcome-email';
 import { buildWelcomeSeriesEmail } from './welcome-series-copy';
+import { CARL_GIFT, SUBSCRIBER_GIFT } from './subscriber-gift';
+
+// Carl's bound files are still placeholders; mechanics tests use the same gift with real-looking paths.
+const CONFIGURED_GIFT = { ...CARL_GIFT, files: CARL_GIFT.files.map((file) => ({ ...file, url: `/lead-magnets/${file.filename}` })) };
 import { parseResendUnsubscribeToken, signupEmailDigest } from './writing-signup';
 
 const DAY = 86400000;
@@ -86,7 +90,7 @@ function fixture() {
     }
     throw new Error('Unexpected provider call');
   };
-  const context = { apiKey: 'mock', fetcher, clock: () => f.now };
+  const context = { apiKey: 'mock', fetcher, clock: () => f.now, gift: CONFIGURED_GIFT };
   const input = { subscriberId: '550e8400-e29b-41d4-a716-446655440000', emailDigest: digest, audiences: ['fiction'] as const };
   const enroll = () => enrollWelcomeSeries({ ...input, audiences: [...input.audiences], ...context });
   const record = () => { const raw = get(recordKey); return raw ? JSON.parse(raw) as SeriesRecord : null; };
@@ -111,7 +115,7 @@ test('once-only concurrent enrollment sends email 1, persists no address and sha
   assert.equal(x.record()?.step, 1); assert.equal(x.record()?.nextDue, START + 3 * DAY);
   assert.equal(x.record()?.expiresAt, START + 30 * DAY);
   assert.doesNotMatch(JSON.stringify([...x.values]) + JSON.stringify(x.commands), /reader@example\.com|encryptedEmail|email_address/);
-  assert.match(String(x.sent[0].text), /lead-magnets\/broomsticks\.pdf/);
+  assert.match(String(x.sent[0].text), /lead-magnets\/carl\.pdf/);
   const headers = x.sent[0].headers as Record<string, string>;
   const token = new URL(headers['List-Unsubscribe'].slice(1, -1)).searchParams.get('token')!;
   assert.deepEqual(parseResendUnsubscribeToken(token), { subscriberId: '550e8400-e29b-41d4-a716-446655440000', emailDigest: x.digest });
@@ -204,9 +208,13 @@ test('off freezes queued sends and 30-day TTL removes records without re-enrollm
 
 test('rendered series copy has the gift, free stories, pitch and unsubscribe in every step', () => {
   for (let step = 0; step < 3; step++) {
-    const content = buildWelcomeSeriesEmail(step, 'https://example.com/unsubscribe?a=1&b=2');
+    const content = buildWelcomeSeriesEmail(step, 'https://example.com/unsubscribe?a=1&b=2', CONFIGURED_GIFT);
     assert.match(content.html, /a=1&amp;b=2/); assert.match(content.text, /Unsubscribe from these emails/);
   }
-  assert.match(buildWelcomeSeriesEmail(0, '#unsubscribe').html, /broomsticks\.epub/);
+  assert.match(buildWelcomeSeriesEmail(0, '#unsubscribe', CONFIGURED_GIFT).html, /carl\.epub/);
+  assert.match(buildWelcomeSeriesEmail(0, '#unsubscribe', CONFIGURED_GIFT).subject, /^Carl, free for you$/);
+  assert.equal(SUBSCRIBER_GIFT, CARL_GIFT);
+  // Until Austen's bound Carl files replace the placeholders, the first email fails closed.
+  assert.throws(() => buildWelcomeSeriesEmail(0, '#unsubscribe'), /Welcome gift is not configured/);
   assert.throws(() => buildWelcomeSeriesEmail(3, '#unsubscribe'));
 });

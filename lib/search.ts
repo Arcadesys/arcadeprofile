@@ -2,7 +2,6 @@ import { buildPostDiscoveryUrl } from '@/lib/post-canonical';
 import { buildGroupIntroUrl, loadMarkdownBlog } from '@/lib/blog';
 import type { LoadMarkdownPostsOptions } from '@/lib/markdown-posts';
 import { PORTFOLIO_WORKS, type PortfolioWork } from '@/lib/portfolio';
-import { WORK_RESUME_URL } from '@/lib/work-resume';
 import { BOOKS, bookPath } from '@/data/books';
 
 export type SearchItem = {
@@ -15,13 +14,12 @@ export type SearchItem = {
 
 const PAGES: SearchItem[] = [
   { title: 'Read', href: '/writing', kind: 'Page', preview: 'Stories, essays, collections, and places to begin reading.', searchText: 'read writing stories essays collections' },
-  { title: 'Watch me build', href: '/projects', kind: 'Page', preview: 'Experiments, software, creative tools, and ongoing projects.', searchText: 'projects software experiments build tools' },
-  { title: 'Resume', href: WORK_RESUME_URL, kind: 'Page', preview: 'Austen Tucker’s professional experience, skills, and selected work.', searchText: 'resume work experience skills career Austen Tucker' },
+  { title: 'Blog', href: '/latest', kind: 'Page', preview: 'Everything Austen Tucker has published, newest first.', searchText: 'blog latest new writing essays stories series projects' },
   { title: 'About', href: '/bio', kind: 'Page', preview: 'About Austen, the Arcades, and the work made here.', searchText: 'about bio Austen Arcades' },
   { title: 'Books', href: '/books', kind: 'Page', preview: 'Current releases, forthcoming books, and the backlist.', searchText: 'books catalog Free Play Publishing novels collections buy' },
-  { title: 'Case Studies', href: '/lab', kind: 'Page', preview: 'AI engineering and product case studies from the lab.', searchText: 'case studies lab AI engineering product' },
+  { title: 'Case Studies', href: 'https://work.thearcades.me/lab', kind: 'Page', preview: 'AI engineering and product case studies from the lab.', searchText: 'case studies lab AI engineering product' },
   { title: 'Portfolio', href: '/portfolio', kind: 'Page', preview: 'Selected fiction and long-form creative work.', searchText: 'portfolio fiction stories creative writing' },
-  { title: 'Toys', href: '/toys', kind: 'Page', preview: 'Small interactive browser toys and playful experiments.', searchText: 'toys games interactive browser experiments' },
+  { title: 'Toys', href: 'https://work.thearcades.me/toys', kind: 'Page', preview: 'Small interactive browser toys and playful experiments.', searchText: 'toys games interactive browser experiments' },
 ];
 
 const BOOK_ITEMS: SearchItem[] = BOOKS.map((book) => ({

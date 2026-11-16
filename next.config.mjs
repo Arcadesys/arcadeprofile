@@ -100,6 +100,34 @@ const nextConfig = {
         destination: 'https://work.thearcades.me/resume.pdf',
         permanent: true,
       },
+      // Writing-site focus: the old Projects grid folds into the continuous blog.
+      // Series pages (/projects/<series>) and every article URL stay as they are.
+      // Temporary on purpose until the split settles; switch to permanent later.
+      {
+        source: '/projects',
+        destination: '/latest',
+        permanent: false,
+      },
+      // Builder work moved to work.thearcades.me (Nov 2026), at the same paths.
+      // Temporary until the move settles; switch to permanent later.
+      // The Telegram sticker publisher (/reaction-stickers/publish.html) and the
+      // Furry History Board app (/lab/furry-history-board/app) stay here.
+      ...['/toys', '/toys/:path*', '/lab', '/heinlein', '/heinlein/:path*', '/reaction-stickers', '/reaction-stickers/index.html'].map((source) => ({
+        source,
+        destination: `https://work.thearcades.me${source}`,
+        permanent: false,
+      })),
+      {
+        source: '/lab/:slug',
+        destination: 'https://work.thearcades.me/lab/:slug',
+        permanent: false,
+      },
+      {
+        // The case-study PDFs did not move; send readers to the case study.
+        source: '/lab/:slug/pdf',
+        destination: 'https://work.thearcades.me/lab/:slug',
+        permanent: false,
+      },
       {
         source: '/DID',
         destination: '/did',
@@ -113,14 +141,6 @@ const nextConfig = {
         // Keep MCP POSTs on the site origin; clients may reject cross-origin redirects.
         source: '/mcp',
         destination: 'https://arcades-public-mcp.vercel.app/mcp',
-      },
-      {
-        source: '/heinlein',
-        destination: '/heinlein/index.html',
-      },
-      {
-        source: '/reaction-stickers',
-        destination: '/reaction-stickers/index.html',
       },
       {
         source: '/lab/furry-history-board/app',

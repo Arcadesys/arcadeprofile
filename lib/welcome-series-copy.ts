@@ -1,4 +1,4 @@
-import { SUBSCRIBER_GIFT, subscriberGiftFiles } from './subscriber-gift';
+import { SUBSCRIBER_GIFT, subscriberGiftFiles, type SubscriberGift } from './subscriber-gift';
 
 type Link = { label: string; url: string };
 type Paragraph = Array<string | Link>;
@@ -9,16 +9,19 @@ const collection = 'https://www.thearcades.me/this-is-what-i-do-for-fun';
 const escape = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
 /** Approved draft copy from the welcome-series artifact; no provider calls. */
-export function buildWelcomeSeriesEmail(step: number, unsubscribeUrl: string) {
+export function buildWelcomeSeriesEmail(step: number, unsubscribeUrl: string, gift: SubscriberGift = SUBSCRIBER_GIFT) {
   const emails: Array<{ subject: string; preview: string; paragraphs: Paragraph[] }> = [
     {
-      subject: 'Broomsticks: a door into Estelle’s Children',
-      preview: 'Read the opening story early, and meet Austen.',
+      // DRAFT (Nov 16, 2026): Carl replaces Broomsticks as the welcome gift. Stays
+      // unsendable until Austen's bound Carl files replace the placeholders in
+      // lib/subscriber-gift.ts, and the series itself stays behind WELCOME_SERIES_ENABLED.
+      subject: `${gift.title}, free for you`,
+      preview: 'Your free story, and a hello from Austen.',
       paragraphs: [
         ['Hi,'],
-        [`Thanks for coming along. Here's ${SUBSCRIBER_GIFT.title}, the opening story of Estelle's Children, early, for subscribers only.`],
-        ['A Chicago witch’s parlor. A kid at the door. The beginning of a sisterhood, told as an archive. The novel is forthcoming from Free Play Publishing.'],
-        subscriberGiftFiles().map((file) => link(`Download the ${file.label}`, new URL(file.url, 'https://www.thearcades.me').href)),
+        [`Thanks for coming along. Here's ${gift.title}, free for subscribers, as a PDF and ebook.`],
+        ['An aging Floor-Mart android is told it is time to turn himself in, but he has only ever known how to keep working.'],
+        subscriberGiftFiles(gift).map((file) => link(`Download the ${file.label}`, new URL(file.url, 'https://www.thearcades.me').href)),
         ["I'm Austen Tucker. I write stories about the heart, build odd little things, and rarely turn down a chance to play pinball. This is where I'll share the writing as it's ready."],
         ['For now, make yourself at home. Read at your own pace.'],
         ['Austen'],
@@ -33,7 +36,7 @@ export function buildWelcomeSeriesEmail(step: number, unsubscribeUrl: string) {
         ["That's where This is what I do for fun begins. With the communities that taught me to write, and the people who taught me what to notice. Who gets looked after. Who gets left outside. When becoming something else means coming home."],
         ["The lone writer makes a good myth. It doesn't explain much about how I learned."],
         ["If you'd like to see what came out of that, here are three of the stories, free to read:"],
-        [link('Carl', `${collection}/carl`), ' — an aging android who only knows how to keep working.'],
+        [link('Mr. Trout’s Slide', `${collection}/mr-trout-s-slide`), ' — a despairing Chicagoan follows a strange map toward Atlantis.'],
         [link('Our Hope Chest', `${collection}/our-hope-chest`), ' — siblings whose private refuge becomes impossible to hide.'],
         [link('La Ligne du Marais', `${collection}/la-ligne-du-marais`), ' — a gambler following a rumor through Paris.'],
         ["Pick whichever catches your eye. That's a perfectly good place to start."],
@@ -46,7 +49,7 @@ export function buildWelcomeSeriesEmail(step: number, unsubscribeUrl: string) {
       paragraphs: [
         ['Hi,'],
         ["If you've enjoyed wandering through the stories, I put eight of them together in This is what I do for fun, published by Free Play Publishing."],
-        [link('Seven are free to read on the site', collection), ". The eighth is Foxtails, only in the book. It's separate from the subscriber-only piece I sent when you joined."],
+        [link('Seven are free to read on the site', collection), ". The eighth is Foxtails, only in the book."],
         ['You can get the collection in the format that suits you:'],
         [link('Kindle — $4.99', 'https://www.amazon.com/dp/B0HM8J2Z87')],
         [link('Paperback — $12.99', 'https://www.amazon.com/dp/B0HMFDFVNH')],
@@ -59,7 +62,7 @@ export function buildWelcomeSeriesEmail(step: number, unsubscribeUrl: string) {
   ];
   const email = emails[step];
   if (!email || !Number.isInteger(step)) throw new Error('Unknown welcome series step');
-  if (step === 0 && !subscriberGiftFiles().length) throw new Error('Welcome gift is not configured');
+  if (step === 0 && !subscriberGiftFiles(gift).length) throw new Error('Welcome gift is not configured');
   const paragraphs = [...email.paragraphs, [link('Unsubscribe from these emails', unsubscribeUrl)]];
   return {
     subject: email.subject,

@@ -4,7 +4,6 @@ import Link from 'next/link';
 import SubscriptionForm from '@/app/components/SubscriptionForm';
 import StartReadingShelf from '@/app/components/StartReadingShelf';
 import { getStartReadingShelf } from '@/lib/reader-discovery';
-import { WORK_RESUME_URL } from '@/lib/work-resume';
 
 export const metadata: Metadata = {
   title: 'Bio',
@@ -72,19 +71,6 @@ export default async function BioPage() {
         <p style={{ color: 'var(--fg-muted)', fontSize: '0.9rem', margin: '0 0 1rem' }}>
           Chicago, IL
         </p>
-        <Link
-          href={WORK_RESUME_URL}
-          style={{
-            display: 'inline-block',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.85rem',
-            letterSpacing: '0.04em',
-            color: 'var(--accent)',
-            textDecoration: 'none',
-          }}
-        >
-          View résumé →
-        </Link>
       </section>
 
       <section style={{ marginBottom: '2.5rem' }} aria-labelledby="writer-reading-heading">
@@ -260,7 +246,7 @@ export default async function BioPage() {
           source="bio"
           audiences={['all']}
           updateMode="add"
-          magnet="subscriber-exclusive"
+          magnet="carl"
           presentation="compact"
           submitLabel="Send me new work"
         />

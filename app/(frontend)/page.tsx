@@ -1,13 +1,19 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
+
+import BookActions from '@/app/components/BookActions';
 
 import ContinueReadingBanner from '@/app/components/ContinueReadingBanner';
-import ContinueToyBanner from '@/app/components/toys/ContinueToyBanner';
 import FeaturedCollectionCard from '@/app/components/FeaturedCollectionCard';
+import SubscriptionForm from '@/app/components/SubscriptionForm';
 import { buildPostDiscoveryUrl } from '@/lib/post-canonical';
 import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
-import { WORK_RESUME_PDF_URL, WORK_RESUME_URL } from '@/lib/work-resume';
+import { SITE_NAME, SITE_PROMISE, SITE_PROMISE_HEADLINE, SITE_PROMISE_LINE } from '@/lib/site-brand';
+import { SITE_URL } from '@/lib/site-url';
 import { ZOO_FEATURED_COLLECTION } from '@/lib/zoo-collection-meta';
+import { getBook } from '@/data/books';
 import { getReadingCatalog } from '@/lib/reading-catalog';
 import moxieHero480 from '@/public/images/moxie/moxie-sitting-text-gaze-480.webp';
 import moxieHero960 from '@/public/images/moxie/moxie-sitting-text-gaze-960.webp';
@@ -16,6 +22,23 @@ import moxieHero1536 from '@/public/images/moxie/moxie-sitting-text-gaze.webp';
 import styles from './home.module.css';
 
 const RECENT_POSTS_MAX = 4;
+const estelle = getBook('estelles-children')!;
+const homeTitle = SITE_PROMISE_HEADLINE.replace(/\.$/, '');
+const homepageDescription = 'Strange fiction with heart by Austen Tucker. Everything here used to be something else. Find what to read next and get Carl free with the newsletter.';
+
+export const metadata: Metadata = {
+  title: homeTitle,
+  description: homepageDescription,
+  openGraph: {
+    title: `${homeTitle} | ${SITE_NAME}`,
+    description: homepageDescription,
+    url: SITE_URL,
+  },
+  twitter: {
+    title: `${homeTitle} | ${SITE_NAME}`,
+    description: homepageDescription,
+  },
+};
 
 export default async function HomePage() {
   const [posts, urlMap, readingCatalog] = await Promise.all([getAllPosts(), buildPostUrlMap(), getReadingCatalog()]);
@@ -30,11 +53,11 @@ export default async function HomePage() {
       <header className={styles.hero}>
         <div className={styles.heroCopy}>
           <p className={styles.byline}>Stories by Austen Tucker</p>
-          <h1 className={styles.title}>Everything here used to be something else.</h1>
-          <p className={styles.subhead}>Speculative fiction, essays, and build notes by Austen Tucker.</p>
+          <h1 className={styles.title}>{SITE_PROMISE_LINE}</h1>
+          <p className={styles.subhead}>{SITE_PROMISE_HEADLINE} Speculative fiction and essays by Austen Tucker.</p>
           <div className={styles.heroActions}>
             <Link className={styles.button} href="/start">Start Here <span aria-hidden="true">→</span></Link>
-            <Link className={styles.latestLink} href="/latest">Latest <span aria-hidden="true">→</span></Link>
+            <Link className={styles.latestLink} href="/latest">Blog <span aria-hidden="true">→</span></Link>
           </div>
         </div>
         <div className={styles.portrait}>
@@ -77,23 +100,18 @@ export default async function HomePage() {
             <a className={styles.entryPathAction} href="https://work.thearcades.me/?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_entry">
               Visit the work site <span aria-hidden="true">↗</span>
             </a>
-            <p className={styles.entryPathMore}>
-              <a href={WORK_RESUME_URL}>Read the resume</a>
-              <a href={WORK_RESUME_PDF_URL}>Download PDF</a>
-            </p>
           </li>
         </ul>
       </section>
 
       <div className={styles.resume}>
         <ContinueReadingBanner availablePaths={readingCatalog.map((piece) => piece.canonicalPath)} />
-        <ContinueToyBanner />
       </div>
 
       <section className={styles.recent} aria-labelledby="recent-heading">
         <div className={styles.recentHeader}>
-          <h2 id="recent-heading">Latest</h2>
-          <Link className={styles.latestLink} href="/latest">View all latest writing <span aria-hidden="true">→</span></Link>
+          <h2 id="recent-heading">Latest on the blog</h2>
+          <Link className={styles.latestLink} href="/latest">Read the whole blog <span aria-hidden="true">→</span></Link>
         </div>
         {recentPosts.length ? <ol className={styles.recentList}>{recentPosts.map((post) => (
           <li className={styles.recentRow} key={post.slug}>
@@ -104,6 +122,32 @@ export default async function HomePage() {
             </div>
           </li>
         ))}</ol> : <p>No recent publications are available yet.</p>}
+      </section>
+
+      <section className={styles.release} aria-labelledby="estelle-release-heading">
+        {estelle.coverImage ? <Image className={styles.releaseCover} src={estelle.coverImage} alt={estelle.coverAlt ?? `Cover of ${estelle.title}.`} width={900} height={1440} sizes="(max-width: 700px) 200px, 220px" /> : null}
+        <div className={styles.releaseCopy}>
+          <p className={styles.eyebrow}>Releases November 30, 2026</p>
+          <h2 id="estelle-release-heading">Estelle&apos;s Children</h2>
+          {estelle.synopsis?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          <p>The ebook is available for preorder.</p>
+          <BookActions book={estelle} purchaseOnly placement="home_estelle_preorder" />
+          <Link className={styles.entryPathAction} href="/books/estelles-children">Explore Estelle&apos;s Children <span aria-hidden="true">→</span></Link>
+        </div>
+      </section>
+
+      <section className={styles.signup} aria-labelledby="home-signup-heading">
+        <p className={styles.eyebrow}>A free story for your inbox</p>
+        <h2 id="home-signup-heading">Get <em>Carl</em> free</h2>
+        <p className={styles.signupCopy}>{SITE_PROMISE}</p>
+        <SubscriptionForm
+          source="home-hero"
+          audiences={['all']}
+          updateMode="add"
+          magnet="carl"
+          presentation="compact"
+          submitLabel="Get Carl free"
+        />
       </section>
 
       <FeaturedCollectionCard collection={ZOO_FEATURED_COLLECTION} placement="home" />

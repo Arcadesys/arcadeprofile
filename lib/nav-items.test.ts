@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import test from 'node:test';
-import { WORK_RESUME_URL } from './work-resume';
 
 import {
   ensureCollectionNavItem,
@@ -61,7 +60,7 @@ test('ensureCoreNavItems keeps fallback destinations available for the editorial
   assert.deepEqual(
     items.map((item) => item.href),
     [
-      '/projects', WORK_RESUME_URL, '/portfolio', '/lab', '/this-is-what-i-do-for-fun', '/toys',
+      '/projects', '/portfolio', '/this-is-what-i-do-for-fun', '/toys',
       '/bio', '/stories', '/essays',
     ],
   );

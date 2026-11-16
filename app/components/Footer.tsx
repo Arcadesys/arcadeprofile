@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import FooterSubscribe from './FooterSubscribe';
 import { SITE_NAME } from '@/lib/site-brand';
-import { WORK_RESUME_URL } from '@/lib/work-resume';
+import { BUILDER_SITE_NAV_ITEM } from '@/lib/nav-items';
 
 export default function Footer() {
   return (
@@ -37,15 +37,13 @@ export default function Footer() {
               }}
         >
           <Link href="/bio" style={{ color: 'var(--fg-muted)' }}>Bio</Link>
-          <a href={WORK_RESUME_URL} style={{ color: 'var(--fg-muted)' }}>Resume</a>
           <Link href="/projects" style={{ color: 'var(--fg-muted)' }}>Projects</Link>
           <Link href="/portfolio" style={{ color: 'var(--fg-muted)' }}>Portfolio</Link>
-          <Link href="/lab" style={{ color: 'var(--fg-muted)' }}>Case Studies</Link>
-          <Link href="/toys" style={{ color: 'var(--fg-muted)' }}>Toys</Link>
+          <a href={BUILDER_SITE_NAV_ITEM.href} style={{ color: 'var(--fg-muted)' }}>{BUILDER_SITE_NAV_ITEM.label} <span aria-hidden="true">↗</span></a>
           <Link href="/bookshelf" style={{ color: 'var(--fg-muted)' }}>Bookshelf</Link>
           <Link href="/store" style={{ color: 'var(--fg-muted)' }}>Store</Link>
           <a href="https://freeplaypublishing.com" target="_blank" rel="noreferrer" style={{ color: 'var(--fg-muted)' }}>Books from Free Play Publishing</a>
-          <Link href="/latest" style={{ color: 'var(--fg-muted)' }}>Latest</Link>
+          <Link href="/latest" style={{ color: 'var(--fg-muted)' }}>Blog</Link>
           <a href="/feed.xml" style={{ color: 'var(--fg-muted)' }}>RSS</a>
         </nav>
 

@@ -38,12 +38,12 @@ describe('NextInSeries', () => {
     });
   });
 
-  it('points readers who finished a series to the series index', () => {
+  it('points readers who finished a series to the blog', () => {
     render(<NextInSeries canonicalId="/projects/x/last" contentType="essay" seriesTitle="The Singularity Log" />);
     const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', '/projects');
+    expect(link).toHaveAttribute('href', '/latest');
     expect(link).toHaveTextContent('You finished The Singularity Log');
-    expect(link).toHaveTextContent('Start another series');
-    expect(link).toHaveTextContent('See all series');
+    expect(link).toHaveTextContent('Find what to read next');
+    expect(link).toHaveTextContent('See everything');
   });
 });

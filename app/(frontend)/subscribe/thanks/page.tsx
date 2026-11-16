@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
 import Link from 'next/link';
-import { SUBSCRIBER_GIFT, subscriberGiftFiles } from '@/lib/subscriber-gift';
+import { giftForMagnet, SUBSCRIBER_GIFT, subscriberGiftFiles } from '@/lib/subscriber-gift';
 
 export const metadata: Metadata = {
   title: 'Thanks for subscribing',
-  description: `Confirm your ${SITE_NAME} signup by email. Subscriber-only piece: ${SUBSCRIBER_GIFT.title}.`,
+  description: `Confirm your ${SITE_NAME} signup by email. Free story for subscribers: ${SUBSCRIBER_GIFT.title}.`,
   alternates: { canonical: '/subscribe/thanks' },
   robots: { index: false, follow: true },
 };
@@ -16,8 +16,9 @@ export default async function SubscribeThanksPage({
   searchParams: Promise<{ magnet?: string | string[] }>;
 }) {
   const params = await searchParams;
-  const hasExclusiveGift = params.magnet === 'subscriber-exclusive';
-  const giftFiles = subscriberGiftFiles();
+  const gift = giftForMagnet(typeof params.magnet === 'string' ? params.magnet : null);
+  const hasExclusiveGift = gift !== null;
+  const giftFiles = gift ? subscriberGiftFiles(gift) : [];
 
   return (
     <main
@@ -59,10 +60,10 @@ export default async function SubscribeThanksPage({
           }}
         >
           <h2 id="gift-downloads" style={{ margin: '0 0 0.75rem', fontSize: 'clamp(1.65rem, 5vw, 2.35rem)' }}>
-            Your subscriber-only piece
+            Your free story
           </h2>
           <p style={{ margin: '0 0 1.25rem', color: 'var(--fg-muted)', fontSize: '1.125rem', lineHeight: 1.7 }}>
-            <em>{SUBSCRIBER_GIFT.title}</em> — {SUBSCRIBER_GIFT.description}
+            <em>{gift.title}</em> — {gift.description}
           </p>
           {giftFiles.length ? (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
@@ -79,7 +80,7 @@ export default async function SubscribeThanksPage({
       <nav aria-label="Next steps" style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', marginTop: '2.5rem' }}>
         <Link href="/">Return home</Link>
         <Link href="/this-is-what-i-do-for-fun">Read the collection</Link>
-        <Link href="/lab">Visit Case Studies</Link>
+        <Link href="/latest">Browse the blog</Link>
       </nav>
     </main>
   );
