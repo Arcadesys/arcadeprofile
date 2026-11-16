@@ -15,18 +15,16 @@ export const BROOMSTICKS_GIFT: SubscriberGift = {
   ],
 };
 
-// The sitewide signup gift (Austen's pick, Nov 16, 2026). Austen binds the PDF and
-// ebook in Heinlein. Until those files land in public/lead-magnets/, the bracketed
-// placeholders keep every download link and the welcome email switched off.
-// To go live: add carl.pdf and carl.epub, then set the urls to
-// '/lead-magnets/carl.pdf' and '/lead-magnets/carl.epub'.
+// The sitewide signup gift (Austen's pick, Nov 16, 2026). The PDF is Austen's
+// Heinlein edition. The EPUB is built with pandoc from Austen's ebook text, with
+// the PDF's cover. Both live in public/lead-magnets/.
 export const CARL_GIFT: SubscriberGift = {
   title: 'Carl',
   offerLabel: 'Free when you sign up',
   description: 'An aging android who only knows how to keep working. A bound PDF and ebook edition, free for subscribers.',
   files: [
-    { url: '[CARL PDF URL]', filename: 'carl.pdf', label: 'PDF' },
-    { url: '[CARL EPUB URL]', filename: 'carl.epub', label: 'EPUB' },
+    { url: '/lead-magnets/carl.pdf', filename: 'carl.pdf', label: 'PDF' },
+    { url: '/lead-magnets/carl.epub', filename: 'carl.epub', label: 'EPUB' },
   ],
 };
 

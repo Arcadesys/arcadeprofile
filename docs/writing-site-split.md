@@ -17,9 +17,8 @@ Status: draft plan, Nov 16, 2026. Nothing here is live until Austen says yes.
 - `/projects` (the old grid) redirects to `/latest` with a temporary 307. Series pages and every article URL stay.
 - Footer "more": Portfolio, Toys, Things I build. Case Studies leaves the footer.
 - Signup gift: Carl replaces Broomsticks everywhere except the Estelle's Children page.
-  Carl's files are bracketed placeholders until Austen binds the PDF and ebook in Heinlein.
-  While they are placeholders, the form says "Draft offer", no download links appear,
-  and welcome email 1 refuses to send.
+  Carl's files are live in `public/lead-magnets/`: Austen's Heinlein PDF, and an EPUB
+  built with pandoc from Austen's ebook text (Austen sent the text, not an .epub).
 - Welcome email 1 now gives Carl. It stays behind `WELCOME_SERIES_ENABLED` (off).
 
 Kept on purpose: `/welcome` (business-card QR page) and `/start` (chooser) still link to the work site and résumé.

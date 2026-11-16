@@ -12,9 +12,8 @@ const escape = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<':
 export function buildWelcomeSeriesEmail(step: number, unsubscribeUrl: string, gift: SubscriberGift = SUBSCRIBER_GIFT) {
   const emails: Array<{ subject: string; preview: string; paragraphs: Paragraph[] }> = [
     {
-      // DRAFT (Nov 16, 2026): Carl replaces Broomsticks as the welcome gift. Stays
-      // unsendable until Austen's bound Carl files replace the placeholders in
-      // lib/subscriber-gift.ts, and the series itself stays behind WELCOME_SERIES_ENABLED.
+      // Carl replaces Broomsticks as the welcome gift (Nov 16, 2026). The files are
+      // real now; the series itself still stays behind WELCOME_SERIES_ENABLED.
       subject: `${gift.title}, free for you`,
       preview: 'Your free story, and a hello from Austen.',
       paragraphs: [

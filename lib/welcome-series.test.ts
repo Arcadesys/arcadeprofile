@@ -6,7 +6,7 @@ import { sendWritingWelcomeOnce } from './writing-welcome-email';
 import { buildWelcomeSeriesEmail } from './welcome-series-copy';
 import { CARL_GIFT, SUBSCRIBER_GIFT } from './subscriber-gift';
 
-// Carl's bound files are still placeholders; mechanics tests use the same gift with real-looking paths.
+// Mechanics tests pin the gift's paths so they don't depend on the live config.
 const CONFIGURED_GIFT = { ...CARL_GIFT, files: CARL_GIFT.files.map((file) => ({ ...file, url: `/lead-magnets/${file.filename}` })) };
 import { parseResendUnsubscribeToken, signupEmailDigest } from './writing-signup';
 
@@ -214,7 +214,9 @@ test('rendered series copy has the gift, free stories, pitch and unsubscribe in 
   assert.match(buildWelcomeSeriesEmail(0, '#unsubscribe', CONFIGURED_GIFT).html, /carl\.epub/);
   assert.match(buildWelcomeSeriesEmail(0, '#unsubscribe', CONFIGURED_GIFT).subject, /^Carl, free for you$/);
   assert.equal(SUBSCRIBER_GIFT, CARL_GIFT);
-  // Until Austen's bound Carl files replace the placeholders, the first email fails closed.
-  assert.throws(() => buildWelcomeSeriesEmail(0, '#unsubscribe'), /Welcome gift is not configured/);
+  // Carl's real files are configured, so the default first email links both.
+  const live = buildWelcomeSeriesEmail(0, '#unsubscribe');
+  assert.match(live.text, /https:\/\/www\.thearcades\.me\/lead-magnets\/carl\.pdf/);
+  assert.match(live.text, /https:\/\/www\.thearcades\.me\/lead-magnets\/carl\.epub/);
   assert.throws(() => buildWelcomeSeriesEmail(3, '#unsubscribe'));
 });
