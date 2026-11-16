@@ -10,7 +10,7 @@ test('discovery and interactive routes default to lights on', () => {
 });
 
 test('long-form routes default to lights off', () => {
-  for (const path of ['/bio', '/resume', '/bibliography', '/preview/token', '/blog/post', '/lab/wizwor', '/portfolio/sample', '/this-is-what-i-do-for-fun/carl', '/projects/serial/chapter']) {
+  for (const path of ['/bio', '/resume', '/bookshelf', '/preview/token', '/blog/post', '/lab/wizwor', '/portfolio/sample', '/this-is-what-i-do-for-fun/carl', '/projects/serial/chapter']) {
     assert.equal(getDefaultLightMode(path), 'off', path);
   }
 });

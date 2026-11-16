@@ -237,7 +237,7 @@ export default async function BioPage() {
           </ul>
           <p style={{ margin: 0, fontSize: '0.95rem' }}>
             <Link
-              href="/bibliography"
+              href="/bookshelf"
               style={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.85rem',
@@ -246,7 +246,7 @@ export default async function BioPage() {
                 textDecoration: 'none',
               }}
             >
-              See the full bibliography →
+              See the full bookshelf →
             </Link>
           </p>
         </div>

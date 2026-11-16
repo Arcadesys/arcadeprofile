@@ -2,7 +2,7 @@ export const LIGHTS_STORAGE_KEY = 'arcades-lights';
 
 export type LightMode = 'on' | 'off';
 
-const READING_ROOTS = new Set(['/bio', '/resume', '/bibliography']);
+const READING_ROOTS = new Set(['/bio', '/resume', '/bookshelf']);
 
 function pathSegments(pathname: string): string[] {
   return pathname.split('?')[0].split('#')[0].split('/').filter(Boolean);
@@ -32,7 +32,7 @@ export const LIGHTS_BOOTSTRAP_SCRIPT = `(() => {
   const getDefault = (pathname) => {
     const parts = pathname.split('?')[0].split('#')[0].split('/').filter(Boolean);
     const clean = '/' + parts.join('/');
-    if (['/bio', '/resume', '/bibliography'].includes(clean)) return 'off';
+    if (['/bio', '/resume', '/bookshelf'].includes(clean)) return 'off';
     if (parts[0] === 'preview' && parts.length > 1) return 'off';
     if (parts[0] === 'blog' && parts.length > 1) return 'off';
     if (parts[0] === 'lab' && parts.length > 1) return 'off';

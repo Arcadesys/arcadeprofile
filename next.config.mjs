@@ -65,6 +65,7 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      { source: '/bibliography', destination: '/bookshelf', permanent: true },
       {
         source: '/projects/it-takes-a-zoo/it-takes-a-zoo',
         destination: '/projects/it-takes-a-zoo/it-takes-a-zoo-to-raise-the-child',

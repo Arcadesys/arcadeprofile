@@ -10,7 +10,7 @@ import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 
 import styles from './writing.module.css';
 
-const description = 'Fiction, essays, and bibliography by Austen Tucker.';
+const description = 'Fiction, essays, and a bookshelf of published work by Austen Tucker.';
 
 export const metadata: Metadata = {
   title: 'Writing',
@@ -24,7 +24,7 @@ const doors = [
   { title: 'Fiction', href: '/stories', description: 'Stories, serial work, and downloadable editions.' },
   { title: 'Essays', href: '/essays', description: 'Notes on creativity, access, technology, and being human.' },
   { title: 'Queer Columns', href: '/queercolumns', description: 'A monthly column on trans life, queer history, and the policies that shape our lives.' },
-  { title: 'Bibliography', href: '/bibliography', description: 'Books and publications beyond this workshop.' },
+  { title: 'Bookshelf', href: '/bookshelf', description: 'Books and publications beyond this workshop.' },
 ] as const;
 
 export default async function WritingPage() {

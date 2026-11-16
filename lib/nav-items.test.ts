@@ -81,7 +81,6 @@ test('buildNavigationModel uses the requested orientation destinations for fallb
     ['Read', '/writing'],
     ['Blog', '/latest'],
     ['Watch me build', '/projects'],
-    ['Resume', '/resume'],
     ['About', '/bio'],
     ['Store', '/store'],
   ];
@@ -116,7 +115,7 @@ test('buildNavigationModel reserves the compact header for editorial essentials'
   // '/subscribe' no longer has a reserved primary slot while email signups
   // are paused site-wide; a passed-in subscribe item now lands in "more".
   assert.deepEqual(model.primary.map((item) => item.href), [
-    '/writing', '/latest', '/projects', '/resume', '/bio', '/store',
+    '/writing', '/latest', '/projects', '/bio', '/store',
   ]);
   assert.deepEqual(model.more.map((item) => item.href), ['/stories', '/essays', '/lab', '/subscribe', '/toys']);
 });

@@ -55,10 +55,10 @@ test('site-owned signup surfaces use one first-party form implementation', () =>
   }
 });
 
-test('writing is an accessible section door to fiction, essays, and bibliography', () => {
+test('writing is an accessible section door to fiction, essays, and the bookshelf', () => {
   const writing = source('app/(frontend)/writing/page.tsx');
 
   assert.match(writing, /title: 'Fiction', href: '\/stories'/);
   assert.match(writing, /title: 'Essays', href: '\/essays'/);
-  assert.match(writing, /title: 'Bibliography', href: '\/bibliography'/);
+  assert.match(writing, /title: 'Bookshelf', href: '\/bookshelf'/);
 });

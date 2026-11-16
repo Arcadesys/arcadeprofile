@@ -47,10 +47,10 @@ test('the reader funnel keeps its homepage entry points', () => {
   assert.match(home, /href="\/essays">All essays/);
 });
 
-test('the resume sits in the primary navigation and the footer', () => {
+test('the resume is reached from the homepage lane and the footer, not the top bar', () => {
   assert.ok(
-    ORIENTATION_NAV_ITEMS.some((item) => item.href === '/resume'),
-    'the resume must be a primary orientation destination',
+    !ORIENTATION_NAV_ITEMS.some((item) => item.href === '/resume'),
+    'the top bar stays reserved for reading destinations',
   );
 
   const footer = source('app/components/Footer.tsx');
