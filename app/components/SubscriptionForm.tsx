@@ -13,7 +13,7 @@ import type {
 } from '@/lib/subscribe-types';
 
 import styles from './SubscriptionForm.module.css';
-import { SUBSCRIBER_GIFT, subscriberGiftFiles } from '@/lib/subscriber-gift';
+import { giftForMagnet, subscriberGiftFiles } from '@/lib/subscriber-gift';
 
 type Download = { href: string; label: string };
 
@@ -73,6 +73,7 @@ function EnabledSubscriptionForm({
   successMessage = 'Check your inbox to confirm your subscription.',
   postSuccessDownload,
 }: SubscriptionFormProps) {
+  const gift = giftForMagnet(magnet);
   const emailId = useId();
   const statusRef = useRef<HTMLDivElement>(null);
   const firstChoiceRef = useRef<HTMLInputElement>(null);
@@ -173,11 +174,11 @@ function EnabledSubscriptionForm({
 
   return (
     <form className={`${styles.form} ${presentation === 'compact' ? styles.compact : ''}`} onSubmit={submit} noValidate={false}>
-      {magnet === 'subscriber-exclusive' ? (
+      {gift ? (
         <div className={styles.gift}>
-          <p><strong>Subscriber-only: {SUBSCRIBER_GIFT.title}</strong></p>
-          <p>{SUBSCRIBER_GIFT.description}</p>
-          <p>{subscriberGiftFiles().length ? 'Get the PDF and EPUB with your signup.' : 'Draft offer — the piece is not available yet.'}</p>
+          <p><strong>{gift.offerLabel}: {gift.title}</strong></p>
+          <p>{gift.description}</p>
+          <p>{subscriberGiftFiles(gift).length ? 'Get the PDF and EPUB with your signup.' : 'Draft offer — the piece is not available yet.'}</p>
         </div>
       ) : null}
       <div className={styles.field}>

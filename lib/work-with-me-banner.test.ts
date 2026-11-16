@@ -5,12 +5,12 @@ import test from 'node:test';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
-test('the homepage exposes the professional site through one compact brand-bar link', () => {
+test('the homepage brand bar is the writing site only; the builder door lives in the footer', () => {
   const home = source('app/(frontend)/page.tsx');
-  const controls = home.slice(home.indexOf('className={styles.brandBar}'), home.indexOf('className={styles.hero}'));
-  assert.ok(controls.length > 0, 'brand bar must precede the book hero');
+  const controls = home.slice(home.indexOf('className={styles.brandBar}'), home.indexOf('className={styles.promise}'));
+  assert.ok(controls.length > 0, 'brand bar must precede the promise');
 
-  assert.match(controls, /className=\{styles\.workWithMe\} href="https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_header"/);
-  assert.match(controls, /Work with me/);
+  assert.doesNotMatch(controls, /workWithMe|work\.thearcades\.me/);
   assert.doesNotMatch(controls, /href="\/subscribe"/);
+  assert.match(source('lib/nav-items.ts'), /utm_content=footer/);
 });

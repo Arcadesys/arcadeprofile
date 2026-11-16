@@ -38,20 +38,6 @@
 .brandLockup b { color: var(--accent); font-size: 1.3em; }
 .brandLockup strong { color: var(--accent); font: inherit; }
 
-.workWithMe {
-  display: inline-flex;
-  min-height: 48px;
-  align-items: center;
-  gap: .35rem;
-  padding: .5rem .7rem;
-  color: var(--accent);
-  font-size: 1rem;
-  font-weight: 750;
-  text-underline-offset: .2em;
-}
-
-.workWithMe:hover { color: var(--fg); }
-
 .hero {
   padding: clamp(.85rem, 2vw, 1.5rem);
   border: 2px solid var(--border-strong);
@@ -63,6 +49,23 @@
 }
 
 html[data-contrast="high"] .hero { background: var(--surface); }
+
+.promise {
+  margin: 0 0 1rem;
+  padding: clamp(1rem, 3vw, 2rem) clamp(.75rem, 2vw, 1.5rem);
+}
+
+.promise h1 {
+  margin: 0 0 .5rem;
+  color: var(--fg);
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.1;
+}
+
+.promise .tagline {
+  margin: 0;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+}
 
 .tagline {
   margin: 0 0 .85rem;
@@ -160,7 +163,6 @@ html[data-contrast="high"] .hero { background: var(--surface); }
   .main { width: calc(100% - 1rem); padding-top: .5rem; }
   .brandBar { min-height: 56px; justify-content: flex-start; gap: .1rem .25rem; margin-bottom: .6rem; padding: .35rem .55rem; }
   .brandLockup { flex-basis: 100%; gap: 0 .35rem; font-size: .875rem; letter-spacing: .02em; }
-  .workWithMe { min-height: 48px; padding-inline: .35rem; }
   .hero { padding: .65rem; }
   .tagline { margin-bottom: .55rem; font-size: 1rem; }
   .signup { grid-template-columns: minmax(0, 1fr); gap: .35rem; }

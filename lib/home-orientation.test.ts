@@ -8,17 +8,25 @@ import { ORIENTATION_NAV_ITEMS } from './nav-items';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
-test('homepage sells the featured book before signup and reading discovery', () => {
+test('homepage leads with the promise, then what to read next, then the book and signup', () => {
   const home = source('app/(frontend)/page.tsx');
+  const brand = source('lib/site-brand.ts');
 
-  assert.match(home, /<p className=\{styles\.tagline\}>Everything here used to be something else\.<\/p>/);
+  assert.match(brand, /SITE_PROMISE_HEADLINE = 'Strange fiction with heart\.'/);
+  assert.match(brand, /SITE_PROMISE_LINE = 'Everything here used to be something else\.'/);
+  assert.match(home, /<h1 id="home-promise-heading">\{SITE_PROMISE_HEADLINE\}<\/h1>/);
+  assert.match(home, /<p className=\{styles\.tagline\}>\{SITE_PROMISE_LINE\}<\/p>/);
+  assert.match(home, /<p className=\{styles\.signupCopy\}>\{SITE_PROMISE\}<\/p>/);
+  assert.match(home, /heading="What to read next"/);
   assert.match(home, /getBook\('this-is-what-i-do-for-fun'\)/);
-  assert.match(home, /headingAs="h1"[\s\S]*placement="home_hero"/);
+  assert.match(home, /headingAs="h2"[\s\S]*placement="home_hero"/);
+  assert.equal((home.match(/<h1/g) ?? []).length, 1);
   assert.match(home, /pitch="Strange lives, remade\."/);
-  assert.match(home, /<SubscriptionForm[\s\S]*audiences=\{\['all'\]\}[\s\S]*magnet="subscriber-exclusive"/);
+  assert.match(home, /<SubscriptionForm[\s\S]*audiences=\{\['all'\]\}[\s\S]*magnet="carl"/);
   assert.match(home, /<StartReadingShelf[\s\S]*items=\{readingPicks\}[\s\S]*columns=\{3\}/);
-  assert.ok(home.indexOf('className={styles.hero}') < home.indexOf('className={styles.signup}'));
-  assert.ok(home.indexOf('className={styles.signup}') < home.indexOf('items={readingPicks}'));
+  assert.ok(home.indexOf('className={styles.promise}') < home.indexOf('items={readingPicks}'));
+  assert.ok(home.indexOf('items={readingPicks}') < home.indexOf('className={styles.signup}'));
+  assert.ok(home.indexOf('className={styles.signup}') < home.indexOf('className={styles.hero}'));
   assert.doesNotMatch(home, /entryPaths|workLane|FeaturedCollectionCard|ContinueToyBanner/);
   const footerSignup = source('app/components/FooterSubscribe.tsx');
   assert.match(footerSignup, /pathname === '\/'/);
@@ -88,8 +96,8 @@ test('homepage footer names destinations exactly as the rail does', () => {
   const onSite = ORIENTATION_NAV_ITEMS.filter((item) => item.href.startsWith('/'));
 
   assert.deepEqual(items.map(({ label, href }) => [label, href]), onSite.map(({ label, href }) => [label, href]));
-  assert.deepEqual(items.map((item) => item.label), ['Read', 'Blog', 'Watch me build', 'About', 'Books']);
-  assert.ok(items.every((item) => !/^https?:/.test(item.href)), 'off-site Resume stays out of the footer');
+  assert.deepEqual(items.map((item) => item.label), ['Read', 'Blog', 'Books', 'About']);
+  assert.ok(items.every((item) => !/^https?:/.test(item.href)), 'off-site links stay out of the home footer');
 
   const home = source('app/(frontend)/page.tsx');
   assert.match(home, /<HomeFooterNav \/>/);

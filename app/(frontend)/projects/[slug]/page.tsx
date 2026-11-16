@@ -184,7 +184,7 @@ export default async function ProjectIntroPage({ params }: Props) {
       {posts.length > 0 && drawer}
       <main className={mainCls}>
         <nav style={{ marginBottom: '2.5rem' }}>
-          <Link href="/projects" style={navLinkStyle}>← Projects</Link>
+          <Link href="/latest" style={navLinkStyle}>← Blog</Link>
         </nav>
 
         <header style={{ marginBottom: '2.5rem' }}>

@@ -4,7 +4,7 @@ import path from 'node:path';
 import test from 'node:test';
 import postcss, { type Rule } from 'postcss';
 
-import { LAB_NAV_ITEM, ORIENTATION_NAV_ITEMS, PORTFOLIO_NAV_ITEM, TOYS_NAV_ITEM } from './nav-items';
+import { BUILDER_SITE_NAV_ITEM, ORIENTATION_NAV_ITEMS, PORTFOLIO_NAV_ITEM, TOYS_NAV_ITEM } from './nav-items';
 
 const read = (relativePath: string) => readFileSync(path.join(process.cwd(), relativePath), 'utf8');
 const footerSource = read('app/components/Footer.tsx');
@@ -25,11 +25,13 @@ function declarations(selector: string, media?: string): Record<string, string> 
 
 test('the footer names every rail destination exactly as the rail does', () => {
   assert.match(footerSource, /ORIENTATION_NAV_ITEMS\.map/);
-  assert.match(footerSource, /\[PORTFOLIO_NAV_ITEM, LAB_NAV_ITEM, TOYS_NAV_ITEM\]/);
+  assert.match(footerSource, /\[PORTFOLIO_NAV_ITEM, TOYS_NAV_ITEM, BUILDER_SITE_NAV_ITEM\]/);
   assert.deepEqual(
-    [PORTFOLIO_NAV_ITEM.label, LAB_NAV_ITEM.label, TOYS_NAV_ITEM.label],
-    ['Portfolio', 'Case Studies', 'Toys'],
+    [PORTFOLIO_NAV_ITEM.label, TOYS_NAV_ITEM.label, BUILDER_SITE_NAV_ITEM.label],
+    ['Portfolio', 'Toys', 'Things I build'],
   );
+  assert.match(BUILDER_SITE_NAV_ITEM.href, /^https:\/\/work\.thearcades\.me\//);
+  assert.doesNotMatch(footerSource, /LAB_NAV_ITEM/, 'case studies belong to the builder site');
   assert.ok(ORIENTATION_NAV_ITEMS.length > 0);
   for (const stale of ['>Bio<', '>Projects<', '>Latest<', '>Store<']) {
     assert.ok(!footerSource.includes(stale), `the footer must not hard-code the old label ${stale}`);

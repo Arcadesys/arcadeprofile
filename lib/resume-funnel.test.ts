@@ -9,10 +9,9 @@ import { WORK_RESUME_PDF_URL, WORK_RESUME_URL } from './work-resume';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
-test('the homepage keeps one small work link in its brand bar', () => {
+test('the writing-site homepage carries no résumé or work link', () => {
   const home = source('app/(frontend)/page.tsx');
-  assert.equal((home.match(/Work with me/g) ?? []).length, 1);
-  assert.match(home, /href="https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_header">\s*Work with me/);
+  assert.doesNotMatch(home, /Work with me|work\.thearcades\.me|WORK_RESUME/);
   assert.equal(WORK_RESUME_URL, 'https://work.thearcades.me/resume');
   assert.equal(WORK_RESUME_PDF_URL, 'https://work.thearcades.me/resume.pdf');
 });
@@ -24,18 +23,19 @@ test('the reader funnel keeps its homepage entry points', () => {
   assert.match(home, /href="\/essays"[^>]*>All essays/);
 });
 
-test('the resume sits in the primary navigation rail and the footer, linking to the work site', () => {
+test('the résumé is off the writing site rail; the footer keeps one door to the builder site', () => {
   assert.ok(
-    ORIENTATION_NAV_ITEMS.some((item) => item.href === WORK_RESUME_URL),
-    'the resume must be a primary orientation destination',
+    !ORIENTATION_NAV_ITEMS.some((item) => item.href === WORK_RESUME_URL || /^https?:/.test(item.href)),
+    'the rail carries reading destinations only',
   );
 
   const navbar = source('app/components/NavbarClient.tsx');
-  assert.match(navbar, /case WORK_RESUME_URL:/, 'the resume needs a nav rail icon');
+  assert.doesNotMatch(navbar, /WORK_RESUME_URL/);
 
-  // The footer lists the rail's orientation items, so the resume reaches it through the same list.
   const footer = source('app/components/Footer.tsx');
-  assert.match(footer, /ORIENTATION_NAV_ITEMS\.map/);
+  assert.match(footer, /BUILDER_SITE_NAV_ITEM/);
+  assert.doesNotMatch(source('app/(frontend)/bio/page.tsx'), /WORK_RESUME_URL|View résumé/);
+  assert.doesNotMatch(source('lib/search.ts'), /WORK_RESUME_URL/);
 });
 
 

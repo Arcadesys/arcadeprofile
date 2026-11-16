@@ -23,7 +23,6 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
     changeFrequency: 'monthly' as const,
     priority: 0.8,
   })),
-  { path: '/projects', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/portfolio', changeFrequency: 'monthly', priority: 0.9 },
   ...PORTFOLIO_WORKS.map((work) => ({
     path: `/portfolio/${work.slug}`,

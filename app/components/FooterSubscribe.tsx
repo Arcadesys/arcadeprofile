@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { hasEndOfPieceSignup } from '@/lib/end-of-piece-routes';
+import { SITE_PROMISE } from '@/lib/site-brand';
 import SubscriptionForm from './SubscriptionForm';
 
 export default function FooterSubscribe() {
@@ -28,7 +29,7 @@ export default function FooterSubscribe() {
         Get new writing by email
       </h2>
       <p style={{ margin: '0 0 1.25rem', color: 'var(--fg-muted)', fontSize: '1.125rem', lineHeight: 1.6 }}>
-        Stories and essays when they&rsquo;re ready. Confirm your email to join the list.
+        {SITE_PROMISE} Confirm your email to join the list.
       </p>
       <SubscriptionForm
         source="footer"

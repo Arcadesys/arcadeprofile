@@ -4,6 +4,7 @@ import { VALID_AUDIENCES, type Audience } from './subscribe-types';
 import { newProcessingToken, redisCommand, signupEmailDigest } from './writing-signup';
 import { sendWelcomeContent, writingWelcomeSenderConfig, type WelcomeDeliveryResult } from './writing-welcome-email';
 import { buildWelcomeSeriesEmail } from './welcome-series-copy';
+import type { SubscriberGift } from './subscriber-gift';
 import { lookupResendContactById } from './resend-contacts';
 
 const DAY = 86400000;
@@ -24,7 +25,8 @@ export type SeriesRecord = {
   claim?: string;
   leaseUntil?: number;
 };
-type Context = { apiKey: string; fetcher?: typeof fetch; clock?: () => number };
+// gift is a test seam; production always sends the sitewide gift from lib/subscriber-gift.ts.
+type Context = { apiKey: string; fetcher?: typeof fetch; clock?: () => number; gift?: SubscriberGift };
 type Result = WelcomeDeliveryResult | 'stopped' | 'deferred';
 
 export function welcomeSeriesEnabled() {
@@ -93,7 +95,7 @@ export async function enrollWelcomeSeries(input: { subscriberId: string; emailDi
     || input.audiences.some((a) => !VALID_AUDIENCES.includes(a))) throw new Error('Invalid welcome enrollment');
   if (!input.apiKey.trim()) throw new Error('Resend is not configured');
   writingWelcomeSenderConfig();
-  buildWelcomeSeriesEmail(0, 'https://www.thearcades.me/subscribe/unsubscribe');
+  buildWelcomeSeriesEmail(0, 'https://www.thearcades.me/subscribe/unsubscribe', input.gift);
   if (!await recipient(input.subscriberId, input.emailDigest, input)) return 'stopped';
   const now = (input.clock ?? Date.now)();
   const record: SeriesRecord = { subscriberId: input.subscriberId, audiences: [...new Set(input.audiences)], step: 0,
@@ -142,7 +144,7 @@ export async function processWelcomeSeriesStep(digest: string, context: Context)
   try {
     await sendWelcomeContent({ email, subscriberId: record.subscriberId, emailDigest: digest, fetcher,
       idempotencyKey: `welcome-series/${digest}/step-${record.step}`,
-      buildContent: (url) => buildWelcomeSeriesEmail(record.step, url) });
+      buildContent: (url) => buildWelcomeSeriesEmail(record.step, url, context.gift) });
   } catch (error) {
     if (error instanceof MailRejectedError) {
       await transition(digest, raw, { ...record, status: 'pending', claim: undefined, leaseUntil: undefined, nextDue: clock() + DAY }, context);

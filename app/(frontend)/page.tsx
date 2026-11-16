@@ -9,7 +9,7 @@ import HomeFooterNav from '@/app/components/HomeFooterNav';
 import StartReadingShelf from '@/app/components/StartReadingShelf';
 import SubscriptionForm from '@/app/components/SubscriptionForm';
 import { getBook } from '@/data/books';
-import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
+import { SITE_NAME, SITE_PLATFORM_NAME, SITE_PROMISE, SITE_PROMISE_HEADLINE, SITE_PROMISE_LINE } from '@/lib/site-brand';
 import { getHomeReadingPicks } from '@/lib/reader-discovery';
 import { getReadingCatalog } from '@/lib/reading-catalog';
 import { SITE_URL } from '@/lib/site-url';
@@ -18,18 +18,18 @@ import styles from './home.module.css';
 
 const estelle = getBook('estelles-children')!;
 const book = getBook('this-is-what-i-do-for-fun')!;
-const homepageDescription = 'Discover This is what I do for fun by Austen Tucker: eight stories, including Foxtails, only in the book. Read seven stories free, get Broomsticks with the newsletter, and explore more fiction and essays.';
+const homepageDescription = 'Strange fiction with heart by Austen Tucker. Everything here used to be something else. Find what to read next, get Carl free with the newsletter, and preorder Estelle\'s Children.';
 
 export const metadata: Metadata = {
-  title: 'This is what I do for fun',
+  title: SITE_PROMISE_HEADLINE.replace(/\.$/, ''),
   description: homepageDescription,
   openGraph: {
-    title: `This is what I do for fun | ${SITE_NAME}`,
+    title: `${SITE_PROMISE_HEADLINE.replace(/\.$/, '')} | ${SITE_NAME}`,
     description: homepageDescription,
     url: SITE_URL,
   },
   twitter: {
-    title: `This is what I do for fun | ${SITE_NAME}`,
+    title: `${SITE_PROMISE_HEADLINE.replace(/\.$/, '')} | ${SITE_NAME}`,
     description: homepageDescription,
   },
 };
@@ -43,15 +43,34 @@ export default async function HomePage() {
         <Link className={styles.brandLockup} href="/" aria-label={`${SITE_PLATFORM_NAME} — ${SITE_NAME} home`}>
           <span>{SITE_PLATFORM_NAME}</span><b aria-hidden="true">/</b><strong>{SITE_NAME}</strong>
         </Link>
-        <a className={styles.workWithMe} href="https://work.thearcades.me/?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_header">
-          Work with me <span aria-hidden="true">↗</span>
-        </a>
       </header>
+
+      <section className={styles.promise} aria-labelledby="home-promise-heading">
+        <h1 id="home-promise-heading">{SITE_PROMISE_HEADLINE}</h1>
+        <p className={styles.tagline}>{SITE_PROMISE_LINE}</p>
+      </section>
 
       <ContinueReadingBanner availablePaths={catalog.map((piece) => piece.canonicalPath)} />
 
+      <section className={styles.reading} aria-label="What to read next">
+        <StartReadingShelf
+          items={readingPicks}
+          heading="What to read next"
+          headingId="home-start-reading"
+          description="Three good places to start."
+          compact
+          columns={3}
+          analyticsPlacement="home_shelf"
+        />
+        <nav className={styles.readingLinks} aria-label="Browse writing">
+          <Link href="/latest" data-analytics-placement="home_browse">Everything, newest first <span aria-hidden="true">→</span></Link>
+          <Link href="/stories" data-analytics-placement="home_browse">All stories <span aria-hidden="true">→</span></Link>
+          <Link href="/essays" data-analytics-placement="home_browse">All essays <span aria-hidden="true">→</span></Link>
+        </nav>
+      </section>
+
       <section className={styles.release} aria-labelledby="estelle-release-heading">
-        {estelle.coverImage ? <Image className={styles.releaseCover} src={estelle.coverImage} alt={estelle.coverAlt ?? `Cover of ${estelle.title}.`} width={900} height={1440} sizes="(max-width: 700px) 200px, 220px" priority /> : null}
+        {estelle.coverImage ? <Image className={styles.releaseCover} src={estelle.coverImage} alt={estelle.coverAlt ?? `Cover of ${estelle.title}.`} width={900} height={1440} sizes="(max-width: 700px) 200px, 220px" /> : null}
         <div className={styles.releaseCopy}>
           <p className={styles.releaseDate}>Releases November 30, 2026</p>
           <h2 id="estelle-release-heading">Estelle&apos;s Children</h2>
@@ -62,48 +81,29 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className={styles.hero} aria-labelledby="home-book-heading">
-        <p className={styles.tagline}>Everything here used to be something else.</p>
-        <BookPurchaseBlock
-          book={book}
-          headingId="home-book-heading"
-          headingAs="h1"
-          variant="hero"
-          placement="home_hero"
-          pitch="Strange lives, remade."
-        />
-      </section>
-
       <section className={styles.signup} aria-labelledby="home-signup-heading">
-        <p className={styles.eyebrow}>A story for your inbox</p>
-        <h2 id="home-signup-heading">Get <em>Broomsticks</em></h2>
-        <p className={styles.signupCopy}>
-          All Writing is the default for fiction and essays.
-        </p>
+        <p className={styles.eyebrow}>A free story for your inbox</p>
+        <h2 id="home-signup-heading">Get <em>Carl</em> free</h2>
+        <p className={styles.signupCopy}>{SITE_PROMISE}</p>
         <SubscriptionForm
           source="home-hero"
           audiences={['all']}
           updateMode="add"
-          magnet="subscriber-exclusive"
+          magnet="carl"
           presentation="compact"
-          submitLabel="Get Broomsticks"
+          submitLabel="Get Carl free"
         />
       </section>
 
-      <section className={styles.reading} aria-label="More ways to read">
-        <StartReadingShelf
-          items={readingPicks}
-          heading="Start reading"
-          headingId="home-start-reading"
-          description="Three quick ways into the stories and essays."
-          compact
-          columns={3}
-          analyticsPlacement="home_shelf"
+      <section className={styles.hero} aria-labelledby="home-book-heading">
+        <BookPurchaseBlock
+          book={book}
+          headingId="home-book-heading"
+          headingAs="h2"
+          variant="hero"
+          placement="home_hero"
+          pitch="Strange lives, remade."
         />
-        <nav className={styles.readingLinks} aria-label="Browse writing">
-          <Link href="/stories" data-analytics-placement="home_browse">All stories <span aria-hidden="true">→</span></Link>
-          <Link href="/essays" data-analytics-placement="home_browse">All essays <span aria-hidden="true">→</span></Link>
-        </nav>
       </section>
 
       <footer className={styles.footer}>

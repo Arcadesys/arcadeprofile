@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import FooterSubscribe from './FooterSubscribe';
 import {
-  LAB_NAV_ITEM,
+  BUILDER_SITE_NAV_ITEM,
   ORIENTATION_NAV_ITEMS,
   PORTFOLIO_NAV_ITEM,
   TOYS_NAV_ITEM,
@@ -12,7 +12,8 @@ import { SITE_NAME } from '@/lib/site-brand';
 import styles from './Footer.module.css';
 
 // Destinations the rail does not carry. Labels come from nav-items so they cannot drift from the rest of the site.
-const MORE_ITEMS: readonly NavItem[] = [PORTFOLIO_NAV_ITEM, LAB_NAV_ITEM, TOYS_NAV_ITEM];
+// Builder work (case studies, demos, résumé) is one door away on work.thearcades.me.
+const MORE_ITEMS: readonly NavItem[] = [PORTFOLIO_NAV_ITEM, TOYS_NAV_ITEM, BUILDER_SITE_NAV_ITEM];
 
 const isExternal = (href: string) => /^https?:\/\//.test(href);
 

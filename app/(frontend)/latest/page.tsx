@@ -12,20 +12,20 @@ import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Latest',
-  description: `New writing from ${SITE_NAME} — fiction and essays by Austen Tucker.`,
+  title: 'Blog',
+  description: `Everything from ${SITE_NAME}, newest first: fiction and essays by Austen Tucker.`,
   alternates: { canonical: '/latest' },
   openGraph: {
     type: 'website',
-    title: `Latest | ${SITE_NAME}`,
-    description: `New writing from ${SITE_NAME} — fiction and essays by Austen Tucker.`,
+    title: `Blog | ${SITE_NAME}`,
+    description: `Everything from ${SITE_NAME}, newest first: fiction and essays by Austen Tucker.`,
     url: '/latest',
     images: [DEFAULT_SOCIAL_IMAGE],
   },
   twitter: {
     card: 'summary_large_image',
-    title: `Latest | ${SITE_NAME}`,
-    description: `New writing from ${SITE_NAME} — fiction and essays by Austen Tucker.`,
+    title: `Blog | ${SITE_NAME}`,
+    description: `Everything from ${SITE_NAME}, newest first: fiction and essays by Austen Tucker.`,
     images: [DEFAULT_SOCIAL_IMAGE.url],
   },
 };
@@ -43,9 +43,9 @@ export default async function LatestPage() {
 
   return (
     <main style={{ maxWidth: '680px', margin: '0 auto', padding: 'clamp(2rem, 5vw, 4rem) 1rem clamp(3rem, 8vw, 6rem)' }}>
-      <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', marginBottom: '0.25rem' }}>Latest</h1>
+      <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', marginBottom: '0.25rem' }}>Blog</h1>
       <p style={{ color: 'var(--fg-muted)', marginBottom: '3rem', fontSize: '1rem' }}>
-        Writing by Austen Tucker.
+        Everything I&apos;ve published, newest first. Tap a series name to read that series in order.
       </p>
 
       <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '3rem' }}>

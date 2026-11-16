@@ -99,6 +99,14 @@ const nextConfig = {
         destination: 'https://work.thearcades.me/resume.pdf',
         permanent: true,
       },
+      // Writing-site focus: the old Projects grid folds into the continuous blog.
+      // Series pages (/projects/<series>) and every article URL stay as they are.
+      // Temporary on purpose until the split settles; switch to permanent later.
+      {
+        source: '/projects',
+        destination: '/latest',
+        permanent: false,
+      },
       {
         source: '/DID',
         destination: '/did',
