@@ -1,20 +1,8 @@
 .main {
-  --home-bg: #0b0a0c;
-  --home-surface: #171317;
-  --home-line: #62515b;
-  --home-text: #fff7ef;
-  --home-muted: #e0d5ce;
-  width: min(calc(100% - 138px - 2rem), 1360px);
-  margin: 0 auto 0 calc(138px + max(1rem, (100vw - 138px - 1360px) / 2));
+  width: min(calc(100% - var(--nav-rail-width) - 2rem), 1360px);
+  margin: 0 auto 0 calc(var(--nav-rail-width) + max(1rem, (100vw - var(--nav-rail-width) - 1360px) / 2));
   padding: 1rem 0 3rem;
-  color: var(--home-text);
-}
-
-.main a:focus-visible,
-.main button:focus-visible,
-.main input:focus-visible {
-  outline: 3px solid #fff;
-  outline-offset: 4px;
+  color: var(--fg);
 }
 
 .brandBar {
@@ -26,10 +14,10 @@
   gap: .75rem 1rem;
   margin-bottom: 1rem;
   padding: .55rem 1rem;
-  border: 1px solid #34343b;
-  border-bottom: 3px solid var(--cyan);
-  background: var(--home-bg);
-  box-shadow: 0 5px 18px rgb(0 224 240 / 14%);
+  border: 2px solid var(--console-border);
+  border-bottom-color: var(--cyan);
+  background: var(--surface);
+  box-shadow: 0 5px 18px var(--console-cyan-glow);
 }
 
 .brandLockup {
@@ -38,7 +26,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0 .7rem;
-  color: #fff;
+  color: var(--fg);
   font-family: var(--font-mono);
   font-size: clamp(1rem, 1.4vw, 1.15rem);
   font-weight: 800;
@@ -48,7 +36,7 @@
 }
 
 .brandLockup b { color: var(--accent); font-size: 1.3em; }
-.brandLockup strong { color: #ffbd84; font: inherit; }
+.brandLockup strong { color: var(--accent); font: inherit; }
 
 .workWithMe {
   display: inline-flex;
@@ -56,29 +44,31 @@
   align-items: center;
   gap: .35rem;
   padding: .5rem .7rem;
-  color: var(--home-text);
-  font-size: .95rem;
+  color: var(--accent);
+  font-size: 1rem;
   font-weight: 750;
   text-underline-offset: .2em;
 }
 
-.workWithMe:hover { color: #fff; }
+.workWithMe:hover { color: var(--fg); }
 
 .hero {
   padding: clamp(.85rem, 2vw, 1.5rem);
-  border: 2px solid var(--home-line);
-  border-top: 5px solid #ffad68;
+  border: 2px solid var(--border-strong);
+  border-top: 5px solid var(--accent);
   background:
-    radial-gradient(ellipse at 12% 0%, rgb(255 138 0 / 12%), transparent 48%),
-    var(--home-surface);
+    radial-gradient(ellipse at 12% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 48%),
+    var(--surface);
   box-shadow: 0 16px 34px rgb(0 0 0 / 35%);
 }
 
+html[data-contrast="high"] .hero { background: var(--surface); }
+
 .tagline {
   margin: 0 0 .85rem;
-  color: #ffbd84;
+  color: var(--fg);
   font-family: var(--font-mono);
-  font-size: clamp(.92rem, 1.4vw, 1.08rem);
+  font-size: clamp(1rem, 1.4vw, 1.08rem);
   font-weight: 750;
   letter-spacing: .025em;
   line-height: 1.35;
@@ -91,17 +81,17 @@
   align-items: start;
   margin: 1.15rem 0;
   padding: clamp(1rem, 2.5vw, 1.75rem);
-  border: 2px solid #665052;
-  border-left: 6px solid #ffad68;
-  background: #171317;
+  border: 2px solid var(--border-strong);
+  border-left: 5px solid var(--accent);
+  background: var(--surface);
 }
 
 .eyebrow {
   grid-column: 1 / -1;
   margin: 0;
-  color: #ffbd84;
+  color: var(--cyan);
   font-family: var(--font-mono);
-  font-size: .9rem;
+  font-size: 1rem;
   font-weight: 800;
   letter-spacing: .09em;
   text-transform: uppercase;
@@ -117,7 +107,7 @@
 .signupCopy {
   grid-column: 1;
   margin: 0;
-  color: var(--home-muted);
+  color: var(--fg-muted);
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -127,8 +117,8 @@
 .reading {
   margin: 1.5rem 0 0;
   padding: clamp(.75rem, 2vw, 1.25rem);
-  border: 1px solid #51484d;
-  background: #111012;
+  border: 1px solid var(--console-border);
+  background: #09090a;
 }
 
 .readingLinks {
@@ -136,7 +126,7 @@
   flex-wrap: wrap;
   gap: .35rem 1rem;
   margin-top: .75rem;
-  border-top: 1px solid #51484d;
+  border-top: 1px solid var(--border);
 }
 
 .readingLinks a,
@@ -145,13 +135,13 @@
   min-height: 48px;
   align-items: center;
   gap: .4rem;
-  color: #ffd0a6;
+  color: var(--accent);
   font-weight: 750;
   text-underline-offset: .2em;
 }
 
 .readingLinks a:hover,
-.footer a:hover { color: #fff; }
+.footer a:hover { color: var(--fg); }
 
 .footer {
   display: flex;
@@ -159,7 +149,7 @@
   gap: .25rem 1.25rem;
   margin-top: 1rem;
   padding-inline: .4rem;
-  border-top: 1px solid #51484d;
+  border-top: 1px solid var(--border);
 }
 
 @media (max-width: 960px), (max-height: 700px) {
@@ -169,10 +159,10 @@
 @media (max-width: 700px) {
   .main { width: calc(100% - 1rem); padding-top: .5rem; }
   .brandBar { min-height: 56px; justify-content: flex-start; gap: .1rem .25rem; margin-bottom: .6rem; padding: .35rem .55rem; }
-  .brandLockup { flex-basis: 100%; gap: 0 .35rem; font-size: .86rem; letter-spacing: .02em; }
-  .workWithMe { min-height: 48px; padding-inline: .35rem; font-size: .9rem; }
+  .brandLockup { flex-basis: 100%; gap: 0 .35rem; font-size: .875rem; letter-spacing: .02em; }
+  .workWithMe { min-height: 48px; padding-inline: .35rem; }
   .hero { padding: .65rem; }
-  .tagline { margin-bottom: .55rem; font-size: .92rem; }
+  .tagline { margin-bottom: .55rem; font-size: 1rem; }
   .signup { grid-template-columns: minmax(0, 1fr); gap: .35rem; }
   .eyebrow, .signupCopy, .signup form { grid-column: 1; grid-row: auto; }
   .signup form { margin-top: .45rem; }
@@ -180,8 +170,7 @@
 }
 
 @media (max-width: 360px) {
-  .brandLockup { font-size: .76rem; }
-  .workWithMe { font-size: .85rem; }
+  .brandLockup { letter-spacing: .01em; }
   .hero { padding: .5rem; }
 }
 
@@ -196,14 +185,14 @@
   gap: clamp(1.25rem, 3vw, 2rem);
   margin-bottom: 1rem;
   padding: clamp(1.25rem, 3vw, 2rem);
-  border: 2px solid #ffbd84;
-  background: #171317;
-  color: #fff7ef;
+  border: 2px solid var(--accent);
+  background: var(--surface);
+  color: var(--fg);
 }
 
 .releaseDate {
   margin: 0 0 .75rem;
-  color: #ffbd84;
+  color: var(--cyan);
   font-size: 1.125rem;
   font-weight: 800;
   line-height: 1.5;
@@ -229,7 +218,7 @@
   align-items: center;
   min-height: 48px;
   margin-top: .75rem;
-  color: #ffd0a6;
+  color: var(--accent);
   font-size: 1.125rem;
   font-weight: 750;
   text-underline-offset: .2em;

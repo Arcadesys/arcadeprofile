@@ -3,6 +3,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import test from 'node:test';
 
+import { getHomeFooterNavItems } from './home-footer-nav';
+import { ORIENTATION_NAV_ITEMS } from './nav-items';
+
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
 test('homepage sells the featured book before signup and reading discovery', () => {
@@ -16,7 +19,7 @@ test('homepage sells the featured book before signup and reading discovery', () 
   assert.match(home, /<StartReadingShelf[\s\S]*items=\{readingPicks\}[\s\S]*columns=\{3\}/);
   assert.ok(home.indexOf('className={styles.hero}') < home.indexOf('className={styles.signup}'));
   assert.ok(home.indexOf('className={styles.signup}') < home.indexOf('items={readingPicks}'));
-  assert.doesNotMatch(home, /entryPaths|workLane|FeaturedCollectionCard|ContinueReadingBanner|ContinueToyBanner/);
+  assert.doesNotMatch(home, /entryPaths|workLane|FeaturedCollectionCard|ContinueToyBanner/);
   const footerSignup = source('app/components/FooterSubscribe.tsx');
   assert.match(footerSignup, /pathname === '\/'/);
 });
@@ -68,4 +71,29 @@ test('writing is an accessible section door to fiction, essays, and bibliography
   assert.match(writing, /title: 'Fiction', href: '\/stories'/);
   assert.match(writing, /title: 'Essays', href: '\/essays'/);
   assert.match(writing, /title: 'Bibliography', href: '\/bibliography'/);
+});
+
+test('homepage mounts the resume banner under the brand bar with the public reading catalog', () => {
+  const home = source('app/(frontend)/page.tsx');
+
+  assert.match(home, /<ContinueReadingBanner availablePaths=\{catalog\.map\(\(piece\) => piece\.canonicalPath\)\} \/>/);
+  assert.match(home, /getReadingCatalog\(\)/);
+  assert.ok(home.indexOf('</header>') < home.indexOf('<ContinueReadingBanner'));
+  assert.ok(home.indexOf('<ContinueReadingBanner') < home.indexOf('className={styles.release}'));
+  assert.match(source('app/components/ContinueReadingBanner.tsx'), /availablePaths = \[\]/);
+});
+
+test('homepage footer names destinations exactly as the rail does', () => {
+  const items = getHomeFooterNavItems();
+  const onSite = ORIENTATION_NAV_ITEMS.filter((item) => item.href.startsWith('/'));
+
+  assert.deepEqual(items.map(({ label, href }) => [label, href]), onSite.map(({ label, href }) => [label, href]));
+  assert.deepEqual(items.map((item) => item.label), ['Read', 'Blog', 'Watch me build', 'About', 'Books']);
+  assert.ok(items.every((item) => !/^https?:/.test(item.href)), 'off-site Resume stays out of the footer');
+
+  const home = source('app/(frontend)/page.tsx');
+  assert.match(home, /<HomeFooterNav \/>/);
+  assert.doesNotMatch(home, /About Austen|All books/);
+  assert.match(source('app/components/HomeFooterNav.tsx'), /aria-label="More from The Arcades"/);
+  assert.match(source('app/components/HomeFooterNav.tsx'), /getHomeFooterNavItems\(\)/);
 });

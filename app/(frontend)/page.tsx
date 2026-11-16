@@ -4,11 +4,14 @@ import Image from 'next/image';
 
 import BookActions from '@/app/components/BookActions';
 import BookPurchaseBlock from '@/app/components/BookPurchaseBlock';
+import ContinueReadingBanner from '@/app/components/ContinueReadingBanner';
+import HomeFooterNav from '@/app/components/HomeFooterNav';
 import StartReadingShelf from '@/app/components/StartReadingShelf';
 import SubscriptionForm from '@/app/components/SubscriptionForm';
 import { getBook } from '@/data/books';
 import { SITE_NAME, SITE_PLATFORM_NAME } from '@/lib/site-brand';
 import { getHomeReadingPicks } from '@/lib/reader-discovery';
+import { getReadingCatalog } from '@/lib/reading-catalog';
 import { SITE_URL } from '@/lib/site-url';
 
 import styles from './home.module.css';
@@ -32,7 +35,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const readingPicks = await getHomeReadingPicks();
+  const [readingPicks, catalog] = await Promise.all([getHomeReadingPicks(), getReadingCatalog()]);
 
   return (
     <main id="arcades-home" className={styles.main}>
@@ -44,6 +47,8 @@ export default async function HomePage() {
           Work with me <span aria-hidden="true">↗</span>
         </a>
       </header>
+
+      <ContinueReadingBanner availablePaths={catalog.map((piece) => piece.canonicalPath)} />
 
       <section className={styles.release} aria-labelledby="estelle-release-heading">
         {estelle.coverImage ? <Image className={styles.releaseCover} src={estelle.coverImage} alt={estelle.coverAlt ?? `Cover of ${estelle.title}.`} width={900} height={1440} sizes="(max-width: 700px) 200px, 220px" priority /> : null}
@@ -102,8 +107,7 @@ export default async function HomePage() {
       </section>
 
       <footer className={styles.footer}>
-        <Link href="/about">About Austen</Link>
-        <Link href="/books">All books</Link>
+        <HomeFooterNav />
       </footer>
     </main>
   );

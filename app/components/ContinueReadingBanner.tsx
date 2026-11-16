@@ -7,6 +7,8 @@ import { useReaderEventTracker } from '@/lib/reader-analytics';
 import type { ReadingContinuityRecord } from '@/lib/reading-continuity';
 import { dismissStoredProgress, readStoredProgress } from '@/lib/reading-resume-storage';
 
+import styles from './ContinueReadingBanner.module.css';
+
 /**
  * Client-only "pick up where you left off" prompt, sourced from whatever
  * the reading-continuity tracker last recorded. Renders nothing until hydrated
@@ -29,40 +31,21 @@ export default function ContinueReadingBanner({ availablePaths = [] }: { availab
   };
 
   return (
-    <section style={{ margin: '0 0 2rem' }}>
+    <section className={styles.banner} aria-label="Continue reading">
       <Link
         href={progress.canonicalPath}
+        className={styles.resume}
         onClick={() => track('resume-click', { canonicalId: pathname, contentType: 'reading-hub', placement: 'resume-banner', destination: progress.canonicalPath })}
-        style={{
-          display: 'block',
-          padding: '0.85rem 1.1rem',
-          minHeight: '44px',
-          borderRadius: '0.5rem',
-          border: '1px solid rgba(255,60,172,0.4)',
-          background: 'rgba(255,60,172,0.07)',
-          textDecoration: 'none',
-          color: 'var(--fg)',
-        }}
       >
-        <span style={{
-          display: 'block',
-          fontFamily: 'var(--font-mono)',
-          fontSize: '0.875rem',
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          color: 'var(--neon-pink)',
-          marginBottom: '0.3rem',
-        }}>
-          Continue reading
-        </span>
-        <span style={{ fontWeight: 600 }}>
-          {progress.collection ? `${progress.collection.title}: ` : ''}{progress.title}
-        </span>
-        <span style={{ marginLeft: '0.5rem', color: 'var(--fg-muted)', fontSize: '0.85rem' }}>
-          {progress.collection ? `Part ${progress.collection.position} / ${progress.collection.total}` : 'Open piece'}
+        <span className={styles.label}>Continue reading</span>
+        <span>
+          <span className={styles.title}>{progress.collection ? `${progress.collection.title}: ` : ''}{progress.title}</span>
+          <span className={styles.position}>
+            {progress.collection ? `Part ${progress.collection.position} / ${progress.collection.total}` : 'Open piece'}
+          </span>
         </span>
       </Link>
-      <button type="button" onClick={dismiss} style={{ marginTop: '0.5rem', minHeight: '44px', fontSize: '0.875rem' }}>Dismiss</button>
+      <button type="button" className={styles.dismiss} onClick={dismiss}>Dismiss</button>
     </section>
   );
 }
