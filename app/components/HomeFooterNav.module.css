@@ -1,0 +1,32 @@
+/* Selectors are doubled (.nav .link) so they hold over the home footer's generic `.footer a` rule. */
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav .link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: .5rem .85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: .875rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.nav .link:hover,
+.nav .link:focus-visible {
+  background: var(--cyan);
+  color: var(--bg-deep);
+  text-shadow: none;
+}
