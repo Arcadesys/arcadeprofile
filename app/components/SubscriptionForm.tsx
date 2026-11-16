@@ -49,7 +49,7 @@ function readingLinkFor(audiences: ReadonlySet<Audience>): ReadingLink {
   if (audiences.has('queer-columns')) return { href: '/queercolumns', label: 'Read Queer Columns' };
   if (audiences.has('work-ai')) return { href: 'https://work.thearcades.me/blog', label: 'Read Work / AI' };
   if (audiences.has('th4f')) return { href: 'https://hack.thearcades.me/blog', label: 'Read TH4F' };
-  if (audiences.has('lab')) return { href: '/lab', label: 'Read case studies' };
+  if (audiences.has('lab')) return { href: 'https://work.thearcades.me/lab', label: 'Read case studies' };
   if (audiences.has('fiction')) return { href: '/stories', label: 'Read fiction' };
   if (audiences.has('essays')) return { href: '/essays', label: 'Read essays' };
   return { href: '/writing', label: 'Browse the writing' };

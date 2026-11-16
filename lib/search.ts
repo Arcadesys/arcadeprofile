@@ -17,9 +17,9 @@ const PAGES: SearchItem[] = [
   { title: 'Blog', href: '/latest', kind: 'Page', preview: 'Everything Austen Tucker has published, newest first.', searchText: 'blog latest new writing essays stories series projects' },
   { title: 'About', href: '/bio', kind: 'Page', preview: 'About Austen, the Arcades, and the work made here.', searchText: 'about bio Austen Arcades' },
   { title: 'Books', href: '/books', kind: 'Page', preview: 'Current releases, forthcoming books, and the backlist.', searchText: 'books catalog Free Play Publishing novels collections buy' },
-  { title: 'Case Studies', href: '/lab', kind: 'Page', preview: 'AI engineering and product case studies from the lab.', searchText: 'case studies lab AI engineering product' },
+  { title: 'Case Studies', href: 'https://work.thearcades.me/lab', kind: 'Page', preview: 'AI engineering and product case studies from the lab.', searchText: 'case studies lab AI engineering product' },
   { title: 'Portfolio', href: '/portfolio', kind: 'Page', preview: 'Selected fiction and long-form creative work.', searchText: 'portfolio fiction stories creative writing' },
-  { title: 'Toys', href: '/toys', kind: 'Page', preview: 'Small interactive browser toys and playful experiments.', searchText: 'toys games interactive browser experiments' },
+  { title: 'Toys', href: 'https://work.thearcades.me/toys', kind: 'Page', preview: 'Small interactive browser toys and playful experiments.', searchText: 'toys games interactive browser experiments' },
 ];
 
 const BOOK_ITEMS: SearchItem[] = BOOKS.map((book) => ({

@@ -10,7 +10,7 @@ test('only exact public paths produce analytics context, never bearer/unknown ro
     assert.equal(shouldTrackSiteAnalytics(path), false, path);
     assert.equal(buildSiteAnalyticsContext(path, `${origin}${path}#token`), null, path);
   }
-  for (const path of ['/', '/stories', '/mff', '/start', '/subscribe', '/portfolio/gallery-view', '/novels/it-takes-a-zoo/cold-boot', '/toys/interspecies-dating-is-hard', '/projects/the-singularity-log/rabies-capitalism']) assert.equal(shouldTrackSiteAnalytics(path), true, path);
+  for (const path of ['/', '/stories', '/mff', '/start', '/subscribe', '/portfolio/gallery-view', '/novels/it-takes-a-zoo/cold-boot', '/latest', '/projects/the-singularity-log/rabies-capitalism']) assert.equal(shouldTrackSiteAnalytics(path), true, path);
   assert.deepEqual(buildSiteAnalyticsContext('/stories/', `${origin}/stories/?email=private%40example.com#private-token`), {
     pathname: '/stories', $pathname: '/stories', $host: 'www.thearcades.me', $current_url: `${origin}/stories`,
   });
