@@ -12,6 +12,7 @@ import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
 import { PieceActions } from '@/app/components/PieceActions';
 import ReadingContinuityTracker from '@/app/components/ReadingContinuityTracker';
 import ReadingNextSteps from '@/app/components/ReadingNextSteps';
+import NextInSeries from '@/app/components/NextInSeries';
 import { getReadingCatalog } from '@/lib/reading-catalog';
 import { formatSiteDate } from '@/lib/site-time';
 import { JsonLd } from '@/lib/structured-data';
@@ -265,7 +266,12 @@ export default async function ProjectPostPage({ params }: Props) {
           <ReaderTelemetry key={readingPiece.canonicalPath} canonicalId={readingPiece.canonicalPath} contentType={readingPiece.contentType} placement="reader-body" destination="none"><MarkdownPostBody markdown={post.markdownBody} /></ReaderTelemetry>
         </article>
 
-        <ReadingNextSteps piece={readingPiece} catalog={readingCatalog} />
+        <NextInSeries
+          canonicalId={readingPiece.canonicalPath}
+          contentType={readingPiece.contentType}
+          seriesTitle={project.title}
+          next={nextPartHref ? { href: nextPartHref, title: posts[idx + 1].title, partNumber: partIndex + 1, totalParts: totalCount } : undefined}
+        />
 
         {slug !== 'queer-columns' && (
           <EndOfPieceSubscribe
@@ -278,12 +284,15 @@ export default async function ProjectPostPage({ params }: Props) {
           />
         )}
 
+        <ReadingNextSteps piece={readingPiece} catalog={readingCatalog} skipNext />
+
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
           <PieceActions
             title={post.title}
             readHref={buildPostUrl(slug, postSlug)}
             pdfHref={`${buildPostUrl(slug, postSlug)}/pdf`}
             shareUrl={canonicalUrl}
+            showRead={false}
           />
           {slug === 'queer-columns' && (
             <section className={`${queerColumnsStyles.signup} ${queerColumnsStyles.signupInline}`} aria-labelledby="signup-title">
@@ -302,11 +311,6 @@ export default async function ProjectPostPage({ params }: Props) {
                 ← {prevTitle}
               </Link>
             ) : <span />}
-            {nextPartHref && (
-              <Link href={nextPartHref} style={{ display: 'inline-flex', minHeight: '44px', alignItems: 'center', color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '1rem' }}>
-                {posts[idx + 1].title} →
-              </Link>
-            )}
           </div>
         </footer>
       </main>

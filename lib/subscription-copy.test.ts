@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { endOfPieceCopy } from './subscription-copy';
 
-const scope = "Join All Writing for stories and essays when they're ready.";
+const scope = 'I send one email when new writing goes up.';
 
 test('active series retains its count and discloses the actual All Writing signup scope', () => {
   assert.equal(endOfPieceCopy({ kind: 'essay', seriesTitle: 'The Singularity Log', totalParts: 18, seriesActive: true }), `The Singularity Log currently has 18 installments. ${scope}`);
