@@ -135,6 +135,7 @@ test('day 3 and day 7 steps, concurrent cron retry, completion and no re-enrollm
   x.f.now += 1; await Promise.all([runDueWelcomeSeries(x.context), runDueWelcomeSeries(x.context)]);
   assert.equal(x.sent.length, 2); assert.equal(x.record()?.step, 2); assert.equal(x.record()?.nextDue, START + 7 * DAY);
   assert.match(String(x.sent[1].text), /Our Hope Chest/);
+  assert.match(String(x.sent[1].text), /Free Play Publishing \(https:\/\/freeplaypublishing\.com\/\) is where I'll be selling new books\./);
   x.f.now = START + 7 * DAY; assert.equal((await runDueWelcomeSeries(x.context)).sent, 1);
   assert.equal(x.record(), null); assert.equal(x.due.size, 0); assert.equal(await x.enroll(), 'already-claimed');
   await runDueWelcomeSeries(x.context); assert.equal(x.sent.length, 3);
@@ -208,5 +209,8 @@ test('rendered series copy has the gift, free stories, pitch and unsubscribe in 
     assert.match(content.html, /a=1&amp;b=2/); assert.match(content.text, /Unsubscribe from these emails/);
   }
   assert.match(buildWelcomeSeriesEmail(0, '#unsubscribe').html, /broomsticks\.epub/);
+  const dayThree = buildWelcomeSeriesEmail(1, '#unsubscribe');
+  assert.match(dayThree.html, /href="https:\/\/freeplaypublishing\.com\/">Free Play Publishing<\/a> is where I&#39;ll be selling new books\./);
+  assert.match(dayThree.text, /Free Play Publishing \(https:\/\/freeplaypublishing\.com\/\) is where I'll be selling new books\./);
   assert.throws(() => buildWelcomeSeriesEmail(3, '#unsubscribe'));
 });

@@ -37,6 +37,7 @@ export function buildWelcomeSeriesEmail(step: number, unsubscribeUrl: string) {
         [link('Our Hope Chest', `${collection}/our-hope-chest`), ' — siblings whose private refuge becomes impossible to hide.'],
         [link('La Ligne du Marais', `${collection}/la-ligne-du-marais`), ' — a gambler following a rumor through Paris.'],
         ["Pick whichever catches your eye. That's a perfectly good place to start."],
+        [link('Free Play Publishing', 'https://freeplaypublishing.com/'), " is where I'll be selling new books."],
         ['Austen'],
       ],
     },
