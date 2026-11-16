@@ -6,12 +6,16 @@ import Link from 'next/link';
 import { getProjectBySlug } from '@/lib/projects';
 import { getGroupBySlug } from '@/lib/blog';
 import { projectCategoryLabels } from '@/lib/project-model';
+import Breadcrumb from '@/app/components/Breadcrumb';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
+import PieceBar from '@/app/components/PieceBar';
 import { PieceActions } from '@/app/components/PieceActions';
 import ReadingContinuityTracker from '@/app/components/ReadingContinuityTracker';
 import ReadingNextSteps from '@/app/components/ReadingNextSteps';
+import NextInSeries from '@/app/components/NextInSeries';
+import { buildPieceTrail } from '@/lib/breadcrumb-trails';
 import { getReadingCatalog } from '@/lib/reading-catalog';
 import { formatSiteDate } from '@/lib/site-time';
 import { JsonLd } from '@/lib/structured-data';
@@ -24,7 +28,7 @@ import {
 import { groupPostsByChapter, type ChapterSection } from '@/lib/post-chapters';
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
 import ReaderTelemetry from '@/app/components/ReaderTelemetry';
-import KitSignup from '@/app/(frontend)/queercolumns/KitSignup';
+import SubscriptionForm from '@/app/components/SubscriptionForm';
 import queerColumnsStyles from '@/app/(frontend)/queercolumns/queercolumns.module.css';
 
 import { absoluteSiteUrl, SITE_URL } from '@/lib/site-url';
@@ -221,6 +225,11 @@ export default async function ProjectPostPage({ params }: Props) {
       ? 'essay'
       : 'build note';
   const readingPiece = readingCatalog.find((candidate) => candidate.canonicalPath === buildPostUrl(slug, postSlug))!;
+  // Essays and fiction sit under Read; build notes keep their plain back link.
+  const trailSection = project.category === 'fiction' ? 'fiction' : project.category === 'writing' ? 'essays' : null;
+  const trail = trailSection
+    ? buildPieceTrail({ section: trailSection, series: { title: project.title, href: introHref }, pieceTitle: post.title })
+    : null;
 
   const drawer = (
     <DocDrawer
@@ -243,6 +252,14 @@ export default async function ProjectPostPage({ params }: Props) {
       <JsonLd data={breadcrumbJsonLd} />
       {drawer}
       <ReadingContinuityTracker piece={readingPiece} />
+      <PieceBar
+        backHref={introHref}
+        backLabel={project.title}
+        title={post.title}
+        position={partIndex}
+        total={totalCount}
+        readingMinutes={readingPiece.readingMinutes}
+      />
       <main className={postMainCls}>
         <article className="longform-article">
           <header className="post-header">
@@ -257,7 +274,12 @@ export default async function ProjectPostPage({ params }: Props) {
           <ReaderTelemetry key={readingPiece.canonicalPath} canonicalId={readingPiece.canonicalPath} contentType={readingPiece.contentType} placement="reader-body" destination="none"><MarkdownPostBody markdown={post.markdownBody} /></ReaderTelemetry>
         </article>
 
-        <ReadingNextSteps piece={readingPiece} catalog={readingCatalog} />
+        <NextInSeries
+          canonicalId={readingPiece.canonicalPath}
+          contentType={readingPiece.contentType}
+          seriesTitle={project.title}
+          next={nextPartHref ? { href: nextPartHref, title: posts[idx + 1].title, partNumber: partIndex + 1, totalParts: totalCount } : undefined}
+        />
 
         {slug !== 'queer-columns' && (
           <EndOfPieceSubscribe
@@ -270,12 +292,15 @@ export default async function ProjectPostPage({ params }: Props) {
           />
         )}
 
+        <ReadingNextSteps piece={readingPiece} catalog={readingCatalog} skipNext />
+
         <footer style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
           <PieceActions
             title={post.title}
             readHref={buildPostUrl(slug, postSlug)}
             pdfHref={`${buildPostUrl(slug, postSlug)}/pdf`}
             shareUrl={canonicalUrl}
+            showRead={false}
           />
           {slug === 'queer-columns' && (
             <section className={`${queerColumnsStyles.signup} ${queerColumnsStyles.signupInline}`} aria-labelledby="signup-title">
@@ -284,8 +309,7 @@ export default async function ProjectPostPage({ params }: Props) {
                 <p>One essay a month, sent to your inbox.</p>
               </div>
               <div className={queerColumnsStyles.signupForm}>
-                <KitSignup />
-                <a className={queerColumnsStyles.signupLink} href="https://austen-tucker.kit.com/e422068d6d?utm_source=thearcades.me&utm_medium=site&utm_campaign=queer_columns">Subscribe to Queer Columns on Kit <span aria-hidden="true">↗</span></a>
+                <SubscriptionForm source="post" audiences={['queer-columns']} updateMode="add" submitLabel="Send confirmation email" successMessage="Check your inbox to confirm your subscription." />
               </div>
             </section>
           )}
@@ -295,11 +319,6 @@ export default async function ProjectPostPage({ params }: Props) {
                 ← {prevTitle}
               </Link>
             ) : <span />}
-            {nextPartHref && (
-              <Link href={nextPartHref} style={{ display: 'inline-flex', minHeight: '44px', alignItems: 'center', color: 'var(--neon-pink)', textDecoration: 'none', fontSize: '1rem' }}>
-                {posts[idx + 1].title} →
-              </Link>
-            )}
           </div>
         </footer>
       </main>

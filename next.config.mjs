@@ -29,15 +29,15 @@ const nextConfig = {
     const csp = [
       "default-src 'self'",
       // Next hydration currently requires inline script support.
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://austen-tucker.kit.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.bunny.net",
       "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://i.ytimg.com https://d226aj4ao1t61q.cloudfront.net",
       "font-src 'self' data: https://fonts.gstatic.com https://fonts.bunny.net",
-      "connect-src 'self' https://vitals.vercel-insights.com https://app.kit.com https://austen-tucker.kit.com",
+      "connect-src 'self' https://vitals.vercel-insights.com",
       "frame-src 'self' https://www.youtube-nocookie.com",
       "frame-ancestors 'self'",
       "base-uri 'self'",
-      "form-action 'self' https://app.kit.com",
+      "form-action 'self'",
       "object-src 'none'",
     ].join('; ');
 
@@ -88,6 +88,18 @@ const nextConfig = {
         destination: 'https://docs.google.com/forms/d/e/1FAIpQLSeOpGMaOMJwCqu9WHUpJvjlYvRIgV6vC3BqdstVJvssPlWeqg/viewform?usp=dialog',
         permanent: false,
       },
+      // Résumé cutover (#287): the professional imprint owns the résumé.
+      // PDF maps to PDF; nothing points a download at an HTML page.
+      {
+        source: '/resume',
+        destination: 'https://work.thearcades.me/resume',
+        permanent: true,
+      },
+      {
+        source: '/resume/pdf',
+        destination: 'https://work.thearcades.me/resume.pdf',
+        permanent: true,
+      },
       {
         source: '/DID',
         destination: '/did',
@@ -97,6 +109,15 @@ const nextConfig = {
   },
   async rewrites() {
     return [
+      {
+        // Keep MCP POSTs on the site origin; clients may reject cross-origin redirects.
+        source: '/mcp',
+        destination: 'https://arcades-public-mcp.vercel.app/mcp',
+      },
+      {
+        source: '/heinlein',
+        destination: '/heinlein/index.html',
+      },
       {
         source: '/reaction-stickers',
         destination: '/reaction-stickers/index.html',

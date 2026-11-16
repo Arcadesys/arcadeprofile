@@ -1,11 +1,20 @@
 'use client';
 
 import { buildSiteAnalyticsContext, canCaptureBrowserAnalytics } from '@/lib/site-analytics';
+import { readAnalyticsSession, SESSION_IDLE_MS, SESSION_MAX_MS, type AnalyticsSession } from '@/lib/analytics-session';
 import { buildFreshEntryContext, isAnalyticsId, sanitizeAnalyticsPayload, sanitizeEntryContext, type AnalyticsSurface } from '@/lib/analytics-payload';
+import { sanitizeEngagement, type EngagementSnapshot } from '@/lib/reading-engagement';
+import type { ReaderTelemetryProps } from '@/lib/reader-analytics';
+import { createAnalyticsTransport } from '@/lib/analytics-transport';
+import type { PageLeave } from '@/lib/page-lifecycle';
 
 const STORAGE_KEY = 'arcade-posthog-anonymous-id';
-const SESSION_KEY = 'arcade-posthog-session-id';
+const SESSION_KEY = 'arcade-posthog-session-v2';
+const WINDOW_KEY = 'arcade-posthog-window-id';
 const ENTRY_KEY = 'arcade-posthog-entry';
+const sessions = new WeakMap<Window, AnalyticsSession>();
+const transports = new WeakMap<Window, ReturnType<typeof createAnalyticsTransport>>();
+const entries = new WeakMap<Window, ReturnType<typeof sanitizeEntryContext>>();
 
 function getId(storage: 'localStorage' | 'sessionStorage', key: string) {
   try {
@@ -19,34 +28,99 @@ function getId(storage: 'localStorage' | 'sessionStorage', key: string) {
   }
 }
 
-function buildEntryContext() {
-  let entry;
+function buildEntryContext(rotated: boolean) {
+  let entry = rotated ? undefined : entries.get(window);
   try {
     const saved = window.sessionStorage.getItem(ENTRY_KEY);
-    if (saved) {
+    if (!entry && saved && !rotated) {
       const sanitized = sanitizeEntryContext(JSON.parse(saved));
       if (sanitized.landing_page) entry = sanitized;
     }
   } catch { /* Fall through to fresh, sanitized entry context. */ }
   entry ??= buildFreshEntryContext(window.location.href, document.referrer);
+  entries.set(window, entry);
   try { window.sessionStorage.setItem(ENTRY_KEY, JSON.stringify(entry)); } catch { /* Best effort. */ }
   return entry;
 }
 
-function capture(event: string, properties: Record<string, unknown>, surface: AnalyticsSurface) {
-  if (!canCaptureBrowserAnalytics()) return;
+function prepareCapture(event: string, properties: Record<string, unknown>, surface: AnalyticsSurface) {
+  if (!canCaptureBrowserAnalytics()) return null;
   const context = buildSiteAnalyticsContext(window.location.pathname, window.location.href);
-  if (!context || (surface === 'mff_manifesto' && context.pathname !== '/mff')) return;
-  const sessionId = surface === 'sitewide' ? getId('sessionStorage', SESSION_KEY) : undefined;
-  const entry = surface === 'sitewide' ? buildEntryContext() : {};
-  const payload = sanitizeAnalyticsPayload({
+  if (!context || (surface === 'mff_manifesto' && context.pathname !== '/mff')) return null;
+  let sessionId: string | undefined;
+  let windowId: string | undefined;
+  let entry = {};
+  if (surface === 'sitewide') {
+    let storage: Storage | null = null;
+    try { storage = window.sessionStorage; } catch { /* Use tab memory. */ }
+    const { session, rotated } = readAnalyticsSession(storage, SESSION_KEY, sessions.get(window));
+    sessions.set(window, session);
+    sessionId = session.id;
+    windowId = getId('sessionStorage', WINDOW_KEY);
+    entry = buildEntryContext(rotated);
+  }
+  return sanitizeAnalyticsPayload({
     distinct_id: getId('localStorage', STORAGE_KEY), event,
-    properties: { ...properties, ...entry, ...context, $session_id: sessionId, $window_id: sessionId },
+    properties: { ...properties, ...entry, ...context, $session_id: sessionId, $window_id: windowId },
   }, surface);
-  if (!payload) return;
-  void fetch(surface === 'sitewide' ? '/api/analytics/posthog' : '/api/analytics/mff', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), keepalive: true,
-  }).catch(() => { /* Analytics must never interrupt reading, navigation or signup. */ });
+}
+
+function sendPayload(payload: NonNullable<ReturnType<typeof prepareCapture>>, surface: AnalyticsSurface) {
+  const receipt = sanitizeAnalyticsPayload({ ...payload, uuid: crypto.randomUUID(), timestamp: new Date(Date.now()).toISOString() }, surface);
+  if (!receipt) return;
+  let transport = transports.get(window);
+  if (!transport) {
+    transport = createAnalyticsTransport({ fetch: (...args) => fetch(...args),
+      schedule: (callback, delay) => window.setTimeout(callback, delay), cancel: timer => window.clearTimeout(timer),
+      allowed: () => canCaptureBrowserAnalytics(String(payload.properties.$current_url)),
+    });
+    transports.set(window, transport);
+    window.addEventListener('pagehide', () => transport!.flush());
+  }
+  transport.send(surface === 'sitewide' ? '/api/analytics/posthog' : '/api/analytics/mff', JSON.stringify(receipt));
+}
+
+/** Pageleave retains the original public page/session after SPA navigation. */
+export function createPageVisitSender() {
+  const payload = prepareCapture('$pageview', { $pageview_id: crypto.randomUUID() }, 'sitewide');
+  if (!payload) return null;
+  const startedAt = Date.now();
+  const sessionStartedAt = Number.parseInt(String(payload.properties.$session_id).replaceAll('-', '').slice(0, 12), 16);
+  sendPayload(payload, 'sitewide');
+  return (snapshot: PageLeave) => {
+    if (Date.now() < startedAt || Date.now() - startedAt >= SESSION_IDLE_MS || Date.now() - sessionStartedAt >= SESSION_MAX_MS) return;
+    const leave = sanitizeAnalyticsPayload({ ...payload, event: '$pageleave', properties: { ...payload.properties, ...snapshot } }, 'sitewide');
+    if (leave) sendPayload(leave, 'sitewide');
+  };
+}
+
+function capture(event: string, properties: Record<string, unknown>, surface: AnalyticsSurface) {
+  const payload = prepareCapture(event, properties, surface);
+  if (payload) sendPayload(payload, surface);
+}
+
+/** Freeze original public path/entry/session for a flush after client navigation. */
+export function createEngagementSender(reader: ReaderTelemetryProps) {
+  const payload = prepareCapture('reading-engagement', { ...reader, active_seconds: 1, depth_percent: 0, engagement_checkpoint: 'final' }, 'sitewide');
+  let lastCaptureAt = Date.now();
+  const startedAt = payload ? Number.parseInt(String(payload.properties.$session_id).replaceAll('-', '').slice(0, 12), 16) : NaN;
+  return (snapshot: EngagementSnapshot) => {
+    // Drop stale/rollback flushes rather than attach old reading to a new session.
+    const now = Date.now();
+    const age = now - startedAt;
+    if (!Number.isFinite(age) || now < lastCaptureAt || age >= SESSION_MAX_MS || now - lastCaptureAt >= SESSION_IDLE_MS) return;
+    const safe = sanitizeEngagement(snapshot);
+    if (!payload || !safe) return;
+    lastCaptureAt = now;
+    const current = sessions.get(window);
+    if (current && current.id === payload.properties.$session_id) {
+      const updated = { ...current, lastActivityAt: now };
+      sessions.set(window, updated);
+      try { window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(updated)); } catch { /* Best effort. */ }
+    }
+
+    sendPayload({ ...payload, properties: { ...payload.properties, ...safe } }, 'sitewide');
+  };
 }
 
 /** No form values or token URLs. Both this boundary and the receiver enforce it. */

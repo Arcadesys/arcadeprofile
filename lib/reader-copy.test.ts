@@ -43,8 +43,8 @@ test('Zoo keeps the exact approved visible copy beside the existing actions and 
   const introduction = page.indexOf(synopsis);
   const actions = page.indexOf('<div className={styles.actions}>');
   assert.ok(lede !== -1 && lede < introduction && introduction < actions);
-  assert.ok(page.includes(`published chapters as one large-print, high-contrast edition. The opening poem remains separate. ${editionNote}</p>`));
-  assert.ok(page.includes('download all {ZOO_CHAPTERS.length} published chapters'));
+  assert.ok(page.includes(`chapters as one large-print, high-contrast edition. The opening poem remains separate. ${editionNote}</p>`));
+  assert.ok(page.includes('download the first {ZOO_COMPLETE_EDITION_CHAPTER_COUNT} chapters'));
   assert.equal(ZOO_COLLECTION_DESCRIPTION, 'A novel-in-stories about escaping the hypercapitalist grind.');
   assert.equal(page.split(editionNote).length - 1, 1);
 });
@@ -56,6 +56,6 @@ test('reader copy leaves canonical discovery and local sequential reading distin
   assert.ok(myBrain && coldBoot);
   assert.equal(nextPiece(myBrain, catalog)?.canonicalPath, '/projects/arcade-blog/four-stages-nobody-tells-you-about');
   assert.equal(nextPiece(coldBoot, catalog)?.canonicalPath, '/novels/it-takes-a-zoo/gallery-view');
-  assert.equal(canonicalDiscoveryHref('/projects/bunch/bunch'), 'https://work.thearcades.me/blog/bunch');
-  assert.equal(canonicalDiscoveryHref('/projects/arcade-blog/four-stages-nobody-tells-you-about'), 'https://work.thearcades.me/blog/four-stages-nobody-tells-you-about');
+  assert.equal(canonicalDiscoveryHref('/projects/bunch/bunch'), '/projects/bunch/bunch');
+  assert.equal(canonicalDiscoveryHref('/projects/arcade-blog/four-stages-nobody-tells-you-about'), '/projects/arcade-blog/four-stages-nobody-tells-you-about');
 });

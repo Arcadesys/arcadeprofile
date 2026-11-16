@@ -1,12 +1,66 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { POST_CANONICAL_EDITIONS } from './post-canonical';
+import { CREATIVE_ORIGINALS_WITH_WORK_COPIES } from './post-canonical-originals.fixture';
 import { sanitizeAnalyticsPayload, sanitizeEntryContext, sanitizeReaderProperties } from './analytics-payload';
+import { readAnalyticsSession } from './analytics-session';
 
 const id = '9e833036-9f38-44d9-9d26-3d9c1b332f94';
 const site = 'https://www.thearcades.me';
 const payload = (event = '$pageview', properties: Record<string, unknown> = {}) => ({ event, distinct_id: id, properties: { $current_url: `${site}/stories?email=secret#token`, ...properties } });
 const reader = { canonicalId: '/novels/it-takes-a-zoo/cold-boot', contentType: 'chapter', placement: 'reader-body', destination: 'none' };
+
+test('receipt metadata is a complete bounded ISO/UUID tuple; provider-reserved fields cannot be injected', () => {
+  const now = new Date().toISOString();
+  const safe = { ...payload(), uuid: id, timestamp: now };
+  assert.equal(sanitizeAnalyticsPayload(safe, 'sitewide')?.timestamp, now);
+  assert.equal(sanitizeAnalyticsPayload(safe, 'sitewide')?.uuid, id);
+  for (const patch of [{ uuid: 'email@example.com' }, { timestamp: 'secret' }, { timestamp: '2026-02-30T00:00:00.000Z' }, { timestamp: new Date(Date.now() - 6 * 60_000).toISOString() }, { timestamp: undefined }, { uuid: undefined }]) assert.equal(sanitizeAnalyticsPayload({ ...safe, ...patch }, 'sitewide'), null);
+  const result = sanitizeAnalyticsPayload(payload('$pageview', { $device_type: 'Desktop', $referring_domain: 'forged', $initial_referring_domain: 'private', $set_once: { private: true }, $referrer: 'https://google.com/path?email=private#token' }), 'sitewide');
+  assert.equal(result?.properties.$device_type, undefined);
+  assert.equal(result?.properties.$referring_domain, 'google.com');
+  assert.equal(result?.properties.$initial_referring_domain, undefined);
+  assert.equal(result?.properties.$set_once, undefined);
+});
+
+test('pageleave requires original page/session and bounded metrics; arbitrary fields never survive', () => {
+  const fields = { $pageview_id: id, $session_id: readAnalyticsSession(null, 'session').session.id,
+    $prev_pageview_duration: 12.5, visible_seconds: 5, lifecycle_reason: 'pagehide',
+    $prev_pageview_pathname: '/subscribe/verify', email: 'private@example.com' };
+  const result = sanitizeAnalyticsPayload(payload('$pageleave', fields), 'sitewide');
+  assert.equal(result?.properties.$prev_pageview_pathname, '/stories');
+  assert.equal(result?.properties.email, undefined);
+  for (const patch of [{ $pageview_id: 'forged' }, { $session_id: id }, { visible_seconds: 13 }, { visible_seconds: -1 }, { visible_seconds: 0.5 }, { $prev_pageview_duration: Infinity }, { $prev_pageview_duration: 1800 }, { lifecycle_reason: 'private text' }]) assert.equal(sanitizeAnalyticsPayload(payload('$pageleave', { ...fields, ...patch }), 'sitewide'), null);
+});
+
+test('homepage reading placements survive only on public internal links from home', () => {
+  for (const placement of ['home_sample', 'home_shelf', 'home_browse']) {
+    const fields = { $current_url: `${site}/?private#token`, placement, href: '/stories?email=private#token', label: 'private text' };
+    const result = sanitizeAnalyticsPayload(payload('site link clicked', fields), 'sitewide');
+    assert.equal(result?.properties.placement, placement);
+    assert.equal(result?.properties.conversion_stage, 'reading_navigation_intent');
+    assert.equal(result?.properties.href, '/stories'); assert.equal(result?.properties.label, undefined);
+    for (const patch of [{ $current_url: `${site}/stories` }, { href: '/subscribe/verify#secret' }, { href: 'https://evil.test/private' }, { placement: 'private@example.com' }]) assert.equal(sanitizeAnalyticsPayload(payload('site link clicked', { ...fields, ...patch }), 'sitewide')?.properties.placement, undefined);
+  }
+});
+
+test('engagement requires matching public content and bounded metrics; QA labels survive', () => {
+  const fields = { ...reader, $current_url: `${site}${reader.canonicalId}?utm_campaign=analytics-verification`, active_seconds: 30, depth_percent: 50, engagement_checkpoint: '30s', engagement_version: 'forged', utm_campaign: 'analytics-verification', email: 'private@example.com' };
+  const result = sanitizeAnalyticsPayload(payload('reading-engagement', fields), 'sitewide');
+  assert.equal(result?.properties.active_seconds, 30); assert.equal(result?.properties.engagement_version, 'visible_active_v1');
+  assert.equal(result?.properties.utm_campaign, 'analytics-verification'); assert.equal(result?.properties.email, undefined);
+  for (const patch of [{ active_seconds: -1 }, { depth_percent: 99 }, { engagement_checkpoint: 'unknown' }, { canonicalId: '/stories' }]) assert.equal(sanitizeAnalyticsPayload(payload('reading-engagement', { ...fields, ...patch }), 'sitewide'), null);
+});
+
+test('résumé/contact intent enrich existing link receipts without forwarding addresses; signup remains a request stage', () => {
+  const contact = sanitizeAnalyticsPayload(payload('site link clicked', { link_kind: 'contact', href: 'mailto:private@example.com?body=private', email: 'private' }), 'sitewide');
+  assert.deepEqual(Object.fromEntries(Object.entries(contact!.properties).filter(([key]) => ['link_kind', 'conversion_stage', 'href', 'destination_host'].includes(key))), { link_kind: 'contact', conversion_stage: 'contact_intent' });
+  for (const kind of ['resume', 'resume_pdf']) {
+    const result = sanitizeAnalyticsPayload(payload('site link clicked', { link_kind: 'external', destination_host: 'work.thearcades.me', destination_kind: kind }), 'sitewide');
+    assert.equal(result?.properties.conversion_stage, kind === 'resume' ? 'resume_navigation_intent' : 'resume_download_intent');
+  }
+  assert.equal(sanitizeAnalyticsPayload(payload('site link clicked', { destination_host: 'evil.test', destination_kind: 'resume_pdf' }), 'sitewide')?.properties.conversion_stage, undefined);
+  for (const [name, stage] of [['signup request submitted', 'request_intent'], ['signup request failed', 'request_failed'], ['signup confirmation requested', 'verification_request_accepted']]) assert.equal(sanitizeAnalyticsPayload(payload(name, { ...reader, conversion_stage: 'active_subscription' }), 'sitewide')?.properties.conversion_stage, stage);
+});
 
 test('event allowlist and UUID shape reject arbitrary or malformed submissions', () => {
   for (const value of [null, [], 'secret', 42, {}, payload('unknown'), { ...payload(), distinct_id: 'private@example.com' }, { ...payload(), properties: [] }]) assert.equal(sanitizeAnalyticsPayload(value, 'sitewide'), null);
@@ -21,8 +75,8 @@ test('shared context strips arbitrary properties, person updates, full URLs and 
   }), 'sitewide');
   assert.ok(result);
   assert.deepEqual(result.properties, {
-    $referrer: 'https://example.com', referring_domain: 'example.com', utm_source: 'thearcades', utm_campaign: 'professional_handoff', utm_content: 'home_header',
-    pathname: '/stories', $pathname: '/stories', $host: 'www.thearcades.me', $current_url: `${site}/stories`, hostname: 'www.thearcades.me', analytics_surface: 'sitewide', $session_id: id, $window_id: id,
+    $referrer: 'https://example.com', referring_domain: 'example.com', $referring_domain: 'example.com', utm_source: 'thearcades', utm_campaign: 'professional_handoff', utm_content: 'home_header',
+    pathname: '/stories', $pathname: '/stories', $host: 'www.thearcades.me', $current_url: `${site}/stories`, hostname: 'www.thearcades.me', analytics_surface: 'sitewide', $session_id: id, $window_id: id, session_model: 'legacy_v1',
   });
   for (const content of ['home_header', 'home_entry', 'start_entry']) assert.equal(sanitizeEntryContext({ utm_campaign: 'professional_handoff', utm_content: content }).utm_content, content);
   for (const value of [null, [], 'secret', { landing_page: '/unknown', $session_id: 'forged', utm_source: 'a'.repeat(65), $referrer: 'javascript:secret' }]) assert.deepEqual(sanitizeEntryContext(value), {});
@@ -48,6 +102,73 @@ test('link counts retain safe path/host context while query/hash and non-HTTP va
   for (const href of ['mailto:private@example.com', 'javascript:secret', '/subscribe/verify#token', '/unknown?secret', 'https://example.com/private?secret']) assert.equal(sanitizeAnalyticsPayload(payload('site link clicked', { href }), 'sitewide')?.properties.href, undefined);
 });
 
+test('public reader PDF activation is classified without retaining its route or claiming a saved file', () => {
+  const path = '/novels/it-takes-a-zoo/cold-boot';
+  const pdf = sanitizeAnalyticsPayload(payload('site link clicked', {
+    $current_url: `${site}${path}`, href: `${path}/pdf?token=private#secret`,
+  }), 'sitewide');
+  assert.equal(pdf?.properties.destination_kind, 'public_pdf');
+  assert.equal(pdf?.properties.conversion_stage, 'public_pdf_download_intent');
+  assert.equal(pdf?.properties.href, undefined);
+  assert.equal(pdf?.properties.destination_host, 'www.thearcades.me');
+  assert.deepEqual(sanitizeAnalyticsPayload(pdf, 'sitewide'), pdf);
+  for (const [current, href] of [
+    [`${site}/stories`, `${path}/pdf`],
+    [`${site}${path}`, `${path}/not-pdf`],
+    [`${site}${path}`, 'https://downloads.example.com/file.pdf'],
+    [`${site}${path}`, `${path}/unknown/pdf`],
+    [`${site}/stories`, '/stories/pdf'],
+  ]) {
+    const result = sanitizeAnalyticsPayload(payload('site link clicked', { $current_url: current, href }), 'sitewide');
+    assert.notEqual(result?.properties.destination_kind, 'public_pdf');
+    assert.notEqual(result?.properties.conversion_stage, 'public_pdf_download_intent');
+  }
+  for (const properties of [
+    { $current_url: `${site}${path}`, link_kind: 'internal', destination_host: 'www.thearcades.me', destination_kind: 'public_pdf' },
+    { $current_url: `${site}${path}`, link_kind: 'internal', destination_host: 'www.thearcades.me', conversion_stage: 'public_pdf_download_intent' },
+    { $current_url: `${site}${path}`, link_kind: 'external', destination_host: 'downloads.example.com', destination_kind: 'public_pdf', conversion_stage: 'public_pdf_download_intent' },
+    { $current_url: `${site}/stories`, link_kind: 'internal', destination_host: 'www.thearcades.me', destination_kind: 'public_pdf', conversion_stage: 'public_pdf_download_intent' },
+    { $current_url: `${site}/subscribe/verify`, link_kind: 'internal', destination_host: 'www.thearcades.me', destination_kind: 'public_pdf', conversion_stage: 'public_pdf_download_intent' },
+  ]) {
+    const result = sanitizeAnalyticsPayload(payload('site link clicked', properties), 'sitewide');
+    assert.notEqual(result?.properties.destination_kind, 'public_pdf');
+    assert.notEqual(result?.properties.conversion_stage, 'public_pdf_download_intent');
+  }
+});
+
+test('homepage Amazon book clicks retain only fixed placement and format labels', () => {
+  const properties = (href: string, destinationKind: string) => sanitizeAnalyticsPayload(payload('site link clicked', {
+    $current_url: `${site}/`, href, link_kind: 'external', destination_host: 'www.amazon.com',
+    destination_kind: destinationKind, placement: 'home_hero',
+  }), 'sitewide')?.properties;
+  const kindle = properties('https://www.amazon.com/dp/B0HM8J2Z87?tag=private#offer', 'amazon_kindle');
+  assert.equal(kindle?.href, undefined);
+  assert.equal(kindle?.destination_host, 'www.amazon.com');
+  assert.equal(kindle?.destination_kind, 'amazon_kindle');
+  assert.equal(kindle?.placement, 'home_hero');
+  const paperback = properties('https://www.amazon.com/dp/B0HMFDFVNH', 'amazon_paperback');
+  assert.equal(paperback?.destination_kind, 'amazon_paperback');
+  assert.equal(paperback?.placement, 'home_hero');
+  const sanitized = sanitizeAnalyticsPayload(payload('site link clicked', { $current_url: `${site}/`, href: 'https://www.amazon.com/dp/B0HM8J2Z87?secret', placement: 'home_hero', destination_kind: 'amazon_kindle' }), 'sitewide');
+  assert.deepEqual(sanitizeAnalyticsPayload(sanitized, 'sitewide'), sanitized);
+
+  for (const invalid of [
+    { destination_kind: 'amazon_kindle', placement: 'footer' },
+    { destination_kind: 'amazon_kindle', placement: 'home_hero', href: 'https://www.amazon.com/gp/cart' },
+    { destination_kind: 'amazon_paperback', placement: 'home_hero', href: 'https://evil.test/dp/B0HMFDFVNH' },
+  ]) {
+    const linkFields: Record<string, unknown> = {
+      $current_url: `${site}/`, href: 'https://www.amazon.com/dp/B0HM8J2Z87',
+      link_kind: 'external', destination_host: 'www.amazon.com', destination_kind: 'amazon_kindle', placement: 'home_hero',
+    };
+    const result = sanitizeAnalyticsPayload(payload('site link clicked', {
+      ...linkFields, ...invalid,
+    }), 'sitewide');
+    assert.equal(result?.properties.destination_kind, undefined);
+    assert.equal(result?.properties.placement, undefined);
+  }
+});
+
 test('MFF events preserve numeric milestones and exact public labels with separate property allowlists', () => {
   const mff = (event: string, properties: Record<string, unknown> = {}) => sanitizeAnalyticsPayload(payload(event, { $current_url: `${site}/mff?secret#token`, ...properties }), 'mff_manifesto');
   for (const percent of [25, 50, 75, 90, 100]) assert.equal(mff('mff scroll reached', { percent })?.properties.percent, percent);
@@ -64,10 +185,12 @@ test('MFF events preserve numeric milestones and exact public labels with separa
 });
 
 
-test('reader completion and merged-main canonical recommendation destinations remain measurable', () => {
+test('reader completion and recommendations to the creative originals remain measurable', () => {
   assert.ok(sanitizeAnalyticsPayload(payload('end-reached', { ...reader, placement: 'reader-end' }), 'sitewide'));
-  for (const { canonicalUrl, creativePath } of POST_CANONICAL_EDITIONS) {
-    const props = sanitizeReaderProperties({ ...reader, canonicalId: creativePath, placement: 'recommended-reading', destination: `${canonicalUrl}?secret#token` });
-    assert.ok(props); assert.equal(props.destination, canonicalUrl); assert.equal(props.canonicalId, creativePath);
+  for (const { creativePath, workCopyUrl } of CREATIVE_ORIGINALS_WITH_WORK_COPIES) {
+    const props = sanitizeReaderProperties({ ...reader, canonicalId: creativePath, placement: 'recommended-reading', destination: `${creativePath}?secret#token` });
+    assert.ok(props); assert.equal(props.destination, creativePath); assert.equal(props.canonicalId, creativePath);
+    // Unmapped work URLs are no longer recommendation targets and stay unrecorded.
+    assert.equal(sanitizeReaderProperties({ ...reader, canonicalId: creativePath, placement: 'recommended-reading', destination: workCopyUrl }), null);
   }
 });

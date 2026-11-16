@@ -28,7 +28,7 @@ const copy = {
   essays: {
     eyebrow: `${SITE_NAME} / Essays`,
     title: 'Ideas worth sitting with.',
-    lede: 'Essays on writing, accessibility, creativity, AI, and the strange business of being human while all the machinery changes.',
+    lede: 'Essays on queer and trans life, writing, accessibility, creativity, AI, and the strange business of being human while all the machinery changes.',
   },
 } as const;
 

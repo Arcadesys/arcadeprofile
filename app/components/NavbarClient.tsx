@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { isNavItemActive } from '@/lib/nav-active';
 import { buildNavigationModel, type NavItem } from '@/lib/nav-items';
 import { SITE_NAME } from '@/lib/site-brand';
 import type { SearchItem } from '@/lib/search';
@@ -14,7 +15,7 @@ export type { NavItem };
 
 const WORK_SITE_URL = 'https://work.thearcades.me/?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=site_header';
 
-export default function NavbarClient({ items, searchItems }: { items: NavItem[]; searchItems: SearchItem[] }) {
+export default function NavbarClient({ items, searchItems, readProjectSlugs = [] }: { items: NavItem[]; searchItems: SearchItem[]; readProjectSlugs?: readonly string[] }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { primary } = buildNavigationModel(items);
@@ -31,9 +32,7 @@ export default function NavbarClient({ items, searchItems }: { items: NavItem[];
   }, [mobileOpen]);
 
   const link = (item: NavItem) => {
-    const isActive = item.href === '/'
-      ? pathname === '/'
-      : pathname === item.href || pathname.startsWith(`${item.href}/`);
+    const isActive = isNavItemActive(item.href, pathname, readProjectSlugs);
     return (
       <Link
         href={item.href}

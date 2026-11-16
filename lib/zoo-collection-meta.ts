@@ -29,8 +29,11 @@ export const ZOO_FEATURED_COLLECTION: FeaturedCollectionMetadata = {
   description: ZOO_COLLECTION_DESCRIPTION,
   path: ZOO_COLLECTION_PATH,
   firstChapterPath: `${ZOO_COLLECTION_PATH}/cold-boot`,
-  chapterCount: 7,
+  chapterCount: 8,
   availability: 'Read online · PDFs available by chapter or as one complete edition',
   incentiveAction: { href: `${ZOO_COLLECTION_PATH}#complete-pdf`, label: 'Get the complete PDF' },
   cover: ZOO_HERO,
 };
+
+// The subscriber PDF is a fixed edition, separate from newer chapter releases.
+export const ZOO_COMPLETE_EDITION_CHAPTER_COUNT = 7;

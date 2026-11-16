@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
-type Outcome = 'ready' | 'working' | 'complete' | 'awaiting-kit' | 'cancelled' | 'error' | 'missing';
+type Outcome = 'ready' | 'working' | 'complete' | 'cancelled' | 'error' | 'missing';
 
 export default function VerificationClient() {
   const [token, setToken] = useState('');
@@ -28,7 +28,7 @@ export default function VerificationClient() {
   }, []);
 
   useEffect(() => {
-    if (['complete', 'awaiting-kit', 'cancelled', 'error'].includes(outcome)) statusRef.current?.focus();
+    if (['complete', 'cancelled', 'error'].includes(outcome)) statusRef.current?.focus();
   }, [outcome]);
 
   async function submit(action: 'confirm' | 'cancel') {
@@ -54,9 +54,6 @@ export default function VerificationClient() {
       if (action === 'cancel' || body.status === 'cancelled') {
         setOutcome('cancelled');
         setMessage('This signup request was cancelled. No emails were added.');
-      } else if (body.status === 'awaiting-kit') {
-        setOutcome('awaiting-kit');
-        setMessage('Your request is confirmed. If your address is new or inactive in Kit, Kit may send one more confirmation before emails begin.');
       } else {
         setOutcome('complete');
         setMessage('You are subscribed to the emails you chose. You can unsubscribe from any email.');
@@ -71,8 +68,8 @@ export default function VerificationClient() {
     <main className="signup-verify" aria-labelledby="verify-title">
       <p className="signup-verify__eyebrow">The Arcades</p>
       <h1 id="verify-title">Confirm your subscription</h1>
-      <p>The email we sent lists exactly what you signed up for. Confirm below to get those emails. Kit may ask you to confirm once more before delivery begins.</p>
-      {!['complete', 'awaiting-kit', 'cancelled', 'error', 'missing'].includes(outcome) ? (
+      <p>The email we sent lists exactly what you signed up for. Confirm below to get those emails. Your preferences are saved after this confirmation.</p>
+      {!['complete', 'cancelled', 'error', 'missing'].includes(outcome) ? (
         <div className="signup-verify__actions">
           <button type="button" disabled={outcome === 'working'} onClick={() => void submit('confirm')}>Confirm subscription</button>
           <button type="button" className="signup-verify__secondary" disabled={outcome === 'working'} onClick={() => void submit('cancel')}>Cancel this request</button>

@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
 import Link from 'next/link';
+import { SUBSCRIBER_GIFT, subscriberGiftFiles } from '@/lib/subscriber-gift';
 
 export const metadata: Metadata = {
   title: 'Thanks for subscribing',
-  description: `Confirm your ${SITE_NAME} signup by email. Download La Ligne du Marais in PDF or EPUB.`,
+  description: `Confirm your ${SITE_NAME} signup by email. Subscriber-only piece: ${SUBSCRIBER_GIFT.title}.`,
   alternates: { canonical: '/subscribe/thanks' },
   robots: { index: false, follow: true },
 };
@@ -15,7 +16,8 @@ export default async function SubscribeThanksPage({
   searchParams: Promise<{ magnet?: string | string[] }>;
 }) {
   const params = await searchParams;
-  const hasStoryMagnet = params.magnet === 'story';
+  const hasExclusiveGift = params.magnet === 'subscriber-exclusive';
+  const giftFiles = subscriberGiftFiles();
 
   return (
     <main
@@ -45,9 +47,9 @@ export default async function SubscribeThanksPage({
         We sent a confirmation link. Open it to confirm your subscription. You can change what you receive or unsubscribe from any email.
       </p>
 
-      {hasStoryMagnet ? (
+      {hasExclusiveGift ? (
         <section
-          aria-labelledby="story-downloads"
+          aria-labelledby="gift-downloads"
           style={{
             marginTop: '2.5rem',
             padding: 'clamp(1.25rem, 4vw, 2rem)',
@@ -56,21 +58,21 @@ export default async function SubscribeThanksPage({
             background: 'var(--surface)',
           }}
         >
-          <h2 id="story-downloads" style={{ margin: '0 0 0.75rem', fontSize: 'clamp(1.65rem, 5vw, 2.35rem)' }}>
-            Your welcome story
+          <h2 id="gift-downloads" style={{ margin: '0 0 0.75rem', fontSize: 'clamp(1.65rem, 5vw, 2.35rem)' }}>
+            Your subscriber-only piece
           </h2>
           <p style={{ margin: '0 0 1.25rem', color: 'var(--fg-muted)', fontSize: '1.125rem', lineHeight: 1.7 }}>
-            Download <em>La Ligne du Marais</em>, a Paris noir short, in the reading format that works
-            best for you.
+            <em>{SUBSCRIBER_GIFT.title}</em> — {SUBSCRIBER_GIFT.description}
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-            <a className="button-link" href="/lead-magnets/la-ligne-du-marais.pdf" download="la-ligne-du-marais.pdf">
-              Download PDF
-            </a>
-            <a className="button-link" href="/lead-magnets/la-ligne-du-marais.epub" download="la-ligne-du-marais.epub">
-              Download EPUB
-            </a>
-          </div>
+          {giftFiles.length ? (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+              {giftFiles.map((file) => (
+                <a key={file.url} className="button-link" href={file.url} download={file.filename}>
+                  Download {file.label}
+                </a>
+              ))}
+            </div>
+          ) : <p style={{ fontSize: '1.125rem', lineHeight: 1.7 }}>Draft offer — the piece is not available yet.</p>}
         </section>
       ) : null}
 

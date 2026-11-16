@@ -30,6 +30,11 @@ test('every toy has a valid completion contract and next-toy recommendation', ()
   const ids = new Set(TOY_CATALOG.map(({ id }) => id));
 
   for (const toy of TOY_CATALOG) {
+    if (toy.completionMode === 'tabletop') {
+      assert.equal(toy.outcomeCount, undefined);
+      assert.equal(toy.nextToyId, undefined);
+      continue;
+    }
     assert.ok(toy.outcomeCount >= 1, `${toy.id} needs at least one outcome`);
     assert.ok(ids.has(toy.nextToyId), `${toy.id} has an unknown next toy`);
     assert.notEqual(toy.nextToyId, toy.id, `${toy.id} recommends itself`);

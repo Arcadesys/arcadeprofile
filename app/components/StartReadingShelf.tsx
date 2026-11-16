@@ -10,26 +10,32 @@ export default function StartReadingShelf({
   heading = 'Start reading',
   compact = false,
   showCovers = false,
+  columns = 2,
+  description = `${items.length} good places to enter the work.`,
   headingId = 'start-reading-heading',
+  analyticsPlacement,
 }: {
   items: readonly DiscoveryReadingItem[];
   heading?: string;
   compact?: boolean;
+  columns?: 2 | 3;
+  description?: string;
   /** Enables only verified cover assets; text-first shelves stay unchanged. */
   showCovers?: boolean;
   headingId?: string;
+  analyticsPlacement?: 'home_shelf';
 }) {
   return (
-    <section className={[styles.shelf, compact && styles.compact].filter(Boolean).join(' ')} aria-labelledby={headingId}>
+    <section className={[styles.shelf, compact && styles.compact, columns === 3 && styles.threeColumn].filter(Boolean).join(' ')} aria-labelledby={headingId}>
       <div className={styles.heading}>
         <h2 id={headingId}>{heading}</h2>
-        <p>Four good places to enter the work.</p>
+        <p>{description}</p>
       </div>
       <ol className={styles.list}>
         {items.map((item) => (
           <li key={item.href} className={[styles.item, showCovers && item.cover && styles.withCover].filter(Boolean).join(' ')}>
             {showCovers && item.cover ? (
-              <Link className={styles.coverLink} href={item.href} aria-label={`Read ${item.title}`}>
+              <Link className={styles.coverLink} href={item.href} aria-label={`Read ${item.title}`} data-analytics-placement={analyticsPlacement}>
                 <Image
                   className={styles.cover}
                   src={item.cover.src}
@@ -41,10 +47,10 @@ export default function StartReadingShelf({
               </Link>
             ) : null}
             <p className={styles.kind}>{item.kind}</p>
-            <h3><Link href={item.href}>{item.title}</Link></h3>
+            <h3><Link href={item.href} data-analytics-placement={analyticsPlacement}>{item.title}</Link></h3>
             {!compact ? <p className={styles.description}>{item.description}</p> : null}
             <p className={styles.meta}>About {item.readingMinutes} min read</p>
-            <Link className={styles.read} href={item.href}>Read {item.title} <span aria-hidden="true">→</span></Link>
+            <Link className={styles.read} href={item.href} data-analytics-placement={analyticsPlacement}>Read {item.title} <span aria-hidden="true">→</span></Link>
           </li>
         ))}
       </ol>

@@ -2,14 +2,23 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import paths from '../data/analytics-public-paths.json';
 import labels from '../data/analytics-mff-labels.json';
-import { buildAnalyticsPublicPaths, buildMffAnalyticsLabels } from './analytics-manifest';
+import readerPaths from '../data/analytics-reader-paths.json';
+import { buildAnalyticsPublicPaths, buildAnalyticsReaderPaths, buildMffAnalyticsLabels } from './analytics-manifest';
 import { loadMarkdownPosts } from '../lib/markdown-posts';
 import { buildPostUrl } from '../lib/post-url';
 import { PRIVATE_ROUTE_REWRITES } from '../lib/private-routes';
 
-test('committed analytics manifests match published catalogs and source-owned MFF labels', () => {
+test('committed analytics manifests match published catalogs and source-owned MFF labels', async () => {
   assert.deepEqual(paths, buildAnalyticsPublicPaths());
   assert.deepEqual(labels, buildMffAnalyticsLabels());
+  assert.deepEqual(readerPaths, await buildAnalyticsReaderPaths());
+});
+
+test('reader reporting excludes hubs, utilities, redirects and ineligible routes', async () => {
+  for (const path of ['/stories', '/essays', '/writing', '/queercolumns', '/mff', '/subscribe', '/novels/it-takes-a-zoo', '/this-is-what-i-do-for-fun', '/this-is-what-i-do-for-fun/butterfly-exe', '/blog/bunch', '/projects/bunch/01']) assert.ok(!readerPaths.includes(path), path);
+  assert.ok(readerPaths.includes('/projects/bunch/bunch'));
+  assert.ok(readerPaths.includes('/novels/it-takes-a-zoo/cold-boot'));
+  assert.deepEqual(await buildAnalyticsReaderPaths(['/stories', '/projects/bunch/bunch']), ['/projects/bunch/bunch']);
 });
 
 test('future pieces and private paths are absent from the generated public catalog', () => {

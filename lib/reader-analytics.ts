@@ -23,6 +23,8 @@ export type ReaderEventName =
   | 'end-reached'
   | 'onward-reading'
   | 'resume-click'
+  | 'signup-request'
+  | 'signup-failed'
   | 'signup-success';
 
 export type ReaderEventSender = (
@@ -96,7 +98,8 @@ export function useReaderEventTracker() {
       } catch {
         // The PostHog receipt remains useful if Vercel Analytics is unavailable.
       }
-      captureSiteEvent(event === 'signup-success' ? 'signup confirmation requested' : event, safeProperties);
+      captureSiteEvent(event === 'signup-success' ? 'signup confirmation requested' : event === 'signup-request'
+        ? 'signup request submitted' : event === 'signup-failed' ? 'signup request failed' : event, safeProperties);
     }),
   );
   return tracker;

@@ -7,6 +7,7 @@ import { SITE_NAME } from '@/lib/site-brand';
 import SubscriptionForm from '@/app/components/SubscriptionForm';
 import {
   ZOO_CHAPTERS,
+  ZOO_COMPLETE_EDITION_CHAPTER_COUNT,
   ZOO_COLLECTION_DESCRIPTION,
   ZOO_COLLECTION_PATH,
   ZOO_COLLECTION_TITLE,
@@ -66,7 +67,7 @@ export default function ZooCollectionPage() {
         <section className={styles.completeEdition} id="complete-pdf" aria-labelledby="complete-pdf-heading">
           <p className={styles.eyebrow}>Complete edition</p>
           <h2 id="complete-pdf-heading">Get the complete PDF</h2>
-          <p>Subscribe to fiction and download all {ZOO_CHAPTERS.length} published chapters as one large-print, high-contrast edition. The opening poem remains separate. The combined PDF is a fixed edition; individual chapters may include later revisions.</p>
+          <p>Subscribe to fiction and download the first {ZOO_COMPLETE_EDITION_CHAPTER_COUNT} chapters as one large-print, high-contrast edition. The opening poem remains separate. The combined PDF is a fixed edition; individual chapters may include later revisions.</p>
           <SubscriptionForm
             source="zoo-collection"
             audiences={['fiction']}

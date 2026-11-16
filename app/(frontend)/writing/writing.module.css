@@ -9,8 +9,8 @@
 .doors a { display: grid; grid-template-columns: 17.5rem minmax(0, 1fr) auto; gap: .25rem 2.5rem; align-items: baseline; padding: 1.5rem 0; border-bottom: 1px solid var(--border); color: var(--fg); text-decoration: none; }
 .doors a:last-child { border-bottom: 0; }
 .doors strong { font-family: var(--font-barlow-condensed), sans-serif; font-size: 2rem; font-weight: 600; line-height: 1.1; text-transform: uppercase; }
-.doors a > span { color: var(--fg-muted); font-size: 1.0625rem; line-height: 1.55; }
-.doors em { color: var(--accent); font-size: 1.0625rem; font-style: normal; font-weight: 600; }
+.doors span { color: var(--fg-muted); font-size: 1.0625rem; line-height: 1.55; }
+.doors em { display: inline-flex; min-height: 44px; align-items: center; color: var(--accent); font-size: 1.0625rem; font-style: normal; font-weight: 600; }
 .doors a:hover { color: var(--fg); text-shadow: none; }
 .doors a:hover strong { color: var(--neon-pink); }
 .doors a:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }

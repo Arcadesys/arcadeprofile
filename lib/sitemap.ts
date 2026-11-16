@@ -5,17 +5,24 @@ import { COLLECTION, COLLECTION_PATH } from '@/lib/collection';
 import { PORTFOLIO_WORKS } from '@/lib/portfolio';
 import type { MarkdownGroup, MarkdownPost } from '@/lib/markdown-posts';
 import { ZOO_CHAPTERS, ZOO_COLLECTION_PATH } from '@/lib/zoo-collection';
+import { BOOKS, bookPath } from '@/data/books';
 
 export type SitemapEntry = MetadataRoute.Sitemap[number];
 
 const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFrequency']; priority: number }[] = [
   { path: '/', changeFrequency: 'weekly', priority: 1.0 },
+  { path: '/welcome', changeFrequency: 'monthly', priority: 0.7 },
   { path: '/stories', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/essays', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/writing', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/bio', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/bookshelf', changeFrequency: 'monthly', priority: 0.8 },
-  { path: '/resume', changeFrequency: 'monthly', priority: 0.9 },
+  { path: '/books', changeFrequency: 'monthly', priority: 0.9 },
+  ...BOOKS.map((book) => ({
+    path: bookPath(book),
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  })),
   { path: '/projects', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/portfolio', changeFrequency: 'monthly', priority: 0.9 },
   ...PORTFOLIO_WORKS.map((work) => ({
@@ -48,9 +55,10 @@ const STATIC_ROUTES: { path: string; changeFrequency: SitemapEntry['changeFreque
   { path: '/toys/justice-porn', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/toys/shoot-em-up', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/toys/the-day-i-split-in-two', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/toys/message-in-a-bottle/guide.html', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/toys/message-in-a-bottle', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/toys/cultural-weather-vane', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/latest', changeFrequency: 'daily', priority: 0.9 },
-  { path: '/store', changeFrequency: 'monthly', priority: 0.7 },
 ];
 
 export function buildStaticSitemapEntries(siteUrl: string): SitemapEntry[] {

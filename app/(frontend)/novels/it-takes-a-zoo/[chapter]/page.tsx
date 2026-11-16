@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import Breadcrumb from '@/app/components/Breadcrumb';
 import MarkdownPostBody from '@/app/components/MarkdownPostBody';
+import PieceBar from '@/app/components/PieceBar';
 import ReaderTelemetry from '@/app/components/ReaderTelemetry';
 import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
 import ReadingContinuityTracker from '@/app/components/ReadingContinuityTracker';
 import ReadingNextSteps from '@/app/components/ReadingNextSteps';
+import { buildCollectionPieceTrail } from '@/lib/breadcrumb-trails';
 import { JsonLd } from '@/lib/structured-data';
 import { SITE_NAME } from '@/lib/site-brand';
 import { getZooChapter, ZOO_CHAPTERS, ZOO_COLLECTION_PATH, ZOO_COLLECTION_TITLE, ZOO_HERO } from '@/lib/zoo-collection';
@@ -52,11 +56,26 @@ export default async function ZooChapterPage({ params }: Props) {
     <main className={styles.main}>
       <JsonLd data={jsonLd} />
       <ReadingContinuityTracker piece={readingPiece} />
+      <PieceBar
+        backHref={ZOO_COLLECTION_PATH}
+        backLabel={ZOO_COLLECTION_TITLE}
+        title={chapter.title}
+        position={chapter.order}
+        total={ZOO_CHAPTERS.length}
+        readingMinutes={chapter.readingMinutes}
+      />
       <article className={styles.reader}>
-        <Link className={styles.backLink} href={ZOO_COLLECTION_PATH}>← All {ZOO_CHAPTERS.length} chapters</Link>
+        <Breadcrumb items={buildCollectionPieceTrail({ collection: { title: ZOO_COLLECTION_TITLE, href: ZOO_COLLECTION_PATH }, pieceTitle: chapter.title })} />
         <header className={styles.readerHeader}>
-          <p className={styles.eyebrow}>Chapter {chapter.order} of {ZOO_CHAPTERS.length}</p>
-          <h1>{chapter.title}</h1>
+          <div className={styles.chapterTitle}>
+            <div>
+              <p className={styles.eyebrow}>Chapter {chapter.order} of {ZOO_CHAPTERS.length}</p>
+              <h1>{chapter.title}</h1>
+            </div>
+            {chapter.slug === 'follower-count' && (
+              <Image className={styles.chapterThumb} src={ZOO_HERO.url} alt="" width={ZOO_HERO.width} height={ZOO_HERO.height} sizes="88px" />
+            )}
+          </div>
           <p className={styles.byline}>By Austen Tucker</p>
           <p className={styles.description}>{chapter.description}</p>
           <p className={styles.meta}>{chapter.wordCount.toLocaleString('en-US')} words · about {chapter.readingMinutes} minutes</p>

@@ -12,7 +12,7 @@ function safeHref(value: string): string | null {
 }
 
 function inlineMarkdownToHtml(value: string): string {
-  let html = escapeHtml(value);
+  let html = escapeHtml(value).replace(/ {2,}\n/g, '<br />').replace(/\n/g, ' ');
   html = html.replace(/!\[([^\]]+)\]\(([^\s)]+)\)/g, (_match, alt: string, src: string) => {
     const safe = safeHref(src);
     return safe ? `<img src="${escapeHtml(safe)}" alt="${escapeHtml(alt)}" />` : escapeHtml(_match);
@@ -59,7 +59,7 @@ export function markdownToSafeHtml(markdown: string, options: { allowEmbeds?: bo
   const blocks: string[] = [];
   let paragraph: string[] = [];
   const flushParagraph = () => {
-    if (paragraph.length) blocks.push(`<p>${inlineMarkdownToHtml(paragraph.join(' '))}</p>`);
+    if (paragraph.length) blocks.push(`<p>${inlineMarkdownToHtml(paragraph.join('\n'))}</p>`);
     paragraph = [];
   };
 
@@ -96,7 +96,18 @@ export function markdownToSafeHtml(markdown: string, options: { allowEmbeds?: bo
         index += 1;
       }
       index -= 1;
-      blocks.push(`<blockquote><p>${inlineMarkdownToHtml(quoted.join(' '))}</p></blockquote>`);
+      const rendered = quoted.map((raw) => {
+        const hardBreak = /(?: {2,}|\\)$/.test(raw);
+        return {
+          html: inlineMarkdownToHtml(hardBreak ? raw.replace(/(?: {2,}|\\)$/, '') : raw),
+          hardBreak,
+        };
+      });
+      const quoteBody = rendered.map((line, quoteIndex) => {
+        const separator = quoteIndex === 0 ? '' : rendered[quoteIndex - 1].hardBreak ? '<br />' : ' ';
+        return separator + line.html;
+      }).join('');
+      blocks.push(`<blockquote><p>${quoteBody}</p></blockquote>`);
     } else if (list) {
       flushParagraph();
       const ordered = /\d+\./.test(list[2]);
@@ -112,7 +123,7 @@ export function markdownToSafeHtml(markdown: string, options: { allowEmbeds?: bo
       const tag = ordered ? 'ol' : 'ul';
       blocks.push(`<${tag}>${items.join('')}</${tag}>`);
     } else {
-      paragraph.push(line.trim());
+      paragraph.push(line);
     }
   }
   flushParagraph();

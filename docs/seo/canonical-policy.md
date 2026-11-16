@@ -1,4 +1,52 @@
-# Cross-imprint canonical map v1
+# Cross-imprint canonical map v2
+
+Decision recorded: 2026-10-03 by the owner (Austen). Issues: #285 and #286.
+Supersedes v1 below, which is kept as history.
+
+## Decision
+
+thearcades.me always owns original provenance. Where the same article also
+appears on work.thearcades.me, the **creative original is canonical** and the
+work copy is marked "Originally published on The Arcades". This reverses v1 and
+the earlier shared `AGENTS.md` preference for the work imprint.
+
+| Stable content key | Canonical (creative original) | Work copy (points to original) |
+| --- | --- | --- |
+| `bunch/bunch` | https://www.thearcades.me/projects/bunch/bunch | https://work.thearcades.me/blog/bunch |
+| `arcade-blog/four-stages-nobody-tells-you-about` | https://www.thearcades.me/projects/arcade-blog/four-stages-nobody-tells-you-about | https://work.thearcades.me/blog/four-stages-nobody-tells-you-about |
+| `the-singularity-log/claude-design-and-the-novel-t` | https://www.thearcades.me/projects/the-singularity-log/claude-design-and-the-novel-t | https://work.thearcades.me/blog/claude-design-and-the-novel-t |
+
+The distinct `https://work.thearcades.me/work/bunch` case study is not a copy and
+stays self-canonical. Nothing is redirected or deleted; both editions stay readable.
+
+## Implementation (map version `2026-10-03.1`)
+
+Creative site (this repo, ships first):
+- `POST_CANONICAL_EDITIONS` in `lib/post-canonical.ts` is empty, so the three
+  originals self-canonicalize and return to the creative sitemap, `llms.txt`,
+  search, editorial hubs, related reading and RSS links. RSS GUIDs are unchanged.
+- The validator stays, so any future owner-approved exception still fails closed.
+- Table-driven fixtures: `lib/post-canonical-originals.fixture.ts`.
+
+Work site (ships second, after the creative release is live):
+- Each copy's canonical, `og:url`, `BlogPosting.url` and `mainEntityOfPage`
+  name the creative original, read from the validated `url` in
+  `content/blog-sources.json`.
+- Copies are excluded from the work sitemap. The provenance line is unchanged.
+
+## Order and rollback
+
+Ship creative first. In between, each edition is briefly self-canonical, which
+is a duplicate but never a cycle. Shipping work first would make the two
+editions point at each other, so do not. Roll back in reverse: revert the work
+change first, then the creative change.
+
+Verify with `npm exec tsx scripts/verify-post-canonicals.ts <creative-origin>`
+once both are deployed. Google's selected canonical is recorded separately (#291).
+
+---
+
+# Cross-imprint canonical map v1 (superseded 2026-10-03)
 
 Decision recorded: 2026-09-30. Issues: #285 and #286.
 

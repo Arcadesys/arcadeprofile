@@ -79,7 +79,7 @@
 .status {
   margin: 0;
   padding: .85rem 1rem;
-  border-left: 4px solid var(--cyan);
+  border-left: 5px solid var(--cyan);
   background: var(--surface);
   color: var(--fg);
   font-size: 18px;
@@ -93,3 +93,6 @@
 @media (max-width: 560px) {
   .submit { width: 100%; }
 }
+
+.gift { font-size: 18px; line-height: 1.7; overflow-wrap: anywhere; }
+.gift p { margin: 0 0 .5rem; }

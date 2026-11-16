@@ -1,0 +1,27 @@
+manuscript: assets/Estelle's Children FINAL.md
+cover: assets/estelles-children-front.png
+imprint: insert-coin
+page:
+  size: trade
+  margins: { top: 0.85in, side: 0.7in }
+metadata:
+  title: "Estelle's Children"
+  author: "Austen Tucker"
+  language: en-US
+  rights: "“Estelle's Children” © 2026 Austen Tucker. All rights reserved."
+  publisher: "The Arcades"
+  imprint_name: "The Arcades"
+  imprint_tagline: "a novel"
+  imprint_blurb: "A serialized-fiction project mailed out one chapter at a time."
+  imprint_url: "thearcades.me"
+  date: "2026"
+  year: "2026"
+  description: "Lady Estelle Extravaganza spent the post-Plague century opening her door to every trans kid who washed up on it — the kettle, the sandwich, the spellbook, a citadel of one's own. One woman, then a school, then a sisterhood. But a rescue network, run long enough, starts keeping a ledger. And a ledger, run long enough, starts being afraid. Estelle's Children is an archive in the shape of a novel: oral history, courtroom record, family album, confession."
+  subjects: ["Fiction", "Fantasy", "LGBTQ"]
+  cover_eyebrow: "The Arcades · 2026"
+  colophon:
+    - "“Estelle's Children” © 2026 Austen Tucker. All rights reserved."
+    - "Set in Lora, Inter, and JetBrains Mono. Designed for screen and trade format."
+chapters: true
+formats: [pdf, epub]
+output: dist/

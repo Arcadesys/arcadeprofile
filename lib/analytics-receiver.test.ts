@@ -1,9 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { act, createElement as h } from 'react';
+import { createRoot } from 'react-dom/client';
+import { PathnameContext } from 'next/dist/shared/lib/hooks-client-context.shared-runtime';
 import { NextRequest } from 'next/server';
 import { POST as posthog } from '../app/(frontend)/api/analytics/posthog/route';
 import { POST as mff } from '../app/(frontend)/api/analytics/mff/route';
+import { PostHogAnalytics } from '../app/components/PostHogAnalytics';
 import { analyticsBrowser } from './fixtures/analytics-browser';
+import { captureSiteEvent } from './posthog-client';
+import { shouldTrackSiteAnalytics } from './site-analytics';
 
 const origin = 'https://www.thearcades.me';
 const input = (path = '/stories') => ({ event: '$pageview', distinct_id: '9e833036-9f38-44d9-9d26-3d9c1b332f94', properties: { $current_url: `${origin}${path}?email=secret#token`, email: 'private@example.com', $set: { secret: true }, $raw_user_agent: 'forged', $geoip_disable: true } });
@@ -63,4 +69,159 @@ test('upstream rejection and network failure return 502 without logging payloads
   assert.equal(response.status, 502); assert.equal((await response.json()).error, 'upstream_failed');
   assert.equal(fetch.mock.calls.length, 2);
   assert.ok(!JSON.stringify(logs).includes('private')); assert.ok(!JSON.stringify(logs).includes('secret'));
+});
+
+test('receiver maps coarse native device/source, preserves receipt tuple, and coalesces duplicates', async (t) => {
+  analyticsBrowser(t);
+  const sent: Record<string, unknown>[] = [];
+  t.mock.method(globalThis, 'fetch', async (_url: string, init: RequestInit) => { sent.push(JSON.parse(String(init?.body))); return new Response('{}'); });
+  const receipt = { ...input(), uuid: crypto.randomUUID(), timestamp: new Date().toISOString(), properties: {
+    ...input().properties, $device_type: 'forged', $referrer: 'https://www.google.com/search?q=private', $referring_domain: 'forged', utm_source: 'NEWS', $set_once: { email: 'private' },
+  } };
+  const headers = { 'user-agent': 'Mozilla iPhone Mobile' };
+  const results = await Promise.all([posthog(request(receipt, undefined, headers)), posthog(request(receipt, undefined, headers))]);
+  assert.ok(results.every(response => response.status === 200));
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].uuid, receipt.uuid); assert.equal(sent[0].timestamp, receipt.timestamp);
+  const properties = sent[0].properties as Record<string, unknown>;
+  assert.equal(properties.$device_type, 'Mobile'); assert.equal(properties.$referring_domain, 'www.google.com');
+  assert.equal(properties.$referrer, 'https://www.google.com'); assert.equal(properties.utm_source, 'news'); assert.equal(properties.$set_once, undefined);
+  assert.equal((await posthog(request(receipt, undefined, headers))).status, 200); assert.equal(sent.length, 1);
+  assert.equal((await posthog(request({ ...receipt, timestamp: new Date(Date.parse(receipt.timestamp) - 1).toISOString() }, undefined, headers))).status, 400);
+  assert.equal(sent.length, 1);
+  assert.equal((await posthog(request({ ...receipt, uuid: crypto.randomUUID() }, undefined, { dnt: '1' }))).status, 204);
+  assert.equal(sent.length, 1);
+});
+
+test('public reader PDF intent survives capture, client preparation, and receiver sanitization without its route', async (t) => {
+  const path = '/novels/it-takes-a-zoo/cold-boot';
+  analyticsBrowser(t, path);
+  const requestBodies: Record<string, unknown>[] = [];
+  const forwarded: Record<string, unknown>[] = [];
+  t.mock.method(globalThis, 'fetch', async (url: string, init: RequestInit) => {
+    if (String(url).startsWith('/api/')) {
+      const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+      requestBodies.push(body);
+      return posthog(request(body));
+    }
+    forwarded.push(JSON.parse(String(init.body)) as Record<string, unknown>);
+    return new Response('{}', { status: 200 });
+  });
+
+  captureSiteEvent('site link clicked', { href: `${path}/pdf?private=secret#fragment` });
+  for (let i = 0; i < 100; i++) await Promise.resolve();
+
+  assert.equal(requestBodies.length, 1);
+  assert.equal(forwarded.length, 1);
+  for (const body of [...requestBodies, ...forwarded]) {
+    const properties = body.properties as Record<string, unknown>;
+    assert.equal(properties.destination_kind, 'public_pdf');
+    assert.equal(properties.conversion_stage, 'public_pdf_download_intent');
+    assert.equal(properties.href, undefined);
+    assert.equal(properties.pathname, path);
+    assert.ok(!JSON.stringify(body).includes('/pdf'));
+    assert.ok(!JSON.stringify(body).includes('secret'));
+    assert.ok(!JSON.stringify(body).includes('fragment'));
+  }
+});
+
+test('document clicks track only the current reader PDF through the minimized receiver', async (t) => {
+  const path = '/novels/it-takes-a-zoo/cold-boot';
+  const dom = analyticsBrowser(t, path, `<div id="root"></div><a id="reader-pdf" href="${path}/pdf?private=secret#fragment">PDF</a><a id="other-reader-pdf" href="/novels/it-takes-a-zoo/open-port/pdf">Other reader PDF</a><a id="unlisted-pdf" href="/stories/pdf">Unlisted PDF</a><a id="private-pdf" href="/subscribe/verify/pdf?token=private">Private PDF</a><a id="external-pdf" href="https://downloads.example.test/chapters/cold-boot.pdf?private=external#fragment">External PDF</a><a id="ordinary-internal" href="/stories">Stories</a><a id="ordinary-external" href="https://example.test/about">External page</a>`);
+  assert.equal(shouldTrackSiteAnalytics(`${path}/pdf`), false);
+
+  const requestBodies: Record<string, unknown>[] = [];
+  const forwarded: Record<string, unknown>[] = [];
+  t.mock.method(globalThis, 'fetch', async (url: string, init: RequestInit) => {
+    if (String(url).startsWith('/api/')) {
+      const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+      requestBodies.push(body);
+      return posthog(request(body));
+    }
+    forwarded.push(JSON.parse(String(init.body)) as Record<string, unknown>);
+    return new Response('{}', { status: 200 });
+  });
+
+  const root = createRoot(document.getElementById('root')!);
+  await act(async () => root.render(h(PathnameContext.Provider, { value: path }, h(PostHogAnalytics))));
+  for (let i = 0; i < 100; i++) await Promise.resolve();
+  // Ignore the regular reader pageview; this test is about document-link intent.
+  requestBodies.length = 0;
+  forwarded.length = 0;
+
+  for (const id of ['reader-pdf', 'other-reader-pdf', 'unlisted-pdf', 'private-pdf', 'external-pdf', 'ordinary-internal', 'ordinary-external']) {
+    const link = document.getElementById(id)!;
+    link.addEventListener('click', event => event.preventDefault());
+    await act(async () => {
+      link.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+  }
+  for (let i = 0; i < 100; i++) await Promise.resolve();
+
+  assert.equal(requestBodies.length, 4);
+  assert.equal(forwarded.length, 4);
+  const received = requestBodies.map(body => body.properties as Record<string, unknown>);
+  const providerProperties = forwarded.map(body => body.properties as Record<string, unknown>);
+  const pdf = received.find(properties => properties.destination_kind === 'public_pdf');
+  const providerPdf = providerProperties.find(properties => properties.destination_kind === 'public_pdf');
+  const external = received.find(properties => properties.destination_host === 'downloads.example.test');
+  const ordinaryInternal = received.find(properties => properties.href === '/stories');
+  const ordinaryExternal = received.find(properties => properties.destination_host === 'example.test');
+  assert.ok(pdf);
+  assert.equal(pdf.conversion_stage, 'public_pdf_download_intent');
+  assert.equal(pdf.href, undefined);
+  assert.equal(pdf.pathname, path);
+  assert.ok(providerPdf);
+  assert.equal(providerPdf.conversion_stage, 'public_pdf_download_intent');
+  assert.equal(providerPdf.href, undefined);
+  assert.equal(providerPdf.pathname, path);
+  assert.ok(external);
+  assert.equal(external.destination_kind, undefined);
+  assert.equal(external.conversion_stage, undefined);
+  assert.ok(ordinaryInternal);
+  assert.equal(ordinaryInternal.destination_kind, undefined);
+  assert.equal(ordinaryInternal.conversion_stage, undefined);
+  assert.ok(ordinaryExternal);
+  assert.equal(ordinaryExternal.destination_kind, undefined);
+  assert.equal(ordinaryExternal.conversion_stage, undefined);
+  for (const body of [...requestBodies, ...forwarded]) {
+    assert.ok(!JSON.stringify(body).includes('/pdf'));
+    assert.ok(!JSON.stringify(body).includes('secret'));
+    assert.ok(!JSON.stringify(body).includes('fragment'));
+    assert.ok(!JSON.stringify(body).includes('token=private'));
+  }
+  await act(async () => root.unmount());
+});
+
+test('lost browser acknowledgments retry the same CTA UUID/timestamp and forward only once within the receiver window', async (t) => {
+  analyticsBrowser(t, '/');
+  let timerId = 0;
+  const timers = new Map<number, { fn: () => void; delay: number }>();
+  t.mock.method(window, 'setTimeout', (fn: () => void, delay: number) => { timers.set(++timerId, { fn, delay }); return timerId; });
+  t.mock.method(window, 'clearTimeout', (id: number) => { timers.delete(id); });
+  const attempts: string[] = []; const forwarded: Record<string, unknown>[] = [];
+  t.mock.method(globalThis, 'fetch', async (url: string, init: RequestInit) => {
+    if (String(url).startsWith('/api/')) {
+      attempts.push(String(init?.body));
+      const response = await posthog(request(JSON.parse(String(init?.body))));
+      if (attempts.length < 3) throw new Error('acknowledgment lost after provider accepted');
+      return response;
+    }
+    assert.match(String(url), /^https:\/\/us\.i\.posthog\.com\/capture\//);
+    forwarded.push(JSON.parse(String(init?.body))); return new Response('{}');
+  });
+  captureSiteEvent('site link clicked', { href: 'https://www.amazon.com/dp/B0HM8J2Z87?private#token', placement: 'home_hero', destination_kind: 'amazon_kindle' });
+  for (let step = 0; step < 3; step++) {
+    for (let i = 0; i < 50; i++) await Promise.resolve();
+    const retry = [...timers.values()].find(timer => timer.delay < 5000);
+    if (retry) retry.fn();
+  }
+  for (let i = 0; i < 50; i++) await Promise.resolve();
+  assert.equal(attempts.length, 3); assert.equal(new Set(attempts).size, 1);
+  assert.equal(forwarded.length, 1);
+  const receipt = JSON.parse(attempts[0]);
+  assert.equal(forwarded[0].uuid, receipt.uuid); assert.equal(forwarded[0].timestamp, receipt.timestamp);
+  assert.equal(receipt.properties.placement, 'home_hero'); assert.equal(receipt.properties.destination_kind, 'amazon_kindle');
+  assert.ok(!attempts[0].includes('private')); assert.ok(!attempts[0].includes('B0HM8J2Z87'));
+  assert.equal(timers.size, 0);
 });

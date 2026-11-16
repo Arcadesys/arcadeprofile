@@ -5,6 +5,7 @@ Reaction Stickers is a **Tools** project under Watch me build. Its deliverable i
 - Project: `/projects/reaction-stickers` (repository group manifest).
 - Demo: `/reaction-stickers` (rewrite to `public/reaction-stickers/index.html`).
 - Visitor publisher: `/reaction-stickers/publish.html` with Telegram sign-in and a server-side Bot API route.
+- Inline chat prototype: `chat-app/` and `scripts/reaction-stickers-chat-server.mjs` expose the prompt grid as an MCP Apps widget.
 - Download/media source of truth: `data/reaction-stickers-assets.json`, with public Blob URLs and SHA-256 hashes.
 - The full standalone source download includes the unchanged skill, plugin manifest, package builder, and focused tests. Its URL is recorded under `source.zip` in the asset manifest.
 
@@ -21,6 +22,16 @@ For a demo-only edit, edit `public/reaction-stickers/` directly. Keep the single
 Run the repository's `npm run lint`, `npx tsc --noEmit`, `npm test`, and `npm run build`. Inspect the project index's Tools filter, project CTA, demo at desktop and narrow widths, reference download, invalid/custom reactions, label toggle, keyboard focus, and prompt copy. Verify public asset bytes against the recorded hashes after release.
 
 Generation and installation in a recipient's ChatGPT account depend on their account features and remain separate from validating the static demo. The page explains those limits and offers a standalone prompt fallback.
+
+## Inline chat prompt grid
+
+The existing static demo is a web page. The chat prototype returns a `text/html;profile=mcp-app` UI resource from a read-only `open_sticker_prompt_grid` tool, so compatible chat hosts can show the builder beside the conversation. The widget reuses `public/reaction-stickers/workflow.js` and `prompt.js` at build time; the default reactions and prompt stay aligned with the skill. It builds prompts locally in the iframe. **Send prompt to chat** uses the MCP Apps `ui/message` bridge only after the visitor presses it. **Copy prompt** works when the chat bridge is unavailable. Character images are attached in the user's chat, not uploaded to this server. The Telegram option prepares a prompt and links to the separate publisher; the widget cannot publish a set.
+
+From the repository root, run `npm install` and `npm run sticker-chat:serve`. The local widget preview is `http://127.0.0.1:8788/preview`; the MCP endpoint is `http://127.0.0.1:8788/mcp`. Change `PORT` and `HOST` if needed. `npm run sticker-chat:build` creates `chat-app/dist/widget.html`; it is generated and ignored by Git. The server reads the generated file at startup, so restart it after editing the widget or shared prompt files.
+
+For a private ChatGPT web test, expose port 8788 through an HTTPS tunnel, connect its `/mcp` URL in ChatGPT Developer Mode, select the app in a new chat, and ask to “open the sticker prompt grid.” [The official quickstart](https://developers.openai.com/apps-sdk/quickstart) describes the current connection flow. Test that the widget appears, ten reactions render, edits update the prompt, and **Send prompt to chat** sends only the reviewed text. A local `/preview` check cannot prove that ChatGPT rendered the iframe or accepted `ui/message`.
+
+For general web users, deploy this MCP server at a stable public HTTPS endpoint and follow the [plugin submission and publishing flow](https://developers.openai.com/apps-sdk/deploy/submission). A downloadable skill or plugin ZIP does not by itself make an inline widget appear in another person's chat. This prototype has not been connected to or published through ChatGPT. If the widget contract changes, bump its `ui://reaction-stickers/prompt-grid-v1.html` resource URI and the matching tool metadata.
 
 ## Visual system
 

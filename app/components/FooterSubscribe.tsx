@@ -14,6 +14,7 @@ export default function FooterSubscribe() {
     (segments[0] === 'portfolio' && segments.length === 2) ||
     (segments[0] === 'lab' && segments.length === 2);
   if (
+    pathname === '/' ||
     hasPieceSpecificSignup ||
     pathname === '/subscribe' ||
     pathname === '/queercolumns' || pathname.startsWith('/queercolumns/') ||
@@ -22,7 +23,7 @@ export default function FooterSubscribe() {
   ) return null;
 
   return (
-    <section aria-labelledby="footer-subscribe-heading">
+    <section id="subscribe" aria-labelledby="footer-subscribe-heading">
       <h2 id="footer-subscribe-heading" style={{ margin: '0 0 0.5rem', fontSize: 'clamp(1.5rem, 4vw, 2rem)', lineHeight: 1.2 }}>
         Get new writing by email
       </h2>

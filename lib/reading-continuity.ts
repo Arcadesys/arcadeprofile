@@ -18,6 +18,8 @@ export type ReadingPiece = {
     total: number;
     status: CollectionStatus;
   };
+  /** Whole minutes to read the piece, when its body is known. */
+  readingMinutes?: number;
   tags?: readonly string[];
   publishedAt?: string;
   /** Paths selected by the editor. They always outrank automatic matches. */

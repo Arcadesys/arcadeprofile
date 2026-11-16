@@ -16,13 +16,14 @@ export const VALID_SOURCES = [
   'collection-story-end',
   'portfolio-piece-end',
   'lab-case-study-end',
+  'novel-preview',
   'project-hub',
   'store-top',
   'store-bottom',
 ] as const;
 export type Source = (typeof VALID_SOURCES)[number];
 
-export const VALID_MAGNETS = ['story', 'it-takes-a-zoo-complete'] as const;
+export const VALID_MAGNETS = ['subscriber-exclusive', 'it-takes-a-zoo-complete'] as const;
 export type Magnet = (typeof VALID_MAGNETS)[number];
 
 // Signup only adds consented topics. Replacing/removing existing preferences

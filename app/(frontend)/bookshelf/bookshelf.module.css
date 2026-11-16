@@ -19,6 +19,9 @@
 .bookMeta { color: var(--accent); font-size: 1rem; font-weight: 600; }
 .bookCopy h3 { margin: 0; font-size: 1.375rem; font-weight: 600; line-height: 1.25; }
 .bookPublisher { color: var(--fg-muted); }
+.shelfMore { margin: 2rem 0 0; }
+.bookCopy h3 a { color: var(--fg); text-decoration: none; }
+.bookCopy h3 a:hover { color: var(--neon-pink); }
 .bookLinks { display: flex; flex-wrap: wrap; gap: 0 1.1rem; }
 .bookLinks a { display: inline-flex; min-height: 44px; align-items: center; }
 .note { display: block; color: var(--fg-faint); font-size: 1rem; }

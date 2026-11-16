@@ -4,6 +4,7 @@ import Link from 'next/link';
 import SubscriptionForm from '@/app/components/SubscriptionForm';
 import StartReadingShelf from '@/app/components/StartReadingShelf';
 import { getStartReadingShelf } from '@/lib/reader-discovery';
+import { WORK_RESUME_URL } from '@/lib/work-resume';
 
 export const metadata: Metadata = {
   title: 'Bio',
@@ -72,7 +73,7 @@ export default async function BioPage() {
           Chicago, IL
         </p>
         <Link
-          href="/resume"
+          href={WORK_RESUME_URL}
           style={{
             display: 'inline-block',
             fontFamily: 'var(--font-mono)',
@@ -259,7 +260,7 @@ export default async function BioPage() {
           source="bio"
           audiences={['all']}
           updateMode="add"
-          magnet="story"
+          magnet="subscriber-exclusive"
           presentation="compact"
           submitLabel="Send me new work"
         />

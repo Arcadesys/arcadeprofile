@@ -14,6 +14,9 @@ import { COLLECTION, COLLECTION_PATH, COLLECTION_TITLE, getStory } from '@/lib/c
 import { JsonLd } from '@/lib/structured-data';
 import { getReadingCatalog } from '@/lib/reading-catalog';
 import { SITE_URL } from '@/lib/site-url';
+import { bookPath, getBook } from '@/data/books';
+import BookPurchaseBlock from '@/app/components/BookPurchaseBlock';
+import bookStyles from '@/app/components/BookPurchaseBlock.module.css';
 
 
 type Props = { params: Promise<{ slug: string }> };
@@ -59,6 +62,7 @@ export default async function CollectionStoryPage({ params }: Props) {
   const { slug } = await params;
   const story = getStory(slug);
   if (!story) notFound();
+  const book = getBook('this-is-what-i-do-for-fun')!;
 
   const pageUrl = `${SITE_URL}${COLLECTION_PATH}/${story.slug}`;
   const storyJsonLd = {
@@ -105,13 +109,17 @@ export default async function CollectionStoryPage({ params }: Props) {
       <main className="dd-intro-main portfolio-reader">
         <article>
           <nav className="portfolio-reader__back" aria-label={COLLECTION_TITLE}>
-            <Link href={COLLECTION_PATH}>← All seven stories</Link>
+            <Link href={COLLECTION_PATH}>← Collection and book</Link>
           </nav>
 
           <header className="portfolio-reader__header">
             <p className="portfolio-eyebrow">{story.editionType}</p>
             <h1>{story.title}</h1>
             <p className="portfolio-reader__byline">By Austen Tucker</p>
+            <p className={bookStyles.provenance}>
+              From the collection <Link href={COLLECTION_PATH}>{COLLECTION_TITLE}</Link>
+              {' · '}<Link href={bookPath(book)}>Buy</Link>
+            </p>
             <p className="portfolio-reader__meta">{story.description}</p>
             <PieceActions
               title={story.title}
@@ -150,6 +158,8 @@ export default async function CollectionStoryPage({ params }: Props) {
 
           {readingPiece ? <><ReadingContinuityTracker piece={readingPiece} /><ReadingNextSteps piece={readingPiece} catalog={readingCatalog} /></> : null}
 
+          <BookPurchaseBlock book={book} headingId="story-book-heading" />
+
           <EndOfPieceSubscribe
             audience="fiction"
             source="collection-story-end"
@@ -159,7 +169,7 @@ export default async function CollectionStoryPage({ params }: Props) {
           <footer className="portfolio-reader__footer">
             <div className="portfolio-actions">
               <Link className="portfolio-read-link" href={COLLECTION_PATH}>
-                ← All seven stories
+                ← Collection and book
               </Link>
             </div>
           </footer>

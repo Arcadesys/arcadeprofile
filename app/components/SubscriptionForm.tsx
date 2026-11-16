@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useId, useRef, useState } from 'react';
 
-import { applyPreferenceChange } from '@/lib/activecampaign-form';
+import { applyPreferenceChange } from '@/lib/subscription-preferences';
 import { useReaderEventTracker } from '@/lib/reader-analytics';
 import { submitSubscription } from '@/lib/subscription-client';
 import type {
@@ -13,6 +13,7 @@ import type {
 } from '@/lib/subscribe-types';
 
 import styles from './SubscriptionForm.module.css';
+import { SUBSCRIBER_GIFT, subscriberGiftFiles } from '@/lib/subscriber-gift';
 
 type Download = { href: string; label: string };
 
@@ -101,6 +102,7 @@ function EnabledSubscriptionForm({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (pending || complete) return;
     if (selected.size === 0) {
       setError('Choose at least one email list.');
       return;
@@ -108,6 +110,8 @@ function EnabledSubscriptionForm({
 
     setPending(true);
     setError('');
+    const requestContext = { canonicalId: window.location.pathname, contentType: 'subscription', placement: source, destination: 'none' };
+    trackReaderEvent('signup-request', requestContext);
     try {
       const readingLink = readingLinkFor(selected);
       const payload = await submitSubscription(
@@ -131,6 +135,7 @@ function EnabledSubscriptionForm({
         ? 'Your request is recorded. Check your inbox; if no confirmation arrives, try again in 10 minutes.'
         : successMessage);
       if (payload.partial && payload.submitted && payload.failed?.length) {
+        trackReaderEvent('signup-failed', requestContext);
         setSelected(new Set(payload.failed));
         setError(
           `${payload.submitted.length ? `Confirmation requests were sent for ${audienceNames(payload.submitted)}. ` : `${payload.error ?? 'No email lists were selected.'} `}`
@@ -143,6 +148,7 @@ function EnabledSubscriptionForm({
       setDownloads(postSuccessDownload ? [postSuccessDownload, ...magnetDownloads] : magnetDownloads);
       setComplete(true);
     } catch (cause) {
+      trackReaderEvent('signup-failed', requestContext);
       setError(cause instanceof Error ? cause.message : 'Could not subscribe right now. Please try again.');
     } finally {
       setPending(false);
@@ -154,7 +160,7 @@ function EnabledSubscriptionForm({
     return (
       <div ref={statusRef} className={styles.status} role="status" aria-live="polite" tabIndex={-1}>
         <strong>{completionMessage}</strong>
-        <p>Kit may send additional confirmation emails for the topics you chose before delivery begins.</p>
+        <p>We will send one confirmation email. Your selected topics begin after you confirm.</p>
         {downloads.length > 0 ? (
           <div className={styles.downloads}>
             {downloads.map((download) => <a key={download.href} href={download.href}>{download.label}</a>)}
@@ -167,6 +173,13 @@ function EnabledSubscriptionForm({
 
   return (
     <form className={`${styles.form} ${presentation === 'compact' ? styles.compact : ''}`} onSubmit={submit} noValidate={false}>
+      {magnet === 'subscriber-exclusive' ? (
+        <div className={styles.gift}>
+          <p><strong>Subscriber-only: {SUBSCRIBER_GIFT.title}</strong></p>
+          <p>{SUBSCRIBER_GIFT.description}</p>
+          <p>{subscriberGiftFiles().length ? 'Get the PDF and EPUB with your signup.' : 'Draft offer — the piece is not available yet.'}</p>
+        </div>
+      ) : null}
       <div className={styles.field}>
         <label htmlFor={emailId}>Email address</label>
         <input
@@ -202,7 +215,7 @@ function EnabledSubscriptionForm({
 
       <p className={styles.terms}>Updates when they&rsquo;re ready. Free. Unsubscribe whenever.</p>
       {showPreferences ? (
-        <p className={styles.terms}>You will confirm this request once. Kit may send additional confirmation emails for the topics you choose.</p>
+        <p className={styles.terms}>You will confirm this request once. We will not send a second confirmation email.</p>
       ) : null}
       <button className={styles.submit} type="submit" disabled={pending}>{pending ? 'Subscribing…' : submitLabel}</button>
       {error ? <div ref={statusRef} className={`${styles.status} ${styles.error}`} role="alert" aria-live="assertive" tabIndex={-1}>{error}</div> : null}

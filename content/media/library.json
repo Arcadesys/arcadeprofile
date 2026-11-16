@@ -1,6 +1,51 @@
 {
   "assets": [
     {
+      "id": "03-gallery-view",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/d8e77595301108bec16021c5b1bcd014b482f677cc8a64fa7f57461b7a684793/03-gallery-view.jpg",
+      "sha256": "d8e77595301108bec16021c5b1bcd014b482f677cc8a64fa7f57461b7a684793",
+      "mimeType": "image/jpeg",
+      "byteSize": 502196,
+      "width": 1600,
+      "height": 2560,
+      "alt": "Gallery View cover: a mouse overlooks a towering gallery filled with illuminated paintings. Ivory title lettering sits above the scene, with an orange accent, the line A story from the Zoo, and the author credit By Austen Tucker.",
+      "caption": "Gallery View: deep shadows, warm amber light, and a recurring title treatment.",
+      "usedIn": [
+        "novel-writing-is-just-engineering-with-more-steps"
+      ],
+      "addedAt": "2026-11-05T22:38:07.380Z"
+    },
+    {
+      "id": "04-permissions",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/5a79b09d64bfb5a8a58ff9b1b0f86b7d6701c3d6f8ebb209cb5c5e4ffe3575f2/04-permissions.jpg",
+      "sha256": "5a79b09d64bfb5a8a58ff9b1b0f86b7d6701c3d6f8ebb209cb5c5e4ffe3575f2",
+      "mimeType": "image/jpeg",
+      "byteSize": 751201,
+      "width": 1600,
+      "height": 2560,
+      "alt": "Permissions cover: a rabbit writes at a cluttered workbench in warm amber light and deep shadow. An ivory serif title sits above the series line A story from the Zoo and the credit By Austen Tucker, with an orange accent.",
+      "caption": "Permissions: a different setting, with the same lettering hierarchy and warm light against deep shadow.",
+      "usedIn": [
+        "novel-writing-is-just-engineering-with-more-steps"
+      ],
+      "addedAt": "2026-11-05T22:38:08.273Z"
+    },
+    {
+      "id": "06-open-port",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/d17ab83bc17b01cfddc20f0ea76e864eb7387c12318859e87b7e41876b7e9ec8/06-open-port.jpg",
+      "sha256": "d17ab83bc17b01cfddc20f0ea76e864eb7387c12318859e87b7e41876b7e9ec8",
+      "mimeType": "image/jpeg",
+      "byteSize": 906341,
+      "width": 1600,
+      "height": 2560,
+      "alt": "Open Port cover: people gather around a hospital bed beneath a glowing geometric fox. Cool blue shadows contrast with amber light. Ivory title lettering, an orange accent, the line A story from the Zoo, and By Austen Tucker repeat the collection design.",
+      "caption": "Open Port: cooler blue shadows and a luminous amber fox, within the same visual family.",
+      "usedIn": [
+        "novel-writing-is-just-engineering-with-more-steps"
+      ],
+      "addedAt": "2026-11-05T22:38:09.533Z"
+    },
+    {
       "id": "aughtscon",
       "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/aughtscon.png",
       "sha256": "b90f10eeacd659b4b7fc712860f271f43001135360a99c72ad6c7a889100764f",
@@ -105,6 +150,34 @@
       "addedAt": "2026-10-02T19:53:38.079Z"
     },
     {
+      "id": "estelles-children-cover",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/b15b8caee1e94d28ee2cac9ea662f9a2fb0740ea1c3432ad8dea599cc579fddd/estelles-children-approved-cover.webp",
+      "sha256": "b15b8caee1e94d28ee2cac9ea662f9a2fb0740ea1c3432ad8dea599cc579fddd",
+      "mimeType": "image/webp",
+      "byteSize": 256476,
+      "width": 900,
+      "height": 1440,
+      "alt": "Cover of Estelle’s Children by Austen Tucker: gold lettering above a brown journal with photographs, keys, a purple Emergency Hat charm, and a trans pride ribbon, surrounded by purple fabric, flowers, and a sleeping cat.",
+      "usedIn": [
+        "estelles-children"
+      ],
+      "addedAt": "2026-11-05T13:31:56.869Z"
+    },
+    {
+      "id": "follower-count-newsletter-cover",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/199f71cf1be81c18cb18f9f807d8a8cf79507703269907be6c472360de52c76c/cover.png",
+      "sha256": "199f71cf1be81c18cb18f9f807d8a8cf79507703269907be6c472360de52c76c",
+      "mimeType": "image/png",
+      "byteSize": 1762924,
+      "width": 1536,
+      "height": 1024,
+      "alt": "Follower Count cover by Austen Tucker: a mouse walks past a shadowed bar where a fox stands against warm amber shelves, with ivory lettering and cool blue shadows.",
+      "usedIn": [
+        "novel-writing-is-just-engineering-with-more-steps"
+      ],
+      "addedAt": "2026-11-05T22:38:10.773Z"
+    },
+    {
       "id": "golf-flight",
       "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/ad917db0dd78455e9d6f46cfee8302a45d59e71ac771f5e69bd6d6b93befb6a7/03-golf-flight.png",
       "sha256": "ad917db0dd78455e9d6f46cfee8302a45d59e71ac771f5e69bd6d6b93befb6a7",
@@ -144,6 +217,66 @@
       "addedAt": "2026-10-02T19:53:38.079Z"
     },
     {
+      "id": "message-in-a-bottle-archipelago",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/4953ba72c207071736ae206375630608536159bf4a62bf0c072f0fddb9f52228/primordial-archipelago.webp",
+      "sha256": "4953ba72c207071736ae206375630608536159bf4a62bf0c072f0fddb9f52228",
+      "mimeType": "image/webp",
+      "byteSize": 211056,
+      "width": 1672,
+      "height": 941,
+      "alt": "Fragments of reality float above a glowing primordial sea of fog",
+      "caption": "Message in a Bottle illustration produced with human-directed AI tools.",
+      "usedIn": [
+        "message-in-a-bottle"
+      ],
+      "addedAt": "2026-10-09T15:45:50.420Z"
+    },
+    {
+      "id": "message-in-a-bottle-chicago",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/c27d67a975531691181382d40f8880d28ace40c941551e76021ee38be37b387b/chicago-snowglobe.webp",
+      "sha256": "c27d67a975531691181382d40f8880d28ace40c941551e76021ee38be37b387b",
+      "mimeType": "image/webp",
+      "byteSize": 281402,
+      "width": 1536,
+      "height": 1024,
+      "alt": "Chicago’s illuminated skyline enclosed in a glass snow globe beneath dark clouds",
+      "caption": "Illustration for Message in a Bottle, produced with human-directed AI tools.",
+      "usedIn": [
+        "message-in-a-bottle"
+      ],
+      "addedAt": "2026-10-09T15:33:00.189Z"
+    },
+    {
+      "id": "message-in-a-bottle-fan-logo",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/3a54347241721cff5891cde5a38cbfff54aeeb76257136b774948b81ccf9dd76/savage-worlds-fan.png",
+      "sha256": "3a54347241721cff5891cde5a38cbfff54aeeb76257136b774948b81ccf9dd76",
+      "mimeType": "image/png",
+      "byteSize": 1904963,
+      "width": 4500,
+      "height": 3000,
+      "alt": "Savage Worlds Fan logo",
+      "caption": "Pinnacle Entertainment Group fan logo, reproduced unchanged under the Savage Worlds Fan License.",
+      "usedIn": [
+        "message-in-a-bottle"
+      ],
+      "addedAt": "2026-10-09T15:45:51.577Z"
+    },
+    {
+      "id": "message-in-a-bottle-maze",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/0ef1a7e0266b68f228f7bd14ef145f7cd9562b1ade3ea945c9ea056f6b6d0a79/thompson-maze.webp",
+      "sha256": "0ef1a7e0266b68f228f7bd14ef145f7cd9562b1ade3ea945c9ea056f6b6d0a79",
+      "mimeType": "image/webp",
+      "byteSize": 452804,
+      "width": 1672,
+      "height": 941,
+      "alt": "The Thompson Center atrium folds into impossible corridors, balconies, and a security checkpoint",
+      "caption": "Message in a Bottle illustration produced with human-directed AI tools.",
+      "usedIn": [
+        "message-in-a-bottle"
+      ],
+      "addedAt": "2026-10-09T15:45:49.231Z"
+    },
+    {
       "id": "moral-panic-mob",
       "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/moral-panic-mob.jpg",
       "sha256": "729132f6564635ba5e457d424b85ffaf83e421dbe25b11fa80822cf78892767d",
@@ -169,6 +302,174 @@
         "the-collapse-of-effort-and-the-birth-of-abundance"
       ],
       "addedAt": "2026-10-02T19:53:38.079Z"
+    },
+    {
+      "id": "old-limitations-part-01-hero-v2",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/f09bcf9b60188310edee3181cd305206918ccb22ab77e23a54e63ae5ce2827ce/part-01-hero-v2.png",
+      "sha256": "f09bcf9b60188310edee3181cd305206918ccb22ab77e23a54e63ae5ce2827ce",
+      "mimeType": "image/png",
+      "byteSize": 2715068,
+      "width": 1672,
+      "height": 941,
+      "alt": "Simple pencil outlines of a desk with a central computer, a carved bird and game pieces at left, and a guitar at right; behind it, people work in a workshop and garden.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-1"
+      ],
+      "addedAt": "2026-10-12T16:08:55.622Z"
+    },
+    {
+      "id": "old-limitations-part-01-keepers-hall",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/4f4af99a73f59b215ab8a09faf50ab13dd87fe1ba3ad332fd6f9881e549b433f/part-01-keepers-hall.jpg",
+      "sha256": "4f4af99a73f59b215ab8a09faf50ab13dd87fe1ba3ad332fd6f9881e549b433f",
+      "mimeType": "image/jpeg",
+      "byteSize": 37965,
+      "width": 581,
+      "height": 645,
+      "alt": "The Keeper’s Hall, with large catalog and recommendation choices above persistent TV controls.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-1"
+      ],
+      "addedAt": "2026-10-12T16:08:56.122Z"
+    },
+    {
+      "id": "old-limitations-part-01-tv-queue-controls",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/2c37fe5d8a325e8c18d09262e80a07cd90d8ed1183cf7ea1dca3e4f6ab09c89c/part-01-tv-queue-controls.jpg",
+      "sha256": "2c37fe5d8a325e8c18d09262e80a07cd90d8ed1183cf7ea1dca3e4f6ab09c89c",
+      "mimeType": "image/jpeg",
+      "byteSize": 80490,
+      "width": 1070,
+      "height": 760,
+      "alt": "RetroMachine’s TV queue shows a Turn on TV button, ten queued songs, and a Ready to play status.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-1"
+      ],
+      "addedAt": "2026-10-12T16:08:56.642Z"
+    },
+    {
+      "id": "old-limitations-part-02-games-catalog",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/0afb997ddde986fe72c61a1e9463dd15e813e1b83b34ee8947e8e6f505c586eb/part-02-games-catalog.jpg",
+      "sha256": "0afb997ddde986fe72c61a1e9463dd15e813e1b83b34ee8947e8e6f505c586eb",
+      "mimeType": "image/jpeg",
+      "byteSize": 85991,
+      "width": 581,
+      "height": 645,
+      "alt": "RetroMachine’s Games catalog filtered for Super Mario, showing readable game cards, system labels, search, and TV controls.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-2"
+      ],
+      "addedAt": "2026-10-12T16:08:59.162Z"
+    },
+    {
+      "id": "old-limitations-part-02-hero-v2",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/2e153b5af168201935d14bd33a38dd67283f4b31bfe979be9fc786563bb72780/part-02-hero-v2.png",
+      "sha256": "2e153b5af168201935d14bd33a38dd67283f4b31bfe979be9fc786563bb72780",
+      "mimeType": "image/png",
+      "byteSize": 3824697,
+      "width": 1672,
+      "height": 941,
+      "alt": "The same desk, computer, bird, game pieces, guitar, workshop, and garden drawn in dark ink, with added crosshatching, tool details, and plant shapes.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-2"
+      ],
+      "addedAt": "2026-10-12T16:08:58.623Z"
+    },
+    {
+      "id": "old-limitations-part-02-videos-catalog",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/f22828ba7e084904566e4649cc1b8fa1d081fce8341de6195e787d613d1ffffe/part-02-videos-catalog.jpg",
+      "sha256": "f22828ba7e084904566e4649cc1b8fa1d081fce8341de6195e787d613d1ffffe",
+      "mimeType": "image/jpeg",
+      "byteSize": 72857,
+      "width": 581,
+      "height": 645,
+      "alt": "RetroMachine’s Videos catalog shows Xena episodes with cover art, episode titles, year labels, and a TV-episode filter.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-2"
+      ],
+      "addedAt": "2026-10-12T16:08:59.635Z"
+    },
+    {
+      "id": "old-limitations-part-03-add-media-by-intention",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/e72fd10a697f6224306d1f48213aa9dc9621d471bb09cb7179852b52ce306fa0/part-03-add-media-by-intention.jpg",
+      "sha256": "e72fd10a697f6224306d1f48213aa9dc9621d471bb09cb7179852b52ce306fa0",
+      "mimeType": "image/jpeg",
+      "byteSize": 31013,
+      "width": 1070,
+      "height": 760,
+      "alt": "The Add media dialog offers YouTube and Film vault tabs and a labeled field for a video URL or artist and song.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-3"
+      ],
+      "addedAt": "2026-10-12T16:09:02.473Z"
+    },
+    {
+      "id": "old-limitations-part-03-game-details",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/2d85f7ea79a3197fdab952213b85fb5a046c22d9324cd5d1dabbd11815b16ee6/part-03-game-details.jpg",
+      "sha256": "2d85f7ea79a3197fdab952213b85fb5a046c22d9324cd5d1dabbd11815b16ee6",
+      "mimeType": "image/jpeg",
+      "byteSize": 60680,
+      "width": 581,
+      "height": 645,
+      "alt": "The 10-Pin Bowling detail panel shows catalog artwork, genre and player tags, and a Play on TV button.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-3"
+      ],
+      "addedAt": "2026-10-12T16:09:02.021Z"
+    },
+    {
+      "id": "old-limitations-part-03-hero-v2",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/7ed8c268d3b20f42c643421e22c899cd4e893e930a7caea2b894ea71fdf05b27/part-03-hero-v2.png",
+      "sha256": "7ed8c268d3b20f42c643421e22c899cd4e893e930a7caea2b894ea71fdf05b27",
+      "mimeType": "image/png",
+      "byteSize": 3841253,
+      "width": 1672,
+      "height": 941,
+      "alt": "The same workshop-and-garden composition with colored foreground objects and people, while much of the roof, walls, and distant landscape remains unpainted linework.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-3"
+      ],
+      "addedAt": "2026-10-12T16:09:01.533Z"
+    },
+    {
+      "id": "old-limitations-part-04-catalog-filters",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/7b16d31eaeab2bc53fcffd4cdf5f497f1d92a79c7761d322566f11fab4c921d4/part-04-catalog-filters.jpg",
+      "sha256": "7b16d31eaeab2bc53fcffd4cdf5f497f1d92a79c7761d322566f11fab4c921d4",
+      "mimeType": "image/jpeg",
+      "byteSize": 56062,
+      "width": 581,
+      "height": 645,
+      "alt": "RetroMachine’s filter panel shows labeled buttons for favorites, video availability, game genres, and eras.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-4"
+      ],
+      "addedAt": "2026-10-12T16:09:05.437Z"
+    },
+    {
+      "id": "old-limitations-part-04-hero-v2",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/47ec32a37fdabf520e304277c33335092a07f1f345037bea2b6b6ccaf9c717d3/part-04-hero-v2.png",
+      "sha256": "47ec32a37fdabf520e304277c33335092a07f1f345037bea2b6b6ccaf9c717d3",
+      "mimeType": "image/png",
+      "byteSize": 3960255,
+      "width": 1672,
+      "height": 941,
+      "alt": "The same scene finished in layered color and texture: a computer, carved bird, game pieces, and guitar on a desk, with people making, repairing, and gardening behind it.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-4"
+      ],
+      "addedAt": "2026-10-12T16:09:04.395Z"
+    },
+    {
+      "id": "old-limitations-part-04-keeper-intention",
+      "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/b88f6105b2abd0922f7528e6cbaabc6f3be1395737198be07b84365574d279fb/part-04-keeper-intention.jpg",
+      "sha256": "b88f6105b2abd0922f7528e6cbaabc6f3be1395737198be07b84365574d279fb",
+      "mimeType": "image/jpeg",
+      "byteSize": 41644,
+      "width": 581,
+      "height": 645,
+      "alt": "The Keeper offers four large numbered choices, including Find me a game and Surprise me, plus a field for a custom response.",
+      "usedIn": [
+        "the-old-limitations-no-longer-apply-part-4"
+      ],
+      "addedAt": "2026-10-12T16:09:04.927Z"
     },
     {
       "id": "original-ascii-horse-race",

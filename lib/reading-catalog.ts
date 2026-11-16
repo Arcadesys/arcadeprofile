@@ -2,6 +2,7 @@ import { getAllGroups, getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { COLLECTION, COLLECTION_PATH, COLLECTION_TITLE } from '@/lib/collection';
 import { PORTFOLIO_WORKS } from '@/lib/portfolio';
 import { getAllProjectHubs } from '@/lib/projects';
+import { readingMinutes } from '@/lib/reader-discovery';
 import { buildGroupIntroUrl, buildPostUrl } from '@/lib/post-url';
 import { ZOO_CHAPTERS, ZOO_COLLECTION_PATH, ZOO_COLLECTION_TITLE } from '@/lib/zoo-collection';
 import type { ReadingPiece } from './reading-continuity';
@@ -13,7 +14,7 @@ const EDITION_BY_PATH: Record<string, string> = {
 
 const CURATED_PATHS: Record<string, readonly string[]> = {
   '/novels/it-takes-a-zoo/cold-boot': ['/this-is-what-i-do-for-fun/carl'],
-  '/novels/it-takes-a-zoo/failover': ['/this-is-what-i-do-for-fun/carl', '/this-is-what-i-do-for-fun/cleanup-on-pod-six'],
+  '/novels/it-takes-a-zoo/follower-count': ['/this-is-what-i-do-for-fun/carl', '/this-is-what-i-do-for-fun/cleanup-on-pod-six'],
   '/this-is-what-i-do-for-fun/parts-of-the-whole': ['/portfolio/gallery-view'],
 };
 
@@ -34,17 +35,17 @@ export async function getReadingCatalog(): Promise<ReadingPiece[]> {
     const isSerial = project?.format === 'serial';
     return [enrich({
       canonicalPath: buildPostUrl(location.groupSlug, post.slug), title: post.title,
-      contentType: project?.category === 'fiction' ? 'fiction' : 'essay', tags: post.tags, publishedAt: post.date,
+      contentType: project?.category === 'fiction' ? 'fiction' : 'essay', readingMinutes: readingMinutes(post.markdownBody), tags: post.tags, publishedAt: post.date,
       collection: isSerial && group ? { id: `project:${location.groupSlug}`, title: project?.title ?? group.title, path: buildGroupIntroUrl(location.groupSlug), position: location.partIndex, total: group.posts.length, status: project?.status === 'active' ? 'active' : 'complete' } : undefined,
     })];
   });
   const collectionPieces = COLLECTION.filter((story) => story.markdownBody).map((story, index, readable) => enrich({
-    canonicalPath: `${COLLECTION_PATH}/${story.slug}`, title: story.title, contentType: 'fiction',
+    canonicalPath: `${COLLECTION_PATH}/${story.slug}`, title: story.title, contentType: 'fiction', readingMinutes: readingMinutes(story.markdownBody ?? ''),
     collection: { id: 'this-is-what-i-do-for-fun', title: COLLECTION_TITLE, path: COLLECTION_PATH, position: index + 1, total: readable.length, status: 'complete' },
   }));
-  const portfolioPieces = PORTFOLIO_WORKS.map((work) => enrich({ canonicalPath: `/portfolio/${work.slug}`, title: work.title, contentType: 'fiction' }));
+  const portfolioPieces = PORTFOLIO_WORKS.map((work) => enrich({ canonicalPath: `/portfolio/${work.slug}`, title: work.title, contentType: 'fiction', readingMinutes: work.readingMinutes }));
   const zooPieces = ZOO_CHAPTERS.map((chapter) => enrich({
-    canonicalPath: chapter.path, title: chapter.title, contentType: 'chapter',
+    canonicalPath: chapter.path, title: chapter.title, contentType: 'chapter', readingMinutes: chapter.readingMinutes,
     collection: { id: 'it-takes-a-zoo', title: ZOO_COLLECTION_TITLE, path: ZOO_COLLECTION_PATH, position: chapter.order, total: ZOO_CHAPTERS.length, status: 'complete' },
   }));
   return [...projectPieces, ...collectionPieces, ...portfolioPieces, ...zooPieces];

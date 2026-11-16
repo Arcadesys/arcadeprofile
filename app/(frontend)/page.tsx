@@ -6,6 +6,7 @@ import FeaturedCollectionCard from '@/app/components/FeaturedCollectionCard';
 import { buildPostDiscoveryUrl } from '@/lib/post-canonical';
 import { getAllPosts, buildPostUrlMap } from '@/lib/blog';
 import { formatSiteDate } from '@/lib/site-time';
+import { WORK_RESUME_PDF_URL, WORK_RESUME_URL } from '@/lib/work-resume';
 import { ZOO_FEATURED_COLLECTION } from '@/lib/zoo-collection-meta';
 import { getReadingCatalog } from '@/lib/reading-catalog';
 import moxieHero480 from '@/public/images/moxie/moxie-sitting-text-gaze-480.webp';
@@ -77,8 +78,8 @@ export default async function HomePage() {
               Visit the work site <span aria-hidden="true">↗</span>
             </a>
             <p className={styles.entryPathMore}>
-              <Link href="/resume">Read the resume</Link>
-              <Link href="/resume/pdf">Download PDF</Link>
+              <a href={WORK_RESUME_URL}>Read the resume</a>
+              <a href={WORK_RESUME_PDF_URL}>Download PDF</a>
             </p>
           </li>
         </ul>

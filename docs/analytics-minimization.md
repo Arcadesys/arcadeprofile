@@ -1,5 +1,9 @@
 # Public analytics payload contract (issue 292)
 
+The proposed bounded engagement/request-stage extension is documented in [engagement and conversions](engagement-and-conversions.md), preserving this eligibility and privacy boundary.
+
+The pending `bounded_receipts_v1` transport/lifecycle extension is specified in [the session contract](posthog-session-contract.md#bounded-receipts-pending-release). It adds explicit public-page leave receipts and ephemeral receipt/pageview UUIDs, receiver-derived coarse native device/referrer fields, memory-only bounded retries/dedupe and DNT suppression. It does not enable autocapture, replay or person updates. Native bounce remains limited; production validation awaits a separately approved release.
+
 This is a code-only reduction of existing analytics. It installs no provider,
 changes no dashboard/configuration/retention, and makes no subscriber writes.
 Do not merge or deploy this draft as part of validation without approval.
@@ -15,7 +19,7 @@ Do not merge or deploy this draft as part of validation without approval.
 - The claimed event URL must independently match the production origin and an
   eligible public path. Contradictory submitted host/path fields are rejected.
 - `npm run build:analytics-manifest` generates deterministic, source-owned JSON
-  path and MFF-label manifests. Both `prebuild` and `predev` run it **before** the
+  public-path, reader-reporting and MFF-label manifests. Both `prebuild` and `predev` run it **before** the
   existing furry-history-board build. No dependency or lockfile change is needed.
 - Paths come from the static sitemap catalog, published Markdown posts and their
   nonempty groups, and published Lab case studies. Retained creative editions
@@ -54,8 +58,20 @@ The event names and units remain:
 - `$pageview`: one per mounted site path transition. Same-path query/hash changes
   do not add one; public A → B → A does. Strict Mode replay is deduplicated; a real
   remount is a fresh visit. This is a visit receipt, not a reader outcome.
+- `$pageleave`: one terminal public-visit receipt, with bounded elapsed/visible seconds and original public pathname, never the destination token/private URL. BFCache restoration starts a new visit. See the session contract for expiry/loss semantics.
 - `site link clicked`: each eligible link activation, safe internal public `href`
-  or the existing professional origin, `link_kind`, and `destination_host`.
+  or the existing professional origin, `link_kind`, and `destination_host`. The
+  exact reader page's same-origin `/pdf` action may additionally retain only
+  `destination_kind=public_pdf` and `conversion_stage=public_pdf_download_intent`;
+  the PDF route itself is intentionally omitted because PDF endpoints are not
+  pageview-eligible. A repeated sanitizer pass preserves this minimized pair only
+  with an internal same-host destination and an exact source path in the reader
+  manifest. This records a click, not a saved file.
+  homepage book buttons may additionally retain only `placement=home_hero` and
+  `destination_kind=amazon_kindle|amazon_paperback` when the source href is a
+  public Amazon `/dp/{ASIN}` link. The product path, query, fragment, and ASIN
+  are never retained.
+  Homepage internal sample, shelf and browse links may retain only the fixed `home_sample`, `home_shelf`, `home_browse` placements and `reading_navigation_intent`; no link text or arbitrary placement is retained. BUY → SIGN UP → READ, copy and styling are unchanged.
 - `reading-start`, `end-reached`, `onward-reading`, `resume-click` and
   `signup confirmation requested`: existing public `canonicalId`, content type,
   placement and safe destination. Keep `reader-end` completion placement and the
@@ -68,7 +84,7 @@ The event names and units remain:
   control/context is still deduped, unlike sitewide link clicks. An end marker
   means reaching the end, not comprehension. `signup-success` still goes to Vercel;
   its PostHog mapping remains `signup confirmation requested`, not verification,
-  Kit activation or delivery.
+  Resend subscription or delivery.
 - MFF retains `$pageview` receiver compatibility and its existing page, scroll,
   section, exhibit, link and sources events, under `mff_manifesto`. Scroll accepts
   only 25/50/75/90/100. Section/heading/exhibit/link labels must exactly match
@@ -82,19 +98,24 @@ The event names and units remain:
   MFF external hrefs are reduced to origin; internal hrefs to public paths.
   MFF still coexists with the sitewide receipt; do not sum the two surfaces.
 
-Valid existing UUIDv4 anonymous IDs keep their existing localStorage lifetime;
+Valid existing UUIDv4 pseudonymous IDs keep their existing localStorage lifetime;
 sitewide session/window UUIDs keep their sessionStorage lifetime. Invalid stored
 IDs are replaced using the same generator/scopes. MFF does **not** gain session
 IDs. Restored entry JSON is rebuilt through the allowlist and rewritten sanitized;
 invalid/missing entry data uses fresh safe context. Storage failures and analytics
 failures remain nonblocking. No cross-site identity joining is introduced.
 
+Report distinct IDs as pseudonymous browser IDs, never people or anonymous readers.
+The `end-reached` marker is an end-reached receipt, never a finished-read count.
+Use the catalog-derived reader cohort and UTC bounds in [the scorecard](./funnel-scorecard.md)
+when publishing aggregate reader reports.
+
 Unapproved properties, person updates, supplied raw user agent, unsafe restored
 context and raw URLs are excluded at these PostHog boundaries. Campaign validation
 is structural, not semantic PII detection: never put secrets or personal data in
 otherwise-valid campaign labels.
-Existing server-added raw user agent and sitewide GeoIP setting remain unchanged,
-as do provider inference/enrichment policies. This is minimization, not a claim
+Existing server-added raw user agent and sitewide GeoIP setting remain unchanged.
+The bounded receipt extension adds only receiver-derived coarse device type from that existing header and native referring-domain mapping from the already sanitized entry origin; it does not change provider settings. This is minimization, not a claim
 of anonymous or consent-free measurement. A future device/geo/ID policy change
 requires a separate explicit decision and comparability review.
 
@@ -132,8 +153,8 @@ receiver now consistently returns 502, as MFF already did.
 Expect fewer receipts when excluding preview/development/private/unknown traffic
 and removing duplicate Strict Mode effects. URL and external-link cardinality
 will shrink. Do not compare pre/post totals as growth without noting this boundary
-change. Existing first-party verified/Kit-active-ready aggregate counters and
-400-day retention are untouched; those outcomes remain separate from browser intent.
+change. First-party verification and Resend-subscribed-ready outcomes remain
+aggregate counters with 400-day retention; they stay separate from browser intent.
 
 Review the mocked fixtures and verify preview capture stays off before an approved
 release. After an independently approved deployment, permitted aggregate receipt

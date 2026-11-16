@@ -1,14 +1,18 @@
 import mffLabels from '@/data/analytics-mff-labels.json';
-import { ANALYTICS_ORIGIN, buildSiteAnalyticsContext, publicAnalyticsPath } from '@/lib/site-analytics';
+import readerPaths from '@/data/analytics-reader-paths.json';
+import { ANALYTICS_ORIGIN, buildSiteAnalyticsContext, isPublicReaderPdfDestination, publicAnalyticsPath } from '@/lib/site-analytics';
 import { VALID_SOURCES } from '@/lib/subscribe-types';
 import { POST_CANONICAL_EDITIONS } from '@/lib/post-canonical';
+import { isAnalyticsSessionId } from '@/lib/analytics-session';
+import { sanitizeEngagement } from '@/lib/reading-engagement';
 
 export type AnalyticsSurface = 'sitewide' | 'mff_manifesto';
 export type AnalyticsProperties = Record<string, string | number | boolean>;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const CAMPAIGN = /^[a-z0-9_-]{1,64}$/;
-const SITE_EVENTS = new Set(['$pageview', 'site link clicked', 'reading-start', 'end-reached', 'onward-reading', 'resume-click', 'signup confirmation requested']);
+const SITE_EVENTS = new Set(['$pageview', '$pageleave', 'site link clicked', 'reading-start', 'end-reached', 'onward-reading', 'resume-click', 'signup confirmation requested', 'signup request submitted', 'signup request failed', 'reading-engagement']);
 const MFF_EVENTS = new Set(['$pageview', 'mff page viewed', 'mff scroll reached', 'mff section viewed', 'mff exhibit viewed', 'mff link clicked', 'mff sources opened']);
+const READER_PATHS = new Set<string>(readerPaths);
 const READER_TYPES = new Set(['essay', 'fiction', 'chapter', 'reading-hub', 'subscription']);
 const READER_PLACEMENTS = new Set<string>([...VALID_SOURCES, 'reader-body', 'reader-end', 'next-chapter', 'recommended-reading', 'resume-banner']);
 
@@ -37,7 +41,10 @@ export function sanitizeEntryContext(value: unknown, surface: AnalyticsSurface =
   const referrer = safeOrigin(input.$referrer);
   if (referrer) {
     result.$referrer = referrer.origin;
-    if (surface === 'sitewide') result.referring_domain = referrer.hostname;
+    if (surface === 'sitewide') {
+      result.referring_domain = referrer.hostname;
+      result.$referring_domain = referrer.hostname;
+    }
   }
   const keys = surface === 'sitewide' ? ['source', 'medium', 'campaign', 'content', 'term'] : ['source', 'medium', 'campaign'];
   for (const key of keys) {
@@ -67,6 +74,7 @@ function safeDomain(value: unknown): string | null {
 /** External paths are unnecessary here; retain host/origin, internal public path only. */
 export function sanitizeAnalyticsLink(input: Record<string, unknown>, surface: AnalyticsSurface): AnalyticsProperties {
   const result: AnalyticsProperties = {};
+  if (surface === 'sitewide' && input.link_kind === 'contact') return { link_kind: 'contact', conversion_stage: 'contact_intent' };
   let url: URL | null = null;
   if (typeof input.href === 'string' && input.href.length <= 4096) {
     try { url = new URL(input.href, ANALYTICS_ORIGIN); } catch { /* omit invalid href */ }
@@ -86,6 +94,48 @@ export function sanitizeAnalyticsLink(input: Record<string, unknown>, surface: A
     }
   }
   if (!result.link_kind && surface === 'mff_manifesto') result.link_kind = 'other';
+  if (surface === 'sitewide' && result.destination_host === 'work.thearcades.me' && ['resume', 'resume_pdf'].includes(String(input.destination_kind))) {
+    result.destination_kind = String(input.destination_kind);
+    result.conversion_stage = input.destination_kind === 'resume_pdf' ? 'resume_download_intent' : 'resume_navigation_intent';
+  }
+  const purchaseKind = input.destination_kind;
+  const publicPurchaseUrl = typeof input.href === 'string' && /^https:\/\/www\.amazon\.com\/dp\/[A-Z0-9]{10}(?:[?#].*)?$/i.test(input.href);
+  const minimizedPurchase = input.href === undefined && input.link_kind === 'external' && input.destination_host === 'www.amazon.com';
+  if (surface === 'sitewide' && input.$pathname === '/' && result.destination_host === 'www.amazon.com' && input.placement === 'home_hero'
+    && ['amazon_kindle', 'amazon_paperback'].includes(String(purchaseKind))
+    && (publicPurchaseUrl || minimizedPurchase)) {
+    result.destination_kind = String(purchaseKind);
+    result.placement = 'home_hero';
+  }
+  // Reader PDF routes are deliberately outside pageview eligibility. Classify
+  // only an internal /pdf link whose parent is an exact allowlisted public page;
+  // never retain the route itself or claim that a file was saved.
+  const publicPdfPath = typeof input.href === 'string' && result.link_kind === 'internal'
+    ? (() => {
+      try {
+        const url = new URL(input.href, ANALYTICS_ORIGIN);
+        return isPublicReaderPdfDestination(input.$pathname, url.pathname, ANALYTICS_ORIGIN, url.origin) ? input.$pathname : null;
+      } catch { return null; }
+    })()
+    : null;
+  // After minimization, the fixed kind/stage and exact reader source remain
+  // sufficient for an idempotent second pass without retaining the PDF route.
+  const minimizedPublicPdf = input.href === undefined && input.link_kind === 'internal'
+    && result.destination_host === new URL(ANALYTICS_ORIGIN).hostname
+    && input.destination_kind === 'public_pdf'
+    && input.conversion_stage === 'public_pdf_download_intent'
+    && typeof input.$pathname === 'string' && READER_PATHS.has(input.$pathname)
+    && publicAnalyticsPath(input.$pathname) === input.$pathname;
+  if (surface === 'sitewide' && result.link_kind === 'internal' && (publicPdfPath || minimizedPublicPdf)) {
+    result.destination_kind = 'public_pdf';
+    result.conversion_stage = 'public_pdf_download_intent';
+  }
+  // Placement is an allowlisted public control label, never DOM/link text.
+  if (surface === 'sitewide' && input.$pathname === '/' && result.link_kind === 'internal'
+    && typeof result.href === 'string' && ['home_sample', 'home_shelf', 'home_browse'].includes(String(input.placement))) {
+    result.placement = String(input.placement);
+    result.conversion_stage = 'reading_navigation_intent';
+  }
   return result;
 }
 
@@ -128,13 +178,45 @@ export function sanitizeAnalyticsPayload(value: unknown, surface: AnalyticsSurfa
   if (input.$pathname !== undefined && publicAnalyticsPath(input.$pathname) !== context.pathname) return null;
   for (const key of ['hostname', '$host']) if (input[key] !== undefined && input[key] !== context.$host) return null;
   const properties: AnalyticsProperties = { ...sanitizeEntryContext(input, surface), ...context, hostname: context.$host, analytics_surface: surface };
+  // Old clients remain compatible. New receipts must supply the complete stable
+  // dedupe tuple, with an exact ISO timestamp (never silently replaced on retry).
+  let receipt: { uuid: string; timestamp: string } | undefined;
+  if (payload.uuid !== undefined || payload.timestamp !== undefined) {
+    if (!isAnalyticsId(payload.uuid) || typeof payload.timestamp !== 'string'
+      || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(payload.timestamp)) return null;
+    const time = Date.parse(payload.timestamp);
+    if (!Number.isFinite(time) || new Date(time).toISOString() !== payload.timestamp
+      || Math.abs(Date.now() - time) > 5 * 60_000) return null;
+    receipt = { uuid: payload.uuid, timestamp: payload.timestamp };
+    properties.collection_version = 'bounded_receipts_v1';
+  }
   if (surface === 'sitewide') {
-    for (const key of ['$session_id', '$window_id']) if (isAnalyticsId(input[key])) properties[key] = input[key];
-    if (payload.event === 'site link clicked') Object.assign(properties, sanitizeAnalyticsLink(input, surface));
-    else if (payload.event !== '$pageview') {
+    // Preserve legacy receipts during rollout without changing visitor IDs.
+    for (const key of ['$session_id', '$window_id']) if (isAnalyticsId(input[key]) || isAnalyticsSessionId(input[key])) properties[key] = input[key];
+    properties.session_model = isAnalyticsSessionId(input.$session_id) ? 'tab_uuidv7_v2' : 'legacy_v1';
+    if (isAnalyticsId(input.$pageview_id)) properties.$pageview_id = input.$pageview_id;
+    if (payload.event === 'site link clicked') Object.assign(properties, sanitizeAnalyticsLink({ ...input, $pathname: context.pathname }, surface));
+    else if (payload.event === '$pageleave') {
+      if (!isAnalyticsId(input.$pageview_id) || !isAnalyticsSessionId(input.$session_id)
+        || !['navigation', 'unmount', 'pagehide'].includes(String(input.lifecycle_reason))
+        || typeof input.$prev_pageview_duration !== 'number' || !Number.isFinite(input.$prev_pageview_duration)
+        || input.$prev_pageview_duration < 0 || input.$prev_pageview_duration >= 1800
+        || typeof input.visible_seconds !== 'number' || !Number.isInteger(input.visible_seconds)
+        || input.visible_seconds < 0 || input.visible_seconds > input.$prev_pageview_duration) return null;
+      Object.assign(properties, { $prev_pageview_id: input.$pageview_id, $prev_pageview_pathname: context.pathname,
+        $prev_pageview_duration: input.$prev_pageview_duration, visible_seconds: input.visible_seconds,
+        lifecycle_reason: input.lifecycle_reason as string });
+    } else if (payload.event !== '$pageview') {
       const reader = sanitizeReaderProperties(input);
       if (!reader) return null;
       Object.assign(properties, reader);
+      if (payload.event === 'reading-engagement') {
+        const metrics = sanitizeEngagement(input);
+        if (!metrics || reader.canonicalId !== context.pathname) return null;
+        Object.assign(properties, metrics);
+      }
+      if (payload.event.startsWith('signup ')) properties.conversion_stage = payload.event === 'signup confirmation requested'
+        ? 'verification_request_accepted' : payload.event === 'signup request submitted' ? 'request_intent' : 'request_failed';
     }
   } else {
     const addLabel = (key: keyof typeof mffLabels) => {
@@ -151,5 +233,5 @@ export function sanitizeAnalyticsPayload(value: unknown, surface: AnalyticsSurfa
       case 'mff link clicked': Object.assign(properties, sanitizeAnalyticsLink(input, surface)); addLabel('label'); addLabel('section'); break;
     }
   }
-  return { event: payload.event, distinct_id: payload.distinct_id, properties };
+  return { event: payload.event, distinct_id: payload.distinct_id, properties, ...receipt };
 }

@@ -1,0 +1,23 @@
+{
+  "sourceRepository": "https://github.com/Arcadesys/message-in-a-bottle",
+  "sourceCommit": "3a0cee67afcfda85b736f85186560a634759d744",
+  "guidePath": "/toys/message-in-a-bottle/guide.html",
+  "images": {
+    "chicago-snowglobe.webp": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/c27d67a975531691181382d40f8880d28ace40c941551e76021ee38be37b387b/chicago-snowglobe.webp",
+    "thompson-maze.webp": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/0ef1a7e0266b68f228f7bd14ef145f7cd9562b1ade3ea945c9ea056f6b6d0a79/thompson-maze.webp",
+    "primordial-archipelago.webp": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/4953ba72c207071736ae206375630608536159bf4a62bf0c072f0fddb9f52228/primordial-archipelago.webp",
+    "savage-worlds-fan.png": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/images/3a54347241721cff5891cde5a38cbfff54aeeb76257136b774948b81ccf9dd76/savage-worlds-fan.png"
+  },
+  "download": {
+    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/downloads/63275c520af61b31d03786e1000b251f7f63eb5dbf165d80039ef6d7b71183c8/message-in-a-bottle-illustrated-guide.zip",
+    "sha256": "63275c520af61b31d03786e1000b251f7f63eb5dbf165d80039ef6d7b71183c8",
+    "byteSize": 2862286
+  },
+  "sourceFiles": {
+    "index.html": "ef9c31166c741002f374bbbb9478a2069c2e8e68dd1ba1206c37ff31b1a5f2af",
+    "styles.css": "437c1b444e80ab6c2085e82f9695a324311d8b32cfe7f895d8515f6e296178bf",
+    "script.js": "8d4445d3d7b54ff7ba0300ae3d618003a0bda4547818eb75b7d96572ed4fc02d",
+    "encounters.md": "22f99533922ec2aae625816b5025e1183017ccd73a0236ee23cfecbe1a118cc9",
+    "stat-blocks.md": "798128a237785483488884410b13496a0621e92ad54ce7e6bfe4879c47cb5698"
+  }
+}

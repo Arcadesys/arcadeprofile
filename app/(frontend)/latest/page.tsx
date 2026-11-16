@@ -124,7 +124,7 @@ export default async function LatestPage() {
           source="latest"
           audiences={['all']}
           updateMode="add"
-          magnet="story"
+          magnet="subscriber-exclusive"
           presentation="compact"
           submitLabel="Send me new work"
         />

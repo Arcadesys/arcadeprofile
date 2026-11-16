@@ -1,13 +1,17 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 
+import BookActions from '@/app/components/BookActions';
+import { getBook } from '@/data/books';
 import { SITE_NAME } from '@/lib/site-brand';
+import SubscriptionForm from '@/app/components/SubscriptionForm';
 
 import styles from './estelles-children.module.css';
 
+const book = getBook('estelles-children')!;
 const title = "Estelle's Children";
-const description =
-  'A preview of a novel told as an archive: a Chicago witch’s parlor, a growing sisterhood, and the records of a family history.';
+const description = book.description;
 const path = '/novels/estelles-children';
 
 export const metadata: Metadata = {
@@ -32,22 +36,17 @@ export default function EstellesChildrenPreviewPage() {
         </nav>
 
         <header className={styles.header}>
+          {book.coverImage ? <Image className={styles.cover} src={book.coverImage} alt={book.coverAlt ?? `Cover of ${title}.`} width={900} height={1440} sizes="(max-width: 700px) 200px, 280px" priority /> : null}
           <p className={styles.eyebrow}>A novel · preview</p>
           <h1>{title}</h1>
-          <p className={styles.lede}>
-            A Chicago witch’s parlor opens onto a sisterhood, recorded through oral histories,
-            letters, journals, photographs, and the people who carry a family history forward.
-          </p>
+          <p className={styles.lede}>{book.editionNote}</p>
+          <BookActions book={book} purchaseOnly placement="estelle_preview" />
+          <p className={styles.lede}>{book.synopsis?.[0]}</p>
         </header>
 
         <section aria-labelledby="about-heading" className={styles.section}>
           <h2 id="about-heading">About this book</h2>
-          <p>
-            In Ravenswood, Lady Estelle Extravaganza welcomes trans folk who come to her magic
-            parlor looking for shelter, understanding, and a way forward. The story takes the shape
-            of an archive: a family history assembled from interviews and the records people leave
-            with one another.
-          </p>
+          {book.synopsis?.slice(1).map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         </section>
 
         <section aria-labelledby="preview-heading" className={styles.note}>
@@ -56,6 +55,17 @@ export default function EstellesChildrenPreviewPage() {
             This page is an introduction to <em>Estelle&apos;s Children</em>. It does not include the
             full book or a download.
           </p>
+        </section>
+
+        <section aria-labelledby="opening-heading" className={styles.section}>
+          <h2 id="opening-heading">Read the opening story first</h2>
+          <SubscriptionForm
+            source="novel-preview"
+            audiences={['fiction']}
+            updateMode="add"
+            magnet="subscriber-exclusive"
+            submitLabel="Send me Broomsticks"
+          />
         </section>
 
         <p className={styles.backLink}><Link href="/start">Explore more writing and projects</Link></p>

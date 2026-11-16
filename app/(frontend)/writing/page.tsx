@@ -13,11 +13,11 @@ import styles from './writing.module.css';
 const description = 'Fiction, essays, and a bookshelf of published work by Austen Tucker.';
 
 export const metadata: Metadata = {
-  title: 'Writing',
+  title: 'Read',
   description,
   alternates: { canonical: '/writing' },
-  openGraph: { type: 'website', title: `Writing | ${SITE_NAME}`, description, url: '/writing', images: [DEFAULT_SOCIAL_IMAGE] },
-  twitter: { card: 'summary_large_image', title: `Writing | ${SITE_NAME}`, description, images: [DEFAULT_SOCIAL_IMAGE.url] },
+  openGraph: { type: 'website', title: `Read | ${SITE_NAME}`, description, url: '/writing', images: [DEFAULT_SOCIAL_IMAGE] },
+  twitter: { card: 'summary_large_image', title: `Read | ${SITE_NAME}`, description, images: [DEFAULT_SOCIAL_IMAGE.url] },
 };
 
 const doors = [
@@ -33,7 +33,7 @@ export default async function WritingPage() {
   return (
     <main className={styles.main}>
       <header className={styles.header}>
-        <h1>Writing</h1>
+        <h1>Read</h1>
         <span>Fiction, essays, and the work that led here.</span>
       </header>
       <ContinueReadingBanner availablePaths={catalog.map((piece) => piece.canonicalPath)} />

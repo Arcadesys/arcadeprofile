@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reaction Stickers prompt grid</title>
+  <style>
+    :root { color-scheme: light dark; font: 20px/1.45 system-ui, sans-serif; --page:#f5f7f1; --card:#fff; --ink:#173128; --muted:#37534a; --line:#6c8a7c; --accent:#164b39; --selected:#dcefe2; --focus:#a84616; --error:#a42c1f; }
+    @media (prefers-color-scheme:dark) { :root { --page:#12221c; --card:#1b3027; --ink:#f2f9f1; --muted:#d0e5d7; --line:#a5c1b0; --accent:#bcf0d1; --selected:#2e5140; --focus:#ffbc71; --error:#ffb8ae; } }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--page); color:var(--ink); }
+    main { max-width:860px; margin:auto; padding:clamp(16px,3vw,28px); }
+    h1 { font-size:clamp(1.8rem,5vw,2.4rem); line-height:1.1; margin:0 0 .5rem; }
+    h2 { font-size:1.25rem; line-height:1.25; margin:0 0 .75rem; }
+    p { margin:.5rem 0 1rem; }
+    .intro { max-width:48rem; }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; align-items:start; }
+    .panel { min-width:0; background:var(--card); border:2px solid var(--line); border-radius:16px; padding:clamp(16px,2.5vw,24px); }
+    fieldset { border:0; margin:0 0 1rem; padding:0; min-width:0; }
+    legend { font-size:1.1rem; font-weight:800; margin:0 0 .55rem; }
+    label { display:block; font-weight:700; margin:.5rem 0; }
+    .choice { display:flex; align-items:center; gap:12px; min-height:54px; padding:10px; border:2px solid var(--line); border-radius:10px; cursor:pointer; }
+    .choice:has(input:checked) { background:var(--selected); border-color:var(--accent); }
+    input[type=radio], input[type=checkbox] { width:26px; height:26px; flex:none; accent-color:var(--accent); }
+    input[type=text], textarea { display:block; width:100%; border:2px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); font:inherit; padding:12px; }
+    input[type=text] { min-height:52px; }
+    textarea { min-height:100px; resize:vertical; }
+    #prompt { min-height:185px; font-size:.85rem; }
+    .hint { color:var(--muted); font-size:.9rem; }
+    .error { color:var(--error); font-weight:700; }
+    button, .button { display:inline-flex; align-items:center; justify-content:center; min-height:52px; padding:10px 16px; border-radius:10px; border:2px solid var(--accent); background:var(--accent); color:var(--page); font:700 .95rem/1.2 system-ui,sans-serif; text-decoration:none; cursor:pointer; }
+    button.secondary { background:transparent; color:var(--ink); }
+    button:disabled { opacity:.6; cursor:not-allowed; }
+    :focus-visible { outline:4px solid var(--focus); outline-offset:3px; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin:16px 0 4px; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; list-style:none; counter-reset:reaction; padding:0; margin:0 0 20px; }
+    .grid li { counter-increment:reaction; padding:10px; background:var(--selected); border:1px solid var(--line); border-radius:8px; font-weight:800; overflow-wrap:anywhere; }
+    .grid li:before { content:counter(reaction) '. '; font-weight:500; }
+    .status { min-height:1.5em; font-weight:700; }
+    a { color:var(--accent); text-underline-offset:3px; }
+    @media (max-width:680px) { .layout { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Make a reaction sheet</h1>
+  <p class="intro">Choose a character and ten feelings. Your prompt stays here until you send or copy it. Image generation happens in your chat.</p>
+  <div class="layout">
+    <form id="options" class="panel">
+      <fieldset><legend>1. Character</legend>
+        <label class="choice"><input type="radio" name="character" value="reference" checked> My own reference</label>
+        <label class="choice"><input type="radio" name="character" value="robot"> Example robot</label>
+      </fieldset>
+      <p id="character-help" class="hint">Attach your character reference in chat before generating.</p>
+      <p id="robot-download" hidden><a href="__ROBOT_URL__" target="_blank" rel="noopener noreferrer">Open the robot reference sheet</a></p>
+      <label for="notes">Character details or changes (optional)</label>
+      <textarea id="notes" rows="3" maxlength="1000" placeholder="Keep the purple jacket; make the poses dramatic."></textarea>
+      <fieldset><legend>2. Reactions</legend>
+        <label for="reactions">Ten reactions, one per line (optional)</label>
+        <p id="reactions-help" class="hint">Leave blank for the everyday set shown here.</p>
+        <textarea id="reactions" rows="5" maxlength="810" aria-describedby="reactions-help reactions-error" placeholder="HELLO&#10;LOVE&#10;LAUGH&#10;…"></textarea>
+        <p id="reactions-error" class="error" role="status"></p>
+        <label class="choice"><input id="labels" type="checkbox" checked> Include large text labels</label>
+      </fieldset>
+      <fieldset><legend>3. Finish</legend>
+        <label class="choice"><input type="radio" name="finish" value="preview" checked> JPG preview sheet</label>
+        <label class="choice"><input type="radio" name="finish" value="telegram"> Telegram sticker set after review</label>
+        <div id="telegram-options" hidden>
+          <label for="pack-title">Pack title (optional)</label>
+          <input id="pack-title" type="text" maxlength="64" placeholder="Robot Reactions">
+          <p class="hint">The prompt asks for separate PNGs. Publishing happens through the <a href="https://www.thearcades.me/reaction-stickers/publish.html" target="_blank" rel="noopener noreferrer">Telegram publisher</a> after you review them.</p>
+        </div>
+      </fieldset>
+      <button type="reset" class="secondary">Reset choices</button>
+    </form>
+    <section class="panel" aria-labelledby="sheet-title">
+      <h2 id="sheet-title">Your ten reactions</h2>
+      <ol id="reaction-list" class="grid" aria-label="Reactions in reading order"></ol>
+      <h2>Ready-to-use prompt</h2>
+      <label for="prompt">Review before sending</label>
+      <textarea id="prompt" rows="8" readonly spellcheck="false"></textarea>
+      <div class="actions">
+        <button type="button" id="send">Send prompt to chat</button>
+        <button type="button" id="copy" class="secondary">Copy prompt</button>
+      </div>
+      <p id="status" class="status" role="status">Attach your reference in chat before asking for the sheet.</p>
+      <p class="hint">The prompt builder does not upload images or publish a Telegram set.</p>
+    </section>
+  </div>
+</main>
+<!-- INLINE_SCRIPTS -->
+</body>
+</html>

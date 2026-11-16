@@ -18,7 +18,8 @@ export type DiscoveryReadingItem = {
   };
 };
 
-function readingMinutes(text: string, wordsPerMinute = 225): number {
+/** Whole minutes to read `text`, never below one. Shared with the reading catalog. */
+export function readingMinutes(text: string, wordsPerMinute = 225): number {
   return Math.max(1, Math.ceil(text.trim().split(/\s+/).filter(Boolean).length / wordsPerMinute));
 }
 
@@ -92,6 +93,43 @@ export async function getStartReadingShelf(): Promise<readonly DiscoveryReadingI
         width: 1024,
         height: 1536,
       },
+    },
+  ];
+}
+
+/** Three homepage picks: one free TIWIDFF story, Cold Boot, and a public essay. */
+export async function getHomeReadingPicks(): Promise<readonly DiscoveryReadingItem[]> {
+  const [posts, locations] = await Promise.all([getAllPosts(), buildPostUrlMap()]);
+  const carl = COLLECTION.find((story) => story.slug === 'carl' && story.markdownBody);
+  const coldBoot = getZooChapter('cold-boot');
+  const essay = posts.find((post) => post.slug === 'rabies-capitalism');
+  if (!carl?.markdownBody || !coldBoot || !essay?.hero) {
+    throw new Error('A required homepage reading pick is missing.');
+  }
+  const location = locations.get(essay.slug);
+  if (!location) throw new Error('The homepage essay pick is missing its public route.');
+
+  return [
+    {
+      title: carl.title,
+      description: carl.description,
+      href: `${COLLECTION_PATH}/${carl.slug}`,
+      readingMinutes: readingMinutes(carl.markdownBody),
+      kind: 'fiction',
+    },
+    {
+      title: coldBoot.title,
+      description: coldBoot.description,
+      href: coldBoot.path,
+      readingMinutes: coldBoot.readingMinutes,
+      kind: 'fiction',
+    },
+    {
+      title: essay.title,
+      description: essay.excerpt,
+      href: buildPostUrl(location.groupSlug, essay.slug),
+      readingMinutes: readingMinutes(essay.markdownBody),
+      kind: 'essay',
     },
   ];
 }

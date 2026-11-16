@@ -11,11 +11,19 @@ test('Vercel preserves Next-generated routing and redirects', () => {
   assert.equal(config.routes, undefined);
 });
 
-test('Next exposes standalone demos at their public URLs', async () => {
+test('Next exposes the public MCP proxy and standalone demos at their public URLs', async () => {
   const configModule = await import('../next.config.mjs');
   const rewrites = await configModule.default.rewrites?.();
 
   assert.deepEqual(rewrites, [
+    {
+      source: '/mcp',
+      destination: 'https://arcades-public-mcp.vercel.app/mcp',
+    },
+    {
+      source: '/heinlein',
+      destination: '/heinlein/index.html',
+    },
     {
       source: '/reaction-stickers',
       destination: '/reaction-stickers/index.html',

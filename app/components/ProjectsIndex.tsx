@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import SubscriptionForm from '@/app/components/SubscriptionForm';
 import { todayInSiteTz } from '@/lib/site-time';
 import styles from './ProjectsIndex.module.css';
 
@@ -109,11 +108,17 @@ export default function ProjectsIndex({ entries, pulse, weekCount, writingNow }:
         <div>
           <div className={styles.eyebrow}>Vol. III &middot; 2026 &middot; perpetually under construction</div>
           <h1 className={styles.title}>
-            An index of <em>in-progress things</em>.
+            Things I&rsquo;m building <em>in public</em>
           </h1>
           <p className={styles.lede}>
-            Fiction, essays, tools, and audio-visual experiments &mdash; collected as project hubs. Listed by recent activity. The last few drops are shown under each.
+            I&rsquo;m Austen Tucker. I write novels and build with AI, and this page tracks what&rsquo;s in progress.
           </p>
+          <div className={styles.startHere}>
+            <Link className={styles.startButton} href="/projects/the-singularity-log">
+              Start with The Singularity Log <span aria-hidden="true">→</span>
+            </Link>
+            <a className={styles.browseLink} href="#project-index">Or browse everything below</a>
+          </div>
         </div>
         <div className={styles.headMeta}>
           <span>{counts.all} {counts.all === 1 ? 'entry' : 'entries'}</span>
@@ -127,7 +132,6 @@ export default function ProjectsIndex({ entries, pulse, weekCount, writingNow }:
 
       <nav className={styles.sectionDoors} aria-label="Build sections">
         {[
-          { title: 'Projects', description: 'Current and archived builds', href: '#project-index', image: 'projects' },
           { title: 'Case studies', description: 'How the work was made', href: '/lab', image: 'case-studies' },
           { title: 'Portfolio', description: 'Selected finished pieces', href: '/portfolio', image: 'portfolio' },
           { title: 'Toys', description: 'Playable experiments', href: '/toys', image: 'toys' },
@@ -293,15 +297,6 @@ export default function ProjectsIndex({ entries, pulse, weekCount, writingNow }:
         </section>
       ) : null}
 
-      <section className={styles.subscribe} id="subscribe">
-        <SubscriptionForm
-          source="project-hub"
-          audiences={['lab']}
-          updateMode="add"
-          magnet="story"
-          submitLabel="Send me build notes"
-        />
-      </section>
     </main>
   );
 }

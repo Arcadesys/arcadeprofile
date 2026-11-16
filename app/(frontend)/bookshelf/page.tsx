@@ -1,14 +1,10 @@
 import type { Metadata } from 'next';
 import { SITE_NAME } from '@/lib/site-brand';
-import Image, { type StaticImageData } from 'next/image';
+import Image from 'next/image';
 import Link from 'next/link';
 import FreePlayColophon from '@/app/components/FreePlayColophon';
 import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
-import { ZOO_COLLECTION_DESCRIPTION, ZOO_COLLECTION_PATH, ZOO_COLLECTION_TITLE, ZOO_FEATURED_COLLECTION, ZOO_HERO } from '@/lib/zoo-collection-meta';
-import paintedCatCover from '@/public/images/books/thepaintedcat.jpg';
-import fuzzyPlaceCover from '@/public/images/books/afuzzyplace.jpg';
-import baitAndSwitchCover from '@/public/images/books/baitandswitch.jpg';
-import estellesChildrenCover from '@/public/images/books/estelleschildren.jpg';
+import { BOOKS, bookPath, bookStatusLabel } from '@/data/books';
 
 import styles from './bookshelf.module.css';
 
@@ -33,80 +29,6 @@ export const metadata: Metadata = {
   },
 };
 
-type Book = {
-  title: string;
-  /** Shown after the kind: a publication year, or where the book stands. */
-  status: string;
-  kind: string;
-  publisher?: string;
-  description?: string;
-  cover?: StaticImageData | { src: string; width: number; height: number };
-  contents?: string;
-  /** Hrefs starting with "/" are pages on this site. */
-  links: { label: string; href: string }[];
-};
-
-const BOOKS: Book[] = [
-  {
-    title: ZOO_COLLECTION_TITLE,
-    status: 'Read online',
-    kind: 'Novel-in-stories',
-    description: ZOO_COLLECTION_DESCRIPTION,
-    cover: { src: ZOO_HERO.url, width: ZOO_HERO.width, height: ZOO_HERO.height },
-    links: [
-      { label: 'Explore the collection', href: ZOO_COLLECTION_PATH },
-      { label: 'Begin with Cold Boot', href: ZOO_FEATURED_COLLECTION.firstChapterPath },
-    ],
-  },
-  {
-    title: "Estelle's Children",
-    status: 'Preview',
-    kind: 'Novel',
-    cover: estellesChildrenCover,
-    description: 'A novel told as an archive: a Chicago witch’s parlor, a growing sisterhood, and the records of a family history.',
-    links: [{ label: 'Read the preview', href: '/novels/estelles-children' }],
-  },
-  {
-    title: 'The Painted Cat',
-    status: '2015',
-    kind: 'Novel',
-    publisher: 'Argyll Productions / FurPlanet',
-    cover: paintedCatCover,
-    links: [
-      { label: 'FurPlanet', href: 'https://furplanet.com/shop/item.aspx?itemid=778' },
-      { label: 'Amazon', href: 'https://www.amazon.com/Painted-Cat-Austen-Crowder-ebook/dp/B00XGSJIKQ' },
-      { label: 'WikiFur', href: 'https://en.wikifur.com/wiki/The_Painted_Cat' },
-      { label: 'Review by Fred Patten', href: 'https://dogpatch.press/2015/07/22/the-painted-cat-by-austen-crowder-book-review-by-fred-patten/' },
-    ],
-  },
-  {
-    title: 'A Fuzzy Place: Short Stories from a Life Shaped by Furry Subculture',
-    status: '2013',
-    kind: 'Short story collection',
-    cover: fuzzyPlaceCover,
-    contents: 'Our Hope Chest; Dances; Counsel; Uploading; Parts of the Whole; Part and Parcel; The Day I Split in Two; Austen Writes Her Furry Story.',
-    links: [
-      { label: 'Amazon', href: 'https://www.amazon.com/Fuzzy-Place-Stories-Shaped-Subculture-ebook/dp/B00H7K7EYQ' },
-      { label: 'Goodreads', href: 'https://www.goodreads.com/author/show/4509394.Austen_Crowder' },
-    ],
-  },
-  {
-    title: 'Bait and Switch',
-    status: '2010',
-    kind: 'Novel',
-    publisher: 'Anthropomorphic Dreams Publishing',
-    cover: baitAndSwitchCover,
-    links: [
-      { label: 'Amazon (paperback)', href: 'https://www.amazon.com/Bait-Switch-Austen-Crowder/dp/145631890X' },
-      { label: 'Kindle', href: 'https://www.amazon.com/Bait-Switch-Austen-Crowder-ebook/dp/B004XD9WZO' },
-      { label: 'Lulu', href: 'https://www.lulu.com/shop/austen-crowder/bait-and-switch/paperback/product-13579576.html' },
-      { label: 'Goodreads', href: 'https://www.goodreads.com/book/show/9902962-bait-and-switch' },
-      { label: 'B&N', href: 'https://www.barnesandnoble.com/w/bait-and-switch-austen-crowder/1029404749' },
-      { label: 'Publisher announcement', href: 'http://www.anthrodreams.com/wordpress/2010/11/28/bait-and-switch/' },
-    ],
-  },
-];
-
 function Ext({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <a href={href} target="_blank" rel="noopener noreferrer">
@@ -121,7 +43,7 @@ export default function BookshelfPage() {
       <header className={styles.header}>
         <h1>Bookshelf</h1>
         <p>
-New books in progress on this site, and external publishing under three names from 2005 to
+Every book, and external publishing under three names from 2005 to
           the present — novels, short fiction, poetry, essays, and the occasional live performance. Pen names are grouped openly because the
           underlying author is the same person and that fact is already public.
         </p>
@@ -132,25 +54,20 @@ New books in progress on this site, and external publishing under three names fr
         <h2 id="bookshelf-books-heading">Books</h2>
         <ul>
           {BOOKS.map((book) => (
-            <li key={book.title}>
-              {book.cover
-                ? <Image className={styles.cover} src={book.cover} alt={`Cover of ${book.title}`} sizes="(max-width: 720px) 60vw, 240px" />
+            <li key={book.slug}>
+              {book.coverImage
+                ? <Image className={styles.cover} src={book.coverImage} alt={book.coverAlt ?? `Cover of ${book.title}.`} width={600} height={900} sizes="(max-width: 720px) 60vw, 240px" />
                 : <div className={styles.coverPlaceholder} aria-hidden="true"><span>{book.title}</span></div>}
               <div className={styles.bookCopy}>
-                <p className={styles.bookMeta}>{book.kind} · {book.status}</p>
-                <h3>{book.title}</h3>
+                <p className={styles.bookMeta}>{book.format ?? 'Book'} · {bookStatusLabel(book)}</p>
+                <h3><Link href={bookPath(book)}>{book.title}</Link></h3>
                 {book.publisher ? <p className={styles.bookPublisher}>{book.publisher}</p> : null}
-                {book.description ? <p className={styles.bookPublisher}>{book.description}</p> : null}
-                {book.contents ? <p className={styles.note}>Contains: {book.contents}</p> : null}
-                <p className={styles.bookLinks}>
-                  {book.links.map((link) => link.href.startsWith('/')
-                    ? <Link key={link.href} href={link.href}>{link.label}</Link>
-                    : <Ext key={link.href} href={link.href}>{link.label}</Ext>)}
-                </p>
+                <p className={styles.bookPublisher}>{book.description}</p>
               </div>
             </li>
           ))}
         </ul>
+        <p className={styles.shelfMore}><Link href="/books">Buy links and full details on the Books page <span aria-hidden="true">→</span></Link></p>
       </section>
 
       <section className={styles.group}>

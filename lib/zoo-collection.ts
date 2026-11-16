@@ -18,6 +18,7 @@ export {
   ZOO_COLLECTION_TITLE,
   ZOO_HERO,
   ZOO_HERO_ALT,
+  ZOO_COMPLETE_EDITION_CHAPTER_COUNT,
 } from '@/lib/zoo-collection-meta';
 
 const frontmatterSchema = z.object({
@@ -37,6 +38,7 @@ const expected = [
   ['soft-reset', 'Soft Reset'],
   ['open-port', 'Open Port'],
   ['failover', 'Failover'],
+  ['follower-count', 'Follower Count'],
 ] as const;
 
 type Asset = { url: string; sha256: string; bytes: number };

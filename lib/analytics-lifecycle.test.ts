@@ -26,7 +26,9 @@ function observerMock(t: TestContext) {
 
 function captureMock(t: TestContext) {
   const sent: { event: string; properties: Record<string, unknown> }[] = [];
-  t.mock.method(globalThis, 'fetch', async (_url: string, init: RequestInit) => { sent.push(JSON.parse(String(init.body))); return new Response('{}'); });
+  // These original contracts count views/reader actions; terminal pageleaves
+  // have their own lifecycle coverage below and must not change those units.
+  t.mock.method(globalThis, 'fetch', async (_url: string, init: RequestInit) => { const value = JSON.parse(String(init.body)); if (value.event !== '$pageleave') sent.push(value); return new Response('{}'); });
   return sent;
 }
 
@@ -45,6 +47,25 @@ test('site pageviews are once per path transition, including mocked back/forward
   await render('/subscribe/verify#token'); await render('/stories');
   await render('/stories', 'real-remount');
   assert.equal(sent.length, 6);
+  await act(async () => root.unmount());
+});
+
+test('reader participation preserves matching content/page identity in either effect order', async (t) => {
+  const path = '/novels/it-takes-a-zoo/cold-boot';
+  analyticsBrowser(t, `${path}?utm_campaign=analytics-verification`, '<div id="root"></div>');
+  const sent = captureMock(t);
+  observerMock(t);
+  const root = createRoot(document.getElementById('root')!);
+  for (const readerFirst of [true, false]) {
+    const reader = h(ReaderTelemetry, { key: 'reader', canonicalId: path, contentType: 'chapter', placement: 'reader-body', destination: 'none', children: 'Public body' });
+    const page = h(PostHogAnalytics, { key: 'page' });
+    await act(async () => root.render(h(PathnameContext.Provider, { value: path }, h('div', { key: String(readerFirst) }, ...(readerFirst ? [reader, page] : [page, reader])))));
+    const pair = sent.slice(-2);
+    assert.deepEqual(pair.map(value => value.event), readerFirst ? ['reading-start', '$pageview'] : ['$pageview', 'reading-start']);
+    assert.ok(pair.every(value => value.properties.pathname === path && value.properties.utm_campaign === 'analytics-verification'));
+    assert.equal(pair[0].properties.$session_id, pair[1].properties.$session_id);
+    assert.equal(pair.find(value => value.event === 'reading-start')?.properties.canonicalId, path);
+  }
   await act(async () => root.unmount());
 });
 

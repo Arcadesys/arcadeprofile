@@ -1,0 +1,134 @@
+/*
+ * PieceBar: a slim bar that stays in view once the piece's title has scrolled
+ * away. It is position: fixed, so it never takes space in the flow and showing
+ * or hiding it cannot shift content. Hidden means visibility: hidden, moved
+ * up out of its own box, with pointer events off (and inert in the markup).
+ *
+ * Layers: page, this bar (30), series drawer scrim (39), drawer (40/41),
+ * site navigation (100), which this bar sits directly beneath.
+ */
+.bar {
+  position: fixed;
+  top: var(--navbar-height);
+  right: 0;
+  left: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: 52px 4px;
+  align-items: center;
+  column-gap: var(--space-4);
+  padding: 0 var(--space-4);
+  border-bottom: 1px solid var(--console-border);
+  background: #09090a;
+  transform: translateY(-100%);
+  visibility: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: transform 0.18s ease, opacity 0.18s ease, visibility 0s linear 0.18s;
+}
+
+.bar[data-visible="true"] {
+  transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto;
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+.back {
+  display: inline-flex;
+  max-width: 40vw;
+  min-width: 44px;
+  min-height: 52px;
+  align-items: center;
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.backLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--fg);
+  text-shadow: none;
+}
+
+.title {
+  overflow: hidden;
+  color: var(--fg);
+  font-size: 1rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status {
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.track {
+  grid-column: 1 / -1;
+  height: 4px;
+  margin-inline: calc(var(--space-4) * -1);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  background: var(--cyan);
+}
+
+/* The site bar is 86px tall and sticky at the top: sit directly under it. The
+   rail-width variable can still be 56px here (collapsed preference), so the
+   left edge is reset explicitly. */
+@media (max-width: 960px), (max-height: 700px) {
+  .bar {
+    top: 86px;
+    left: 0;
+  }
+}
+
+/* Phones: the back link and the position matter most, so the title gives way
+   rather than squeezing both. */
+@media (max-width: 560px) {
+  .bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-3);
+  }
+
+  .title {
+    display: none;
+  }
+
+  .status {
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+}
+
+html[data-motion="calm"] .bar {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    transition: none;
+  }
+}

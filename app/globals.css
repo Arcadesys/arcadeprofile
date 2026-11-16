@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 
 /* ── Fonts ──────────────────────────────────────────────── */
 @font-face {
@@ -1436,53 +1435,6 @@ html[data-reading-width] .portfolio-index {
   .dd-intro-main.has-drawer, .dd-post-main.has-drawer { margin-left: auto; margin-right: auto; padding-inline: 1.5rem; }
 }
 
-/* ActiveCampaign form 7: preserve the account-owned form while repairing the
-   generated embed for large text, high contrast, visible focus, and touch. */
-.activecampaign-form {
-  width: min(100%, 680px);
-  margin: 3rem 0 0;
-  overflow-wrap: anywhere;
-}
-.activecampaign-form--compact {
-  margin-top: 0;
-}
-.activecampaign-form ._form_7 {
-  width: 100%;
-  max-width: 100%;
-}
-.activecampaign-form form._form_7,
-.activecampaign-form form._form_7 * {
-  max-width: 100%;
-  box-sizing: border-box;
-}
-.activecampaign-form form._form_7 :is(input, textarea, select, button, label, legend, p, ._form-title, ._form-thank-you, ._error-inner) {
-  font-size: 18px !important;
-  line-height: 1.6 !important;
-}
-.activecampaign-form form._form_7 :is(input[type="text"], input[type="email"], input[type="tel"], input[type="date"], textarea, select, button[type="submit"], ._submit) {
-  min-height: 56px !important;
-}
-.activecampaign-form form._form_7 :is(input[type="checkbox"], input[type="radio"]) {
-  width: 28px !important;
-  height: 28px !important;
-  min-width: 28px !important;
-}
-.activecampaign-form form._form_7 :is(input, textarea, select, button, a):focus-visible {
-  outline: 4px solid var(--accent) !important;
-  outline-offset: 4px !important;
-}
-.activecampaign-form form._form_7 ._form-thank-you,
-.activecampaign-form form._form_7 ._error-inner {
-  color: var(--fg) !important;
-}
-
-@media (max-width: 760px) {
-  .activecampaign-form {
-    width: 100%;
-    margin-top: 2rem;
-  }
-}
-
 .prose .footnote-ref {
   font-size: 0.75em;
   vertical-align: super;
@@ -1853,6 +1805,31 @@ html[data-reading-width] .collection-index {
 
 /* Visible on every viewport: this is the labelled gateway to series context. */
 .dd-toggle { display: grid; place-items: center; left: 0; top: 50%; min-width: 48px; min-height: 52px; border: 2px solid var(--pink); border-left: 0; border-radius: 0 6px 6px 0; background: #09090a; color: #fff; animation: none; }
+
+/* ── Short desktop windows ─────────────────────────────────
+   The full-size rail needs about 810px of height. From the 701px desktop
+   threshold up to 839px, tighten the links so every destination, Search and
+   the collapse toggle fit without scrolling. The list keeps its scroll
+   fallback for the day another destination is added. */
+@media (min-width: 961px) and (min-height: 701px) and (max-height: 839px) {
+  .site-nav > ul {
+    gap: .35rem;
+    padding-block: .5rem;
+  }
+  .site-nav > ul > li:not(.nav-more) > a:not(.nav-logo) {
+    min-height: 64px;
+    gap: .25rem;
+    padding-block: .4rem;
+  }
+  .nav-rail-icon {
+    width: 30px;
+    height: 30px;
+  }
+  .nav-rail-icon svg {
+    width: 27px;
+    height: 27px;
+  }
+}
 
 /* ── Site-wide illumination control ───────────────────── */
 .dock-trigger {

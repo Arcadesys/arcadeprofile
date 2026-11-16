@@ -1,6 +1,6 @@
 .root { max-width: 920px; margin: 0 auto; padding: 32px 24px 64px; }
 
-.sectionDoors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin: 0 0 40px; }
+.sectionDoors { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin: 0 0 40px; }
 .sectionDoors a { display: flex; flex-direction: column; overflow: hidden; border: 2px solid var(--fg-muted); border-radius: 12px; background: var(--surface); color: var(--fg); text-decoration: none; }
 .sectionDoors img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; background: #080b15; }
 .doorCopy { display: grid; gap: 10px; padding: 22px; border-top: 4px solid var(--cyan); }
@@ -36,7 +36,12 @@
 .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 12px; }
 .title { font-weight: 300; font-size: clamp(48px, 7vw, 84px); line-height: .96; letter-spacing: .04em; margin: 0; color: var(--fg); text-shadow: 0 0 10px var(--neon-pink), 0 0 22px var(--neon-pink), 0 0 48px var(--magenta); }
 .title em { font-style: italic; font-family: var(--font-serif); font-weight: 400; color: #ff9bcf; letter-spacing: -.005em; margin-left: -.06em; text-shadow: none; }
-.lede { color: var(--fg-muted); max-width: 60ch; margin: 14px 0 0; font-size: 17px; }
+.lede { color: var(--fg); max-width: 60ch; margin: 16px 0 0; font-size: 20px; line-height: 1.5; }
+.startHere { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: 24px; }
+.startButton { display: inline-flex; min-height: 56px; align-items: center; gap: 10px; padding: 12px 20px; border: 3px solid var(--neon-pink); background: var(--surface); color: var(--fg); font-size: 20px; font-weight: 700; text-decoration: none; }
+.startButton:hover { background: rgba(255, 60, 172, .18); text-shadow: none; }
+.browseLink { display: inline-flex; min-height: 48px; align-items: center; color: var(--fg); font-size: 18px; text-decoration: underline; text-underline-offset: 4px; }
+.startButton:focus-visible, .browseLink:focus-visible { outline: 4px solid #fff; outline-offset: 4px; }
 .headMeta { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; color: var(--fg-muted); }
 .pulseDot { display: inline-flex; align-items: center; gap: 6px; color: var(--neon-pink); font-weight: 500; text-shadow: 0 0 8px var(--glow-pink); }
 .pulseDot::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); animation: breathe 2.4s ease-in-out infinite; }

@@ -1,32 +1,62 @@
 # Resume domain cutover gate
 
-## Current state
+## Decision (2026-10-03)
 
-`https://www.thearcades.me/resume` remains the public, canonical resume while
-`https://work.thearcades.me/resume` is being established. The homepage links to
-the professional site through the visible **Work with me** banner, but no
-resume route, PDF, sitemap entry, or navigation link has been removed here.
+The owner (Austen) approved the cutover in issue #287: `https://work.thearcades.me/resume`
+is the canonical résumé, and the creative-site résumé routes redirect to it.
+Role-specific editions and the full CV (work-site issues #47–#54) are published on
+the work site and relate to that canonical résumé there; this site links only to
+the canonical résumé.
 
-## Required evidence before removal
+## Gate evidence (all passed 2026-10-03)
 
-1. The work-domain owner confirms that `https://work.thearcades.me/resume` is
-   the intended canonical replacement and is live.
-2. A current browser check confirms the replacement renders at desktop and
-   narrow mobile widths, has readable large-text controls, and is keyboard
-   operable.
-3. The work-domain resume download/contact paths work, if they are intended to
-   replace this site's `/resume/pdf` and contact links.
-4. A release owner approves the redirect and SEO plan for the old URL.
+1. **Destination live and canonical.** `https://work.thearcades.me/resume` returned
+   200 HTML with `<link rel="canonical" href="https://work.thearcades.me/resume">`,
+   title "Résumé — Austen Tucker-Crowder", no robots restriction, and a `mailto:`
+   contact link.
+2. **Browser check** (Playwright + axe on a production build of work `main`):
+   desktop 1280px, 320px, and 320px with 200% root text. Each had no horizontal
+   overflow, keyboard Tab reached the PDF download with a visible focus indicator,
+   and axe reported zero WCAG 2 A/AA violations.
+3. **Download path.** `https://work.thearcades.me/resume.pdf` returned 200
+   `application/pdf`, `content-disposition: inline; filename="resume.pdf"`, a
+   2-page document titled "Resume - Austen Tucker-Crowder" with contact links.
+4. **Release approval.** Owner approval in #287 (2026-10-03).
 
-## Removal batch after the gate passes
+## URL map
 
-- Replace remaining `/resume` and `/resume/pdf` calls to action with the work
-  domain destination.
-- Remove the resume navigation item, page, PDF route, OpenGraph image, shared
-  resume data, and sitemap entry only after the redirect decision is applied.
-- Verify the old URL's approved redirect, the new rendered resume, sitemap,
-  keyboard navigation, and narrow-width layout in the deployed environment.
+| Old URL | Treatment | New URL |
+| --- | --- | --- |
+| `/resume` | 308 permanent redirect, query string kept | `https://work.thearcades.me/resume` |
+| `/resume/pdf` | 308 permanent redirect (PDF to PDF) | `https://work.thearcades.me/resume.pdf` |
+| `/resume/` | Next's trailing-slash 308 to `/resume`, then the redirect above | same |
+| `/resume/opengraph-image` | Not linked externally; unreachable after page removal | none |
 
-This is intentionally a separate release. The banner is a discovery change;
-removing the current public resume without the replacement evidence would make
-the professional path less reliable.
+Redirects live in `next.config.mjs`. Navigation (rail and fallback), footer,
+homepage work lane, bio and site search link directly to the work URLs through
+`lib/work-resume.ts`. The `/resume` sitemap entry and analytics path are removed.
+
+## Removal batch (done 2026-10-04)
+
+After the production redirect check, the unreachable page, PDF route, OpenGraph
+image, CSS module and `lib/resume.ts`, plus the funnel tests that read them, were
+removed. The redirects in `next.config.mjs` stay permanently.
+
+## Rollback
+
+Revert the removal commit and then the cutover commit (#394). Together they
+restore the local page, PDF route, links and sitemap entry.
+Permanent redirects can be cached by browsers, so a rollback also needs the old
+links to be served for a while before external caches recover.
+
+## Release record
+
+- Cutover PR: #394, merged as `bb6493d` on 2026-10-03
+- Production deployment: `dpl_2g4R2cKRbEaNmRhVKkw3w1sQRJDS`, aliased to
+  `www.thearcades.me` and `thearcades.me`
+- Production verification (2026-10-03 ~17:23 UTC): `https://www.thearcades.me/resume`
+  returned 308 with `location: https://work.thearcades.me/resume`;
+  `https://www.thearcades.me/resume/pdf` returned 308 with
+  `location: https://work.thearcades.me/resume.pdf`. The destination PDF had
+  already been verified as 200 `application/pdf`.
+- Removal batch: this change, after the production verification above.

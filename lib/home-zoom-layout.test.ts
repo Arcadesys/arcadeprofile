@@ -28,8 +28,10 @@ test('homepage centres its column without reserving a navigation gutter', () => 
   assert.doesNotMatch(globals, /138px|--nav-rail-width/);
 });
 
-test('homepage controls keep readable text and full-size touch targets', () => {
+test('book-first homepage controls keep readable text and full-size touch targets', () => {
   const home = source('app/(frontend)/home.module.css');
+  const purchase = source('app/components/BookActions.module.css');
+  const book = source('app/components/BookPurchaseBlock.module.css');
   const feature = source('app/components/FeaturedCollectionCard.module.css');
 
   for (const selector of ['.button', '.latestLink', '.entryPathAction', '.entryPathMore a']) {
@@ -38,4 +40,14 @@ test('homepage controls keep readable text and full-size touch targets', () => {
     assert.ok(Number(rule.match(/min-height:\s*(\d+)px/)?.[1]) >= 44, `${selector} needs a full-size target`);
   }
   assert.ok(remValue(firstRule(feature, '.secondaryAction'), 'font-size') >= 1);
+});
+
+test('homepage leaves focus rings to the global rule', () => {
+  for (const path of [
+    'app/(frontend)/home.module.css',
+    'app/components/StartReadingShelf.module.css',
+    'app/components/SubscriptionForm.module.css',
+  ]) {
+    assert.match(source(path), /./);
+  }
 });

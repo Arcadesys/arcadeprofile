@@ -5,8 +5,9 @@
 Arcades Profile is a Next.js 16 / React 19 personal site deployed on Vercel.
 Public essays, project manifests, portfolio reader bodies, and collection reader
 bodies are repository-owned Markdown. Vercel Blob URLs provide media and
-downloads. Kit owns newsletter signup confirmation and broadcast delivery;
-Postmark is used only for explicitly addressed previews.
+downloads. Resend Contacts own subscriber status, and Resend Topics store
+preferences and broadcasts. The shared mail transport sends first-party signup
+verification, gated welcomes and explicit previews through Resend.
 
 ## Commands
 
@@ -17,7 +18,6 @@ npx tsc --noEmit
 npm test
 npm run build
 npm run newsletter:post -- --slug <slug>
-npm run postmark:test
 npm run upload:image -- <path> --alt "<text>" [--caption "<text>"] [--used-in <slug>]
 npm run generate:portfolio
 npm run generate:zoo
@@ -52,89 +52,54 @@ collection, books, and toys surfaces.
 This policy is shared by `Arcadesys/work-thearcades-me` and
 `Arcadesys/arcadeprofile`. Keep both root `AGENTS.md` files aligned when changing it.
 
-**Always prefer `https://work.thearcades.me` as the canonical professional imprint
-when the same or substantially duplicated piece exists on both sites, regardless
-of which site published it first.** This applies to imports, syndication,
-migrations, and republication.
+**`https://www.thearcades.me` always owns original provenance. When the same or
+substantially duplicated piece exists on both sites, the thearcades.me original
+is canonical and the work copy is marked "Originally published on" it.** This
+applies to imports, syndication, migrations, and republication. Decision record:
+`Arcadesys/arcadeprofile/docs/seo/canonical-policy.md` (map v2, 2026-10-03).
 
 - Compare the actual editions before classifying them as duplicates. A personal
   Bunch essay and a distinct technical Bunch case study may each be canonical to
   themselves. Shared subject matter alone is not duplication; fiction and other
   content unique to the creative site stay independently canonical there.
-- Maintain an explicit per-piece mapping from the creative URL at
-  `https://www.thearcades.me` to the exact work-edition URL. Verify that the work
-  destination is live, public, and indexable before switching signals. If it is
-  missing, draft, or unlisted, stage the migration and preserve the existing
-  public edition until the destination is ready. Never guess a matching slug or
-  point every page at the work homepage.
-- The work edition must declare its own absolute URL as canonical. A retained
-  creative-site duplicate must declare that exact work URL as its cross-domain
+- Maintain an explicit per-piece mapping from each work copy to the exact
+  thearcades.me original URL (work `content/blog-sources.json` `url`). Verify the
+  original is live, public, and indexable before pointing a copy at it. Never
+  guess a matching slug or point every page at the creative homepage.
+- The thearcades.me original declares its own absolute URL as canonical. A
+  retained work copy declares that exact original URL as its cross-domain
   canonical. Keep `og:url` and structured-data document identity, including
-  `mainEntityOfPage`, consistent with the chosen canonical edition.
-- Include the canonical work edition in the work sitemap and exclude the
-  creative duplicate from the creative sitemap. Discovery links recommending
-  the definitive edition should lead to the work URL; contextual links to
-  genuinely distinct creative pieces should remain intact.
+  `mainEntityOfPage`, consistent with the original.
+- Include the original in the creative sitemap and exclude the work copy from
+  the work sitemap. Discovery links recommending the definitive edition lead to
+  the original; contextual links to genuinely distinct pieces stay intact.
+- Ship the creative self-canonical before the work cross-domain canonical, so
+  the two editions never point at each other.
 - Preserve original publication dates, source attribution, and provenance. A
   preferred canonical edition does not rewrite publication history.
 - A canonical preference is not permission to delete, redirect, or retire the
-  creative copy. Those actions require explicit authorization for the affected
+  work copy. Those actions require explicit authorization for the affected
   URLs. Existing release gates, including the resume cutover gate in
   `Arcadesys/arcadeprofile/docs/resume-domain-cutover.md`, remain in force.
 - Preserve private, draft, unlisted, and intentionally `noindex` behavior. Do not
   expose protected pages through sitemaps, feeds, or discovery links as part of
   an SEO cleanup.
 - When implementing canonical mappings or changing metadata, publishing, or
-  import pipelines, add or update tests for work self-canonicals, creative
+  import pipelines, add or update tests for creative self-canonicals, work
   cross-domain canonicals, sitemap exclusions, and distinct pieces retaining
   their own canonicals. Check emitted HTML metadata, not only source config.
 
 ## Email
 
-`/api/subscribe` does an exact Kit status read, then stores the submitted email
-as AES-GCM ciphertext plus selected preferences in a 24-hour Upstash challenge and sends one
-explicitly addressed Postmark verification email. It performs no Kit writes.
-The same email/audience bundle uses a keyed ten-minute Redis cooldown to avoid
-repeat sends after ambiguous provider responses.
-The verification URL carries its signed token in a fragment; the page clears
-that fragment before rendering and only an explicit POST button can claim it.
-After the click, active Kit subscribers get the requested form memberships and
-tags. New or inactive subscribers get the requested double-opt-in form
-memberships; email ciphertext is removed as soon as Kit returns a subscriber ID.
-The Redis record then retains only Kit subscriber ID and selected
-preferences for up to 30 days. Kit can send an additional confirmation before
-delivery begins. A daily authenticated cron checks only these Redis-verified
-records and tags only their stored audience choices after Kit reports `active`.
-It never infers selections from raw form-member listings. Configure Kit form
-and audience tag IDs, `KIT_TAG_ARCADEPROFILE_ID`, `KIT_API_KEY`, `CRON_SECRET`,
-`UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` or Vercel-injected
-`KV_REST_API_URL`/`KV_REST_API_TOKEN`, `SIGNUP_LINK_SECRET`, and
-the Postmark transactional sender. The site must fail closed when those values
-are missing. Kit Free can delay tags until the daily cron runs.
+`/api/subscribe` performs a read-only Resend Contacts status check, then stores an AES-GCM encrypted email and selected topics in a 24-hour Upstash challenge and sends one first-party verification email. It makes no provider writes until the reader explicitly confirms by POST. Confirm creates or updates the Resend contact as subscribed and opts in only the selected Topics; topic changes are additive. Existing unsubscribed/suppressed contacts are never resubscribed. The keyed ten-minute Redis cooldown prevents repeat verification sends after ambiguous provider responses.
 
-The approved Writing welcome is one-time per address, after explicit link claim
-and Kit-active checks. With multiple choices, select one copy in this order:
-All Writing, Fiction, Essays, Lab; keep all selected memberships and tags. Do
-not welcome imported contacts or Kit DOI-pending subscribers. Welcome emails
-carry an RFC 8058 one-click unsubscribe header and an accessible linked page.
-The page GET is inert and its button explicitly submits; both update Kit state.
-Exclude `/subscribe/verify` and `/subscribe/unsubscribe` from analytics so
-their token fragments are never captured.
-Keep writing welcome delivery disabled unless `WRITING_WELCOME_ENABLED=true`
-is deliberately configured after coordinator review. Signup verification
-emails use Postmark independently of this welcome gate.
+The signed verification token is carried in the URL fragment and cleared before rendering; only the explicit button POST can claim it. The Redis record keeps the Resend contact ID and selected preferences for up to 30 days, never plaintext email. There is no second confirmation email and no reconciliation cron. Configure `RESEND_API_KEY` (domain-restricted Sending access for `mail.thearcades.me`) and `RESEND_CONTACTS_API_KEY` (Full access: Contacts, Topics, Suppressions, and Broadcasts), `RESEND_TOPIC_*_ID`, `RESEND_SEGMENT_SUBSCRIBED_BROADCAST_ID`, mail sender values, `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` or Vercel KV equivalents, `SIGNUP_LINK_SECRET`, and `CRON_SECRET`. Signup must fail closed if required configuration is missing.
 
-`npm run newsletter:post` flags:
+The approved welcome series enrolls only after first-party confirmation and a subscribed Resend contact. Its queue stores a Resend contact ID, not a plaintext email; each send re-reads contact state and stops when unsubscribed. Keep `WELCOME_SERIES_ENABLED` default off and preserve the legacy `WRITING_WELCOME_ENABLED` gate. Both welcome paths retain once-only dedupe. Unsubscribe is global for the Resend contact, preserving the prior site's one-click and fallback semantics. GET stays inert; the explicit page button and RFC 8058 POST update Resend state. Exclude `/subscribe/verify` and `/subscribe/unsubscribe` from analytics.
 
-- no flag: dry run
-- `--preview-to <email>`: explicit test
-- `--send`: verify the production URL, target All Writing OR Essays tags, and
-  schedule the Kit broadcast
-- `--resend --reason "<reason>"`: intentional repeat after a completed send
+`npm run newsletter:post` defaults to a dry run. `--send` verifies the production essay URL, creates a Resend Broadcast draft targeting the broad “All Subscribed Contacts” segment and passes the Essays topic scope, then explicitly schedules it. `--resend --reason "<reason>"` is required for intentional repeats after completed sends. Receipts remain non-PII; reconcile an ambiguous pending request in Resend before retrying.
 
-Receipts under `data/newsletter-sends` must remain non-PII. An ambiguous
-pending Kit request must be reconciled in Kit before retrying. Kit excludes
-unsubscribed contacts from broadcasts.
+Migration scripts are owner-run only from the main checkout. They read `.env.kit.local` for the read-only export/final suppression sync and `.env.resend.local` for the full-access import. The Kit export must request `status=all` and `include=tags`; the default-topic backfill rejects missing or empty tag coverage, and unsubscribe sync rejects snapshots without non-active states. Never commit either key file or the private snapshot. Follow `docs/kit-removal-runbook.md` through backfill, final sync, and count verification before closing Kit.
 
 ## Conventions
 

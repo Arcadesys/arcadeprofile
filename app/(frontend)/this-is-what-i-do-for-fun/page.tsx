@@ -7,9 +7,11 @@ import { COLLECTION, COLLECTION_PATH, COLLECTION_TITLE } from '@/lib/collection'
 import { JsonLd } from '@/lib/structured-data';
 import { SITE_URL } from '@/lib/site-url';
 import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
+import { getBook } from '@/data/books';
+import BookPurchaseBlock from '@/app/components/BookPurchaseBlock';
 
 const DESCRIPTION =
-  'Seven short stories by Austen Tucker, free to read and download as accessible PDF editions.';
+  'Read seven of the eight stories free. The book by Austen Tucker has all eight; Foxtails is only in the book.';
 
 export const metadata: Metadata = {
   title: COLLECTION_TITLE,
@@ -31,6 +33,7 @@ export const metadata: Metadata = {
 };
 
 export default function CollectionPage() {
+  const book = getBook('this-is-what-i-do-for-fun')!;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -56,9 +59,11 @@ export default function CollectionPage() {
         <header className="collection-index__header">
           <h1>{COLLECTION_TITLE}</h1>
           <p className="collection-index__lede">
-            Seven stories. Androids, kitsune, hypersleep pods, and the smallest
-            casino in Paris. Every one is free to read as a PDF.
+            Seven of the eight stories are free to read here and download as accessible PDFs.
+            The book has all eight; <em>Foxtails</em> is only in the book.
+            Androids, kitsune, hypersleep pods, and the smallest casino in Paris.
           </p>
+          <BookPurchaseBlock book={book} headingId="collection-book-heading" heading="Get the complete collection" />
         </header>
 
         <ol className="collection-index__list">
@@ -96,6 +101,16 @@ export default function CollectionPage() {
               </div>
             </li>
           ))}
+          <li className="collection-card">
+            <div className="collection-card__cover">
+              <Image src={book.coverImage!} alt={book.coverAlt!} width={600} height={900} sizes="(max-width: 760px) 40vw, 200px" />
+            </div>
+            <div className="collection-card__body">
+              <p className="collection-card__type">Only in the book</p>
+              <h2>Foxtails</h2>
+              <p className="collection-card__description">The eighth story is exclusive to the book. Get all eight in <em>{COLLECTION_TITLE}</em>.</p>
+            </div>
+          </li>
         </ol>
       </main>
     </>

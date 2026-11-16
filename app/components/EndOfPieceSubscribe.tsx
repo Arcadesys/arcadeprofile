@@ -22,17 +22,10 @@ export default function EndOfPieceSubscribe(props: Props) {
   const { audience, source, kind, seriesTitle, totalParts, seriesActive } = props;
   if (audience === 'queer-columns' || audience === 'work-ai' || audience === 'th4f' || audience === 'all') return null;
 
-  const heading = seriesTitle
-    ? `Get updates from ${seriesTitle} by email`
-    : audience === 'fiction'
-      ? 'Get new fiction by email'
-      : audience === 'essays'
-        ? 'Get new essays by email'
-        : 'Get new build notes by email';
+  const heading = 'Get new writing by email';
 
   return (
     <section className={styles.capture} aria-labelledby="end-of-piece-subscribe-heading">
-      <p className={styles.eyebrow}>Keep reading</p>
       <h2 id="end-of-piece-subscribe-heading">{heading}</h2>
       <p className={styles.copy}>{endOfPieceCopy({ kind, seriesTitle, totalParts, seriesActive })}</p>
       <SubscriptionForm
@@ -40,8 +33,8 @@ export default function EndOfPieceSubscribe(props: Props) {
         audiences={END_OF_PIECE_AUDIENCES}
         updateMode="add"
         presentation="compact"
-        submitLabel="Send confirmation email"
-        successMessage="Check your inbox to confirm your subscription."
+        submitLabel="Send me new writing"
+        successMessage="Check your inbox to confirm your All Writing request."
       />
     </section>
   );

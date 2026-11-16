@@ -4,12 +4,8 @@ import { resolve } from 'node:path';
 import test from 'node:test';
 
 import { ORIENTATION_NAV_ITEMS } from './nav-items';
-import {
-  RESUME_ACCOMPLISHMENTS,
-  RESUME_EXPERIENCE,
-  buildResumeEditorialPiece,
-} from './resume';
 import { buildStaticSitemapEntries } from './sitemap';
+import { WORK_RESUME_PDF_URL, WORK_RESUME_URL } from './work-resume';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
@@ -34,8 +30,8 @@ test('the homepage offers the professional lane alongside the first reading choi
   assert.ok(latest > paths, 'the entry paths must precede the latest writing');
   const lane = home.slice(paths, latest);
   assert.match(lane, /href="https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_entry">\s*Visit the work site/);
-  assert.match(lane, /href="\/resume">Read the resume/);
-  assert.match(lane, /href="\/resume\/pdf">Download PDF/);
+  assert.match(lane, /href=\{WORK_RESUME_URL\}>Read the resume/);
+  assert.match(lane, /href=\{WORK_RESUME_PDF_URL\}>Download PDF/);
 });
 
 test('the reader funnel keeps its homepage entry points', () => {
@@ -54,62 +50,13 @@ test('the resume is reached from the homepage lane and the footer, not the top b
   );
 
   const footer = source('app/components/Footer.tsx');
-  assert.match(footer, /href="\/resume"/);
+  assert.match(footer, /href=\{WORK_RESUME_URL\}/);
 });
 
-test('the resume page renders from shared data and offers the PDF edition', () => {
-  const page = source('app/(frontend)/resume/page.tsx');
 
-  assert.match(page, /from '@\/lib\/resume'/);
-  assert.match(page, /<PieceActions/);
-  assert.match(page, /pdfHref=\{RESUME_PDF_PATH\}/);
-  assert.doesNotMatch(page, /style=\{\{/, 'the resume page must use its CSS module, not inline styles');
-});
-
-test('the resume PDF piece carries the whole web edition', () => {
-  const piece = buildResumeEditorialPiece();
-
-  assert.equal(piece.canonicalPath, '/resume');
-  assert.equal(piece.pdfPath, '/resume/pdf');
-  assert.equal(piece.section, 'Resume');
-  assert.ok(piece.blocks.length > 0);
-
-  const flattened = piece.blocks
-    .map((block) => (block.type === 'list' ? block.items.join(' ') : block.text))
-    .join('\n');
-
-  for (const role of RESUME_EXPERIENCE) {
-    assert.ok(flattened.includes(role.company), `PDF blocks are missing ${role.company}`);
-    for (const bullet of role.bullets) {
-      assert.ok(flattened.includes(bullet), `PDF blocks are missing a ${role.company} bullet`);
-    }
-  }
-
-  assert.ok(flattened.includes('austen.crowder@gmail.com'), 'the PDF must carry contact details');
-});
-
-test('the PDF header does not repeat the name as a byline', () => {
-  const piece = buildResumeEditorialPiece();
-  const renderer = source('lib/editorial-pdf.tsx');
-
-  assert.equal(piece.author, piece.title, 'the resume is titled after its author');
-  assert.match(renderer, /piece\.author === piece\.title/);
-});
-
-test('resume accomplishments only cite proof that exists on the site', () => {
-  for (const item of RESUME_ACCOMPLISHMENTS) {
-    if (!item.proofHref) continue;
-    assert.ok(
-      PROOF_ROUTES.has(item.proofHref),
-      `${item.proofHref} is not a known on-site artifact`,
-    );
-  }
-});
-
-test('the sitemap ranks the resume alongside the other landing surfaces', () => {
-  const entry = buildStaticSitemapEntries('https://www.thearcades.me')
-    .find((candidate) => candidate.url.endsWith('/resume'));
-
-  assert.ok(entry, 'the sitemap is missing the resume');
-  assert.ok((entry.priority ?? 0) >= 0.9, 'the resume should rank with the other landing pages');
+test('the résumé cutover redirects permanently and leaves this sitemap (#287)', () => {
+  assert.ok(!buildStaticSitemapEntries('https://www.thearcades.me').some((entry) => entry.url.endsWith('/resume')));
+  const config = source('next.config.mjs');
+  assert.match(config, /source: '\/resume',\s*destination: 'https:\/\/work\.thearcades\.me\/resume',\s*permanent: true/);
+  assert.match(config, /source: '\/resume\/pdf',\s*destination: 'https:\/\/work\.thearcades\.me\/resume\.pdf',\s*permanent: true/);
 });

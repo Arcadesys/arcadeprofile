@@ -105,7 +105,7 @@ export default function SiteSearch({
           <p className="site-search__status" role="status" aria-live="polite" aria-atomic="true">
             {query.trim() ? `${results.length} search ${results.length === 1 ? 'result' : 'results'}.` : ''}
           </p>
-          {!query.trim() && <p className="site-search__hint">Search essays, stories, series, projects, and pages.</p>}
+          {!query.trim() && <p className="site-search__hint">Search books, essays, stories, series, projects, and pages.</p>}
           {query.trim() && !results.length && <p className="site-search__hint">No doors opened for “{query}”. Try another phrase.</p>}
           <div id="site-search-results" className="site-search__results" role="listbox" aria-label="Search results">
             {results.map((item, index) => (
