@@ -7,6 +7,7 @@ export type NavItem = {
 
 export const DEFAULT_NAV_ITEMS: NavItem[] = [
   { id: 'writing', label: 'Read', href: '/writing', isPrimary: false },
+  { id: 'projects', label: 'Watch me build', href: '/projects', isPrimary: false },
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
   { id: 'books', label: 'Books', href: '/books', isPrimary: false },
   { id: 'stories', label: 'Stories', href: '/stories', isPrimary: false },
@@ -18,14 +19,15 @@ export const DEFAULT_NAV_ITEMS: NavItem[] = [
 ];
 
 /**
- * thearcades.me is the writing site. The rail only carries reading destinations;
+ * thearcades.me is the writing site. The top bar carries reading destinations;
  * builder work (résumé, case studies, demos) lives on work.thearcades.me.
  */
 export const ORIENTATION_NAV_ITEMS: readonly NavItem[] = [
   { id: 'writing', label: 'Read', href: '/writing', isPrimary: false },
   { id: 'blog', label: 'Blog', href: '/latest', isPrimary: false },
-  { id: 'books', label: 'Books', href: '/books', isPrimary: false },
+  { id: 'projects', label: 'Watch me build', href: '/projects', isPrimary: false },
   { id: 'about', label: 'About', href: '/bio', isPrimary: false },
+  { id: 'books', label: 'Books', href: '/books', isPrimary: false },
 ];
 
 /** The one door from the writing site to the builder site. */

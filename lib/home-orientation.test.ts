@@ -3,34 +3,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import test from 'node:test';
 
-import { getHomeFooterNavItems } from './home-footer-nav';
-import { ORIENTATION_NAV_ITEMS } from './nav-items';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
-
-test('homepage leads with the promise, then what to read next, then the book and signup', () => {
-  const home = source('app/(frontend)/page.tsx');
-  const brand = source('lib/site-brand.ts');
-
-  assert.match(brand, /SITE_PROMISE_HEADLINE = 'Strange fiction with heart\.'/);
-  assert.match(brand, /SITE_PROMISE_LINE = 'Everything here used to be something else\.'/);
-  assert.match(home, /<h1 id="home-promise-heading">\{SITE_PROMISE_HEADLINE\}<\/h1>/);
-  assert.match(home, /<p className=\{styles\.tagline\}>\{SITE_PROMISE_LINE\}<\/p>/);
-  assert.match(home, /<p className=\{styles\.signupCopy\}>\{SITE_PROMISE\}<\/p>/);
-  assert.match(home, /heading="What to read next"/);
-  assert.match(home, /getBook\('this-is-what-i-do-for-fun'\)/);
-  assert.match(home, /headingAs="h2"[\s\S]*placement="home_hero"/);
-  assert.equal((home.match(/<h1/g) ?? []).length, 1);
-  assert.match(home, /pitch="Strange lives, remade\."/);
-  assert.match(home, /<SubscriptionForm[\s\S]*audiences=\{\['all'\]\}[\s\S]*magnet="carl"/);
-  assert.match(home, /<StartReadingShelf[\s\S]*items=\{readingPicks\}[\s\S]*columns=\{3\}/);
-  assert.ok(home.indexOf('className={styles.promise}') < home.indexOf('items={readingPicks}'));
-  assert.ok(home.indexOf('items={readingPicks}') < home.indexOf('className={styles.signup}'));
-  assert.ok(home.indexOf('className={styles.signup}') < home.indexOf('className={styles.hero}'));
-  assert.doesNotMatch(home, /entryPaths|workLane|FeaturedCollectionCard|ContinueToyBanner/);
-  const footerSignup = source('app/components/FooterSubscribe.tsx');
-  assert.match(footerSignup, /pathname === '\/'/);
-});
 
 test('projects is the landing door for builds, case studies, portfolio, and toys', () => {
   const projects = source('app/components/ProjectsIndex.tsx');
@@ -73,35 +47,33 @@ test('site-owned signup surfaces use one first-party form implementation', () =>
   }
 });
 
-test('writing is an accessible section door to fiction, essays, and bibliography', () => {
+test('writing is an accessible section door to fiction, essays, and the bookshelf', () => {
   const writing = source('app/(frontend)/writing/page.tsx');
 
   assert.match(writing, /title: 'Fiction', href: '\/stories'/);
   assert.match(writing, /title: 'Essays', href: '\/essays'/);
-  assert.match(writing, /title: 'Bibliography', href: '\/bibliography'/);
+  assert.match(writing, /title: 'Bookshelf', href: '\/bookshelf'/);
 });
 
-test('homepage mounts the resume banner under the brand bar with the public reading catalog', () => {
+test('homepage mounts the resume banner under the hero with the public reading catalog', () => {
   const home = source('app/(frontend)/page.tsx');
 
-  assert.match(home, /<ContinueReadingBanner availablePaths=\{catalog\.map\(\(piece\) => piece\.canonicalPath\)\} \/>/);
+  assert.match(home, /<ContinueReadingBanner availablePaths=\{readingCatalog\.map\(\(piece\) => piece\.canonicalPath\)\} \/>/);
   assert.match(home, /getReadingCatalog\(\)/);
   assert.ok(home.indexOf('</header>') < home.indexOf('<ContinueReadingBanner'));
-  assert.ok(home.indexOf('<ContinueReadingBanner') < home.indexOf('className={styles.release}'));
   assert.match(source('app/components/ContinueReadingBanner.tsx'), /availablePaths = \[\]/);
 });
 
-test('homepage footer names destinations exactly as the rail does', () => {
-  const items = getHomeFooterNavItems();
-  const onSite = ORIENTATION_NAV_ITEMS.filter((item) => item.href.startsWith('/'));
-
-  assert.deepEqual(items.map(({ label, href }) => [label, href]), onSite.map(({ label, href }) => [label, href]));
-  assert.deepEqual(items.map((item) => item.label), ['Read', 'Blog', 'Books', 'About']);
-  assert.ok(items.every((item) => !/^https?:/.test(item.href)), 'off-site links stay out of the home footer');
-
+test('homepage carries the promise, the Carl gift, and no toy banner', () => {
   const home = source('app/(frontend)/page.tsx');
-  assert.match(home, /<HomeFooterNav \/>/);
-  assert.doesNotMatch(home, /About Austen|All books/);
-  assert.match(source('app/components/HomeFooterNav.tsx'), /aria-label="More from The Arcades"/);
-  assert.match(source('app/components/HomeFooterNav.tsx'), /getHomeFooterNavItems\(\)/);
+  const brand = source('lib/site-brand.ts');
+
+  assert.match(brand, /SITE_PROMISE_HEADLINE = 'Strange fiction with heart\.'/);
+  assert.match(brand, /SITE_PROMISE_LINE = 'Everything here used to be something else\.'/);
+  assert.match(home, /<h1 className=\{styles\.title\}>\{SITE_PROMISE_LINE\}<\/h1>/);
+  assert.match(home, /\{SITE_PROMISE_HEADLINE\} Speculative fiction and essays/);
+  assert.equal((home.match(/<h1/g) ?? []).length, 1);
+  assert.match(home, /<SubscriptionForm[\s\S]*audiences=\{\['all'\]\}[\s\S]*magnet="carl"/);
+  assert.ok(home.indexOf('className={styles.recent}') < home.indexOf('className={styles.signup}'));
+  assert.doesNotMatch(home, /ContinueToyBanner|build notes/);
 });

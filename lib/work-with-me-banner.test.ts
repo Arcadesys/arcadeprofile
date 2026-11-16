@@ -5,12 +5,13 @@ import test from 'node:test';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
-test('the homepage brand bar is the writing site only; the builder door lives in the footer', () => {
-  const home = source('app/(frontend)/page.tsx');
-  const controls = home.slice(home.indexOf('className={styles.brandBar}'), home.indexOf('className={styles.promise}'));
-  assert.ok(controls.length > 0, 'brand bar must precede the promise');
+test('every page exposes the professional site from the top bar', () => {
+  const navbar = source('app/components/NavbarClient.tsx');
 
-  assert.doesNotMatch(controls, /workWithMe|work\.thearcades\.me/);
-  assert.doesNotMatch(controls, /href="\/subscribe"/);
-  assert.match(source('lib/nav-items.ts'), /utm_content=footer/);
+  assert.match(navbar, /https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=site_header/);
+  assert.match(navbar, /className="nav-cta" href=\{WORK_SITE_URL\}/);
+  assert.match(navbar, /Work with me/);
+  // No Subscribe link in the bar while email signups are paused site-wide;
+  // see app/components/SubscriptionForm.tsx.
+  assert.doesNotMatch(navbar, /href="\/subscribe"/);
 });

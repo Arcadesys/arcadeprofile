@@ -10,24 +10,24 @@ import { isNavItemActive, isReadPath, readProjectSlugs } from './nav-active';
 const slugs = ['the-singularity-log', 'it-takes-a-zoo', 'queer-columns'];
 const lit = (pathname: string) => ORIENTATION_NAV_ITEMS.filter((item) => isNavItemActive(item.href, pathname, slugs)).map((item) => item.label);
 
-test('an essay in a series lights Read', () => {
+test('an essay in a series lights Read, not Watch me build', () => {
   assert.deepEqual(lit('/projects/the-singularity-log/campfire-logic'), ['Read']);
   assert.deepEqual(lit('/projects/the-singularity-log'), ['Read']);
   assert.deepEqual(lit('/projects/queer-columns/the-safe-door'), ['Read']);
 });
 
 test('fiction and the other reading routes light Read', () => {
-  for (const pathname of ['/writing', '/stories', '/essays', '/queercolumns', '/bibliography', '/novels/it-takes-a-zoo/cold-boot', '/this-is-what-i-do-for-fun/carl', '/projects/it-takes-a-zoo/anything']) {
+  for (const pathname of ['/writing', '/stories', '/essays', '/queercolumns', '/bookshelf', '/novels/it-takes-a-zoo/cold-boot', '/this-is-what-i-do-for-fun/carl', '/projects/it-takes-a-zoo/anything']) {
     assert.deepEqual(lit(pathname), ['Read'], pathname);
   }
 });
 
-test('build series and the old projects index light nothing now that the rail is reading-only', () => {
-  assert.deepEqual(lit('/projects'), []);
-  assert.deepEqual(lit('/projects/reaction-stickers'), []);
-  assert.deepEqual(lit('/projects/reaction-stickers/some-post'), []);
+test('build projects and the projects index keep Watch me build', () => {
+  assert.deepEqual(lit('/projects'), ['Watch me build']);
+  assert.deepEqual(lit('/projects/reaction-stickers'), ['Watch me build']);
+  assert.deepEqual(lit('/projects/reaction-stickers/some-post'), ['Watch me build']);
   // A slug the site does not know is not a reading series.
-  assert.deepEqual(lit('/projects/unknown-series/post'), []);
+  assert.deepEqual(lit('/projects/unknown-series/post'), ['Watch me build']);
 });
 
 test('other destinations are unchanged', () => {

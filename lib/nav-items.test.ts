@@ -80,8 +80,9 @@ test('buildNavigationModel uses the requested orientation destinations for fallb
   const expected = [
     ['Read', '/writing'],
     ['Blog', '/latest'],
-    ['Books', '/books'],
+    ['Watch me build', '/projects'],
     ['About', '/bio'],
+    ['Books', '/books'],
   ];
 
   assert.deepEqual(fallback.primary.map(({ label, href }) => [label, href]), expected);
@@ -114,8 +115,7 @@ test('buildNavigationModel reserves the compact header for editorial essentials'
   // '/subscribe' no longer has a reserved primary slot while email signups
   // are paused site-wide; a passed-in subscribe item now lands in "more".
   assert.deepEqual(model.primary.map((item) => item.href), [
-    '/writing', '/latest', '/books', '/bio',
+    '/writing', '/latest', '/projects', '/bio', '/books',
   ]);
-  assert.deepEqual(model.more.map((item) => item.href), ['/projects', '/stories', '/essays', '/lab', '/subscribe', '/toys']);
-  assert.ok(model.primary.every((item) => !/^https?:/.test(item.href)), 'no off-site links (résumé) in the writing rail');
+  assert.deepEqual(model.more.map((item) => item.href), ['/stories', '/essays', '/lab', '/subscribe', '/toys']);
 });

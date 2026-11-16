@@ -4,8 +4,6 @@
 
 .page {
   padding-bottom: clamp(2rem, 6vw, 4rem);
-  margin-left: var(--nav-rail-width, 0px);
-  transition: margin-left 0.2s ease;
 }
 
 /* Hero */

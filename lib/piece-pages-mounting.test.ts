@@ -7,12 +7,9 @@ const source = (file: string) => readFileSync(path.join(process.cwd(), file), 'u
 const essayRoute = source('app/(frontend)/projects/[slug]/[postSlug]/page.tsx');
 const zooRoute = source('app/(frontend)/novels/it-takes-a-zoo/[chapter]/page.tsx');
 
-test('essay and series pieces show the trail and the sticky bar', () => {
-  assert.match(essayRoute, /<Breadcrumb items=\{trail\} \/>/);
+test('essay and series pieces show the sticky bar and a series header', () => {
   assert.match(essayRoute, /<PieceBar[\s\S]*?backHref=\{introHref\}[\s\S]*?position=\{partIndex\}[\s\S]*?total=\{totalCount\}[\s\S]*?readingMinutes=\{readingPiece\.readingMinutes\}/);
-  // Build notes are not under Read, so they keep the plain back link instead of a Read trail.
-  assert.match(essayRoute, /project\.category === 'fiction' \? 'fiction' : project\.category === 'writing' \? 'essays' : null/);
-  assert.match(essayRoute, /← \{project\.title\}/);
+  assert.match(essayRoute, /className="post-header__series" href=\{introHref\}/);
 });
 
 test('serial novel chapters show the trail and the sticky bar instead of the old back link', () => {

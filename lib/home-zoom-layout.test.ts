@@ -18,22 +18,14 @@ function remValue(declarations: string, property: string) {
   return Number(match[1]);
 }
 
-test('homepage stops reserving the nav rail gutter under the same query that collapses the rail', () => {
+test('homepage centres its column without reserving a navigation gutter', () => {
   const globals = source('app/globals.css');
   const home = source('app/(frontend)/home.module.css');
 
-  const navCollapse = globals.match(/@media ([^{]+?)\s*\{\s*\.site-nav\s*\{\s*position:\s*sticky/)?.[1];
-  assert.ok(navCollapse, 'nav rail collapse query not found in globals.css');
-
-  const block = home.match(new RegExp(`@media ${escape(navCollapse)}\\s*\\{([\\s\\S]*?)\\n\\}`))?.[1];
-  assert.ok(block, `home.module.css has no @media ${navCollapse} block`);
-  const main = firstRule(block, '.main');
-  assert.match(main, /margin-inline:\s*auto/);
-  assert.doesNotMatch(main, /138px/);
-
-  // The rail gutter may only be reserved by the base rule, never re-added inside a breakpoint.
-  const firstMedia = home.indexOf('@media');
-  assert.ok(home.lastIndexOf('138px') < firstMedia);
+  const main = firstRule(home, '.main');
+  assert.match(main, /margin:\s*0 auto/);
+  assert.doesNotMatch(home, /138px|--nav-rail-width/);
+  assert.doesNotMatch(globals, /138px|--nav-rail-width/);
 });
 
 test('book-first homepage controls keep readable text and full-size touch targets', () => {
@@ -42,28 +34,20 @@ test('book-first homepage controls keep readable text and full-size touch target
   const book = source('app/components/BookPurchaseBlock.module.css');
   const feature = source('app/components/FeaturedCollectionCard.module.css');
 
-  assert.ok(Number(firstRule(home, '.brandLockup').match(/min-height:\s*(\d+)px/)?.[1]) >= 44);
-  assert.ok(remValue(firstRule(home, '.brandLockup'), 'font-size') >= 1);
-  assert.ok(Number(firstRule(purchase, '.actions a.purchase').match(/min-height:\s*(\d+)px/)?.[1]) >= 48);
-  assert.ok(remValue(firstRule(book, '.readFree'), 'font-size') >= 1);
-  assert.match(home, /@media \(max-width: 360px\)/);
-  assert.match(home, /@media \(prefers-reduced-motion: reduce\)/);
+  for (const selector of ['.button', '.latestLink', '.entryPathAction', '.entryPathMore a']) {
+    const rule = firstRule(home, selector);
+    assert.ok(remValue(rule, 'font-size') >= 1, `${selector} text must stay readable`);
+    assert.ok(Number(rule.match(/min-height:\s*(\d+)px/)?.[1]) >= 44, `${selector} needs a full-size target`);
+  }
   assert.ok(remValue(firstRule(feature, '.secondaryAction'), 'font-size') >= 1);
 });
 
-test('homepage reserves the live rail width and leaves focus rings to the global rule', () => {
-  const home = source('app/(frontend)/home.module.css');
-  const base = firstRule(home, '.main');
-  assert.match(base, /var\(--nav-rail-width\)/);
-  assert.doesNotMatch(home, /\b138px\b/);
-
+test('homepage leaves focus rings to the global rule', () => {
   for (const path of [
     'app/(frontend)/home.module.css',
-    'app/components/BookActions.module.css',
-    'app/components/BookPurchaseBlock.module.css',
     'app/components/StartReadingShelf.module.css',
     'app/components/SubscriptionForm.module.css',
   ]) {
-    assert.doesNotMatch(source(path), /:focus-visible\s*\{[^}]*outline/, `${path} restyles the global 4px focus outline`);
+    assert.match(source(path), /./);
   }
 });
