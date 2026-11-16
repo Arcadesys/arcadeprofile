@@ -7,6 +7,9 @@ import { WORK_RESUME_URL } from '@/lib/work-resume';
 
 import styles from '../start/start.module.css';
 
+// Same profile the work site links to (work.thearcades.me lib/content.ts).
+const LINKEDIN_URL = 'https://www.linkedin.com/in/austen-tucker-0968a914';
+
 const description = 'Meet Austen Tucker: builder, leader, and writer. Explore professional work, books, stories, and ways to get in touch.';
 
 export const metadata: Metadata = {
@@ -67,6 +70,13 @@ export default function WelcomePage() {
         <h2 id="welcome-contact-heading">Get in touch</h2>
         <address style={{ fontStyle: 'normal' }}>
           <ul style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 18rem), 1fr))' }}>
+            <li style={{ gridColumn: '1 / -1' }}>
+              <a href={LINKEDIN_URL} style={{ minHeight: 0, borderColor: 'var(--accent)', borderWidth: '2px' }}>
+                <strong>LinkedIn</strong>
+                <span>Connect with me and see my work history.</span>
+                <span className={styles.follow}>Connect on LinkedIn <span aria-hidden="true">↗</span></span>
+              </a>
+            </li>
             <li>
               <a href="mailto:austen.crowder@gmail.com" style={{ minHeight: 0, overflowWrap: 'anywhere' }}>
                 <strong>Email</strong>
