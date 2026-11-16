@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: { alias: { '@': fileURLToPath(new URL('.', import.meta.url)) } },
   test: {
-    include: ['app/components/EndOfPieceSubscribe.test.tsx'],
+    include: ['app/components/EndOfPieceSubscribe.test.tsx', 'app/components/NextInSeries.test.tsx'],
     environment: 'jsdom',
     environmentOptions: { jsdom: { url: 'https://www.thearcades.me' } },
   },

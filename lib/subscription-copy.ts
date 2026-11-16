@@ -20,4 +20,4 @@ export function endOfPieceCopy({
   return ALL_WRITING_COPY;
 }
 
-const ALL_WRITING_COPY = "Join All Writing for stories and essays when they're ready.";
+const ALL_WRITING_COPY = 'I send one email when new writing goes up.';

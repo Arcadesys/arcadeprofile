@@ -3,14 +3,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import postcss from 'postcss';
-import { nextUpKindLine, readingMinutesLabel, recommendationKind } from './next-up';
-
-test('the kind line names the collection and zero-pads the part', () => {
-  assert.equal(nextUpKindLine({ title: 'The Singularity Log', position: 5, total: 20 }), 'Next in The Singularity Log · Part 05 / 20');
-  assert.equal(nextUpKindLine({ title: 'It Takes a Zoo', position: 12, total: 12 }), 'Next in It Takes a Zoo · Part 12 / 12');
-  assert.equal(nextUpKindLine({ title: 'Long', position: 105, total: 120 }), 'Next in Long · Part 105 / 120');
-  assert.equal(nextUpKindLine(undefined), 'Next up');
-});
+import { readingMinutesLabel, recommendationKind } from './next-up';
 
 test('recommendation kinds fold chapters into fiction', () => {
   assert.equal(recommendationKind('essay'), 'essay');
@@ -57,12 +50,19 @@ test('NextUp CSS uses tokens only, no glows or local outlines, and keeps 44px an
   assert.equal(rule('.meta').color, 'var(--fg-muted)');
 });
 
-test('ReadingNextSteps keeps every analytics placement and avoids the subscribe eyebrow', () => {
+test('NextUp keeps the recommendation analytics and the "More to read" heading', () => {
   const component = readFileSync(path.join(process.cwd(), 'app/components/NextUp.tsx'), 'utf8');
-  assert.match(component, /placement="next-chapter"/);
-  assert.match(component, /placement="recommended-reading"/);
+  assert.match(component, /placement: 'recommended-reading'/);
   assert.match(component, /canonicalDiscoveryHref\(recommendation\.canonicalPath\)/);
-  assert.match(component, /canonicalId: piece\.canonicalPath, contentType: piece\.contentType/);
-  assert.match(component, /Where to go from here/);
-  assert.doesNotMatch(component, /Keep reading/);
+  assert.match(component, /canonicalId: piece\.canonicalPath/);
+  assert.match(component, /contentType: piece\.contentType/);
+  assert.match(component, />More to read</);
+  assert.doesNotMatch(component, /Keep reading|Where to go from here/);
+});
+
+test('ReadingNextSteps hands the next part to the series card and recommendations to NextUp', () => {
+  const steps = readFileSync(path.join(process.cwd(), 'app/components/ReadingNextSteps.tsx'), 'utf8');
+  assert.match(steps, /<NextInSeries/);
+  assert.match(steps, /<NextUp piece=\{piece\} recommendations=\{recommendedPieces\(piece, catalog\)\} \/>/);
+  assert.match(steps, /skipNext/);
 });

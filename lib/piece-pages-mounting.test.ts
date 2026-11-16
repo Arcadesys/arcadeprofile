@@ -26,5 +26,7 @@ test('the end of a piece keeps its order: next step, signup, then the chapter na
   const signup = zooRoute.indexOf('<EndOfPieceSubscribe');
   const nav = zooRoute.indexOf('aria-label="Chapter navigation"');
   assert.ok(steps > 0 && steps < signup && signup < nav);
-  assert.ok(essayRoute.indexOf('<ReadingNextSteps') < essayRoute.indexOf('<EndOfPieceSubscribe'));
+  // Essays and series: the series card, then one signup, then "More to read" (see #458).
+  assert.ok(essayRoute.indexOf('<NextInSeries') < essayRoute.indexOf('<EndOfPieceSubscribe'));
+  assert.ok(essayRoute.indexOf('<EndOfPieceSubscribe') < essayRoute.indexOf('<ReadingNextSteps'));
 });
