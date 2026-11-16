@@ -26,7 +26,6 @@ export default function EndOfPieceSubscribe(props: Props) {
 
   return (
     <section className={styles.capture} aria-labelledby="end-of-piece-subscribe-heading">
-      <p className={styles.eyebrow}>Keep reading</p>
       <h2 id="end-of-piece-subscribe-heading">{heading}</h2>
       <p className={styles.copy}>{endOfPieceCopy({ kind, seriesTitle, totalParts, seriesActive })}</p>
       <SubscriptionForm
@@ -34,7 +33,7 @@ export default function EndOfPieceSubscribe(props: Props) {
         audiences={END_OF_PIECE_AUDIENCES}
         updateMode="add"
         presentation="compact"
-        submitLabel="Send confirmation email"
+        submitLabel="Send me new writing"
         successMessage="Check your inbox to confirm your All Writing request."
       />
     </section>

@@ -18,7 +18,7 @@ const entries: Array<{ label: string; path: string; props: Props }> = [
   { label: 'portfolio piece', path: '/portfolio/a-story', props: { audience: 'fiction', source: 'portfolio-piece-end', kind: 'story' } },
   { label: 'Lab case study', path: '/lab/a-build', props: { audience: 'lab', source: 'lab-case-study-end', kind: 'build note' } },
 ];
-const scope = "Join All Writing for stories and essays when they're ready.";
+const scope = 'I send one email when new writing goes up.';
 
 describe('end-of-piece All Writing disclosure', () => {
   beforeEach(() => {
@@ -34,12 +34,12 @@ describe('end-of-piece All Writing disclosure', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Get new writing by email' })).toBeVisible();
     expect(screen.getByText((text) => text.includes(scope))).toBeVisible();
     expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
-    expect(screen.getAllByRole('button', { name: 'Send confirmation email' })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: 'Send me new writing' })).toHaveLength(1);
     expect(document.querySelectorAll('form')).toHaveLength(1);
 
     const user = userEvent.setup();
     await user.type(screen.getByLabelText('Email address'), 'reader@example.test');
-    await user.click(screen.getByRole('button', { name: 'Send confirmation email' }));
+    await user.click(screen.getByRole('button', { name: 'Send me new writing' }));
 
     const request = vi.mocked(fetch).mock.calls;
     expect(request).toHaveLength(1);
@@ -66,7 +66,7 @@ describe('end-of-piece All Writing disclosure', () => {
     render(<EndOfPieceSubscribe audience="fiction" source="portfolio-piece-end" kind="story" />);
     const user = userEvent.setup();
     await user.type(screen.getByLabelText('Email address'), 'reader@example.test');
-    await user.click(screen.getByRole('button', { name: 'Send confirmation email' }));
+    await user.click(screen.getByRole('button', { name: 'Send me new writing' }));
     expect(await screen.findByRole('status')).toHaveTextContent('Your request is recorded. Check your inbox; if no confirmation arrives, try again in 10 minutes.');
     expect(screen.getByText(scope)).toBeVisible();
     expect(screen.queryByText(/you are subscribed/i)).not.toBeInTheDocument();
