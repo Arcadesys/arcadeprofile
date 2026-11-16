@@ -18,7 +18,8 @@ export type DiscoveryReadingItem = {
   };
 };
 
-function readingMinutes(text: string, wordsPerMinute = 225): number {
+/** Whole minutes to read `text`, never below one. Shared with the reading catalog. */
+export function readingMinutes(text: string, wordsPerMinute = 225): number {
   return Math.max(1, Math.ceil(text.trim().split(/\s+/).filter(Boolean).length / wordsPerMinute));
 }
 
