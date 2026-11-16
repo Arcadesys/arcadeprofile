@@ -3,7 +3,7 @@ id: photos-arent-sticky
 title: "Photos Aren't Sticky"
 slug: photos-arent-sticky
 group: on-writing
-publishDate: '2026-11-19T09:00:00-06:00'
+status: draft
 excerpt: A red squirrel, a Photoshop file, and how making art helps me hold on to my life.
 tags:
   - writing
