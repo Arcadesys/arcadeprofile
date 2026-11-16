@@ -33,8 +33,9 @@ test('the resume sits in the primary navigation rail and the footer, linking to 
   const navbar = source('app/components/NavbarClient.tsx');
   assert.match(navbar, /case WORK_RESUME_URL:/, 'the resume needs a nav rail icon');
 
+  // The footer lists the rail's orientation items, so the resume reaches it through the same list.
   const footer = source('app/components/Footer.tsx');
-  assert.match(footer, /href=\{WORK_RESUME_URL\}/);
+  assert.match(footer, /ORIENTATION_NAV_ITEMS\.map/);
 });
 
 

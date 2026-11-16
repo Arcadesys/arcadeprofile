@@ -6,13 +6,16 @@ import Link from 'next/link';
 import { getProjectBySlug } from '@/lib/projects';
 import { getGroupBySlug } from '@/lib/blog';
 import { projectCategoryLabels } from '@/lib/project-model';
+import Breadcrumb from '@/app/components/Breadcrumb';
 import DocDrawer from '@/app/components/DocDrawer';
 import type { DrawerSection } from '@/app/components/DocDrawer';
 import EndOfPieceSubscribe from '@/app/components/EndOfPieceSubscribe';
+import PieceBar from '@/app/components/PieceBar';
 import { PieceActions } from '@/app/components/PieceActions';
 import ReadingContinuityTracker from '@/app/components/ReadingContinuityTracker';
 import ReadingNextSteps from '@/app/components/ReadingNextSteps';
 import NextInSeries from '@/app/components/NextInSeries';
+import { buildPieceTrail } from '@/lib/breadcrumb-trails';
 import { getReadingCatalog } from '@/lib/reading-catalog';
 import { formatSiteDate } from '@/lib/site-time';
 import { JsonLd } from '@/lib/structured-data';
@@ -222,6 +225,11 @@ export default async function ProjectPostPage({ params }: Props) {
       ? 'essay'
       : 'build note';
   const readingPiece = readingCatalog.find((candidate) => candidate.canonicalPath === buildPostUrl(slug, postSlug))!;
+  // Essays and fiction sit under Read; build notes keep their plain back link.
+  const trailSection = project.category === 'fiction' ? 'fiction' : project.category === 'writing' ? 'essays' : null;
+  const trail = trailSection
+    ? buildPieceTrail({ section: trailSection, series: { title: project.title, href: introHref }, pieceTitle: post.title })
+    : null;
 
   const drawer = (
     <DocDrawer
@@ -244,10 +252,22 @@ export default async function ProjectPostPage({ params }: Props) {
       <JsonLd data={breadcrumbJsonLd} />
       {drawer}
       <ReadingContinuityTracker piece={readingPiece} />
+      <PieceBar
+        backHref={introHref}
+        backLabel={project.title}
+        title={post.title}
+        position={partIndex}
+        total={totalCount}
+        readingMinutes={readingPiece.readingMinutes}
+      />
       <main className={postMainCls}>
-        <nav style={{ marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-          <Link href={introHref} style={navLinkStyle}>← {project.title}</Link>
-        </nav>
+        {trail ? (
+          <div style={{ marginBottom: '2rem' }}><Breadcrumb items={trail} /></div>
+        ) : (
+          <nav style={{ marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+            <Link href={introHref} style={navLinkStyle}>← {project.title}</Link>
+          </nav>
+        )}
 
         <article className="longform-article">
           <header style={{ marginBottom: '2.5rem' }}>

@@ -1,6 +1,5 @@
-import { canonicalDiscoveryHref } from '@/lib/post-canonical';
 import NextInSeries from './NextInSeries';
-import ReaderLink from './ReaderLink';
+import NextUp from './NextUp';
 import { nextPiece, recommendedPieces, type ReadingPiece } from '@/lib/reading-continuity';
 
 type Props = {
@@ -22,12 +21,5 @@ export default function ReadingNextSteps({ piece, catalog, skipNext = false }: P
       />
     );
   }
-  const recommendations = recommendedPieces(piece, catalog);
-  if (recommendations.length === 0) return null;
-  return (
-    <section aria-labelledby="more-to-read-heading" style={{ margin: '2.5rem 0' }}>
-      <h2 id="more-to-read-heading" style={{ fontSize: '1.5rem' }}>More to read</h2>
-      <ul>{recommendations.map((recommendation) => <li key={recommendation.canonicalPath}><ReaderLink canonicalId={piece.canonicalPath} contentType={piece.contentType} placement="recommended-reading" href={canonicalDiscoveryHref(recommendation.canonicalPath)} style={{ display: 'inline-flex', minHeight: '48px', alignItems: 'center', fontSize: '1.125rem' }}>{recommendation.title}</ReaderLink></li>)}</ul>
-    </section>
-  );
+  return <NextUp piece={piece} recommendations={recommendedPieces(piece, catalog)} />;
 }

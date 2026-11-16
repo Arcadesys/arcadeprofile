@@ -1,66 +1,50 @@
 import Link from 'next/link';
 import FooterSubscribe from './FooterSubscribe';
+import {
+  LAB_NAV_ITEM,
+  ORIENTATION_NAV_ITEMS,
+  PORTFOLIO_NAV_ITEM,
+  TOYS_NAV_ITEM,
+  type NavItem,
+} from '@/lib/nav-items';
 import { SITE_NAME } from '@/lib/site-brand';
-import { WORK_RESUME_URL } from '@/lib/work-resume';
+
+import styles from './Footer.module.css';
+
+// Destinations the rail does not carry. Labels come from nav-items so they cannot drift from the rest of the site.
+const MORE_ITEMS: readonly NavItem[] = [PORTFOLIO_NAV_ITEM, LAB_NAV_ITEM, TOYS_NAV_ITEM];
+
+const isExternal = (href: string) => /^https?:\/\//.test(href);
+
+function FooterLink({ item }: { item: NavItem }) {
+  return (
+    <li>
+      <Link href={item.href}>
+        {item.label}
+        {isExternal(item.href) ? <span aria-hidden="true"> ↗</span> : null}
+      </Link>
+    </li>
+  );
+}
 
 export default function Footer() {
   return (
-    <footer
-      style={{
-        position: 'relative',
-        zIndex: 1,
-        marginTop: 'clamp(3rem, 8vw, 6rem)',
-        padding: 'clamp(2rem, 5vw, 3rem) 1rem',
-        borderTop: '1px solid var(--border)',
-        background: 'var(--bg-deep)',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: '680px',
-          margin: '0 auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.75rem',
-        }}
-      >
+    <footer className={styles.footer}>
+      <div className={styles.inner}>
         <FooterSubscribe />
 
-        <nav
-          aria-label="Footer"
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '0.5rem 1.25rem',
-            justifyContent: 'center',
-            fontSize: '0.85rem',
-            fontFamily: 'var(--font-mono)',
-          }}
-        >
-          <Link href="/bio" style={{ color: 'var(--fg-muted)' }}>Bio</Link>
-          <Link href={WORK_RESUME_URL} style={{ color: 'var(--fg-muted)' }}>Resume</Link>
-          <Link href="/projects" style={{ color: 'var(--fg-muted)' }}>Projects</Link>
-          <Link href="/portfolio" style={{ color: 'var(--fg-muted)' }}>Portfolio</Link>
-          <Link href="/lab" style={{ color: 'var(--fg-muted)' }}>Case Studies</Link>
-          <Link href="/toys" style={{ color: 'var(--fg-muted)' }}>Toys</Link>
-          <Link href="/books" style={{ color: 'var(--fg-muted)' }}>Books</Link>
-          <a href="https://freeplaypublishing.com" target="_blank" rel="noreferrer" style={{ color: 'var(--fg-muted)' }}>Free Play Publishing</a>
-          <Link href="/latest" style={{ color: 'var(--fg-muted)' }}>Latest</Link>
-          <a href="/feed.xml" style={{ color: 'var(--fg-muted)' }}>RSS</a>
+        <nav aria-label="Footer" className={styles.nav}>
+          <ul className={`${styles.list} ${styles.primary}`}>
+            {ORIENTATION_NAV_ITEMS.map((item) => <FooterLink key={item.id} item={item} />)}
+          </ul>
+          <ul className={`${styles.list} ${styles.more}`}>
+            {MORE_ITEMS.map((item) => <FooterLink key={item.id} item={item} />)}
+            <li><a href="https://freeplaypublishing.com" target="_blank" rel="noreferrer">Free Play Publishing <span aria-hidden="true">↗</span></a></li>
+            <li><a href="/feed.xml">RSS</a></li>
+          </ul>
         </nav>
 
-        <p
-          style={{
-            margin: 0,
-            textAlign: 'center',
-            fontSize: '0.75rem',
-            color: 'var(--fg-muted)',
-            fontFamily: 'var(--font-mono)',
-            letterSpacing: '0.04em',
-          }}
-        >
-          © {new Date().getFullYear()} Austen Tucker · {SITE_NAME}
-        </p>
+        <p className={styles.copy}>© {new Date().getFullYear()} Austen Tucker · {SITE_NAME}</p>
       </div>
     </footer>
   );

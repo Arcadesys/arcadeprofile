@@ -50,3 +50,20 @@ test('book-first homepage controls keep readable text and full-size touch target
   assert.match(home, /@media \(prefers-reduced-motion: reduce\)/);
   assert.ok(remValue(firstRule(feature, '.secondaryAction'), 'font-size') >= 1);
 });
+
+test('homepage reserves the live rail width and leaves focus rings to the global rule', () => {
+  const home = source('app/(frontend)/home.module.css');
+  const base = firstRule(home, '.main');
+  assert.match(base, /var\(--nav-rail-width\)/);
+  assert.doesNotMatch(home, /\b138px\b/);
+
+  for (const path of [
+    'app/(frontend)/home.module.css',
+    'app/components/BookActions.module.css',
+    'app/components/BookPurchaseBlock.module.css',
+    'app/components/StartReadingShelf.module.css',
+    'app/components/SubscriptionForm.module.css',
+  ]) {
+    assert.doesNotMatch(source(path), /:focus-visible\s*\{[^}]*outline/, `${path} restyles the global 4px focus outline`);
+  }
+});

@@ -47,7 +47,7 @@ export default async function QueerColumnsPage() {
       <main className={styles.page}>
         <div className={styles.inner}>
           <nav className={styles.breadcrumb} aria-label="Breadcrumb">
-            <Link href="/writing">Writing</Link><span aria-hidden="true">/</span><span>Queer Columns</span>
+            <Link href="/writing">Read</Link><span aria-hidden="true">/</span><span>Queer Columns</span>
           </nav>
 
           <header className={styles.hero}>

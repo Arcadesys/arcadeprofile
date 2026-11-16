@@ -16,8 +16,8 @@
   justify-content: center;
   gap: .4rem;
   padding: .75rem 1rem;
-  border: 2px solid #ffad68;
-  border-radius: .35rem;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
   font-size: 1.05rem;
   font-weight: 800;
   line-height: 1.4;
@@ -30,31 +30,26 @@
 .label { min-width: 0; overflow-wrap: anywhere; }
 
 .purchase {
-  background: #ffad68;
-  color: #171317;
+  background: var(--accent);
+  color: #09090a;
 }
 
 .actions a.purchase { min-height: 52px; }
 
 .secondary {
-  background: #171317;
-  color: #fff7ef;
+  background: transparent;
+  color: var(--fg);
 }
 
 .actions a:hover {
-  border-color: #fff7ef;
+  border-color: var(--fg);
   text-decoration: underline;
   text-shadow: none;
 }
 
 .actions a.purchase:hover {
-  background: #ffad68;
-  color: #171317;
-}
-
-.actions a:focus-visible {
-  outline: 3px solid #fff7ef;
-  outline-offset: 4px;
+  background: var(--accent);
+  color: #09090a;
 }
 
 .pending {
