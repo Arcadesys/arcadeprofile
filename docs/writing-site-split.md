@@ -64,6 +64,6 @@ this PR, so no redirect points at a page that does not exist yet.
 This branch now sits on top of the top-bar redesign. The redesign's layout wins wherever the two overlapped:
 
 - Top bar: kept as designed (Read, Blog, Watch me build, About, Books, and the "Work with me" button to the work site).
-- Home: kept the hero, the three entry paths, Latest and the Zoo feature. Added the tagline ("Strange fiction with heart.") to the subhead, renamed Latest to Blog, and added the Carl gift signup after the latest posts.
+- Home: kept the hero, the three entry paths, Latest and the Zoo feature. Added the tagline ("Strange fiction with heart.") to the subhead, renamed Latest to Blog, and added the Estelle's Children preorder block and the Carl gift signup after the latest posts. The Estelle block brings back what the seo check expects on Home (it fails on main without it).
 - Removed from the writing site: the résumé links on Home and in the footer, the toy "continue" banner (toys now live on the work site), and the footer's Case Studies and Toys links. The footer has one "Things I build" link to the work site instead.
 - "build notes" dropped from the Home subhead, since build writing belongs to the work site.

@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
+
+import BookActions from '@/app/components/BookActions';
 
 import ContinueReadingBanner from '@/app/components/ContinueReadingBanner';
 import FeaturedCollectionCard from '@/app/components/FeaturedCollectionCard';
@@ -10,6 +13,7 @@ import { formatSiteDate } from '@/lib/site-time';
 import { SITE_NAME, SITE_PROMISE, SITE_PROMISE_HEADLINE, SITE_PROMISE_LINE } from '@/lib/site-brand';
 import { SITE_URL } from '@/lib/site-url';
 import { ZOO_FEATURED_COLLECTION } from '@/lib/zoo-collection-meta';
+import { getBook } from '@/data/books';
 import { getReadingCatalog } from '@/lib/reading-catalog';
 import moxieHero480 from '@/public/images/moxie/moxie-sitting-text-gaze-480.webp';
 import moxieHero960 from '@/public/images/moxie/moxie-sitting-text-gaze-960.webp';
@@ -18,6 +22,7 @@ import moxieHero1536 from '@/public/images/moxie/moxie-sitting-text-gaze.webp';
 import styles from './home.module.css';
 
 const RECENT_POSTS_MAX = 4;
+const estelle = getBook('estelles-children')!;
 const homeTitle = SITE_PROMISE_HEADLINE.replace(/\.$/, '');
 const homepageDescription = 'Strange fiction with heart by Austen Tucker. Everything here used to be something else. Find what to read next and get Carl free with the newsletter.';
 
@@ -117,6 +122,18 @@ export default async function HomePage() {
             </div>
           </li>
         ))}</ol> : <p>No recent publications are available yet.</p>}
+      </section>
+
+      <section className={styles.release} aria-labelledby="estelle-release-heading">
+        {estelle.coverImage ? <Image className={styles.releaseCover} src={estelle.coverImage} alt={estelle.coverAlt ?? `Cover of ${estelle.title}.`} width={900} height={1440} sizes="(max-width: 700px) 200px, 220px" /> : null}
+        <div className={styles.releaseCopy}>
+          <p className={styles.eyebrow}>Releases November 30, 2026</p>
+          <h2 id="estelle-release-heading">Estelle&apos;s Children</h2>
+          {estelle.synopsis?.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          <p>The ebook is available for preorder.</p>
+          <BookActions book={estelle} purchaseOnly placement="home_estelle_preorder" />
+          <Link className={styles.entryPathAction} href="/books/estelles-children">Explore Estelle&apos;s Children <span aria-hidden="true">→</span></Link>
+        </div>
       </section>
 
       <section className={styles.signup} aria-labelledby="home-signup-heading">

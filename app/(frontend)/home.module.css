@@ -195,3 +195,27 @@
   .signup { grid-template-columns: minmax(0, 1fr); }
   .signupCopy, .signup form { grid-column: 1; grid-row: auto; }
 }
+
+/* ── Estelle's Children release ───────────────────────────── */
+.release {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  padding: 3rem 0 3.5rem;
+  border-top: 1px solid var(--border);
+}
+.release h2 {
+  margin: .5rem 0 0;
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  line-height: 1.1;
+}
+.releaseCopy { display: grid; gap: .75rem; min-width: 0; }
+.releaseCopy > p:not(.eyebrow) { max-width: 40em; margin: 0; color: var(--fg-muted); }
+.releaseCover { display: block; width: 100%; height: auto; border-radius: 6px; }
+
+@media (max-width: 700px) {
+  .release { grid-template-columns: minmax(0, 1fr); }
+  .releaseCover { width: min(100%, 200px); }
+}
