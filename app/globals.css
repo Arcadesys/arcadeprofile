@@ -2206,6 +2206,31 @@ html[data-nav-collapsed="true"] {
   }
 }
 
+/* ── Short desktop windows ─────────────────────────────────
+   The full-size rail needs about 810px of height. From the 701px desktop
+   threshold up to 839px, tighten the links so every destination, Search and
+   the collapse toggle fit without scrolling. The list keeps its scroll
+   fallback for the day another destination is added. */
+@media (min-width: 961px) and (min-height: 701px) and (max-height: 839px) {
+  .site-nav > ul {
+    gap: .35rem;
+    padding-block: .5rem;
+  }
+  .site-nav > ul > li:not(.nav-more) > a:not(.nav-logo) {
+    min-height: 64px;
+    gap: .25rem;
+    padding-block: .4rem;
+  }
+  .nav-rail-icon {
+    width: 30px;
+    height: 30px;
+  }
+  .nav-rail-icon svg {
+    width: 27px;
+    height: 27px;
+  }
+}
+
 /* ── Site-wide illumination control ───────────────────── */
 .dock-trigger {
   width: 52px;
@@ -2411,16 +2436,27 @@ html[data-contrast="high"] .lights-toggle .dock-trigger[aria-pressed="true"] {
 .dd-close { display: none; }
 
 @media (max-width: 960px), (max-height: 700px) {
-  .site-nav { gap: .5rem; }
+  /* The Reading trigger is fixed-positioned outside the bar's flex row, so the
+     row cannot make room for it by itself. The bar reserves its right-hand slot
+     instead: Menu and Search sit to the trigger's left, in the order the
+     keyboard reaches them, and no control covers another. */
+  .nav-wrapper {
+    --nav-bar-inset: 1rem;
+    --reader-trigger-width: 78px;
+  }
+  .site-nav {
+    gap: .5rem;
+    padding-right: calc(var(--nav-bar-inset) + var(--reader-trigger-width) + .5rem);
+  }
   .nav-wrapper > .reading-dock {
     position: fixed;
     top: 11px;
-    right: 90px;
+    right: var(--nav-bar-inset);
     bottom: auto;
     z-index: 102;
   }
   .nav-wrapper > .reading-dock .dock-trigger {
-    width: 78px;
+    width: var(--reader-trigger-width);
     height: 64px;
   }
   .reading-dock .dock-panel {
@@ -2510,6 +2546,12 @@ html[data-contrast="high"] .lights-toggle .dock-trigger[aria-pressed="true"] {
     font-size: .72rem;
     letter-spacing: .07em;
   }
+}
+
+/* With Reading, Menu and Search sharing the bar, the wordmark only fits beside
+   the mascot from 441px up. Below that the mascot alone is the home link. */
+@media (max-width: 440px) {
+  .nav-logo-copy { display: none; }
 }
 
 @media (max-width: 380px) {
