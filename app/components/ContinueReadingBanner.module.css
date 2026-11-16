@@ -48,6 +48,8 @@
 }
 
 .dismiss {
+  /* Matches the link's inset, so a wrapped Dismiss lines up with the text above it instead of touching the cyan edge. */
+  margin-left: 1.1rem;
   min-height: 44px;
   padding: .5rem 1rem;
   border: 1px solid var(--border-strong);
