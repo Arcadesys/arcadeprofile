@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 
 import { SITE_NAME } from '@/lib/site-brand';
 import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 import { WORK_RESUME_URL } from '@/lib/work-resume';
 
-import styles from '../start/start.module.css';
+import styles from './welcome.module.css';
 
 // Same profile the work site links to (work.thearcades.me lib/content.ts).
 const LINKEDIN_URL = 'https://www.linkedin.com/in/austen-tucker-0968a914';
@@ -32,89 +31,95 @@ export const metadata: Metadata = {
 };
 
 // Keep this stable QR destination; the selections can change without reprinting cards.
-const introductions = [
+const EMAIL = 'austen.crowder@gmail.com';
+
+const destinations = [
   {
-    label: 'Work together',
-    title: 'Builder & leader',
+    title: 'Work with me',
     href: 'https://work.thearcades.me/',
-    detail: 'AI enablement, transformation, and practical tools. Explore my professional work.',
-    action: 'Work with me',
+    detail: 'AI enablement, transformation, and practical tools.',
   },
   {
-    label: 'Find your next read',
-    title: 'Books & stories',
+    title: 'Books and stories',
     href: '/books',
-    detail: 'Current books, upcoming releases, and the backlist, with links to buy and read.',
-    action: 'Explore the books',
+    detail: 'Current books, what is coming next, and where to buy.',
   },
   {
-    label: 'Keep in touch',
-    title: 'Say hello',
-    href: 'mailto:austen.crowder@gmail.com',
-    detail: 'Continue the conversation. Send me a note.',
-    action: 'Email Austen',
+    title: 'Read something now',
+    href: '/writing',
+    detail: 'Fiction, essays, and good places to begin.',
+  },
+  {
+    title: 'Résumé',
+    href: WORK_RESUME_URL,
+    detail: 'Professional experience and selected work.',
+  },
+  {
+    title: 'About Austen',
+    href: '/bio',
+    detail: 'The person behind the work.',
   },
 ] as const;
 
 export default function WelcomePage() {
   return (
     <main className={styles.main}>
-      <header className={styles.header}>
-        <p>{SITE_NAME}</p>
+      <header className={styles.hero}>
+        <p className={styles.site}>{SITE_NAME}</p>
         <h1>Austen Tucker</h1>
-        <p className={styles.intro}>Builder · Leader · Writer</p>
-        <p className={styles.intro}>Welcome. If you found your way here from my card, here’s a place to pick up the conversation.</p>
+        <p className={styles.roles}>Builder · Leader · Writer</p>
+        <p className={styles.welcome}>Welcome. If you found your way here from my card, here’s a place to pick up the conversation.</p>
       </header>
 
-      <section className={styles.route} aria-labelledby="welcome-contact-heading" style={{ marginBottom: '1rem' }}>
+      <section className={styles.section} aria-labelledby="welcome-contact-heading">
         <h2 id="welcome-contact-heading">Get in touch</h2>
-        <address style={{ fontStyle: 'normal' }}>
-          <ul style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 18rem), 1fr))' }}>
-            <li style={{ gridColumn: '1 / -1' }}>
-              <a href={LINKEDIN_URL} style={{ minHeight: 0, borderColor: 'var(--accent)', borderWidth: '2px' }}>
-                <strong>LinkedIn</strong>
-                <span>Connect with me and see my work history.</span>
-                <span className={styles.follow}>Connect on LinkedIn <span aria-hidden="true">↗</span></span>
+        <address className={styles.address}>
+          <ul className={styles.list}>
+            <li>
+              <a href={LINKEDIN_URL} className={`${styles.button} ${styles.primary}`}>
+                <span className={styles.buttonText}>
+                  <span className={styles.buttonLabel}>Connect on LinkedIn</span>
+                  <span className={styles.buttonDetail}>See my work history</span>
+                </span>
+                <span className={styles.arrow} aria-hidden="true">↗</span>
               </a>
             </li>
             <li>
-              <a href="mailto:austen.crowder@gmail.com" style={{ minHeight: 0, overflowWrap: 'anywhere' }}>
-                <strong>Email</strong>
-                <span>austen.crowder@gmail.com</span>
+              <a href="mailto:austen.crowder@gmail.com" className={styles.button}>
+                <span className={styles.buttonText}>
+                  <span className={styles.buttonLabel}>Email me</span>
+                  <span className={styles.buttonDetail}>{EMAIL}</span>
+                </span>
+                <span className={styles.arrow} aria-hidden="true">→</span>
               </a>
             </li>
             <li>
-              <a href="tel:+13127207820" style={{ minHeight: 0 }}>
-                <strong>Phone</strong>
-                <span>312.720.7820</span>
+              <a href="tel:+13127207820" className={styles.button}>
+                <span className={styles.buttonText}>
+                  <span className={styles.buttonLabel}>Call me</span>
+                  <span className={styles.buttonDetail}>312.720.7820</span>
+                </span>
+                <span className={styles.arrow} aria-hidden="true">→</span>
               </a>
             </li>
           </ul>
         </address>
       </section>
 
-      <section className={styles.introductions} aria-labelledby="welcome-next-heading">
+      <section className={styles.section} aria-labelledby="welcome-next-heading">
         <h2 id="welcome-next-heading">Where would you like to go?</h2>
-        <ul>
-          {introductions.map((item) => (
+        <ul className={styles.destinations}>
+          {destinations.map((item) => (
             <li key={item.href}>
-              <a href={item.href}>
-                <span className={styles.choiceLabel}>{item.label}</span>
-                <strong>{item.title}</strong>
-                <span>{item.detail}</span>
-                <span className={styles.follow}>{item.action} <span aria-hidden="true">→</span></span>
+              <a href={item.href} className={styles.row}>
+                <span className={styles.rowText}>
+                  <span className={styles.rowTitle}>{item.title}</span>
+                  <span className={styles.rowDetail}>{item.detail}</span>
+                </span>
+                <span className={styles.arrow} aria-hidden="true">→</span>
               </a>
             </li>
           ))}
-        </ul>
-      </section>
-
-      <section className={styles.route} aria-labelledby="welcome-more-heading">
-        <h2 id="welcome-more-heading">A little more about me</h2>
-        <ul>
-          <li><Link href={WORK_RESUME_URL}><strong>Résumé</strong><span>Professional experience and selected work.</span></Link></li>
-          <li><Link href="/writing"><strong>Read something</strong><span>Fiction, essays, and places to begin.</span></Link></li>
-          <li><Link href="/bio"><strong>About Austen</strong><span>The person behind the work.</span></Link></li>
         </ul>
       </section>
     </main>
