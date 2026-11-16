@@ -1,0 +1,65 @@
+/* Console style: square panel, 5px cyan edge, surface fill. Tokens only, so all three themes follow. */
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem 1rem;
+  margin: 0 0 2rem;
+  padding: .35rem .75rem .35rem 0;
+  border: 1px solid var(--border-strong);
+  border-left: 5px solid var(--cyan);
+  border-radius: 0;
+  background: var(--surface);
+}
+
+.resume {
+  display: grid;
+  flex: 1 1 18rem;
+  align-content: center;
+  gap: .3rem;
+  min-height: 44px;
+  padding: .5rem 1.1rem;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.resume:hover,
+.resume:focus-visible { text-shadow: none; }
+
+.resume:hover .title,
+.resume:focus-visible .title { text-decoration: underline; text-underline-offset: .2em; }
+
+.label {
+  color: var(--neon-pink);
+  font-family: var(--font-mono);
+  font-size: .875rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.title { font-weight: 600; }
+
+.position {
+  margin-left: .5rem;
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: .875rem;
+}
+
+.dismiss {
+  min-height: 44px;
+  padding: .5rem 1rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  background: transparent;
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: .875rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  cursor: pointer;
+}
+
+.dismiss:hover,
+.dismiss:focus-visible { border-color: var(--accent); text-shadow: none; }
