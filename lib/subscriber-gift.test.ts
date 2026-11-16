@@ -5,7 +5,7 @@ import path from 'node:path';
 import { BROOMSTICKS_GIFT, CARL_GIFT, giftForMagnet, SUBSCRIBER_GIFT, subscriberGiftFiles, type SubscriberGift } from './subscriber-gift';
 import { VALID_MAGNETS } from './subscribe-types';
 
-test('Carl is the sitewide gift; Broomsticks stays on the Estelle page; placeholders never go live', () => {
+test('Carl is the sitewide gift with real files; Broomsticks stays on the Estelle page', () => {
   assert.ok(VALID_MAGNETS.includes('subscriber-exclusive'));
   assert.ok(VALID_MAGNETS.includes('carl'));
   assert.ok(!VALID_MAGNETS.some((magnet: string) => magnet === 'story'));
@@ -15,15 +15,11 @@ test('Carl is the sitewide gift; Broomsticks stays on the Estelle page; placehol
   assert.equal(giftForMagnet('it-takes-a-zoo-complete'), null);
   assert.equal(giftForMagnet('toString'), null);
 
-  // Carl's bound PDF and ebook come from Austen; until then nothing is offered.
+  // Austen's bound Carl PDF and the EPUB built from their ebook text.
   assert.equal(CARL_GIFT.title, 'Carl');
-  assert.deepEqual(CARL_GIFT.files.map((file) => file.filename), ['carl.pdf', 'carl.epub']);
-  for (const file of CARL_GIFT.files) {
-    if (/^\/lead-magnets\//.test(file.url)) continue;
-    assert.match(file.url, /^\[CARL (PDF|EPUB) URL\]$/);
-  }
-  if (CARL_GIFT.files.every((file) => file.url.startsWith('/lead-magnets/'))) assertRealFiles(CARL_GIFT);
-  else assert.deepEqual(subscriberGiftFiles(CARL_GIFT), []);
+  assert.deepEqual(CARL_GIFT.files.map((file) => file.url), ['/lead-magnets/carl.pdf', '/lead-magnets/carl.epub']);
+  assert.equal(subscriberGiftFiles(CARL_GIFT).length, 2);
+  assertRealFiles(CARL_GIFT);
 
   assert.equal(BROOMSTICKS_GIFT.title, 'Broomsticks');
   assert.match(BROOMSTICKS_GIFT.description, /opening story of Estelle's Children/);
@@ -38,6 +34,7 @@ function assertRealFiles(gift: SubscriberGift) {
     const bytes = fs.readFileSync(path.join(process.cwd(), 'public', file.url));
     assert.ok(bytes.length > 1000);
     assert.equal(bytes.subarray(0, file.label === 'PDF' ? 5 : 2).toString(), file.label === 'PDF' ? '%PDF-' : 'PK');
+    if (file.label === 'EPUB') assert.equal(bytes.subarray(30, 58).toString(), 'mimetypeapplication/epub+zip');
   }
 }
 
