@@ -34,6 +34,8 @@ export const metadata: Metadata = {
   },
 };
 
+// It Takes a Zoo already leads the page under "Writing now", so the list skips it.
+const ZOO_HUB_SLUG = 'it-takes-a-zoo';
 const ACTIVE_DAYS = 14;
 const PULSE_DAYS = 7;
 const PULSE_FALLBACK_DAYS = 14;
@@ -62,7 +64,7 @@ export default async function ProjectsPage() {
   const hubBySlug = new Map(hubs.map((h) => [h.slug, h]));
 
   const entries: IndexEntry[] = hubs.map((hub) => {
-    const isZooCollection = hub.slug === 'it-takes-a-zoo';
+    const isZooCollection = hub.slug === ZOO_HUB_SLUG;
     const groupPosts = postsByGroup.get(hub.slug) ?? [];
     const totalPosts = groupPosts.length;
     const newest = groupPosts[0];
@@ -143,7 +145,7 @@ export default async function ProjectsPage() {
 
   return (
     <ProjectsIndex
-      entries={entries}
+      entries={entries.filter((entry) => entry.slug !== ZOO_HUB_SLUG)}
       pulse={pulse}
       weekCount={weekCount}
       writingNow={{

@@ -65,12 +65,13 @@ test('long-form routes put next steps before the end-of-piece signup', () => {
   const endOfPieceSubscribe = source('app/components/EndOfPieceSubscribe.tsx');
   const footerSubscribe = source('app/components/FooterSubscribe.tsx');
 
-  assert.ok(projectPost.indexOf('<ReadingNextSteps') < projectPost.indexOf('<EndOfPieceSubscribe'));
+  assert.ok(projectPost.indexOf('<NextInSeries') < projectPost.indexOf('<EndOfPieceSubscribe'));
+  assert.ok(projectPost.indexOf('<EndOfPieceSubscribe') < projectPost.indexOf('<ReadingNextSteps'));
   assert.ok(zooChapter.indexOf('<ReadingNextSteps') < zooChapter.indexOf('<EndOfPieceSubscribe'));
   assert.ok(collectionStory.indexOf('<ReadingNextSteps') < collectionStory.indexOf('<EndOfPieceSubscribe'));
   assert.ok(portfolioPiece.indexOf('<ReadingNextSteps') < portfolioPiece.indexOf('<EndOfPieceSubscribe'));
   assert.ok(labCaseStudy.indexOf('<EndOfPieceSubscribe') < labCaseStudy.indexOf('<div className={styles.pieceActions}>'));
-  assert.match(endOfPieceSubscribe, /Send confirmation email/);
+  assert.match(endOfPieceSubscribe, /Send me new writing/);
   assert.match(endOfPieceSubscribe, /END_OF_PIECE_AUDIENCES: readonly Audience\[\] = \['all'\]/);
   assert.match(endOfPieceSubscribe, /audience === 'queer-columns'/);
   assert.match(projectPost, /slug !== 'queer-columns'[\s\S]*?<EndOfPieceSubscribe/);
