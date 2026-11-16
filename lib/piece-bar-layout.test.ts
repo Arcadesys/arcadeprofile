@@ -32,9 +32,9 @@ function declarations(selector: string, media: string | null): Record<string, st
 test('the bar is fixed so it takes no space and cannot shift content', () => {
   const bar = declarations('.bar', null);
   assert.equal(bar.position, 'fixed');
-  assert.equal(bar.top, '0');
+  assert.equal(bar.top, 'var(--navbar-height)', 'sit directly beneath the sticky top bar');
   assert.equal(bar.right, '0');
-  assert.equal(bar.left, 'var(--nav-rail-width)', 'stay clear of the fixed desktop rail');
+  assert.equal(bar.left, '0');
   assert.equal(bar['z-index'], '30', 'below the drawer scrim (39), drawer (40/41) and navigation (100)');
 });
 
@@ -54,12 +54,6 @@ test('it fades and slides in over 0.18s', () => {
   const { transition } = declarations('.bar', null);
   assert.match(transition, /transform 0\.18s/);
   assert.match(transition, /opacity 0\.18s/);
-});
-
-test('short and mobile viewports sit directly under the 86px site bar, from the left edge', () => {
-  const bar = declarations('.bar', shortOrMobile);
-  assert.equal(bar.top, '86px');
-  assert.equal(bar.left, '0', 'the rail width variable can still be set on small screens');
 });
 
 test('no motion under calm motion or prefers-reduced-motion', () => {

@@ -1,8 +1,8 @@
 .page {
-  width: calc(100% - var(--nav-rail-width));
+  width: 100%;
   max-width: none;
   min-height: 100vh;
-  margin: 0 0 0 var(--nav-rail-width);
+  margin: 0;
   padding: clamp(1.25rem, 3vw, 3rem);
 }
 

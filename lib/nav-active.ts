@@ -12,7 +12,7 @@ const READ_ROUTES = [
   '/stories',
   '/essays',
   '/queercolumns',
-  '/bibliography',
+  '/bookshelf',
   '/novels',
   '/this-is-what-i-do-for-fun',
 ] as const;

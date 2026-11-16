@@ -5,13 +5,13 @@
  * up out of its own box, with pointer events off (and inert in the markup).
  *
  * Layers: page, this bar (30), series drawer scrim (39), drawer (40/41),
- * site navigation (100).
+ * site navigation (100), which this bar sits directly beneath.
  */
 .bar {
   position: fixed;
-  top: 0;
+  top: var(--navbar-height);
   right: 0;
-  left: var(--nav-rail-width);
+  left: 0;
   z-index: 30;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;

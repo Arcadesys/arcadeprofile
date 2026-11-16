@@ -736,7 +736,7 @@ export default function MidwestFurFestPage() {
             </p>
             <p className={styles.exhibitLink}>
               <Link href="/lab/arcadeprofile">How the publishing system works &rarr;</Link>{' '}
-              <Link href="/bibliography">The bibliography &rarr;</Link>
+              <Link href="/bookshelf">The bookshelf &rarr;</Link>
             </p>
           </figure>
 
@@ -1119,7 +1119,7 @@ export default function MidwestFurFestPage() {
                 the rest of <Link href="/toys">the toys</Link>.
               </li>
               <li>
-                Exhibit 05 &mdash; <Link href="/bibliography">bibliography</Link> and the{' '}
+                Exhibit 05 &mdash; <Link href="/bookshelf">bibliography</Link> and the{' '}
                 <Link href="/lab/arcadeprofile">ArcadeProfile case study</Link>.
               </li>
               <li>

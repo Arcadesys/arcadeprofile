@@ -4,8 +4,8 @@
   --books-text: #f7efe8;
   --books-muted: #cfc2b9;
   --books-rule: #5a4f56;
-  width: min(calc(100% - 138px - 2rem), 1320px);
-  margin: 0 auto 0 calc(138px + max(1rem, (100vw - 138px - 1320px) / 2));
+  width: min(100% - 2rem, 70rem);
+  margin: 0 auto;
   padding: 2rem 0 5rem;
   color: var(--books-text);
 }

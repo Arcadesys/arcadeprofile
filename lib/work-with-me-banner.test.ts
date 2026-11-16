@@ -5,12 +5,13 @@ import test from 'node:test';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
-test('the homepage exposes the professional site through one compact brand-bar link', () => {
-  const home = source('app/(frontend)/page.tsx');
-  const controls = home.slice(home.indexOf('className={styles.brandBar}'), home.indexOf('className={styles.hero}'));
-  assert.ok(controls.length > 0, 'brand bar must precede the book hero');
+test('every page exposes the professional site from the top bar', () => {
+  const navbar = source('app/components/NavbarClient.tsx');
 
-  assert.match(controls, /className=\{styles\.workWithMe\} href="https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=home_header"/);
-  assert.match(controls, /Work with me/);
-  assert.doesNotMatch(controls, /href="\/subscribe"/);
+  assert.match(navbar, /https:\/\/work\.thearcades\.me\/\?utm_source=thearcades&utm_medium=site&utm_campaign=professional_handoff&utm_content=site_header/);
+  assert.match(navbar, /className="nav-cta" href=\{WORK_SITE_URL\}/);
+  assert.match(navbar, /Work with me/);
+  // No Subscribe link in the bar while email signups are paused site-wide;
+  // see app/components/SubscriptionForm.tsx.
+  assert.doesNotMatch(navbar, /href="\/subscribe"/);
 });

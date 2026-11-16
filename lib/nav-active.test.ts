@@ -17,7 +17,7 @@ test('an essay in a series lights Read, not Watch me build', () => {
 });
 
 test('fiction and the other reading routes light Read', () => {
-  for (const pathname of ['/writing', '/stories', '/essays', '/queercolumns', '/bibliography', '/novels/it-takes-a-zoo/cold-boot', '/this-is-what-i-do-for-fun/carl', '/projects/it-takes-a-zoo/anything']) {
+  for (const pathname of ['/writing', '/stories', '/essays', '/queercolumns', '/bookshelf', '/novels/it-takes-a-zoo/cold-boot', '/this-is-what-i-do-for-fun/carl', '/projects/it-takes-a-zoo/anything']) {
     assert.deepEqual(lit(pathname), ['Read'], pathname);
   }
 });

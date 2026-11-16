@@ -19,23 +19,23 @@
 
 /* ── Design tokens ──────────────────────────────────────── */
 :root {
-  --bg:            #0a0a14;
-  --bg-deep:       #000000;
-  --surface:       #14142a;
-  --surface-hover: #1e1e3a;
-  --fg:            #e8e8ec;
-  --fg-muted:      #9a9ab0;
-  --fg-faint:      #6a6a82;
+  --bg:            #121013;
+  --bg-deep:       #121013;
+  --surface:       #1b181c;
+  --surface-hover: #242025;
+  --fg:            #f3eae2;
+  --fg-muted:      #c9beb7;
+  --fg-faint:      #b9ada6;
   --accent:        #ff8a00;
-  --neon-pink:     #ff3cac;
-  --magenta:       #ff6b9d;
+  --neon-pink:     #ffad68;
+  --magenta:       #ffad68;
   --gold:          #ffaa00;
-  --btn-bg:        #1a1a30;
-  --glow-pink:     rgba(255, 60, 172, 0.4);
-  --glow-orange:   rgba(255, 138, 0, 0.3);
-  --border:        rgba(255, 138, 0, 0.2);
-  --border-strong: rgba(255, 138, 0, 0.45);
-  --border-pink:   rgba(255, 60, 172, 0.30);
+  --btn-bg:        #1b181c;
+  --glow-pink:     transparent;
+  --glow-orange:   transparent;
+  --border:        #332d33;
+  --border-strong: #51484d;
+  --border-pink:   #51484d;
 
   --radius-sm:   4px;
   --radius:      8px;
@@ -61,34 +61,23 @@
   --reading-line-height: 1.6;
   --reading-measure:     68ch;
 
-  --navbar-height: 3.5rem;
-  --nav-bg: rgba(10, 5, 20, 0.85);
-  --cyan: #00e0f0;
-  --pink: #ef36af;
-  --console-panel: rgba(7, 7, 8, 0.92);
-  --console-border: #34343b;
-  --console-text: #f7f7f4;
-  --console-muted: #e6e6e6;
-  --console-cyan-glow: rgba(0, 224, 240, 0.28);
-  --console-pink-glow: rgba(239, 54, 175, 0.38);
-  --console-orange-glow: rgba(255, 145, 45, 0.5);
-  --console-texture-opacity: 0.18;
-}
-
-html[data-lights="off"] {
-  --cyan: #56aeb5;
-  --pink: #b65a91;
-  --accent: #d47a32;
-  --neon-pink: #c4679f;
-  --console-panel: rgba(9, 9, 10, 0.97);
-  --console-border: #4b4b50;
-  --console-muted: #d0d0d3;
+  --navbar-height: 4rem;
+  --nav-bg: #121013;
+  --cyan: #9c8d95;
+  --pink: #9c8d95;
+  --console-panel: #1b181c;
+  --console-border: #332d33;
+  --console-text: #f3eae2;
+  --console-muted: #c9beb7;
   --console-cyan-glow: transparent;
   --console-pink-glow: transparent;
   --console-orange-glow: transparent;
-  --console-texture-opacity: 0.055;
-  --glow-pink: transparent;
-  --glow-orange: transparent;
+  --console-texture-opacity: 0;
+}
+
+html[data-lights="off"] {
+  --accent: #d98a45;
+  --neon-pink: #dba577;
 }
 
 /* ── Reading-mode overrides ─────────────────────────────── */
@@ -206,27 +195,15 @@ a:hover {
   outline-offset: 4px;
 }
 
-/* ── The Arcades' Lab neon-console treatment ───────────── */
-body { background: #050506; }
-body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: var(--console-texture-opacity); background-image: radial-gradient(rgba(255,255,255,.22) .55px, transparent .8px), linear-gradient(125deg, rgba(0,224,240,.06), transparent 22%, rgba(239,54,175,.05) 75%, transparent); background-size: 5px 5px, 100% 100%; }
-/* Tracks how much horizontal space the fixed desktop rail actually needs, so
-   any page content can reserve space for it with `margin-left: var(--nav-rail-width)`
-   instead of hardcoding 138px (which drifts out of sync when the rail's own
-   width changes, as with the collapse toggle below). */
-:root { --nav-rail-width: 0px; }
-@media (min-width: 961px) and (min-height: 701px) { :root { --nav-rail-width: 138px; } }
-
-.nav-wrapper { position: relative; z-index: 20; padding: 0 !important; }
-.site-nav { position: fixed; inset: 0 auto 0 0; display: flex; flex-direction: column; justify-content: flex-start; width: 138px; padding: 1.5rem .75rem; border: 0; border-right: 2px solid var(--cyan); border-radius: 0; background: rgba(5,5,6,.96); box-shadow: 5px 0 20px var(--console-cyan-glow); backdrop-filter: blur(16px); }
-.nav-logo { width: 100%; height: auto; margin: .35rem 0 1.25rem; padding: .65rem .2rem .9rem; border-bottom: 1px solid rgba(255,255,255,.18); gap: .5rem; justify-content: center; }.nav-logo img { width: 52px; height: 52px; flex: 0 0 52px; border: 2px solid var(--accent); border-radius: 50%; object-fit: cover; box-shadow: 0 0 14px var(--console-orange-glow); }.nav-logo-copy { display: none; }
-.site-nav > ul { display: grid; width: 100%; gap: .45rem; }.site-nav a:not(.nav-logo), .nav-more summary { display: grid; min-height: 52px; place-items: center; padding: .55rem .25rem; border: 1px solid transparent; border-radius: 0; color: #e9e9e8; font-family: var(--font-barlow-condensed), sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; text-align: center; }
-.site-nav a:not(.nav-logo):hover, .nav-more summary:hover { color: #fff; border-color: rgba(255,255,255,.65); background: rgba(255,255,255,.06); text-shadow: none; }.site-nav a.active, .nav-more summary.active { color: #fff; border-color: var(--cyan); box-shadow: inset 0 -4px 0 var(--cyan); text-shadow: none; }
-.site-nav a.primary { color: #fff; border-color: var(--accent); background: rgba(255,145,45,.09); box-shadow: none; }.site-nav a.primary:hover { background: rgba(255,145,45,.2); box-shadow: 0 0 16px var(--console-orange-glow); }.nav-more { width: 100%; }.nav-more > details > ul { position: fixed; top: auto; bottom: 1rem; left: 148px; right: auto; width: 220px; border-radius: 0; background: #09090a; }.nav-more > details > ul a { justify-items: start; padding-inline: 1rem; }.nav-mobile-toggle { display: none; }
-body > main, body > #__next, .nav-wrapper + main { margin-left: 138px; }
-.dd-intro-main, .dd-post-main { max-width: min(64ch, calc(100vw - 138px - 3rem)); padding-block: clamp(3rem, 7vw, 6rem); }.dd-intro-main.has-drawer, .dd-post-main.has-drawer { margin-left: max(138px, calc((100vw - min(64ch, calc(100vw - 138px - 3rem))) / 2 + 138px)); }
-.doc-drawer { width: min(380px, calc(100vw - 2rem)); transform: translateX(-100%); border-right: 2px solid var(--pink); background: #09090a; }.doc-drawer.open { transform: translateX(0); }.dd-toggle { display: grid; place-items: center; left: 138px; top: 50%; min-width: 48px; min-height: 52px; border: 2px solid var(--pink); border-left: 0; border-radius: 0 6px 6px 0; color: #fff; box-shadow: 5px 0 16px rgba(239,54,175,.22); animation: none; }.dd-scrim { display: block; }.dd-scrim:not(.visible) { display: none; }
-.prose { max-width: 64ch; font-size: 18px; line-height: 1.7; }.portfolio-reader__header h1, .dd-post-main h1, .dd-intro-main h1 { font-family: var(--font-barlow-condensed), sans-serif; font-weight: 700; letter-spacing: .01em; text-transform: uppercase; }
-@media (max-width: 960px), (max-height: 700px) { .site-nav { position: sticky; top: 0; flex-direction: row; align-items: center; width: 100%; min-height: 72px; padding: .65rem 1rem; border-right: 0; border-bottom: 2px solid var(--cyan); }.nav-logo { width: auto; margin: 0 auto 0 0; padding: .15rem .5rem .15rem 0; border: 0; justify-content: flex-start; }.nav-logo img { width: 72px; height: 48px; flex-basis: 72px; border-radius: 50%; }.nav-logo-copy { display: grid; gap: .05rem; color: #fff; font-family: var(--font-mono); text-transform: uppercase; }.nav-logo-copy strong { font-size: .82rem; letter-spacing: .14em; }.nav-logo-copy small { color: var(--accent); font-size: .68rem; letter-spacing: .07em; }.nav-mobile-toggle { display: inline-flex; min-width: 56px; min-height: 56px; align-items: center; justify-content: center; border: 2px solid var(--cyan); background: transparent; color: #fff; font-family: var(--font-mono); font-size: .78rem; text-transform: uppercase; }.site-nav > ul { display: none; position: fixed; top: 72px; right: 0; left: 0; max-height: calc(100vh - 72px); padding: 1rem; overflow: auto; background: #09090a; border-bottom: 2px solid var(--cyan); }.site-nav.mobile-open > ul { display: grid; }.site-nav a:not(.nav-logo), .nav-more summary { min-height: 56px; font-size: 1.15rem; }.nav-more > details > ul { position: static; width: auto; margin-top: .5rem; }.nav-home { display: block; } body > main, body > #__next, .nav-wrapper + main { margin-left: 0; }.dd-intro-main, .dd-post-main, .dd-intro-main.has-drawer, .dd-post-main.has-drawer { max-width: min(64ch, calc(100vw - 2rem)); margin-left: auto; }.dd-toggle { left: 0; }.doc-drawer { width: min(380px, calc(100vw - 1rem)); } }
+/* ── Shell ──────────────────────────────────────────────── */
+body { background: var(--bg); }
+.doc-drawer { width: min(380px, calc(100vw - 2rem)); transform: translateX(-100%); border-right: 1px solid var(--border-strong); background: var(--surface); }
+.doc-drawer.open { transform: translateX(0); }
+.dd-scrim { display: block; }
+.dd-scrim:not(.visible) { display: none; }
+.dd-intro-main, .dd-post-main { max-width: min(64ch, calc(100vw - 2rem)); padding-block: clamp(3rem, 7vw, 6rem); }
+.prose { max-width: 64ch; font-size: 18px; line-height: 1.7; }
+.portfolio-reader__header h1, .dd-post-main h1, .dd-intro-main h1 { font-family: var(--font-barlow-condensed), sans-serif; font-weight: 700; letter-spacing: .01em; text-transform: uppercase; }
 
 @layer utilities {
   .text-balance { text-wrap: balance; }
@@ -793,10 +770,6 @@ hr, hr.ds-hr {
     place-items: center;
     animation: dd-tug 0.55s ease-in-out 1.4s 3;
   }
-  /* On mobile the drawer is hidden by default — reset desktop push */
-  body.has-doc-drawer .nav-wrapper { padding-left: var(--space-5); }
-  /* Push nav only when the drawer is actually open */
-  body.dd-open .nav-wrapper { padding-left: calc(280px + var(--space-5)); }
 }
 
 /* Scrim behind the drawer on mobile */
@@ -1459,7 +1432,6 @@ html[data-reading-width] .portfolio-index {
 /* Final longform overrides: the series navigator is always an intentional
    overlay, never a permanent sidebar that steals the reading measure. */
 @media (min-width: 781px) {
-  body.has-doc-drawer .nav-wrapper { padding-left: 0; }
   .dd-intro-main.has-drawer, .dd-post-main.has-drawer { margin-left: auto; margin-right: auto; padding-inline: 1.5rem; }
 }
 
@@ -1513,155 +1485,6 @@ html[data-reading-width] .portfolio-index {
   font-size: 13px;
   text-align: center;
   font-style: italic;
-}
-
-/* ── Navbar ─────────────────────────────────────────────── */
-.nav-wrapper {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  padding: var(--space-3) var(--space-5);
-  pointer-events: none; /* let clicks pass through the wrapper gap */
-  transition: padding-left 0.3s ease;
-}
-/* Desktop: drawer is always visible, so always push the nav right */
-@media (min-width: 1101px) {
-  body.has-doc-drawer .nav-wrapper {
-    padding-left: calc(280px + var(--space-5));
-  }
-}
-
-.site-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 24px;
-  background-color: rgba(10, 10, 20, 0.85);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  pointer-events: auto;
-}
-
-.nav-logo {
-  display: flex;
-  align-items: center;
-  height: 48px;
-  text-shadow: none;
-  color: var(--fg);
-}
-.nav-logo img {
-  height: 48px;
-  width: auto;
-}
-.nav-logo:hover {
-  color: var(--fg);
-  text-shadow: none;
-}
-
-.site-nav ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  justify-content: flex-end;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.site-nav a:not(.nav-logo) {
-  color: var(--fg-muted);
-  text-decoration: none;
-  font-size: 14px;
-  letter-spacing: 0.03em;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  transition: color 0.2s, text-shadow 0.2s;
-  display: block;
-}
-.site-nav a:not(.nav-logo):hover {
-  color: var(--neon-pink);
-  text-shadow: 0 0 8px var(--glow-pink);
-}
-.site-nav a.active {
-  color: var(--neon-pink);
-  font-weight: 500;
-  text-shadow: 0 0 12px var(--glow-pink);
-}
-.site-nav a.primary {
-  color: var(--fg);
-  border: 1px solid var(--neon-pink);
-  background: rgba(255, 60, 172, 0.1);
-  box-shadow: 0 0 12px var(--glow-pink);
-  font-weight: 600;
-}
-.site-nav a.primary:hover {
-  color: var(--fg);
-  background: rgba(255, 60, 172, 0.18);
-  box-shadow: 0 0 20px var(--glow-pink);
-}
-.nav-more { position: relative; }
-.nav-more summary {
-  display: block;
-  cursor: pointer;
-  color: var(--fg-muted);
-  font-size: 14px;
-  letter-spacing: 0.03em;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  list-style: none;
-}
-.nav-more summary::-webkit-details-marker { display: none; }
-.nav-more summary::after { content: ' +'; margin-left: 0.35rem; }
-.nav-more details[open] summary::after { content: ' −'; }
-.nav-more summary:hover,
-.nav-more summary.active { color: var(--neon-pink); }
-.nav-more > details > ul {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  z-index: 2;
-  display: grid;
-  min-width: 11rem;
-  padding: var(--space-2);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  background: var(--bg-deep);
-  box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
-}
-.nav-more > details > ul a { white-space: nowrap; }
-/* High-contrast nav overrides */
-html[data-contrast="high"] .site-nav {
-  background-color: #000000;
-  border-color: rgba(255, 255, 255, 0.4);
-  backdrop-filter: none;
-}
-html[data-contrast="high"] .site-nav a.primary {
-  box-shadow: none;
-}
-
-/* Mobile nav adjustments */
-@media (max-width: 480px) {
-  .nav-wrapper {
-    padding: var(--space-2) var(--space-3);
-  }
-  .site-nav {
-    align-items: flex-start;
-    padding: 10px 14px;
-  }
-  .site-nav ul {
-    row-gap: var(--space-1);
-  }
-  .site-nav a:not(.nav-logo) {
-    font-size: 13px;
-    padding: 6px 8px;
-  }
-  .nav-logo img {
-    height: 36px;
-  }
-  .nav-more summary { font-size: 13px; padding: 6px 8px; }
-  .nav-more > details > ul { right: 0; }
 }
 
 /* ── Projects page ──────────────────────────────────────── */
@@ -1977,186 +1800,11 @@ html[data-reading-width] .collection-index {
 
 /* The desktop series control is a drawer/overlay by design. */
 @media (min-width: 1101px) {
-  body.has-doc-drawer .nav-wrapper { padding-left: 0; }
   .dd-intro-main.has-drawer, .dd-post-main.has-drawer { margin-left: auto; margin-right: auto; padding-inline: 1.5rem; }
 }
 
-/* Keep the mobile rail a real drawer even though legacy navigation rules have
-   a later generic flex declaration. */
-@media (max-width: 960px), (max-height: 700px) {
-  .site-nav {
-    height: 86px;
-    box-sizing: border-box;
-  }
-  .site-nav > ul {
-    display: none !important;
-    top: 86px;
-    grid-template-columns: minmax(0, 1fr);
-    justify-content: stretch;
-    justify-items: stretch;
-    max-height: calc(100dvh - 86px);
-  }
-  .site-nav.mobile-open > ul { display: grid !important; }
-  .site-nav > ul > li,
-  .site-nav > ul > li > a,
-  .site-nav > ul > li > details,
-  .site-nav > ul > li > details > summary {
-    width: 100%;
-  }
-}
-
 /* Visible on every viewport: this is the labelled gateway to series context. */
-.dd-toggle { display: grid; place-items: center; left: 138px; top: 50%; min-width: 48px; min-height: 52px; border: 2px solid var(--pink); border-left: 0; border-radius: 0 6px 6px 0; background: #09090a; color: #fff; box-shadow: 5px 0 16px rgba(239,54,175,.22); animation: none; }
-@media (max-width: 960px), (max-height: 700px) { .dd-toggle { left: 0; } }
-
-/* Keep the series list beside the fixed desktop rail so every title remains
-   visible. Mobile keeps using the full-width overlay declared below. */
-@media (min-width: 961px) and (min-height: 701px) {
-  .doc-drawer {
-    left: 138px;
-    width: min(380px, calc(100vw - 138px - 1rem));
-  }
-  body.dd-open .dd-toggle {
-    left: calc(138px + min(380px, calc(100vw - 138px - 1rem)));
-  }
-}
-
-/* Desktop rail icon pass: roomy, high-contrast linework that pairs every
-   editorial destination with a readable label. The icon is decorative; the
-   label and active border remain the navigation affordance. */
-@media (min-width: 961px) and (min-height: 701px) {
-  .site-nav {
-    align-items: stretch;
-    justify-content: flex-start;
-    padding: 1.5rem .75rem;
-  }
-  .site-nav > .nav-logo,
-  .site-nav > .site-search {
-    flex-shrink: 0;
-  }
-  .site-nav > ul {
-    /* Let links scroll instead of squeezing search and collapse off-screen. */
-    min-height: 0;
-    overflow-y: auto;
-    display: grid;
-    width: 100%;
-    align-self: stretch;
-    align-content: start;
-    justify-content: stretch;
-    grid-template-columns: minmax(0, 1fr);
-    gap: .72rem;
-    padding-block: 1rem;
-  }
-  .site-nav > ul > li {
-    width: 100%;
-  }
-  .site-nav > ul > li:not(.nav-more) > a:not(.nav-logo) {
-    display: grid;
-    width: 100%;
-    min-height: 78px;
-    gap: .38rem;
-    align-content: center;
-    justify-items: center;
-    padding: .55rem .25rem;
-    line-height: 1;
-  }
-  .site-nav > ul > li > a:focus-visible {
-    /* Keep the focus ring inside the scrollable list. */
-    outline-offset: -4px;
-  }
-  .nav-more summary {
-    width: 100%;
-  }
-  .nav-rail-icon {
-    display: grid;
-    width: 32px;
-    height: 32px;
-    place-items: center;
-    color: #f5f5f2;
-  }
-  .nav-rail-icon svg {
-    display: block;
-    width: 29px;
-    height: 29px;
-    overflow: visible;
-  }
-  .site-nav a.active .nav-rail-icon {
-    color: var(--cyan);
-  }
-  .site-nav a:not(.nav-logo):hover .nav-rail-icon {
-    color: #fff;
-  }
-}
-@media (max-width: 960px), (max-height: 700px) {
-  .nav-rail-icon { display: none; }
-}
-
-/* ── Desktop rail collapse ─────────────────────────────────
-   A toggle at the foot of the rail lets the reader shrink it to an
-   icon-only strip so long-form content isn't fighting it for space. */
-@media (min-width: 961px) and (min-height: 701px) {
-  .nav-collapse-toggle {
-    flex-shrink: 0;
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    margin: .75rem auto 0;
-    border: 1px solid rgba(255,255,255,.25);
-    border-radius: 50%;
-    background: transparent;
-    color: #cfcfcd;
-  }
-  .nav-collapse-toggle:hover { color: #fff; border-color: rgba(255,255,255,.65); }
-  .nav-collapse-toggle svg { width: 20px; height: 20px; }
-}
-@media (max-width: 960px), (max-height: 700px) {
-  .nav-collapse-toggle { display: none; }
-}
-
-html[data-nav-collapsed="true"] {
-  --nav-rail-width: 56px;
-}
-@media (min-width: 961px) and (min-height: 701px) {
-  html[data-nav-collapsed="true"] .site-nav {
-    width: var(--nav-rail-width);
-  }
-  html[data-nav-collapsed="true"] .nav-label {
-    display: none;
-  }
-  html[data-nav-collapsed="true"] .site-nav > ul {
-    /* Use the rail's padding for the scrollport so icons fit beside a scrollbar. */
-    width: calc(100% + 1.5rem);
-    margin-inline: -.75rem;
-  }
-  html[data-nav-collapsed="true"] .site-nav > ul > li:not(.nav-more) > a:not(.nav-logo) {
-    min-height: 56px;
-    padding-inline: 0;
-  }
-  html[data-nav-collapsed="true"] body > main,
-  html[data-nav-collapsed="true"] body > #__next,
-  html[data-nav-collapsed="true"] .nav-wrapper + main {
-    margin-left: var(--nav-rail-width);
-  }
-  html[data-nav-collapsed="true"] .dd-intro-main,
-  html[data-nav-collapsed="true"] .dd-post-main {
-    max-width: min(64ch, calc(100vw - var(--nav-rail-width) - 3rem));
-  }
-  html[data-nav-collapsed="true"] .dd-intro-main.has-drawer,
-  html[data-nav-collapsed="true"] .dd-post-main.has-drawer {
-    margin-left: max(var(--nav-rail-width), calc((100vw - min(64ch, calc(100vw - var(--nav-rail-width) - 3rem))) / 2 + var(--nav-rail-width)));
-  }
-  html[data-nav-collapsed="true"] .dd-toggle {
-    left: var(--nav-rail-width);
-  }
-  html[data-nav-collapsed="true"] .doc-drawer {
-    left: var(--nav-rail-width);
-    width: min(380px, calc(100vw - var(--nav-rail-width) - 1rem));
-  }
-  html[data-nav-collapsed="true"] body.dd-open .dd-toggle {
-    left: calc(var(--nav-rail-width) + min(380px, calc(100vw - var(--nav-rail-width) - 1rem)));
-  }
-}
+.dd-toggle { display: grid; place-items: center; left: 0; top: 50%; min-width: 48px; min-height: 52px; border: 2px solid var(--pink); border-left: 0; border-radius: 0 6px 6px 0; background: #09090a; color: #fff; animation: none; }
 
 /* ── Short desktop windows ─────────────────────────────────
    The full-size rail needs about 810px of height. From the 701px desktop
@@ -2223,16 +1871,12 @@ html[data-nav-collapsed="true"] {
 
 .reading-dock .dock-panel { bottom: 64px; }
 
-html[data-lights="off"] :where(.site-nav, .dd-toggle, .dock-panel, .card-glow, .austenbox) {
+html[data-lights="off"] :where(.dd-toggle, .dock-panel, .card-glow, .austenbox) {
   box-shadow: none !important;
 }
 
 html[data-lights="off"] :where(.gaysparkles, .glow-pink, .glow-orange, .glow-soft, a:hover) {
   text-shadow: none !important;
-}
-
-html[data-lights="off"] .site-nav {
-  backdrop-filter: none;
 }
 
 html[data-contrast="high"] .lights-toggle .dock-trigger,
@@ -2281,29 +1925,6 @@ html[data-contrast="high"] .lights-toggle .dock-trigger[aria-pressed="true"] {
   scroll-margin-top: 6rem;
 }
 
-/* The Reader control is mounted once inside navigation and positioned as the
-   familiar desktop dock without duplicating state or IDs. */
-.nav-wrapper > .reading-dock {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 50;
-  pointer-events: auto;
-}
-.nav-wrapper > .reading-dock .dock-trigger {
-  width: 78px;
-  height: 64px;
-  grid-template-rows: auto auto;
-  gap: 2px;
-  padding: 6px 8px;
-  border: 2px solid var(--cyan);
-  border-radius: 8px;
-  background:
-    linear-gradient(145deg, rgba(0, 224, 240, .1), transparent 52%),
-    #080809;
-  color: #fff;
-  box-shadow: 0 0 18px var(--console-cyan-glow);
-}
 .reader-trigger-aa {
   font-family: 'Lora', Georgia, serif;
   font-size: 1.7rem;
@@ -2388,34 +2009,11 @@ html[data-contrast="high"] .lights-toggle .dock-trigger[aria-pressed="true"] {
 .dd-close { display: none; }
 
 @media (max-width: 960px), (max-height: 700px) {
-  /* The Reading trigger is fixed-positioned outside the bar's flex row, so the
-     row cannot make room for it by itself. The bar reserves its right-hand slot
-     instead: Menu and Search sit to the trigger's left, in the order the
-     keyboard reaches them, and no control covers another. */
-  .nav-wrapper {
-    --nav-bar-inset: 1rem;
-    --reader-trigger-width: 78px;
-  }
-  .site-nav {
-    gap: .5rem;
-    padding-right: calc(var(--nav-bar-inset) + var(--reader-trigger-width) + .5rem);
-  }
-  .nav-wrapper > .reading-dock {
-    position: fixed;
-    top: 11px;
-    right: var(--nav-bar-inset);
-    bottom: auto;
-    z-index: 102;
-  }
-  .nav-wrapper > .reading-dock .dock-trigger {
-    width: var(--reader-trigger-width);
-    height: 64px;
-  }
   .reading-dock .dock-panel {
     position: fixed;
-    inset: 86px 0 0;
+    inset: var(--navbar-height) 0 0;
     width: 100%;
-    max-height: calc(100dvh - 86px);
+    max-height: calc(100dvh - var(--navbar-height));
     padding: 1rem clamp(1rem, 5vw, 1.5rem) calc(1.5rem + env(safe-area-inset-bottom));
     border-width: 2px 0 0;
     border-radius: 0;
@@ -2483,35 +2081,148 @@ html[data-contrast="high"] .lights-toggle .dock-trigger[aria-pressed="true"] {
   }
 }
 
-@media (max-width: 350px) {
-  .nav-logo { max-width: 160px; }
-  .nav-logo-copy small { display: none; }
-  .nav-logo-copy strong {
-    font-size: .68rem;
-    letter-spacing: .04em;
+/* ── Top bar ────────────────────────────────────────────── */
+.nav-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: .5rem 1.75rem;
+  width: min(100% - 2rem, 70rem);
+  min-height: var(--navbar-height);
+  margin: 0 auto;
+}
+.nav-logo {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  margin-right: auto;
+  color: var(--fg);
+  font-family: var(--font-barlow-condensed), sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.nav-logo:hover { color: var(--fg); }
+.site-nav > ul {
+  display: flex;
+  align-items: center;
+  gap: .25rem 1.5rem;
+  list-style: none;
+}
+.site-nav > ul a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  color: var(--fg);
+  font-size: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.site-nav > ul a:hover { color: var(--neon-pink); }
+.site-nav > ul a.active {
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 8px;
+}
+.site-nav > ul a.nav-cta {
+  padding: 0 1rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-weight: 600;
+}
+.site-nav > ul a.nav-cta:hover { background: var(--accent); color: var(--bg); }
+.nav-tools { display: flex; align-items: center; gap: .5rem; }
+.nav-mobile-toggle {
+  display: none;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 .9rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg);
+  font: 600 1rem var(--font-sans);
+  cursor: pointer;
+}
+
+/* Reader controls live in the bar as a plain "Aa" button. */
+.site-nav .reading-dock { position: relative; }
+.site-nav .reading-dock .dock-trigger {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.site-nav .reading-dock .dock-trigger:hover,
+.site-nav .reading-dock.dock-open .dock-trigger { border-color: var(--accent); }
+.reader-trigger-aa { font-size: 1.25rem; }
+.reader-trigger-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+.reading-dock .dock-panel {
+  border-color: var(--border-strong);
+  background: var(--surface);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .5);
+  backdrop-filter: none;
+}
+@media (min-width: 961px) and (min-height: 701px) {
+  .site-nav .reading-dock .dock-panel {
+    top: calc(100% + .75rem);
+    bottom: auto;
+    transform-origin: top right;
   }
 }
 
-@media (max-width: 480px) {
-  .nav-logo-copy small { display: none; }
-  .nav-logo-copy strong {
-    font-size: .72rem;
-    letter-spacing: .07em;
+@media (max-width: 1040px) {
+  .nav-mobile-toggle { display: inline-flex; }
+  .site-nav > ul {
+    display: none;
+    position: fixed;
+    inset: var(--navbar-height) 0 auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    max-height: calc(100dvh - var(--navbar-height));
+    padding: .5rem 1rem 1rem;
+    overflow: auto;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
   }
+  .site-nav.mobile-open > ul { display: flex; }
+  .site-nav > ul a { width: 100%; min-height: 52px; font-size: 1.125rem; }
+  .site-nav > ul a.nav-cta { justify-content: center; margin-top: .5rem; }
 }
-
-/* With Reading, Menu and Search sharing the bar, the wordmark only fits beside
-   the mascot from 441px up. Below that the mascot alone is the home link. */
-@media (max-width: 440px) {
-  .nav-logo-copy { display: none; }
-}
-
 @media (max-width: 380px) {
-  .site-nav { gap: .25rem; padding-inline: .5rem; }
-  .nav-logo { flex: 0 0 48px; padding-inline: 0; }
-  .nav-logo img { width: 48px; height: 40px; flex-basis: 48px; }
-  .nav-logo-copy { display: none; }
-  .nav-mobile-toggle { min-width: 48px; min-height: 48px; padding-inline: .25rem; }
-  .site-search__trigger { width: 48px; min-height: 48px; }
-  .nav-wrapper > .reading-dock { position: relative; inset: auto; display: flex; justify-content: flex-end; margin: .5rem .5rem 0; }
+  .site-nav { gap: .5rem; }
+  .nav-logo { font-size: 1.25rem; }
 }
+
+/* ── Essay header ───────────────────────────────────────── */
+.post-header { display: grid; gap: 1.1rem; margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.post-header__series { display: inline-flex; min-height: 44px; align-items: center; justify-self: start; color: var(--accent); font-size: 1rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.dd-post-main .post-header h1 { margin: 0; font-size: clamp(2.5rem, 6.4vw, 4.25rem); line-height: 1; text-wrap: balance; }
+.post-header__lede { margin: 0; color: var(--fg-muted); font-size: 1.1875rem; line-height: 1.55; }
+.post-header__meta { margin: 0; color: var(--fg-faint); font-size: 1rem; }
