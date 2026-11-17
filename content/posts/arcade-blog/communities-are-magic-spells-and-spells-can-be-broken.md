@@ -3,7 +3,7 @@ id: '90'
 title: Communities Are Magic Spells, and Spells Can Be Broken
 slug: communities-are-magic-spells-and-spells-can-be-broken
 group: arcade-blog
-publishDate: '2099-01-01T00:00:00-06:00'
+publishDate: '2026-11-17T09:00:00-06:00'
 excerpt: >-
   I lost my faith in a community's institutions and kept the people. This is my
   response to a convention that never wrote back.
@@ -71,7 +71,7 @@ We didn't talk about it much. There was always another event, another reason to 
 
 ## The Disenchantment
 
-At MFF 2024, my wife and I were chatting with two people from FurPlanet, a publisher I already had a business relationship with. They wanted to know when I was going to write another book.
+At MFF 2024, my wife and I were chatting with two people from a big publisher in the community, one I already had a business relationship with. They wanted to know when I was going to write another book.
 
 I got excited.
 
@@ -85,7 +85,7 @@ I used AI in the planning and revision of that work. I was experimenting with to
 
 By MFF 2025, I had a finished draft, ready to submit. Then the convention announced its rules for 2026, and the work I'd imagined bringing back to this community was no longer welcome under them.
 
-FurPlanet had encouraged me to write. The convention's decision was a separate one. But I had begun the book imagining those things belonged to the same future: the publisher, the readers, the conventions where we found one another.
+The publisher had encouraged me to write. The convention's decision was a separate one. But I had begun the book imagining those things belonged to the same future: the publisher, the readers, the conventions where we found one another.
 
 The rug came out from under me.
 
