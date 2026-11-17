@@ -13,7 +13,7 @@ const TITLE = 'Leave the Door Open';
 const DESCRIPTION = 'On Midwest FurFest, generative AI, and the community I still want to call home.';
 const CANONICAL_PATH = '/mff';
 const MFF_PUBLIC = true;
-const MANIFESTO_VERSION = '1.1.0';
+const MANIFESTO_VERSION = '1.1.1';
 const MANIFESTO_DATE = 'September 17, 2026';
 const MFF_POLICY_URL = 'https://www.furfest.org/vendors/alley/rules';
 const MFF_POLICY_SCREENSHOT_URL =
@@ -839,6 +839,16 @@ export default function MidwestFurFestPage() {
 
           <h2>What I am asking</h2>
 
+          <p>
+            <em>
+              Update: I have received no formal response. My reply is{' '}
+              <Link href="/projects/arcade-blog/communities-are-magic-spells-and-spells-can-be-broken">
+                Communities Are Magic Spells, and Spells Can Be Broken
+              </Link>
+              .
+            </em>
+          </p>
+
           <p>This is not an easy letter to write.</p>
           <p>
             Members of the staff and board of this convention are my neighbors, my friends, even my
@@ -911,6 +921,18 @@ export default function MidwestFurFestPage() {
             here, whatever the answer is.
           </p>
           <div className={styles.changelog}>
+            <div className={styles.changeVersion}>v1.1.1</div>
+            <div>
+              <strong>November 17, 2026</strong>
+              <p>
+                Noted that I have received no formal response from Midwest FurFest to the requested
+                alternatives, and linked my{' '}
+                <Link href="/projects/arcade-blog/communities-are-magic-spells-and-spells-can-be-broken">
+                  personal response
+                </Link>
+                . The core thesis, requested alternatives, and stated commitment are unchanged.
+              </p>
+            </div>
             <div className={styles.changeVersion}>v1.1.0</div>
             <div>
               <strong>October 4, 2026</strong>
