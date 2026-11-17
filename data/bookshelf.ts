@@ -29,8 +29,8 @@ export interface ShelfName {
 
 export const SHELF_NAMES: readonly ShelfName[] = [
   {
-    slug: 'austen-crowder',
-    name: 'As Austen Crowder',
+    slug: 'austen-tucker',
+    name: 'As Austen Tucker',
     lists: [
       {
         heading: 'Anthology contributions',
@@ -87,9 +87,9 @@ export const SHELF_NAMES: readonly ShelfName[] = [
       { label: 'Amazon author page', href: 'https://www.amazon.com/Austen-Crowder/e/B00IUJF5PI' },
       { label: 'Goodreads author page', href: 'https://www.goodreads.com/author/show/4509394.Austen_Crowder' },
       { label: 'Bad Dog Books author page', href: 'https://baddogbooks.com/product-cat/authors/austen-crowder/' },
-      { label: 'WikiFur: Austen Crowder', href: 'https://en.wikifur.com/wiki/Austen_Crowder' },
+      { label: 'WikiFur author page', href: 'https://en.wikifur.com/wiki/Austen_Crowder' },
       { label: 'Furry Writers’ Guild member spotlight (2015)', href: 'https://furrywritersguild.com/2015/02/15/member-spotlight-austen-crowder/' },
-      { label: 'about.me/austencrowder', href: 'https://about.me/austencrowder' },
+      { label: 'About.me profile', href: 'https://about.me/austencrowder' },
     ],
   },
   {

@@ -12,7 +12,7 @@ const allLinks = SHELF_NAMES.flatMap((group) => [
 ]);
 
 test('the shared shelf covers all three pen names', () => {
-  assert.deepEqual(SHELF_NAMES.map((group) => group.name), ['As Austen Crowder', 'As Slyford T. Rabbit', 'As Sly Rabbit']);
+  assert.deepEqual(SHELF_NAMES.map((group) => group.name), ['As Austen Tucker', 'As Slyford T. Rabbit', 'As Sly Rabbit']);
 });
 
 test('every shelf link on /welcome is also on /bookshelf, so the two pages stay in step', () => {
@@ -38,4 +38,18 @@ test('welcome shows the books and the shared shelf in its own labeled section', 
   assert.match(welcomePage, /BOOKS\.map/);
   assert.match(welcomePage, /SHELF_NAMES\.map/);
   assert.match(welcomePage, /href=\{bookPath\(book\)\}/);
+});
+
+test('the welcome shelf shows Austen Tucker, not Austen Crowder, in visible text', () => {
+  for (const group of SHELF_NAMES) {
+    assert.doesNotMatch(group.name, /Crowder/);
+    for (const link of group.findMe) assert.doesNotMatch(link.label, /crowder/i);
+    for (const list of group.lists) {
+      for (const entry of list.entries) {
+        assert.doesNotMatch(entry.title, /Crowder/);
+        assert.doesNotMatch(entry.detail, /Crowder/);
+        for (const link of entry.links ?? []) assert.doesNotMatch(link.label, /crowder/i);
+      }
+    }
+  }
 });
