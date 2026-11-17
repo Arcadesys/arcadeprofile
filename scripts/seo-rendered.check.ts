@@ -54,6 +54,10 @@ test('the welcome QR destination identifies Austen and offers working public nex
   for (const href of ['https://work.thearcades.me/', 'https://work.thearcades.me/resume', '/books', '/writing', '/bio', 'mailto:austen.crowder@gmail.com']) {
     assert.ok(body.includes(`href="${href}"`), `welcome link: ${href}`);
   }
+  assert.match(body, />My bookshelf</);
+  for (const href of ['/books/estelles-children', 'https://www.goodreads.com/author/show/4509394.Austen_Crowder', 'https://en.wikifur.com/wiki/Sly_Rabbit']) {
+    assert.ok(body.includes(`href="${href}"`), `welcome bookshelf link: ${href}`);
+  }
 });
 
 test('public pages emit one self-canonical, matching og:url, a title, a description and an absolute image', async () => {

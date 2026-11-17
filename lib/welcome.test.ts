@@ -27,7 +27,7 @@ test('welcome has its own canonical, social preview, and sitemap entry', () => {
 });
 
 test('welcome uses labeled sections and its own large, single-column, keyboard-accessible layout', () => {
-  for (const id of ['welcome-contact-heading', 'welcome-next-heading']) {
+  for (const id of ['welcome-contact-heading', 'welcome-next-heading', 'welcome-bookshelf-heading']) {
     assert.match(page, new RegExp(`aria-labelledby="${id}"`));
     assert.match(page, new RegExp(`id="${id}"`));
   }
