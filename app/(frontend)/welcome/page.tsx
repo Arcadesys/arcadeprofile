@@ -4,6 +4,9 @@ import { SITE_NAME } from '@/lib/site-brand';
 import { DEFAULT_SOCIAL_IMAGE } from '@/lib/social-image';
 import { WORK_RESUME_URL } from '@/lib/work-resume';
 
+import Image from 'next/image';
+import { BOOKS, bookPath, bookStatusLabel } from '@/data/books';
+import { SHELF_NAMES } from '@/data/bookshelf';
 import styles from './welcome.module.css';
 
 // Same profile the work site links to (work.thearcades.me lib/content.ts).
@@ -121,6 +124,72 @@ export default function WelcomePage() {
             </li>
           ))}
         </ul>
+      </section>
+      <section className={styles.section} aria-labelledby="welcome-bookshelf-heading">
+        <h2 id="welcome-bookshelf-heading">My bookshelf</h2>
+        <p className={styles.sectionIntro}>Every book, and what I&apos;ve published under three names since 2005: novels, short fiction, poetry, essays, and a live performance or two.</p>
+
+        <h3 className={styles.shelfHeading}>Books</h3>
+        <ul className={styles.books}>
+          {BOOKS.map((book) => (
+            <li key={book.slug} className={styles.book}>
+              {book.coverImage
+                ? <Image className={styles.cover} src={book.coverImage} alt={book.coverAlt ?? `Cover of ${book.title}.`} width={600} height={900} sizes="8rem" />
+                : <span className={styles.coverPlaceholder} aria-hidden="true">{book.title}</span>}
+              <span className={styles.bookText}>
+                <a href={bookPath(book)} className={styles.bookTitle}>{book.title}</a>
+                <span className={styles.bookStatus}>{book.format ?? 'Book'} · {bookStatusLabel(book)}</span>
+                {book.publisher ? <span className={styles.bookDetail}>{book.publisher}</span> : null}
+                <span className={styles.bookDetail}>{book.description}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        {SHELF_NAMES.map((group) => (
+          <section key={group.slug} className={styles.shelfGroup} aria-labelledby={`welcome-shelf-${group.slug}`}>
+            <h3 id={`welcome-shelf-${group.slug}`} className={styles.shelfHeading}>{group.name}</h3>
+            {group.intro ? <p className={styles.sectionIntro}>{group.intro}</p> : null}
+            {group.lists.map((list) => (
+              <div key={list.heading}>
+                <h4 className={styles.shelfSubheading}>{list.heading}</h4>
+                <ul className={styles.entries}>
+                  {list.entries.map((entry) => (
+                    <li key={entry.title} className={styles.entry}>
+                      <p className={styles.entryTitle}>{entry.title}</p>
+                      <p className={styles.entryDetail}>{entry.detail}</p>
+                      {entry.links?.length
+                        ? (
+                          <ul className={styles.entryLinks}>
+                            {entry.links.map((link) => (
+                              <li key={link.href}>
+                                <a href={link.href} className={styles.entryLink}>
+                                  {link.label}
+                                  <span className={styles.linkArrow} aria-hidden="true"> ↗</span>
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        )
+                        : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+            <h4 className={styles.shelfSubheading}>Find me on</h4>
+            <ul className={styles.destinations}>
+              {group.findMe.map((link) => (
+                <li key={link.href}>
+                  <a href={link.href} className={styles.row}>
+                    <span className={styles.rowTitle}>{link.label}</span>
+                    <span className={styles.arrow} aria-hidden="true">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
       </section>
     </main>
   );
