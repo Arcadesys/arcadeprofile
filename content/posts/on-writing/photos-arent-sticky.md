@@ -11,6 +11,11 @@ tags:
   - accessibility
   - art
   - furry
+hero:
+  src: /images/covers/photos-arent-sticky.jpg
+  alt: "Photos Aren't Sticky title card by Austen Tucker: a faded photo of a
+    kid against a brick wall turns into a cartoon red squirrel in a teal
+    sweater as a hand paints over it in orange."
 seo:
   title: "Photos Aren't Sticky"
   description: On photomanipulation, toonsonas, and the only camera that works. How making art makes a memory something I can keep.
