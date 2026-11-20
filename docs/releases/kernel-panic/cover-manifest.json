@@ -1,0 +1,37 @@
+{
+  "title": "Kernel Panic",
+  "series": "It Takes a Zoo",
+  "author": "Austen Tucker",
+  "slug": "kernel-panic",
+  "packageType": "cover-art-handoff",
+  "status": "prepared-not-uploaded",
+  "design": "Concept C, standalone portrait, floppy canine ears",
+  "artwork": {
+    "file": "assets/kernel-panic-cover.png",
+    "mimeType": "image/png",
+    "width": 992,
+    "height": 1586,
+    "byteSize": 1744169,
+    "sha256": "76190787b911a71fdc35d0343645db23fafdf12d59cd658850cdeebb9eb474e2",
+    "alt": "Kernel Panic by Austen Tucker. Geoff, Jamie, and CeeCee, a canine woman with floppy ears, sit around a glowing phone at a kitchen table with tea and cookies. Warm lamplight contrasts with the dark recording studio beyond.",
+    "generation": "image_gen",
+    "mediaId": "kernel-panic-cover",
+    "usedIn": [
+      "kernel-panic"
+    ],
+    "uploadedUrl": null
+  },
+  "target": {
+    "repository": "Arcadesys/arcadeprofile",
+    "inspectedLocalCommit": "179f8cf6056318ad38c7d353f292cc0bc81c5466",
+    "mediaCatalog": "content/media/library.json",
+    "proposedChapterPath": "/novels/it-takes-a-zoo/kernel-panic",
+    "chapterCurrentlyRegisteredInInspectedCheckout": false
+  },
+  "sourceImage": "exec-1b6c0347-aed2-4b7d-bd0f-b90a3eda1996.png",
+  "notes": [
+    "Exact source PNG bytes preserved.",
+    "Proposed chapter URL is not a verified live URL.",
+    "No manuscript, chapter PDF, media upload, site modification or publication is included."
+  ]
+}
