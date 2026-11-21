@@ -34,10 +34,12 @@ test('chapter Markdown is full web text without planning notes or the separate p
 });
 
 test('the approved hero and PDF route contract are complete', () => {
-  assert.equal(ZOO_HERO.width, 1650);
-  assert.equal(ZOO_HERO.height, 2550);
-  assert.match(ZOO_HERO.sha256, /^[a-f0-9]{64}$/);
-  assert.match(ZOO_HERO.alt, /sheltered open-air virtual bar/i);
+  const cover = fs.readFileSync(new URL(`../public${ZOO_HERO.url}`, import.meta.url));
+  assert.equal(ZOO_HERO.width, 1024);
+  assert.equal(ZOO_HERO.height, 1536);
+  assert.equal(ZOO_HERO.bytes, cover.byteLength);
+  assert.equal(ZOO_HERO.sha256, createHash('sha256').update(cover).digest('hex'));
+  assert.match(ZOO_HERO.alt, /cyan.*orange/i);
   const piece = zooChapterToEditorialPiece(ZOO_CHAPTERS[0]);
   assert.equal(piece.pdfOverrideUrl, ZOO_CHAPTERS[0].pdfUrl);
   assert.equal(piece.canonicalPath, '/novels/it-takes-a-zoo/cold-boot');

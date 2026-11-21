@@ -1,10 +1,10 @@
 {
   "hero": {
-    "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/cover/203848b88e2e7853c728b6021be12d92726ec277fdfbdf146ebcff7c51fe97ea/it-takes-a-zoo-collection-cover-v5.png",
-    "sha256": "203848b88e2e7853c728b6021be12d92726ec277fdfbdf146ebcff7c51fe97ea",
-    "bytes": 5675641,
-    "width": 1650,
-    "height": 2550
+    "url": "/images/books/it-takes-a-zoo-upload-v1.webp",
+    "sha256": "6aa14252ea3268069c3d00ce0dc26602023b31f11ec58044851fe680428c11e5",
+    "bytes": 175916,
+    "width": 1024,
+    "height": 1536
   },
   "galleryArtwork": {
     "url": "https://puhixbchomgvn0ti.public.blob.vercel-storage.com/collections/it-takes-a-zoo/gallery-view-artwork/73b7ab70aac4ecd303a5b8161a2aeb6860bafb44f7a7fa2fa3d52f3a941f3f1b/gallery%20view.png",

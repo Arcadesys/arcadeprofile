@@ -9,6 +9,7 @@ import {
   ZOO_HERO,
 } from './zoo-collection-meta';
 import { VALID_MAGNETS, VALID_SOURCES } from './subscribe-types';
+import { BOOKS } from '@/data/books';
 
 test('Zoo discovery metadata points to the canonical collection and first chapter', () => {
   assert.equal(ZOO_COLLECTION_TITLE, 'It Takes a Zoo');
@@ -21,7 +22,10 @@ test('Zoo discovery metadata points to the canonical collection and first chapte
     label: 'Get the complete PDF',
   });
   assert.equal(ZOO_FEATURED_COLLECTION.cover, ZOO_HERO);
-  assert.match(ZOO_HERO.url, /^https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\//);
+  assert.equal(ZOO_HERO.url, '/images/books/it-takes-a-zoo-upload-v1.webp');
+  const book = BOOKS.find(({ slug }) => slug === 'it-takes-a-zoo');
+  assert.equal(book?.coverImage, ZOO_HERO.url);
+  assert.equal(book?.coverAlt, ZOO_HERO.alt);
 });
 
 test('the Zoo complete-edition signup has a dedicated source and magnet', () => {

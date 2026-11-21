@@ -3,7 +3,7 @@ import assets from '@/data/zoo-collection-assets.json';
 export const ZOO_COLLECTION_TITLE = 'It Takes a Zoo';
 export const ZOO_COLLECTION_PATH = '/novels/it-takes-a-zoo';
 export const ZOO_COLLECTION_DESCRIPTION = 'A novel-in-stories about escaping the hypercapitalist grind.';
-export const ZOO_HERO_ALT = 'A sheltered open-air virtual bar overlooks a rainy neon city. A low-poly fox and painterly mouse, rabbit, cat, and human share drinks beneath the roof.';
+export const ZOO_HERO_ALT = 'Cover of It Takes a Zoo by Austen Tucker. A shark girl swims through cyan light above small furry silhouettes. A rabbit holds a fox’s hand beside an orange-lit upload bed.';
 
 export const ZOO_HERO = {
   ...assets.hero,

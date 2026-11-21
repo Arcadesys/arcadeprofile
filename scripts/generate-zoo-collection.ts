@@ -1,9 +1,11 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import { put } from '@vercel/blob';
+
+import approvedAssets from '../data/zoo-collection-assets.json';
 
 const SITE_ROOT = process.cwd();
 const WRITING_ROOT = path.resolve(
@@ -172,6 +174,8 @@ function validatePdf(pdfPath: string, chapter: ChapterDefinition) {
 }
 
 async function uploadAssets() {
+  // Chapter uploads retain the separately approved book cover.
+  const { hero } = approvedAssets;
   const chapters: Record<string, Awaited<ReturnType<typeof uploadFile>>> = {};
   for (const chapter of CHAPTERS) {
     const pdfPath = path.join(ZOO_ROOT, chapter.pdfPath ?? `output/pdf/${chapter.slug}.pdf`);
@@ -179,19 +183,6 @@ async function uploadAssets() {
     chapters[chapter.slug] = await uploadFile(pdfPath, chapter.slug, 'application/pdf');
     console.log(`Uploaded ${chapter.slug}.pdf.`);
   }
-  const heroPath = path.join(
-    ZOO_ROOT,
-    'web-assets',
-    'collection-cover',
-    'it-takes-a-zoo-collection-cover-v5.png',
-  );
-  const heroInfo = await stat(heroPath);
-  if (!heroInfo.isFile()) throw new Error('The approved collection hero is missing.');
-  const hero = {
-    ...(await uploadFile(heroPath, 'cover', 'image/png')),
-    width: 1650,
-    height: 2550,
-  };
   const galleryArtwork = await uploadFile(
     path.join(ZOO_ROOT, 'ms', '3 - Gallery View', 'gallery view.png'),
     'gallery-view-artwork',

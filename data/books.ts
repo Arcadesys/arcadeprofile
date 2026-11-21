@@ -1,3 +1,5 @@
+import { ZOO_HERO } from '@/lib/zoo-collection-meta';
+
 export type BookStage = 'available' | 'forthcoming' | 'development' | 'out-of-print';
 export type BookSection = 'current' | 'next' | '2027' | 'development' | 'backlist';
 
@@ -147,6 +149,8 @@ export const BOOKS: readonly BookInfo[] = [
     releaseYear: 2027,
     format: 'Novel-in-stories',
     publisher: 'Free Play Publishing',
+    coverImage: ZOO_HERO.url,
+    coverAlt: ZOO_HERO.alt,
     actions: [
       { label: 'Read the serial', href: '/novels/it-takes-a-zoo' },
     ],
