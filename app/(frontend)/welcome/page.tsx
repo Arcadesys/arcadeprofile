@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 // Keep this stable QR destination; the selections can change without reprinting cards.
-const EMAIL = 'austen.crowder@gmail.com';
+const EMAIL = 'austen@thearcades.me';
 
 const destinations = [
   {
@@ -88,7 +88,7 @@ export default function WelcomePage() {
               </a>
             </li>
             <li>
-              <a href="mailto:austen.crowder@gmail.com" className={styles.button}>
+              <a href="mailto:austen@thearcades.me" className={styles.button}>
                 <span className={styles.buttonText}>
                   <span className={styles.buttonLabel}>Email me</span>
                   <span className={styles.buttonDetail}>{EMAIL}</span>

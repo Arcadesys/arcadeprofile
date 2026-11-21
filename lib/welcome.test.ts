@@ -10,7 +10,7 @@ test('the business-card destination is a real branded page with public next step
   assert.match(page, /export default function WelcomePage/);
   assert.match(page, /<h1>Austen Tucker<\/h1>/);
   assert.match(page, /Builder · Leader · Writer/);
-  for (const destination of ['https://work.thearcades.me/', '/books', '/writing', '/bio', 'mailto:austen.crowder@gmail.com']) {
+  for (const destination of ['https://work.thearcades.me/', '/books', '/writing', '/bio', 'mailto:austen@thearcades.me']) {
     assert.ok(page.includes(destination), destination);
   }
   assert.match(page, /href: WORK_RESUME_URL/);
@@ -42,12 +42,16 @@ test('welcome uses labeled sections and its own large, single-column, keyboard-a
 });
 
 test('welcome lists email once, as a contact button, not again as a destination', () => {
-  assert.equal(page.split('mailto:austen.crowder@gmail.com').length - 1, 1);
+  assert.equal(page.split('mailto:austen@thearcades.me').length - 1, 1);
 });
 
 test('welcome leads its contact block with a prominent LinkedIn link', () => {
   assert.match(page, /const LINKEDIN_URL = 'https:\/\/www\.linkedin\.com\/in\/austen-tucker-0968a914'/);
-  const contact = page.slice(page.indexOf('id="welcome-contact-heading"'), page.indexOf('mailto:austen.crowder@gmail.com'));
+  const contact = page.slice(page.indexOf('id="welcome-contact-heading"'), page.indexOf('mailto:austen@thearcades.me'));
   assert.match(contact, /href=\{LINKEDIN_URL\} className=\{`\$\{styles\.button\} \$\{styles\.primary\}`\}/);
   assert.match(contact, /Connect on LinkedIn/);
+});
+
+test('the welcome page no longer shows the old gmail address', () => {
+  assert.doesNotMatch(page, /austen\.crowder@gmail\.com/);
 });
