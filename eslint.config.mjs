@@ -28,6 +28,7 @@ export default defineConfig([
     '**/.next/**',
     '**/node_modules/**',
     'public/furry-history-board/**',
+    'public/knockthree/vendor/**',
     '.claude/**',
   ]),
 ]);
