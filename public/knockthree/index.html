@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="/knockthree/">
+<title>Knock Three · It Takes a Zoo</title>
+<meta name="description" content="Knock three times and explore the Zoo from Austen Tucker’s novel.">
+<link rel="canonical" href="https://www.thearcades.me/knockthree">
+<style>
+  :root { --amber: #ffb056; --ink: #0d0a08; --paper: #fff4e2; --pink: #ff3fa4; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ink); color: var(--paper);
+    font-family: Georgia, "Iowan Old Style", serif; overflow: hidden; }
+  canvas#view { position: fixed; inset: 0; width: 100%; height: 100%; display: block; outline: none; }
+  #fade { position: fixed; inset: 0; background: #000; opacity: 0; pointer-events: none; transition: opacity .35s; }
+  #fade.on { opacity: 1; }
+
+  #hud { position: fixed; left: 0; right: 0; bottom: 0; padding: 16px; display: flex;
+    flex-direction: column; align-items: center; gap: 10px; pointer-events: none; }
+  #caption { max-width: 46rem; width: 100%; background: rgba(13,10,8,.88); border: 2px solid var(--amber);
+    border-radius: 6px; padding: 12px 18px; }
+  #caption h2 { margin: 0 0 4px; font-size: 1.05rem; letter-spacing: .12em; text-transform: uppercase; color: var(--amber); }
+  #caption p { margin: 0; font-size: 1.25rem; line-height: 1.45; }
+  #say { max-width: 46rem; width: 100%; background: rgba(13,10,8,.92); border-left: 6px solid var(--pink);
+    padding: 10px 18px; font-size: 1.3rem; line-height: 1.45; min-height: 0; }
+  #say:empty { display: none; }
+  #prompt { background: var(--amber); color: var(--ink); font: 700 1.15rem/1 system-ui, sans-serif;
+    padding: 10px 16px; border-radius: 999px; pointer-events: auto; border: 0; cursor: pointer; }
+  #prompt[hidden] { display: none; }
+
+  #keys { position: fixed; top: 12px; left: 12px; background: rgba(13,10,8,.85); border: 1px solid #5a4630;
+    border-radius: 6px; padding: 10px 14px; font: 0.95rem/1.6 system-ui, sans-serif; max-width: 21rem; }
+  #keys[hidden] { display: none; }
+  #keys b { color: var(--amber); }
+  #keys ol { margin: 6px 0 0; padding-left: 1.4em; columns: 2; }
+
+  #login { position: fixed; inset: 0; display: grid; place-items: center; background:
+    radial-gradient(ellipse at 50% 60%, #3a2412 0%, #0d0a08 70%); padding: 24px; overflow: auto; }
+  #login[hidden] { display: none; }
+  #login .card { max-width: 34rem; text-align: left; }
+  #login h1 { font-size: 3.2rem; margin: 0 0 .2em; color: var(--amber); letter-spacing: .04em; }
+  #login p { font-size: 1.2rem; line-height: 1.55; margin: .6em 0; }
+  #login dl { font: 1.05rem/1.7 system-ui, sans-serif; display: grid; grid-template-columns: auto 1fr; gap: 0 14px; margin: 1em 0; }
+  #login dt { color: var(--amber); font-weight: 700; }
+  #login dd { margin: 0; }
+  #login button { font: 700 1.3rem/1 system-ui, sans-serif; background: var(--amber); color: var(--ink);
+    border: 0; border-radius: 999px; padding: 16px 30px; cursor: pointer; margin-top: .6em; }
+  .touch-help { display: none; }
+  @media (pointer: coarse) {
+    #login dl { display: none; }
+    #login .touch-help { display: block; }
+  }
+  button:focus-visible { outline: 4px solid var(--pink); outline-offset: 3px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  @media (max-width: 640px) { #keys { display: none; } #caption p, #say { font-size: 1.05rem; } }
+  @media (prefers-reduced-motion: reduce) { #fade { transition: none; } }
+</style>
+</head>
+<body>
+<canvas id="view" tabindex="0" role="application" aria-label="The Zoo. Arrow keys or W A S D to walk and turn, E to interact, R to hear the room described."></canvas>
+<div id="fade"></div>
+
+<div id="keys" hidden>
+  <b>W S</b> / <b>↑ ↓</b> walk · <b>← →</b> turn · <b>A D</b> sidestep<br>
+  <b>E</b> / <b>Enter</b> interact · <b>F</b> face nearest thing<br>
+  <b>R</b> read the room · <b>M</b> mute · <b>H</b> hide this<br>
+  Click to look with the mouse. Routes:
+  <ol>
+    <li>The door</li><li>Lobby &amp; bar</li><li>Gallery</li><li>Viewing room</li>
+    <li>Upstairs</li><li>Mousehole</li><li>The house</li><li>The yard</li>
+  </ol>
+</div>
+
+<div id="hud">
+  <div id="say" role="status" aria-live="assertive"></div>
+  <button id="prompt" hidden></button>
+  <div id="caption" role="status" aria-live="polite"><h2 id="capTitle"></h2><p id="capText"></p></div>
+</div>
+
+<div id="login">
+  <div class="card">
+    <h1>The Zoo</h1>
+    <p>A place where becoming is protected. Built from <em>It Takes a Zoo</em>.</p>
+    <p>It was made to be heard as much as seen. Wear headphones. Every room speaks when you enter it, and everything in here can be done from the keyboard.</p>
+    <dl>
+      <dt>W S / ↑ ↓</dt><dd>walk</dd>
+      <dt>← →</dt><dd>turn (or click and use the mouse)</dd>
+      <dt>E / Enter</dt><dd>interact — knock, talk, open</dd>
+      <dt>F</dt><dd>turn to face the nearest thing</dd>
+      <dt>R</dt><dd>read the room aloud</dd>
+      <dt>1 – 8</dt><dd>route straight to a room</dd>
+    </dl>
+    <p class="touch-help">Drag on the left to walk and on the right to look. Tap Knock three times at the door.</p>
+    <button id="go" disabled autofocus>Approach the door</button>
+    <p id="load-status" role="status">Opening the Zoo…</p>
+    <noscript>Turn on JavaScript to enter the Zoo.</noscript>
+  </div>
+</div>
+
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+<script type="module">
+  try {
+    await import('./zoo.js');
+    document.getElementById('go').disabled = false;
+    document.getElementById('load-status').hidden = true;
+  } catch (error) {
+    document.getElementById('load-status').textContent =
+      'The 3D room could not open. Try reloading or using a browser with WebGL enabled.';
+    console.error(error);
+  }
+</script>
+</body>
+</html>
