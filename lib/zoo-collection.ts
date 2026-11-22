@@ -28,6 +28,12 @@ const frontmatterSchema = z.object({
   author: z.literal('Austen Tucker'),
   description: z.string().min(1),
   source: z.string().min(1),
+  cover: z.object({
+    url: z.string().min(1),
+    alt: z.string().min(1),
+    width: z.number().int().positive(),
+    height: z.number().int().positive(),
+  }).optional(),
 });
 
 const expected = [
@@ -39,6 +45,7 @@ const expected = [
   ['open-port', 'Open Port'],
   ['failover', 'Failover'],
   ['follower-count', 'Follower Count'],
+  ['kernel-panic', 'Kernel Panic'],
 ] as const;
 
 type Asset = { url: string; sha256: string; bytes: number };
@@ -58,6 +65,7 @@ export type ZooChapter = {
   author: 'Austen Tucker';
   description: string;
   source: string;
+  cover?: Pick<typeof ZOO_HERO, 'url' | 'alt' | 'width' | 'height'>;
   markdown: string;
   wordCount: number;
   readingMinutes: number;
@@ -99,6 +107,7 @@ export function getZooChapter(slug: string) {
 }
 
 export function zooChapterToEditorialPiece(chapter: ZooChapter): EditorialPiece {
+  const cover = chapter.cover ?? ZOO_HERO;
   return {
     id: `zoo:${chapter.slug}`,
     kind: 'story',
@@ -108,7 +117,7 @@ export function zooChapterToEditorialPiece(chapter: ZooChapter): EditorialPiece 
     canonicalPath: chapter.path,
     pdfPath: chapter.pdfPath,
     section: ZOO_COLLECTION_TITLE,
-    image: { src: ZOO_HERO.url, alt: ZOO_HERO.alt },
+    image: { src: cover.url, alt: cover.alt },
     pdfOverrideUrl: chapter.pdfUrl,
     blocks: markdownToEditorialBlocks(chapter.markdown),
   };

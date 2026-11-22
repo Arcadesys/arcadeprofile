@@ -176,7 +176,7 @@ function validatePdf(pdfPath: string, chapter: ChapterDefinition) {
 async function uploadAssets() {
   // Chapter uploads retain the separately approved book cover.
   const { hero } = approvedAssets;
-  const chapters: Record<string, Awaited<ReturnType<typeof uploadFile>>> = {};
+  const chapters: Record<string, Awaited<ReturnType<typeof uploadFile>>> = { ...approvedAssets.chapters };
   for (const chapter of CHAPTERS) {
     const pdfPath = path.join(ZOO_ROOT, chapter.pdfPath ?? `output/pdf/${chapter.slug}.pdf`);
     validatePdf(pdfPath, chapter);

@@ -5,7 +5,7 @@ import test from 'node:test';
 
 import { ZOO_CHAPTERS, ZOO_HERO, zooChapterToEditorialPiece } from './zoo-collection';
 
-test('the collection contains the eight published chapter editions in order', () => {
+test('the collection contains the nine published chapter editions in order', () => {
   assert.deepEqual(ZOO_CHAPTERS.map(({ title, slug, order }) => ({ title, slug, order })), [
     { title: 'Cold Boot', slug: 'cold-boot', order: 1 },
     { title: 'Gallery View', slug: 'gallery-view', order: 2 },
@@ -15,6 +15,7 @@ test('the collection contains the eight published chapter editions in order', ()
     { title: 'Open Port', slug: 'open-port', order: 6 },
     { title: 'Failover', slug: 'failover', order: 7 },
     { title: 'Follower Count', slug: 'follower-count', order: 8 },
+    { title: 'Kernel Panic', slug: 'kernel-panic', order: 9 },
   ]);
 });
 
@@ -24,7 +25,7 @@ test('chapter Markdown is full web text without planning notes or the separate p
     assert.doesNotMatch(chapter.markdown, /^# (?!#)/m);
     assert.doesNotMatch(chapter.markdown, /<!--|<claude>/i);
     assert.doesNotMatch(chapter.markdown, /It takes a Zoo to raise a child,/);
-    assert.match(chapter.pdfUrl, /^(https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\/|\/editions\/follower-count-[a-f0-9]{12}\.pdf$)/);
+    assert.match(chapter.pdfUrl, /^(https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\/|\/editions\/(?:follower-count|kernel-panic)-[a-f0-9]{12}\.pdf$)/);
     assert.match(chapter.pdfSha256, /^[a-f0-9]{64}$/);
   }
   assert.match(ZOO_CHAPTERS[1].markdown, /collections\/it-takes-a-zoo\/gallery-view-artwork/);
@@ -51,6 +52,16 @@ test('the separate opening poem remains linked outside the published chapter edi
   const landing = fs.readFileSync(new URL('../app/(frontend)/novels/it-takes-a-zoo/page.tsx', import.meta.url), 'utf8');
   assert.match(landing, /Read the opening poem/);
   assert.match(landing, /it-takes-a-zoo-to-raise-the-child/);
+});
+
+test('Kernel Panic pairs the chapter-specific cover with its downloadable edition', () => {
+  const chapter = ZOO_CHAPTERS[8];
+  const piece = zooChapterToEditorialPiece(chapter);
+  assert.equal(piece.image?.src, '/images/books/kernel-panic.webp');
+  assert.match(piece.image?.alt ?? '', /Geoff, Jamie, and CeeCee/);
+  assert.ok(fs.existsSync(`public${piece.image?.src}`));
+  const pdf = fs.readFileSync(`public${chapter.pdfUrl}`);
+  assert.equal(createHash('sha256').update(pdf).digest('hex'), chapter.pdfSha256);
 });
 
 test('Follower Count has the current opening, final scene and an exact downloadable PDF', () => {

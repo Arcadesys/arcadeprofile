@@ -196,6 +196,13 @@
   border-radius: .25rem;
 }
 
+.chapterCover {
+  width: min(30vw, 11rem);
+  height: auto;
+  flex: none;
+  border-radius: .25rem;
+}
+
 .readerHeader {
   margin-bottom: 1.5rem;
 }
