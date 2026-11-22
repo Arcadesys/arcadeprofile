@@ -137,6 +137,7 @@ const nextConfig = {
   },
   async rewrites() {
     return [
+      { source: '/knockthree', destination: '/knockthree/index.html' },
       {
         // Keep MCP POSTs on the site origin; clients may reject cross-origin redirects.
         source: '/mcp',
