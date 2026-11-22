@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { ZOO_HERO } from './zoo-collection-meta';
 import { getHomeReadingPicks, getStartReadingShelf } from './reader-discovery';
 
 test('the starting shelf keeps the approved reading order and canonical paths', async () => {
@@ -27,7 +28,7 @@ test('the starting shelf keeps the approved reading order and canonical paths', 
   assert.deepEqual(shelf.map((item) => item.readingMinutes), [38, 30, 7, 8]);
   assert.deepEqual(shelf.map((item) => item.cover?.alt), [
     'Black ink emblem of an android face and cart wheel on cloth-white paper.',
-    'A sheltered open-air virtual bar overlooks a rainy neon city. A low-poly fox and painterly mouse, rabbit, cat, and human share drinks beneath the roof.',
+    ZOO_HERO.alt,
     'Cover of Rabies Capitalism by Austen Tucker: a snarling bull stands on crumbling foundations in a black, ivory, and rust woodcut illustration.',
     "Cover of I Thought I Had a Bad Memory. I Don't. by Austen Tucker: scattered fragments join a continuous ivory ribbon, forming an ordered path against a navy background.",
   ]);
