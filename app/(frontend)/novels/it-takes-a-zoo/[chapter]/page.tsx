@@ -28,19 +28,21 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const chapter = getZooChapter((await params).chapter);
   if (!chapter) return {};
+  const cover = chapter.cover ?? ZOO_HERO;
   const title = `${chapter.title} | ${ZOO_COLLECTION_TITLE}`;
   return {
     title,
     description: chapter.description,
     alternates: { canonical: chapter.path },
-    openGraph: { type: 'article', title: `${title} | ${SITE_NAME}`, description: chapter.description, url: chapter.path, images: [{ url: ZOO_HERO.url, alt: ZOO_HERO.alt }] },
-    twitter: { card: 'summary_large_image', title, description: chapter.description, images: [ZOO_HERO.url] },
+    openGraph: { type: 'article', title: `${title} | ${SITE_NAME}`, description: chapter.description, url: chapter.path, images: [{ url: cover.url, alt: cover.alt }] },
+    twitter: { card: 'summary_large_image', title, description: chapter.description, images: [cover.url] },
   };
 }
 
 export default async function ZooChapterPage({ params }: Props) {
   const chapter = getZooChapter((await params).chapter);
   if (!chapter) notFound();
+  const cover = chapter.cover ?? ZOO_HERO;
   const previous = ZOO_CHAPTERS[chapter.order - 2];
   const next = ZOO_CHAPTERS[chapter.order];
   const pageUrl = `${SITE_URL}${chapter.path}`;
@@ -72,8 +74,8 @@ export default async function ZooChapterPage({ params }: Props) {
               <p className={styles.eyebrow}>Chapter {chapter.order} of {ZOO_CHAPTERS.length}</p>
               <h1>{chapter.title}</h1>
             </div>
-            {chapter.slug === 'follower-count' && (
-              <Image className={styles.chapterThumb} src={ZOO_HERO.url} alt="" width={ZOO_HERO.width} height={ZOO_HERO.height} sizes="88px" />
+            {(chapter.cover || chapter.slug === 'follower-count') && (
+              <Image className={chapter.cover ? styles.chapterCover : styles.chapterThumb} src={cover.url} alt={chapter.cover?.alt ?? ''} width={cover.width} height={cover.height} sizes={chapter.cover ? "(max-width: 600px) 30vw, 176px" : "88px"} />
             )}
           </div>
           <p className={styles.byline}>By Austen Tucker</p>

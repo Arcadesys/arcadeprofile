@@ -3,12 +3,12 @@ import test from 'node:test';
 import { getReadingCatalog } from './reading-catalog';
 import { recommendedPieces } from './reading-continuity';
 
-test('the unified catalog gives the final Zoo chapter cross-family recommendations and portfolio reading', async () => {
+test('the unified catalog gives Follower Count cross-family recommendations and portfolio reading', async () => {
   const catalog = await getReadingCatalog();
-  const finalZoo = catalog.find((piece) => piece.canonicalPath === '/novels/it-takes-a-zoo/follower-count')!;
+  const followerCount = catalog.find((piece) => piece.canonicalPath === '/novels/it-takes-a-zoo/follower-count')!;
   const portfolio = catalog.find((piece) => piece.canonicalPath === '/portfolio/gallery-view')!;
-  assert.ok(finalZoo && portfolio);
-  assert.deepEqual(recommendedPieces(finalZoo, catalog).map((piece) => piece.canonicalPath), ['/this-is-what-i-do-for-fun/carl', '/this-is-what-i-do-for-fun/cleanup-on-pod-six']);
+  assert.ok(followerCount && portfolio);
+  assert.deepEqual(recommendedPieces(followerCount, catalog).map((piece) => piece.canonicalPath), ['/this-is-what-i-do-for-fun/carl', '/this-is-what-i-do-for-fun/cleanup-on-pod-six']);
   assert.equal(recommendedPieces(portfolio, catalog).length, 2);
 });
 

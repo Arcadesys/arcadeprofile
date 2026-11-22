@@ -56,6 +56,11 @@
       "url": "/editions/follower-count-cad92fb78c2d.pdf",
       "sha256": "cad92fb78c2d5d970a2f6eeb0830e101fad5dbc29ff067b00569c7d377c6921c",
       "bytes": 1854979
+    },
+    "kernel-panic": {
+      "url": "/editions/kernel-panic-ee2997ac7d65.pdf",
+      "sha256": "ee2997ac7d655aafe7fe67d985ad3e54c9ce82f9fb565d66090c4cbc22835547",
+      "bytes": 279733
     }
   }
 }
