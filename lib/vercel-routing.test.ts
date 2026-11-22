@@ -11,11 +11,12 @@ test('Vercel preserves Next-generated routing and redirects', () => {
   assert.equal(config.routes, undefined);
 });
 
-test('Next exposes the public MCP proxy and the Furry History Board app at their public URLs', async () => {
+test('Next exposes the Zoo, public MCP proxy, and Furry History Board at their public URLs', async () => {
   const configModule = await import('../next.config.mjs');
   const rewrites = await configModule.default.rewrites?.();
 
   assert.deepEqual(rewrites, [
+    { source: '/knockthree', destination: '/knockthree/index.html' },
     {
       source: '/mcp',
       destination: 'https://arcades-public-mcp.vercel.app/mcp',
