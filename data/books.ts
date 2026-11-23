@@ -218,6 +218,12 @@ export const HOME_BOOK_SLUGS = [
   'bait-and-switch',
 ] as const;
 
+/** Most recent stated release dates first; books without dates follow. */
+export function booksByReleaseDate(books: readonly BookInfo[]): BookInfo[] {
+  const key = (book: BookInfo) => book.releaseDate ?? (book.releaseYear ? `${book.releaseYear}-00-00` : '');
+  return [...books].sort((a, b) => key(b).localeCompare(key(a)));
+}
+
 const BOOK_BY_SLUG = new Map(BOOKS.map((book) => [book.slug, book]));
 
 export function getBook(slug: string): BookInfo | undefined {

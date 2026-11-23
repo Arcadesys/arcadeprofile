@@ -18,10 +18,11 @@ function declarationsFor(selector: string): Record<string, string> {
   return values;
 }
 
-test('there are at most four doors, each a single link with an Enter line', () => {
+test('the Read hub links to the book catalog and keeps its doors accessible', () => {
   const page = read('app/(frontend)/writing/page.tsx');
   const doors = page.match(/\{ title: '[^']+', href: '[^']+', description: /g) ?? [];
-  assert.ok(doors.length >= 1 && doors.length <= 4, 'a fifth section means the hub needs regrouping, not a third row');
+  assert.equal(doors.length, 5);
+  assert.match(page, /title: 'Books', href: '\/books'/);
   assert.match(page, /<em>Enter <span aria-hidden="true">→<\/span><\/em>/);
 });
 

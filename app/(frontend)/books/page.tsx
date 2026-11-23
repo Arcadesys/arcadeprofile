@@ -7,10 +7,10 @@ import { SITE_NAME } from '@/lib/site-brand';
 import { SITE_URL } from '@/lib/site-url';
 import {
   BOOKS,
+  booksByReleaseDate,
   bookPath,
   bookStatusLabel,
   type BookInfo,
-  type BookSection,
 } from '@/data/books';
 
 import styles from './books.module.css';
@@ -34,38 +34,6 @@ export const metadata: Metadata = {
     description,
   },
 };
-
-const sections: readonly {
-  id: BookSection;
-  title: string;
-  description: string;
-}[] = [
-  {
-    id: 'current',
-    title: 'Available now',
-    description: 'The current Free Play Publishing shelf.',
-  },
-  {
-    id: 'next',
-    title: 'Coming next',
-    description: 'The next title on the publishing runway.',
-  },
-  {
-    id: '2027',
-    title: '2027',
-    description: 'New Ink and Paint Trilogy editions and It Takes a Zoo.',
-  },
-  {
-    id: 'development',
-    title: 'In development',
-    description: 'Further down the runway. These pages stay put while the books take shape.',
-  },
-  {
-    id: 'backlist',
-    title: 'Backlist',
-    description: 'Earlier editions and their current availability.',
-  },
-];
 
 function Cover({ book }: { book: BookInfo }) {
   return (
@@ -122,6 +90,7 @@ function BookCard({ book }: { book: BookInfo }) {
 }
 
 export default function BooksPage() {
+  const books = booksByReleaseDate(BOOKS);
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -131,7 +100,7 @@ export default function BooksPage() {
     author: { '@id': `${SITE_URL}/#person` },
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: BOOKS.map((book, index) => ({
+      itemListElement: books.map((book, index) => ({
         '@type': 'ListItem',
         position: index + 1,
         name: book.title,
@@ -162,21 +131,15 @@ export default function BooksPage() {
           </p>
         </header>
 
-        {sections.map((section) => {
-          const sectionBooks = BOOKS.filter((book) => book.section === section.id);
-          if (!sectionBooks.length) return null;
-          return (
-            <section className={styles.section} key={section.id} aria-labelledby={`books-${section.id}`}>
-              <div className={styles.sectionHeader}>
-                <h2 id={`books-${section.id}`}>{section.title}</h2>
-                <p>{section.description}</p>
-              </div>
-              <div className={styles.grid}>
-                {sectionBooks.map((book) => <BookCard key={book.slug} book={book} />)}
-              </div>
-            </section>
-          );
-        })}
+        <section className={styles.section} aria-labelledby="books-all">
+          <div className={styles.sectionHeader}>
+            <h2 id="books-all">All books</h2>
+            <p>Newest stated release dates first. Books without a date follow.</p>
+          </div>
+          <div className={styles.grid}>
+            {books.map((book) => <BookCard key={book.slug} book={book} />)}
+          </div>
+        </section>
       </div>
     </main>
   );

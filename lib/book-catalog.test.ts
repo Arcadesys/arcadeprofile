@@ -2,9 +2,18 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import test from 'node:test';
 
-import { BOOKS, HOME_BOOKS, bookStatusLabel, getBook } from '../data/books';
+import { BOOKS, HOME_BOOKS, booksByReleaseDate, bookStatusLabel, getBook } from '../data/books';
 import { bookJsonLd } from './book-schema';
 import { COLLECTION } from './collection';
+
+test('books sort by stated release date descending, with undated books last', () => {
+  const sorted = booksByReleaseDate(BOOKS);
+  assert.equal(sorted.length, BOOKS.length);
+  assert.deepEqual(sorted.slice(0, 4).map((book) => book.releaseYear), [2028, 2028, 2027, 2027]);
+  assert.ok(sorted.indexOf(getBook('estelles-children')!) < sorted.indexOf(getBook('this-is-what-i-do-for-fun')!));
+  assert.ok(sorted.indexOf(getBook('the-painted-cat')!) < sorted.indexOf(getBook('bait-and-switch')!));
+  assert.ok(sorted.slice(-2).every((book) => !book.releaseYear && !book.releaseDate));
+});
 
 test('the eight-story book sells Kindle first and keeps the seven free stories separate', () => {
   const book = getBook('this-is-what-i-do-for-fun')!;
