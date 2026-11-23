@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import test from 'node:test';
 
-import { BOOKS, HOME_BOOKS, booksByReleaseDate, bookStatusLabel, getBook } from '../data/books';
+import { BOOKS, HOME_BOOKS, booksByAvailability, booksByReleaseDate, bookStatusLabel, getBook } from '../data/books';
 import { bookJsonLd } from './book-schema';
 import { COLLECTION } from './collection';
 
@@ -13,6 +13,17 @@ test('books sort by stated release date descending, with undated books last', ()
   assert.ok(sorted.indexOf(getBook('estelles-children')!) < sorted.indexOf(getBook('this-is-what-i-do-for-fun')!));
   assert.ok(sorted.indexOf(getBook('the-painted-cat')!) < sorted.indexOf(getBook('bait-and-switch')!));
   assert.ok(sorted.slice(-2).every((book) => !book.releaseYear && !book.releaseDate));
+});
+
+test('released books precede upcoming books, with newest releases and nearest upcoming dates first', () => {
+  const { released, upcoming } = booksByAvailability(BOOKS);
+  assert.deepEqual(released.map((book) => book.slug), [
+    'this-is-what-i-do-for-fun', 'the-painted-cat', 'bait-and-switch', 'a-fuzzy-place', 'closet-cats',
+  ]);
+  assert.deepEqual(upcoming.map((book) => book.slug), [
+    'estelles-children', 'the-two-flat-cats', 'it-takes-a-zoo', 'butterfly-exe', 'the-witch-who-sold-the-world',
+  ]);
+  assert.equal(released.length + upcoming.length, BOOKS.length);
 });
 
 test('the eight-story book sells Kindle first and keeps the seven free stories separate', () => {

@@ -7,7 +7,7 @@ import { SITE_NAME } from '@/lib/site-brand';
 import { SITE_URL } from '@/lib/site-url';
 import {
   BOOKS,
-  booksByReleaseDate,
+  booksByAvailability,
   bookPath,
   bookStatusLabel,
   type BookInfo,
@@ -90,7 +90,8 @@ function BookCard({ book }: { book: BookInfo }) {
 }
 
 export default function BooksPage() {
-  const books = booksByReleaseDate(BOOKS);
+  const { released, upcoming } = booksByAvailability(BOOKS);
+  const books = [...released, ...upcoming];
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -131,13 +132,22 @@ export default function BooksPage() {
           </p>
         </header>
 
-        <section className={styles.section} aria-labelledby="books-all">
+        <section className={styles.section} aria-labelledby="books-released">
           <div className={styles.sectionHeader}>
-            <h2 id="books-all">All books</h2>
-            <p>Newest stated release dates first. Books without a date follow.</p>
+            <h2 id="books-released">Released books</h2>
+            <p>Newest releases first. Books without a release date follow.</p>
           </div>
           <div className={styles.grid}>
-            {books.map((book) => <BookCard key={book.slug} book={book} />)}
+            {released.map((book) => <BookCard key={book.slug} book={book} />)}
+          </div>
+        </section>
+        <section className={styles.section} aria-labelledby="books-upcoming">
+          <div className={styles.sectionHeader}>
+            <h2 id="books-upcoming">Upcoming books</h2>
+            <p>Forthcoming books and works in development, with the nearest dates first.</p>
+          </div>
+          <div className={styles.grid}>
+            {upcoming.map((book) => <BookCard key={book.slug} book={book} />)}
           </div>
         </section>
       </div>

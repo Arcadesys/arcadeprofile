@@ -218,10 +218,23 @@ export const HOME_BOOK_SLUGS = [
   'bait-and-switch',
 ] as const;
 
+const releaseDateKey = (book: BookInfo) => book.releaseDate ?? (book.releaseYear ? `${book.releaseYear}-00-00` : '');
+
 /** Most recent stated release dates first; books without dates follow. */
 export function booksByReleaseDate(books: readonly BookInfo[]): BookInfo[] {
-  const key = (book: BookInfo) => book.releaseDate ?? (book.releaseYear ? `${book.releaseYear}-00-00` : '');
-  return [...books].sort((a, b) => key(b).localeCompare(key(a)));
+  return [...books].sort((a, b) => releaseDateKey(b).localeCompare(releaseDateKey(a)));
+}
+
+export function booksByAvailability(books: readonly BookInfo[]) {
+  const released = books.filter((book) => book.stage === 'available' || book.stage === 'out-of-print');
+  const upcoming = books.filter((book) => book.stage === 'forthcoming' || book.stage === 'development');
+  const datedUpcoming = upcoming.filter((book) => releaseDateKey(book))
+    .sort((a, b) => releaseDateKey(a).localeCompare(releaseDateKey(b)));
+
+  return {
+    released: booksByReleaseDate(released),
+    upcoming: [...datedUpcoming, ...upcoming.filter((book) => !book.releaseDate && !book.releaseYear)],
+  };
 }
 
 const BOOK_BY_SLUG = new Map(BOOKS.map((book) => [book.slug, book]));
