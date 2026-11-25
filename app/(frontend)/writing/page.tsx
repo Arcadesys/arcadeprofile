@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 
 const doors = [
   { title: 'Fiction', href: '/stories', description: 'Stories, serial work, and downloadable editions.' },
+  { title: 'Books', href: '/books', description: 'All my books: available now, forthcoming, and backlist.' },
   { title: 'Essays', href: '/essays', description: 'Notes on creativity, access, technology, and being human.' },
   { title: 'Queer Columns', href: '/queercolumns', description: 'A monthly column on trans life, queer history, and the policies that shape our lives.' },
   { title: 'Bookshelf', href: '/bookshelf', description: 'Books and publications beyond this workshop.' },
